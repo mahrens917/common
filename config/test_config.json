@@ -1,0 +1,6 @@
+{
+  "pipeline_data": {
+    "mode": "synthetic",
+    "allow_stub_fallback": true
+  }
+}

@@ -1,0 +1,254 @@
+# =============================================================================
+# Repository-Specific Tool Configurations
+# =============================================================================
+# These are repo-specific and not standardized across repositories
+# =============================================================================
+
+[tool.black]
+line-length = 100
+target-version = ["py312"]
+exclude = "\n(\n  /snapshots/\n)\n"
+
+[tool.isort]
+profile = "black"
+line_length = 100
+src_paths = ["src", "tests"]
+filter_files = true
+skip_glob = ["snapshots/*"]
+
+[tool.deptry]
+known_first_party = ["src", "scripts", "config", "common"]
+requirements_files = ["requirements.txt"]
+requirements_files_dev = ["scripts/requirements.txt"]
+extend_exclude = [".legacy_backup", "ci_shared", "ci_tools"]
+per_rule_ignores = { DEP002 = ["lxml", "coverage"] }
+
+# =============================================================================
+# Standardized Tool Configurations
+# =============================================================================
+# These [tool.*] sections are standardized across all repositories (zeus,
+# kalshi, aws, ci_shared) to ensure consistent CI behavior.
+#
+# Source of truth: ci_shared/shared-tool-config.toml
+#
+# To validate: python -m ci_tools.scripts.tool_config_guard
+# To sync: python -m ci_tools.scripts.tool_config_guard --sync
+# =============================================================================
+
+[tool.bandit]
+exclude_dirs = [
+    "/vendor/",
+    "/.venv/",
+    "/venv/",
+    "/artifacts/",
+    "/trash/",
+    "/models/",
+    "/logs/",
+]
+skips = [
+    "B101",
+    "B301",
+    "B403",
+    "B105",
+    "B106",
+    "B107",
+    "B108",
+    "B110",
+    "B311",
+    "B404",
+    "B603",
+    "B607",
+    "B608",
+]
+
+[tool.coverage]
+
+[tool.coverage.report]
+omit = [
+    "**/__init__.py",
+    "*helpers/__init__.py",
+    "*/_module_references.py",
+]
+
+[tool.coverage.run]
+omit = [
+    "*/vendor/*",
+    "*/__main__.py",
+    "**/__init__.py",
+    "tests/*",
+    "*/tests/*",
+    "*_test_*.py",
+    "*/dependency_injector/*.pyx",
+    "*/dependency_injector/**/*.pyx",
+    "*/site-packages/*",
+    "*helpers/__init__.py",
+    "*/_module_references.py",
+]
+
+[tool.pylint]
+
+[tool.pylint.BASIC]
+method-rgx = "([a-z_][a-z0-9_]*|visit_[A-Z][A-Za-z]*)"
+
+[tool.pylint.MAIN]
+init-hook = "import sys; sys.path.insert(0, 'tests')"
+
+[tool.pylint.SIMILARITIES]
+min-similarity-lines = 7
+
+[tool.pylint.design]
+max-args = 7
+max-positional-arguments = 7
+
+[tool.pylint.messages_control]
+disable = "too-few-public-methods"
+
+[tool.pyright]
+pythonVersion = "3.12"
+reportArgumentType = "warning"
+reportAssertAlwaysTrue = "warning"
+reportAssignmentType = "warning"
+reportAttributeAccessIssue = "warning"
+reportCallInDefaultInitializer = "none"
+reportCallIssue = "warning"
+reportDuplicateImport = "error"
+reportFunctionMemberAccess = "warning"
+reportGeneralTypeIssues = "error"
+reportImplicitStringConcatenation = "none"
+reportIncompleteStub = "none"
+reportIndexIssue = "warning"
+reportInvalidStubStatement = "warning"
+reportInvalidTypeVarUse = "warning"
+reportMissingImports = "error"
+reportMissingModuleSource = "none"
+reportMissingTypeStubs = "none"
+reportOperatorIssue = "warning"
+reportOptionalCall = "warning"
+reportOptionalContextManager = "warning"
+reportOptionalIterable = "warning"
+reportOptionalMemberAccess = "warning"
+reportOptionalOperand = "warning"
+reportOptionalSubscript = "warning"
+reportPrivateUsage = "none"
+reportPropertyTypeMismatch = "warning"
+reportReturnType = "warning"
+reportSelfClsParameterName = "warning"
+reportUnboundVariable = "error"
+reportUndefinedVariable = "error"
+reportUninitializedInstanceVariable = "none"
+reportUnnecessaryCast = "warning"
+reportUnnecessaryComparison = "warning"
+reportUnnecessaryIsInstance = "warning"
+reportUntypedBaseClass = "none"
+reportUntypedClassDecorator = "none"
+reportUntypedFunctionDecorator = "none"
+reportUntypedNamedTuple = "warning"
+reportUnusedImport = "error"
+reportUnusedVariable = "error"
+typeCheckingMode = "basic"
+
+[tool.pytest]
+
+[tool.pytest.ini_options]
+addopts = [
+    "-q",
+    "--tb=no",
+    "--strict-markers",
+    "--strict-config",
+    "--durations=10",
+    "--durations-min=0.1",
+    "-rEw",
+    "-p",
+    "pytest_asyncio",
+    "-p",
+    "no:jaxtyping",
+]
+asyncio_default_fixture_loop_scope = "session"
+asyncio_default_test_loop_scope = "session"
+asyncio_mode = "auto"
+consider_namespace_packages = true
+env = [
+    "PYTHONDONTWRITEBYTECODE=1",
+    "REDIS_HOST=localhost",
+    "REDIS_PORT=6379",
+    "REDIS_DB=0",
+    "REDIS_PASSWORD=",
+    "REDIS_SSL=false",
+    "REDIS_RETRY_ON_TIMEOUT=false",
+    "REDIS_SOCKET_TIMEOUT=30",
+    "REDIS_SOCKET_CONNECT_TIMEOUT=30",
+]
+filterwarnings = [
+    "ignore::DeprecationWarning",
+    "ignore::PendingDeprecationWarning",
+    "ignore:The optimal value found.*is close to the specified.*bound.*:UserWarning",
+    "ignore::pytest.PytestUnraisableExceptionWarning",
+    "ignore::ResourceWarning",
+    "ignore::UserWarning:sklearn",
+    "ignore::FutureWarning:sklearn",
+    "ignore::FutureWarning",
+]
+junit_duration_report = "total"
+junit_family = "xunit2"
+markers = [
+    "unit: Unit tests - fast, isolated tests (< 1 second each)",
+    "integration: Integration tests - test component interactions (< 15 seconds each)",
+    "e2e: End-to-end tests - full system tests (< 2 minutes each)",
+    "slow: Tests that take longer to run (> 1 second)",
+    "fast: Fast running tests (< 1 second)",
+    "redis: Tests requiring Redis connection",
+    "external: Tests requiring external services",
+    "performance: Performance-critical tests with timing requirements",
+    "parallel_safe: Tests explicitly verified safe for parallel execution (unused in sequential mode)",
+    "sequential_only: Tests that must run sequentially (now default behavior)",
+]
+norecursedirs = [
+    "tests/manual",
+]
+python_classes = [
+    "Test*",
+]
+python_files = [
+    "test_*.py",
+]
+python_functions = [
+    "test_*",
+]
+pythonpath = [
+    "src",
+]
+testpaths = [
+    "tests",
+]
+timeout = 30
+timeout_method = "thread"
+
+[tool.ruff]
+extend-exclude = [
+    "ci_tools/vendor",
+]
+
+[tool.ruff.lint]
+ignore = [
+    "TRY003",
+]
+select = [
+    "TRY",
+    "C90",
+    "PLR",
+]
+
+[tool.ruff.lint.mccabe]
+max-complexity = 10
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**" = [
+    "TRY002",
+    "TRY203",
+    "PLR2004",
+]
+
+[tool.ruff.lint.pylint]
+max-args = 7
+max-branches = 10
+max-statements = 50

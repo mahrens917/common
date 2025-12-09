@@ -1,0 +1,163 @@
+{
+  "description": "Constants used in test assertions and test data setup",
+  "assertion_counts": {
+    "min_expected_count": 2,
+    "typical_expected_count": 3,
+    "medium_expected_count": 4,
+    "standard_expected_count": 5,
+    "moderate_expected_count": 6,
+    "good_expected_count": 7,
+    "high_expected_count": 8,
+    "very_high_expected_count": 9,
+    "double_digit_count": 10,
+    "count_eleven": 11,
+    "dozen_count": 12,
+    "baker_dozen_count": 13,
+    "fifteen_count": 15,
+    "twenty_count": 20,
+    "twenty_five_count": 25,
+    "thirty_count": 30,
+    "forty_count": 40,
+    "forty_five_count": 45,
+    "fifty_count": 50,
+    "sixty_count": 60,
+    "seventy_five_count": 75,
+    "ninety_count": 90,
+    "ninety_nine_count": 99,
+    "hundred_count": 100,
+    "hundred_twenty_count": 120,
+    "two_hundred_count": 200,
+    "two_fifty_count": 250,
+    "three_hundred_count": 300,
+    "four_hundred_count": 400,
+    "five_hundred_count": 500,
+    "nine_hundred_count": 900,
+    "thousand_count": 1000,
+    "two_thousand_count": 2000,
+    "four_thousand_count": 4000,
+    "ten_thousand_count": 10000
+  },
+  "test_identifiers": {
+    "test_id_small": 42,
+    "test_id_medium": 123,
+    "test_id_large": 987654,
+    "test_id_big": 12345,
+    "test_id_huge": 123456,
+    "test_order_id": 1000000123
+  },
+  "test_probabilities": {
+    "prob_very_low": 0.01,
+    "prob_low": 0.02,
+    "prob_minimal": 0.03,
+    "prob_small": 0.05,
+    "prob_tenth": 0.1,
+    "prob_fifth": 0.2,
+    "prob_quarter": 0.25,
+    "prob_third": 0.3,
+    "prob_slightly_above_third": 0.33,
+    "prob_two_fifths": 0.4,
+    "prob_forty_two_percent": 0.42,
+    "prob_forty_five_percent": 0.45,
+    "prob_half": 0.5,
+    "prob_fifty_five_percent": 0.55,
+    "prob_fifty_eight_percent": 0.58,
+    "prob_three_fifths": 0.6,
+    "prob_seventy_percent": 0.7,
+    "prob_seventy_three_percent": 0.73,
+    "prob_ninety_percent": 0.9
+  },
+  "test_prices": {
+    "price_tiny": 0.01,
+    "price_low": 5.0,
+    "price_medium": 10.0,
+    "price_standard": 12.5,
+    "price_high": 42.5,
+    "price_very_high": 50.0,
+    "price_hundred": 100.0,
+    "price_hundred_one": 101.0,
+    "price_hundred_one_half": 101.5,
+    "price_hundred_two_half": 102.5,
+    "price_thousand": 1000.0,
+    "price_twelve_hundred": 1234.0,
+    "price_twelve_hundred_fifty": 12345.0,
+    "price_fifteen_hundred": 1500.0,
+    "strike_forty_nine_k": 49000,
+    "strike_fifty_one_k": 51000,
+    "price_two_thousand": 2000.0,
+    "price_twenty_thousand": 20000.0,
+    "price_thirty_five_hundred": 3500.0,
+    "price_one_sixty": 160.0
+  },
+  "test_temperatures": {
+    "temp_freezing_f": 32.0,
+    "temp_very_cold_f": 40.0,
+    "temp_cold_f": 45.0,
+    "temp_cool_f": 55.0,
+    "temp_mild_f": 60.0,
+    "temp_comfortable_f": 68.0,
+    "temp_warm_f": 70.0,
+    "temp_very_warm_f": 72.0,
+    "temp_hot_f": 72.5,
+    "temp_very_hot_f": 75.0,
+    "temp_high_f": 77.0,
+    "temp_very_high_f": 80.0,
+    "temp_extremely_hot_f": 85.0,
+    "temp_eleven_c": 11.0,
+    "temp_twelve_c": 12.0,
+    "temp_thirteen_c": 13.0,
+    "temp_fifteen_c": 15.0,
+    "temp_twenty_c": 20.0,
+    "temp_twenty_five_c": 25.0,
+    "temp_thirty_c": 30.0,
+    "temp_forty_two_f": 42.0,
+    "temp_forty_five_f": 45.0
+  },
+  "test_timestamps": {
+    "timestamp_2024": 1692532800,
+    "timestamp_large": 1700000000,
+    "timestamp_very_large": 1760000000,
+    "timestamp_huge": 1900000000
+  },
+  "test_years": {
+    "year_2024": 2024,
+    "year_2025": 2025,
+    "year_2099": 2099
+  },
+  "test_tolerances": {
+    "tolerance_nano": 1e-9,
+    "tolerance_micro": 1e-6,
+    "tolerance_small": 1e-4
+  },
+  "test_dimensions": {
+    "dimension_small": 2048,
+    "dimension_large": 2048.0
+  },
+  "test_http_status": {
+    "status_ok": 200,
+    "status_bad_request": 400,
+    "status_service_unavailable": 503
+  },
+  "test_intervals_seconds": {
+    "interval_very_short": 2,
+    "interval_short": 5,
+    "interval_medium": 10,
+    "interval_long": 30,
+    "interval_minute": 60,
+    "interval_two_minutes": 120,
+    "interval_negative": -2
+  },
+  "test_strike_values": {
+    "strike_low_temp": 299,
+    "strike_mid_temp": 300,
+    "strike_high_temp": 301
+  },
+  "test_bid_ask_spread": {
+    "spread_price_low": 150,
+    "spread_price_high": 250
+  },
+  "test_misc": {
+    "offset_negative_200": -200,
+    "value_999": 999,
+    "value_150k": 15000
+  }
+}

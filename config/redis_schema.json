@@ -1,0 +1,38 @@
+{
+  "deribit": {
+    "market_prefix": "markets:deribit",
+    "spot_prefix": "markets:deribit:spot",
+    "spot_segment": "markets:deribit:spot:segment",
+    "gp_surface_prefix": "deribit:gp_surface",
+    "gp_metadata_key": "deribit:gp_surface:metadata",
+    "subscriptions_key": "deribit:subscriptions",
+    "instrument_lookup_key": "markets:deribit:instrument_lookup"
+  },
+  "kalshi": {
+    "market_prefix": "markets:kalshi",
+    "weather_prefix": "markets:kalshi:weather",
+    "subscriptions_key": "kalshi:subscriptions",
+    "subscription_ids_key": "kalshi:subscription_ids:ws",
+    "trading_active_key": "kalshi:trading_active",
+    "exchange_active_key": "kalshi:exchange_active"
+  },
+  "weather": {
+    "station_prefix": "weather:station",
+    "station_history_prefix": "weather:station_history",
+    "station_mapping_key": "weather:station_mapping",
+    "forecast_prefix": "weather:forecast",
+    "features_prefix": "weather:features",
+    "rule_4_trigger_suffix": "rule_4_triggered"
+  },
+  "pdf": {
+    "phase4_filters_key": "pdf:phase4_filters"
+  },
+  "monitoring": {
+    "status_prefix": "status",
+    "history_prefix": "history",
+    "monitor_jobs_prefix": "monitor:jobs"
+  },
+  "cfb": {
+    "price_prefix": "cfb"
+  }
+}

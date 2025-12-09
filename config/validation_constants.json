@@ -1,0 +1,106 @@
+{
+  "_description": "Constants for validation logic across the codebase",
+
+  "api_response": {
+    "sentinel_invalid_value": -1000000000,
+    "http_success_min": 200,
+    "http_success_max": 400,
+    "http_ok": 200
+  },
+
+  "confidence_thresholds": {
+    "min_confidence": 0.1,
+    "min_probability": 0.01,
+    "price_epsilon": 0.001
+  },
+
+  "date_validation": {
+    "max_reasonable_year": 2050,
+    "min_reasonable_year": 2020,
+    "max_year_bound": 2099,
+    "two_digit_year_cutoff": 50
+  },
+
+  "retry_limits": {
+    "max_retry_attempts": 3,
+    "max_classification_retries": 3,
+    "max_network_retries": 3
+  },
+
+  "field_counts": {
+    "min_strike_components": 2,
+    "ticker_min_parts": 2,
+    "key_min_parts": 2,
+    "expected_parts": 4,
+    "kalshi_key_parts": 5,
+    "deribit_key_parts": 7
+  },
+
+  "network_thresholds": {
+    "excellent_success_count": 10,
+    "excellent_success_rate": 0.9,
+    "good_success_count": 30,
+    "good_failure_rate": 0.7,
+    "moderate_success_count": 20,
+    "moderate_success_rate": 0.8,
+    "degraded_count": 15,
+    "degraded_rate": 0.85
+  },
+
+  "time_constants": {
+    "hours_per_day": 24,
+    "days_per_week": 7,
+    "seconds_per_minute": 60,
+    "decimal_places_precision": 4
+  },
+
+  "data_integrity": {
+    "max_trend_points": 10,
+    "min_metrics_count": 5,
+    "surface_min_points": 6,
+    "max_strike_delta": 50
+  },
+
+  "temperature_bounds": {
+    "min_temperature_f": -200,
+    "max_temperature_f": 200,
+    "min_reasonable_temp_f": -90,
+    "max_reasonable_temp_f": 90
+  },
+
+  "coordinate_bounds": {
+    "min_latitude": -90,
+    "max_latitude": 90,
+    "min_longitude": -180,
+    "max_longitude": 180
+  },
+
+  "metrics": {
+    "rate_limiter_percentile": 50,
+    "display_threshold": 5.0
+  },
+
+  "timestamp_conversion": {
+    "nanosecond_threshold": 10000000000
+  },
+
+  "string_length": {
+    "min_ticker_length": 3,
+    "min_expiry_token_length": 5,
+    "icao_code_length": 4,
+    "kalshi_key_parts": 4,
+    "deribit_option_parts": 4,
+    "min_data_length": 2
+  },
+
+  "error_thresholds": {
+    "max_error_rate": 0.1,
+    "max_fee_percentage": 10
+  },
+
+  "collection_size": {
+    "min_data_points_for_analysis": 2,
+    "min_metrics_for_summary": 3,
+    "max_string_display_length": 50
+  }
+}

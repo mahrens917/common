@@ -1,0 +1,61 @@
+{
+  "common": {
+    "empty_data": "Empty data received",
+    "missing_field": "Missing required field: {field}",
+    "invalid_value": "Invalid value for {field}: {value}",
+    "connection_failed": "Connection failed to {service}",
+    "timeout": "Operation timed out after {duration}",
+    "not_found": "{entity} not found: {identifier}",
+    "validation_failed": "Validation failed: {reason}",
+    "parse_error": "Failed to parse {entity}: {details}"
+  },
+  "cfb": {
+    "empty_html": "Empty HTML content for {currency}",
+    "price_not_found": "Could not find price in HTML for {currency}",
+    "price_parse_failed": "Could not parse price from text: {text}",
+    "price_text_empty": "Price text is empty",
+    "price_unexpected_chars": "Price contains unexpected characters: {text}",
+    "price_not_positive": "Parsed price is not positive: {price}",
+    "error_indicator_detected": "Error indicator '{indicator}' detected in HTML for {currency}",
+    "invalid_html": "HTML is invalid for {currency}",
+    "missing_config": "{config_key} missing in base PDF config",
+    "no_valid_price": "No valid price found for {currency}",
+    "tolerance_exceeded": "Price tolerance exceeded: {details}",
+    "window_too_small": "Insufficient data points in window: {count}"
+  },
+  "pdf": {
+    "missing_spot_price": "Missing spot price for {currency}",
+    "missing_futures_data": "Missing futures data for {currency}",
+    "empty_order_book": "Order book is empty for {ticker}",
+    "invalid_strike": "Invalid strike price: {strike}",
+    "curve_building_failed": "Failed to build futures curve: {reason}",
+    "gp_fit_failed": "GP fit failed: {reason}",
+    "surface_incomplete": "Surface incomplete for {expiry}",
+    "no_valid_options": "No valid options found for {category}",
+    "interpolation_failed": "Interpolation failed at {point}",
+    "negative_probability": "Negative probability detected at {point}"
+  },
+  "kalshi": {
+    "api_error": "Kalshi API error: {message}",
+    "websocket_disconnected": "WebSocket disconnected: {reason}",
+    "authentication_failed": "Authentication failed",
+    "invalid_ticker": "Invalid ticker format: {ticker}",
+    "market_not_found": "Market not found: {ticker}",
+    "order_failed": "Order placement failed: {reason}",
+    "subscription_failed": "Subscription failed for {channel}"
+  },
+  "weather": {
+    "station_not_found": "Weather station not found: {icao}",
+    "invalid_metar": "Invalid METAR data: {data}",
+    "data_source_unavailable": "Data source unavailable: {source}",
+    "parsing_failed": "METAR parsing failed: {reason}",
+    "invalid_temperature": "Invalid temperature value: {value}"
+  },
+  "redis": {
+    "connection_failed": "Redis connection failed",
+    "key_not_found": "Redis key not found: {key}",
+    "invalid_data_type": "Invalid data type for key {key}: expected {expected}, got {actual}",
+    "serialization_failed": "Serialization failed for {key}",
+    "deserialization_failed": "Deserialization failed for {key}"
+  }
+}
