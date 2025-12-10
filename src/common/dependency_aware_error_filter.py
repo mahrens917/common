@@ -133,32 +133,6 @@ class DependencyAwareErrorFilterMixin:
             return []
         return await DependencyChecker.get_service_dependencies(self.redis, service_name)
 
-    async def _get_service_dependencies(
-        self: _DependencyFilterContext, service_name: str
-    ) -> List[str]:
-        return await self.get_service_dependencies(service_name)
-
-    async def _is_dependency_unavailable(
-        self: _DependencyFilterContext, service_name: str, dependency_name: str
-    ) -> bool:
-        from .dependency_aware_error_filter_helpers.dependency_checker import DependencyChecker
-
-        if not self.redis:
-            logger.warning("No Redis connection available for dependency status check")
-            return False
-        return await DependencyChecker.is_dependency_unavailable(
-            self.redis, service_name, dependency_name, self.config.redis_key_prefix
-        )
-
-    def _is_dependency_related_error(
-        self: _DependencyFilterContext, error_message: str, dependency_name: str
-    ) -> bool:
-        from .dependency_aware_error_filter_helpers.pattern_matcher import PatternMatcher
-
-        return PatternMatcher.is_dependency_related_error(
-            error_message, dependency_name, self.dependency_patterns
-        )
-
 
 class DependencyAwareErrorFilter(DependencyAwareErrorFilterMixin):
     """Filters error log entries based on known dependency failures."""
