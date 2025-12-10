@@ -67,16 +67,13 @@ class ModelState:
         )
         return cls(probability_store, currency_upper)
 
-    async def calculate_probability(
-        self, strike_low: float, strike_high: float, time_to_expiry: float
-    ) -> Optional[float]:
+    async def calculate_probability(self, strike_low: float, strike_high: float) -> Optional[float]:
         """
         Calculate probability for a strike range using probability store data.
 
         Args:
             strike_low: Lower strike bound
             strike_high: Upper strike bound
-            time_to_expiry: Time to expiry in years (currently not used in calculation)
 
         Returns:
             Probability as float between 0 and 1, or None if no strikes match the range.

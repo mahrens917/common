@@ -17,9 +17,7 @@ async def test_get_redis_connection_uses_pool(monkeypatch):
         assert connection_pool is pool_sentinel
         return fresh_client
 
-    monkeypatch.setattr(
-        "common.redis_protocol.connection_pool_core.get_redis_pool", fake_get_pool
-    )
+    monkeypatch.setattr("common.redis_protocol.connection_pool_core.get_redis_pool", fake_get_pool)
     monkeypatch.setattr(redis_utils.redis.asyncio, "Redis", fake_async_redis)
 
     client = await redis_utils.get_redis_connection()
@@ -32,9 +30,7 @@ async def test_get_redis_connection_raises_on_pool_error(monkeypatch):
     async def fake_get_pool():
         raise RuntimeError("pool down")
 
-    monkeypatch.setattr(
-        "common.redis_protocol.connection_pool_core.get_redis_pool", fake_get_pool
-    )
+    monkeypatch.setattr("common.redis_protocol.connection_pool_core.get_redis_pool", fake_get_pool)
 
     with pytest.raises(ConnectionError) as excinfo:
         await redis_utils.get_redis_connection()

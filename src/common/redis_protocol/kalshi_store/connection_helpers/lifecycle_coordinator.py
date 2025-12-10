@@ -19,8 +19,6 @@ logger = logging.getLogger(__name__)
 
 
 class LifecycleCoordinator:
-    """Manages connection initialization, health monitoring, and shutdown."""
-
     def __init__(self, manager: "RedisConnectionManager") -> None:
         self._manager = manager
 

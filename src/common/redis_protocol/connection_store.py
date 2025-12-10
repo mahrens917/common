@@ -60,55 +60,45 @@ class ConnectionStore:
         return self.redis_client
 
     def register_state_manager(self, manager: StateManager) -> None:
-        """Register StateManager for connection state operations."""
         self._state_manager = manager
 
     def register_metrics_manager(self, manager: MetricsManager) -> None:
-        """Register MetricsManager for service metrics storage."""
         self._metrics_manager = manager
 
     def register_reconnection_event_manager(self, manager: ReconnectionEventManager) -> None:
-        """Register ReconnectionEventManager for storing reconnection events."""
         self._reconnection_event_manager = manager
 
     async def store_connection_state(self, state_info: ConnectionStateInfo) -> bool:
-        """Store connection state information in Redis."""
         await self.initialize()
         assert self._state_manager is not None
         return await self._state_manager.store_connection_state(state_info)
 
     async def store_service_metrics(self, service_name: str, metrics: Dict[str, Any]) -> bool:
-        """Store service-specific metrics for monitoring."""
         await self.initialize()
         assert self._metrics_manager is not None
         return await self._metrics_manager.store_service_metrics(service_name, metrics)
 
     async def get_service_metrics(self, service_name: str) -> Optional[Dict[str, Any]]:
-        """Get service-specific metrics."""
         await self.initialize()
         assert self._metrics_manager is not None
         return await self._metrics_manager.get_service_metrics(service_name)
 
     async def get_connection_state(self, service_name: str) -> Optional[ConnectionStateInfo]:
-        """Retrieve connection state information from Redis."""
         await self.initialize()
         assert self._state_manager is not None
         return await self._state_manager.get_connection_state(service_name)
 
     async def get_all_connection_states(self) -> Dict[str, ConnectionStateInfo]:
-        """Retrieve all connection states from Redis."""
         await self.initialize()
         assert self._state_manager is not None
         return await self._state_manager.get_all_connection_states()
 
     async def is_service_in_reconnection(self, service_name: str) -> bool:
-        """Check if a service is currently in reconnection mode."""
         await self.initialize()
         assert self._state_manager is not None
         return await self._state_manager.is_service_in_reconnection(service_name)
 
     async def get_services_in_reconnection(self) -> List[str]:
-        """Get list of all services currently in reconnection mode."""
         await self.initialize()
         assert self._state_manager is not None
         return await self._state_manager.get_services_in_reconnection()
@@ -116,7 +106,6 @@ class ConnectionStore:
     async def record_reconnection_event(
         self, service_name: str, event_type: str, details: str = ""
     ) -> None:
-        """Record a reconnection event for debugging and monitoring."""
         await self.initialize()
         assert self._reconnection_event_manager is not None
         return await self._reconnection_event_manager.record_reconnection_event(
@@ -126,7 +115,6 @@ class ConnectionStore:
     async def get_recent_reconnection_events(
         self, service_name: str, hours_back: int = 1
     ) -> List[Dict[str, Any]]:
-        """Get recent reconnection events for a service."""
         await self.initialize()
         assert self._reconnection_event_manager is not None
         return await self._reconnection_event_manager.get_recent_reconnection_events(
@@ -134,7 +122,6 @@ class ConnectionStore:
         )
 
     async def cleanup_stale_states(self, max_age_hours: int = 24) -> int:
-        """Clean up stale connection states."""
         await self.initialize()
         assert self._state_manager is not None
         return await self._state_manager.cleanup_stale_states(max_age_hours)

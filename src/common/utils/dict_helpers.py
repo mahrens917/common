@@ -3,17 +3,17 @@
 from typing import Any, Dict, Optional
 
 
-def get_str(mapping: Optional[Dict[str, Any]], key: str, default: str = "") -> str:
+def get_str(mapping: Optional[Dict[str, Any]], key: str, initial_value: str = "") -> str:
     """
     Safely extract string value from dictionary.
 
     Args:
         mapping: Dictionary to extract from (can be None)
         key: Key to look up
-        default: Default value if key missing or None
+        initial_value: Value to return if key missing or None
 
     Returns:
-        String value or default
+        String value or initial_value
 
     Example:
         >>> get_str({"foo": "bar"}, "foo")
@@ -26,21 +26,21 @@ def get_str(mapping: Optional[Dict[str, Any]], key: str, default: str = "") -> s
         'default'
     """
     if not mapping or key not in mapping or mapping[key] is None:
-        return default
+        return initial_value
     return str(mapping[key])
 
 
-def get_bool(mapping: Optional[Dict[str, Any]], key: str, default: bool = False) -> bool:
+def get_bool(mapping: Optional[Dict[str, Any]], key: str, initial_value: bool = False) -> bool:
     """
     Safely extract boolean value from dictionary.
 
     Args:
         mapping: Dictionary to extract from (can be None)
         key: Key to look up
-        default: Default value if key missing or None
+        initial_value: Value to return if key missing or None
 
     Returns:
-        Boolean value or default
+        Boolean value or initial_value
 
     Example:
         >>> get_bool({"active": True}, "active")
@@ -53,7 +53,7 @@ def get_bool(mapping: Optional[Dict[str, Any]], key: str, default: bool = False)
         True
     """
     if not mapping or key not in mapping or mapping[key] is None:
-        return default
+        return initial_value
     value = mapping[key]
     if isinstance(value, bool):
         return value

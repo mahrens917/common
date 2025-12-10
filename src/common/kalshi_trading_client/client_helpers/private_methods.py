@@ -7,10 +7,11 @@ from typing import TYPE_CHECKING, Any, Dict, Optional, Tuple
 from ...order_execution import OrderPoller, TradeFinalizer
 
 if TYPE_CHECKING:
+    from src.kalshi.api.client import KalshiClient
+
     from common.data_models.trading import OrderRequest, OrderResponse
     from common.trading import TradeStoreManager
     from common.trading.polling_workflow import PollingOutcome
-    from src.kalshi.api.client import KalshiClient
 
     from ..services import OrderService
 
@@ -30,35 +31,30 @@ class PrivateMethods:
 
     def build_order_poller(self) -> OrderPoller:
         """Build order poller."""
-        from .order_operations import OrderOperations
-
-        return OrderOperations.build_order_poller(self._orders)
+        return self._get_order_ops().build_order_poller(self._orders)
 
     def build_trade_finalizer(self) -> TradeFinalizer:
         """Build trade finalizer."""
-        from .order_operations import OrderOperations
-
-        return OrderOperations.build_trade_finalizer(self._orders)
+        return self._get_order_ops().build_trade_finalizer(self._orders)
 
     def apply_polling_outcome(self, order_response: OrderResponse, outcome: PollingOutcome) -> None:
         """Apply polling outcome."""
-        from .order_operations import OrderOperations
-
-        OrderOperations.apply_polling_outcome(self._orders, order_response, outcome)
+        self._get_order_ops().apply_polling_outcome(self._orders, order_response, outcome)
 
     def validate_order_request(self, order_request: OrderRequest) -> None:
         """Validate order request."""
+        self._get_order_ops().validate_order_request(self._orders, order_request)
+
+    def _get_order_ops(self):
         from .order_operations import OrderOperations
 
-        OrderOperations.validate_order_request(self._orders, order_request)
+        return OrderOperations
 
     def parse_order_response(
         self, response_data: Dict[str, Any], operation_name: str, trade_rule: str, trade_reason: str
     ) -> OrderResponse:
         """Parse order response."""
-        from .order_operations import OrderOperations
-
-        return OrderOperations.parse_order_response(
+        return self._get_order_ops().parse_order_response(
             self._orders, response_data, operation_name, trade_rule, trade_reason
         )
 
@@ -66,29 +62,28 @@ class PrivateMethods:
         self, cached_balance_cents: int, trade_cost_cents: int, fees_cents: int
     ) -> bool:
         """Check sufficient balance."""
-        from .order_operations import OrderOperations
-
-        return OrderOperations.has_sufficient_balance_for_trade_with_fees(
+        return self._get_order_ops().has_sufficient_balance_for_trade_with_fees(
             self._orders, cached_balance_cents, trade_cost_cents, fees_cents
         )
 
     def create_icao_to_city_mapping(self) -> Dict[str, str]:
         """Create ICAO mapping."""
-        from .trade_context import TradeContextResolver
-
-        return TradeContextResolver.create_icao_to_city_mapping(self._orders)
+        return self._get_trade_context().create_icao_to_city_mapping(self._orders)
 
     def extract_weather_station_from_ticker(self, market_ticker: str) -> str:
         """Extract weather station."""
-        from .trade_context import TradeContextResolver
-
-        return TradeContextResolver.extract_weather_station_from_ticker(self._orders, market_ticker)
+        return self._get_trade_context().extract_weather_station_from_ticker(
+            self._orders, market_ticker
+        )
 
     def resolve_trade_context(self, market_ticker: str) -> Tuple[str, Optional[str]]:
         """Resolve trade context."""
+        return self._get_trade_context().resolve_trade_context(self._orders, market_ticker)
+
+    def _get_trade_context(self):
         from .trade_context import TradeContextResolver
 
-        return TradeContextResolver.resolve_trade_context(self._orders, market_ticker)
+        return TradeContextResolver
 
     async def calculate_order_fees(
         self, market_ticker: str, quantity: int, price_cents: int
@@ -102,20 +97,19 @@ class PrivateMethods:
 
     async def get_trade_metadata_from_order(self, order_id: str) -> tuple[str, str]:
         """Get trade metadata."""
-        from .order_operations import OrderOperations
-
-        return await OrderOperations.get_trade_metadata_from_order(self._orders, order_id)
+        return await self._get_order_ops().get_trade_metadata_from_order(self._orders, order_id)
 
     def create_order_poller(self) -> OrderPoller:
         """Create order poller."""
-        from .factory_methods import FactoryMethods
-
-        return FactoryMethods.create_order_poller(self._kalshi_client)
+        return self._get_factory_methods().create_order_poller(self._kalshi_client)
 
     def create_trade_finalizer(self):
         """Create trade finalizer."""
-        from .factory_methods import FactoryMethods
-
-        return FactoryMethods.create_trade_finalizer(
+        return self._get_factory_methods().create_trade_finalizer(
             self._trade_store_manager, self._orders.resolve_trade_context, self._kalshi_client
         )
+
+    def _get_factory_methods(self):
+        from .factory_methods import FactoryMethods
+
+        return FactoryMethods

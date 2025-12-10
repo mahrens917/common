@@ -16,9 +16,7 @@ def test_validate_ldm_dependencies_missing(monkeypatch):
 
 
 def test_validate_ldm_dependencies_success(monkeypatch):
-    monkeypatch.setattr(
-        "common.dependency_validator.shutil.which", lambda _: "/usr/bin/pqstream"
-    )
+    monkeypatch.setattr("common.dependency_validator.shutil.which", lambda _: "/usr/bin/pqstream")
 
     DependencyValidator.validate_ldm_dependencies()
 

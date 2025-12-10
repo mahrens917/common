@@ -5,13 +5,13 @@
 # =============================================================================
 
 [tool.black]
-line-length = 100
+line-length = 140
 target-version = ["py312"]
 exclude = "\n(\n  /snapshots/\n)\n"
 
 [tool.isort]
 profile = "black"
-line_length = 100
+line_length = 140
 src_paths = ["src", "tests"]
 filter_files = true
 skip_glob = ["snapshots/*"]
@@ -92,6 +92,7 @@ method-rgx = "([a-z_][a-z0-9_]*|visit_[A-Z][A-Za-z]*)"
 
 [tool.pylint.MAIN]
 init-hook = "import sys; sys.path.insert(0, 'tests')"
+max-line-length = 140
 
 [tool.pylint.SIMILARITIES]
 min-similarity-lines = 7
@@ -196,11 +197,19 @@ markers = [
     "e2e: End-to-end tests - full system tests (< 2 minutes each)",
     "slow: Tests that take longer to run (> 1 second)",
     "fast: Fast running tests (< 1 second)",
+    "pdf: PDF processing related tests",
     "redis: Tests requiring Redis connection",
     "external: Tests requiring external services",
     "performance: Performance-critical tests with timing requirements",
     "parallel_safe: Tests explicitly verified safe for parallel execution (unused in sequential mode)",
     "sequential_only: Tests that must run sequentially (now default behavior)",
+    "cache_population: Tests that populate cache for other tests (run first)",
+    "multi_currency: Tests that use both BTC and ETH data",
+    "btc_specific: Tests specific to BTC currency",
+    "eth_specific: Tests specific to ETH currency",
+    "cache_dependent: Tests that benefit from populated cache (run after cache population)",
+    "pnl: PnL (Profit and Loss) system related tests",
+    "slowpdf: Deterministic PDF performance regression tests",
 ]
 norecursedirs = [
     "tests/manual",

@@ -1,6 +1,7 @@
 """Helper modules for KalshiRateLimiter"""
 
 from .metrics_collector import MetricsCollector
+from .request_enqueuer import RequestEnqueuer
 from .request_executor import RequestExecutor
 from .state_accessors import StateAccessorsMixin
 from .token_manager import TokenManager
@@ -13,4 +14,5 @@ __all__ = [
     "RateLimiterWorkerError",
     "MetricsCollector",
     "StateAccessorsMixin",
+    "RequestEnqueuer",
 ]

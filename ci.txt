@@ -1,0 +1,297 @@
+Syncing pyproject.toml tool configuration with shared template...
+✓ Tool configurations in pyproject.toml match shared config
+Running make check...
+Running shared CI checks...
+→ Running isort...
+→ Running black...
+All done! ✨ 🍰 ✨
+1763 files left unchanged.
+→ Running codespell...
+→ Running vulture...
+src/common/data_models/model_state.py:71: unused variable 'time_to_expiry' (100% confidence)
+tests/unit/redis_protocol/test_optimized_market_store_coverage.py:24: unused variable 'tb' (100% confidence)
+tests/unit/redis_protocol/test_optimized_market_store_utils.py:141: unused variable 'tb' (100% confidence)
+tests/unit/redis_protocol/test_optimized_market_store_utils.py:484: unused variable 'tb' (100% confidence)
+tests/unit/redis_protocol/test_trade_store_async.py:324: unused variable 'tb' (100% confidence)
+tests/unit/rest_connection_manager_helpers/test_rest_connection_manager_helpers.py:104: unused variable 'tb' (100% confidence)
+tests/unit/rest_connection_manager_helpers/test_rest_connection_manager_helpers.py:125: unused variable 'tb' (100% confidence)
+tests/unit/scraper_connection_manager_helpers/test_scraper_connection_helpers.py:68: unused variable 'tb' (100% confidence)
+tests/unit/scraper_connection_manager_helpers/test_scraping_operations.py:43: unused variable 'tb' (100% confidence)
+tests/unit/test_process_monitor.py:150: unused variable 'attrs' (100% confidence)
+tests/unit/test_resource_tracker_helpers.py:28: unused variable 'withscores' (100% confidence)
+tests/unit/test_rest_connection_manager.py:40: unused variable 'tb' (100% confidence)
+tests/unit/test_rest_connection_manager.py:61: unused variable 'tb' (100% confidence)
+tests/unit/test_rest_health_monitor.py:31: unused variable 'tb' (100% confidence)
+tests/unit/test_scraper_health_monitor.py:34: unused variable 'tb' (100% confidence)
+tests/unit/time_helpers/test_timezone.py:14: unused import 'get_current_time' (90% confidence)
+→ Running deptry...
+Traceback (most recent call last):
+  File "/Users/mahrens917/Library/Python/3.12/bin/deptry", line 7, in <module>
+    sys.exit(deptry())
+             ^^^^^^^^
+  File "/Users/mahrens917/Library/Python/3.12/lib/python/site-packages/deptry/cli.py", line 299, in deptry
+    cli(max_content_width=column_size)
+  File "/Users/mahrens917/Library/Python/3.12/lib/python/site-packages/click/core.py", line 1462, in __call__
+    return self.main(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/mahrens917/Library/Python/3.12/lib/python/site-packages/click/core.py", line 1383, in main
+    rv = self.invoke(ctx)
+         ^^^^^^^^^^^^^^^^
+  File "/Users/mahrens917/Library/Python/3.12/lib/python/site-packages/click/core.py", line 1246, in invoke
+    return ctx.invoke(self.callback, **ctx.params)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/mahrens917/Library/Python/3.12/lib/python/site-packages/click/core.py", line 814, in invoke
+    return callback(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/mahrens917/Library/Python/3.12/lib/python/site-packages/deptry/cli.py", line 293, in cli
+    ).run()
+      ^^^^^
+  File "/Users/mahrens917/Library/Python/3.12/lib/python/site-packages/deptry/core.py", line 56, in run
+    ).build()
+      ^^^^^^^
+  File "/Users/mahrens917/Library/Python/3.12/lib/python/site-packages/deptry/dependency_getter/builder.py", line 69, in build
+    raise DependencySpecificationNotFoundError(self.requirements_files)
+deptry.exceptions.DependencySpecificationNotFoundError: No file called 'pyproject.toml' with a [tool.poetry.dependencies], [tool.pdm] or [project] section or file(s) called 'requirements.txt' found. Exiting.
+→ Running gitleaks...
+  → scanning src
+  → scanning tests
+  → scanning scripts
+  → scanning ci_shared.mk
+  → scanning pyproject.toml
+  → scanning Makefile
+  → scanning README.md
+→ Running bandit...
+→ Running safety...
+Safety 3.6.2 scanning /Users/mahrens917/common
+2025-12-10 04:04:56 UTC
+
+Account: Michael Ahrens, mahrens917@gmail.com 
+Project: common
+ Git branch: master
+ Environment: Stage.development
+ Scan policy: fetched from Safety Platform, ignoring any local Safety 
+CLI policy files
+
+Python detected. Found 1 Python pyproject.toml file
+
+✅ pyproject.toml: No issues found.
+
+Tested 0 dependencies for security issues using policy fetched from 
+Safety Platform
+0 security issues found, 0 fixes suggested.
+0 fixes suggested, resolving 0 vulnerabilities.
+
+Project dashboard: 
+https://platform.safetycli.com/codebases/common/findings?branch=master
+→ Running policy_guard...
+Banned keyword policy violations detected:
+src/common/utils/dict_helpers.py:29 -> keyword 'default'
+src/common/utils/dict_helpers.py:33 -> keyword 'default'
+src/common/utils/dict_helpers.py:56 -> keyword 'default'
+src/common/utils/dict_helpers.py:6 -> keyword 'default'
+→ Running data_guard...
+→ Running structure_guard...
+Oversized classes detected. Refactor the following definitions to stay within 100 lines:
+  - src/common/daily_max_state_helpers/result_generator.py:28 class ResultGenerator spans 105 lines (limit 100)
+  - src/common/dependency_aware_error_filter.py:58 class DependencyAwareErrorFilterMixin spans 103 lines (limit 100)
+  - src/common/dependency_monitor_helpers/status_manager.py:13 class StatusManager spans 104 lines (limit 100)
+  - src/common/emergency_position_manager_helpers/position_closer.py:35 class PositionCloser spans 107 lines (limit 100)
+  - src/common/kalshi_rate_limiter.py:48 class KalshiRateLimiter spans 103 lines (limit 100)
+  - src/common/kalshi_trading_client/client_helpers/private_methods.py:19 class PrivateMethods spans 104 lines (limit 100)
+  - src/common/kalshi_trading_client/services/orders.py:19 class OrderService spans 116 lines (limit 100)
+  - src/common/market_lifecycle_monitor.py:32 class MarketLifecycleMonitor spans 115 lines (limit 100)
+  - src/common/market_lifecycle_monitor_helpers/property_bridge.py:15 class PropertyBridge spans 108 lines (limit 100)
+  - src/common/memory_monitor.py:33 class MemoryMonitor spans 113 lines (limit 100)
+  - src/common/redis_protocol/connection_store.py:37 class ConnectionStore spans 104 lines (limit 100)
+  - src/common/redis_protocol/connection_store_helpers/state_manager.py:21 class StateManager spans 107 lines (limit 100)
+  - src/common/redis_protocol/kalshi_store/connection_helpers/lifecycle_coordinator.py:21 class LifecycleCoordinator spans 101 lines (limit 100)
+  - src/common/redis_protocol/kalshi_store/facade_coordinator.py:180 class SubscriptionDelegator spans 113 lines (limit 100)
+  - src/common/redis_protocol/kalshi_store/orderbook.py:43 class KalshiOrderbookProcessor spans 110 lines (limit 100)
+  - src/common/redis_protocol/kalshi_store/store.py:112 class KalshiStore spans 114 lines (limit 100)
+  - src/common/redis_protocol/optimized_market_store.py:26 class OptimizedMarketStore spans 102 lines (limit 100)
+  - src/common/redis_protocol/persistence_manager_helpers/data_serializer.py:9 class DataSerializer spans 117 lines (limit 100)
+  - src/common/redis_protocol/trade_store/records.py:22 class TradeRecordRepository spans 107 lines (limit 100)
+  - src/common/report_generator_helpers/unified_report_builder.py:20 class UnifiedReportBuilder spans 101 lines (limit 100)
+  - src/common/resource_tracker.py:18 class ResourceTracker spans 115 lines (limit 100)
+  - src/common/websocket_connection_manager.py:28 class WebSocketConnectionManager spans 103 lines (limit 100)
+→ Running complexity_guard...
+✓ All functions meet complexity limits (cyclomatic ≤10, cognitive ≤15)
+→ Running module_guard...
+→ Running function_size_guard...
+→ Running inheritance_guard...
+→ Running method_count_guard...
+→ Running dependency_guard...
+→ Running unused_module_guard...
+Checking for unused modules in src...
+
+❌ Unused modules detected (never imported):
+  - common/connection_state_tracker_helpers/initializer.py: Never imported (module: common.connection_state_tracker_helpers.initializer)
+  - common/market_lifecycle_monitor_helpers/property_bridge.py: Never imported (module: common.market_lifecycle_monitor_helpers.property_bridge)
+  - common/network_errors.py: Never imported (module: common.network_errors)
+  - common/redis_protocol/atomic_redis_operations_helpers/coordinator.py: Never imported (module: common.redis_protocol.atomic_redis_operations_helpers.coordinator)
+  - common/redis_protocol/kalshi_store/orderbook_helpers/message_processing/dispatcher.py: Never imported (module: common.redis_protocol.kalshi_store.orderbook_helpers.message_processing.dispatcher)
+  - common/redis_protocol/kalshi_store/orderbook_helpers/snapshot_processor_helpers/price_formatting.py: Never imported (module: common.redis_protocol.kalshi_store.orderbook_helpers.snapshot_processor_helpers.price_formatting)
+  - common/redis_protocol/kalshi_store/orderbook_helpers/snapshot_processor_helpers/redis_storage.py: Never imported (module: common.redis_protocol.kalshi_store.orderbook_helpers.snapshot_processor_helpers.redis_storage)
+  - common/redis_protocol/kalshi_store/reader_helpers/market_query_handler.py: Never imported (module: common.redis_protocol.kalshi_store.reader_helpers.market_query_handler)
+  - common/redis_protocol/kalshi_store/reader_helpers/market_status_checker.py: Never imported (module: common.redis_protocol.kalshi_store.reader_helpers.market_status_checker)
+  - common/redis_protocol/kalshi_store/store_helpers/property_management.py: Never imported (module: common.redis_protocol.kalshi_store.store_helpers.property_management)
+  - common/redis_protocol/kalshi_store/store_helpers/static_methods.py: Never imported (module: common.redis_protocol.kalshi_store.store_helpers.static_methods)
+  - common/redis_protocol/messages_helpers/option_normalizer.py: Never imported (module: common.redis_protocol.messages_helpers.option_normalizer)
+  - common/resource_tracker_helpers/delegation/history.py: Never imported (module: common.resource_tracker_helpers.delegation.history)
+  - common/resource_tracker_helpers/delegation/monitoring_control.py: Never imported (module: common.resource_tracker_helpers.delegation.monitoring_control)
+  - common/resource_tracker_helpers/delegation/recording.py: Never imported (module: common.resource_tracker_helpers.delegation.recording)
+  - common/service_lifecycle/status_reporter_helpers/registration_methods.py: Never imported (module: common.service_lifecycle.status_reporter_helpers.registration_methods)
+  - common/service_lifecycle/status_reporter_helpers/status_writer.py: Never imported (module: common.service_lifecycle.status_reporter_helpers.status_writer)
+  - common/time_helpers/time_parsing.py: Never imported (module: common.time_helpers.time_parsing)
+
+Tip: Remove unused files or add them to .gitignore if they're work-in-progress
+→ Running documentation_guard...
+✅ documentation_guard: All required documentation present
+   (3 docs verified)
+→ Running ruff...
+All checks passed!
+→ Running pyright...
+/Users/mahrens917/common/src/common/_module_references.py
+  /Users/mahrens917/common/src/common/_module_references.py:10:12 - error: Import "common.backoff_manager_helpers.delay_calculator" is not accessed (reportUnusedImport)
+  /Users/mahrens917/common/src/common/_module_references.py:11:12 - error: Import "common.backoff_manager_helpers.retry_checker" is not accessed (reportUnusedImport)
+  /Users/mahrens917/common/src/common/_module_references.py:12:12 - error: Import "common.connection_state_tracker_helpers.event_manager" is not accessed (reportUnusedImport)
+  /Users/mahrens917/common/src/common/_module_references.py:13:12 - error: Import "common.connection_state_tracker_helpers.state_querier" is not accessed (reportUnusedImport)
+  /Users/mahrens917/common/src/common/_module_references.py:14:12 - error: Import "common.connection_state_tracker_helpers.state_updater" is not accessed (reportUnusedImport)
+  /Users/mahrens917/common/src/common/_module_references.py:15:12 - error: Import "common.daily_max_state_helpers.state_persistence" is not accessed (reportUnusedImport)
+  /Users/mahrens917/common/src/common/_module_references.py:16:12 - error: Import "common.data_models.trade_record_helpers.pnl_report_validation" is not accessed (reportUnusedImport)
+  /Users/mahrens917/common/src/common/_module_references.py:17:12 - error: Import "common.dawn_reset_service_helpers.dawn_check_coordinator" is not accessed (reportUnusedImport)
+  /Users/mahrens917/common/src/common/_module_references.py:18:12 - error: Import "common.dependency_monitor_helpers.callback_executor" is not accessed (reportUnusedImport)
+  /Users/mahrens917/common/src/common/_module_references.py:19:12 - error: Import "common.dependency_monitor_helpers.redis_tracker" is not accessed (reportUnusedImport)
+  /Users/mahrens917/common/src/common/_module_references.py:20:12 - error: Import "common.dict_utils" is not accessed (reportUnusedImport)
+  /Users/mahrens917/common/src/common/_module_references.py:21:12 - error: Import "common.emergency_position_manager_helpers.exposure_calculator" is not accessed (reportUnusedImport)
+  /Users/mahrens917/common/src/common/_module_references.py:22:12 - error: Import "common.emergency_position_manager_helpers.limit_enforcer" is not accessed (reportUnusedImport)
+  /Users/mahrens917/common/src/common/_module_references.py:23:12 - error: Import "common.emergency_position_manager_helpers.stop_loss_monitor" is not accessed (reportUnusedImport)
+  /Users/mahrens917/common/src/common/_module_references.py:24:12 - error: Import "common.error_analyzer_helpers.error_analysis_builder" is not accessed (reportUnusedImport)
+  /Users/mahrens917/common/src/common/_module_references.py:25:12 - error: Import "common.exceptions.market" is not accessed (reportUnusedImport)
+  /Users/mahrens917/common/src/common/_module_references.py:26:12 - error: Import "common.function_params" is not accessed (reportUnusedImport)
+  /Users/mahrens917/common/src/common/_module_references.py:27:12 - error: Import "common.health.service_health_checker_helpers.batch_health_checker" is not accessed (reportUnusedImport)
+  /Users/mahrens917/common/src/common/_module_references.py:28:12 - error: Import "common.health.service_health_checker_helpers.redis_status_checker" is not accessed (reportUnusedImport)
+  /Users/mahrens917/common/src/common/_module_references.py:29:12 - error: Import "common.kalshi_trading_client.client_helpers.initialization_coordinator_helpers.service_creator" is not accessed (reportUnusedImport)
+  /Users/mahrens917/common/src/common/_module_references.py:30:12 - error: Import "common.kalshi_trading_client.services.order_helpers.factory_utils" is not accessed (reportUnusedImport)
+  /Users/mahrens917/common/src/common/_module_references.py:31:12 - error: Import "common.kalshi_trading_client.services.order_helpers.notifier_updater" is not accessed (reportUnusedImport)
+  /Users/mahrens917/common/src/common/_module_references.py:32:12 - error: Import "common.kalshi_trading_client.services.order_helpers.order_creator_helpers" is not accessed (reportUnusedImport)
+  /Users/mahrens917/common/src/common/_module_references.py:33:12 - error: Import "common.kalshi_trading_client.services.order_helpers.order_poller_helpers" is not accessed (reportUnusedImport)
+  /Users/mahrens917/common/src/common/_module_references.py:34:12 - error: Import "common.market_data_parser_helpers.contract_validator_helpers.batch_validator" is not accessed (reportUnusedImport)
+  /Users/mahrens917/common/src/common/_module_references.py:35:12 - error: Import "common.market_data_parser_helpers.contract_validator_helpers.validation_workflow" is not accessed (reportUnusedImport)
+  /Users/mahrens917/common/src/common/_module_references.py:36:12 - error: Import "common.market_data_parser_helpers.data_cleaner" is not accessed (reportUnusedImport)
+  /Users/mahrens917/common/src/common/_module_references.py:37:12 - error: Import "common.market_data_parser_helpers.date_parser_helpers" is not accessed (reportUnusedImport)
+  /Users/mahrens917/common/src/common/_module_references.py:38:12 - error: Import "common.market_data_parser_helpers.instrument_parser" is not accessed (reportUnusedImport)
+  /Users/mahrens917/common/src/common/_module_references.py:39:12 - error: Import "common.market_data_parser_helpers.parsed_instrument_validator" is not accessed (reportUnusedImport)
+  /Users/mahrens917/common/src/common/_module_references.py:40:12 - error: Import "common.market_data_parser_helpers.structure_validator" is not accessed (reportUnusedImport)
+  /Users/mahrens917/common/src/common/_module_references.py:41:12 - error: Import "common.metadata_store_auto_updater_helpers.time_window_updater_helpers.message_counter" is not accessed (reportUnusedImport)
+  /Users/mahrens917/common/src/common/_module_references.py:42:12 - error: Import "common.midnight_reset_service_helpers.max_temp_processor_helpers" is not accessed (reportUnusedImport)
+  /Users/mahrens917/common/src/common/_module_references.py:43:12 - error: Import "common.network_adaptive_poller_helpers.interval_adjuster" is not accessed (reportUnusedImport)
+  /Users/mahrens917/common/src/common/_module_references.py:44:12 - error: Import "common.network_adaptive_poller_helpers.network_classifier" is not accessed (reportUnusedImport)
+  /Users/mahrens917/common/src/common/_module_references.py:45:12 - error: Import "common.network_adaptive_poller_helpers.performance_calculator" is not accessed (reportUnusedImport)
+  /Users/mahrens917/common/src/common/_module_references.py:46:12 - error: Import "common.optimized_status_reporter_helpers.basic_info_printer" is not accessed (reportUnusedImport)
+  /Users/mahrens917/common/src/common/_module_references.py:47:12 - error: Import "common.optimized_status_reporter_helpers.redis_health_printer" is not accessed (reportUnusedImport)
+  /Users/mahrens917/common/src/common/_module_references.py:48:12 - error: Import "common.optimized_status_reporter_helpers.system_health_printer" is not accessed (reportUnusedImport)
+  /Users/mahrens917/common/src/common/_module_references.py:49:12 - error: Import "common.optimized_status_reporter_helpers.weather_temperature_collector_helpers.station_scanner" is not accessed (reportUnusedImport)
+  /Users/mahrens917/common/src/common/_module_references.py:50:12 - error: Import "common.order_execution.finalizer_helpers.notification" is not accessed (reportUnusedImport)
+  /Users/mahrens917/common/src/common/_module_references.py:51:12 - error: Import "common.order_execution.finalizer_helpers.storage" is not accessed (reportUnusedImport)
+  /Users/mahrens917/common/src/common/_module_references.py:52:12 - error: Import "common.order_execution.finalizer_helpers.trade_record_builder" is not accessed (reportUnusedImport)
+  /Users/mahrens917/common/src/common/_module_references.py:53:12 - error: Import "common.order_execution.finalizer_helpers.validation_helper" is not accessed (reportUnusedImport)
+  /Users/mahrens917/common/src/common/_module_references.py:54:12 - error: Import "common.order_response_parser_helpers.fill_price_extractor" is not accessed (reportUnusedImport)
+  /Users/mahrens917/common/src/common/_module_references.py:55:12 - error: Import "common.order_response_parser_helpers.order_fills_parser" is not accessed (reportUnusedImport)
+  /Users/mahrens917/common/src/common/_module_references.py:56:12 - error: Import "common.pnl_calculator_helpers.reportgenerator_helpers.close_date_report_builder" is not accessed (reportUnusedImport)
+  /Users/mahrens917/common/src/common/_module_references.py:57:12 - error: Import "common.pnl_calculator_helpers.reportgenerator_helpers.date_range_report_builder" is not accessed (reportUnusedImport)
+  /Users/mahrens917/common/src/common/_module_references.py:58:12 - error: Import "common.process_killer_helpers.monitor_query" is not accessed (reportUnusedImport)
+  /Users/mahrens917/common/src/common/_module_references.py:59:12 - error: Import "common.process_killer_helpers.process_filter" is not accessed (reportUnusedImport)
+  /Users/mahrens917/common/src/common/_module_references.py:60:12 - error: Import "common.process_killer_helpers.process_normalizer" is not accessed (reportUnusedImport)
+  /Users/mahrens917/common/src/common/_module_references.py:61:12 - error: Import "common.process_monitor_helpers.service_patterns" is not accessed (reportUnusedImport)
+  /Users/mahrens917/common/src/common/_module_references.py:62:12 - error: Import "common.redis_protocol.connection_helpers.pool_initialization" is not accessed (reportUnusedImport)
+  /Users/mahrens917/common/src/common/_module_references.py:63:12 - error: Import "common.redis_protocol.connection_helpers.pool_lifecycle" is not accessed (reportUnusedImport)
+  /Users/mahrens917/common/src/common/_module_references.py:64:12 - error: Import "common.redis_protocol.connection_store_helpers.global_instance" is not accessed (reportUnusedImport)
+  /Users/mahrens917/common/src/common/_module_references.py:65:12 - error: Import "common.redis_protocol.connection_store_helpers.state_persistence" is not accessed (reportUnusedImport)
+  /Users/mahrens917/common/src/common/_module_references.py:66:12 - error: Import "common.redis_protocol.connection_store_helpers.state_queries" is not accessed (reportUnusedImport)
+  /Users/mahrens917/common/src/common/_module_references.py:67:12 - error: Import "common.redis_protocol.connection_store_helpers.state_serializer" is not accessed (reportUnusedImport)
+  /Users/mahrens917/common/src/common/_module_references.py:68:12 - error: Import "common.redis_protocol.kalshi_store.orderbook_helpers.best_price_updater" is not accessed (reportUnusedImport)
+  /Users/mahrens917/common/src/common/_module_references.py:69:12 - error: Import "common.redis_protocol.kalshi_store.orderbook_helpers.delta_field_extractor" is not accessed (reportUnusedImport)
+  /Users/mahrens917/common/src/common/_module_references.py:70:12 - error: Import "common.redis_protocol.kalshi_store.orderbook_helpers.delta_processor_helpers" is not accessed (reportUnusedImport)
+  /Users/mahrens917/common/src/common/_module_references.py:71:12 - error: Import "common.redis_protocol.kalshi_store.orderbook_helpers.trade_price_updater" is not accessed (reportUnusedImport)
+  /Users/mahrens917/common/src/common/_module_references.py:72:12 - error: Import "common.redis_protocol.kalshi_store.reader_helpers.expiry_operations" is not accessed (reportUnusedImport)
+  /Users/mahrens917/common/src/common/_module_references.py:73:12 - error: Import "common.redis_protocol.kalshi_store.reader_helpers.lazy_property_factory" is not accessed (reportUnusedImport)
+  /Users/mahrens917/common/src/common/_module_references.py:74:12 - error: Import "common.redis_protocol.kalshi_store.reader_helpers.market_operations" is not accessed (reportUnusedImport)
+  /Users/mahrens917/common/src/common/_module_references.py:75:12 - error: Import "common.redis_protocol.kalshi_store.reader_helpers.metadataextractor_helpers.strike_calculator" is not accessed (reportUnusedImport)
+  /Users/mahrens917/common/src/common/_module_references.py:76:12 - error: Import "common.redis_protocol.kalshi_store.reader_helpers.orderbook_operations" is not accessed (reportUnusedImport)
+  /Users/mahrens917/common/src/common/_module_references.py:77:12 - error: Import "common.redis_protocol.kalshi_store.reader_helpers.snapshot_operations" is not accessed (reportUnusedImport)
+  /Users/mahrens917/common/src/common/_module_references.py:78:12 - error: Import "common.redis_protocol.kalshi_store.subscription_factory" is not accessed (reportUnusedImport)
+  /Users/mahrens917/common/src/common/_module_references.py:79:12 - error: Import "common.redis_protocol.kalshi_store.writer_helpers.orderbook_writer_helpers.trade_mapping_builder" is not accessed (reportUnusedImport)
+  /Users/mahrens917/common/src/common/_module_references.py:80:12 - error: Import "common.redis_protocol.kalshi_store.writer_helpers.timestamp_converter" is not accessed (reportUnusedImport)
+  /Users/mahrens917/common/src/common/_module_references.py:81:12 - error: Import "common.redis_protocol.kalshi_store.writer_helpers.timestamp_helpers" is not accessed (reportUnusedImport)
+  /Users/mahrens917/common/src/common/_module_references.py:82:12 - error: Import "common.redis_protocol.market_normalization_helpers.strike_bounds_builder" is not accessed (reportUnusedImport)
+  /Users/mahrens917/common/src/common/_module_references.py:83:12 - error: Import "common.redis_protocol.market_normalization_helpers.strike_derivation" is not accessed (reportUnusedImport)
+  /Users/mahrens917/common/src/common/_module_references.py:84:12 - error: Import "common.redis_protocol.messages_helpers.timestamp_converter" is not accessed (reportUnusedImport)
+  /Users/mahrens917/common/src/common/_module_references.py:85:12 - error: Import "common.redis_protocol.orderbook_utils_helpers.side_builder" is not accessed (reportUnusedImport)
+  /Users/mahrens917/common/src/common/_module_references.py:86:12 - error: Import "common.redis_protocol.persistence_manager_helpers.convenience" is not accessed (reportUnusedImport)
+  /Users/mahrens917/common/src/common/_module_references.py:87:12 - error: Import "common.redis_protocol.probability_store.keys_helpers" is not accessed (reportUnusedImport)
+  /Users/mahrens917/common/src/common/_module_references.py:88:12 - error: Import "common.redis_protocol.probability_store.probabilityingestion_helpers.compact_store_helpers" is not accessed (reportUnusedImport)
+  /Users/mahrens917/common/src/common/_module_references.py:89:12 - error: Import "common.redis_protocol.trade_store.optional_field_extractor" is not accessed (reportUnusedImport)
+  /Users/mahrens917/common/src/common/_module_references.py:90:12 - error: Import "common.redis_protocol.trade_store.store_helpers.api_delegator" is not accessed (reportUnusedImport)
+  /Users/mahrens917/common/src/common/_module_references.py:91:12 - error: Import "common.redis_protocol.trade_store.trade_record_validator" is not accessed (reportUnusedImport)
+  /Users/mahrens917/common/src/common/_module_references.py:92:12 - error: Import "common.rest_connection_manager_helpers.request_handler" is not accessed (reportUnusedImport)
+  /Users/mahrens917/common/src/common/_module_references.py:93:12 - error: Import "common.scraper_connection_manager_helpers.connection_establisher" is not accessed (reportUnusedImport)
+  /Users/mahrens917/common/src/common/_module_references.py:94:12 - error: Import "common.scraper_connection_manager_helpers.health_monitor_helpers.url_checker" is not accessed (reportUnusedImport)
+  /Users/mahrens917/common/src/common/_module_references.py:95:12 - error: Import "common.scraper_connection_manager_helpers.scraper_operations" is not accessed (reportUnusedImport)
+  /Users/mahrens917/common/src/common/_module_references.py:96:12 - error: Import "common.status_reporter_helpers.lifecycle_reporter" is not accessed (reportUnusedImport)
+  /Users/mahrens917/common/src/common/_module_references.py:97:12 - error: Import "common.status_reporter_helpers.market_reporter" is not accessed (reportUnusedImport)
+  /Users/mahrens917/common/src/common/_module_references.py:98:12 - error: Import "common.status_reporter_helpers.rule_explainer" is not accessed (reportUnusedImport)
+  /Users/mahrens917/common/src/common/_module_references.py:99:12 - error: Import "common.status_reporter_helpers.scan_reporter" is not accessed (reportUnusedImport)
+  /Users/mahrens917/common/src/common/_module_references.py:100:12 - error: Import "common.status_reporter_helpers.trade_status_reporter" is not accessed (reportUnusedImport)
+  /Users/mahrens917/common/src/common/_module_references.py:101:12 - error: Import "common.trading.order_metadata_service" is not accessed (reportUnusedImport)
+  /Users/mahrens917/common/src/common/_module_references.py:102:12 - error: Import "common.websocket.message_stats_helpers.redis_history_writer" is not accessed (reportUnusedImport)
+  /Users/mahrens917/common/src/common/_module_references.py:103:12 - error: Import "common.websocket.message_stats_helpers.silent_failure_alerter" is not accessed (reportUnusedImport)
+  /Users/mahrens917/common/src/common/_module_references.py:104:12 - error: Import "common.websocket_connection_manager_helpers.connection_lifecycle_helpers.connection_establisher" is not accessed (reportUnusedImport)
+  /Users/mahrens917/common/src/common/_module_references.py:105:12 - error: Import "common.websocket_connection_manager_helpers.ping_pong_manager" is not accessed (reportUnusedImport)
+  /Users/mahrens917/common/src/common/_module_references.py:106:12 - error: Import "common.websocket_connection_manager_helpers.ws_connection_handler" is not accessed (reportUnusedImport)
+/Users/mahrens917/common/src/common/connection_manager.py
+  /Users/mahrens917/common/src/common/connection_manager.py:148:18 - error: Import "..monitor.alerter" could not be resolved (reportMissingImports)
+/Users/mahrens917/common/src/common/redis_protocol/kalshi_store/reader.py
+  /Users/mahrens917/common/src/common/redis_protocol/kalshi_store/reader.py:27:44 - error: Import "ExpiryChecker" is not accessed (reportUnusedImport)
+  /Users/mahrens917/common/src/common/redis_protocol/kalshi_store/reader.py:28:47 - error: Import "MarketAggregator" is not accessed (reportUnusedImport)
+  /Users/mahrens917/common/src/common/redis_protocol/kalshi_store/reader.py:29:43 - error: Import "MarketFilter" is not accessed (reportUnusedImport)
+  /Users/mahrens917/common/src/common/redis_protocol/kalshi_store/reader.py:30:43 - error: Import "MarketLookup" is not accessed (reportUnusedImport)
+  /Users/mahrens917/common/src/common/redis_protocol/kalshi_store/reader.py:33:45 - error: Import "SnapshotReader" is not accessed (reportUnusedImport)
+  /Users/mahrens917/common/src/common/redis_protocol/kalshi_store/reader.py:35:52 - error: Import "KalshiStoreError" is not accessed (reportUnusedImport)
+  /Users/mahrens917/common/src/common/redis_protocol/kalshi_store/reader.py:36:43 - error: Import "TickerParser" is not accessed (reportUnusedImport)
+/Users/mahrens917/common/src/common/redis_protocol/kalshi_store/reader_helpers/market_query_handler.py
+  /Users/mahrens917/common/src/common/redis_protocol/kalshi_store/reader_helpers/market_query_handler.py:4:20 - error: Import "Any" is not accessed (reportUnusedImport)
+/Users/mahrens917/common/src/common/redis_protocol/kalshi_store/reader_helpers/snapshot_retriever.py
+  /Users/mahrens917/common/src/common/redis_protocol/kalshi_store/reader_helpers/snapshot_retriever.py:33:14 - error: Import "...redis_schema" could not be resolved (reportMissingImports)
+/Users/mahrens917/common/src/common/scraper_connection_manager.py
+  /Users/mahrens917/common/src/common/scraper_connection_manager.py:12:6 - error: Import "..monitor.alerter" could not be resolved (reportMissingImports)
+/Users/mahrens917/common/src/common/trading/notifier_adapter.py
+  /Users/mahrens917/common/src/common/trading/notifier_adapter.py:23:18 - error: Import "...kalshi.notifications.trade_notifier" could not be resolved (reportMissingImports)
+  /Users/mahrens917/common/src/common/trading/notifier_adapter.py:47:30 - warning: Object of type "None" cannot be called (reportOptionalCall)
+  /Users/mahrens917/common/src/common/trading/notifier_adapter.py:69:18 - error: Import "...kalshi.notifications.trade_notifier" could not be resolved (reportMissingImports)
+/Users/mahrens917/common/src/common/websocket_connection_manager.py
+  /Users/mahrens917/common/src/common/websocket_connection_manager.py:15:6 - error: Import "..monitor.alerter" could not be resolved (reportMissingImports)
+111 errors, 1 warning, 0 informations
+→ Running pylint...
+************* Module src
+src/__init__.py:1:0: F0010: error while code parsing: Unable to load file src/__init__.py:
+[Errno 2] No such file or directory: 'src/__init__.py' (parse-error)
+************* Module tests
+tests/__init__.py:1:0: F0010: error while code parsing: Unable to load file tests/__init__.py:
+[Errno 2] No such file or directory: 'tests/__init__.py' (parse-error)
+→ Cleaning bytecode...
+→ Running pytest...
+
+=========================== short test summary info ============================
+ERROR tests/unit/test_scraper_connection_manager.py
+ERROR tests/unit/websocket/test_websocket_connection_manager.py
+!!!!!!!!!!!!!!!!!!! Interrupted: 2 errors during collection !!!!!!!!!!!!!!!!!!!!
+2 errors in 9.03s
+→ Running coverage_guard...
+coverage_guard: coverage data file not found: /Users/mahrens917/common/.coverage
+→ Running compileall...
+
+❌ 9 check(s) failed
+make: *** [shared-checks] Error 1
+make: Target `check' not remade because of errors.
+make check failed; aborting commit and push.

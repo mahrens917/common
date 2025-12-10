@@ -73,9 +73,7 @@ class TestMicroPriceConverterConvertList:
         mock_instruments = [MagicMock(), MagicMock()]
         mock_result = [MagicMock(), MagicMock()]
 
-        with patch(
-            "common.data_conversion.micro_price_helpers.BatchConverter"
-        ) as mock_batch_cls:
+        with patch("common.data_conversion.micro_price_helpers.BatchConverter") as mock_batch_cls:
             mock_batch_cls.convert_instruments_to_micro_price_data.return_value = mock_result
 
             result = MicroPriceConverter.convert_instruments_to_micro_price_data(
@@ -90,9 +88,7 @@ class TestMicroPriceConverterConvertList:
         mock_instruments = [MagicMock()]
         mock_result = [MagicMock()]
 
-        with patch(
-            "common.data_conversion.micro_price_helpers.BatchConverter"
-        ) as mock_batch_cls:
+        with patch("common.data_conversion.micro_price_helpers.BatchConverter") as mock_batch_cls:
             mock_batch_cls.convert_instruments_to_micro_price_data.return_value = mock_result
 
             result = MicroPriceConverter.convert_instruments_to_micro_price_data(mock_instruments)

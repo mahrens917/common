@@ -28,9 +28,7 @@ def test_update_process_metrics_removes_dead_process(monkeypatch):
     def fake_process(_pid):
         raise psutil.NoSuchProcess(1)
 
-    monkeypatch.setattr(
-        "common.process_monitor_helpers.cache_manager.psutil.Process", fake_process
-    )
+    monkeypatch.setattr("common.process_monitor_helpers.cache_manager.psutil.Process", fake_process)
 
     result = manager.update_process_metrics(1, cache)
 

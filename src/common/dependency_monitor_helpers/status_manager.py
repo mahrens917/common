@@ -1,11 +1,11 @@
 """Status change management for dependency monitor."""
 
-import asyncio
 import logging
-from functools import partial
 from typing import Callable, Dict, List, Optional
 
+from .callback_runner import CallbackRunner
 from .dependency_checker import DependencyState, DependencyStatus
+from .notification_handler import NotificationHandler
 
 logger = logging.getLogger(__name__)
 
@@ -80,37 +80,18 @@ class StatusManager:
 
     async def _run_callbacks(self, callbacks: List[Callable]) -> None:
         """Run list of callbacks."""
-        for callback in callbacks:
-            try:
-                error = await self.callback_executor.run_callback(callback)
-            except asyncio.CancelledError:
-                raise
-            except (RuntimeError, ValueError, TypeError, AttributeError, Exception):
-                logger.exception("[%s] Error in callback", self.service_name)
-                continue
-            if isinstance(error, BaseException):
-                logger.error("[%s] Error in callback: %s", self.service_name, error)
+        await CallbackRunner.run_callbacks(callbacks, self.service_name, self.callback_executor)
 
     async def notify_status_change(
         self, dependency_name: str, old_status: DependencyStatus, new_status: DependencyStatus
     ) -> None:
         """Notify about dependency status changes."""
-        if self.redis_tracker:
-            await self.redis_tracker.update_dependency_status(dependency_name, new_status)
-
-        if old_status == DependencyStatus.UNKNOWN:
-            return
-
-        status_emoji = "✅" if new_status == DependencyStatus.AVAILABLE else "❌"
-        message = f"{status_emoji} [{self.service_name}] Dependency '{dependency_name}': {old_status.value} → {new_status.value}"
-
-        logger.info(message)
-
-        if self.telegram_notifier:
-            error = await self.callback_executor.run_callback(
-                partial(self.telegram_notifier, message)
-            )
-            if isinstance(error, BaseException):
-                logger.error(
-                    "[%s] Failed to send Telegram notification: %s", self.service_name, error
-                )
+        await NotificationHandler.notify_status_change(
+            dependency_name,
+            old_status,
+            new_status,
+            self.service_name,
+            self.redis_tracker,
+            self.telegram_notifier,
+            self.callback_executor,
+        )

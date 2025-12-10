@@ -40,9 +40,7 @@ async def test_stop_background_scanning_cancels_on_timeout(monkeypatch):
     def raise_timeout(task, timeout):
         raise asyncio.TimeoutError()
 
-    monkeypatch.setattr(
-        "common.process_monitor_helpers.lifecycle.asyncio.wait_for", raise_timeout
-    )
+    monkeypatch.setattr("common.process_monitor_helpers.lifecycle.asyncio.wait_for", raise_timeout)
 
     await manager.stop_background_scanning()
 

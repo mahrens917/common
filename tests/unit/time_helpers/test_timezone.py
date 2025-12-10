@@ -17,7 +17,6 @@ from common.time_helpers.timezone import (
     format_timestamp,
     get_current_date_in_timezone,
     get_current_est,
-    get_current_time,
     get_current_utc,
     get_days_ago_utc,
     get_start_of_day_utc,

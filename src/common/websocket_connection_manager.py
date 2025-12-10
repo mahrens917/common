@@ -8,11 +8,10 @@ establishment, and cleanup procedures.
 
 import asyncio
 import logging
-from typing import Any, Callable, Dict, Optional
+from typing import TYPE_CHECKING, Any, Callable, Dict, Optional
 
 import websockets
 
-from ..monitor.alerter import Alerter
 from .connection_manager import BaseConnectionManager
 from .health.types import HealthCheckResult
 from .websocket_connection_manager_helpers import (
@@ -21,21 +20,21 @@ from .websocket_connection_manager_helpers import (
     WebSocketMessageOperations,
 )
 
+if TYPE_CHECKING:
+    from ..monitor.alerter import Alerter
+
 DEFAULT_WEBSOCKET_PING_INTERVAL_SECONDS = 30
 DEFAULT_WEBSOCKET_PONG_TIMEOUT_SECONDS = 10
 
 
 class WebSocketConnectionManager(BaseConnectionManager):
-    """WebSocket-specific connection manager."""
-
     def __init__(
         self,
         service_name: str,
         websocket_url: str,
         connection_factory: Optional[Callable] = None,
-        alerter: Optional[Alerter] = None,
+        alerter: Optional["Alerter"] = None,
     ):
-        """Initialize WebSocket connection manager."""
         super().__init__(service_name, alerter)
 
         self.websocket_url = websocket_url
@@ -62,7 +61,6 @@ class WebSocketConnectionManager(BaseConnectionManager):
         self.health_monitor.last_pong_time = 0.0
 
     async def establish_connection(self) -> bool:
-        """Establish WebSocket connection."""
         try:
             result = await self.lifecycle_manager.establish_connection()
         except asyncio.CancelledError:

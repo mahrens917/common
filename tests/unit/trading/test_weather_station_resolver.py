@@ -94,9 +94,7 @@ def test_load_weather_station_mapping_propagates_config_error(
     def fail():
         raise WeatherConfigError("boom")
 
-    monkeypatch.setattr(
-        "common.trading.weather_station._load_config_weather_station_mapping", fail
-    )
+    monkeypatch.setattr("common.trading.weather_station._load_config_weather_station_mapping", fail)
 
     with pytest.raises(WeatherConfigError):
         load_weather_station_mapping()

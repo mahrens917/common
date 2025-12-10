@@ -183,9 +183,7 @@ class TestOrderRequest:
     def test_validation_called_on_init(self):
         """Test that all validation functions are called."""
         with patch("common.data_models.trading.validate_order_request_enums") as mock_enum_val:
-            with patch(
-                "common.data_models.trading.validate_order_request_price"
-            ) as mock_price_val:
+            with patch("common.data_models.trading.validate_order_request_price") as mock_price_val:
                 with patch(
                     "common.data_models.trading.validate_order_request_metadata"
                 ) as mock_meta_val:
@@ -446,9 +444,7 @@ class TestMarketValidationData:
     def test_validation_called_on_init(self):
         """Test that validation is called during initialization."""
         now = datetime.now(timezone.utc)
-        with patch(
-            "common.data_models.trading.validate_market_validation_data"
-        ) as mock_validate:
+        with patch("common.data_models.trading.validate_market_validation_data") as mock_validate:
             MarketValidationData(
                 ticker="KMARKT-25JAN01",
                 is_open=True,

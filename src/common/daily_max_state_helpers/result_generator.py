@@ -5,8 +5,9 @@ from dataclasses import dataclass
 from datetime import datetime
 from typing import Any, Dict, Optional
 
-from common.exceptions import DataError
 from src.weather.temperature_converter import cli_temp_f
+
+from common.exceptions import DataError
 
 from .confidence_calculator import ConfidenceCalculator
 
@@ -29,16 +30,6 @@ class ResultGenerator:
 
     @staticmethod
     def get_daily_max_result(state: Dict[str, Any]) -> Optional[DailyMaxResult]:
-        """
-        Get current daily maximum temperature result.
-
-        Args:
-            state: State dictionary containing max temp data
-
-        Returns:
-            DailyMaxResult with max_temp_f and confidence for trading decisions,
-            or None if no data available
-        """
         max_temp_c = state.get("max_temp_c")
         if not isinstance(max_temp_c, (int, float)):
             logger.error("Daily max result requested but invalid max_temp_c=%s", max_temp_c)
@@ -74,21 +65,6 @@ class ResultGenerator:
 
     @staticmethod
     def get_adjusted_temp_for_rule(state: Dict[str, Any], rule_type: str) -> int:
-        """
-        Get temperature adjusted with safety margin for specific trading rule.
-
-        Args:
-            state: State dictionary containing max temp data
-            rule_type: Type of rule - determines margin direction
-                      "conservative" - adds margin (Rules 3, 5)
-                      "aggressive" - subtracts margin (Rules 4, 6)
-
-        Returns:
-            Temperature in Fahrenheit with appropriate margin applied
-
-        Raises:
-            ValueError: If rule_type is unknown or no data available
-        """
         max_temp_c = state.get("max_temp_c")
         if not isinstance(max_temp_c, (int, float)):
             raise DataError("No temperature data available")
@@ -111,16 +87,6 @@ class ResultGenerator:
 
     @staticmethod
     def get_hourly_only_max_f(state: Dict[str, Any]) -> Optional[int]:
-        """
-        Get hourly-only maximum temperature in Fahrenheit for Rule 4.
-        Only considers 1-hour observations, not 6-hour maximums.
-
-        Args:
-            state: State dictionary containing hourly max data
-
-        Returns:
-            Hourly-only maximum temperature in Fahrenheit, or None if no hourly data
-        """
         hourly_max_temp_c = state.get("hourly_max_temp_c")
         if not isinstance(hourly_max_temp_c, (int, float)):
             return None

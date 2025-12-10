@@ -147,9 +147,7 @@ async def test_check_redis_status_handles_missing_data(monkeypatch):
     redis = MagicMock()
     redis.hgetall = AsyncMock(return_value={})
     monkeypatch.setattr(checker, "_get_redis_client", AsyncMock(return_value=redis))
-    monkeypatch.setattr(
-        "common.health.service_health_checker.ensure_awaitable", lambda coro: coro
-    )
+    monkeypatch.setattr("common.health.service_health_checker.ensure_awaitable", lambda coro: coro)
 
     from common.health.service_health_checker_helpers.redis_status_checker import (
         check_redis_status,

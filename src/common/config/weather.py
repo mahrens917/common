@@ -3,10 +3,23 @@ from __future__ import annotations
 """Shared helpers for loading weather-related configuration files."""
 
 import json
+import logging
 from pathlib import Path
 from typing import Any, Dict, Optional
 
-from src.weather.config_loader import WeatherConfigLoadError, load_config_json
+logger = logging.getLogger(__name__)
+
+try:
+    from src.weather.config_loader import WeatherConfigLoadError, load_config_json
+except ImportError as exc:
+    logger.debug("Weather module not available, using fallback: %s", exc)
+
+    class WeatherConfigLoadError(RuntimeError):  # type: ignore
+        """Fallback for weather config load errors."""
+
+    def load_config_json(name: str) -> Dict[str, Any]:  # type: ignore
+        """Fallback for loading weather config JSON."""
+        raise WeatherConfigError(f"Weather module not available: {name}")
 
 
 class WeatherConfigError(RuntimeError):

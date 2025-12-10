@@ -44,9 +44,7 @@ class DummyQueue:
 def test_token_manager_refill_and_consume(monkeypatch):
     token_manager = TokenManager(2, 1)
     token_manager.last_refill_time = 0.0
-    monkeypatch.setattr(
-        "common.kalshi_rate_limiter_helpers.token_manager.time.time", lambda: 2.0
-    )
+    monkeypatch.setattr("common.kalshi_rate_limiter_helpers.token_manager.time.time", lambda: 2.0)
 
     assert token_manager.refill_tokens_if_needed() is True
     assert token_manager.read_tokens == 2

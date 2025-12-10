@@ -178,14 +178,11 @@ class MetadataDelegator:
 
 
 class SubscriptionDelegator:
-    """Handles subscription management delegation."""
-
     def __init__(self, subscription_tracker: KalshiSubscriptionTracker) -> None:
         self._subscription = subscription_tracker
 
     @property
     def SUBSCRIPTIONS_KEY(self) -> str:
-        """Get subscriptions key for Redis."""
         subscriptions_key = self._subscription.SUBSCRIPTIONS_KEY
         if subscriptions_key is None:
             raise RuntimeError(
@@ -195,7 +192,6 @@ class SubscriptionDelegator:
 
     @property
     def SERVICE_STATUS_KEY(self) -> str:
-        """Get service status hash key."""
         key_provider = cast(
             Optional[KeyProvider], getattr(self._subscription, "_key_provider", None)
         )
@@ -205,7 +201,6 @@ class SubscriptionDelegator:
 
     @property
     def SUBSCRIBED_MARKETS_KEY(self) -> str:
-        """Get subscribed markets set key."""
         key_provider = cast(
             Optional[KeyProvider], getattr(self._subscription, "_key_provider", None)
         )
@@ -215,7 +210,6 @@ class SubscriptionDelegator:
 
     @property
     def SUBSCRIPTION_IDS_KEY(self) -> str:
-        """Get subscription IDs key."""
         key_provider = cast(
             Optional[KeyProvider], getattr(self._subscription, "_key_provider", None)
         )
@@ -224,21 +218,13 @@ class SubscriptionDelegator:
             return f"kalshi:subscription_ids:{prefix}"
         return key_provider.subscription_ids_key
 
-    async def get_subscribed_markets(self) -> Set[str]:  # pragma: no cover - Redis coordination
-        """Get all subscribed markets for current service."""
+    async def get_subscribed_markets(self) -> Set[str]:  # pragma: no cover
         return await self._subscription.get_subscribed_markets()
 
     async def add_subscribed_market(
-        self,
-        market_ticker: str,
-        *,
-        category: Optional[str] = None,
+        self, market_ticker: str, *, category: Optional[str] = None
     ) -> bool:
-        """Add market to subscribed markets."""
-        return await self._subscription.add_subscribed_market(
-            market_ticker,
-            category=category,
-        )
+        return await self._subscription.add_subscribed_market(market_ticker, category=category)
 
     async def remove_subscribed_market(
         self,
@@ -246,7 +232,6 @@ class SubscriptionDelegator:
         *,
         category: Optional[str] = None,
     ) -> bool:
-        """Remove market from subscribed markets."""
         return await self._subscription.remove_subscribed_market(
             market_ticker,
             category=category,
@@ -257,7 +242,6 @@ class SubscriptionDelegator:
         subscription_ids: Dict[str, Any] | Sequence[Any],
         market_tickers: Optional[Sequence[str]] = None,
     ) -> None:
-        """Record subscription IDs for markets."""
         await self._subscription.record_subscription_ids(
             subscription_ids,
             market_tickers,
@@ -268,7 +252,6 @@ class SubscriptionDelegator:
         *,
         market_tickers: Optional[Sequence[str]] = None,
     ) -> Dict[str, str]:
-        """Fetch subscription IDs for markets."""
         return await self._subscription.fetch_subscription_ids(
             market_tickers=market_tickers,
         )
@@ -278,17 +261,14 @@ class SubscriptionDelegator:
         *,
         market_tickers: Optional[Sequence[str]] = None,
     ) -> None:
-        """Clear subscription IDs for markets."""
         await self._subscription.clear_subscription_ids(
             market_tickers=market_tickers,
         )
 
     async def update_service_status(self, service: str, status: Dict) -> bool:
-        """Update service status."""
         return await self._subscription.update_service_status(service, status)
 
     async def get_service_status(self, service: str) -> Optional[str]:
-        """Get service status."""
         return await self._subscription.get_service_status(service)
 
 

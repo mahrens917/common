@@ -58,9 +58,7 @@ async def _ensure_redis_connection_impl(store: "KalshiStore") -> bool:
     return await connection.ensure_redis_connection()
 
 
-async def _write_enhanced_market_data(
-    store: "KalshiStore", market_ticker: str, field_updates: Dict[str, Any]
-) -> bool:
+async def _write_enhanced_market_data(store: "KalshiStore", market_ticker: str, field_updates: Dict[str, Any]) -> bool:
     ensure_redis = getattr(store, "_ensure_redis_connection")
     if not await ensure_redis():
         raise RuntimeError("Failed to ensure Redis connection for market write")
@@ -96,22 +94,16 @@ async def _store_market_metadata(
 
     metadata_delegator = getattr(store, "_metadata_delegator", None)
     if metadata_delegator is not None:
-        return await metadata_delegator.store_market_metadata(
-            market_ticker, market_data, event_data=event_data, overwrite=overwrite
-        )
+        return await metadata_delegator.store_market_metadata(market_ticker, market_data, event_data=event_data, overwrite=overwrite)
 
     writer_delegator = getattr(store, "_writer", None)
     if writer_delegator is not None:
-        return await writer_delegator.store_market_metadata(
-            market_ticker, market_data, event_data=event_data, overwrite=overwrite
-        )
+        return await writer_delegator.store_market_metadata(market_ticker, market_data, event_data=event_data, overwrite=overwrite)
 
     raise RuntimeError("KalshiStore is not initialized for metadata writes")
 
 
 class KalshiStore:
-    """Ultra-slim facade delegating ALL operations to specialized coordinators."""
-
     redis: Optional[Redis]
     service_prefix: Optional[str]
     logger: logging.Logger
@@ -150,9 +142,7 @@ class KalshiStore:
     async def _ensure_redis_connection(self) -> bool:
         return await _ensure_redis_connection_impl(self)
 
-    async def _connect_with_retry(
-        self, *, allow_reuse: bool, context: str, attempts: int = 3, retry_delay: float = 0.1
-    ) -> bool:
+    async def _connect_with_retry(self, *, allow_reuse: bool, context: str, attempts: int = 3, retry_delay: float = 0.1) -> bool:
         if self._connection is None:
             raise AttributeError("Connection manager unavailable")
         if hasattr(self._connection, "_connect_with_retry"):
@@ -180,48 +170,30 @@ class KalshiStore:
     async def get_interpolation_results(self, currency: str) -> Dict[str, Dict[str, Any]]:
         return await get_interpolation_results(self, currency)
 
-    async def write_enhanced_market_data(
-        self, market_ticker: str, field_updates: Dict[str, Any]
-    ) -> bool:
+    async def write_enhanced_market_data(self, market_ticker: str, field_updates: Dict[str, Any]) -> bool:
         return await _write_enhanced_market_data(self, market_ticker, field_updates)
 
-    async def get_market_data_for_strike_expiry(
-        self, currency: str, expiry_date: str, strike: float
-    ) -> Optional[Dict[str, Any]]:
+    async def get_market_data_for_strike_expiry(self, currency: str, expiry_date: str, strike: float) -> Optional[Dict[str, Any]]:
         return await get_market_data_for_strike_expiry(self, currency, expiry_date, strike)
 
     async def is_market_expired(self, market_ticker: str) -> bool:
         return await is_market_expired(self, market_ticker)
 
     async def store_market_metadata(
-        self,
-        market_ticker: str,
-        market_data: Dict[str, Any],
-        *,
-        event_data: Optional[Dict[str, Any]] = None,
-        overwrite: bool = True,
+        self, market_ticker: str, market_data: Dict[str, Any], *, event_data: Optional[Dict[str, Any]] = None, overwrite: bool = True
     ) -> bool:
-        return await _store_market_metadata(
-            self,
-            market_ticker,
-            market_data,
-            event_data=event_data,
-            overwrite=overwrite,
-        )
+        return await _store_market_metadata(self, market_ticker, market_data, event_data=event_data, overwrite=overwrite)
 
     def get_market_key(self, market_ticker: str) -> str:
-        """Resolve the market key via routing components."""
         reader = getattr(self, "_reader", None)
         if reader is not None and hasattr(reader, "get_market_key"):
             return reader.get_market_key(market_ticker)
         attr_resolver = getattr(self, "_attr_resolver", None)
         if attr_resolver is not None:
-            resolved = attr_resolver.resolve("get_market_key")
-            return resolved(market_ticker)
+            return attr_resolver.resolve("get_market_key")(market_ticker)
         raise NotImplementedError("KalshiStore helper not bound for get_market_key")
 
     def __getattr__(self, name: str) -> Any:
-        """Placeholder for dynamic attribute resolution."""
         raise AttributeError(name)
 
 

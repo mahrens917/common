@@ -1,13 +1,5 @@
 from __future__ import annotations
 
-"""
-Repositories for trade record persistence and retrieval.
-
-The repository hides Redis interactions from the public TradeStore API so that
-behavioural changes (retry logic, validation, schema updates) remain focused and
-testable without depending on the larger TradeStore surface.
-"""
-
 from datetime import datetime
 from typing import Any, Awaitable, Callable, Dict, List, Optional
 
@@ -20,8 +12,6 @@ from .keys import TradeKeyBuilder
 
 
 class TradeRecordRepository:
-    """Encapsulates trade persistence and retrieval concerns."""
-
     def __init__(
         self,
         redis_provider: Callable[[], Awaitable[RedisClient]],
@@ -38,7 +28,6 @@ class TradeRecordRepository:
     async def store(self, trade: TradeRecord) -> bool:
         client = await self._redis_provider()
         trade_json = self._codec.encode(trade)
-
         async with client.pipeline() as pipe:
             trade_date = trade.trade_timestamp.date()
             trade_key = self._keys.trade(trade_date, trade.order_id)
@@ -50,11 +39,9 @@ class TradeRecordRepository:
             pipe.sadd(self._keys.rule(trade.trade_rule), trade.order_id)
             pipe.set(self._keys.order_index(trade.order_id), trade_key)
             results = await ensure_awaitable(pipe.execute())
-
         failed_ops = [idx for idx, result in enumerate(results) if result in (None, False)]
         if failed_ops:
             raise TradeStoreError(f"Redis pipeline operations failed at indices: {failed_ops}")
-
         self._logger.debug("Stored trade %s for %s", trade.order_id, trade_date)
         return True
 
@@ -91,15 +78,12 @@ class TradeRecordRepository:
         trade_key = await ensure_awaitable(client.get(order_index_key))
         if not trade_key:
             raise TradeStoreError(f"Order id {order_id} not indexed; cannot mark settled")
-
         trade_json = await ensure_awaitable(client.get(trade_key))
         if not trade_json:
             raise TradeStoreError(f"Trade key {trade_key} missing for order {order_id}")
-
         trade_record = self._codec.decode(trade_json)
         trade_record.settlement_price_cents = settlement_price_cents
         trade_record.settlement_time = settled_at or timestamp_provider()
-
         updated_payload = self._codec.encode(trade_record)
         await ensure_awaitable(client.set(trade_key, updated_payload))
         self._logger.info("Marked trade %s as settled at %s", order_id, settlement_price_cents)

@@ -3,21 +3,20 @@
 import asyncio
 import logging
 import uuid
-from typing import Any, Optional, Tuple
+from typing import Optional, Tuple
 
 from ..data_models.trading import (
     OrderAction,
     OrderRequest,
     OrderResponse,
-    OrderStatus,
     OrderType,
     PortfolioPosition,
     TimeInForce,
     TradeRule,
 )
 from ..kalshi_trading_client import KalshiTradingClient
-from ..redis_protocol.typing import ensure_awaitable
 from ..trading_exceptions import KalshiTradingError
+from .order_completion_waiter import OrderCompletionWaiter
 
 logger = logging.getLogger(__name__)
 
@@ -28,8 +27,6 @@ TRADING_OPERATION_ERRORS = (
     asyncio.TimeoutError,
     RuntimeError,
 )
-
-ORDER_POLLING_ERRORS = TRADING_OPERATION_ERRORS + (ValueError,)
 
 
 class PositionCloser:
@@ -87,55 +84,6 @@ class PositionCloser:
     async def _wait_for_order_completion(
         self, order_id: str, timeout_seconds: float = 30.0
     ) -> Optional[OrderResponse]:
-        loop = asyncio.get_running_loop()
-        deadline = loop.time() + timeout_seconds
-
-        ensure_store = getattr(self.trading_client, "require_trade_store", None)
-        if callable(ensure_store):
-            await ensure_awaitable(ensure_store())
-
-        while loop.time() < deadline:
-            try:
-                kalshi_client: Any = self.trading_client.kalshi_client
-                fills = await kalshi_client.get_fills(order_id)
-                if fills:
-                    total_filled = self._count_fills(fills, order_id)
-                    if total_filled > 0:
-                        logger.info(
-                            "[PositionCloser] Emergency order %s filled: %s contracts",
-                            order_id,
-                            total_filled,
-                        )
-
-                order_response = await kalshi_client.get_order(order_id)
-                if order_response and order_response.status in (
-                    OrderStatus.FILLED,
-                    OrderStatus.EXECUTED,
-                    OrderStatus.CANCELLED,
-                ):
-                    return order_response
-
-                await asyncio.sleep(0.5)
-
-            except ORDER_POLLING_ERRORS:
-                logger.warning("[PositionCloser] Error checking order %s", order_id)
-                await asyncio.sleep(1.0)
-
-        logger.warning(
-            "[PositionCloser] Order %s did not complete within %ss", order_id, timeout_seconds
+        return await OrderCompletionWaiter.wait_for_order_completion(
+            order_id, self.trading_client, timeout_seconds
         )
-        return None
-
-    def _count_fills(self, fills, order_id: str) -> int:
-        total_filled = 0
-        for fill in fills:
-            if "count" not in fill:
-                logger.warning("[PositionCloser] Fill payload missing 'count': %s", fill)
-                continue
-            try:
-                total_filled += int(fill["count"])
-            except (TypeError, ValueError):
-                logger.warning(
-                    "[PositionCloser] Invalid fill count for %s: %s", order_id, fill["count"]
-                )
-        return total_filled

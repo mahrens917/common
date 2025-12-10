@@ -8,9 +8,7 @@ from common.base_connection_manager_helpers import (
     backoff_calculator,
     lifecycle_helpers,
 )
-from common.base_connection_manager_helpers import (
-    notification_helpers as bcm_notification_helpers,
-)
+from common.base_connection_manager_helpers import notification_helpers as bcm_notification_helpers
 from common.base_connection_manager_helpers import (
     retry_logic,
     state_broadcast_helper,

@@ -15,9 +15,7 @@ class TestBuildPoolSettings:
 
     def test_builds_basic_settings(self) -> None:
         """Builds settings with required fields."""
-        with patch(
-            "common.redis_protocol.connection_helpers.pool_settings.config"
-        ) as mock_config:
+        with patch("common.redis_protocol.connection_helpers.pool_settings.config") as mock_config:
             mock_config.REDIS_HOST = "localhost"
             mock_config.REDIS_PORT = 6379
             mock_config.REDIS_DB = 0
@@ -38,9 +36,7 @@ class TestBuildPoolSettings:
 
     def test_includes_password_when_set(self) -> None:
         """Includes password in settings when configured."""
-        with patch(
-            "common.redis_protocol.connection_helpers.pool_settings.config"
-        ) as mock_config:
+        with patch("common.redis_protocol.connection_helpers.pool_settings.config") as mock_config:
             mock_config.REDIS_HOST = "localhost"
             mock_config.REDIS_PORT = 6379
             mock_config.REDIS_DB = 0
@@ -58,9 +54,7 @@ class TestBuildPoolSettings:
 
     def test_excludes_password_when_empty(self) -> None:
         """Excludes password when not configured."""
-        with patch(
-            "common.redis_protocol.connection_helpers.pool_settings.config"
-        ) as mock_config:
+        with patch("common.redis_protocol.connection_helpers.pool_settings.config") as mock_config:
             mock_config.REDIS_HOST = "localhost"
             mock_config.REDIS_PORT = 6379
             mock_config.REDIS_DB = 0
@@ -78,9 +72,7 @@ class TestBuildPoolSettings:
 
     def test_includes_ssl_when_enabled(self) -> None:
         """Includes SSL setting when enabled."""
-        with patch(
-            "common.redis_protocol.connection_helpers.pool_settings.config"
-        ) as mock_config:
+        with patch("common.redis_protocol.connection_helpers.pool_settings.config") as mock_config:
             mock_config.REDIS_HOST = "localhost"
             mock_config.REDIS_PORT = 6379
             mock_config.REDIS_DB = 0

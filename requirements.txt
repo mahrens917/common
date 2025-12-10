@@ -1,0 +1,8 @@
+redis
+aiohttp
+orjson
+websockets
+psutil
+pytz
+numpy
+python-dateutil

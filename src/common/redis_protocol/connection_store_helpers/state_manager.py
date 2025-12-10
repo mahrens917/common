@@ -1,7 +1,3 @@
-"""
-Connection state management for ConnectionStore (Refactored)
-"""
-
 import logging
 import time
 from typing import Any, Awaitable, Callable, Dict, List, Optional
@@ -19,8 +15,6 @@ logger = logging.getLogger(__name__)
 
 
 class StateManager:
-    """Manages connection state storage and retrieval."""
-
     def __init__(
         self,
         redis_getter: Callable[[], Awaitable[Any]],
@@ -30,7 +24,6 @@ class StateManager:
         self.connection_states_key = connection_states_key
 
     async def store_connection_state(self, state_info: ConnectionStateInfo) -> bool:
-        """Persist connection state information."""
         state_json = serialize_state_info(state_info)
         if state_json is None:
             return False
@@ -56,7 +49,6 @@ class StateManager:
             return True
 
     async def get_connection_state(self, service_name: str) -> Optional[ConnectionStateInfo]:
-        """Retrieve connection state for a given service."""
         client = await self._get_client()
         try:
             state_json = await ensure_awaitable(
@@ -71,7 +63,6 @@ class StateManager:
         return deserialize_state_json(service_name, state_json)
 
     async def get_all_connection_states(self) -> Dict[str, ConnectionStateInfo]:
-        """Retrieve all tracked connection states."""
         client = await self._get_client()
         try:
             all_states = await ensure_awaitable(client.hgetall(self.connection_states_key))
@@ -86,12 +77,10 @@ class StateManager:
         return result
 
     async def is_service_in_reconnection(self, service_name: str) -> bool:
-        """Check if the requested service is reconnecting."""
         state_info = await self.get_connection_state(service_name)
         return state_info is not None and _is_reconnecting(state_info)
 
     async def get_services_in_reconnection(self) -> List[str]:
-        """Return services currently marked as reconnecting."""
         all_states = await self.get_all_connection_states()
         return [
             service_name
@@ -100,31 +89,23 @@ class StateManager:
         ]
 
     async def cleanup_stale_states(self, max_age_hours: int = 24) -> int:
-        """Remove stale connection entries from Redis."""
         all_states = await self.get_all_connection_states()
         cutoff_time = time.time() - (max_age_hours * 3600)
         client = await self._get_client()
         cleaned_count = 0
         for service_name, state_info in all_states.items():
             if state_info.timestamp < cutoff_time:
-                if await self._delete_state(client, service_name):
+                try:
+                    await ensure_awaitable(client.hdel(self.connection_states_key, service_name))
+                    logger.debug("Cleaned up stale connection state for %s", service_name)
                     cleaned_count += 1
+                except REDIS_ERRORS:
+                    logger.error(
+                        "Failed to remove stale connection state for %s",
+                        service_name,
+                        exc_info=True,
+                    )
         return cleaned_count
-
-    async def _delete_state(self, client, service_name: str) -> bool:
-        """Delete a single service state entry."""
-        try:
-            await ensure_awaitable(client.hdel(self.connection_states_key, service_name))
-            logger.debug("Cleaned up stale connection state for %s", service_name)
-        except REDIS_ERRORS:
-            logger.error(
-                "Failed to remove stale connection state for %s",
-                service_name,
-                exc_info=True,
-            )
-            return False
-        else:
-            return True
 
 
 def _is_reconnecting(state_info: ConnectionStateInfo) -> bool:

@@ -12,9 +12,7 @@ from common.redis_schema.validators import register_namespace, validate_register
 
 
 def test_register_namespace_detects_conflicts(monkeypatch):
-    monkeypatch.setattr(
-        "common.redis_schema.validators._registered_prefixes", {}, raising=False
-    )
+    monkeypatch.setattr("common.redis_schema.validators._registered_prefixes", {}, raising=False)
 
     register_namespace("ops:test:", "Test namespace")
     register_namespace("ops:test:", "Test namespace")  # idempotent
@@ -24,9 +22,7 @@ def test_register_namespace_detects_conflicts(monkeypatch):
 
 
 def test_validate_registered_key(monkeypatch):
-    monkeypatch.setattr(
-        "common.redis_schema.validators._registered_prefixes", {}, raising=False
-    )
+    monkeypatch.setattr("common.redis_schema.validators._registered_prefixes", {}, raising=False)
     register_namespace("ops:status:", "Status keys")
 
     validate_registered_key("ops:status:tracker")  # should not raise

@@ -89,9 +89,7 @@ async def test_update_process_metrics_refreshes_timestamp(monkeypatch):
         def __init__(self, pid):
             self.pid = pid
 
-    monkeypatch.setattr(
-        "common.process_monitor_helpers.cache_manager.psutil.Process", FakeProcess
-    )
+    monkeypatch.setattr("common.process_monitor_helpers.cache_manager.psutil.Process", FakeProcess)
 
     updated = await monitor.update_process_metrics(42)
     assert updated is monitor._process_cache[42]
@@ -106,9 +104,7 @@ async def test_update_process_metrics_removes_missing(monkeypatch):
     def fake_process(pid):
         raise psutil.NoSuchProcess(pid)
 
-    monkeypatch.setattr(
-        "common.process_monitor_helpers.cache_manager.psutil.Process", fake_process
-    )
+    monkeypatch.setattr("common.process_monitor_helpers.cache_manager.psutil.Process", fake_process)
 
     result = await monitor.update_process_metrics(_CONST_13)
     assert result is None
@@ -151,7 +147,7 @@ async def test_perform_full_scan_populates_caches(monkeypatch):
     ]
 
     monkeypatch.setattr(
-        "common.process_monitor_helpers.scanner.psutil.process_iter", lambda attrs: processes
+        "common.process_monitor_helpers.scanner.psutil.process_iter", lambda _attrs: processes
     )
 
     await monitor._perform_full_scan()
@@ -350,9 +346,7 @@ async def test_perform_full_scan_recovers_from_errors(monkeypatch):
     def broken_iter(_attrs):
         raise RuntimeError("broken iterator")
 
-    monkeypatch.setattr(
-        "common.process_monitor_helpers.scanner.psutil.process_iter", broken_iter
-    )
+    monkeypatch.setattr("common.process_monitor_helpers.scanner.psutil.process_iter", broken_iter)
 
     await monitor._perform_full_scan()
 

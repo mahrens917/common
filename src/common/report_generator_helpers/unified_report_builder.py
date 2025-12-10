@@ -18,8 +18,6 @@ logger = logging.getLogger(__name__)
 
 
 class UnifiedReportBuilder:
-    """Builds unified PnL reports spanning multiple time periods."""
-
     def __init__(
         self,
         pnl_calculator: PnLCalculator,
@@ -28,7 +26,6 @@ class UnifiedReportBuilder:
         daily_collector: DailyPnLCollector,
         timezone: str,
     ):
-        """Initialize unified report builder with formatters and timezone."""
         self.pnl_calculator = pnl_calculator
         self.unified_formatter = unified_formatter
         self.time_period_formatter = time_period_formatter

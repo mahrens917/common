@@ -60,9 +60,7 @@ class TestBuildTrackerError:
         """Logs the exception with context."""
         original = ValueError("original error")
 
-        with patch(
-            "common.connection_state_tracker_helpers.error_builder.logger"
-        ) as mock_logger:
+        with patch("common.connection_state_tracker_helpers.error_builder.logger") as mock_logger:
             build_tracker_error("Failed to persist", original)
 
             mock_logger.exception.assert_called_once()

@@ -7,9 +7,20 @@ import atexit
 import logging
 import weakref
 
-from src.monitor.alerter import Alerter as ServiceAlerter
-
 logger = logging.getLogger(__name__)
+
+try:
+    from src.monitor.alerter import Alerter as ServiceAlerter
+except ImportError as exc:
+    logger.debug("Monitor module not available, using fallback: %s", exc)
+
+    class ServiceAlerter:  # type: ignore
+        """Fallback alerter for repos without monitor module."""
+
+        async def alert(self, *args, **kwargs):  # type: ignore
+            """No-op alert method."""
+            pass
+
 
 _shutdown_registry: "weakref.WeakSet" = weakref.WeakSet()
 
@@ -28,9 +39,9 @@ def _register_shutdown_hook(alerter) -> None:
 
     def _cleanup() -> None:
         from redis.exceptions import RedisError
+        from src.monitor.alerting.models import AlerterError
 
         from common.redis_utils import RedisOperationError
-        from src.monitor.alerting.models import AlerterError
 
         cleanup_errors = (
             AlerterError,

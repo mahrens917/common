@@ -45,9 +45,7 @@ class TestDawnCalculatorIsNewTradingDay:
 
         prev_ts = datetime(2024, 12, 1, 5, 0, 0)
 
-        with patch(
-            "common.dawn_reset_service_helpers.dawn_calculator.get_current_utc"
-        ) as mock_now:
+        with patch("common.dawn_reset_service_helpers.dawn_calculator.get_current_utc") as mock_now:
             mock_now.return_value = datetime(2024, 12, 1, 5, 30, 0)
 
             is_new, dawn = calculator.is_new_trading_day(40.7128, -74.0060, prev_ts)
@@ -107,9 +105,7 @@ class TestDawnCalculatorResolveLatestDawnBoundary:
         mock_calculate_dawn = MagicMock(return_value=datetime(2024, 12, 1, 7, 0, 0))
         calculator = DawnCalculator(calculate_dawn_fn=mock_calculate_dawn)
 
-        with patch(
-            "common.dawn_reset_service_helpers.dawn_calculator.get_current_utc"
-        ) as mock_now:
+        with patch("common.dawn_reset_service_helpers.dawn_calculator.get_current_utc") as mock_now:
             mock_now.return_value = datetime(2024, 12, 1, 8, 0, 0)
 
             result = calculator.resolve_latest_dawn_boundary(40.7128, -74.0060)

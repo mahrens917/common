@@ -102,23 +102,18 @@ class OptimizedMarketStore:
             return []
 
     async def get_options_by_currency(self, currency: str) -> List:
-        """Return all option instruments for a currency."""
         return await _filter_instruments(self, currency, _is_option_instrument, "options")
 
     async def get_futures_by_currency(self, currency: str) -> List:
-        """Return all future instruments for a currency."""
         return await _filter_instruments(self, currency, _is_future_instrument, "futures")
 
     async def get_puts_by_currency(self, currency: str) -> List:
-        """Return all put option instruments for a currency."""
         return await _filter_instruments(self, currency, _is_put_instrument, "puts")
 
     def _convert_expiry_to_iso(self, expiry_str: str) -> str:
-        """Convert Deribit expiry to ISO format (for testing)."""
         return self.expiry_converter.convert_expiry_to_iso(expiry_str)
 
     def _convert_iso_to_deribit(self, iso_str: str) -> str:
-        """Convert ISO date to Deribit expiry format (for testing)."""
         return self.expiry_converter.convert_iso_to_deribit(iso_str)
 
     async def close(self):

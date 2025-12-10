@@ -69,9 +69,7 @@ class TestMetricsSectionPrinter:
         assert "  🟢 Kalshi Messages - 7" in printer._emitted
         assert printer._emitted[-1] == "  🟢 CFB Messages - 9"
 
-    @patch(
-        "common.optimized_status_reporter_helpers.metrics_section_printer.get_weather_settings"
-    )
+    @patch("common.optimized_status_reporter_helpers.metrics_section_printer.get_weather_settings")
     def test_print_weather_metrics_section_disables_asos_when_off(
         self, mock_get_weather_settings, printer, data_coercion
     ):
@@ -86,9 +84,7 @@ class TestMetricsSectionPrinter:
         assert "DISABLED" in printer._emitted[2]
         assert printer._emitted[-1] == "  🟢 METAR Temperature Changes - 4"
 
-    @patch(
-        "common.optimized_status_reporter_helpers.metrics_section_printer.get_weather_settings"
-    )
+    @patch("common.optimized_status_reporter_helpers.metrics_section_printer.get_weather_settings")
     def test_print_weather_metrics_section_prints_asos_and_metar(
         self, mock_get_weather_settings, printer, data_coercion
     ):

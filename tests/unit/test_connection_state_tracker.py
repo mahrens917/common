@@ -172,9 +172,7 @@ async def test_initialize_raises_runtime_error_on_failure(monkeypatch):
     async def failing_get_store():
         raise ValueError("redis unavailable")
 
-    monkeypatch.setattr(
-        "common.connection_state_tracker.get_connection_store", failing_get_store
-    )
+    monkeypatch.setattr("common.connection_state_tracker.get_connection_store", failing_get_store)
 
     tracker = ConnectionStateTracker()
     with pytest.raises(ValueError, match="redis unavailable"):

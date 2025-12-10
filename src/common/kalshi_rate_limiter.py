@@ -7,14 +7,19 @@ with API limits and eliminate the need for complex exponential backoff logic.
 
 import asyncio
 import logging
-import time
-import uuid
 from enum import Enum
 from typing import Any, Dict
 
-from .kalshi_rate_limiter_helpers import MetricsCollector
+from .kalshi_rate_limiter_helpers import (
+    MetricsCollector,
+)
 from .kalshi_rate_limiter_helpers import RateLimiterWorkerError as _WorkerManagerError
-from .kalshi_rate_limiter_helpers import StateAccessorsMixin, TokenManager, WorkerManager
+from .kalshi_rate_limiter_helpers import (
+    RequestEnqueuer,
+    StateAccessorsMixin,
+    TokenManager,
+    WorkerManager,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -116,34 +121,14 @@ class KalshiRateLimiter(StateAccessorsMixin):
             QueueFullError: If request queue is at capacity
             ValueError: If request_type is invalid
         """
-        request_id = str(uuid.uuid4())
-        request_data["request_id"] = request_id
-        request_data["enqueue_time"] = time.time()
-
-        try:
-            if request_type == RequestType.READ:
-                if self.read_queue.full():
-                    raise QueueFullError(
-                        f"Read request queue is full ({READ_QUEUE_MAX_SIZE} requests) - system overloaded"
-                    )
-                self.read_queue.put_nowait(request_data)
-
-            elif request_type == RequestType.WRITE:
-                if self.write_queue.full():
-                    raise QueueFullError(
-                        f"Write request queue is full ({WRITE_QUEUE_MAX_SIZE} requests) - system overloaded"
-                    )
-                self.write_queue.put_nowait(request_data)
-
-            else:
-                raise ValueError(f"Invalid request type: {request_type}")
-
-        except asyncio.QueueFull:
-            # This should not happen due to full() checks above, but fail-fast if it does
-            raise QueueFullError(f"Request queue unexpectedly full for {request_type.value}")
-
-        logger.debug(f"[KalshiRateLimiter] Queued {request_type.value} request {request_id}")
-        return request_id
+        return await RequestEnqueuer.enqueue_request(
+            request_type,
+            request_data,
+            self.read_queue,
+            self.write_queue,
+            READ_QUEUE_MAX_SIZE,
+            WRITE_QUEUE_MAX_SIZE,
+        )
 
     def get_queue_metrics(self) -> Dict[str, Any]:
         """Get current queue status for monitoring."""

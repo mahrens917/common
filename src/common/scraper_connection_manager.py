@@ -7,9 +7,8 @@ HTTP session management, and content validation.
 """
 
 import logging
-from typing import Any, Callable, Dict, List, Optional
+from typing import TYPE_CHECKING, Any, Callable, Dict, List, Optional
 
-from ..monitor.alerter import Alerter
 from .connection_manager import BaseConnectionManager
 from .health.types import HealthCheckResult
 from .http_utils import AioHTTPSessionConnectionMixin
@@ -21,6 +20,9 @@ from .scraper_connection_manager_helpers import (
     ScrapingOperations,
 )
 
+if TYPE_CHECKING:
+    from ..monitor.alerter import Alerter
+
 
 class ScraperConnectionManager(AioHTTPSessionConnectionMixin, BaseConnectionManager):
     """Scraper-specific connection manager."""
@@ -31,7 +33,7 @@ class ScraperConnectionManager(AioHTTPSessionConnectionMixin, BaseConnectionMana
         target_urls: List[str],
         content_validators: Optional[List[Callable]] = None,
         user_agent: Optional[str] = None,
-        alerter: Optional[Alerter] = None,
+        alerter: Optional["Alerter"] = None,
     ):
         super().__init__(service_name, alerter)
         self.target_urls = target_urls

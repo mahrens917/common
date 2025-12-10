@@ -133,9 +133,7 @@ async def test_get_all_service_log_activity(tmp_path, monkeypatch):
 
     current_time = base_time + timedelta(seconds=5)
     monkeypatch.setattr("common.time_utils.ensure_timezone_aware", lambda dt: dt, raising=False)
-    monkeypatch.setattr(
-        "common.time_utils.get_current_utc", lambda: current_time, raising=False
-    )
+    monkeypatch.setattr("common.time_utils.get_current_utc", lambda: current_time, raising=False)
 
     monitor = LogActivityMonitor(str(tmp_path))
     results = await monitor.get_all_service_log_activity(["a", "b"])

@@ -339,9 +339,7 @@ class TestMicroPriceOptionData:
         expiry = datetime(2023, 12, 29, tzinfo=timezone.utc)
 
         with (
-            patch(
-                "common.data_models.market_data.MicroPriceValidator.validate_basic_option_data"
-            ),
+            patch("common.data_models.market_data.MicroPriceValidator.validate_basic_option_data"),
             patch(
                 "common.data_models.market_data.MicroPriceValidator.validate_micro_price_calculations"
             ),
@@ -422,9 +420,7 @@ class TestMicroPriceOptionDataMethods:
         expiry = datetime(2023, 12, 29, tzinfo=timezone.utc)
 
         with (
-            patch(
-                "common.data_models.market_data.MicroPriceValidator.validate_basic_option_data"
-            ),
+            patch("common.data_models.market_data.MicroPriceValidator.validate_basic_option_data"),
             patch(
                 "common.data_models.market_data.MicroPriceValidator.validate_micro_price_calculations"
             ),
@@ -464,9 +460,7 @@ class TestMicroPriceOptionDataMethods:
         expiry = datetime(2023, 12, 29, tzinfo=timezone.utc)
 
         with (
-            patch(
-                "common.data_models.market_data.MicroPriceValidator.validate_basic_option_data"
-            ),
+            patch("common.data_models.market_data.MicroPriceValidator.validate_basic_option_data"),
             patch(
                 "common.data_models.market_data.MicroPriceValidator.validate_micro_price_calculations"
             ),
@@ -505,9 +499,7 @@ class TestMicroPriceOptionDataMethods:
         expiry = datetime(2023, 12, 29, tzinfo=timezone.utc)
 
         with (
-            patch(
-                "common.data_models.market_data.MicroPriceValidator.validate_basic_option_data"
-            ),
+            patch("common.data_models.market_data.MicroPriceValidator.validate_basic_option_data"),
             patch(
                 "common.data_models.market_data.MicroPriceValidator.validate_micro_price_calculations"
             ),
@@ -547,9 +539,7 @@ class TestMicroPriceOptionDataMethods:
         expiry = datetime(2023, 12, 29, tzinfo=timezone.utc)
 
         with (
-            patch(
-                "common.data_models.market_data.MicroPriceValidator.validate_basic_option_data"
-            ),
+            patch("common.data_models.market_data.MicroPriceValidator.validate_basic_option_data"),
             patch(
                 "common.data_models.market_data.MicroPriceValidator.validate_micro_price_calculations"
             ),
@@ -589,9 +579,7 @@ class TestMicroPriceOptionDataMethods:
         expiry = datetime(2023, 12, 29, tzinfo=timezone.utc)
 
         with (
-            patch(
-                "common.data_models.market_data.MicroPriceValidator.validate_basic_option_data"
-            ),
+            patch("common.data_models.market_data.MicroPriceValidator.validate_basic_option_data"),
             patch(
                 "common.data_models.market_data.MicroPriceValidator.validate_micro_price_calculations"
             ),
@@ -635,9 +623,7 @@ class TestMicroPriceOptionDataProperties:
         expiry = datetime(2023, 12, 29, tzinfo=timezone.utc)
 
         with (
-            patch(
-                "common.data_models.market_data.MicroPriceValidator.validate_basic_option_data"
-            ),
+            patch("common.data_models.market_data.MicroPriceValidator.validate_basic_option_data"),
             patch(
                 "common.data_models.market_data.MicroPriceValidator.validate_micro_price_calculations"
             ),
@@ -676,9 +662,7 @@ class TestMicroPriceOptionDataProperties:
         expiry = datetime(2023, 12, 29, tzinfo=timezone.utc)
 
         with (
-            patch(
-                "common.data_models.market_data.MicroPriceValidator.validate_basic_option_data"
-            ),
+            patch("common.data_models.market_data.MicroPriceValidator.validate_basic_option_data"),
             patch(
                 "common.data_models.market_data.MicroPriceValidator.validate_micro_price_calculations"
             ),
@@ -717,9 +701,7 @@ class TestMicroPriceOptionDataProperties:
         expiry = datetime(2023, 12, 29, tzinfo=timezone.utc)
 
         with (
-            patch(
-                "common.data_models.market_data.MicroPriceValidator.validate_basic_option_data"
-            ),
+            patch("common.data_models.market_data.MicroPriceValidator.validate_basic_option_data"),
             patch(
                 "common.data_models.market_data.MicroPriceValidator.validate_micro_price_calculations"
             ),
@@ -758,9 +740,7 @@ class TestMicroPriceOptionDataProperties:
         expiry = datetime(2023, 12, 29, tzinfo=timezone.utc)
 
         with (
-            patch(
-                "common.data_models.market_data.MicroPriceValidator.validate_basic_option_data"
-            ),
+            patch("common.data_models.market_data.MicroPriceValidator.validate_basic_option_data"),
             patch(
                 "common.data_models.market_data.MicroPriceValidator.validate_micro_price_calculations"
             ),

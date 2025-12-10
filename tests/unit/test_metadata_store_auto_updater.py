@@ -104,9 +104,7 @@ class TestMetadataStoreAutoUpdaterInitialize:
         updater.init_manager.pubsub_client = mock_pubsub
         updater.init_manager.redis_client = MagicMock()
 
-        with patch(
-            "common.metadata_store_auto_updater.KeyspaceListener"
-        ) as mock_listener_class:
+        with patch("common.metadata_store_auto_updater.KeyspaceListener") as mock_listener_class:
             await updater.initialize()
 
         mock_listener_class.assert_called_once_with(
@@ -141,9 +139,7 @@ class TestMetadataStoreAutoUpdaterInitialize:
         mock_redis = MagicMock()
         updater.init_manager.redis_client = mock_redis
 
-        with patch(
-            "common.metadata_store_auto_updater.TimeWindowUpdater"
-        ) as mock_updater_class:
+        with patch("common.metadata_store_auto_updater.TimeWindowUpdater") as mock_updater_class:
             await updater.initialize()
 
         mock_updater_class.assert_called_once_with(mock_store, mock_redis)

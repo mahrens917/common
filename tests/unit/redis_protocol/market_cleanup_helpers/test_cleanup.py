@@ -130,9 +130,7 @@ class TestCleanupKalshiMarkets:
 
         cleaner = ExpiredMarketCleaner(mock_redis, grace_period_days=1)
 
-        with patch(
-            "common.redis_protocol.market_cleanup_helpers.cleanup.logger"
-        ) as mock_logger:
+        with patch("common.redis_protocol.market_cleanup_helpers.cleanup.logger") as mock_logger:
             await cleaner.cleanup_kalshi_markets()
 
         mock_logger.info.assert_called_once()
@@ -290,9 +288,7 @@ class TestCleanupDeribitOptions:
 
         cleaner = ExpiredMarketCleaner(mock_redis, grace_period_days=1)
 
-        with patch(
-            "common.redis_protocol.market_cleanup_helpers.cleanup.logger"
-        ) as mock_logger:
+        with patch("common.redis_protocol.market_cleanup_helpers.cleanup.logger") as mock_logger:
             await cleaner.cleanup_deribit_options()
 
         mock_logger.info.assert_called_once()

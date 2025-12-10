@@ -1,9 +1,3 @@
-"""
-Orderbook processing for Kalshi market data
-
-This module handles orderbook snapshot and delta updates from Kalshi websocket feeds.
-"""
-
 import logging
 import time
 from typing import Any, Dict
@@ -24,25 +18,7 @@ async def _process_orderbook_message(*, context: OrderbookMessageContext) -> boo
     return await dispatcher.process_orderbook_message(context)
 
 
-async def _process_snapshot(
-    *,
-    snapshot_processor: SnapshotProcessor,
-    **kwargs: Any,
-) -> bool:
-    return await snapshot_processor.process_orderbook_snapshot(**kwargs)
-
-
-async def _process_delta(
-    *,
-    delta_processor: DeltaProcessor,
-    **kwargs: Any,
-) -> bool:
-    return await delta_processor.process_orderbook_delta(**kwargs)
-
-
 class KalshiOrderbookProcessor:
-    """Handles orderbook snapshot and delta updates from Kalshi websocket feeds."""
-
     def __init__(
         self,
         redis_connection_manager: RedisConnectionManager,
@@ -81,8 +57,7 @@ class KalshiOrderbookProcessor:
         msg_data: Dict[str, Any],
         timestamp: str,
     ) -> bool:
-        return await _process_snapshot(
-            snapshot_processor=self._snapshot_processor,
+        return await self._snapshot_processor.process_orderbook_snapshot(
             redis=redis,
             market_key=market_key,
             market_ticker=market_ticker,
@@ -99,8 +74,7 @@ class KalshiOrderbookProcessor:
         msg_data: Dict[str, Any],
         timestamp: str,
     ) -> bool:
-        return await _process_delta(
-            delta_processor=self._delta_processor,
+        return await self._delta_processor.process_orderbook_delta(
             redis=redis,
             market_key=market_key,
             market_ticker=market_ticker,
@@ -113,14 +87,12 @@ class KalshiOrderbookProcessor:
             if not await self._ensure_redis_connection():
                 logger.error("Failed to ensure Redis connection for update_orderbook")
                 return False
-
             from . import merge_orderbook_payload
 
             msg_type, msg_data, market_ticker = merge_orderbook_payload(message)
             market_key = self.get_market_key(market_ticker)
             timestamp = str(int(time.time()))
             redis = await self._get_redis()
-
             context = OrderbookMessageContext(
                 msg_type=msg_type,
                 msg_data=msg_data,
@@ -134,11 +106,7 @@ class KalshiOrderbookProcessor:
             success = await _process_orderbook_message(context=context)
             if success and msg_type == "orderbook_snapshot":
                 await normalizer.normalize_snapshot_json(redis, market_key)
-        except (
-            ValueError,
-            KeyError,
-            RuntimeError,
-        ) as exc:
+        except (ValueError, KeyError, RuntimeError) as exc:
             error_msg = str(exc)
             if "Missing yes_bid_price" in error_msg or "Missing yes_ask_price" in error_msg:
                 logger.debug("Illiquid market orderbook update: %s", exc)
