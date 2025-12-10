@@ -89,39 +89,21 @@ class MemoryMonitor:
         return self._collection_tracker.tracked_collections
 
     @property
-    def memory_growth_threshold_mb(self) -> float:
-        return self._memory_growth_threshold_mb
-
+    def memory_growth_threshold_mb(self) -> float: return self._memory_growth_threshold_mb
     @memory_growth_threshold_mb.setter
-    def memory_growth_threshold_mb(self, v: float):
-        self._memory_growth_threshold_mb = v
-        hasattr(self, "_trend_analyzer") and setattr(self._trend_analyzer, "memory_growth_threshold_mb", v)
-
+    def memory_growth_threshold_mb(self, v: float): self._memory_growth_threshold_mb = v; hasattr(self, "_trend_analyzer") and setattr(self._trend_analyzer, "memory_growth_threshold_mb", v)
     @property
-    def collection_growth_threshold(self) -> int:
-        return self._collection_growth_threshold
-
+    def collection_growth_threshold(self) -> int: return self._collection_growth_threshold
     @collection_growth_threshold.setter
-    def collection_growth_threshold(self, v: int):
-        self._collection_growth_threshold = v
-        hasattr(self, "_trend_analyzer") and setattr(self._trend_analyzer, "collection_growth_threshold", v)
-
+    def collection_growth_threshold(self, v: int): self._collection_growth_threshold = v; hasattr(self, "_trend_analyzer") and setattr(self._trend_analyzer, "collection_growth_threshold", v)
     @property
-    def task_count_threshold(self) -> int:
-        return self._task_count_threshold
-
+    def task_count_threshold(self) -> int: return self._task_count_threshold
     @task_count_threshold.setter
-    def task_count_threshold(self, v: int):
-        self._task_count_threshold = v
-        hasattr(self, "_trend_analyzer") and setattr(self._trend_analyzer, "task_count_threshold", v)
-
+    def task_count_threshold(self, v: int): self._task_count_threshold = v; hasattr(self, "_trend_analyzer") and setattr(self._trend_analyzer, "task_count_threshold", v)
     @property
-    def shutdown_requested(self) -> bool:
-        return self._loop_manager.shutdown_requested
-
+    def shutdown_requested(self) -> bool: return self._loop_manager.shutdown_requested
     @shutdown_requested.setter
-    def shutdown_requested(self, v: bool):
-        self._loop_manager.shutdown_requested = v
+    def shutdown_requested(self, v: bool): self._loop_manager.shutdown_requested = v
 
     async def _monitoring_loop(self):
         return await self._loop_manager._monitoring_loop()
@@ -131,16 +113,7 @@ _service_monitors: Dict[str, MemoryMonitor] = {}
 
 
 def get_memory_monitor(service_name: str, check_interval_seconds: int = 60) -> MemoryMonitor:
-    """
-    Get or create a memory monitor for a service.
-
-    Args:
-        service_name: Name of the service
-        check_interval_seconds: Monitoring interval
-
-    Returns:
-        MemoryMonitor instance for the service
-    """
+    """Get or create a memory monitor for a service."""
     if service_name not in _service_monitors:
         _service_monitors[service_name] = MemoryMonitor(service_name, check_interval_seconds)
 
@@ -152,25 +125,9 @@ async def start_service_memory_monitoring(
     collections_to_track: Optional[Dict[str, Callable[[], int]]] = None,
     check_interval_seconds: int = 60,
 ) -> MemoryMonitor:
-    """
-    Start memory monitoring for a service with optional collection tracking.
-
-    Args:
-        service_name: Name of the service
-        collections_to_track: Dictionary of collection_name -> size_getter_function
-        check_interval_seconds: How often to check memory
-
-    Returns:
-        MemoryMonitor instance
-    """
+    """Start memory monitoring for a service with optional collection tracking."""
     monitor = get_memory_monitor(service_name, check_interval_seconds)
-
-    # Track collections if provided
     if collections_to_track:
-        for name, size_getter in collections_to_track.items():
-            monitor.track_collection(name, size_getter)
-
-    # Start monitoring
+        for name, size_getter in collections_to_track.items(): monitor.track_collection(name, size_getter)
     await monitor.start_monitoring()
-
     return monitor
