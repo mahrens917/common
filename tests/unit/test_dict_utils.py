@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import pytest
 
-from src.common.dict_utils import mapping_bool, mapping_str
+from common.dict_utils import mapping_bool, mapping_str
 
 
 class TestMappingBool:

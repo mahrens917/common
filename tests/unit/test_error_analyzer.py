@@ -6,8 +6,8 @@ from unittest.mock import AsyncMock
 import pytest
 import requests
 
-from src.common.error_analyzer import ErrorAnalyzer
-from src.common.error_analyzer_helpers.data_classes import (
+from common.error_analyzer import ErrorAnalyzer
+from common.error_analyzer_helpers.data_classes import (
     ErrorAnalysis,
     ErrorCategory,
     ErrorSeverity,
@@ -58,7 +58,7 @@ async def test_analyze_error_history_trims_and_marks_configuration():
 
 
 def _install_suppression_stub(monkeypatch, *, should_suppress: bool):
-    module = types.ModuleType("src.common.alert_suppression_manager")
+    module = types.ModuleType("common.alert_suppression_manager")
 
     class AlertType:
         RECOVERY = "recovery"
@@ -76,10 +76,10 @@ def _install_suppression_stub(monkeypatch, *, should_suppress: bool):
     module.AlertType = AlertType
     module.get_alert_suppression_manager = get_alert_suppression_manager
 
-    monkeypatch.setitem(sys.modules, "src.common.alert_suppression_manager", module)
-    if "src.common" in sys.modules:
+    monkeypatch.setitem(sys.modules, "common.alert_suppression_manager", module)
+    if "common" in sys.modules:
         monkeypatch.setattr(
-            sys.modules["src.common"], "alert_suppression_manager", module, raising=False
+            sys.modules["common"], "alert_suppression_manager", module, raising=False
         )
 
     return manager

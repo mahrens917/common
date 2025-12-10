@@ -2,16 +2,16 @@ from unittest.mock import AsyncMock
 
 import pytest
 
-from src.common.connection_state import ConnectionState
-from src.common.connection_state_tracker import (
+from common.connection_state import ConnectionState
+from common.connection_state_tracker import (
     ConnectionStateTracker,
     ConnectionStateTrackerError,
 )
-from src.common.redis_protocol.connection_store_helpers.state_processor import (
+from common.redis_protocol.connection_store_helpers.state_processor import (
     ConnectionStateInfo,
 )
 
-# from src.common.redis_protocol.connection_store import ConnectionState  # TODO: Missing or circular import
+# from common.redis_protocol.connection_store import ConnectionState  # TODO: Missing or circular import
 
 
 def make_tracker_with_store(store):
@@ -49,7 +49,7 @@ def make_store(
 async def test_update_connection_state_sets_last_success_on_ready(monkeypatch):
     store = make_store(existing_state=None)
     tracker = make_tracker_with_store(store)
-    monkeypatch.setattr("src.common.connection_state_tracker.time.time", lambda: 1234.0)
+    monkeypatch.setattr("common.connection_state_tracker.time.time", lambda: 1234.0)
 
     result = await tracker.update_connection_state("svc", ConnectionState.READY)
 
@@ -73,7 +73,7 @@ async def test_update_connection_state_records_reconnection_start(monkeypatch):
     )
     store = make_store(existing_state=existing)
     tracker = make_tracker_with_store(store)
-    monkeypatch.setattr("src.common.connection_state_tracker.time.time", lambda: 200.0)
+    monkeypatch.setattr("common.connection_state_tracker.time.time", lambda: 200.0)
 
     await tracker.update_connection_state("svc", ConnectionState.RECONNECTING)
 
@@ -98,7 +98,7 @@ async def test_update_connection_state_records_reconnection_success(monkeypatch)
     )
     store = make_store(existing_state=existing)
     tracker = make_tracker_with_store(store)
-    monkeypatch.setattr("src.common.connection_state_tracker.time.time", lambda: 80.0)
+    monkeypatch.setattr("common.connection_state_tracker.time.time", lambda: 80.0)
 
     await tracker.update_connection_state("svc", ConnectionState.READY)
 
@@ -123,7 +123,7 @@ async def test_is_service_in_grace_period_checks_last_success(monkeypatch):
     )
     store = make_store(existing_state=state)
     tracker = make_tracker_with_store(store)
-    monkeypatch.setattr("src.common.connection_state_tracker.time.time", lambda: 120.0)
+    monkeypatch.setattr("common.connection_state_tracker.time.time", lambda: 120.0)
 
     result = await tracker.is_service_in_grace_period("svc", grace_period_seconds=30)
 
@@ -142,7 +142,7 @@ async def test_is_service_in_grace_period_true_when_in_reconnection(monkeypatch)
     )
     store = make_store(existing_state=state)
     tracker = make_tracker_with_store(store)
-    monkeypatch.setattr("src.common.connection_state_tracker.time.time", lambda: 100.0)
+    monkeypatch.setattr("common.connection_state_tracker.time.time", lambda: 100.0)
 
     result = await tracker.is_service_in_grace_period("svc")
 
@@ -160,7 +160,7 @@ async def test_get_reconnection_duration_calculates_elapsed(monkeypatch):
     )
     store = make_store(existing_state=state)
     tracker = make_tracker_with_store(store)
-    monkeypatch.setattr("src.common.connection_state_tracker.time.time", lambda: 80.0)
+    monkeypatch.setattr("common.connection_state_tracker.time.time", lambda: 80.0)
 
     duration = await tracker.get_reconnection_duration("svc")
 
@@ -173,7 +173,7 @@ async def test_initialize_raises_runtime_error_on_failure(monkeypatch):
         raise ValueError("redis unavailable")
 
     monkeypatch.setattr(
-        "src.common.connection_state_tracker.get_connection_store", failing_get_store
+        "common.connection_state_tracker.get_connection_store", failing_get_store
     )
 
     tracker = ConnectionStateTracker()

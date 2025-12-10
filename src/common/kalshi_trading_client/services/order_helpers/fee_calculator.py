@@ -14,7 +14,7 @@ class FeeCalculator:
         """Calculate fees for a proposed order."""
         try:
             fee_func = getattr(
-                importlib.import_module("src.common.kalshi_trading_client"), "calculate_fees"
+                importlib.import_module("common.kalshi_trading_client"), "calculate_fees"
             )
         except AttributeError:
             from ....kalshi_fees import calculate_fees as fee_func

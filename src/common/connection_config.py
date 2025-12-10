@@ -11,11 +11,11 @@ Configuration is loaded from JSON config files with environment variable overrid
 from dataclasses import dataclass, field
 from functools import partial
 
-from src.common.connectionconfig_helpers.config_loader import (
+from common.connectionconfig_helpers.config_loader import (
     require_env_float,
     require_env_int,
 )
-from src.common.connectionconfig_helpers.service_config_builder import (
+from common.connectionconfig_helpers.service_config_builder import (
     get_service_specific_config,
 )
 

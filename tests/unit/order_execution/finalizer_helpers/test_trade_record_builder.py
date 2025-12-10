@@ -7,8 +7,8 @@ from unittest.mock import MagicMock
 
 import pytest
 
-from src.common.data_models.trading import OrderSide
-from src.common.order_execution.finalizer_helpers.trade_record_builder import (
+from common.data_models.trading import OrderSide
+from common.order_execution.finalizer_helpers.trade_record_builder import (
     build_trade_record,
 )
 

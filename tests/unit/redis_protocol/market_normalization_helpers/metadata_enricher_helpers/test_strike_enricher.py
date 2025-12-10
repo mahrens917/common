@@ -1,6 +1,6 @@
 """Tests for strike enricher module."""
 
-from src.common.redis_protocol.market_normalization_helpers.metadata_enricher_helpers.strike_enricher import (
+from common.redis_protocol.market_normalization_helpers.metadata_enricher_helpers.strike_enricher import (
     StrikeEnricher,
 )
 

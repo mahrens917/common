@@ -7,7 +7,7 @@ Discovers running services, validates PIDs, and normalizes process states.
 import logging
 from typing import Dict, List, Optional
 
-from src.common.monitoring import ProcessStatus
+from common.monitoring import ProcessStatus
 
 from .service_state_collector_helpers import (
     PidValidator,

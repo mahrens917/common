@@ -7,7 +7,7 @@ from unittest.mock import AsyncMock, patch
 
 import pytest
 
-from src.common.redis_protocol.batching import BatchManager
+from common.redis_protocol.batching import BatchManager
 
 
 class TestBatchManagerInit:

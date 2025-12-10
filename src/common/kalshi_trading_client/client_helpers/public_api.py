@@ -5,7 +5,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Any, Dict, List, Optional
 
 if TYPE_CHECKING:
-    from src.common.data_models.trading import (
+    from common.data_models.trading import (
         OrderRequest,
         OrderResponse,
         PortfolioBalance,

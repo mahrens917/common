@@ -16,7 +16,7 @@ class PriceDataCollector:
 
     async def collect_price_data(self) -> Dict[str, Optional[float]]:
         """Collect BTC and ETH prices."""
-        from src.common.redis_protocol.market_store import DeribitStore
+        from common.redis_protocol.market_store import DeribitStore
 
         market_store = DeribitStore(self.redis_client)
         btc_task = market_store.get_usdc_micro_price("BTC")

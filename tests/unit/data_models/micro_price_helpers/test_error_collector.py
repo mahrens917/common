@@ -1,9 +1,9 @@
 """Tests for error collector module."""
 
-from src.common.data_models.micro_price_helpers.error_collector import (
+from common.data_models.micro_price_helpers.error_collector import (
     ErrorCollector,
 )
-from src.common.data_models.micro_price_helpers.validation_params import (
+from common.data_models.micro_price_helpers.validation_params import (
     ValidationErrorParams,
 )
 

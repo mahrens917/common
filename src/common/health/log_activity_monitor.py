@@ -11,7 +11,7 @@ Slim coordinator that delegates to helper modules:
 import logging
 from typing import Dict, List
 
-from src.common.config import env_int
+from common.config import env_int
 
 from .log_activity_monitor_helpers import (
     LogActivity,

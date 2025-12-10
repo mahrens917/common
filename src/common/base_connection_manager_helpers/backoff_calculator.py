@@ -8,7 +8,7 @@ def calculate_backoff_delay(manager: Any) -> float:
     Calculate exponential backoff delay with jitter.
 
     Uses the same algorithm as DelayCalculator in
-    src.common.backoff_manager_helpers.delay_calculator, but implemented
+    common.backoff_manager_helpers.delay_calculator, but implemented
     inline to avoid circular imports with the backoff_manager module hierarchy.
     """
     import random

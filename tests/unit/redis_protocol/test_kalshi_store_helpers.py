@@ -6,14 +6,14 @@ from types import SimpleNamespace
 
 import pytest
 
-from src.common.redis_protocol.kalshi_store import KalshiStore
-from src.common.redis_protocol.kalshi_store.store_initializer import initialize_kalshi_store
-from src.common.redis_protocol.orderbook_utils import (
+from common.redis_protocol.kalshi_store import KalshiStore
+from common.redis_protocol.kalshi_store.store_initializer import initialize_kalshi_store
+from common.redis_protocol.orderbook_utils import (
     build_snapshot_sides,
     merge_orderbook_payload,
 )
-from src.common.redis_protocol.parsing import derive_strike_fields, parse_expiry_token
-from src.common.redis_protocol.weather_station_resolver import WeatherStationResolver
+from common.redis_protocol.parsing import derive_strike_fields, parse_expiry_token
+from common.redis_protocol.weather_station_resolver import WeatherStationResolver
 
 _CONST_15 = 15
 _CONST_2025 = 2025
@@ -95,7 +95,7 @@ def test_derive_expiry_iso_uses_descriptor(monkeypatch):
         key="kalshi:KX-TEST",
     )
     # Mock describe_kalshi_ticker to return our custom descriptor
-    monkeypatch.setattr("src.common.redis_schema.describe_kalshi_ticker", lambda ticker: descriptor)
+    monkeypatch.setattr("common.redis_schema.describe_kalshi_ticker", lambda ticker: descriptor)
     # Provide a close_time that the function can parse
     metadata = {"close_time": "2025-08-31T03:59:00Z"}
     iso_value = store._derive_expiry_iso("KX-TEST", metadata)

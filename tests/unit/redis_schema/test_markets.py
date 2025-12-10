@@ -4,7 +4,7 @@ from datetime import datetime, timezone
 
 import pytest
 
-from src.common.redis_schema.markets import (
+from common.redis_schema.markets import (
     DeribitInstrumentDescriptor,
     DeribitInstrumentKey,
     DeribitInstrumentType,

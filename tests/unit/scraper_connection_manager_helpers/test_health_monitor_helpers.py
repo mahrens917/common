@@ -6,13 +6,13 @@ from unittest.mock import AsyncMock, Mock, patch
 import aiohttp
 import pytest
 
-from src.common.scraper_connection_manager_helpers.health_monitor_helpers.health_checker import (
+from common.scraper_connection_manager_helpers.health_monitor_helpers.health_checker import (
     HealthChecker,
 )
-from src.common.scraper_connection_manager_helpers.health_monitor_helpers.url_checker import (
+from common.scraper_connection_manager_helpers.health_monitor_helpers.url_checker import (
     check_url_health,
 )
-from src.common.scraper_connection_manager_helpers.health_monitor_helpers.url_tester import (
+from common.scraper_connection_manager_helpers.health_monitor_helpers.url_tester import (
     URLTester,
 )
 

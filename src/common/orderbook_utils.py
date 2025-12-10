@@ -24,7 +24,7 @@ def parse_orderbook_field(
         - If successful: (dict, None)
         - If failed: (None, skip_reason_string)
     """
-    from src.common.parsing_utils import safe_json_loads
+    from common.parsing_utils import safe_json_loads
 
     field_value = market_data.get(field_name)
     field_json = field_value if isinstance(field_value, str) else "{}"

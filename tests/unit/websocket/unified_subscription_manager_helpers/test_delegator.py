@@ -2,7 +2,7 @@ from unittest.mock import AsyncMock, Mock, patch
 
 import pytest
 
-from src.common.websocket.unified_subscription_manager_helpers.delegator import (
+from common.websocket.unified_subscription_manager_helpers.delegator import (
     UnifiedSubscriptionManagerDelegator,
 )
 
@@ -11,7 +11,7 @@ class TestUnifiedSubscriptionManagerDelegator:
     @pytest.fixture
     def delegator(self):
         with patch(
-            "src.common.websocket.unified_subscription_manager_helpers.factory.UnifiedSubscriptionManagerFactory.create_components"
+            "common.websocket.unified_subscription_manager_helpers.factory.UnifiedSubscriptionManagerFactory.create_components"
         ) as mock_factory:
             lifecycle_manager = Mock()
             monitoring_loop = Mock()

@@ -2,7 +2,7 @@ from datetime import datetime
 
 import pytest
 
-from src.common.data_models.trading import (
+from common.data_models.trading import (
     MarketValidationData,
     OrderAction,
     OrderFill,

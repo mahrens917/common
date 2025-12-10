@@ -7,14 +7,14 @@ from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 
-from src.common.connection_state import ConnectionState
-from src.common.connection_state_tracker_helpers.state_updater import (
+from common.connection_state import ConnectionState
+from common.connection_state_tracker_helpers.state_updater import (
     StateUpdater,
     _compute_timings,
     _is_reconnection_state,
     _record_transition_events,
 )
-from src.common.redis_protocol.connection_store_helpers.state_processor import (
+from common.redis_protocol.connection_store_helpers.state_processor import (
     ConnectionStateInfo,
 )
 
@@ -339,7 +339,7 @@ class TestStateUpdaterUpdateConnectionState:
 
         updater = StateUpdater(mock_store)
 
-        with patch("src.common.connection_state_tracker_helpers.state_updater.time") as mock_time:
+        with patch("common.connection_state_tracker_helpers.state_updater.time") as mock_time:
             mock_time.time.return_value = 1000.0
 
             result = await updater.update_connection_state("kalshi", ConnectionState.CONNECTED)
@@ -362,7 +362,7 @@ class TestStateUpdaterUpdateConnectionState:
 
         updater = StateUpdater(mock_store)
 
-        with patch("src.common.connection_state_tracker_helpers.state_updater.time") as mock_time:
+        with patch("common.connection_state_tracker_helpers.state_updater.time") as mock_time:
             mock_time.time.return_value = 1000.0
 
             result = await updater.update_connection_state(
@@ -388,7 +388,7 @@ class TestStateUpdaterUpdateConnectionState:
 
         updater = StateUpdater(mock_store)
 
-        with patch("src.common.connection_state_tracker_helpers.state_updater.time") as mock_time:
+        with patch("common.connection_state_tracker_helpers.state_updater.time") as mock_time:
             mock_time.time.return_value = 1000.0
 
             result = await updater.update_connection_state("kalshi", ConnectionState.CONNECTED)
@@ -415,7 +415,7 @@ class TestStateUpdaterUpdateConnectionState:
 
         updater = StateUpdater(mock_store)
 
-        with patch("src.common.connection_state_tracker_helpers.state_updater.time") as mock_time:
+        with patch("common.connection_state_tracker_helpers.state_updater.time") as mock_time:
             mock_time.time.return_value = 1000.0
 
             result = await updater.update_connection_state("kalshi", ConnectionState.DISCONNECTED)
@@ -448,7 +448,7 @@ class TestStateUpdaterUpdateConnectionState:
 
         updater = StateUpdater(mock_store)
 
-        with patch("src.common.connection_state_tracker_helpers.state_updater.time") as mock_time:
+        with patch("common.connection_state_tracker_helpers.state_updater.time") as mock_time:
             mock_time.time.return_value = 1000.0
 
             result = await updater.update_connection_state("kalshi", ConnectionState.READY)

@@ -6,8 +6,8 @@ Delegates to load_config() for JSON loading, provides domain-specific validation
 from pathlib import Path
 from typing import Any, Dict, Set
 
-from src.common.config_loader import load_config
-from src.common.exceptions import ConfigurationError
+from common.config_loader import load_config
+from common.exceptions import ConfigurationError
 
 from .alert_evaluator import SuppressionRule
 from .suppression_tracker import AlertType

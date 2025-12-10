@@ -1,21 +1,21 @@
 import orjson
 
-from src.common.redis_protocol.kalshi_store.reader_helpers.metadataextractor_helpers.metadata_parser import (
+from common.redis_protocol.kalshi_store.reader_helpers.metadataextractor_helpers.metadata_parser import (
     MetadataParser,
 )
-from src.common.redis_protocol.kalshi_store.reader_helpers.metadataextractor_helpers.orderbook_syncer import (
+from common.redis_protocol.kalshi_store.reader_helpers.metadataextractor_helpers.orderbook_syncer import (
     OrderbookSyncer,
 )
-from src.common.redis_protocol.kalshi_store.reader_helpers.metadataextractor_helpers.price_extractor import (
+from common.redis_protocol.kalshi_store.reader_helpers.metadataextractor_helpers.price_extractor import (
     PriceExtractor,
 )
-from src.common.redis_protocol.kalshi_store.reader_helpers.metadataextractor_helpers.timestamp_normalizer import (
+from common.redis_protocol.kalshi_store.reader_helpers.metadataextractor_helpers.timestamp_normalizer import (
     TimestampNormalizer,
 )
-from src.common.redis_protocol.kalshi_store.reader_helpers.metadataextractor_helpers.type_converter import (
+from common.redis_protocol.kalshi_store.reader_helpers.metadataextractor_helpers.type_converter import (
     TypeConverter,
 )
-from src.common.strike_helpers import calculate_strike_value, parse_strike_bounds
+from common.strike_helpers import calculate_strike_value, parse_strike_bounds
 
 
 def test_price_extractor_parses_numbers_and_handles_missing():
@@ -30,13 +30,13 @@ def test_timestamp_normalizer_delegates(monkeypatch):
     sentinel = object()
 
     monkeypatch.setattr(
-        "src.common.redis_protocol.kalshi_store.metadata_helpers.timestamp_normalization.normalize_timestamp",
+        "common.redis_protocol.kalshi_store.metadata_helpers.timestamp_normalization.normalize_timestamp",
         lambda value: sentinel,
     )
     assert TimestampNormalizer.normalize_timestamp("ignored") is sentinel
 
     monkeypatch.setattr(
-        "src.common.redis_protocol.kalshi_store.metadata_helpers.timestamp_normalization.normalize_timestamp",
+        "common.redis_protocol.kalshi_store.metadata_helpers.timestamp_normalization.normalize_timestamp",
         lambda value: None,
     )
     assert TimestampNormalizer.normalize_timestamp("ignored") is None
@@ -49,7 +49,7 @@ def test_orderbook_syncer_calls_shared_helper(monkeypatch):
         captured["snapshot"] = snapshot
 
     monkeypatch.setattr(
-        "src.common.redis_protocol.kalshi_store.reader_helpers.metadataextractor_helpers.orderbook_syncer._sync_top_of_book_fields",
+        "common.redis_protocol.kalshi_store.reader_helpers.metadataextractor_helpers.orderbook_syncer._sync_top_of_book_fields",
         fake_sync,
     )
 

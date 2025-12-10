@@ -3,16 +3,16 @@ from types import SimpleNamespace
 
 import pytest
 
-from src.common.base_connection_manager_helpers.connection_lifecycle import (
+from common.base_connection_manager_helpers.connection_lifecycle import (
     ConnectionLifecycleManager,
 )
-from src.common.base_connection_manager_helpers.health_monitor import ConnectionHealthMonitor
-from src.common.base_connection_manager_helpers.notification_helpers import (
+from common.base_connection_manager_helpers.health_monitor import ConnectionHealthMonitor
+from common.base_connection_manager_helpers.notification_helpers import (
     send_connection_notification,
 )
-from src.common.base_connection_manager_helpers.retry_coordinator import RetryCoordinator
-from src.common.base_connection_manager_helpers.retry_logic import connect_with_retry
-from src.common.connection_state import ConnectionState
+from common.base_connection_manager_helpers.retry_coordinator import RetryCoordinator
+from common.base_connection_manager_helpers.retry_logic import connect_with_retry
+from common.connection_state import ConnectionState
 
 
 class _StubMetrics:

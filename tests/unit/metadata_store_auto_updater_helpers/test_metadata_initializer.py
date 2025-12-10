@@ -3,8 +3,8 @@ from unittest.mock import AsyncMock, MagicMock, Mock, patch
 
 import pytest
 
-from src.common.exceptions import DataError
-from src.common.metadata_store_auto_updater_helpers.metadata_initializer import MetadataInitializer
+from common.exceptions import DataError
+from common.metadata_store_auto_updater_helpers.metadata_initializer import MetadataInitializer
 
 
 class TestMetadataInitializer:
@@ -52,7 +52,7 @@ class TestMetadataInitializer:
         # The code raises DataError inside try block, which is caught by REDIS_ERRORS (Exception).
         # So it logs error and finishes.
         with patch(
-            "src.common.metadata_store_auto_updater_helpers.metadata_initializer.logger"
+            "common.metadata_store_auto_updater_helpers.metadata_initializer.logger"
         ) as mock_logger:
             await initializer.initialize_from_existing_keys()
             mock_logger.error.assert_called()

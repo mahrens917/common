@@ -5,7 +5,7 @@ from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 
-from src.common.redis_protocol.persistence_manager_helpers.config_orchestrator import (
+from common.redis_protocol.persistence_manager_helpers.config_orchestrator import (
     ConfigOrchestrator,
 )
 

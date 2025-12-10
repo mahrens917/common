@@ -2,8 +2,8 @@ import logging
 
 import pytest
 
-from src.common.memory_monitor_helpers.alert_logger import AlertLogger
-from src.common.memory_monitor_helpers.collection_tracker import CollectionTracker
+from common.memory_monitor_helpers.alert_logger import AlertLogger
+from common.memory_monitor_helpers.collection_tracker import CollectionTracker
 
 
 def test_alert_logger_emits_severity(caplog):

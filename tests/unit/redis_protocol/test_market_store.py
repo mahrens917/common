@@ -2,9 +2,9 @@ from __future__ import annotations
 
 import pytest
 
-from src.common.exceptions import DataError, ValidationError
-from src.common.redis_protocol.market_store import DeribitStore
-from src.common.redis_schema import DeribitInstrumentKey, DeribitInstrumentType
+from common.exceptions import DataError, ValidationError
+from common.redis_protocol.market_store import DeribitStore
+from common.redis_schema import DeribitInstrumentKey, DeribitInstrumentType
 
 _VAL_11_0 = 11.0
 
@@ -93,7 +93,7 @@ async def test_get_usdc_micro_price_uses_calculator(monkeypatch):
         called_with["args"] = (bid, ask, bid_size, ask_size)
         return 11.0
 
-    monkeypatch.setattr("src.common.utils.pricing.calculate_usdc_micro_price", fake_calculate)
+    monkeypatch.setattr("common.utils.pricing.calculate_usdc_micro_price", fake_calculate)
 
     result = await store.get_usdc_micro_price("SOL")
 

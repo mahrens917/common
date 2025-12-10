@@ -4,7 +4,7 @@ from unittest.mock import AsyncMock, MagicMock
 
 import pytest
 
-from src.common.redis_connection_manager import RedisConnectionManager
+from common.redis_connection_manager import RedisConnectionManager
 
 
 @pytest.mark.asyncio

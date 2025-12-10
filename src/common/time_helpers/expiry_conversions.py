@@ -105,7 +105,7 @@ def get_time_from_epoch(expiry_dt: datetime) -> float:
     # Access _PRE_EPOCH_CLAMP_LOGGED through the module to support monkeypatching
     import sys
 
-    expiry_module = sys.modules.get("src.common.time_helpers.expiry")
+    expiry_module = sys.modules.get("common.time_helpers.expiry")
     if expiry_module and hasattr(expiry_module, "_PRE_EPOCH_CLAMP_LOGGED"):
         clamp_logged = getattr(expiry_module, "_PRE_EPOCH_CLAMP_LOGGED")
     else:

@@ -5,9 +5,9 @@ from unittest.mock import AsyncMock, MagicMock
 
 import pytest
 
-from src.common import report_generator as report_module
-from src.common.exceptions import ConfigurationError
-from src.common.report_generator import ReportGenerator
+from common import report_generator as report_module
+from common.exceptions import ConfigurationError
+from common.report_generator import ReportGenerator
 
 
 class DummyMessageFormatter:

@@ -2,7 +2,7 @@ from datetime import datetime, timedelta, timezone
 
 import pytest
 
-from src.common.redis_protocol.market_cleanup_helpers.cleanup_helpers.expiration_checker import (
+from common.redis_protocol.market_cleanup_helpers.cleanup_helpers.expiration_checker import (
     extract_expiration_time,
     is_expired_deribit,
     is_expired_kalshi,

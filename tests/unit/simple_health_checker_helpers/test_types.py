@@ -1,6 +1,6 @@
 import pytest
 
-from src.common.simple_health_checker_helpers.types import HealthStatus, ServiceHealth
+from common.simple_health_checker_helpers.types import HealthStatus, ServiceHealth
 
 
 class TestTypes:

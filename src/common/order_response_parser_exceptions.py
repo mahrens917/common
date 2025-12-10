@@ -6,7 +6,7 @@ and store contextual data as attributes for debugging.
 
 from typing import Any, Dict, List
 
-from src.common.exceptions import APIError
+from common.exceptions import APIError
 
 
 class EmptyOrderDataError(APIError):

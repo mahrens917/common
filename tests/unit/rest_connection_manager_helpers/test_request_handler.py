@@ -2,7 +2,7 @@
 
 import pytest
 
-from src.common.rest_connection_manager_helpers.request_handler import RequestHandler
+from common.rest_connection_manager_helpers.request_handler import RequestHandler
 
 
 class DummyHandler(RequestHandler):

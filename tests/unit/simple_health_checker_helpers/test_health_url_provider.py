@@ -1,6 +1,6 @@
 import pytest
 
-from src.common.simple_health_checker_helpers.health_url_provider import HealthUrlProvider
+from common.simple_health_checker_helpers.health_url_provider import HealthUrlProvider
 
 
 class TestHealthUrlProvider:

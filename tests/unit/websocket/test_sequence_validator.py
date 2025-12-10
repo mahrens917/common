@@ -2,8 +2,8 @@ import logging
 
 import pytest
 
-from src.common.websocket.sequence_validator import SequenceValidator
-from src.common.websocket.sequence_validator_helpers.sequence_checker import SequenceGapError
+from common.websocket.sequence_validator import SequenceValidator
+from common.websocket.sequence_validator_helpers.sequence_checker import SequenceGapError
 
 _TEST_COUNT_2 = 2
 

@@ -3,8 +3,8 @@ from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 
-from src.common.data_models.model_state import ModelState
-from src.common.data_models.modelstate_helpers import (
+from common.data_models.model_state import ModelState
+from common.data_models.modelstate_helpers import (
     ModelProbabilityCalculationError,
     ModelProbabilityDataUnavailable,
     ModelStateInitializationError,
@@ -19,7 +19,7 @@ async def test_load_redis_returns_state_when_keys_found():
     redis_client = MagicMock()
     redis_client.keys = AsyncMock(return_value=["probabilities:BTC:20250101:call:40000"])
 
-    with patch("src.common.data_models.model_state.ProbabilityStore", autospec=True) as store_cls:
+    with patch("common.data_models.model_state.ProbabilityStore", autospec=True) as store_cls:
         state = await ModelState.load_redis(redis_client, currency="btc")
 
     assert isinstance(state, ModelState)
@@ -33,7 +33,7 @@ async def test_load_redis_raises_when_no_keys():
     redis_client = MagicMock()
     redis_client.keys = AsyncMock(return_value=[])
 
-    with patch("src.common.data_models.model_state.ProbabilityStore", autospec=True):
+    with patch("common.data_models.model_state.ProbabilityStore", autospec=True):
         with pytest.raises(ModelStateUnavailableError):
             await ModelState.load_redis(redis_client, currency="ETH")
 
@@ -45,7 +45,7 @@ async def test_load_redis_raises_on_error():
     redis_client = MagicMock()
     redis_client.keys = AsyncMock(side_effect=RuntimeError("oops"))
 
-    with patch("src.common.data_models.model_state.ProbabilityStore", autospec=True):
+    with patch("common.data_models.model_state.ProbabilityStore", autospec=True):
         with pytest.raises(ModelStateInitializationError):
             await ModelState.load_redis(redis_client, currency="btc")
 

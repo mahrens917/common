@@ -6,18 +6,18 @@ Provides type-safe conversion from Redis values to Python types with sensible de
 
 from typing import Any, Dict, List
 
-from src.common.redis_protocol.kalshi_store.utils_coercion import (
+from common.redis_protocol.kalshi_store.utils_coercion import (
     bool_or_default as _bool_or_default,
 )
-from src.common.redis_protocol.kalshi_store.utils_coercion import coerce_mapping as _coerce_mapping
-from src.common.redis_protocol.kalshi_store.utils_coercion import (
+from common.redis_protocol.kalshi_store.utils_coercion import coerce_mapping as _coerce_mapping
+from common.redis_protocol.kalshi_store.utils_coercion import (
     coerce_sequence as _coerce_sequence,
 )
-from src.common.redis_protocol.kalshi_store.utils_coercion import (
+from common.redis_protocol.kalshi_store.utils_coercion import (
     float_or_default as _float_or_default,
 )
-from src.common.redis_protocol.kalshi_store.utils_coercion import int_or_default as _int_or_default
-from src.common.redis_protocol.kalshi_store.utils_coercion import (
+from common.redis_protocol.kalshi_store.utils_coercion import int_or_default as _int_or_default
+from common.redis_protocol.kalshi_store.utils_coercion import (
     string_or_default as _string_or_default,
 )
 

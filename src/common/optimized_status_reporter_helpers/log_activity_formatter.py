@@ -7,7 +7,7 @@ Formats log activity status into condensed inline summaries.
 import os
 from typing import List, Optional
 
-from src.common.health.log_activity_monitor import LogActivity, LogActivityStatus
+from common.health.log_activity_monitor import LogActivity, LogActivityStatus
 
 
 class LogActivityFormatter:

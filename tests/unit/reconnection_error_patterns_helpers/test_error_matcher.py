@@ -7,8 +7,8 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
-from src.common.reconnection_error_patterns_helpers.error_matcher import ErrorMatcher
-from src.common.reconnection_error_patterns_helpers.service_type_manager import ServiceType
+from common.reconnection_error_patterns_helpers.error_matcher import ErrorMatcher
+from common.reconnection_error_patterns_helpers.service_type_manager import ServiceType
 
 
 class TestErrorMatcherInit:
@@ -156,7 +156,7 @@ class TestErrorMatcherCheckWithLogging:
         matcher = ErrorMatcher(patterns)
 
         with patch(
-            "src.common.reconnection_error_patterns_helpers.error_matcher.logger"
+            "common.reconnection_error_patterns_helpers.error_matcher.logger"
         ) as mock_logger:
             matcher.check_with_logging("kalshi", ServiceType.WEBSOCKET, "WebSocket connection lost")
 
@@ -171,7 +171,7 @@ class TestErrorMatcherCheckWithLogging:
         matcher = ErrorMatcher(patterns)
 
         with patch(
-            "src.common.reconnection_error_patterns_helpers.error_matcher.logger"
+            "common.reconnection_error_patterns_helpers.error_matcher.logger"
         ) as mock_logger:
             matcher.check_with_logging("kalshi", ServiceType.WEBSOCKET, "Authentication failed")
 
@@ -187,7 +187,7 @@ class TestErrorMatcherCheckWithLogging:
         long_message = "Connection lost: " + "x" * 200
 
         with patch(
-            "src.common.reconnection_error_patterns_helpers.error_matcher.logger"
+            "common.reconnection_error_patterns_helpers.error_matcher.logger"
         ) as mock_logger:
             matcher.check_with_logging("kalshi", ServiceType.WEBSOCKET, long_message)
 

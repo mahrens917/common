@@ -2,8 +2,8 @@ from unittest.mock import AsyncMock
 
 import pytest
 
-from src.common.simple_health_checker_helpers.multi_service_checker import MultiServiceChecker
-from src.common.simple_health_checker_helpers.types import HealthStatus, ServiceHealth
+from common.simple_health_checker_helpers.multi_service_checker import MultiServiceChecker
+from common.simple_health_checker_helpers.types import HealthStatus, ServiceHealth
 
 
 class TestMultiServiceChecker:

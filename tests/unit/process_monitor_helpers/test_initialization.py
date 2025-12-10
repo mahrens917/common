@@ -6,7 +6,7 @@ from unittest.mock import AsyncMock, MagicMock
 
 import pytest
 
-from src.common.process_monitor_helpers.initialization import Initialization
+from common.process_monitor_helpers.initialization import Initialization
 
 
 class TestInitialization:

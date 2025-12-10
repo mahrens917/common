@@ -3,8 +3,8 @@ from pathlib import Path
 
 import pytest
 
-from src.common.config.errors import ConfigurationError
-from src.common.config.runtime import (
+from common.config.errors import ConfigurationError
+from common.config.runtime import (
     env_bool,
     env_float,
     env_int,

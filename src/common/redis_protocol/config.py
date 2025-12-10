@@ -2,9 +2,9 @@
 Redis configuration and key definitions sourced from centralized settings.
 """
 
-from src.common.config import env_float
-from src.common.config.redis_schema import get_schema_config
-from src.common.config.shared import get_redis_settings
+from common.config import env_float
+from common.config.redis_schema import get_schema_config
+from common.config.shared import get_redis_settings
 
 _redis_settings = get_redis_settings()
 _schema = get_schema_config()

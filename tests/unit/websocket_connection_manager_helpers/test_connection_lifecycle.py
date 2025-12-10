@@ -6,7 +6,7 @@ from unittest.mock import AsyncMock, MagicMock
 import pytest
 from websockets import WebSocketException
 
-from src.common.websocket_connection_manager_helpers import connection_lifecycle
+from common.websocket_connection_manager_helpers import connection_lifecycle
 
 
 class DummyConnection:

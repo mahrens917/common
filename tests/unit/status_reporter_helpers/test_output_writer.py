@@ -2,7 +2,7 @@ from unittest.mock import Mock
 
 import pytest
 
-from src.common.status_reporter_helpers.output_writer import OutputWriter
+from common.status_reporter_helpers.output_writer import OutputWriter
 
 
 class TestOutputWriter:

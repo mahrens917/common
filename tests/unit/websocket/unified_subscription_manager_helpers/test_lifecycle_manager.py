@@ -3,7 +3,7 @@ from unittest.mock import AsyncMock, patch
 
 import pytest
 
-from src.common.websocket.unified_subscription_manager_helpers.lifecycle_manager import (
+from common.websocket.unified_subscription_manager_helpers.lifecycle_manager import (
     LifecycleManager,
 )
 
@@ -29,7 +29,7 @@ class TestLifecycleManager:
         manager._monitoring_task = AsyncMock()
 
         with patch(
-            "src.common.websocket.unified_subscription_manager_helpers.lifecycle_manager.logger"
+            "common.websocket.unified_subscription_manager_helpers.lifecycle_manager.logger"
         ) as mock_logger:
             await manager.start_monitoring(AsyncMock()())
             mock_logger.warning.assert_called_with(

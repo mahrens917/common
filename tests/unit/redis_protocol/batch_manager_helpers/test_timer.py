@@ -7,7 +7,7 @@ from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 
-from src.common.redis_protocol.batch_manager_helpers.timer import BatchTimer
+from common.redis_protocol.batch_manager_helpers.timer import BatchTimer
 
 
 class TestBatchTimer:
@@ -175,7 +175,7 @@ class TestRun:
         timer = BatchTimer(batch_time_seconds=0.01, on_timeout=on_timeout, name="test")
 
         # Patch logger to prevent logging format error
-        with patch("src.common.redis_protocol.batch_manager_helpers.timer.logger"):
+        with patch("common.redis_protocol.batch_manager_helpers.timer.logger"):
             # Should not raise, just log
             await timer._run(batch_size=5)
 
@@ -188,7 +188,7 @@ class TestRun:
         timer = BatchTimer(batch_time_seconds=0.01, on_timeout=on_timeout, name="test")
 
         # Patch logger to prevent logging format error
-        with patch("src.common.redis_protocol.batch_manager_helpers.timer.logger"):
+        with patch("common.redis_protocol.batch_manager_helpers.timer.logger"):
             # Should not raise, just log
             await timer._run(batch_size=5)
 

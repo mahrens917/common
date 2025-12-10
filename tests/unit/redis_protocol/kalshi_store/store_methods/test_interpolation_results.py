@@ -6,8 +6,8 @@ from unittest.mock import AsyncMock, MagicMock
 
 import pytest
 
-from src.common.redis_protocol.kalshi_store import store_methods
-from src.common.redis_schema import build_kalshi_market_key
+from common.redis_protocol.kalshi_store import store_methods
+from common.redis_schema import build_kalshi_market_key
 
 
 class DummyStore:

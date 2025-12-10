@@ -11,7 +11,7 @@ from pathlib import Path
 
 import pytest
 
-from src.common.config_loader import (
+from common.config_loader import (
     BaseConfigLoader,
     get_historical_start_date,
     get_reporting_timezone,
@@ -19,7 +19,7 @@ from src.common.config_loader import (
     load_pnl_config,
     load_weather_trading_config,
 )
-from src.common.exceptions import ConfigurationError
+from common.exceptions import ConfigurationError
 
 
 class TestBaseConfigLoader:
@@ -119,7 +119,7 @@ class TestLoadConfig:
         test_config = {"test": "data"}
         config_file.write_text(json.dumps(test_config))
 
-        monkeypatch.setattr("src.common.config_loader._CONFIG_DIR", tmp_path)
+        monkeypatch.setattr("common.config_loader._CONFIG_DIR", tmp_path)
 
         result = load_config("test.json")
 
@@ -127,7 +127,7 @@ class TestLoadConfig:
 
     def test_load_config_raises_on_missing_file(self, monkeypatch, tmp_path):
         """load_config raises FileNotFoundError when file missing."""
-        monkeypatch.setattr("src.common.config_loader._CONFIG_DIR", tmp_path)
+        monkeypatch.setattr("common.config_loader._CONFIG_DIR", tmp_path)
 
         with pytest.raises(FileNotFoundError):
             load_config("missing.json")
@@ -145,7 +145,7 @@ class TestLoadPnlConfig:
         }
         config_file.write_text(json.dumps(test_config))
 
-        monkeypatch.setattr("src.common.config_loader._CONFIG_DIR", tmp_path)
+        monkeypatch.setattr("common.config_loader._CONFIG_DIR", tmp_path)
 
         result = load_pnl_config()
 
@@ -153,7 +153,7 @@ class TestLoadPnlConfig:
 
     def test_load_pnl_config_raises_on_missing_file(self, monkeypatch, tmp_path):
         """load_pnl_config raises FileNotFoundError when file missing."""
-        monkeypatch.setattr("src.common.config_loader._CONFIG_DIR", tmp_path)
+        monkeypatch.setattr("common.config_loader._CONFIG_DIR", tmp_path)
 
         with pytest.raises(FileNotFoundError, match="PnL config file not found"):
             load_pnl_config()
@@ -163,7 +163,7 @@ class TestLoadPnlConfig:
         config_file = tmp_path / "pnl_config.json"
         config_file.write_text("{ invalid json }")
 
-        monkeypatch.setattr("src.common.config_loader._CONFIG_DIR", tmp_path)
+        monkeypatch.setattr("common.config_loader._CONFIG_DIR", tmp_path)
 
         with pytest.raises(RuntimeError, match="Invalid JSON"):
             load_pnl_config()
@@ -175,7 +175,7 @@ class TestLoadPnlConfig:
         config_file = tmp_path / "pnl_config.json"
         config_file.write_text(json.dumps({}))
 
-        monkeypatch.setattr("src.common.config_loader._CONFIG_DIR", tmp_path)
+        monkeypatch.setattr("common.config_loader._CONFIG_DIR", tmp_path)
 
         with pytest.raises(RuntimeError, match="Missing 'trade_collection' section"):
             load_pnl_config()
@@ -185,7 +185,7 @@ class TestLoadPnlConfig:
         config_file = tmp_path / "pnl_config.json"
         config_file.write_text(json.dumps({"trade_collection": {}}))
 
-        monkeypatch.setattr("src.common.config_loader._CONFIG_DIR", tmp_path)
+        monkeypatch.setattr("common.config_loader._CONFIG_DIR", tmp_path)
 
         with pytest.raises(RuntimeError, match="Missing 'historical_start_date'"):
             load_pnl_config()
@@ -202,7 +202,7 @@ class TestGetHistoricalStartDate:
         }
         config_file.write_text(json.dumps(test_config))
 
-        monkeypatch.setattr("src.common.config_loader._CONFIG_DIR", tmp_path)
+        monkeypatch.setattr("common.config_loader._CONFIG_DIR", tmp_path)
 
         result = get_historical_start_date()
 
@@ -216,14 +216,14 @@ class TestGetHistoricalStartDate:
         }
         config_file.write_text(json.dumps(test_config))
 
-        monkeypatch.setattr("src.common.config_loader._CONFIG_DIR", tmp_path)
+        monkeypatch.setattr("common.config_loader._CONFIG_DIR", tmp_path)
 
         with pytest.raises(RuntimeError, match="Invalid date format"):
             get_historical_start_date()
 
     def test_get_historical_start_date_raises_on_config_error(self, monkeypatch, tmp_path):
         """get_historical_start_date raises RuntimeError on config loading error."""
-        monkeypatch.setattr("src.common.config_loader._CONFIG_DIR", tmp_path)
+        monkeypatch.setattr("common.config_loader._CONFIG_DIR", tmp_path)
 
         with pytest.raises(RuntimeError, match="Failed to load historical start date"):
             get_historical_start_date()
@@ -241,7 +241,7 @@ class TestGetReportingTimezone:
         }
         config_file.write_text(json.dumps(test_config))
 
-        monkeypatch.setattr("src.common.config_loader._CONFIG_DIR", tmp_path)
+        monkeypatch.setattr("common.config_loader._CONFIG_DIR", tmp_path)
 
         result = get_reporting_timezone()
 
@@ -256,7 +256,7 @@ class TestGetReportingTimezone:
         }
         config_file.write_text(json.dumps(test_config))
 
-        monkeypatch.setattr("src.common.config_loader._CONFIG_DIR", tmp_path)
+        monkeypatch.setattr("common.config_loader._CONFIG_DIR", tmp_path)
 
         result = get_reporting_timezone()
 
@@ -272,7 +272,7 @@ class TestGetReportingTimezone:
         }
         config_file.write_text(json.dumps(test_config))
 
-        monkeypatch.setattr("src.common.config_loader._CONFIG_DIR", tmp_path)
+        monkeypatch.setattr("common.config_loader._CONFIG_DIR", tmp_path)
 
         with pytest.raises(TypeError, match="missing 'reporting' section"):
             get_reporting_timezone()
@@ -286,7 +286,7 @@ class TestGetReportingTimezone:
         }
         config_file.write_text(json.dumps(test_config))
 
-        monkeypatch.setattr("src.common.config_loader._CONFIG_DIR", tmp_path)
+        monkeypatch.setattr("common.config_loader._CONFIG_DIR", tmp_path)
 
         with pytest.raises(TypeError, match="missing 'reporting' section"):
             get_reporting_timezone()
@@ -300,7 +300,7 @@ class TestGetReportingTimezone:
         }
         config_file.write_text(json.dumps(test_config))
 
-        monkeypatch.setattr("src.common.config_loader._CONFIG_DIR", tmp_path)
+        monkeypatch.setattr("common.config_loader._CONFIG_DIR", tmp_path)
 
         with pytest.raises(TypeError, match="non-empty reporting timezone"):
             get_reporting_timezone()
@@ -314,7 +314,7 @@ class TestGetReportingTimezone:
         }
         config_file.write_text(json.dumps(test_config))
 
-        monkeypatch.setattr("src.common.config_loader._CONFIG_DIR", tmp_path)
+        monkeypatch.setattr("common.config_loader._CONFIG_DIR", tmp_path)
 
         with pytest.raises(RuntimeError, match="non-empty reporting timezone"):
             get_reporting_timezone()
@@ -329,7 +329,7 @@ class TestLoadWeatherTradingConfig:
         test_config = {"trading_enabled": True, "max_position_size": 100}
         config_file.write_text(json.dumps(test_config))
 
-        monkeypatch.setattr("src.common.config_loader._CONFIG_DIR", tmp_path)
+        monkeypatch.setattr("common.config_loader._CONFIG_DIR", tmp_path)
 
         result = load_weather_trading_config()
 
@@ -337,7 +337,7 @@ class TestLoadWeatherTradingConfig:
 
     def test_load_weather_trading_config_raises_on_missing_file(self, monkeypatch, tmp_path):
         """load_weather_trading_config raises FileNotFoundError when file missing."""
-        monkeypatch.setattr("src.common.config_loader._CONFIG_DIR", tmp_path)
+        monkeypatch.setattr("common.config_loader._CONFIG_DIR", tmp_path)
 
         with pytest.raises(FileNotFoundError, match="Weather trading config file not found"):
             load_weather_trading_config()
@@ -347,7 +347,7 @@ class TestLoadWeatherTradingConfig:
         config_file = tmp_path / "weather_trading_config.json"
         config_file.write_text("{ invalid json }")
 
-        monkeypatch.setattr("src.common.config_loader._CONFIG_DIR", tmp_path)
+        monkeypatch.setattr("common.config_loader._CONFIG_DIR", tmp_path)
 
         with pytest.raises(RuntimeError, match="Invalid JSON"):
             load_weather_trading_config()

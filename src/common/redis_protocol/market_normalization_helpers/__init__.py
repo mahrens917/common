@@ -1,7 +1,7 @@
 """Helper modules for market normalization."""
 
 # Import strike functions from canonical source
-from src.common.strike_helpers import (
+from common.strike_helpers import (
     compute_representative_strike,
     extract_between_bounds,
     parse_strike_segment,

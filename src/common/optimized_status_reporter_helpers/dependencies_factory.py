@@ -9,7 +9,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Callable, Optional
 
-from src.common.health.log_activity_monitor import LogActivityMonitor
+from common.health.log_activity_monitor import LogActivityMonitor
 
 from .data_coercion import DataCoercion
 from .data_formatting import DataFormatting

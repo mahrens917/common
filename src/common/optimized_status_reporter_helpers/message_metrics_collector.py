@@ -10,8 +10,8 @@ from typing import Dict
 
 from redis.exceptions import RedisError
 
-from src.common.exceptions import DataError
-from src.common.redis_utils import RedisOperationError
+from common.exceptions import DataError
+from common.redis_utils import RedisOperationError
 
 logger = logging.getLogger(__name__)
 

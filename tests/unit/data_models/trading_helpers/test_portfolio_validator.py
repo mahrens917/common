@@ -5,7 +5,7 @@ from enum import Enum
 
 import pytest
 
-from src.common.data_models.trading_helpers.portfolio_validator import (
+from common.data_models.trading_helpers.portfolio_validator import (
     validate_portfolio_balance,
     validate_portfolio_position,
     validate_position_count,
@@ -95,7 +95,7 @@ class TestValidatePositionSide:
 
     def test_valid_side(self) -> None:
         """Accepts valid OrderSide enum."""
-        from src.common.data_models.trading import OrderSide
+        from common.data_models.trading import OrderSide
 
         validate_position_side(OrderSide.YES)
 
@@ -153,7 +153,7 @@ class TestValidatePortfolioPosition:
 
     def test_valid_complete_position(self) -> None:
         """Accepts valid complete position."""
-        from src.common.data_models.trading import OrderSide
+        from common.data_models.trading import OrderSide
 
         validate_portfolio_position(
             ticker="KXBTC-25JAN01",
@@ -165,7 +165,7 @@ class TestValidatePortfolioPosition:
 
     def test_invalid_ticker_propagates(self) -> None:
         """Propagates ticker validation error."""
-        from src.common.data_models.trading import OrderSide
+        from common.data_models.trading import OrderSide
 
         with pytest.raises(ValueError) as exc_info:
             validate_portfolio_position(

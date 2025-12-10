@@ -1,6 +1,6 @@
 import pytest
 
-from src.common.redis_protocol.kalshi_store.cleaner_helpers.service_key_remover import (
+from common.redis_protocol.kalshi_store.cleaner_helpers.service_key_remover import (
     ServiceKeyRemover,
 )
 

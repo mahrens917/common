@@ -4,12 +4,12 @@ from unittest.mock import MagicMock
 
 import pytest
 
-from src.common.order_execution.polling_helpers.fill_validator import (
+from common.order_execution.polling_helpers.fill_validator import (
     validate_fill_count,
     validate_fill_price,
     validate_fill_side,
 )
-from src.common.trading_exceptions import KalshiOrderPollingError
+from common.trading_exceptions import KalshiOrderPollingError
 
 
 @pytest.mark.parametrize(

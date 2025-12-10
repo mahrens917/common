@@ -12,8 +12,8 @@ from typing import Optional
 from redis.asyncio import Redis
 from redis.exceptions import RedisError
 
-from src.common.redis_protocol.typing import ensure_awaitable
-from src.common.redis_utils import RedisOperationError
+from common.redis_protocol.typing import ensure_awaitable
+from common.redis_utils import RedisOperationError
 
 logger = logging.getLogger(__name__)
 

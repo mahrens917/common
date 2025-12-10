@@ -2,8 +2,8 @@
 
 import pytest
 
-from src.common.memory_monitor_helpers.snapshot_collector import MemorySnapshot
-from src.common.memory_monitor_helpers.trend_analyzer_helpers.trend_calculator import (
+from common.memory_monitor_helpers.snapshot_collector import MemorySnapshot
+from common.memory_monitor_helpers.trend_analyzer_helpers.trend_calculator import (
     TrendCalculator,
 )
 

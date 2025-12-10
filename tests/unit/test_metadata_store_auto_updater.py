@@ -8,7 +8,7 @@ from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 
-from src.common.metadata_store_auto_updater import MetadataStoreAutoUpdater
+from common.metadata_store_auto_updater import MetadataStoreAutoUpdater
 
 
 class TestMetadataStoreAutoUpdater:
@@ -24,7 +24,7 @@ class TestMetadataStoreAutoUpdater:
 
     def test_init_creates_metadata_store_when_not_provided(self) -> None:
         """Creates MetadataStore when not provided."""
-        with patch("src.common.metadata_store_auto_updater.MetadataStore") as mock_store_class:
+        with patch("common.metadata_store_auto_updater.MetadataStore") as mock_store_class:
             mock_store = MagicMock()
             mock_store_class.return_value = mock_store
 
@@ -105,7 +105,7 @@ class TestMetadataStoreAutoUpdaterInitialize:
         updater.init_manager.redis_client = MagicMock()
 
         with patch(
-            "src.common.metadata_store_auto_updater.KeyspaceListener"
+            "common.metadata_store_auto_updater.KeyspaceListener"
         ) as mock_listener_class:
             await updater.initialize()
 
@@ -123,7 +123,7 @@ class TestMetadataStoreAutoUpdaterInitialize:
         updater.init_manager.pubsub_client = MagicMock()
         updater.init_manager.redis_client = MagicMock()
 
-        with patch("src.common.metadata_store_auto_updater.BatchProcessor") as mock_processor_class:
+        with patch("common.metadata_store_auto_updater.BatchProcessor") as mock_processor_class:
             await updater.initialize()
 
         mock_processor_class.assert_called_once_with(
@@ -142,7 +142,7 @@ class TestMetadataStoreAutoUpdaterInitialize:
         updater.init_manager.redis_client = mock_redis
 
         with patch(
-            "src.common.metadata_store_auto_updater.TimeWindowUpdater"
+            "common.metadata_store_auto_updater.TimeWindowUpdater"
         ) as mock_updater_class:
             await updater.initialize()
 
@@ -159,7 +159,7 @@ class TestMetadataStoreAutoUpdaterInitialize:
         mock_redis = MagicMock()
         updater.init_manager.redis_client = mock_redis
 
-        with patch("src.common.metadata_store_auto_updater.MetadataInitializer") as mock_init_class:
+        with patch("common.metadata_store_auto_updater.MetadataInitializer") as mock_init_class:
             await updater.initialize()
 
         mock_init_class.assert_called_once_with(mock_store, mock_redis)
@@ -175,7 +175,7 @@ class TestMetadataStoreAutoUpdaterStart:
         updater = MetadataStoreAutoUpdater(metadata_store=mock_store)
         updater._listener_task = MagicMock()
 
-        with patch("src.common.metadata_store_auto_updater.logger") as mock_logger:
+        with patch("common.metadata_store_auto_updater.logger") as mock_logger:
             await updater.start()
 
         mock_logger.warning.assert_called_once()
@@ -352,7 +352,7 @@ class TestMetadataStoreAutoUpdaterStop:
         updater.init_manager = MagicMock()
         updater.init_manager.cleanup = AsyncMock()
 
-        with patch("src.common.metadata_store_auto_updater.logger") as mock_logger:
+        with patch("common.metadata_store_auto_updater.logger") as mock_logger:
             await updater.stop()
 
         mock_logger.warning.assert_called()
@@ -379,7 +379,7 @@ class TestMetadataStoreAutoUpdaterStop:
         updater._listener_task = mock_task
 
         with patch("asyncio.wait_for", side_effect=wait_side_effect):
-            with patch("src.common.metadata_store_auto_updater.logger") as mock_logger:
+            with patch("common.metadata_store_auto_updater.logger") as mock_logger:
                 await updater.stop()
 
         mock_logger.warning.assert_called()

@@ -4,7 +4,7 @@ from typing import Any, Awaitable, Callable, Dict
 
 import pytest
 
-from src.common.telegram_utils import BaseTelegramCommandHandler
+from common.telegram_utils import BaseTelegramCommandHandler
 
 
 class _DummyAlerter:

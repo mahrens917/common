@@ -5,7 +5,7 @@ from unittest.mock import Mock, patch
 import psutil
 import pytest
 
-from src.common.optimized_status_reporter_helpers.service_state_collector_helpers.pid_validator import (
+from common.optimized_status_reporter_helpers.service_state_collector_helpers.pid_validator import (
     PidValidator,
 )
 

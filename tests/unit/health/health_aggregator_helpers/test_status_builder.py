@@ -1,11 +1,11 @@
 import unittest
 from unittest.mock import Mock
 
-from src.common.health.health_aggregator_helpers.status_builder import StatusBuilder
-from src.common.health.health_types import OverallServiceStatus
-from src.common.health.log_activity_monitor import LogActivity
-from src.common.health.process_health_monitor import ProcessHealthInfo, ProcessStatus
-from src.common.health.service_health_checker import ServiceHealth, ServiceHealthInfo
+from common.health.health_aggregator_helpers.status_builder import StatusBuilder
+from common.health.health_types import OverallServiceStatus
+from common.health.log_activity_monitor import LogActivity
+from common.health.process_health_monitor import ProcessHealthInfo, ProcessStatus
+from common.health.service_health_checker import ServiceHealth, ServiceHealthInfo
 
 
 class TestStatusBuilder(unittest.TestCase):

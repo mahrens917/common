@@ -1,7 +1,7 @@
 import unittest
 from unittest.mock import AsyncMock, patch
 
-from src.common.report_generator_helpers.error_handler import ReportErrorHandler
+from common.report_generator_helpers.error_handler import ReportErrorHandler
 
 
 class TestReportErrorHandler(unittest.IsolatedAsyncioTestCase):
@@ -12,7 +12,7 @@ class TestReportErrorHandler(unittest.IsolatedAsyncioTestCase):
         )
         self.assertEqual(result, "Success")
 
-    @patch("src.common.report_generator_helpers.error_handler.logger")
+    @patch("common.report_generator_helpers.error_handler.logger")
     async def test_handle_report_error_failure(self, mock_logger):
         mock_operation = AsyncMock(side_effect=ValueError("Failure"))
         result = await ReportErrorHandler.handle_report_error(

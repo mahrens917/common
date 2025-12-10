@@ -1,6 +1,6 @@
 import pytest
 
-from src.common.status_reporter_helpers.rule_explainer import (
+from common.status_reporter_helpers.rule_explainer import (
     explain_theoretical_yes_ask_buy,
     explain_theoretical_yes_ask_sell,
     explain_theoretical_yes_bid_sell,

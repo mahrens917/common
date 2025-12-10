@@ -4,7 +4,7 @@ from typing import Any, Dict
 
 import pytest
 
-from src.common.redis_protocol.kalshi_store.writer_helpers import subscription_writer
+from common.redis_protocol.kalshi_store.writer_helpers import subscription_writer
 
 
 class DummyMetadataAdapter:
@@ -48,7 +48,7 @@ def test_subscription_writer_delegates_to_metadata_adapter():
 
 
 def test_select_timestamp_value_calls_helper(monkeypatch):
-    import src.common.redis_protocol.kalshi_store.metadata_helpers.timestamp_normalization as tn
+    import common.redis_protocol.kalshi_store.metadata_helpers.timestamp_normalization as tn
 
     called = {}
 
@@ -66,7 +66,7 @@ def test_select_timestamp_value_calls_helper(monkeypatch):
 
 
 def test_normalize_timestamp_calls_helper(monkeypatch):
-    import src.common.redis_protocol.kalshi_store.metadata_helpers.timestamp_normalization as tn
+    import common.redis_protocol.kalshi_store.metadata_helpers.timestamp_normalization as tn
 
     called = {}
 

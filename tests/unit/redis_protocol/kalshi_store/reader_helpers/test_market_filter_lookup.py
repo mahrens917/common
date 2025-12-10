@@ -4,8 +4,8 @@ from types import SimpleNamespace
 
 import pytest
 
-from src.common.redis_protocol.kalshi_store.reader_helpers.market_filter import MarketFilter
-from src.common.redis_protocol.kalshi_store.reader_helpers.market_lookup import MarketLookup
+from common.redis_protocol.kalshi_store.reader_helpers.market_filter import MarketFilter
+from common.redis_protocol.kalshi_store.reader_helpers.market_lookup import MarketLookup
 
 
 class _ScanRedis:
@@ -36,7 +36,7 @@ async def test_market_filter_scan_and_summary(monkeypatch, caplog):
         return SimpleNamespace(ticker=key.split(":")[-1])
 
     monkeypatch.setattr(
-        "src.common.redis_protocol.kalshi_store.reader_helpers.market_filter.parse_kalshi_market_key",
+        "common.redis_protocol.kalshi_store.reader_helpers.market_filter.parse_kalshi_market_key",
         fake_parse,
     )
 
@@ -95,7 +95,7 @@ async def test_market_lookup_branches(monkeypatch):
         return ([{"ticker": "AAA"}], Counter({"expired": 1}))
 
     monkeypatch.setattr(
-        "src.common.redis_protocol.kalshi_store.reader_helpers.market_lookup.build_market_records",
+        "common.redis_protocol.kalshi_store.reader_helpers.market_lookup.build_market_records",
         fake_build_market_records,
     )
 
@@ -113,7 +113,7 @@ async def test_market_lookup_branches(monkeypatch):
         return {"match": deps.strike}
 
     monkeypatch.setattr(
-        "src.common.redis_protocol.kalshi_store.reader_helpers.market_lookup.find_matching_market",
+        "common.redis_protocol.kalshi_store.reader_helpers.market_lookup.find_matching_market",
         fake_find_matching_market,
     )
 

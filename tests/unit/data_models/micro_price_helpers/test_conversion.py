@@ -7,7 +7,7 @@ from unittest.mock import MagicMock
 
 import pytest
 
-from src.common.data_models.micro_price_helpers.conversion import (
+from common.data_models.micro_price_helpers.conversion import (
     MicroPriceConversionHelpers,
     determine_expiry,
     determine_underlying,
@@ -17,7 +17,7 @@ from src.common.data_models.micro_price_helpers.conversion import (
     resolve_option_type,
     resolve_timestamp,
 )
-from src.common.data_models.micro_price_helpers.errors import OptionDataConversionError
+from common.data_models.micro_price_helpers.errors import OptionDataConversionError
 
 DEFAULT_TEST_CONVERSION_BID_SIZE = 100
 DEFAULT_TEST_CONVERSION_ASK_SIZE = 200

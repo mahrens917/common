@@ -4,10 +4,10 @@ import asyncio
 import logging
 from typing import Any, Optional
 
-from src.common.exceptions import DataError
-from src.common.redis_protocol.connection import perform_redis_health_check
-from src.common.redis_protocol.typing import RedisClient, ensure_awaitable
-from src.common.redis_utils import get_redis_connection
+from common.exceptions import DataError
+from common.redis_protocol.connection import perform_redis_health_check
+from common.redis_protocol.typing import RedisClient, ensure_awaitable
+from common.redis_utils import get_redis_connection
 
 logger = logging.getLogger(__name__)
 

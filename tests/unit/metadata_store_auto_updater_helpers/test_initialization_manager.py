@@ -3,8 +3,8 @@ from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 
-from src.common.exceptions import DataError
-from src.common.metadata_store_auto_updater_helpers.initialization_manager import (
+from common.exceptions import DataError
+from common.metadata_store_auto_updater_helpers.initialization_manager import (
     InitializationManager,
 )
 
@@ -31,11 +31,11 @@ class TestInitializationManager:
     async def test_initialize_success(self, manager, mock_redis, mock_metadata_store):
         with (
             patch(
-                "src.common.metadata_store_auto_updater_helpers.initialization_manager.perform_redis_health_check",
+                "common.metadata_store_auto_updater_helpers.initialization_manager.perform_redis_health_check",
                 return_value=True,
             ),
             patch(
-                "src.common.metadata_store_auto_updater_helpers.initialization_manager.get_redis_connection",
+                "common.metadata_store_auto_updater_helpers.initialization_manager.get_redis_connection",
                 return_value=mock_redis,
             ) as mock_get_redis,
         ):
@@ -52,11 +52,11 @@ class TestInitializationManager:
     async def test_initialize_redis_client_failure(self, manager, mock_metadata_store):
         with (
             patch(
-                "src.common.metadata_store_auto_updater_helpers.initialization_manager.perform_redis_health_check",
+                "common.metadata_store_auto_updater_helpers.initialization_manager.perform_redis_health_check",
                 return_value=True,
             ),
             patch(
-                "src.common.metadata_store_auto_updater_helpers.initialization_manager.get_redis_connection",
+                "common.metadata_store_auto_updater_helpers.initialization_manager.get_redis_connection",
                 return_value=None,
             ),
         ):
@@ -68,11 +68,11 @@ class TestInitializationManager:
     async def test_initialize_pubsub_client_failure(self, manager, mock_redis, mock_metadata_store):
         with (
             patch(
-                "src.common.metadata_store_auto_updater_helpers.initialization_manager.perform_redis_health_check",
+                "common.metadata_store_auto_updater_helpers.initialization_manager.perform_redis_health_check",
                 return_value=True,
             ),
             patch(
-                "src.common.metadata_store_auto_updater_helpers.initialization_manager.get_redis_connection",
+                "common.metadata_store_auto_updater_helpers.initialization_manager.get_redis_connection",
                 side_effect=[mock_redis, None],
             ),
         ):
@@ -84,7 +84,7 @@ class TestInitializationManager:
     async def test_ensure_redis_pool_ready_retry_success(self, manager):
         with (
             patch(
-                "src.common.metadata_store_auto_updater_helpers.initialization_manager.perform_redis_health_check",
+                "common.metadata_store_auto_updater_helpers.initialization_manager.perform_redis_health_check",
                 side_effect=[False, False, True],
             ) as mock_check,
             patch("asyncio.sleep", return_value=None),
@@ -97,7 +97,7 @@ class TestInitializationManager:
     async def test_ensure_redis_pool_ready_failure(self, manager):
         with (
             patch(
-                "src.common.metadata_store_auto_updater_helpers.initialization_manager.perform_redis_health_check",
+                "common.metadata_store_auto_updater_helpers.initialization_manager.perform_redis_health_check",
                 return_value=False,
             ) as mock_check,
             patch("asyncio.sleep", return_value=None),
@@ -111,7 +111,7 @@ class TestInitializationManager:
     async def test_ensure_redis_pool_ready_exception(self, manager):
         with (
             patch(
-                "src.common.metadata_store_auto_updater_helpers.initialization_manager.perform_redis_health_check",
+                "common.metadata_store_auto_updater_helpers.initialization_manager.perform_redis_health_check",
                 side_effect=RuntimeError("Connection failed"),
             ) as mock_check,
             patch("asyncio.sleep", return_value=None),

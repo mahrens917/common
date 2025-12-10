@@ -7,7 +7,7 @@ from datetime import datetime
 from numbers import Real
 from typing import Union
 
-from src.common.exceptions import ValidationError
+from common.exceptions import ValidationError
 
 from .expiry_conversions import (
     get_datetime_from_time_point,

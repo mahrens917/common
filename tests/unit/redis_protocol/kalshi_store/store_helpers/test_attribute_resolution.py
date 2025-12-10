@@ -2,7 +2,7 @@
 
 import pytest
 
-from src.common.redis_protocol.kalshi_store.store_helpers import attribute_resolution
+from common.redis_protocol.kalshi_store.store_helpers import attribute_resolution
 
 
 class DummyResolver:

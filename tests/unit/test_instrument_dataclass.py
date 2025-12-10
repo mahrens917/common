@@ -4,7 +4,7 @@ from datetime import datetime, timezone
 
 import pytest
 
-from src.common.data_models.instrument import Instrument
+from common.data_models.instrument import Instrument
 
 _CENTS_1692532800 = 1692532800
 

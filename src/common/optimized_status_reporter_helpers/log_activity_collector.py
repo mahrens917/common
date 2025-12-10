@@ -10,7 +10,7 @@ from typing import Dict, List, Tuple
 
 from redis.exceptions import RedisError
 
-from src.common.health.log_activity_monitor import (
+from common.health.log_activity_monitor import (
     LOG_ACTIVITY_ERRORS,
     LogActivity,
     LogActivityMonitor,

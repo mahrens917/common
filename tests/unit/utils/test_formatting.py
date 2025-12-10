@@ -1,6 +1,6 @@
 """Tests for common formatting utilities."""
 
-from src.common.utils.formatting import format_duration
+from common.utils.formatting import format_duration
 
 
 def test_format_duration_zero_or_negative():

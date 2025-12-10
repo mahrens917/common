@@ -7,7 +7,7 @@ from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 
-from src.common.process_killer_helpers.process_terminator import (
+from common.process_killer_helpers.process_terminator import (
     _create_psutil_process_safe,
     _validate_process_executable,
     terminate_matching_processes,
@@ -103,7 +103,7 @@ class TestValidateProcessCandidates:
         mock_process = MagicMock()
 
         with patch(
-            "src.common.process_killer_helpers.process_terminator._create_psutil_process_safe",
+            "common.process_killer_helpers.process_terminator._create_psutil_process_safe",
             return_value=mock_process,
         ):
             result = validate_process_candidates(candidates, service_name="test")
@@ -115,7 +115,7 @@ class TestValidateProcessCandidates:
         candidates = [SimpleNamespace(pid=123, name="python", cmdline=["python"])]
 
         with patch(
-            "src.common.process_killer_helpers.process_terminator._create_psutil_process_safe",
+            "common.process_killer_helpers.process_terminator._create_psutil_process_safe",
             return_value=None,
         ):
             result = validate_process_candidates(candidates, service_name="test")

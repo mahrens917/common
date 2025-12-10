@@ -6,9 +6,9 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
-from src.common.health.log_activity_monitor import LogActivity, LogActivityStatus
-from src.common.monitoring import ProcessStatus
-from src.common.optimized_status_reporter_helpers.basic_info_printer import BasicInfoPrinter
+from common.health.log_activity_monitor import LogActivity, LogActivityStatus
+from common.monitoring import ProcessStatus
+from common.optimized_status_reporter_helpers.basic_info_printer import BasicInfoPrinter
 
 
 class TestBasicInfoPrinter:

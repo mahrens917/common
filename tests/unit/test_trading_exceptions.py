@@ -2,7 +2,7 @@ from datetime import datetime, timezone
 
 import pytest
 
-from src.common.trading_exceptions import (
+from common.trading_exceptions import (
     KalshiAPIError,
     KalshiAuthenticationError,
     KalshiConfigurationError,
@@ -31,7 +31,7 @@ _TEST_COUNT_7 = 7
 
 def test_trading_error_to_dict_includes_context(monkeypatch):
     fixed_now = datetime(2024, 1, 1, 12, 0, 0, tzinfo=timezone.utc)
-    monkeypatch.setattr("src.common.time_utils.get_current_utc", lambda: fixed_now)
+    monkeypatch.setattr("common.time_utils.get_current_utc", lambda: fixed_now)
 
     err = KalshiTradingError(
         message="failure",
@@ -52,7 +52,7 @@ def test_trading_error_to_dict_includes_context(monkeypatch):
 
 def test_insufficient_funds_error_sets_request_data(monkeypatch):
     monkeypatch.setattr(
-        "src.common.time_utils.get_current_utc",
+        "common.time_utils.get_current_utc",
         lambda: datetime(2024, 1, 2, 12, 0, 0, tzinfo=timezone.utc),
     )
 
@@ -75,7 +75,7 @@ def test_insufficient_funds_error_sets_request_data(monkeypatch):
 
 def test_rate_limit_error_captures_retry_after(monkeypatch):
     monkeypatch.setattr(
-        "src.common.time_utils.get_current_utc",
+        "common.time_utils.get_current_utc",
         lambda: datetime(2024, 1, 3, 12, 0, 0, tzinfo=timezone.utc),
     )
 
@@ -93,7 +93,7 @@ def test_rate_limit_error_captures_retry_after(monkeypatch):
 
 def test_api_error_preserves_response_data(monkeypatch):
     monkeypatch.setattr(
-        "src.common.time_utils.get_current_utc",
+        "common.time_utils.get_current_utc",
         lambda: datetime(2024, 1, 4, 12, 0, 0, tzinfo=timezone.utc),
     )
 
@@ -121,7 +121,7 @@ class TestKalshiAuthenticationError:
     def test_authentication_error_sets_correct_error_code(self, monkeypatch) -> None:
         """Authentication error sets AUTHENTICATION_FAILED code."""
         monkeypatch.setattr(
-            "src.common.time_utils.get_current_utc",
+            "common.time_utils.get_current_utc",
             lambda: datetime(2024, 1, 5, 12, 0, 0, tzinfo=timezone.utc),
         )
 
@@ -142,7 +142,7 @@ class TestKalshiOrderValidationError:
     def test_order_validation_error_preserves_order_data(self, monkeypatch) -> None:
         """Order validation error preserves order data in request_data."""
         monkeypatch.setattr(
-            "src.common.time_utils.get_current_utc",
+            "common.time_utils.get_current_utc",
             lambda: datetime(2024, 1, 6, 12, 0, 0, tzinfo=timezone.utc),
         )
 
@@ -163,7 +163,7 @@ class TestKalshiMarketClosedError:
     def test_market_closed_error_sets_ticker_and_status(self, monkeypatch) -> None:
         """Market closed error sets ticker and market_status."""
         monkeypatch.setattr(
-            "src.common.time_utils.get_current_utc",
+            "common.time_utils.get_current_utc",
             lambda: datetime(2024, 1, 7, 12, 0, 0, tzinfo=timezone.utc),
         )
 
@@ -186,7 +186,7 @@ class TestKalshiOrderRejectedError:
     def test_order_rejected_error_captures_rejection_reason(self, monkeypatch) -> None:
         """Order rejected error captures rejection reason."""
         monkeypatch.setattr(
-            "src.common.time_utils.get_current_utc",
+            "common.time_utils.get_current_utc",
             lambda: datetime(2024, 1, 8, 12, 0, 0, tzinfo=timezone.utc),
         )
 
@@ -209,7 +209,7 @@ class TestKalshiRateLimiterQueueFullError:
     def test_rate_limiter_queue_full_error(self, monkeypatch) -> None:
         """Rate limiter queue full error sets queue info."""
         monkeypatch.setattr(
-            "src.common.time_utils.get_current_utc",
+            "common.time_utils.get_current_utc",
             lambda: datetime(2024, 1, 9, 12, 0, 0, tzinfo=timezone.utc),
         )
 
@@ -232,7 +232,7 @@ class TestKalshiRateLimiterBugError:
     def test_rate_limiter_bug_error(self, monkeypatch) -> None:
         """Rate limiter bug error indicates implementation bug."""
         monkeypatch.setattr(
-            "src.common.time_utils.get_current_utc",
+            "common.time_utils.get_current_utc",
             lambda: datetime(2024, 1, 10, 12, 0, 0, tzinfo=timezone.utc),
         )
 
@@ -253,7 +253,7 @@ class TestKalshiNetworkError:
     def test_network_error_captures_underlying_error(self, monkeypatch) -> None:
         """Network error captures underlying exception."""
         monkeypatch.setattr(
-            "src.common.time_utils.get_current_utc",
+            "common.time_utils.get_current_utc",
             lambda: datetime(2024, 1, 11, 12, 0, 0, tzinfo=timezone.utc),
         )
 
@@ -271,7 +271,7 @@ class TestKalshiNetworkError:
     def test_network_error_handles_none_underlying_error(self, monkeypatch) -> None:
         """Network error handles None underlying error."""
         monkeypatch.setattr(
-            "src.common.time_utils.get_current_utc",
+            "common.time_utils.get_current_utc",
             lambda: datetime(2024, 1, 12, 12, 0, 0, tzinfo=timezone.utc),
         )
 
@@ -290,7 +290,7 @@ class TestKalshiDataIntegrityError:
     def test_data_integrity_error_captures_validation_errors(self, monkeypatch) -> None:
         """Data integrity error captures validation errors."""
         monkeypatch.setattr(
-            "src.common.time_utils.get_current_utc",
+            "common.time_utils.get_current_utc",
             lambda: datetime(2024, 1, 13, 12, 0, 0, tzinfo=timezone.utc),
         )
 
@@ -310,7 +310,7 @@ class TestKalshiDataIntegrityError:
     def test_data_integrity_error_defaults_to_empty_list(self, monkeypatch) -> None:
         """Data integrity error defaults validation_errors to empty list."""
         monkeypatch.setattr(
-            "src.common.time_utils.get_current_utc",
+            "common.time_utils.get_current_utc",
             lambda: datetime(2024, 1, 14, 12, 0, 0, tzinfo=timezone.utc),
         )
 
@@ -325,7 +325,7 @@ class TestKalshiOrderNotFoundError:
     def test_order_not_found_error_captures_ids(self, monkeypatch) -> None:
         """Order not found error captures order and client IDs."""
         monkeypatch.setattr(
-            "src.common.time_utils.get_current_utc",
+            "common.time_utils.get_current_utc",
             lambda: datetime(2024, 1, 15, 12, 0, 0, tzinfo=timezone.utc),
         )
 
@@ -348,7 +348,7 @@ class TestKalshiPositionError:
     def test_position_error_captures_ticker_and_data(self, monkeypatch) -> None:
         """Position error captures ticker and position data."""
         monkeypatch.setattr(
-            "src.common.time_utils.get_current_utc",
+            "common.time_utils.get_current_utc",
             lambda: datetime(2024, 1, 16, 12, 0, 0, tzinfo=timezone.utc),
         )
 
@@ -371,7 +371,7 @@ class TestKalshiConfigurationError:
     def test_configuration_error_captures_config_key(self, monkeypatch) -> None:
         """Configuration error captures config key."""
         monkeypatch.setattr(
-            "src.common.time_utils.get_current_utc",
+            "common.time_utils.get_current_utc",
             lambda: datetime(2024, 1, 17, 12, 0, 0, tzinfo=timezone.utc),
         )
 
@@ -392,7 +392,7 @@ class TestKalshiOrderPollingError:
     def test_order_polling_error_captures_order_id(self, monkeypatch) -> None:
         """Order polling error captures order ID."""
         monkeypatch.setattr(
-            "src.common.time_utils.get_current_utc",
+            "common.time_utils.get_current_utc",
             lambda: datetime(2024, 1, 18, 12, 0, 0, tzinfo=timezone.utc),
         )
 
@@ -409,7 +409,7 @@ class TestKalshiOrderPollingError:
     def test_order_polling_error_merges_request_data(self, monkeypatch) -> None:
         """Order polling error merges additional request data."""
         monkeypatch.setattr(
-            "src.common.time_utils.get_current_utc",
+            "common.time_utils.get_current_utc",
             lambda: datetime(2024, 1, 19, 12, 0, 0, tzinfo=timezone.utc),
         )
 
@@ -430,7 +430,7 @@ class TestKalshiTradePersistenceError:
     def test_trade_persistence_error_captures_ids(self, monkeypatch) -> None:
         """Trade persistence error captures order ID and ticker."""
         monkeypatch.setattr(
-            "src.common.time_utils.get_current_utc",
+            "common.time_utils.get_current_utc",
             lambda: datetime(2024, 1, 20, 12, 0, 0, tzinfo=timezone.utc),
         )
 
@@ -453,7 +453,7 @@ class TestKalshiTradeNotificationError:
     def test_trade_notification_error_captures_order_id(self, monkeypatch) -> None:
         """Trade notification error captures order ID."""
         monkeypatch.setattr(
-            "src.common.time_utils.get_current_utc",
+            "common.time_utils.get_current_utc",
             lambda: datetime(2024, 1, 21, 12, 0, 0, tzinfo=timezone.utc),
         )
 

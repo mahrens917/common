@@ -1,7 +1,7 @@
 import pytest
 
-from src.common.redis_protocol.probability_store.exceptions import ProbabilityStoreError
-from src.common.redis_protocol.probability_store.keys_helpers.strike_parser import (
+from common.redis_protocol.probability_store.exceptions import ProbabilityStoreError
+from common.redis_protocol.probability_store.keys_helpers.strike_parser import (
     StrikeSortKeyParser,
 )
 

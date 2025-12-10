@@ -4,7 +4,7 @@ from types import SimpleNamespace
 
 import pytest
 
-from src.common.market_data_parser_helpers.contract_validator_helpers.strike_validator import (
+from common.market_data_parser_helpers.contract_validator_helpers.strike_validator import (
     StrikeValidator,
 )
 

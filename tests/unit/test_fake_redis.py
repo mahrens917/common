@@ -2,7 +2,7 @@ from unittest.mock import AsyncMock
 
 import pytest
 
-from src.common.config.redis_schema import get_schema_config
+from common.config.redis_schema import get_schema_config
 
 
 @pytest.mark.asyncio
@@ -50,14 +50,14 @@ def test_stub_schema_config_exposes_overrides(stub_schema_config, schema_config_
 
 @pytest.mark.asyncio
 async def test_fake_redis_client_factory_patches(monkeypatch, fake_redis_client_factory):
-    fake = fake_redis_client_factory("src.common.redis_protocol.connection.get_redis_pool")
+    fake = fake_redis_client_factory("common.redis_protocol.connection.get_redis_pool")
 
     import redis.asyncio  # patched by fixture
 
     client = redis.asyncio.Redis()
     assert client is fake
 
-    from src.common.redis_protocol import connection
+    from common.redis_protocol import connection
 
     pool = await connection.get_redis_pool()
     assert isinstance(connection.get_redis_pool, AsyncMock)

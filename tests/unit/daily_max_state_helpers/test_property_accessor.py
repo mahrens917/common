@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import pytest
 
-from src.common.daily_max_state_helpers.property_accessor import PropertyAccessor
+from common.daily_max_state_helpers.property_accessor import PropertyAccessor
 
 DEFAULT_TEST_MAX_TEMP_C = 30.0
 DEFAULT_TEST_HOURLY_MAX_TEMP_C = 4.0

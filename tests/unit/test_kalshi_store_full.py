@@ -6,9 +6,9 @@ from typing import Any, Dict
 import orjson
 import pytest
 
-from src.common.redis_protocol import kalshi_store as kalshi_store_module
-from src.common.redis_protocol.kalshi_store import KalshiStore
-from src.common.redis_protocol.market_normalization import (
+from common.redis_protocol import kalshi_store as kalshi_store_module
+from common.redis_protocol.kalshi_store import KalshiStore
+from common.redis_protocol.market_normalization import (
     convert_numeric_field,
     derive_expiry_iso,
     derive_strike_fields,
@@ -25,8 +25,8 @@ _CONST_2024 = 2024
 _TEST_ID_123 = 123
 _VAL_7_0 = 7.0
 
-from src.common.redis_protocol.weather_station_resolver import WeatherStationResolver
-from src.common.redis_schema import KalshiMarketDescriptor
+from common.redis_protocol.weather_station_resolver import WeatherStationResolver
+from common.redis_schema import KalshiMarketDescriptor
 
 
 @pytest.fixture(autouse=True)
@@ -263,7 +263,7 @@ async def test_ensure_redis_connection_recreates_client(monkeypatch):
         return Pingable()
 
     monkeypatch.setattr(
-        "src.common.redis_protocol.connection_pool_core.get_redis_client", fake_get_redis_client
+        "common.redis_protocol.connection_pool_core.get_redis_client", fake_get_redis_client
     )
 
     store_obj = KalshiStore()
@@ -499,7 +499,7 @@ async def test_pipeline_trade_price_updates(store, monkeypatch):
             calls.append((market_ticker, yes_bid, yes_ask))
 
     monkeypatch.setattr(
-        "src.common.redis_protocol.trade_store.TradeStore", FakeTradeStore, raising=False
+        "common.redis_protocol.trade_store.TradeStore", FakeTradeStore, raising=False
     )
 
     await store_obj._update_trade_prices_for_market(ticker, 41, 59)
@@ -530,12 +530,12 @@ async def test_initialize_and_close(monkeypatch):
     async def fake_cleanup(pool):
         assert pool is fake_pool
 
-    monkeypatch.setattr("src.common.redis_protocol.kalshi_store.Redis", DummyRedis, raising=False)
+    monkeypatch.setattr("common.redis_protocol.kalshi_store.Redis", DummyRedis, raising=False)
     monkeypatch.setattr(
-        "src.common.redis_protocol.connection.get_redis_pool", fake_get_pool, raising=False
+        "common.redis_protocol.connection.get_redis_pool", fake_get_pool, raising=False
     )
     monkeypatch.setattr(
-        "src.common.redis_protocol.connection.cleanup_redis_pool", fake_cleanup, raising=False
+        "common.redis_protocol.connection.cleanup_redis_pool", fake_cleanup, raising=False
     )
 
     store_obj = KalshiStore()

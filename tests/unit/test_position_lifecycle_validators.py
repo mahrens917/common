@@ -2,7 +2,7 @@ from datetime import datetime, timezone
 
 import pytest
 
-from src.common.data_models.trading import (
+from common.data_models.trading import (
     OrderAction,
     OrderFill,
     OrderResponse,
@@ -24,7 +24,7 @@ QUATERNARY_TRADE_FILLED_COUNT = 4
 MINIMAL_TRADE_FILLED_COUNT = 1
 _CONST_55 = 55
 
-from src.common.position_lifecycle_validators import (
+from common.position_lifecycle_validators import (
     BalanceStateSnapshot,
     PositionStateSnapshot,
     TradeExecution,

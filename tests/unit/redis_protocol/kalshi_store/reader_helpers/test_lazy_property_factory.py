@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from unittest.mock import MagicMock
 
-from src.common.redis_protocol.kalshi_store.reader_helpers.lazy_property_factory import (
+from common.redis_protocol.kalshi_store.reader_helpers.lazy_property_factory import (
     create_query_handler,
     create_snapshot_retriever,
     create_status_checker,

@@ -7,8 +7,8 @@ from datetime import datetime, timezone
 
 import pytest
 
-from src.common.market_data_parser import DateTimeCorruptionError, ParsingError
-from src.common.market_data_parser_helpers.date_parser_helpers import (
+from common.market_data_parser import DateTimeCorruptionError, ParsingError
+from common.market_data_parser_helpers.date_parser_helpers import (
     check_corruption,
     parse_year_component,
     validate_date_format,

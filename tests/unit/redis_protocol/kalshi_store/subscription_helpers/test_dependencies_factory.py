@@ -1,6 +1,6 @@
 import logging
 
-from src.common.redis_protocol.kalshi_store.subscription_helpers import dependencies_factory
+from common.redis_protocol.kalshi_store.subscription_helpers import dependencies_factory
 
 
 def test_create_dependencies_returns_container(monkeypatch):

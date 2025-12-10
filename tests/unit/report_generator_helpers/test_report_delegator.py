@@ -2,7 +2,7 @@ import unittest
 from datetime import date
 from unittest.mock import AsyncMock, Mock
 
-from src.common.report_generator_helpers.report_delegator import ReportDelegator
+from common.report_generator_helpers.report_delegator import ReportDelegator
 
 
 class TestReportDelegator(unittest.IsolatedAsyncioTestCase):

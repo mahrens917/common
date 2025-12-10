@@ -2,13 +2,13 @@
 
 import pytest
 
-from src.common.alert_suppression_manager_helpers.config_loader import (
+from common.alert_suppression_manager_helpers.config_loader import (
     AlertSuppressionConfigurationError,
     build_suppression_rule_from_config,
     load_suppression_config,
 )
-from src.common.alert_suppression_manager_helpers.suppression_tracker import AlertType
-from src.common.exceptions import ConfigurationError
+from common.alert_suppression_manager_helpers.suppression_tracker import AlertType
+from common.exceptions import ConfigurationError
 
 
 def test_load_suppression_config_success(monkeypatch):
@@ -24,7 +24,7 @@ def test_load_suppression_config_success(monkeypatch):
         }
     }
     monkeypatch.setattr(
-        "src.common.alert_suppression_manager_helpers.config_loader.load_config",
+        "common.alert_suppression_manager_helpers.config_loader.load_config",
         lambda x: mock_config,
     )
 
@@ -41,7 +41,7 @@ def test_load_suppression_config_file_not_found(monkeypatch):
         raise FileNotFoundError("Config not found")
 
     monkeypatch.setattr(
-        "src.common.alert_suppression_manager_helpers.config_loader.load_config",
+        "common.alert_suppression_manager_helpers.config_loader.load_config",
         raise_file_not_found,
     )
 
@@ -56,7 +56,7 @@ def test_load_suppression_config_invalid_json(monkeypatch):
         raise ConfigurationError("Invalid JSON")
 
     monkeypatch.setattr(
-        "src.common.alert_suppression_manager_helpers.config_loader.load_config", raise_config_error
+        "common.alert_suppression_manager_helpers.config_loader.load_config", raise_config_error
     )
 
     with pytest.raises(ConfigurationError, match="Invalid JSON"):
@@ -67,7 +67,7 @@ def test_load_suppression_config_missing_alert_suppression_section(monkeypatch):
     """Test config loading when alert_suppression section is missing."""
     mock_config = {"other_config": {}}
     monkeypatch.setattr(
-        "src.common.alert_suppression_manager_helpers.config_loader.load_config",
+        "common.alert_suppression_manager_helpers.config_loader.load_config",
         lambda x: mock_config,
     )
 
@@ -83,7 +83,7 @@ def test_load_suppression_config_missing_root_keys(monkeypatch):
         }
     }
     monkeypatch.setattr(
-        "src.common.alert_suppression_manager_helpers.config_loader.load_config",
+        "common.alert_suppression_manager_helpers.config_loader.load_config",
         lambda x: mock_config,
     )
 
@@ -101,7 +101,7 @@ def test_load_suppression_config_suppression_rules_not_mapping(monkeypatch):
         }
     }
     monkeypatch.setattr(
-        "src.common.alert_suppression_manager_helpers.config_loader.load_config",
+        "common.alert_suppression_manager_helpers.config_loader.load_config",
         lambda x: mock_config,
     )
 
@@ -121,7 +121,7 @@ def test_load_suppression_config_missing_rule_keys(monkeypatch):
         }
     }
     monkeypatch.setattr(
-        "src.common.alert_suppression_manager_helpers.config_loader.load_config",
+        "common.alert_suppression_manager_helpers.config_loader.load_config",
         lambda x: mock_config,
     )
 
@@ -142,7 +142,7 @@ def test_load_suppression_config_during_reconnection_not_list(monkeypatch):
         }
     }
     monkeypatch.setattr(
-        "src.common.alert_suppression_manager_helpers.config_loader.load_config",
+        "common.alert_suppression_manager_helpers.config_loader.load_config",
         lambda x: mock_config,
     )
 
@@ -163,7 +163,7 @@ def test_load_suppression_config_during_reconnection_empty(monkeypatch):
         }
     }
     monkeypatch.setattr(
-        "src.common.alert_suppression_manager_helpers.config_loader.load_config",
+        "common.alert_suppression_manager_helpers.config_loader.load_config",
         lambda x: mock_config,
     )
 
@@ -184,7 +184,7 @@ def test_load_suppression_config_service_type_mapping_not_mapping(monkeypatch):
         }
     }
     monkeypatch.setattr(
-        "src.common.alert_suppression_manager_helpers.config_loader.load_config",
+        "common.alert_suppression_manager_helpers.config_loader.load_config",
         lambda x: mock_config,
     )
 
@@ -205,7 +205,7 @@ def test_load_suppression_config_service_type_mapping_empty(monkeypatch):
         }
     }
     monkeypatch.setattr(
-        "src.common.alert_suppression_manager_helpers.config_loader.load_config",
+        "common.alert_suppression_manager_helpers.config_loader.load_config",
         lambda x: mock_config,
     )
 

@@ -6,7 +6,7 @@ import logging
 import re
 from datetime import datetime, timezone
 
-from src.common.exceptions import DataError
+from common.exceptions import DataError
 
 from ...time_utils import DERIBIT_EXPIRY_HOUR, EPOCH_START, validate_expiry_hour
 

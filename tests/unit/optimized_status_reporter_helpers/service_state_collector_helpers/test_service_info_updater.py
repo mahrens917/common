@@ -4,8 +4,8 @@ from unittest.mock import Mock
 
 import pytest
 
-from src.common.monitoring import ProcessStatus
-from src.common.optimized_status_reporter_helpers.service_state_collector_helpers.service_info_updater import (
+from common.monitoring import ProcessStatus
+from common.optimized_status_reporter_helpers.service_state_collector_helpers.service_info_updater import (
     ServiceInfoUpdater,
 )
 

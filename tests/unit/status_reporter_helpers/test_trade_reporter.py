@@ -1,6 +1,6 @@
 import pytest
 
-from src.common.status_reporter_helpers.trade_reporter import TradeReporter
+from common.status_reporter_helpers.trade_reporter import TradeReporter
 
 
 class TestTradeReporter:

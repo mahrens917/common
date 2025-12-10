@@ -2,7 +2,7 @@ from unittest.mock import AsyncMock
 
 import pytest
 
-from src.common.redis_protocol.atomic_operations import (
+from common.redis_protocol.atomic_operations import (
     AtomicRedisOperations,
     RedisDataValidationError,
 )
@@ -148,9 +148,9 @@ async def test_atomic_market_data_write_handles_empty_results():
 
 @pytest.mark.asyncio
 async def test_safe_market_data_read_returns_none_when_fields_missing(monkeypatch):
-    monkeypatch.setattr("src.common.redis_protocol.atomic_operations.MAX_READ_RETRIES", 3)
+    monkeypatch.setattr("common.redis_protocol.atomic_operations.MAX_READ_RETRIES", 3)
     sleep_mock = AsyncMock()
-    monkeypatch.setattr("src.common.redis_protocol.atomic_operations.asyncio.sleep", sleep_mock)
+    monkeypatch.setattr("common.redis_protocol.atomic_operations.asyncio.sleep", sleep_mock)
 
     redis = _RedisStub(hgetall=AsyncMock(return_value={"best_bid": "10", "best_bid_size": "1"}))
 
@@ -163,9 +163,9 @@ async def test_safe_market_data_read_returns_none_when_fields_missing(monkeypatc
 
 @pytest.mark.asyncio
 async def test_safe_market_data_read_rejects_non_positive_prices(monkeypatch):
-    monkeypatch.setattr("src.common.redis_protocol.atomic_operations.MAX_READ_RETRIES", 3)
+    monkeypatch.setattr("common.redis_protocol.atomic_operations.MAX_READ_RETRIES", 3)
     sleep_mock = AsyncMock()
-    monkeypatch.setattr("src.common.redis_protocol.atomic_operations.asyncio.sleep", sleep_mock)
+    monkeypatch.setattr("common.redis_protocol.atomic_operations.asyncio.sleep", sleep_mock)
 
     redis = _RedisStub(
         hgetall=AsyncMock(
@@ -187,9 +187,9 @@ async def test_safe_market_data_read_rejects_non_positive_prices(monkeypatch):
 
 @pytest.mark.asyncio
 async def test_safe_market_data_read_handles_exceptions(monkeypatch):
-    monkeypatch.setattr("src.common.redis_protocol.atomic_operations.MAX_READ_RETRIES", 3)
+    monkeypatch.setattr("common.redis_protocol.atomic_operations.MAX_READ_RETRIES", 3)
     sleep_mock = AsyncMock()
-    monkeypatch.setattr("src.common.redis_protocol.atomic_operations.asyncio.sleep", sleep_mock)
+    monkeypatch.setattr("common.redis_protocol.atomic_operations.asyncio.sleep", sleep_mock)
 
     redis = _RedisStub(hgetall=AsyncMock(side_effect=RuntimeError("fail")))
 

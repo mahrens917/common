@@ -18,7 +18,7 @@ from datetime import date
 from pathlib import Path
 from typing import Any, Dict, Optional
 
-from src.common.exceptions import ConfigurationError
+from common.exceptions import ConfigurationError
 
 logger = logging.getLogger(__name__)
 _CONFIG_DIR = Path(__file__).parent.parent.parent / "config"

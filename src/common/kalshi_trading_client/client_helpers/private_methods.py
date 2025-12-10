@@ -7,9 +7,9 @@ from typing import TYPE_CHECKING, Any, Dict, Optional, Tuple
 from ...order_execution import OrderPoller, TradeFinalizer
 
 if TYPE_CHECKING:
-    from src.common.data_models.trading import OrderRequest, OrderResponse
-    from src.common.trading import TradeStoreManager
-    from src.common.trading.polling_workflow import PollingOutcome
+    from common.data_models.trading import OrderRequest, OrderResponse
+    from common.trading import TradeStoreManager
+    from common.trading.polling_workflow import PollingOutcome
     from src.kalshi.api.client import KalshiClient
 
     from ..services import OrderService
@@ -94,7 +94,7 @@ class PrivateMethods:
         self, market_ticker: str, quantity: int, price_cents: int
     ) -> int:
         """Calculate order fees."""
-        from src.common.kalshi_trading_client.services.order_helpers.fee_calculator import (
+        from common.kalshi_trading_client.services.order_helpers.fee_calculator import (
             calculate_order_fees,
         )
 

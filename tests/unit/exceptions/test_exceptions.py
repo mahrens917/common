@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import pytest
 
-from src.common.exceptions import (
+from common.exceptions import (
     APIError,
     ApplicationError,
     ConfigurationError,
@@ -15,14 +15,14 @@ from src.common.exceptions import (
     RedisError,
     ValidationError,
 )
-from src.common.exceptions.market import InvalidMarketDataError as MarketInvalidMarketDataError
-from src.common.exceptions.market import (
+from common.exceptions.market import InvalidMarketDataError as MarketInvalidMarketDataError
+from common.exceptions.market import (
     MarketError,
 )
-from src.common.exceptions.trading import (
+from common.exceptions.trading import (
     TradingError,
 )
-from src.common.exceptions.weather import (
+from common.exceptions.weather import (
     WeatherError,
     WeatherServiceError,
 )

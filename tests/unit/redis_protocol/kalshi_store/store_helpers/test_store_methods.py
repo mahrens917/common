@@ -4,7 +4,7 @@ from unittest.mock import AsyncMock, MagicMock
 
 import pytest
 
-from src.common.redis_protocol.kalshi_store.store_methods import (
+from common.redis_protocol.kalshi_store.store_methods import (
     _extract_interpolation_fields,
     _parse_bid_ask_prices,
     _process_market_for_interpolation,
@@ -25,7 +25,7 @@ class DummyStore:
 
 def test_validate_market_for_interpolation_handles_bad_key(monkeypatch):
     monkeypatch.setattr(
-        "src.common.redis_protocol.kalshi_store.store_methods.parse_kalshi_market_key",
+        "common.redis_protocol.kalshi_store.store_methods.parse_kalshi_market_key",
         lambda key: (_ for _ in ()).throw(ValueError("bad")),
     )
 
@@ -37,7 +37,7 @@ def test_validate_market_for_interpolation_filters_currency(monkeypatch):
         ticker = "ABC"
 
     monkeypatch.setattr(
-        "src.common.redis_protocol.kalshi_store.store_methods.parse_kalshi_market_key",
+        "common.redis_protocol.kalshi_store.store_methods.parse_kalshi_market_key",
         lambda key: Descriptor(),
     )
 
@@ -62,7 +62,7 @@ async def test_process_market_for_interpolation_returns_when_data_present(monkey
         ticker = "USD-ABC"
 
     monkeypatch.setattr(
-        "src.common.redis_protocol.kalshi_store.store_methods.parse_kalshi_market_key",
+        "common.redis_protocol.kalshi_store.store_methods.parse_kalshi_market_key",
         lambda key: Descriptor(),
     )
 
@@ -73,7 +73,7 @@ async def test_process_market_for_interpolation_returns_when_data_present(monkey
         return {"extra": 1}
 
     monkeypatch.setattr(
-        "src.common.redis_protocol.kalshi_store.store_methods._extract_interpolation_fields",
+        "common.redis_protocol.kalshi_store.store_methods._extract_interpolation_fields",
         stub_extract,
     )
 
@@ -92,7 +92,7 @@ async def test_process_market_for_interpolation_skips_when_no_market_data(monkey
         ticker = "USD-ABC"
 
     monkeypatch.setattr(
-        "src.common.redis_protocol.kalshi_store.store_methods.parse_kalshi_market_key",
+        "common.redis_protocol.kalshi_store.store_methods.parse_kalshi_market_key",
         lambda key: Descriptor(),
     )
 

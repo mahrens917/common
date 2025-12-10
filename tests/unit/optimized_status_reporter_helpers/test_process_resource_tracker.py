@@ -5,7 +5,7 @@ from unittest.mock import Mock, patch
 import psutil
 import pytest
 
-from src.common.optimized_status_reporter_helpers.process_resource_tracker import (
+from common.optimized_status_reporter_helpers.process_resource_tracker import (
     ProcessResourceTracker,
 )
 

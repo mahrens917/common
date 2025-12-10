@@ -2,8 +2,8 @@ from __future__ import annotations
 
 import pytest
 
-from src.common.exceptions import DataError, ValidationError
-from src.common.redis_protocol.orderbook_utils import build_snapshot_sides, merge_orderbook_payload
+from common.exceptions import DataError, ValidationError
+from common.redis_protocol.orderbook_utils import build_snapshot_sides, merge_orderbook_payload
 
 _TEST_COUNT_3 = 3
 

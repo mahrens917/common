@@ -8,11 +8,11 @@ from typing import List, Tuple
 
 from redis.exceptions import RedisError
 
-from src.common.exceptions import ValidationError
-from src.common.redis_protocol.typing import RedisClient, ensure_awaitable
-from src.common.redis_schema import WeatherHistoryKey, ensure_uppercase_icao
-from src.common.redis_utils import RedisOperationError
-from src.common.time_utils import get_current_utc
+from common.exceptions import ValidationError
+from common.redis_protocol.typing import RedisClient, ensure_awaitable
+from common.redis_schema import WeatherHistoryKey, ensure_uppercase_icao
+from common.redis_utils import RedisOperationError
+from common.time_utils import get_current_utc
 
 logger = logging.getLogger(__name__)
 

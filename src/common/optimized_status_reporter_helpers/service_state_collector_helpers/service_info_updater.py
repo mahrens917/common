@@ -2,7 +2,7 @@
 
 from typing import Any, Optional
 
-from src.common.monitoring import ProcessStatus
+from common.monitoring import ProcessStatus
 
 
 class ServiceInfoUpdater:

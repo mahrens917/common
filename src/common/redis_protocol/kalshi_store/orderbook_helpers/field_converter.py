@@ -2,10 +2,10 @@
 
 from typing import Any, Optional
 
-from src.common.redis_protocol.kalshi_store.utils_coercion import (
+from common.redis_protocol.kalshi_store.utils_coercion import (
     convert_numeric_field as _convert_numeric_field,
 )
-from src.common.redis_protocol.kalshi_store.utils_coercion import (
+from common.redis_protocol.kalshi_store.utils_coercion import (
     string_or_default as _string_or_default,
 )
 

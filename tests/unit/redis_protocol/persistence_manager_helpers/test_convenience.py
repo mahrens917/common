@@ -2,7 +2,7 @@ from unittest.mock import AsyncMock, Mock, patch
 
 import pytest
 
-from src.common.redis_protocol.persistence_manager_helpers.convenience import (
+from common.redis_protocol.persistence_manager_helpers.convenience import (
     ensure_redis_persistence,
     get_redis_persistence_status,
 )
@@ -12,7 +12,7 @@ class TestConvenience:
     @pytest.fixture
     def mock_manager(self):
         with patch(
-            "src.common.redis_protocol.persistence_manager.RedisPersistenceManager"
+            "common.redis_protocol.persistence_manager.RedisPersistenceManager"
         ) as MockManager:
             manager = AsyncMock()
             MockManager.return_value = manager

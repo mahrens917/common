@@ -6,8 +6,8 @@ Extracted from OptimizedStatusReporter to reduce class size.
 
 from typing import Any, Dict, Optional, Tuple
 
-from src.common.health.log_activity_monitor import LogActivity
-from src.common.monitoring import ProcessStatus
+from common.health.log_activity_monitor import LogActivity
+from common.monitoring import ProcessStatus
 
 from .status_line_builder import get_status_emoji, resolve_service_status
 

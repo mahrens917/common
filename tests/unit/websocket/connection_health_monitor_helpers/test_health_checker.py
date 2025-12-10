@@ -3,7 +3,7 @@ from unittest.mock import Mock, patch
 
 import pytest
 
-from src.common.websocket.connection_health_monitor_helpers.health_checker import HealthChecker
+from common.websocket.connection_health_monitor_helpers.health_checker import HealthChecker
 
 
 class TestHealthChecker:
@@ -75,7 +75,7 @@ class TestHealthChecker:
 
     def test_log_health_check_passed(self, health_checker):
         with patch(
-            "src.common.websocket.connection_health_monitor_helpers.health_checker.logger"
+            "common.websocket.connection_health_monitor_helpers.health_checker.logger"
         ) as mock_logger:
             health_checker.log_health_check_passed(5.0)
             mock_logger.debug.assert_called_once()

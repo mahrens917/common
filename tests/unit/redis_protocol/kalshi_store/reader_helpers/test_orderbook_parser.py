@@ -1,7 +1,7 @@
 import pytest
 
-from src.common.exceptions import DataError
-from src.common.redis_protocol.kalshi_store.reader_helpers import orderbook_parser
+from common.exceptions import DataError
+from common.redis_protocol.kalshi_store.reader_helpers import orderbook_parser
 
 
 def test_extract_orderbook_sizes_valid():

@@ -7,7 +7,7 @@ from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 
-from src.common.optimized_status_reporter import OptimizedStatusReporter
+from common.optimized_status_reporter import OptimizedStatusReporter
 
 
 class TestOptimizedStatusReporter:
@@ -43,7 +43,7 @@ class TestOptimizedStatusReporter:
         tracker_controller = MagicMock()
 
         with patch(
-            "src.common.optimized_status_reporter.StatusReporterDependenciesFactory.create"
+            "common.optimized_status_reporter.StatusReporterDependenciesFactory.create"
         ) as mock_factory:
             mock_deps = MagicMock()
             mock_factory.return_value = mock_deps
@@ -98,7 +98,7 @@ class TestOptimizedStatusReporterGetKalshiClient:
             dependencies=mock_deps,
         )
 
-        with patch("src.common.optimized_status_reporter.KalshiClient") as mock_kalshi:
+        with patch("common.optimized_status_reporter.KalshiClient") as mock_kalshi:
             mock_client = MagicMock()
             mock_kalshi.return_value = mock_client
 
@@ -122,7 +122,7 @@ class TestOptimizedStatusReporterGetKalshiClient:
             dependencies=mock_deps,
         )
 
-        with patch("src.common.optimized_status_reporter.KalshiClient") as mock_kalshi:
+        with patch("common.optimized_status_reporter.KalshiClient") as mock_kalshi:
             mock_client = MagicMock()
             mock_kalshi.return_value = mock_client
 
@@ -159,12 +159,12 @@ class TestReporterStreamReport:
         mock_kalshi = MagicMock()
 
         with patch(
-            "src.common.redis_protocol.connection_pool_core.get_redis_client",
+            "common.redis_protocol.connection_pool_core.get_redis_client",
             new_callable=AsyncMock,
             return_value=mock_redis,
         ):
             with patch(
-                "src.common.process_monitor.get_global_process_monitor",
+                "common.process_monitor.get_global_process_monitor",
                 new_callable=AsyncMock,
                 return_value=mock_monitor,
             ):
@@ -193,15 +193,15 @@ class TestReporterStreamReport:
         )
 
         with patch(
-            "src.common.redis_protocol.connection_pool_core.get_redis_client",
+            "common.redis_protocol.connection_pool_core.get_redis_client",
             new_callable=AsyncMock,
         ):
             with patch(
-                "src.common.process_monitor.get_global_process_monitor",
+                "common.process_monitor.get_global_process_monitor",
                 new_callable=AsyncMock,
             ):
                 with patch.object(reporter, "_get_kalshi_client", new_callable=AsyncMock):
-                    with patch("src.common.optimized_status_reporter.logger"):
+                    with patch("common.optimized_status_reporter.logger"):
                         with pytest.raises(RuntimeError) as exc_info:
                             await reporter.generate_and_stream_status_report()
 
@@ -231,7 +231,7 @@ class TestOptimizedStatusReporterGatherStatusData:
         mock_redis = MagicMock()
 
         with patch(
-            "src.common.process_monitor.get_global_process_monitor",
+            "common.process_monitor.get_global_process_monitor",
             new_callable=AsyncMock,
             return_value=MagicMock(),
         ):
@@ -263,12 +263,12 @@ class TestOptimizedStatusReporterGatherStatusData:
         mock_redis = AsyncMock()
 
         with patch(
-            "src.common.redis_protocol.connection_pool_core.get_redis_client",
+            "common.redis_protocol.connection_pool_core.get_redis_client",
             new_callable=AsyncMock,
             return_value=mock_redis,
         ):
             with patch(
-                "src.common.process_monitor.get_global_process_monitor",
+                "common.process_monitor.get_global_process_monitor",
                 new_callable=AsyncMock,
                 return_value=MagicMock(),
             ):

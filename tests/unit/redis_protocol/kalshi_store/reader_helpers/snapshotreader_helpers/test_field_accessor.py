@@ -4,7 +4,7 @@ from unittest.mock import AsyncMock, MagicMock
 
 import pytest
 
-from src.common.redis_protocol.kalshi_store.reader_helpers.snapshotreader_helpers import (
+from common.redis_protocol.kalshi_store.reader_helpers.snapshotreader_helpers import (
     field_accessor,
     market_tracker,
 )

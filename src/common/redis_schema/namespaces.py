@@ -8,7 +8,7 @@ from dataclasses import dataclass
 from enum import Enum
 from typing import Literal
 
-from src.common.exceptions import ValidationError
+from common.exceptions import ValidationError
 
 _SEGMENT_RE = re.compile(r"^[A-Za-z0-9_.\-]+$")
 

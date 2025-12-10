@@ -1,5 +1,5 @@
-from src.common.redis_protocol.parsing import kalshi_helpers
-from src.common.redis_protocol.parsing.kalshi_helpers import date_format_parsers
+from common.redis_protocol.parsing import kalshi_helpers
+from common.redis_protocol.parsing.kalshi_helpers import date_format_parsers
 
 
 def test_kalshi_helpers_reexports():

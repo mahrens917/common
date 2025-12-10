@@ -2,7 +2,7 @@
 
 from unittest.mock import MagicMock, patch
 
-from src.common.market_data_parser_helpers.contract_validator_helpers.validation_workflow import (
+from common.market_data_parser_helpers.contract_validator_helpers.validation_workflow import (
     ValidationWorkflow,
 )
 
@@ -17,16 +17,16 @@ class TestValidationWorkflowExecute:
         mock_parsed.strike = 50000.0
 
         with patch(
-            "src.common.market_data_parser_helpers.contract_validator_helpers.validation_workflow.ContractParser"
+            "common.market_data_parser_helpers.contract_validator_helpers.validation_workflow.ContractParser"
         ) as mock_parser:
             with patch(
-                "src.common.market_data_parser_helpers.contract_validator_helpers.validation_workflow.CorruptionChecker"
+                "common.market_data_parser_helpers.contract_validator_helpers.validation_workflow.CorruptionChecker"
             ) as mock_corruption:
                 with patch(
-                    "src.common.market_data_parser_helpers.contract_validator_helpers.validation_workflow.ExpiryValidator"
+                    "common.market_data_parser_helpers.contract_validator_helpers.validation_workflow.ExpiryValidator"
                 ) as mock_expiry:
                     with patch(
-                        "src.common.market_data_parser_helpers.contract_validator_helpers.validation_workflow.StrikeValidator"
+                        "common.market_data_parser_helpers.contract_validator_helpers.validation_workflow.StrikeValidator"
                     ) as mock_strike:
                         mock_parser.parse_instrument.return_value = mock_parsed
                         mock_corruption.check_year_corruption.return_value = (
@@ -58,13 +58,13 @@ class TestValidationWorkflowExecute:
         mock_parsed.expiry_date = "2099-12-01"
 
         with patch(
-            "src.common.market_data_parser_helpers.contract_validator_helpers.validation_workflow.ContractParser"
+            "common.market_data_parser_helpers.contract_validator_helpers.validation_workflow.ContractParser"
         ) as mock_parser:
             with patch(
-                "src.common.market_data_parser_helpers.contract_validator_helpers.validation_workflow.CorruptionChecker"
+                "common.market_data_parser_helpers.contract_validator_helpers.validation_workflow.CorruptionChecker"
             ) as mock_corruption:
                 with patch(
-                    "src.common.market_data_parser_helpers.contract_validator_helpers.validation_workflow.ErrorHandler"
+                    "common.market_data_parser_helpers.contract_validator_helpers.validation_workflow.ErrorHandler"
                 ) as mock_error:
                     mock_parser.parse_instrument.return_value = mock_parsed
                     mock_corruption.check_year_corruption.return_value = (
@@ -97,13 +97,13 @@ class TestValidationWorkflowExecute:
         mock_parsed.strike = 50000.0
 
         with patch(
-            "src.common.market_data_parser_helpers.contract_validator_helpers.validation_workflow.ContractParser"
+            "common.market_data_parser_helpers.contract_validator_helpers.validation_workflow.ContractParser"
         ) as mock_parser:
             with patch(
-                "src.common.market_data_parser_helpers.contract_validator_helpers.validation_workflow.CorruptionChecker"
+                "common.market_data_parser_helpers.contract_validator_helpers.validation_workflow.CorruptionChecker"
             ) as mock_corruption:
                 with patch(
-                    "src.common.market_data_parser_helpers.contract_validator_helpers.validation_workflow.ExpiryValidator"
+                    "common.market_data_parser_helpers.contract_validator_helpers.validation_workflow.ExpiryValidator"
                 ) as mock_expiry:
                     mock_parser.parse_instrument.return_value = mock_parsed
                     mock_corruption.check_year_corruption.return_value = (False, None, {})
@@ -134,16 +134,16 @@ class TestValidationWorkflowExecute:
         mock_parsed.strike = 50000.0
 
         with patch(
-            "src.common.market_data_parser_helpers.contract_validator_helpers.validation_workflow.ContractParser"
+            "common.market_data_parser_helpers.contract_validator_helpers.validation_workflow.ContractParser"
         ) as mock_parser:
             with patch(
-                "src.common.market_data_parser_helpers.contract_validator_helpers.validation_workflow.CorruptionChecker"
+                "common.market_data_parser_helpers.contract_validator_helpers.validation_workflow.CorruptionChecker"
             ) as mock_corruption:
                 with patch(
-                    "src.common.market_data_parser_helpers.contract_validator_helpers.validation_workflow.ExpiryValidator"
+                    "common.market_data_parser_helpers.contract_validator_helpers.validation_workflow.ExpiryValidator"
                 ) as mock_expiry:
                     with patch(
-                        "src.common.market_data_parser_helpers.contract_validator_helpers.validation_workflow.StrikeValidator"
+                        "common.market_data_parser_helpers.contract_validator_helpers.validation_workflow.StrikeValidator"
                     ) as mock_strike:
                         mock_parser.parse_instrument.return_value = mock_parsed
                         mock_corruption.check_year_corruption.return_value = (

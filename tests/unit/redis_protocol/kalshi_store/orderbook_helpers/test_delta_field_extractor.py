@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from src.common.redis_protocol.kalshi_store.orderbook_helpers.delta_field_extractor import (
+from common.redis_protocol.kalshi_store.orderbook_helpers.delta_field_extractor import (
     DeltaFieldExtractor,
 )
 

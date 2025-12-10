@@ -3,7 +3,7 @@
 from datetime import datetime, timedelta, timezone
 from unittest.mock import MagicMock
 
-from src.common.market_filters.deribit_helpers.quote_timestamp_validator import (
+from common.market_filters.deribit_helpers.quote_timestamp_validator import (
     QuoteTimestampValidator,
 )
 

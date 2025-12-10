@@ -4,7 +4,7 @@ import asyncio
 import logging
 from typing import Dict
 
-from src.common.connection_manager_helpers.shutdown_mixin import ShutdownRequestMixin
+from common.connection_manager_helpers.shutdown_mixin import ShutdownRequestMixin
 
 logger = logging.getLogger(__name__)
 

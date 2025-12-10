@@ -2,8 +2,8 @@ from datetime import datetime, timezone
 
 import pytest
 
-from src.common.redis_protocol.kalshi_store.market_skip import MarketSkip
-from src.common.redis_protocol.kalshi_store.reader_helpers.metadataextractor_helpers.market_record_builder_helpers import (
+from common.redis_protocol.kalshi_store.market_skip import MarketSkip
+from common.redis_protocol.kalshi_store.reader_helpers.metadataextractor_helpers.market_record_builder_helpers import (
     field_extractor,
     metadata_builder,
     record_validator,

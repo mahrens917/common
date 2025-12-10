@@ -6,8 +6,8 @@ from unittest.mock import MagicMock
 import aiohttp
 import pytest
 
-from src.common.health.types import HealthCheckResult
-from src.common.rest_connection_manager_helpers.health_monitor import RESTHealthMonitor
+from common.health.types import HealthCheckResult
+from common.rest_connection_manager_helpers.health_monitor import RESTHealthMonitor
 
 
 class DummyResponse:

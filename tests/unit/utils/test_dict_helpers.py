@@ -1,6 +1,6 @@
 import pytest
 
-from src.common.utils.dict_helpers import get_bool, get_str
+from common.utils.dict_helpers import get_bool, get_str
 
 
 def test_get_str_handles_missing_and_none():

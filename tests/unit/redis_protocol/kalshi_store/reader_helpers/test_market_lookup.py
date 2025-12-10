@@ -3,7 +3,7 @@ from types import SimpleNamespace
 
 import pytest
 
-from src.common.redis_protocol.kalshi_store.reader_helpers import market_lookup
+from common.redis_protocol.kalshi_store.reader_helpers import market_lookup
 
 
 @pytest.mark.asyncio
@@ -12,7 +12,7 @@ async def test_get_markets_by_currency_invokes_build(monkeypatch):
         return (["market"], Counter())
 
     monkeypatch.setattr(
-        "src.common.redis_protocol.kalshi_store.reader_helpers.market_lookup.build_market_records",
+        "common.redis_protocol.kalshi_store.reader_helpers.market_lookup.build_market_records",
         fake_build,
     )
 
@@ -41,7 +41,7 @@ async def test_get_market_data_for_strike_expiry_uses_strike_matcher(monkeypatch
         return {"market_ticker": "TK"}
 
     monkeypatch.setattr(
-        "src.common.redis_protocol.kalshi_store.reader_helpers.market_lookup.find_matching_market",
+        "common.redis_protocol.kalshi_store.reader_helpers.market_lookup.find_matching_market",
         fake_find,
     )
     lookup = market_lookup.MarketLookup("logger", "metadata", SimpleNamespace(), SimpleNamespace())

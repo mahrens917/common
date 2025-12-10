@@ -5,10 +5,10 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from src.common.order_execution import OrderPoller, TradeFinalizer
+from common.order_execution import OrderPoller, TradeFinalizer
 
 if TYPE_CHECKING:
-    from src.common.trading import TradeStoreManager
+    from common.trading import TradeStoreManager
     from src.kalshi.api.client import KalshiClient
 
 

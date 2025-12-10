@@ -8,9 +8,9 @@ from unittest.mock import AsyncMock
 import orjson
 import pytest
 
-from src.common.data_models.trade_record import PnLReport, TradeRecord, TradeSide
-from src.common.exceptions import ValidationError
-from src.common.redis_protocol.trade_store import (
+from common.data_models.trade_record import PnLReport, TradeRecord, TradeSide
+from common.exceptions import ValidationError
+from common.redis_protocol.trade_store import (
     OrderMetadataError,
     TradeStore,
     TradeStoreError,
@@ -21,7 +21,7 @@ _TEST_COUNT_2 = 2
 _VAL_70_0 = 70.0
 _VAL_80_0 = 80.0
 
-from src.common.redis_protocol.trade_store.keys import TradeKeyBuilder
+from common.redis_protocol.trade_store.keys import TradeKeyBuilder
 
 
 def _make_trade(order_id: str = "order-1", **overrides: Any) -> TradeRecord:
@@ -45,9 +45,9 @@ def _make_trade(order_id: str = "order-1", **overrides: Any) -> TradeRecord:
 
 
 def _build_store(monkeypatch, fake_redis_client_factory):
-    fake = fake_redis_client_factory("src.common.redis_protocol.trade_store.get_redis_pool")
+    fake = fake_redis_client_factory("common.redis_protocol.trade_store.get_redis_pool")
     monkeypatch.setattr(
-        "src.common.redis_protocol.trade_store.load_configured_timezone",
+        "common.redis_protocol.trade_store.load_configured_timezone",
         lambda: "UTC",
         raising=False,
     )
@@ -461,7 +461,7 @@ async def test_get_order_metadata_returns_none_when_missing(monkeypatch, fake_re
 
 @pytest.mark.asyncio
 async def test_initialize_and_close(monkeypatch, fake_redis_client_factory):
-    fake = fake_redis_client_factory("src.common.redis_protocol.trade_store.get_redis_pool")
+    fake = fake_redis_client_factory("common.redis_protocol.trade_store.get_redis_pool")
     store = TradeStore()
     store._connection_mgr.ensure_redis_connection = AsyncMock(return_value=True)
 

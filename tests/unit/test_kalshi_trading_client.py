@@ -6,7 +6,7 @@ from unittest.mock import AsyncMock
 
 import pytest
 
-from src.common.data_models.trading import (
+from common.data_models.trading import (
     OrderAction,
     OrderRequest,
     OrderResponse,
@@ -25,13 +25,13 @@ DEFAULT_REMAINING_COUNT = 3
 ZERO_FILLED_COUNT = 0
 DEFAULT_ORDER_REMAINING_COUNT = DEFAULT_REMAINING_COUNT
 
-from src.common.kalshi_trading_client import KalshiTradingClient
-from src.common.order_execution import PollingOutcome
-from src.common.redis_protocol.trade_store import TradeStoreError
-from src.common.redis_schema.markets import KalshiMarketCategory
-from src.common.trading.notifier_adapter import TradeNotifierAdapter
-from src.common.trading.weather_station import WeatherStationResolver
-from src.common.trading_exceptions import (
+from common.kalshi_trading_client import KalshiTradingClient
+from common.order_execution import PollingOutcome
+from common.redis_protocol.trade_store import TradeStoreError
+from common.redis_schema.markets import KalshiMarketCategory
+from common.trading.notifier_adapter import TradeNotifierAdapter
+from common.trading.weather_station import WeatherStationResolver
+from common.trading_exceptions import (
     KalshiAPIError,
     KalshiDataIntegrityError,
     KalshiOrderNotFoundError,
@@ -173,7 +173,7 @@ class _StubTradeStore:
 def bare_trading_client(monkeypatch, config_dict):
     fake_client = SimpleNamespace(attach_trade_store=lambda *_: None)
 
-    monkeypatch.setattr("src.common.kalshi_trading_client.load_pnl_config", lambda: config_dict)
+    monkeypatch.setattr("common.kalshi_trading_client.load_pnl_config", lambda: config_dict)
 
     resolver = WeatherStationResolver(mapping={})
     trade_store = _StubTradeStore()
@@ -224,7 +224,7 @@ def configured_client(monkeypatch, config_dict, weather_mapping):
     )
     fake_client.attach_trade_store = lambda *_args, **_kwargs: None
 
-    monkeypatch.setattr("src.common.kalshi_trading_client.load_pnl_config", lambda: config_dict)
+    monkeypatch.setattr("common.kalshi_trading_client.load_pnl_config", lambda: config_dict)
 
     resolver = WeatherStationResolver(mapping=weather_mapping)
     trade_store = _StubTradeStore()
@@ -247,7 +247,7 @@ def test_init_configures_attributes(configured_client, config_dict, weather_mapp
 
 def test_init_requires_trade_store(monkeypatch, config_dict):
     fake_client = SimpleNamespace(attach_trade_store=lambda *_args, **_kwargs: None)
-    monkeypatch.setattr("src.common.kalshi_trading_client.load_pnl_config", lambda: config_dict)
+    monkeypatch.setattr("common.kalshi_trading_client.load_pnl_config", lambda: config_dict)
     resolver = WeatherStationResolver(mapping={})
 
     with pytest.raises(ValueError):
@@ -258,7 +258,7 @@ def test_resolve_trade_context_handles_city_alias(monkeypatch, config_dict):
     fake_client = SimpleNamespace(attach_trade_store=lambda *_args, **_kwargs: None)
     mapping = {"NY": {"icao": "KNYC", "aliases": ["NYC", "NEWYORK"]}}
 
-    monkeypatch.setattr("src.common.kalshi_trading_client.load_pnl_config", lambda: config_dict)
+    monkeypatch.setattr("common.kalshi_trading_client.load_pnl_config", lambda: config_dict)
 
     resolver = WeatherStationResolver(mapping=mapping)
     client = KalshiTradingClient(
@@ -376,7 +376,7 @@ async def test_calculate_order_fees_uses_fee_helper(monkeypatch, bare_trading_cl
         assert ticker == "KXHIGHNYC-25JAN01"
         return 12
 
-    monkeypatch.setattr("src.common.kalshi_trading_client.calculate_fees", fake_calculate)
+    monkeypatch.setattr("common.kalshi_trading_client.calculate_fees", fake_calculate)
     fee = await bare_trading_client._calculate_order_fees("KXHIGHNYC-25JAN01", 3, 45)
     assert fee == _CONST_12
 
@@ -384,7 +384,7 @@ async def test_calculate_order_fees_uses_fee_helper(monkeypatch, bare_trading_cl
 @pytest.mark.asyncio
 async def test_calculate_order_fees_propagates_error(monkeypatch, bare_trading_client):
     monkeypatch.setattr(
-        "src.common.kalshi_trading_client.calculate_fees",
+        "common.kalshi_trading_client.calculate_fees",
         lambda *_: (_ for _ in ()).throw(RuntimeError("fail")),
     )
 
@@ -412,9 +412,9 @@ def test_parse_order_response_with_wrapped_payload(monkeypatch, bare_trading_cli
         return parsed
 
     monkeypatch.setattr(
-        "src.common.order_response_parser.validate_order_response_schema", fake_validate
+        "common.order_response_parser.validate_order_response_schema", fake_validate
     )
-    monkeypatch.setattr("src.common.order_response_parser.parse_kalshi_order_response", fake_parse)
+    monkeypatch.setattr("common.order_response_parser.parse_kalshi_order_response", fake_parse)
 
     result = bare_trading_client._parse_order_response(
         response_data, operation_name="op", trade_rule="rule-x", trade_reason="Reason long enough"
@@ -434,9 +434,9 @@ def test_parse_order_response_without_wrapper(monkeypatch, bare_trading_client):
         return parsed
 
     monkeypatch.setattr(
-        "src.common.order_response_parser.validate_order_response_schema", fail_validate
+        "common.order_response_parser.validate_order_response_schema", fail_validate
     )
-    monkeypatch.setattr("src.common.order_response_parser.parse_kalshi_order_response", fake_parse)
+    monkeypatch.setattr("common.order_response_parser.parse_kalshi_order_response", fake_parse)
 
     result = bare_trading_client._parse_order_response(
         response_data, operation_name="op", trade_rule="rule-x", trade_reason="Reason long enough"
@@ -449,10 +449,10 @@ def test_parse_order_response_converts_value_error(monkeypatch, bare_trading_cli
         return data["order"]
 
     monkeypatch.setattr(
-        "src.common.order_response_parser.validate_order_response_schema", fake_validate
+        "common.order_response_parser.validate_order_response_schema", fake_validate
     )
     monkeypatch.setattr(
-        "src.common.order_response_parser.parse_kalshi_order_response",
+        "common.order_response_parser.parse_kalshi_order_response",
         lambda *_: (_ for _ in ()).throw(ValueError("bad")),
     )
 
@@ -471,10 +471,10 @@ def test_parse_order_response_wraps_unexpected_errors(monkeypatch, bare_trading_
         return data["order"]
 
     monkeypatch.setattr(
-        "src.common.order_response_parser.validate_order_response_schema", fake_validate
+        "common.order_response_parser.validate_order_response_schema", fake_validate
     )
     monkeypatch.setattr(
-        "src.common.order_response_parser.parse_kalshi_order_response",
+        "common.order_response_parser.parse_kalshi_order_response",
         lambda *_: (_ for _ in ()).throw(RuntimeError("boom")),
     )
 
@@ -490,7 +490,7 @@ def test_parse_order_response_wraps_unexpected_errors(monkeypatch, bare_trading_
 
 def test_parse_order_response_schema_validator_failure(monkeypatch, bare_trading_client):
     monkeypatch.setattr(
-        "src.common.order_response_parser.validate_order_response_schema",
+        "common.order_response_parser.validate_order_response_schema",
         lambda *_: (_ for _ in ()).throw(ValueError("schema mismatch")),
     )
 
@@ -972,7 +972,7 @@ async def test_cancel_order_success(monkeypatch, configured_client):
     client, fake = configured_client
     fake.api_request.return_value = {"status": "cancelled"}
     monkeypatch.setattr(
-        "src.common.api_response_validators.validate_cancel_order_response",
+        "common.api_response_validators.validate_cancel_order_response",
         lambda data: data,
     )
 
@@ -984,7 +984,7 @@ async def test_cancel_order_returns_false_for_other_status(monkeypatch, configur
     client, fake = configured_client
     fake.api_request.return_value = {"status": "pending"}
     monkeypatch.setattr(
-        "src.common.api_response_validators.validate_cancel_order_response",
+        "common.api_response_validators.validate_cancel_order_response",
         lambda data: data,
     )
 
@@ -1000,7 +1000,7 @@ async def test_cancel_order_validation_error_still_allows_success(monkeypatch, c
         raise ValueError("schema mismatch")
 
     monkeypatch.setattr(
-        "src.common.api_response_validators.validate_cancel_order_response",
+        "common.api_response_validators.validate_cancel_order_response",
         fake_validate,
     )
 
@@ -1017,7 +1017,7 @@ async def test_cancel_order_validation_failure_raises_api_error(monkeypatch, con
         raise ValueError("bad")
 
     monkeypatch.setattr(
-        "src.common.api_response_validators.validate_cancel_order_response",
+        "common.api_response_validators.validate_cancel_order_response",
         fake_validate,
     )
 

@@ -5,7 +5,7 @@ import json
 import orjson
 import pytest
 
-from src.common import parsing_utils
+from common import parsing_utils
 
 
 def test_safe_json_loads_success():

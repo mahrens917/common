@@ -1,4 +1,4 @@
-from src.common.redis_protocol.kalshi_store.reader_helpers.ticker_parser import TickerParser
+from common.redis_protocol.kalshi_store.reader_helpers.ticker_parser import TickerParser
 
 
 def test_normalize_ticker_bytes_and_string():

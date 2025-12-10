@@ -2,8 +2,8 @@
 
 from unittest.mock import MagicMock
 
-from src.common.base_connection_manager_helpers.state_transition import StateTransitionHandler
-from src.common.connection_state import ConnectionState
+from common.base_connection_manager_helpers.state_transition import StateTransitionHandler
+from common.connection_state import ConnectionState
 
 
 class TestStateTransitionHandlerInit:

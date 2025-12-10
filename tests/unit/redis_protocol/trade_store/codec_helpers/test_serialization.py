@@ -3,12 +3,12 @@ from datetime import datetime, timezone
 import orjson
 import pytest
 
-from src.common.data_models.trade_record import TradeRecord, TradeSide
-from src.common.redis_protocol.trade_store.codec_helpers.decoder import (
+from common.data_models.trade_record import TradeRecord, TradeSide
+from common.redis_protocol.trade_store.codec_helpers.decoder import (
     decode_trade_record,
     ensure_mapping,
 )
-from src.common.redis_protocol.trade_store.codec_helpers.encoder import (
+from common.redis_protocol.trade_store.codec_helpers.encoder import (
     encode_trade_record,
     trade_record_to_payload,
 )

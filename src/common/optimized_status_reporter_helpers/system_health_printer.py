@@ -6,7 +6,7 @@ Formats and prints system resource usage information.
 
 from typing import Any
 
-from src.common.optimized_status_reporter_helpers.status_line import emit_status_line
+from common.optimized_status_reporter_helpers.status_line import emit_status_line
 
 
 class SystemHealthPrinter:

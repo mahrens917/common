@@ -6,7 +6,7 @@ from unittest.mock import MagicMock
 
 import pytest
 
-from src.common.redis_protocol.market_metadata_builder_helpers.field_builder import (
+from common.redis_protocol.market_metadata_builder_helpers.field_builder import (
     add_descriptor_fields,
     build_event_fields,
     build_numeric_fields,

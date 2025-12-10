@@ -34,7 +34,7 @@ class OrderCanceller:
             )
 
             validator = getattr(
-                importlib.import_module("src.common.api_response_validators"),
+                importlib.import_module("common.api_response_validators"),
                 "validate_cancel_order_response",
             )
 

@@ -4,8 +4,8 @@ from unittest.mock import ANY, AsyncMock, Mock, patch
 
 import pytest
 
-from src.common.monitoring import ProcessStatus
-from src.common.optimized_status_reporter_helpers.service_state_collector import (
+from common.monitoring import ProcessStatus
+from common.optimized_status_reporter_helpers.service_state_collector import (
     ServiceStateCollector,
 )
 
@@ -73,12 +73,12 @@ class TestServiceStateCollector:
         with pytest.raises(TypeError, match="invalid status type"):
             collector._check_service_status("service_A", Mock(), Mock(), Mock())
 
-    @patch("src.common.optimized_status_reporter_helpers.service_state_collector.PidValidator")
+    @patch("common.optimized_status_reporter_helpers.service_state_collector.PidValidator")
     @patch(
-        "src.common.optimized_status_reporter_helpers.service_state_collector.ProcessRediscoverer"
+        "common.optimized_status_reporter_helpers.service_state_collector.ProcessRediscoverer"
     )
     @patch(
-        "src.common.optimized_status_reporter_helpers.service_state_collector.ServiceInfoUpdater"
+        "common.optimized_status_reporter_helpers.service_state_collector.ServiceInfoUpdater"
     )
     @patch.object(ServiceStateCollector, "_check_process_handle")
     def test_check_service_status_process_handle_running(
@@ -103,12 +103,12 @@ class TestServiceStateCollector:
         )
         mock_rediscoverer.rediscover_and_validate.assert_not_called()
 
-    @patch("src.common.optimized_status_reporter_helpers.service_state_collector.PidValidator")
+    @patch("common.optimized_status_reporter_helpers.service_state_collector.PidValidator")
     @patch(
-        "src.common.optimized_status_reporter_helpers.service_state_collector.ProcessRediscoverer"
+        "common.optimized_status_reporter_helpers.service_state_collector.ProcessRediscoverer"
     )
     @patch(
-        "src.common.optimized_status_reporter_helpers.service_state_collector.ServiceInfoUpdater"
+        "common.optimized_status_reporter_helpers.service_state_collector.ServiceInfoUpdater"
     )
     @patch.object(ServiceStateCollector, "_check_process_handle")
     def test_check_service_status_rediscoverer_finds_process(
@@ -136,12 +136,12 @@ class TestServiceStateCollector:
         mock_updater.mark_as_running.assert_called_once()
         mock_updater.clear_stopped_process.assert_not_called()
 
-    @patch("src.common.optimized_status_reporter_helpers.service_state_collector.PidValidator")
+    @patch("common.optimized_status_reporter_helpers.service_state_collector.PidValidator")
     @patch(
-        "src.common.optimized_status_reporter_helpers.service_state_collector.ProcessRediscoverer"
+        "common.optimized_status_reporter_helpers.service_state_collector.ProcessRediscoverer"
     )
     @patch(
-        "src.common.optimized_status_reporter_helpers.service_state_collector.ServiceInfoUpdater"
+        "common.optimized_status_reporter_helpers.service_state_collector.ServiceInfoUpdater"
     )
     @patch.object(ServiceStateCollector, "_check_process_handle")
     def test_check_service_status_rediscoverer_fails_no_info(
@@ -169,12 +169,12 @@ class TestServiceStateCollector:
         mock_updater.mark_as_running.assert_not_called()
         mock_updater.clear_stopped_process.assert_not_called()
 
-    @patch("src.common.optimized_status_reporter_helpers.service_state_collector.PidValidator")
+    @patch("common.optimized_status_reporter_helpers.service_state_collector.PidValidator")
     @patch(
-        "src.common.optimized_status_reporter_helpers.service_state_collector.ProcessRediscoverer"
+        "common.optimized_status_reporter_helpers.service_state_collector.ProcessRediscoverer"
     )
     @patch(
-        "src.common.optimized_status_reporter_helpers.service_state_collector.ServiceInfoUpdater"
+        "common.optimized_status_reporter_helpers.service_state_collector.ServiceInfoUpdater"
     )
     @patch.object(ServiceStateCollector, "_check_process_handle")
     def test_check_service_status_rediscoverer_fails_with_info_cleared(
@@ -203,7 +203,7 @@ class TestServiceStateCollector:
         mock_updater.clear_stopped_process.assert_called_once()
 
     @patch(
-        "src.common.optimized_status_reporter_helpers.service_state_collector.ServiceInfoUpdater"
+        "common.optimized_status_reporter_helpers.service_state_collector.ServiceInfoUpdater"
     )
     def test_check_process_handle_no_process_handle(
         self, mock_updater, collector, mock_process_manager
@@ -216,7 +216,7 @@ class TestServiceStateCollector:
         mock_updater.update_from_handle.assert_not_called()
 
     @patch(
-        "src.common.optimized_status_reporter_helpers.service_state_collector.ServiceInfoUpdater"
+        "common.optimized_status_reporter_helpers.service_state_collector.ServiceInfoUpdater"
     )
     def test_check_process_handle_process_not_running(
         self, mock_updater, collector, mock_process_manager
@@ -231,7 +231,7 @@ class TestServiceStateCollector:
         mock_updater.update_from_handle.assert_not_called()
 
     @patch(
-        "src.common.optimized_status_reporter_helpers.service_state_collector.ServiceInfoUpdater"
+        "common.optimized_status_reporter_helpers.service_state_collector.ServiceInfoUpdater"
     )
     def test_check_process_handle_process_running_updates_info(
         self, mock_updater, collector, mock_process_manager

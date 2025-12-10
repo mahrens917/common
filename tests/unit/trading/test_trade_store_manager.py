@@ -4,7 +4,7 @@ from types import SimpleNamespace
 
 import pytest
 
-from src.common.trading.trade_store_manager import TradeStoreManager
+from common.trading.trade_store_manager import TradeStoreManager
 
 
 class _ExternalStore:
@@ -47,7 +47,7 @@ async def test_get_or_create_builds_managed_store(monkeypatch: pytest.MonkeyPatc
     client = SimpleNamespace(attach_trade_store=lambda s: attached.append(s))
     manager = TradeStoreManager(kalshi_client=client, store_supplier=lambda: None)
 
-    monkeypatch.setattr("src.common.redis_protocol.trade_store.TradeStore", _ManagedStore)
+    monkeypatch.setattr("common.redis_protocol.trade_store.TradeStore", _ManagedStore)
 
     store = await manager.get_or_create()
 
@@ -60,7 +60,7 @@ async def test_get_or_create_builds_managed_store(monkeypatch: pytest.MonkeyPatc
 async def test_close_managed_store(monkeypatch: pytest.MonkeyPatch) -> None:
     client = SimpleNamespace(attach_trade_store=lambda *_: None)
     manager = TradeStoreManager(kalshi_client=client, store_supplier=lambda: None)
-    monkeypatch.setattr("src.common.redis_protocol.trade_store.TradeStore", _ManagedStore)
+    monkeypatch.setattr("common.redis_protocol.trade_store.TradeStore", _ManagedStore)
 
     store = await manager.get_or_create()
     await manager.close_managed()

@@ -6,7 +6,7 @@ from unittest.mock import MagicMock
 
 import pytest
 
-from src.common.optimized_status_reporter_helpers.redis_health_printer import (
+from common.optimized_status_reporter_helpers.redis_health_printer import (
     RedisHealthPrinter,
 )
 
@@ -16,7 +16,7 @@ class TestRedisHealthPrinter:
 
     def test_inherits_from_base_printer(self) -> None:
         """Inherits from StatusLinePrinterBase."""
-        from src.common.optimized_status_reporter_helpers.base_printer import (
+        from common.optimized_status_reporter_helpers.base_printer import (
             StatusLinePrinterBase,
         )
 

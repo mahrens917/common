@@ -1,6 +1,6 @@
 import unittest
 
-from src.common.report_generator_helpers.message_formatter import MessageFormatter
+from common.report_generator_helpers.message_formatter import MessageFormatter
 
 
 class TestMessageFormatter(unittest.TestCase):

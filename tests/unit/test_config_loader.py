@@ -5,7 +5,7 @@ from unittest.mock import mock_open
 
 import pytest
 
-from src.common import config_loader
+from common import config_loader
 
 
 def _mock_exists(monkeypatch: pytest.MonkeyPatch, suffix: str, exists: bool) -> None:

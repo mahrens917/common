@@ -2,7 +2,7 @@ import io
 
 import pytest
 
-import src.common.simple_system_metrics as metrics
+import common.simple_system_metrics as metrics
 
 DEFAULT_STATVFS_FR_SIZE = 1024
 

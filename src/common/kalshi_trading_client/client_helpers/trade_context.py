@@ -6,7 +6,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Dict, Optional, Tuple
 
 if TYPE_CHECKING:
-    from src.common.trading import WeatherStationResolver
+    from common.trading import WeatherStationResolver
 
     from ..services import OrderService
 

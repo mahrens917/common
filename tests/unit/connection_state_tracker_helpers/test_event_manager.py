@@ -6,7 +6,7 @@ from unittest.mock import AsyncMock, MagicMock
 
 import pytest
 
-from src.common.connection_state_tracker_helpers.event_manager import EventManager
+from common.connection_state_tracker_helpers.event_manager import EventManager
 
 
 class TestEventManagerInit:

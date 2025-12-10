@@ -4,8 +4,8 @@ from unittest.mock import AsyncMock, MagicMock
 
 import pytest
 
-from src.common.data_models.modelstate_helpers import probability_calculator
-from src.common.data_models.modelstate_helpers.probability_calculator import (
+from common.data_models.modelstate_helpers import probability_calculator
+from common.data_models.modelstate_helpers.probability_calculator import (
     calculate_range_probability,
 )
 

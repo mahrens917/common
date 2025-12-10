@@ -3,7 +3,7 @@ from unittest.mock import Mock
 
 import pytest
 
-from src.common.health.types import BaseHealthMonitor, HealthCheckResult
+from common.health.types import BaseHealthMonitor, HealthCheckResult
 
 
 class DummyHealthMonitor(BaseHealthMonitor):

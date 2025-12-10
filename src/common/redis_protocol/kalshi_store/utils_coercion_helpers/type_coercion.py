@@ -78,13 +78,13 @@ def float_or_default(
     """
     Coerce value to float with optional error raising.
 
-    Delegates to canonical implementation in src.common.utils.numeric.
+    Delegates to canonical implementation in common.utils.numeric.
 
     When ``raise_on_error`` is False (default), this mirrors ``_float_or_default`` and
     returns the provided ``default`` for invalid inputs. When True, a ``ValueError`` is
     raised using ``error_message`` if provided.
     """
-    from src.common.utils.numeric import coerce_float_default, coerce_float_strict
+    from common.utils.numeric import coerce_float_default, coerce_float_strict
 
     if not raise_on_error:
         return coerce_float_default(value, default)

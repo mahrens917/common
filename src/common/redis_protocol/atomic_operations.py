@@ -33,7 +33,7 @@ SPREAD_VALIDATION_ENABLED = True  # Enable bid/ask spread validation
 
 __all__ = ["AtomicRedisOperations", "RedisDataValidationError"]
 
-sys.modules.setdefault("src.common.redis_protocol.atomic_operations.asyncio", asyncio)
+sys.modules.setdefault("common.redis_protocol.atomic_operations.asyncio", asyncio)
 
 
 class AtomicRedisOperations:

@@ -1,6 +1,6 @@
 """Tests for validation params module."""
 
-from src.common.data_models.micro_price_helpers.validation_params import (
+from common.data_models.micro_price_helpers.validation_params import (
     BasicOptionData,
     MathematicalRelationships,
     PostInitValidationParams,

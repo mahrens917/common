@@ -3,7 +3,7 @@ from unittest.mock import AsyncMock, Mock, patch
 
 import pytest
 
-from src.common.websocket.message_stats_helpers import silent_failure_alerter
+from common.websocket.message_stats_helpers import silent_failure_alerter
 from src.monitor.alerter import AlertSeverity
 
 
@@ -31,7 +31,7 @@ class TestSilentFailureAlerter:
             )
 
             with patch(
-                "src.common.websocket.message_stats_helpers.silent_failure_alerter.logger"
+                "common.websocket.message_stats_helpers.silent_failure_alerter.logger"
             ) as mock_logger:
                 await silent_failure_alerter.send_silent_failure_alert("test_service", 30.5)
                 mock_logger.exception.assert_called_once()
@@ -62,7 +62,7 @@ class TestSilentFailureAlerter:
 
     def test_check_silent_failure_threshold_exceeded(self):
         with patch(
-            "src.common.websocket.message_stats_helpers.silent_failure_alerter.logger"
+            "common.websocket.message_stats_helpers.silent_failure_alerter.logger"
         ) as mock_logger:
             assert (
                 silent_failure_alerter.check_silent_failure_threshold(

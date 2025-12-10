@@ -1,6 +1,6 @@
 from types import SimpleNamespace
 
-from src.common.redis_protocol.kalshi_store.reader_helpers import metadata_extractor
+from common.redis_protocol.kalshi_store.reader_helpers import metadata_extractor
 
 
 def _monkeypatch_helpers(monkeypatch):

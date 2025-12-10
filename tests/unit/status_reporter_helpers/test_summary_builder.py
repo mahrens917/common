@@ -1,6 +1,6 @@
 import pytest
 
-from src.common.status_reporter_helpers.summary_builder import SummaryBuilder
+from common.status_reporter_helpers.summary_builder import SummaryBuilder
 
 
 class TestSummaryBuilder:

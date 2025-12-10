@@ -2,7 +2,7 @@ import unittest
 from datetime import datetime, timezone
 from unittest.mock import Mock, patch
 
-from src.common.health.log_activity_monitor_helpers.timestamp_extractor import (
+from common.health.log_activity_monitor_helpers.timestamp_extractor import (
     extract_last_log_timestamp,
 )
 

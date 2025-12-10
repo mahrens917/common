@@ -1,6 +1,6 @@
 from types import SimpleNamespace
 
-from src.common.process_killer_helpers.process_models import (
+from common.process_killer_helpers.process_models import (
     NormalizedProcessCandidate,
     ProcessCandidate,
 )

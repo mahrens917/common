@@ -4,9 +4,9 @@ from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 
-from src.common.data_models.trading import OrderSide, OrderStatus
-from src.common.emergency_position_manager_helpers import position_closer as position_closer_module
-from src.common.emergency_position_manager_helpers.position_closer import (
+from common.data_models.trading import OrderSide, OrderStatus
+from common.emergency_position_manager_helpers import position_closer as position_closer_module
+from common.emergency_position_manager_helpers.position_closer import (
     PositionCloser,
 )
 
@@ -56,7 +56,7 @@ class TestPositionCloserCountFills:
         closer = PositionCloser(trading_client=client)
         fills = [{"count": 10}, {"other": "data"}, {"count": 5}]
 
-        with patch("src.common.emergency_position_manager_helpers.position_closer.logger"):
+        with patch("common.emergency_position_manager_helpers.position_closer.logger"):
             result = closer._count_fills(fills, "order123")
 
         assert result == 15
@@ -67,7 +67,7 @@ class TestPositionCloserCountFills:
         closer = PositionCloser(trading_client=client)
         fills = [{"count": 10}, {"count": "invalid"}, {"count": 5}]
 
-        with patch("src.common.emergency_position_manager_helpers.position_closer.logger"):
+        with patch("common.emergency_position_manager_helpers.position_closer.logger"):
             result = closer._count_fills(fills, "order123")
 
         assert result == 15
@@ -99,7 +99,7 @@ class TestPositionCloserEmergencyClosePosition:
         position.side = OrderSide.YES
         position.position_count = DEFAULT_TEST_POSITION_COUNT
 
-        with patch("src.common.emergency_position_manager_helpers.position_closer.logger"):
+        with patch("common.emergency_position_manager_helpers.position_closer.logger"):
             success, response, message = await closer.emergency_close_position(
                 position, "Test reason"
             )
@@ -121,7 +121,7 @@ class TestPositionCloserEmergencyClosePosition:
         position.side = OrderSide.YES
         position.position_count = DEFAULT_TEST_POSITION_COUNT
 
-        with patch("src.common.emergency_position_manager_helpers.position_closer.logger"):
+        with patch("common.emergency_position_manager_helpers.position_closer.logger"):
             success, response, message = await closer.emergency_close_position(
                 position, "Test reason"
             )
@@ -132,7 +132,7 @@ class TestPositionCloserEmergencyClosePosition:
     @pytest.mark.asyncio
     async def test_handles_trading_error(self) -> None:
         """Handles trading errors gracefully."""
-        from src.common.trading_exceptions import KalshiTradingError
+        from common.trading_exceptions import KalshiTradingError
 
         client = MagicMock()
         client.create_order_with_polling = AsyncMock(side_effect=KalshiTradingError("API error"))
@@ -142,7 +142,7 @@ class TestPositionCloserEmergencyClosePosition:
         position.side = OrderSide.YES
         position.position_count = DEFAULT_TEST_POSITION_COUNT
 
-        with patch("src.common.emergency_position_manager_helpers.position_closer.logger"):
+        with patch("common.emergency_position_manager_helpers.position_closer.logger"):
             success, response, message = await closer.emergency_close_position(
                 position, "Test reason"
             )
@@ -161,7 +161,7 @@ class TestPositionCloserEmergencyClosePosition:
         position.side = OrderSide.YES
         position.position_count = DEFAULT_TEST_POSITION_COUNT
 
-        with patch("src.common.emergency_position_manager_helpers.position_closer.logger"):
+        with patch("common.emergency_position_manager_helpers.position_closer.logger"):
             success, response, message = await closer.emergency_close_position(
                 position, "Test reason"
             )

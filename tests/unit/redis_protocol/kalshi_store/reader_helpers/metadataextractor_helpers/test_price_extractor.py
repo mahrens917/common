@@ -1,6 +1,6 @@
 """Tests for the price extractor helper."""
 
-from src.common.redis_protocol.kalshi_store.reader_helpers.metadataextractor_helpers.price_extractor import (
+from common.redis_protocol.kalshi_store.reader_helpers.metadataextractor_helpers.price_extractor import (
     PriceExtractor,
 )
 

@@ -6,7 +6,7 @@ from unittest.mock import Mock, patch
 
 import pytest
 
-from src.common.optimized_status_reporter_helpers.initialization import (
+from common.optimized_status_reporter_helpers.initialization import (
     StatusReporterInitializer,
 )
 
@@ -57,7 +57,7 @@ class TestStatusReporterInitializer:
         for cls_name in classes_to_mock:
             # Patch each class where it's imported in the initialization module
             mock_objects[cls_name] = mocker.patch(
-                f"src.common.optimized_status_reporter_helpers.initialization.{cls_name}"
+                f"common.optimized_status_reporter_helpers.initialization.{cls_name}"
             )
         return mock_objects
 
@@ -146,7 +146,7 @@ class TestStatusReporterInitializer:
 
         # Mock initialize_kalshi_state
         with patch(
-            "src.common.optimized_status_reporter_helpers.initialization.StatusReporterInitializer.initialize_kalshi_state",
+            "common.optimized_status_reporter_helpers.initialization.StatusReporterInitializer.initialize_kalshi_state",
             return_value=("mock_client", Mock(spec=asyncio.Lock)),
         ) as mock_init_kalshi:
             # Mock initialize_components
@@ -168,7 +168,7 @@ class TestStatusReporterInitializer:
                 ].return_value
 
             with patch(
-                "src.common.optimized_status_reporter_helpers.initialization.StatusReporterInitializer.initialize_components",
+                "common.optimized_status_reporter_helpers.initialization.StatusReporterInitializer.initialize_components",
                 return_value=mock_components_return,
             ) as mock_init_components:
                 call_args = {k: v for k, v in mock_dependencies.items() if k != "emit_fn"}

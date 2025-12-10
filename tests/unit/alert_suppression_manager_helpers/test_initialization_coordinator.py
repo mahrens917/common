@@ -2,7 +2,7 @@
 
 from unittest.mock import MagicMock, patch
 
-from src.common.alert_suppression_manager_helpers.initialization_coordinator import (
+from common.alert_suppression_manager_helpers.initialization_coordinator import (
     InitializationCoordinator,
 )
 
@@ -37,10 +37,10 @@ class TestInitializationCoordinatorInitializeFromConfig:
         mock_rule.suppressed_alert_types = []
 
         with patch(
-            "src.common.alert_suppression_manager_helpers.initialization_coordinator.load_suppression_config"
+            "common.alert_suppression_manager_helpers.initialization_coordinator.load_suppression_config"
         ) as mock_load:
             with patch(
-                "src.common.alert_suppression_manager_helpers.initialization_coordinator.build_suppression_rule_from_config"
+                "common.alert_suppression_manager_helpers.initialization_coordinator.build_suppression_rule_from_config"
             ) as mock_build:
                 mock_load.return_value = mock_config
                 mock_build.return_value = mock_rule
@@ -72,7 +72,7 @@ class TestInitializationCoordinatorCreateDependenciesIfNeeded:
         mock_factory_result = MagicMock()
 
         with patch(
-            "src.common.alert_suppression_manager_helpers.dependencies_factory.AlertSuppressionManagerDependenciesFactory"
+            "common.alert_suppression_manager_helpers.dependencies_factory.AlertSuppressionManagerDependenciesFactory"
         ) as mock_factory:
             mock_factory.create.return_value = mock_factory_result
 

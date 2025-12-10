@@ -7,8 +7,8 @@ Separates user display from technical logging.
 
 from typing import Iterable, Optional, Tuple
 
-from src.common.exceptions import DataError
-from src.common.user_display_helpers.message_formatter import (
+from common.exceptions import DataError
+from common.user_display_helpers.message_formatter import (
     format_completion,
     format_data_loading,
     format_error,
@@ -21,12 +21,12 @@ from src.common.user_display_helpers.message_formatter import (
     format_step_message,
     format_warning,
 )
-from src.common.user_display_helpers.metric_display import (
+from common.user_display_helpers.metric_display import (
     format_error_confidence_summary,
     format_surface_quality,
     format_timing_summary,
 )
-from src.common.user_display_helpers.progress_tracker import ProgressTracker
+from common.user_display_helpers.progress_tracker import ProgressTracker
 
 # Performance monitoring is no longer available since pdf_generator was removed
 PERFORMANCE_MONITORING_AVAILABLE = False

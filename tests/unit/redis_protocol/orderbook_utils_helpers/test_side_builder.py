@@ -1,6 +1,6 @@
 """Tests for side builder module."""
 
-from src.common.redis_protocol.orderbook_utils_helpers.side_builder import (
+from common.redis_protocol.orderbook_utils_helpers.side_builder import (
     process_no_levels,
     process_yes_levels,
 )

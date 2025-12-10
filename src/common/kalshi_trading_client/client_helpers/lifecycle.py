@@ -9,7 +9,7 @@ from typing import TYPE_CHECKING
 from ..constants import CLEANUP_ERRORS
 
 if TYPE_CHECKING:
-    from src.common.trading import TradeStoreManager
+    from common.trading import TradeStoreManager
     from src.kalshi.api.client import KalshiClient
 
 logger = logging.getLogger(__name__)

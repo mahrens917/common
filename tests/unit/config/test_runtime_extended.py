@@ -3,8 +3,8 @@ from pathlib import Path
 
 import pytest
 
-from src.common.config import ConfigurationError, runtime
-from src.common.config.runtime_helpers import JsonConfigLoader, ListNormalizer
+from common.config import ConfigurationError, runtime
+from common.config.runtime_helpers import JsonConfigLoader, ListNormalizer
 
 
 @pytest.fixture(autouse=True)
@@ -207,7 +207,7 @@ def test_json_config_loader_behaviour(monkeypatch, tmp_path):
     existing_path = tmp_path / "present.json"
     existing_path.write_text("{}")
 
-    module = importlib.import_module("src.common.config.runtime_helpers.json_config_loader")
+    module = importlib.import_module("common.config.runtime_helpers.json_config_loader")
 
     class DummyLoader:
         def __init__(self, payload):

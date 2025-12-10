@@ -2,7 +2,7 @@
 
 import pytest
 
-from src.common.connection_manager_helpers.state_manager import StateManager
+from common.connection_manager_helpers.state_manager import StateManager
 
 
 class TestStateManager:

@@ -1,6 +1,6 @@
 """Shared status line output helper to keep formatting consistent."""
 
-from src.common.output_utils import output
+from common.output_utils import output
 
 
 def emit_status_line(message: str = "", *, log: bool = True) -> None:

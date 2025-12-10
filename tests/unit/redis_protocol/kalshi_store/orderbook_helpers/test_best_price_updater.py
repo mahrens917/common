@@ -6,7 +6,7 @@ from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 
-from src.common.redis_protocol.kalshi_store.orderbook_helpers.best_price_updater import (
+from common.redis_protocol.kalshi_store.orderbook_helpers.best_price_updater import (
     BestPriceUpdater,
 )
 
@@ -40,7 +40,7 @@ class TestBestPriceUpdater:
         redis.hget = AsyncMock(return_value=b"[[50, 100], [45, 200]]")
 
         with patch(
-            "src.common.redis_protocol.kalshi_store.orderbook_helpers.best_price_updater.extract_best_bid",
+            "common.redis_protocol.kalshi_store.orderbook_helpers.best_price_updater.extract_best_bid",
             return_value=(50, 100),
         ):
             await BestPriceUpdater.update_from_side(redis, "market:key", "yes_bids")
@@ -54,7 +54,7 @@ class TestBestPriceUpdater:
         redis.hget = AsyncMock(return_value=b"[[55, 100], [60, 200]]")
 
         with patch(
-            "src.common.redis_protocol.kalshi_store.orderbook_helpers.best_price_updater.extract_best_ask",
+            "common.redis_protocol.kalshi_store.orderbook_helpers.best_price_updater.extract_best_ask",
             return_value=(55, 100),
         ):
             await BestPriceUpdater.update_from_side(redis, "market:key", "yes_asks")

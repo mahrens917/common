@@ -4,7 +4,7 @@ import asyncio
 
 import pytest
 
-from src.common.resource_tracker import ResourceTracker
+from common.resource_tracker import ResourceTracker
 
 _VAL_1234_0 = 1234.0
 _VAL_2048_0 = 2048.0

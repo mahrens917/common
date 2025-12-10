@@ -2,15 +2,15 @@ import asyncio
 import unittest
 from unittest.mock import AsyncMock, MagicMock, Mock, patch
 
-from src.common.data_models.trading import OrderRequest, OrderResponse, OrderStatus
-from src.common.kalshi_trading_client.services.order_helpers.order_poller_helpers import (
+from common.data_models.trading import OrderRequest, OrderResponse, OrderStatus
+from common.kalshi_trading_client.services.order_helpers.order_poller_helpers import (
     apply_polling_outcome,
     execute_polling_workflow,
     finalize_polling_result,
     is_order_complete,
 )
-from src.common.order_execution import PollingOutcome
-from src.common.trading_exceptions import (
+from common.order_execution import PollingOutcome
+from common.trading_exceptions import (
     KalshiOrderPollingError,
     KalshiTradeNotificationError,
     KalshiTradePersistenceError,
@@ -60,7 +60,7 @@ class TestOrderPollerHelpers(unittest.IsolatedAsyncioTestCase):
         assert response.status == OrderStatus.FILLED
 
     @patch(
-        "src.common.kalshi_trading_client.services.order_helpers.order_poller_helpers.PollingWorkflow"
+        "common.kalshi_trading_client.services.order_helpers.order_poller_helpers.PollingWorkflow"
     )
     async def test_execute_polling_workflow_success(self, MockWorkflow):
         mock_workflow_instance = MockWorkflow.return_value
@@ -80,7 +80,7 @@ class TestOrderPollerHelpers(unittest.IsolatedAsyncioTestCase):
         MockWorkflow.assert_called()
 
     @patch(
-        "src.common.kalshi_trading_client.services.order_helpers.order_poller_helpers.PollingWorkflow"
+        "common.kalshi_trading_client.services.order_helpers.order_poller_helpers.PollingWorkflow"
     )
     async def test_execute_polling_workflow_failure(self, MockWorkflow):
         mock_workflow_instance = MockWorkflow.return_value
@@ -95,7 +95,7 @@ class TestOrderPollerHelpers(unittest.IsolatedAsyncioTestCase):
             )
 
     @patch(
-        "src.common.kalshi_trading_client.services.order_helpers.order_poller_helpers.PollingWorkflow"
+        "common.kalshi_trading_client.services.order_helpers.order_poller_helpers.PollingWorkflow"
     )
     async def test_execute_polling_workflow_passes_fetch_order(self, MockWorkflow):
         mock_workflow_instance = MockWorkflow.return_value

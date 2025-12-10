@@ -43,7 +43,7 @@ class PoolAcquirer:
             await self.connection_manager.close_redis_client(redis_getter())
             self.connection_manager.reset_connection_state()
 
-        module = importlib.import_module("src.common.redis_protocol.trade_store")
+        module = importlib.import_module("common.redis_protocol.trade_store")
         pool_getter = getattr(module, "get_redis_pool", get_redis_pool)
         pool = await pool_getter()
 

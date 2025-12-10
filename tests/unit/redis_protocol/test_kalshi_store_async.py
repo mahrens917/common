@@ -5,9 +5,9 @@ from unittest.mock import AsyncMock
 
 import pytest
 
-from src.common.exceptions import ValidationError
-from src.common.redis_protocol.kalshi_store import KalshiStore
-from src.common.redis_protocol.market_normalization import (
+from common.exceptions import ValidationError
+from common.redis_protocol.kalshi_store import KalshiStore
+from common.redis_protocol.market_normalization import (
     convert_numeric_field,
     format_probability_value,
     sync_top_of_book_fields,
@@ -16,13 +16,13 @@ from src.common.redis_protocol.market_normalization import (
 _VAL_13_0 = 13.0
 _VAL_42_0 = 42.0
 
-from src.common.redis_protocol.weather_station_resolver import WeatherStationResolver
+from common.redis_protocol.weather_station_resolver import WeatherStationResolver
 
 
 def _make_store(monkeypatch, fake_redis_client_factory, schema_config_factory):
     config = schema_config_factory(kalshi_market_prefix="markets:kalshi")
-    monkeypatch.setattr("src.common.redis_protocol.kalshi_store.SCHEMA", config, raising=False)
-    fake = fake_redis_client_factory("src.common.redis_protocol.kalshi_store.get_redis_pool")
+    monkeypatch.setattr("common.redis_protocol.kalshi_store.SCHEMA", config, raising=False)
+    fake = fake_redis_client_factory("common.redis_protocol.kalshi_store.get_redis_pool")
     resolver = WeatherStationResolver(lambda: {}, logger=logging.getLogger("tests.async"))
     store = KalshiStore(redis=fake, weather_resolver=resolver)
     store.redis = fake

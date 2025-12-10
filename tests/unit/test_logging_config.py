@@ -24,7 +24,7 @@ class DummyFileHandler(logging.Handler):
 
 @pytest.fixture
 def logging_module(monkeypatch):
-    from src.common import logging_config
+    from common import logging_config
 
     importlib.reload(logging_config)
     monkeypatch.setattr(logging_config, "_find_running_services", lambda: set())

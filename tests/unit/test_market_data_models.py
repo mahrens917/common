@@ -3,7 +3,7 @@ from datetime import datetime, timezone
 
 import pytest
 
-from src.common.data_models.market_data import (
+from common.data_models.market_data import (
     DeribitFuturesData,
     DeribitOptionData,
     Instrument,

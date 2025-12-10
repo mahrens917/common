@@ -1,8 +1,8 @@
 import unittest
 from unittest.mock import Mock
 
-from src.common.data_models.trade_record import PnLBreakdown
-from src.common.report_generator_helpers.rule_breakdown_formatter import RuleBreakdownFormatter
+from common.data_models.trade_record import PnLBreakdown
+from common.report_generator_helpers.rule_breakdown_formatter import RuleBreakdownFormatter
 
 DEFAULT_RULE_BREAKDOWN_TRADES_COUNT = 10
 

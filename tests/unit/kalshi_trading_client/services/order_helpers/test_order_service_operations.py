@@ -4,8 +4,8 @@ from unittest.mock import AsyncMock, MagicMock
 
 import pytest
 
-from src.common.kalshi_trading_client.services.order_helpers import order_validator
-from src.common.kalshi_trading_client.services.order_helpers.order_service_operations import (
+from common.kalshi_trading_client.services.order_helpers import order_validator
+from common.kalshi_trading_client.services.order_helpers.order_service_operations import (
     FillsOperations,
     MetadataOperations,
     ValidationOperations,

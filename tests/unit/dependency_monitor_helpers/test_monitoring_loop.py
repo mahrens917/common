@@ -7,12 +7,12 @@ from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 
-from src.common.dependency_monitor_helpers.dependency_checker import (
+from common.dependency_monitor_helpers.dependency_checker import (
     DependencyConfig,
     DependencyState,
     DependencyStatus,
 )
-from src.common.dependency_monitor_helpers.monitoring_loop import MonitoringLoop
+from common.dependency_monitor_helpers.monitoring_loop import MonitoringLoop
 
 
 class TestMonitoringLoop:

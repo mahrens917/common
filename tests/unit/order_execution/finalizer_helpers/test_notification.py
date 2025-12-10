@@ -7,8 +7,8 @@ from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 
-from src.common.order_execution.finalizer_helpers.notification import send_notification
-from src.common.trading_exceptions import KalshiTradeNotificationError
+from common.order_execution.finalizer_helpers.notification import send_notification
+from common.trading_exceptions import KalshiTradeNotificationError
 
 FILLED_COUNT_FIVE = 5
 REMAINING_COUNT_ZERO = 0
@@ -53,11 +53,11 @@ class TestSendNotification:
 
         with (
             patch(
-                "src.common.order_execution.finalizer_helpers.notification.build_order_data_payload",
+                "common.order_execution.finalizer_helpers.notification.build_order_data_payload",
                 return_value={"ticker": "TICKER-123"},
             ),
             patch(
-                "src.common.order_execution.finalizer_helpers.notification.build_response_data_payload",
+                "common.order_execution.finalizer_helpers.notification.build_response_data_payload",
                 return_value={"order_id": "order-123"},
             ),
         ):
@@ -87,11 +87,11 @@ class TestSendNotification:
 
         with (
             patch(
-                "src.common.order_execution.finalizer_helpers.notification.build_order_data_payload",
+                "common.order_execution.finalizer_helpers.notification.build_order_data_payload",
                 return_value={},
             ),
             patch(
-                "src.common.order_execution.finalizer_helpers.notification.build_response_data_payload",
+                "common.order_execution.finalizer_helpers.notification.build_response_data_payload",
                 return_value={},
             ),
         ):
@@ -118,11 +118,11 @@ class TestSendNotification:
 
         with (
             patch(
-                "src.common.order_execution.finalizer_helpers.notification.build_order_data_payload",
+                "common.order_execution.finalizer_helpers.notification.build_order_data_payload",
                 return_value={},
             ),
             patch(
-                "src.common.order_execution.finalizer_helpers.notification.build_response_data_payload",
+                "common.order_execution.finalizer_helpers.notification.build_response_data_payload",
                 return_value={},
             ),
         ):
@@ -151,11 +151,11 @@ class TestSendNotification:
 
         with (
             patch(
-                "src.common.order_execution.finalizer_helpers.notification.build_order_data_payload",
+                "common.order_execution.finalizer_helpers.notification.build_order_data_payload",
                 return_value={},
             ),
             patch(
-                "src.common.order_execution.finalizer_helpers.notification.build_response_data_payload",
+                "common.order_execution.finalizer_helpers.notification.build_response_data_payload",
                 return_value={},
             ),
         ):

@@ -7,7 +7,7 @@ from unittest.mock import AsyncMock
 import psutil
 import pytest
 
-from src.common.process_monitor import (
+from common.process_monitor import (
     ProcessInfo,
     ProcessMonitor,
     get_global_process_monitor,
@@ -64,10 +64,10 @@ def test_matches_service_pattern_and_redis_detection():
 
 @pytest.mark.asyncio
 async def test_get_global_process_monitor_initializes_once(monkeypatch):
-    monkeypatch.setattr("src.common.process_monitor._global_process_monitor", None, raising=False)
+    monkeypatch.setattr("common.process_monitor._global_process_monitor", None, raising=False)
     init_mock = AsyncMock()
     monkeypatch.setattr(
-        "src.common.process_monitor.ProcessMonitor.initialize", init_mock, raising=False
+        "common.process_monitor.ProcessMonitor.initialize", init_mock, raising=False
     )
 
     monitor_one = await get_global_process_monitor()
@@ -90,7 +90,7 @@ async def test_update_process_metrics_refreshes_timestamp(monkeypatch):
             self.pid = pid
 
     monkeypatch.setattr(
-        "src.common.process_monitor_helpers.cache_manager.psutil.Process", FakeProcess
+        "common.process_monitor_helpers.cache_manager.psutil.Process", FakeProcess
     )
 
     updated = await monitor.update_process_metrics(42)
@@ -107,7 +107,7 @@ async def test_update_process_metrics_removes_missing(monkeypatch):
         raise psutil.NoSuchProcess(pid)
 
     monkeypatch.setattr(
-        "src.common.process_monitor_helpers.cache_manager.psutil.Process", fake_process
+        "common.process_monitor_helpers.cache_manager.psutil.Process", fake_process
     )
 
     result = await monitor.update_process_metrics(_CONST_13)
@@ -151,7 +151,7 @@ async def test_perform_full_scan_populates_caches(monkeypatch):
     ]
 
     monkeypatch.setattr(
-        "src.common.process_monitor_helpers.scanner.psutil.process_iter", lambda attrs: processes
+        "common.process_monitor_helpers.scanner.psutil.process_iter", lambda attrs: processes
     )
 
     await monitor._perform_full_scan()
@@ -173,13 +173,13 @@ async def test_perform_incremental_scan_triggers_full_scan(monkeypatch):
     dead_pids = {0, 1, 2, 3, 4, 5}
 
     monkeypatch.setattr(
-        "src.common.process_monitor.psutil.pid_exists",
+        "common.process_monitor.psutil.pid_exists",
         lambda pid: pid not in dead_pids,
     )
 
     full_scan_mock = AsyncMock()
     monkeypatch.setattr(
-        "src.common.process_monitor.ProcessMonitor._perform_full_scan",
+        "common.process_monitor.ProcessMonitor._perform_full_scan",
         full_scan_mock,
         raising=False,
     )
@@ -194,7 +194,7 @@ async def test_background_scan_loop_respects_shutdown(monkeypatch):
     monitor = ProcessMonitor(scan_interval_seconds=0.01)
     incremental_mock = AsyncMock()
     monkeypatch.setattr(
-        "src.common.process_monitor.ProcessMonitor._perform_incremental_scan",
+        "common.process_monitor.ProcessMonitor._perform_incremental_scan",
         incremental_mock,
         raising=False,
     )
@@ -219,11 +219,11 @@ async def test_incremental_scan_updates_timestamp_without_full_scan(monkeypatch)
         )
 
     monkeypatch.setattr(
-        "src.common.process_monitor_helpers.scanner.psutil.pid_exists", lambda pid: True
+        "common.process_monitor_helpers.scanner.psutil.pid_exists", lambda pid: True
     )
     full_scan_mock = AsyncMock()
     monkeypatch.setattr(
-        "src.common.process_monitor.ProcessMonitor._perform_full_scan",
+        "common.process_monitor.ProcessMonitor._perform_full_scan",
         full_scan_mock,
         raising=False,
     )
@@ -248,7 +248,7 @@ async def test_background_loop_continues_after_errors(monkeypatch):
         self._shutdown_event.set()
 
     monkeypatch.setattr(
-        "src.common.process_monitor.ProcessMonitor._perform_incremental_scan",
+        "common.process_monitor.ProcessMonitor._perform_incremental_scan",
         flaky_incremental,
         raising=False,
     )
@@ -262,7 +262,7 @@ async def test_initialize_runs_full_scan_once(monkeypatch):
     monitor = ProcessMonitor()
     full_scan_mock = AsyncMock()
     monkeypatch.setattr(
-        "src.common.process_monitor.ProcessMonitor._perform_full_scan",
+        "common.process_monitor.ProcessMonitor._perform_full_scan",
         full_scan_mock,
         raising=False,
     )
@@ -276,7 +276,7 @@ async def test_initialize_runs_full_scan_once(monkeypatch):
 async def test_start_stop_background_scanning_controls_task(monkeypatch):
     monitor = ProcessMonitor(scan_interval_seconds=0.01)
     monkeypatch.setattr(
-        "src.common.process_monitor.ProcessMonitor.initialize",
+        "common.process_monitor.ProcessMonitor.initialize",
         AsyncMock(),
         raising=False,
     )
@@ -285,7 +285,7 @@ async def test_start_stop_background_scanning_controls_task(monkeypatch):
         await monitor._shutdown_event.wait()
 
     monkeypatch.setattr(
-        "src.common.process_monitor.ProcessMonitor._background_scan_loop",
+        "common.process_monitor.ProcessMonitor._background_scan_loop",
         fake_loop,
         raising=False,
     )
@@ -351,7 +351,7 @@ async def test_perform_full_scan_recovers_from_errors(monkeypatch):
         raise RuntimeError("broken iterator")
 
     monkeypatch.setattr(
-        "src.common.process_monitor_helpers.scanner.psutil.process_iter", broken_iter
+        "common.process_monitor_helpers.scanner.psutil.process_iter", broken_iter
     )
 
     await monitor._perform_full_scan()
@@ -371,11 +371,11 @@ async def test_perform_incremental_scan_handles_pid_errors(monkeypatch):
         raise RuntimeError("lookup failed")
 
     monkeypatch.setattr(
-        "src.common.process_monitor_helpers.scanner.psutil.pid_exists", flaky_pid_exists
+        "common.process_monitor_helpers.scanner.psutil.pid_exists", flaky_pid_exists
     )
     full_scan_mock = AsyncMock()
     monkeypatch.setattr(
-        "src.common.process_monitor.ProcessMonitor._perform_full_scan",
+        "common.process_monitor.ProcessMonitor._perform_full_scan",
         full_scan_mock,
         raising=False,
     )
@@ -396,7 +396,7 @@ async def test_convenience_getters_delegate_to_global_monitor(monkeypatch):
 
     global_monitor = AsyncMock(return_value=monitor)
     monkeypatch.setattr(
-        "src.common.process_monitor.get_global_process_monitor",
+        "common.process_monitor.get_global_process_monitor",
         global_monitor,
         raising=False,
     )

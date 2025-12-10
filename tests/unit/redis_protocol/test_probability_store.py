@@ -5,7 +5,7 @@ from decimal import Decimal
 
 import pytest
 
-from src.common.redis_protocol.probability_store import (
+from common.redis_protocol.probability_store import (
     ProbabilityData,
     ProbabilityDataNotFoundError,
     ProbabilityStore,

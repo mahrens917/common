@@ -5,7 +5,7 @@ from unittest.mock import AsyncMock, Mock, patch
 
 import pytest
 
-from src.common.optimized_status_reporter_helpers.dependencies_factory import (
+from common.optimized_status_reporter_helpers.dependencies_factory import (
     StatusReporterDependenciesFactory,
 )
 
@@ -29,7 +29,7 @@ class TestStatusReporterDependenciesFactory:
     def mock_internal_imports(self, mocker):
         """Mock internal module imports to prevent actual instantiation."""
         # Patch the imported names *within* the dependencies_factory module
-        target_module = "src.common.optimized_status_reporter_helpers.dependencies_factory"
+        target_module = "common.optimized_status_reporter_helpers.dependencies_factory"
 
         mocks = {}
         for class_name in [

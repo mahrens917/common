@@ -1,6 +1,6 @@
 import pytest
 
-from src.common.redis_protocol.converters import coerce_float, decode_redis_hash, decode_redis_value
+from common.redis_protocol.converters import coerce_float, decode_redis_hash, decode_redis_value
 
 _CONST_42 = 42
 

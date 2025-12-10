@@ -5,18 +5,18 @@ from types import ModuleType
 
 import pytest
 
-from src.common.redis_protocol.parsing.kalshi_helpers import (
+from common.redis_protocol.parsing.kalshi_helpers import (
     parse_day_month_year_format,
     parse_intraday_format,
     parse_year_month_day_format,
 )
-from src.common.redis_protocol.probability_store.exceptions import ProbabilityStoreError
+from common.redis_protocol.probability_store.exceptions import ProbabilityStoreError
 
 
 def _load_strike_parser_module() -> ModuleType:
     module_path = pathlib.Path("src/common/redis_protocol/probability_store/keys_helpers.py")
     spec = importlib.util.spec_from_file_location(
-        "src.common.redis_protocol.probability_store.keys_helpers_file", module_path
+        "common.redis_protocol.probability_store.keys_helpers_file", module_path
     )
     module = importlib.util.module_from_spec(spec)
     assert spec is not None and spec.loader is not None

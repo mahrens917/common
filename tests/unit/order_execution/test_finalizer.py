@@ -4,7 +4,7 @@ from typing import Optional
 
 import pytest
 
-from src.common.data_models.trading import (
+from common.data_models.trading import (
     OrderAction,
     OrderRequest,
     OrderResponse,
@@ -18,8 +18,8 @@ DEFAULT_FINALIZER_FILLED_COUNT = 2
 DEFAULT_FINALIZER_REMAINING_COUNT = 0
 DEFAULT_FINALIZER_AVG_PRICE = 45
 
-from src.common.order_execution import PollingOutcome, TradeFinalizer
-from src.common.trading_exceptions import (
+from common.order_execution import PollingOutcome, TradeFinalizer
+from common.trading_exceptions import (
     KalshiTradeNotificationError,
     KalshiTradePersistenceError,
 )

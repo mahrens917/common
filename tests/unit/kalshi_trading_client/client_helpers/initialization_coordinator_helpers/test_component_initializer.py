@@ -2,7 +2,7 @@
 
 from unittest.mock import MagicMock
 
-from src.common.kalshi_trading_client.client_helpers.initialization_coordinator_helpers import (
+from common.kalshi_trading_client.client_helpers.initialization_coordinator_helpers import (
     component_initializer,
 )
 

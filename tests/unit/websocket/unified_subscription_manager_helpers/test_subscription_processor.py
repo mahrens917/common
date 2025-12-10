@@ -2,7 +2,7 @@ from unittest.mock import AsyncMock, Mock
 
 import pytest
 
-from src.common.websocket.unified_subscription_manager_helpers.subscription_processor import (
+from common.websocket.unified_subscription_manager_helpers.subscription_processor import (
     SubscriptionProcessor,
 )
 

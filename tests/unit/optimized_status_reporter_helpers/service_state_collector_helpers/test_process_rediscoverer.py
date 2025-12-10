@@ -4,7 +4,7 @@ from unittest.mock import Mock
 
 import pytest
 
-from src.common.optimized_status_reporter_helpers.service_state_collector_helpers.process_rediscoverer import (
+from common.optimized_status_reporter_helpers.service_state_collector_helpers.process_rediscoverer import (
     ProcessRediscoverer,
 )
 

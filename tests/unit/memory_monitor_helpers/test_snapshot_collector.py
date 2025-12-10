@@ -4,7 +4,7 @@ from unittest.mock import MagicMock
 
 import pytest
 
-from src.common.memory_monitor_helpers.snapshot_collector import (
+from common.memory_monitor_helpers.snapshot_collector import (
     MemorySnapshot,
     SnapshotCollector,
 )

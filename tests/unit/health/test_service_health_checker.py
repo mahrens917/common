@@ -7,7 +7,7 @@ from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 
-from src.common.health.service_health_checker import (
+from common.health.service_health_checker import (
     ServiceHealth,
     ServiceHealthChecker,
     ServiceHealthInfo,
@@ -24,7 +24,7 @@ async def test_check_service_health_uses_redis_status(monkeypatch):
     current_time = time.time()
     mock_info = ServiceHealthInfo(ServiceHealth.HEALTHY, last_status_update=current_time)
     monkeypatch.setattr(
-        "src.common.health.service_health_checker_helpers.redis_status_checker.check_redis_status",
+        "common.health.service_health_checker_helpers.redis_status_checker.check_redis_status",
         AsyncMock(return_value=mock_info),
     )
 
@@ -36,7 +36,7 @@ async def test_check_service_health_uses_redis_status(monkeypatch):
 async def test_check_service_health_handles_exception(monkeypatch):
     checker = ServiceHealthChecker()
     monkeypatch.setattr(
-        "src.common.health.service_health_checker_helpers.redis_status_checker.check_redis_status",
+        "common.health.service_health_checker_helpers.redis_status_checker.check_redis_status",
         AsyncMock(side_effect=RuntimeError("boom")),
     )
 
@@ -57,22 +57,22 @@ async def test_check_redis_status_reports_healthy(monkeypatch):
     redis.hgetall = AsyncMock(return_value=make_status_data("operational", 1_700_000_000))
     monkeypatch.setattr(time, "time", lambda: 1_700_000_100)
     monkeypatch.setattr(
-        "src.common.redis_protocol.converters.decode_redis_hash",
+        "common.redis_protocol.converters.decode_redis_hash",
         lambda data: {k.decode(): v.decode() for k, v in data.items()},
     )
     monkeypatch.setattr(
-        "src.common.redis_protocol.typing.ensure_awaitable",
+        "common.redis_protocol.typing.ensure_awaitable",
         lambda coro: coro,
     )
     monkeypatch.setattr(checker, "_get_redis_client", AsyncMock(return_value=redis))
-    from src.common import service_status
+    from common import service_status
 
     monkeypatch.setattr(service_status, "is_service_failed", lambda status: status == "failed")
     monkeypatch.setattr(
         service_status, "is_service_operational", lambda status: status == "operational"
     )
 
-    from src.common.health.service_health_checker_helpers.redis_status_checker import (
+    from common.health.service_health_checker_helpers.redis_status_checker import (
         check_redis_status,
     )
 
@@ -90,21 +90,21 @@ async def test_check_redis_status_handles_stale_operational_status(monkeypatch):
     monkeypatch.setattr(checker, "_get_redis_client", AsyncMock(return_value=redis))
     monkeypatch.setattr(time, "time", lambda: 1_700_001_000)
     monkeypatch.setattr(
-        "src.common.redis_protocol.converters.decode_redis_hash",
+        "common.redis_protocol.converters.decode_redis_hash",
         lambda data: {k.decode(): v.decode() for k, v in data.items()},
     )
     monkeypatch.setattr(
-        "src.common.redis_protocol.typing.ensure_awaitable",
+        "common.redis_protocol.typing.ensure_awaitable",
         lambda coro: coro,
     )
-    from src.common import service_status
+    from common import service_status
 
     monkeypatch.setattr(service_status, "is_service_failed", lambda status: False)
     monkeypatch.setattr(
         service_status, "is_service_operational", lambda status: status == "operational"
     )
 
-    from src.common.health.service_health_checker_helpers.redis_status_checker import (
+    from common.health.service_health_checker_helpers.redis_status_checker import (
         check_redis_status,
     )
 
@@ -120,19 +120,19 @@ async def test_check_redis_status_handles_failed_status(monkeypatch):
     redis.hgetall = AsyncMock(return_value=make_status_data("failed", 1_700_000_000))
     monkeypatch.setattr(checker, "_get_redis_client", AsyncMock(return_value=redis))
     monkeypatch.setattr(
-        "src.common.redis_protocol.converters.decode_redis_hash",
+        "common.redis_protocol.converters.decode_redis_hash",
         lambda data: {k.decode(): v.decode() for k, v in data.items()},
     )
     monkeypatch.setattr(
-        "src.common.redis_protocol.typing.ensure_awaitable",
+        "common.redis_protocol.typing.ensure_awaitable",
         lambda coro: coro,
     )
-    from src.common import service_status
+    from common import service_status
 
     monkeypatch.setattr(service_status, "is_service_failed", lambda status: status == "failed")
     monkeypatch.setattr(service_status, "is_service_operational", lambda status: False)
 
-    from src.common.health.service_health_checker_helpers.redis_status_checker import (
+    from common.health.service_health_checker_helpers.redis_status_checker import (
         check_redis_status,
     )
 
@@ -148,10 +148,10 @@ async def test_check_redis_status_handles_missing_data(monkeypatch):
     redis.hgetall = AsyncMock(return_value={})
     monkeypatch.setattr(checker, "_get_redis_client", AsyncMock(return_value=redis))
     monkeypatch.setattr(
-        "src.common.health.service_health_checker.ensure_awaitable", lambda coro: coro
+        "common.health.service_health_checker.ensure_awaitable", lambda coro: coro
     )
 
-    from src.common.health.service_health_checker_helpers.redis_status_checker import (
+    from common.health.service_health_checker_helpers.redis_status_checker import (
         check_redis_status,
     )
 
@@ -169,19 +169,19 @@ async def test_check_redis_status_handles_invalid_timestamp(monkeypatch):
     )
     monkeypatch.setattr(checker, "_get_redis_client", AsyncMock(return_value=redis))
     monkeypatch.setattr(
-        "src.common.redis_protocol.converters.decode_redis_hash",
+        "common.redis_protocol.converters.decode_redis_hash",
         lambda data: {k.decode(): v.decode() for k, v in data.items()},
     )
     monkeypatch.setattr(
-        "src.common.redis_protocol.typing.ensure_awaitable",
+        "common.redis_protocol.typing.ensure_awaitable",
         lambda coro: coro,
     )
-    from src.common import service_status
+    from common import service_status
 
     monkeypatch.setattr(service_status, "is_service_failed", lambda status: False)
     monkeypatch.setattr(service_status, "is_service_operational", lambda status: True)
 
-    from src.common.health.service_health_checker_helpers.redis_status_checker import (
+    from common.health.service_health_checker_helpers.redis_status_checker import (
         check_redis_status,
     )
 

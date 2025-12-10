@@ -5,7 +5,7 @@ from unittest.mock import AsyncMock
 
 import pytest
 
-from src.common.redis_protocol import connection, connection_pool_core
+from common.redis_protocol import connection, connection_pool_core
 
 _TEST_COUNT_2 = 2
 

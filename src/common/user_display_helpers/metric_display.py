@@ -6,7 +6,7 @@ Handles display of quality metrics, timing summaries, and statistical data.
 
 from typing import Iterable, Optional, Tuple
 
-from src.common.exceptions import DataError
+from common.exceptions import DataError
 
 # Constants
 _BASE_GAP_TOLERANCE_MS = 5.0

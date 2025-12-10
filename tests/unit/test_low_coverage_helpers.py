@@ -4,38 +4,38 @@ from types import SimpleNamespace
 
 import pytest
 
-from src.common.base_connection_manager_helpers import (
+from common.base_connection_manager_helpers import (
     backoff_calculator,
     lifecycle_helpers,
 )
-from src.common.base_connection_manager_helpers import (
+from common.base_connection_manager_helpers import (
     notification_helpers as bcm_notification_helpers,
 )
-from src.common.base_connection_manager_helpers import (
+from common.base_connection_manager_helpers import (
     retry_logic,
     state_broadcast_helper,
 )
-from src.common.connection_manager_helpers import health_monitor as cm_health_monitor
-from src.common.connection_manager_helpers import notification_manager as cm_notification_manager
-from src.common.connection_manager_helpers import reconnection_handler as cm_reconnection_handler
-from src.common.connection_manager_helpers import state_manager as cm_state_manager
-from src.common.connection_state import ConnectionState
-from src.common.data_models.trade_record import TradeRecord, TradeSide
-from src.common.metadata_store_helpers.data_normalizer import DataNormalizer
-from src.common.optimized_status_reporter_helpers.data_formatting import DataFormatting
-from src.common.optimized_status_reporter_helpers.moon_phase_calculator import (
+from common.connection_manager_helpers import health_monitor as cm_health_monitor
+from common.connection_manager_helpers import notification_manager as cm_notification_manager
+from common.connection_manager_helpers import reconnection_handler as cm_reconnection_handler
+from common.connection_manager_helpers import state_manager as cm_state_manager
+from common.connection_state import ConnectionState
+from common.data_models.trade_record import TradeRecord, TradeSide
+from common.metadata_store_helpers.data_normalizer import DataNormalizer
+from common.optimized_status_reporter_helpers.data_formatting import DataFormatting
+from common.optimized_status_reporter_helpers.moon_phase_calculator import (
     MoonPhaseCalculator,
 )
-from src.common.optimized_status_reporter_helpers.price_data_collector import (
+from common.optimized_status_reporter_helpers.price_data_collector import (
     PriceDataCollector,
 )
-from src.common.optimized_status_reporter_helpers.redis_key_counter import RedisKeyCounter
-from src.common.redis_protocol.trade_store.codec_helpers.decoder import decode_trade_record
-from src.common.redis_protocol.trade_store.codec_helpers.encoder import (
+from common.optimized_status_reporter_helpers.redis_key_counter import RedisKeyCounter
+from common.redis_protocol.trade_store.codec_helpers.decoder import decode_trade_record
+from common.redis_protocol.trade_store.codec_helpers.encoder import (
     encode_trade_record,
     trade_record_to_payload,
 )
-from src.common.time_helpers.timestamp_parser import (
+from common.time_helpers.timestamp_parser import (
     MILLISECOND_TIMESTAMP_THRESHOLD,
     parse_timestamp,
 )
@@ -192,7 +192,7 @@ async def test_price_data_collector_and_redis_key_counter(monkeypatch):
             raise RuntimeError("fail")
 
     monkeypatch.setattr(
-        "src.common.redis_protocol.market_store.DeribitStore",
+        "common.redis_protocol.market_store.DeribitStore",
         StubStore,
     )
 
@@ -215,7 +215,7 @@ async def test_price_data_collector_and_redis_key_counter(monkeypatch):
         kalshi_market_prefix = "kalshi"
 
     monkeypatch.setattr(
-        "src.common.optimized_status_reporter_helpers.redis_key_counter.get_schema_config",
+        "common.optimized_status_reporter_helpers.redis_key_counter.get_schema_config",
         lambda: StubSchema(),
     )
 

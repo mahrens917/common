@@ -2,7 +2,7 @@
 
 from typing import Any, Dict, Union
 
-from src.common.exceptions import DataError
+from common.exceptions import DataError
 
 
 def extract_expiry_from_market(market_data: Union[Dict[str, Any], Any]) -> Any:

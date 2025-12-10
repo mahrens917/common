@@ -3,7 +3,7 @@ from datetime import datetime, timedelta, timezone
 
 import pytest
 
-from src.common.health.log_activity_monitor import LogActivityMonitor, LogActivityStatus
+from common.health.log_activity_monitor import LogActivityMonitor, LogActivityStatus
 
 _CONST_299 = 299
 _CONST_301 = 301
@@ -43,7 +43,7 @@ async def test_log_activity_reports_not_found_when_missing_log(tmp_path):
 @pytest.mark.asyncio
 async def test_log_activity_classifies_stale(tmp_path, monkeypatch):
     monkeypatch.setattr(
-        "src.common.health.log_activity_monitor.env_int",
+        "common.health.log_activity_monitor.env_int",
         lambda key, default=None: {"LOG_RECENT_THRESHOLD": 60, "LOG_STALE_THRESHOLD": 900}.get(
             key, default
         ),
@@ -55,9 +55,9 @@ async def test_log_activity_classifies_stale(tmp_path, monkeypatch):
     base_time = datetime(2024, 1, 1, 12, 0, tzinfo=timezone.utc)
     os.utime(log_path, (base_time.timestamp(), base_time.timestamp()))
 
-    monkeypatch.setattr("src.common.time_utils.ensure_timezone_aware", lambda dt: dt, raising=False)
+    monkeypatch.setattr("common.time_utils.ensure_timezone_aware", lambda dt: dt, raising=False)
     monkeypatch.setattr(
-        "src.common.time_utils.get_current_utc",
+        "common.time_utils.get_current_utc",
         lambda: base_time + timedelta(minutes=5),
         raising=False,
     )
@@ -72,7 +72,7 @@ async def test_log_activity_classifies_stale(tmp_path, monkeypatch):
 @pytest.mark.asyncio
 async def test_log_activity_classifies_old(tmp_path, monkeypatch):
     monkeypatch.setattr(
-        "src.common.health.log_activity_monitor.env_int",
+        "common.health.log_activity_monitor.env_int",
         lambda key, default=None: {"LOG_RECENT_THRESHOLD": 60, "LOG_STALE_THRESHOLD": 600}.get(
             key, default
         ),
@@ -84,9 +84,9 @@ async def test_log_activity_classifies_old(tmp_path, monkeypatch):
     base_time = datetime(2024, 1, 1, 12, 0, tzinfo=timezone.utc)
     os.utime(log_path, (base_time.timestamp(), base_time.timestamp()))
 
-    monkeypatch.setattr("src.common.time_utils.ensure_timezone_aware", lambda dt: dt, raising=False)
+    monkeypatch.setattr("common.time_utils.ensure_timezone_aware", lambda dt: dt, raising=False)
     monkeypatch.setattr(
-        "src.common.time_utils.get_current_utc",
+        "common.time_utils.get_current_utc",
         lambda: base_time + timedelta(minutes=20),
         raising=False,
     )
@@ -116,7 +116,7 @@ async def test_log_activity_returns_error_when_timestamp_missing(tmp_path, monke
 @pytest.mark.asyncio
 async def test_get_all_service_log_activity(tmp_path, monkeypatch):
     monkeypatch.setattr(
-        "src.common.health.log_activity_monitor.env_int",
+        "common.health.log_activity_monitor.env_int",
         lambda key, default=None: {"LOG_RECENT_THRESHOLD": 10, "LOG_STALE_THRESHOLD": 60}.get(
             key, default
         ),
@@ -132,9 +132,9 @@ async def test_get_all_service_log_activity(tmp_path, monkeypatch):
     os.utime(svc_b, (old_time.timestamp(), old_time.timestamp()))
 
     current_time = base_time + timedelta(seconds=5)
-    monkeypatch.setattr("src.common.time_utils.ensure_timezone_aware", lambda dt: dt, raising=False)
+    monkeypatch.setattr("common.time_utils.ensure_timezone_aware", lambda dt: dt, raising=False)
     monkeypatch.setattr(
-        "src.common.time_utils.get_current_utc", lambda: current_time, raising=False
+        "common.time_utils.get_current_utc", lambda: current_time, raising=False
     )
 
     monitor = LogActivityMonitor(str(tmp_path))

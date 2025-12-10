@@ -4,7 +4,7 @@ from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 
-from src.common.dawn_reset_service_helpers.alert_manager import AlertManager
+from common.dawn_reset_service_helpers.alert_manager import AlertManager
 
 
 class TestAlertManagerInit:
@@ -114,7 +114,7 @@ class TestAlertManagerSendResetAlert:
         handler.send_custom_message = AsyncMock(side_effect=ConnectionError("Network error"))
         manager = AlertManager(telegram_handler=handler)
 
-        with patch("src.common.dawn_reset_service_helpers.alert_manager.logger"):
+        with patch("common.dawn_reset_service_helpers.alert_manager.logger"):
             await manager.send_reset_alert("KJFK", "max_temp_f", True, 65.0, 70.0)
 
     @pytest.mark.asyncio
@@ -124,7 +124,7 @@ class TestAlertManagerSendResetAlert:
         handler.send_custom_message = AsyncMock(side_effect=TimeoutError("Timeout"))
         manager = AlertManager(telegram_handler=handler)
 
-        with patch("src.common.dawn_reset_service_helpers.alert_manager.logger"):
+        with patch("common.dawn_reset_service_helpers.alert_manager.logger"):
             await manager.send_reset_alert("KJFK", "max_temp_f", True, 65.0, 70.0)
 
     @pytest.mark.asyncio

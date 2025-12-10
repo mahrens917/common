@@ -7,7 +7,7 @@ from unittest.mock import MagicMock
 
 import pytest
 
-from src.common.data_models.trading_signals_helpers.validation import (
+from common.data_models.trading_signals_helpers.validation import (
     ERR_BUY_SELL_MISSING_FIELDS,
     ERR_NO_TRADE_HAS_TRADE_FIELDS,
     ERR_TARGET_PRICE_OUT_OF_RANGE,
@@ -27,7 +27,7 @@ class TestValidateTradingSignal:
 
     def test_validates_buy_signal(self) -> None:
         """Validates BUY signal fields."""
-        from src.common.data_models.trading_signals import TradingSignalType
+        from common.data_models.trading_signals import TradingSignalType
 
         signal = MagicMock()
         signal.signal_type = TradingSignalType.BUY
@@ -43,7 +43,7 @@ class TestValidateTradingSignal:
 
     def test_validates_sell_signal(self) -> None:
         """Validates SELL signal fields."""
-        from src.common.data_models.trading_signals import TradingSignalType
+        from common.data_models.trading_signals import TradingSignalType
 
         signal = MagicMock()
         signal.signal_type = TradingSignalType.SELL
@@ -59,7 +59,7 @@ class TestValidateTradingSignal:
 
     def test_validates_no_trade_signal(self) -> None:
         """Validates NO_TRADE signal fields."""
-        from src.common.data_models.trading_signals import TradingSignalType
+        from common.data_models.trading_signals import TradingSignalType
 
         signal = MagicMock()
         signal.signal_type = TradingSignalType.NO_TRADE
@@ -109,7 +109,7 @@ class TestValidateTradeSignalFields:
 
     def test_raises_when_target_price_zero(self) -> None:
         """Raises ValidationError when target_price is zero."""
-        from src.common.exceptions import ValidationError
+        from common.exceptions import ValidationError
 
         signal = MagicMock()
         signal.action = MagicMock()
@@ -121,7 +121,7 @@ class TestValidateTradeSignalFields:
 
     def test_raises_when_target_price_negative(self) -> None:
         """Raises ValidationError when target_price is negative."""
-        from src.common.exceptions import ValidationError
+        from common.exceptions import ValidationError
 
         signal = MagicMock()
         signal.action = MagicMock()
@@ -133,7 +133,7 @@ class TestValidateTradeSignalFields:
 
     def test_raises_when_target_price_exceeds_max(self) -> None:
         """Raises ValidationError when target_price exceeds max."""
-        from src.common.exceptions import ValidationError
+        from common.exceptions import ValidationError
 
         signal = MagicMock()
         signal.action = MagicMock()

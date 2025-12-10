@@ -7,7 +7,7 @@ from unittest.mock import MagicMock
 
 import pytest
 
-from src.common.data_models.trade_record_helpers.trade_record_utils import (
+from common.data_models.trade_record_helpers.trade_record_utils import (
     ALLOWED_SHORT_TRADE_REASONS,
     get_trade_close_date,
     is_trade_reason_valid,

@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from unittest.mock import patch
 
-from src.common.redis_protocol.connection_helpers.pool_settings import (
+from common.redis_protocol.connection_helpers.pool_settings import (
     build_pool_settings,
     mask_sensitive_settings,
 )
@@ -16,7 +16,7 @@ class TestBuildPoolSettings:
     def test_builds_basic_settings(self) -> None:
         """Builds settings with required fields."""
         with patch(
-            "src.common.redis_protocol.connection_helpers.pool_settings.config"
+            "common.redis_protocol.connection_helpers.pool_settings.config"
         ) as mock_config:
             mock_config.REDIS_HOST = "localhost"
             mock_config.REDIS_PORT = 6379
@@ -39,7 +39,7 @@ class TestBuildPoolSettings:
     def test_includes_password_when_set(self) -> None:
         """Includes password in settings when configured."""
         with patch(
-            "src.common.redis_protocol.connection_helpers.pool_settings.config"
+            "common.redis_protocol.connection_helpers.pool_settings.config"
         ) as mock_config:
             mock_config.REDIS_HOST = "localhost"
             mock_config.REDIS_PORT = 6379
@@ -59,7 +59,7 @@ class TestBuildPoolSettings:
     def test_excludes_password_when_empty(self) -> None:
         """Excludes password when not configured."""
         with patch(
-            "src.common.redis_protocol.connection_helpers.pool_settings.config"
+            "common.redis_protocol.connection_helpers.pool_settings.config"
         ) as mock_config:
             mock_config.REDIS_HOST = "localhost"
             mock_config.REDIS_PORT = 6379
@@ -79,7 +79,7 @@ class TestBuildPoolSettings:
     def test_includes_ssl_when_enabled(self) -> None:
         """Includes SSL setting when enabled."""
         with patch(
-            "src.common.redis_protocol.connection_helpers.pool_settings.config"
+            "common.redis_protocol.connection_helpers.pool_settings.config"
         ) as mock_config:
             mock_config.REDIS_HOST = "localhost"
             mock_config.REDIS_PORT = 6379

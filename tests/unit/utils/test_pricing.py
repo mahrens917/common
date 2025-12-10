@@ -2,7 +2,7 @@ import math
 
 import pytest
 
-from src.common.utils import pricing
+from common.utils import pricing
 
 
 def test_calculate_usdc_micro_price_volume_weighted():

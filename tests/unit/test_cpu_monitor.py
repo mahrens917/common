@@ -3,7 +3,7 @@ from unittest.mock import AsyncMock
 
 import pytest
 
-from src.common.cpu_monitor import CpuMonitor
+from common.cpu_monitor import CpuMonitor
 
 
 @pytest.mark.asyncio

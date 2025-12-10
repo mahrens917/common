@@ -29,7 +29,7 @@ class ConnectionSettingsResolver:
             # Import kalshi_store module to pick up any monkeypatched values
             import importlib
 
-            kalshi_store_module = importlib.import_module("src.common.redis_protocol.kalshi_store")
+            kalshi_store_module = importlib.import_module("common.redis_protocol.kalshi_store")
 
             settings: Dict[str, Any] = {
                 "host": getattr(kalshi_store_module, "REDIS_HOST", REDIS_HOST),

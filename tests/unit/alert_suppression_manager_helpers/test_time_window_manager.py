@@ -5,7 +5,7 @@ from unittest.mock import AsyncMock, Mock
 
 import pytest
 
-from src.common.alert_suppression_manager_helpers.time_window_manager import (
+from common.alert_suppression_manager_helpers.time_window_manager import (
     TimeWindowContext,
     TimeWindowManager,
 )

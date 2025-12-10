@@ -6,7 +6,7 @@ from unittest.mock import AsyncMock, MagicMock, Mock
 import aiohttp
 import pytest
 
-from src.common.scraper_connection_manager_helpers.connection_lifecycle import (
+from common.scraper_connection_manager_helpers.connection_lifecycle import (
     ScraperConnectionLifecycle,
 )
 

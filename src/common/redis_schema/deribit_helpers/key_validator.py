@@ -1,6 +1,6 @@
 """Validation for Deribit market keys."""
 
-from src.common.config_loader import load_config
+from common.config_loader import load_config
 
 from ..markets import DeribitInstrumentDescriptor, DeribitInstrumentKey
 

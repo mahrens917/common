@@ -6,7 +6,7 @@ from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 
-from src.common.redis_protocol.kalshi_store.writer_helpers.batch_reader import BatchReader
+from common.redis_protocol.kalshi_store.writer_helpers.batch_reader import BatchReader
 
 
 def make_default_funcs():
@@ -48,7 +48,7 @@ async def test_get_interpolation_results_skips_invalid_entries():
     fake_module = SimpleNamespace(
         parse_kalshi_market_key=MagicMock(side_effect=[Desc("USD-TEST"), Desc("USD-FAIL")])
     )
-    with patch.dict("sys.modules", {"src.common.redis_protocol.kalshi_store": fake_module}):
+    with patch.dict("sys.modules", {"common.redis_protocol.kalshi_store": fake_module}):
         result = await reader.get_interpolation_results("USD", ["k1", "k2"], *make_default_funcs())
 
     assert "USD-TEST" in result

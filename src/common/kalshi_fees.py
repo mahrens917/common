@@ -6,7 +6,7 @@ import json
 import math
 from typing import Any, Dict
 
-from src.common.path_utils import get_project_root
+from common.path_utils import get_project_root
 
 PROJECT_ROOT = get_project_root(__file__, levels_up=2)
 

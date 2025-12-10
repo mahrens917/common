@@ -4,8 +4,8 @@ from unittest.mock import AsyncMock, MagicMock
 
 import pytest
 
-from src.common import simple_health_checker as module
-from src.common.simple_health_checker import SimpleHealthChecker
+from common import simple_health_checker as module
+from common.simple_health_checker import SimpleHealthChecker
 
 
 class DummyDelegator:

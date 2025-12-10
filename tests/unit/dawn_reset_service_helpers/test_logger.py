@@ -3,7 +3,7 @@
 from datetime import datetime
 from unittest.mock import patch
 
-from src.common.dawn_reset_service_helpers.logger import DawnCheckContext, DawnResetLogger
+from common.dawn_reset_service_helpers.logger import DawnCheckContext, DawnResetLogger
 
 
 class TestDawnCheckContext:
@@ -70,7 +70,7 @@ class TestDawnResetLogger:
             is_cached=True,
         )
 
-        with patch("src.common.dawn_reset_service_helpers.logger.logger") as mock_logger:
+        with patch("common.dawn_reset_service_helpers.logger.logger") as mock_logger:
             logger.log_dawn_check(context)
 
             mock_logger.debug.assert_called_once()
@@ -92,7 +92,7 @@ class TestDawnResetLogger:
             is_cached=False,
         )
 
-        with patch("src.common.dawn_reset_service_helpers.logger.logger") as mock_logger:
+        with patch("common.dawn_reset_service_helpers.logger.logger") as mock_logger:
             logger.log_dawn_check(context)
 
             assert mock_logger.info.call_count >= 1
@@ -113,7 +113,7 @@ class TestDawnResetLogger:
             is_cached=False,
         )
 
-        with patch("src.common.dawn_reset_service_helpers.logger.logger") as mock_logger:
+        with patch("common.dawn_reset_service_helpers.logger.logger") as mock_logger:
             logger.log_dawn_check(context)
 
             mock_logger.info.assert_not_called()

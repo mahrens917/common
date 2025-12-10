@@ -7,7 +7,7 @@ from typing import TYPE_CHECKING, Any, Dict, List
 if TYPE_CHECKING:
     import weakref
 
-    from src.common.session_tracker_helpers.models import SessionInfo
+    from common.session_tracker_helpers.models import SessionInfo
 
 
 class SessionTrackerSyncMixin:

@@ -6,7 +6,7 @@ import asyncio
 
 import pytest
 
-from src.common.dependency_monitor_helpers.callback_executor import CallbackExecutor
+from common.dependency_monitor_helpers.callback_executor import CallbackExecutor
 
 
 class TestCaptureAsyncResult:

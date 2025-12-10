@@ -2,7 +2,7 @@
 
 from unittest.mock import patch
 
-from src.common.redis_protocol.market_normalization_helpers.strike_derivation import (
+from common.redis_protocol.market_normalization_helpers.strike_derivation import (
     StrikeDerivation,
 )
 
@@ -90,10 +90,10 @@ class TestStrikeDerivationHandleBetweenType:
     def test_returns_between_type(self) -> None:
         """Returns 'between' as strike type."""
         with patch(
-            "src.common.redis_protocol.market_normalization_helpers.strike_derivation.extract_between_bounds"
+            "common.redis_protocol.market_normalization_helpers.strike_derivation.extract_between_bounds"
         ) as mock_extract:
             with patch(
-                "src.common.redis_protocol.market_normalization_helpers.strike_derivation.compute_representative_strike"
+                "common.redis_protocol.market_normalization_helpers.strike_derivation.compute_representative_strike"
             ) as mock_compute:
                 mock_extract.return_value = (50000.0, 60000.0)
                 mock_compute.return_value = 55000.0

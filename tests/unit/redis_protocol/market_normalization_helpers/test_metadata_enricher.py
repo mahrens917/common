@@ -1,6 +1,6 @@
 """Tests for metadata enricher module."""
 
-from src.common.redis_protocol.market_normalization_helpers.metadata_enricher import (
+from common.redis_protocol.market_normalization_helpers.metadata_enricher import (
     enrich_close_time,
     enrich_orderbook_defaults,
     enrich_status_field,

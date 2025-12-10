@@ -4,7 +4,7 @@ import logging
 import weakref
 from typing import Dict
 
-from src.common.session_tracker_helpers.models import SessionInfo
+from common.session_tracker_helpers.models import SessionInfo
 
 logger = logging.getLogger(__name__)
 

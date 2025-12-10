@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from datetime import timezone
 
-from src.common.redis_protocol.trade_store.optional_field_extractor import OptionalFieldExtractor
+from common.redis_protocol.trade_store.optional_field_extractor import OptionalFieldExtractor
 
 
 def test_extract_coerces_optional_fields():

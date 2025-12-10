@@ -5,7 +5,7 @@ from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 
-from src.common.dawn_reset_service import DawnResetService
+from common.dawn_reset_service import DawnResetService
 
 
 class TestDawnResetServiceInit:

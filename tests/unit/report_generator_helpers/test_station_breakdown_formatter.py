@@ -1,8 +1,8 @@
 import unittest
 from unittest.mock import Mock
 
-from src.common.data_models.trade_record import PnLBreakdown
-from src.common.report_generator_helpers.station_breakdown_formatter import (
+from common.data_models.trade_record import PnLBreakdown
+from common.report_generator_helpers.station_breakdown_formatter import (
     StationBreakdownFormatter,
 )
 

@@ -4,7 +4,7 @@ from datetime import datetime
 
 import pytest
 
-from src.common.data_models.trading_helpers.market_validator import (
+from common.data_models.trading_helpers.market_validator import (
     validate_ask_price,
     validate_bid_ask_spread,
     validate_bid_price,

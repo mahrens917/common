@@ -7,16 +7,16 @@ import importlib
 import logging
 from typing import TYPE_CHECKING, Any, Dict, Optional
 
-from src.common.backoff_manager import BackoffManager
-from src.common.trading import WeatherStationResolver
-from src.common.trading.notifier_adapter import TradeNotifierAdapter
+from common.backoff_manager import BackoffManager
+from common.trading import WeatherStationResolver
+from common.trading.notifier_adapter import TradeNotifierAdapter
 from src.kalshi.api.client import KalshiClient
 
 from ..services import OrderService, PortfolioService, TradeCollectionController
 from ..services.order_helpers.dependencies_factory import OrderServiceDependenciesFactory
 
 if TYPE_CHECKING:
-    from src.common.redis_protocol.trade_store import TradeStore
+    from common.redis_protocol.trade_store import TradeStore
 
 logger = logging.getLogger(__name__)
 
@@ -53,7 +53,7 @@ class ClientInitializer:
     @staticmethod
     def load_config() -> Dict[str, Dict]:
         """Load PnL configuration from common module."""
-        module = importlib.import_module("src.common.kalshi_trading_client")
+        module = importlib.import_module("common.kalshi_trading_client")
         loader = getattr(module, "load_pnl_config")
         return loader()
 

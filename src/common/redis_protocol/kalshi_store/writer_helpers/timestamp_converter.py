@@ -3,7 +3,7 @@
 from datetime import datetime
 from typing import Optional
 
-from src.common.time_helpers.timestamp_parser import parse_timestamp
+from common.time_helpers.timestamp_parser import parse_timestamp
 
 
 def convert_string_timestamp(value: str) -> Optional[datetime]:

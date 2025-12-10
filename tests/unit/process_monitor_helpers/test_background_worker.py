@@ -5,7 +5,7 @@ import asyncio
 import psutil
 import pytest
 
-from src.common.process_monitor_helpers.background_worker import BackgroundScanWorker
+from common.process_monitor_helpers.background_worker import BackgroundScanWorker
 
 
 @pytest.mark.asyncio
@@ -41,7 +41,7 @@ async def test_run_scan_loop_logs_and_retries_on_errors(monkeypatch):
         sleep_calls.append(duration)
 
     monkeypatch.setattr(
-        "src.common.process_monitor_helpers.background_worker.asyncio.sleep", fake_sleep
+        "common.process_monitor_helpers.background_worker.asyncio.sleep", fake_sleep
     )
     worker = BackgroundScanWorker(0, perform_incremental_scan, shutdown_event)
 

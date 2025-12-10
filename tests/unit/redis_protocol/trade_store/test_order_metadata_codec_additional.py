@@ -2,8 +2,8 @@ from datetime import datetime
 
 import pytest
 
-from src.common.redis_protocol.trade_store.errors import OrderMetadataError
-from src.common.redis_protocol.trade_store.order_metadata_codec import OrderMetadataCodec
+from common.redis_protocol.trade_store.errors import OrderMetadataError
+from common.redis_protocol.trade_store.order_metadata_codec import OrderMetadataCodec
 
 
 def _fixed_time():

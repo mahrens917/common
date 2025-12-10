@@ -31,7 +31,7 @@ class ReportPrinterCoordinator:
 
     async def print_status_report(self, status_data: Dict[str, Any]):
         """Print comprehensive status report using printers."""
-        from src.common.time_utils import get_current_utc
+        from common.time_utils import get_current_utc
 
         current_time = get_current_utc().strftime("%Y-%m-%d %H:%M:%S")
         self._emit("=" * 60)

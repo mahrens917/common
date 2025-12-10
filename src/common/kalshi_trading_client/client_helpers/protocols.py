@@ -17,16 +17,16 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Any, Awaitable, Callable, Dict, List, Optional, Protocol, Tuple
 
 if TYPE_CHECKING:
-    from src.common.data_models.trading import (
+    from common.data_models.trading import (
         OrderRequest,
         OrderResponse,
         PortfolioBalance,
         PortfolioPosition,
     )
-    from src.common.order_execution import OrderPoller, TradeFinalizer
-    from src.common.trading import TradeStoreManager, WeatherStationResolver
-    from src.common.trading.notifier_adapter import TradeNotifierAdapter
-    from src.common.trading.polling_workflow import PollingOutcome
+    from common.order_execution import OrderPoller, TradeFinalizer
+    from common.trading import TradeStoreManager, WeatherStationResolver
+    from common.trading.notifier_adapter import TradeNotifierAdapter
+    from common.trading.polling_workflow import PollingOutcome
     from src.kalshi.api.client import KalshiClient
 
 

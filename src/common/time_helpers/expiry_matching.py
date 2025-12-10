@@ -3,7 +3,7 @@
 from datetime import datetime
 from typing import List, Optional, Union
 
-from src.common.exceptions import ValidationError
+from common.exceptions import ValidationError
 
 from .expiry_wrapper import DateTimeExpiry
 

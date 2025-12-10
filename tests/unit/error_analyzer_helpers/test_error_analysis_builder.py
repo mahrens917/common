@@ -4,8 +4,8 @@ from __future__ import annotations
 
 from unittest.mock import MagicMock, patch
 
-from src.common.error_analyzer_helpers.data_classes import ErrorCategory, ErrorSeverity
-from src.common.error_analyzer_helpers.error_analysis_builder import ErrorAnalysisBuilder
+from common.error_analyzer_helpers.data_classes import ErrorCategory, ErrorSeverity
+from common.error_analyzer_helpers.error_analysis_builder import ErrorAnalysisBuilder
 
 
 class TestErrorAnalysisBuilder:
@@ -58,7 +58,7 @@ class TestErrorAnalysisBuilder:
         context = {"host": "localhost"}
         custom_message = "Custom error message"
 
-        with patch("src.common.error_analyzer_helpers.error_analysis_builder.time") as mock_time:
+        with patch("common.error_analyzer_helpers.error_analysis_builder.time") as mock_time:
             mock_time.time.return_value = 1234567890.0
             result = builder.build_analysis(error, context, custom_message)
 

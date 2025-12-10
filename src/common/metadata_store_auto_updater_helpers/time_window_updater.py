@@ -3,8 +3,8 @@
 import asyncio
 import logging
 
-from src.common.connection_manager_helpers.shutdown_mixin import ShutdownRequestMixin
-from src.common.redis_protocol.typing import RedisClient
+from common.connection_manager_helpers.shutdown_mixin import ShutdownRequestMixin
+from common.redis_protocol.typing import RedisClient
 
 from .time_window_updater_helpers import ServiceUpdater
 

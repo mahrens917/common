@@ -5,7 +5,7 @@ Market data fetching for OptimizedMarketStore - slim coordinator.
 import logging
 from typing import TYPE_CHECKING, Dict, Optional
 
-from src.common.exceptions import DataError
+from common.exceptions import DataError
 
 from .market_data_fetcher_helpers import MarketKeyBuilder, PayloadConverter
 

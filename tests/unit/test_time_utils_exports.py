@@ -2,7 +2,7 @@
 
 import math
 
-from src.common import time_utils as time_utils_module
+from common import time_utils as time_utils_module
 
 
 def test_time_utils_exports_constants():

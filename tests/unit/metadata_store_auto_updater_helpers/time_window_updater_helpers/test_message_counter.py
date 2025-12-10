@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from src.common.metadata_store_auto_updater_helpers.time_window_updater_helpers.message_counter import (
+from common.metadata_store_auto_updater_helpers.time_window_updater_helpers.message_counter import (
     count_messages_in_windows,
 )
 

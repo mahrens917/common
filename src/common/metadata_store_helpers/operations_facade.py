@@ -3,7 +3,7 @@
 import logging
 from typing import List, Optional, Set
 
-from src.common.redis_protocol.typing import RedisClient
+from common.redis_protocol.typing import RedisClient
 
 from .history_manager import HistoryEntry, HistoryManager
 from .metadata_reader import MetadataReader, ServiceMetadata

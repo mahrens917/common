@@ -3,7 +3,7 @@ from pathlib import Path
 
 import pytest
 
-from src.common.config import ConfigurationError, get_data_dir
+from common.config import ConfigurationError, get_data_dir
 
 
 def _write_runtime_config(tmp_path: Path, payload: dict) -> Path:

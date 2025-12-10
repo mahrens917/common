@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from src.common.metadata_store_helpers.timestamp_parser import parse_history_timestamp
+from common.metadata_store_helpers.timestamp_parser import parse_history_timestamp
 
 
 class TestParseHistoryTimestamp:

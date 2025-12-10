@@ -2,7 +2,7 @@ from datetime import datetime, timedelta, timezone
 
 import pytest
 
-from src.common.data_models.trade_record import (
+from common.data_models.trade_record import (
     TradeRecord,
     TradeSide,
     get_trade_close_date,

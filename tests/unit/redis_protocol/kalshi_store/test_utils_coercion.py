@@ -7,8 +7,8 @@ from unittest.mock import MagicMock, Mock, patch
 
 import pytest
 
-from src.common.exceptions import DataError, ValidationError
-from src.common.redis_protocol.kalshi_store.utils_coercion import (
+from common.exceptions import DataError, ValidationError
+from common.redis_protocol.kalshi_store.utils_coercion import (
     _convert_numeric_field,
     _counter_value,
     _format_probability_value,
@@ -367,8 +367,8 @@ class TestNormaliseHash:
 class TestSyncTopOfBookFields:
     """Tests for _sync_top_of_book_fields."""
 
-    @patch("src.common.redis_protocol.kalshi_store.utils_coercion.extract_best_bid")
-    @patch("src.common.redis_protocol.kalshi_store.utils_coercion.extract_best_ask")
+    @patch("common.redis_protocol.kalshi_store.utils_coercion.extract_best_bid")
+    @patch("common.redis_protocol.kalshi_store.utils_coercion.extract_best_ask")
     def test_updates_scalar_fields(self, mock_extract_ask, mock_extract_bid):
         """Test that scalar fields are updated correctly."""
         mock_extract_bid.return_value = (95, _INT_100)
@@ -382,8 +382,8 @@ class TestSyncTopOfBookFields:
         assert snapshot["yes_ask"] == "98"
         assert snapshot["yes_ask_size"] == "50"
 
-    @patch("src.common.redis_protocol.kalshi_store.utils_coercion.extract_best_bid")
-    @patch("src.common.redis_protocol.kalshi_store.utils_coercion.extract_best_ask")
+    @patch("common.redis_protocol.kalshi_store.utils_coercion.extract_best_bid")
+    @patch("common.redis_protocol.kalshi_store.utils_coercion.extract_best_ask")
     def test_handles_none_values(self, mock_extract_ask, mock_extract_bid):
         """Test handling of None values."""
         mock_extract_bid.return_value = (None, None)
@@ -397,8 +397,8 @@ class TestSyncTopOfBookFields:
         assert snapshot["yes_ask"] == ""
         assert snapshot["yes_ask_size"] == ""
 
-    @patch("src.common.redis_protocol.kalshi_store.utils_coercion.extract_best_bid")
-    @patch("src.common.redis_protocol.kalshi_store.utils_coercion.extract_best_ask")
+    @patch("common.redis_protocol.kalshi_store.utils_coercion.extract_best_bid")
+    @patch("common.redis_protocol.kalshi_store.utils_coercion.extract_best_ask")
     def test_handles_missing_orderbook_data(self, mock_extract_ask, mock_extract_bid):
         """Test handling when orderbook data is missing."""
         mock_extract_bid.return_value = (50, _INT_10)
@@ -410,8 +410,8 @@ class TestSyncTopOfBookFields:
         mock_extract_bid.assert_called_once_with(None)
         mock_extract_ask.assert_called_once_with(None)
 
-    @patch("src.common.redis_protocol.kalshi_store.utils_coercion.extract_best_bid")
-    @patch("src.common.redis_protocol.kalshi_store.utils_coercion.extract_best_ask")
+    @patch("common.redis_protocol.kalshi_store.utils_coercion.extract_best_bid")
+    @patch("common.redis_protocol.kalshi_store.utils_coercion.extract_best_ask")
     def test_handles_mixed_none_values(self, mock_extract_ask, mock_extract_bid):
         """Test handling of mixed None and numeric values."""
         mock_extract_bid.return_value = (95, None)
@@ -478,7 +478,7 @@ class TestNormalizeTimestamp:
     """Tests for _normalize_timestamp."""
 
     @patch(
-        "src.common.redis_protocol.kalshi_store.metadata_helpers.timestamp_normalization.normalize_timestamp"
+        "common.redis_protocol.kalshi_store.metadata_helpers.timestamp_normalization.normalize_timestamp"
     )
     def test_delegates_to_canonical_implementation(self, mock_normalize):
         """Test delegation to canonical normalize_timestamp."""
@@ -492,7 +492,7 @@ class TestNormalizeTimestamp:
         mock_normalize.assert_called_once_with(timestamp)
 
     @patch(
-        "src.common.redis_protocol.kalshi_store.metadata_helpers.timestamp_normalization.normalize_timestamp"
+        "common.redis_protocol.kalshi_store.metadata_helpers.timestamp_normalization.normalize_timestamp"
     )
     def test_handles_none_value(self, mock_normalize):
         """Test handling of None value."""
@@ -506,7 +506,7 @@ class TestNormalizeTimestamp:
 class TestSelectTimestampValue:
     """Tests for _select_timestamp_value."""
 
-    @patch("src.common.redis_protocol.kalshi_store.metadata.KalshiMetadataAdapter")
+    @patch("common.redis_protocol.kalshi_store.metadata.KalshiMetadataAdapter")
     def test_delegates_to_metadata_adapter(self, mock_adapter_class):
         """Test delegation to KalshiMetadataAdapter."""
         market_data = {"timestamp1": None, "timestamp2": 1700000000}
@@ -523,10 +523,10 @@ class TestSelectTimestampValue:
 class TestDefaultWeatherStationLoader:
     """Tests for _default_weather_station_loader."""
 
-    @patch("src.common.redis_protocol.kalshi_store.utils_coercion.load_weather_station_mapping")
+    @patch("common.redis_protocol.kalshi_store.utils_coercion.load_weather_station_mapping")
     def test_loads_weather_station_mapping(self, mock_load):
         """Test successful loading of weather station mapping."""
-        from src.common.redis_protocol.kalshi_store.utils_coercion import (
+        from common.redis_protocol.kalshi_store.utils_coercion import (
             _default_weather_station_loader,
         )
 
@@ -538,11 +538,11 @@ class TestDefaultWeatherStationLoader:
         assert result == expected_mapping
         mock_load.assert_called_once()
 
-    @patch("src.common.redis_protocol.kalshi_store.utils_coercion.load_weather_station_mapping")
+    @patch("common.redis_protocol.kalshi_store.utils_coercion.load_weather_station_mapping")
     def test_raises_weather_config_error(self, mock_load):
         """Test handling of WeatherConfigError."""
-        from src.common.config.weather import WeatherConfigError
-        from src.common.redis_protocol.kalshi_store.utils_coercion import (
+        from common.config.weather import WeatherConfigError
+        from common.redis_protocol.kalshi_store.utils_coercion import (
             _default_weather_station_loader,
         )
 
@@ -551,11 +551,11 @@ class TestDefaultWeatherStationLoader:
         with pytest.raises(WeatherConfigError):
             _default_weather_station_loader()
 
-    @patch("src.common.redis_protocol.kalshi_store.utils_coercion.load_weather_station_mapping")
+    @patch("common.redis_protocol.kalshi_store.utils_coercion.load_weather_station_mapping")
     def test_wraps_unexpected_errors(self, mock_load):
         """Test wrapping of unexpected errors."""
-        from src.common.config.weather import WeatherConfigError
-        from src.common.redis_protocol.kalshi_store.utils_coercion import (
+        from common.config.weather import WeatherConfigError
+        from common.redis_protocol.kalshi_store.utils_coercion import (
             _default_weather_station_loader,
         )
 

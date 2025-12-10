@@ -7,8 +7,8 @@ from unittest.mock import Mock, patch
 import orjson
 import pytest
 
-from src.common.exceptions import DataError, ValidationError
-from src.common.redis_protocol.messages import (
+from common.exceptions import DataError, ValidationError
+from common.redis_protocol.messages import (
     IndexMetadata,
     InstrumentMetadata,
     MarketData,

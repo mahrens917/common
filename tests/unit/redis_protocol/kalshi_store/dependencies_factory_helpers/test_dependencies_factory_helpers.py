@@ -4,9 +4,9 @@ from __future__ import annotations
 
 from unittest.mock import MagicMock
 
-from src.common.redis_protocol.kalshi_store import attribute_resolver as attribute_resolver_module
-from src.common.redis_protocol.kalshi_store import dependencies_factory_helpers as helpers
-from src.common.redis_protocol.kalshi_store.dependencies_factory_helpers import (
+from common.redis_protocol.kalshi_store import attribute_resolver as attribute_resolver_module
+from common.redis_protocol.kalshi_store import dependencies_factory_helpers as helpers
+from common.redis_protocol.kalshi_store.dependencies_factory_helpers import (
     create_attribute_resolver,
     create_core_components,
     create_delegators,

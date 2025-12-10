@@ -2,8 +2,8 @@
 
 from typing import Dict
 
-from src.common.memory_monitor_helpers.snapshot_collector import MemorySnapshot
-from src.common.memory_monitor_helpers.trend_analyzer_helpers.alert_builder import (
+from common.memory_monitor_helpers.snapshot_collector import MemorySnapshot
+from common.memory_monitor_helpers.trend_analyzer_helpers.alert_builder import (
     AlertBuilder,
 )
 

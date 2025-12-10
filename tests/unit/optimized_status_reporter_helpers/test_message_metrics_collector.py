@@ -7,12 +7,12 @@ from unittest.mock import AsyncMock, Mock, patch
 import pytest
 from redis.exceptions import RedisError
 
-from src.common.exceptions import DataError
-from src.common.optimized_status_reporter_helpers.message_metrics_collector import (
+from common.exceptions import DataError
+from common.optimized_status_reporter_helpers.message_metrics_collector import (
     STATUS_REPORT_ERRORS,
     MessageMetricsCollector,
 )
-from src.common.redis_utils import RedisOperationError
+from common.redis_utils import RedisOperationError
 
 
 class MockMetadata(NamedTuple):

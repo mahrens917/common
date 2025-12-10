@@ -3,7 +3,7 @@ from pathlib import Path
 
 import pytest
 
-from src.common import kalshi_fees
+from common import kalshi_fees
 
 _TEST_COUNT_3 = 3
 

@@ -1,7 +1,7 @@
 import unittest
 from unittest.mock import AsyncMock, Mock
 
-from src.common.data_models.modelstate_helpers.redis_operations import (
+from common.data_models.modelstate_helpers.redis_operations import (
     ModelProbabilityCalculationError,
     ModelProbabilityDataUnavailable,
     extract_probability_from_key,

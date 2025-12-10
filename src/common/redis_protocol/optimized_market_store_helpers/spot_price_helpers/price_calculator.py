@@ -3,7 +3,7 @@
 import logging
 from typing import Any, Dict
 
-from src.common.exceptions import DataError, ValidationError
+from common.exceptions import DataError, ValidationError
 
 logger = logging.getLogger(__name__)
 

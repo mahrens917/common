@@ -7,7 +7,7 @@ from typing import List
 import pytest
 import redis.exceptions
 
-from src.common.redis_protocol.persistence_manager_helpers.persistence_coordinator import (
+from common.redis_protocol.persistence_manager_helpers.persistence_coordinator import (
     PersistenceCoordinator,
 )
 

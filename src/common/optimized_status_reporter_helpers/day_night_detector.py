@@ -9,7 +9,7 @@ import logging
 import os
 from typing import Dict
 
-from src.common.time_utils import is_between_dawn_and_dusk
+from common.time_utils import is_between_dawn_and_dusk
 
 logger = logging.getLogger(__name__)
 

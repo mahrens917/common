@@ -1,11 +1,11 @@
 import pytest
 
-from src.common.data_models.trading import OrderAction, OrderSide, OrderStatus, OrderType
-from src.common.order_response_parser import (
+from common.data_models.trading import OrderAction, OrderSide, OrderStatus, OrderType
+from common.order_response_parser import (
     parse_kalshi_order_response,
     validate_order_response_schema,
 )
-from src.common.order_response_parser_exceptions import (
+from common.order_response_parser_exceptions import (
     EmptyOrderDataError,
     EmptyRejectionReasonError,
     EmptyResponseError,

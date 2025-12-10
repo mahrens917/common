@@ -4,9 +4,9 @@ from unittest.mock import Mock, patch
 
 import pytest
 
-from src.common.health.log_activity_monitor import LogActivity, LogActivityStatus
-from src.common.monitoring import ProcessStatus
-from src.common.optimized_status_reporter_helpers.service_printer import (
+from common.health.log_activity_monitor import LogActivity, LogActivityStatus
+from common.monitoring import ProcessStatus
+from common.optimized_status_reporter_helpers.service_printer import (
     ServicePrinter,
 )
 
@@ -45,11 +45,11 @@ class TestServicePrinter:
         return pm
 
     @patch(
-        "src.common.optimized_status_reporter_helpers.service_printer.get_status_emoji",
+        "common.optimized_status_reporter_helpers.service_printer.get_status_emoji",
         return_value="✅",
     )
     @patch(
-        "src.common.optimized_status_reporter_helpers.service_printer.resolve_service_status",
+        "common.optimized_status_reporter_helpers.service_printer.resolve_service_status",
         return_value="Running",
     )
     def test_print_managed_services(
@@ -83,7 +83,7 @@ class TestServicePrinter:
         printer._emit.assert_not_called()
 
     @patch(
-        "src.common.optimized_status_reporter_helpers.service_printer.get_status_emoji",
+        "common.optimized_status_reporter_helpers.service_printer.get_status_emoji",
         return_value="✅",
     )
     def test_print_monitor_service_no_monitor_info(
@@ -95,7 +95,7 @@ class TestServicePrinter:
         printer._emit.assert_not_called()
 
     @patch(
-        "src.common.optimized_status_reporter_helpers.service_printer.get_status_emoji",
+        "common.optimized_status_reporter_helpers.service_printer.get_status_emoji",
         return_value="✅",
     )
     def test_print_monitor_service_running(
@@ -115,7 +115,7 @@ class TestServicePrinter:
         )
 
     @patch(
-        "src.common.optimized_status_reporter_helpers.service_printer.get_status_emoji",
+        "common.optimized_status_reporter_helpers.service_printer.get_status_emoji",
         return_value="❌",
     )
     def test_print_monitor_service_stopped(
@@ -130,7 +130,7 @@ class TestServicePrinter:
         printer._emit.assert_called_once_with("  ❌ monitor - Stopped")
 
     @patch(
-        "src.common.optimized_status_reporter_helpers.service_printer.get_status_emoji",
+        "common.optimized_status_reporter_helpers.service_printer.get_status_emoji",
         return_value="❓",
     )
     def test_print_monitor_service_unknown_status(
@@ -149,11 +149,11 @@ class TestServicePrinter:
         mock_dependencies["resource_tracker"].get_process_resource_usage.return_value = " RAM: 2.0%"
 
         with patch(
-            "src.common.optimized_status_reporter_helpers.service_printer.get_status_emoji",
+            "common.optimized_status_reporter_helpers.service_printer.get_status_emoji",
             return_value="🟢",
         ):
             with patch(
-                "src.common.optimized_status_reporter_helpers.service_printer.resolve_service_status",
+                "common.optimized_status_reporter_helpers.service_printer.resolve_service_status",
                 return_value="Service Running",
             ):
                 line = printer._build_service_status_line(
@@ -167,11 +167,11 @@ class TestServicePrinter:
         mock_dependencies["resource_tracker"].get_process_resource_usage.return_value = ""
 
         with patch(
-            "src.common.optimized_status_reporter_helpers.service_printer.get_status_emoji",
+            "common.optimized_status_reporter_helpers.service_printer.get_status_emoji",
             return_value="🟢",
         ):
             with patch(
-                "src.common.optimized_status_reporter_helpers.service_printer.resolve_service_status",
+                "common.optimized_status_reporter_helpers.service_printer.resolve_service_status",
                 return_value="Service Running",
             ):
                 line = printer._build_service_status_line(

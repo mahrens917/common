@@ -1,6 +1,6 @@
 import unittest
 
-from src.common.report_generator_helpers.pnl_emoji_selector import PnLEmojiSelector
+from common.report_generator_helpers.pnl_emoji_selector import PnLEmojiSelector
 
 
 class TestPnLEmojiSelector(unittest.TestCase):

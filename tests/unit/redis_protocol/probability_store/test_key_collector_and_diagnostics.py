@@ -3,14 +3,14 @@ from types import SimpleNamespace
 
 import pytest
 
-from src.common.redis_protocol.probability_store.diagnostics import (
+from common.redis_protocol.probability_store.diagnostics import (
     log_event_ticker_summary,
     log_event_type_summary,
     log_failure_context,
     log_human_readable_summary,
     log_probability_diagnostics,
 )
-from src.common.redis_protocol.probability_store.probabilityingestion_helpers.key_collector import (
+from common.redis_protocol.probability_store.probabilityingestion_helpers.key_collector import (
     KeyCollector,
 )
 

@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import pytest
 
-from src.common.data_models.micro_price_helpers.calculation_validator import (
+from common.data_models.micro_price_helpers.calculation_validator import (
     CalculationValidator,
 )
 

@@ -6,25 +6,25 @@ from unittest.mock import AsyncMock, MagicMock
 
 import pytest
 
-from src.common.redis_protocol.kalshi_store.reader import (
+from common.redis_protocol.kalshi_store.reader import (
     KalshiMarketReader,
     MarketQueryHandler,
     MarketStatusChecker,
     SnapshotRetriever,
 )
-from src.common.redis_protocol.kalshi_store.reader_helpers import (
+from common.redis_protocol.kalshi_store.reader_helpers import (
     dependencies_factory,
 )
-from src.common.redis_protocol.kalshi_store.reader_helpers.connection_wrapper import (
+from common.redis_protocol.kalshi_store.reader_helpers.connection_wrapper import (
     ReaderConnectionWrapper,
 )
-from src.common.redis_protocol.kalshi_store.reader_helpers.dependencies_factory import (
+from common.redis_protocol.kalshi_store.reader_helpers.dependencies_factory import (
     KalshiMarketReaderDependencies,
 )
-from src.common.redis_protocol.kalshi_store.reader_helpers.snapshotreader_helpers import (
+from common.redis_protocol.kalshi_store.reader_helpers.snapshotreader_helpers import (
     KalshiStoreError,
 )
-from src.common.redis_schema import build_kalshi_market_key
+from common.redis_schema import build_kalshi_market_key
 
 LOGGER = logging.getLogger(__name__)
 

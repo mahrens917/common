@@ -5,7 +5,7 @@ from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 
-from src.common.redis_protocol.persistence_manager_helpers.connection_manager import (
+from common.redis_protocol.persistence_manager_helpers.connection_manager import (
     ConnectionManager,
 )
 
@@ -19,11 +19,11 @@ async def test_get_redis_initializes_and_pings():
 
     with (
         patch(
-            "src.common.redis_protocol.persistence_manager_helpers.connection_manager.get_redis_pool",
+            "common.redis_protocol.persistence_manager_helpers.connection_manager.get_redis_pool",
             AsyncMock(return_value=fake_pool),
         ),
         patch(
-            "src.common.redis_protocol.persistence_manager_helpers.connection_manager.Redis",
+            "common.redis_protocol.persistence_manager_helpers.connection_manager.Redis",
             MagicMock(return_value=fake_redis),
         ),
     ):
@@ -63,7 +63,7 @@ async def test_ensure_connection_handles_redis_errors():
     cm = ConnectionManager()
 
     with patch(
-        "src.common.redis_protocol.persistence_manager_helpers.connection_manager.get_redis_pool",
+        "common.redis_protocol.persistence_manager_helpers.connection_manager.get_redis_pool",
         AsyncMock(side_effect=RuntimeError("boom")),
     ):
         ok = await cm.ensure_connection()

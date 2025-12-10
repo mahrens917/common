@@ -6,7 +6,7 @@ from __future__ import annotations
 import re
 from dataclasses import dataclass
 
-from src.common.exceptions import ValidationError
+from common.exceptions import ValidationError
 
 from .namespaces import KeyBuilder, RedisNamespace, sanitize_segment
 from .validators import register_namespace

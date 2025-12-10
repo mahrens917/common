@@ -4,8 +4,8 @@ from unittest.mock import AsyncMock
 
 import pytest
 
-from src.common.data_models.trade_record import TradeRecord, TradeSide
-from src.common.pnl_calculator import PnLCalculator
+from common.data_models.trade_record import TradeRecord, TradeSide
+from common.pnl_calculator import PnLCalculator
 
 _CONST_24 = 24
 _CONST_250 = 250
@@ -16,7 +16,7 @@ _TEST_ID_123 = 123
 
 @pytest.fixture(autouse=True)
 def _patch_timezone(monkeypatch):
-    monkeypatch.setattr("src.common.pnl_calculator.load_configured_timezone", lambda: "UTC")
+    monkeypatch.setattr("common.pnl_calculator.load_configured_timezone", lambda: "UTC")
 
 
 def _build_trade(
@@ -118,7 +118,7 @@ async def test_calculate_unrealized_pnl_sums_current_pnl():
 
 
 def test_standardize_station_name_handles_mappings():
-    from src.common.pnl_calculator_helpers.station_normalizer import StationNameNormalizer
+    from common.pnl_calculator_helpers.station_normalizer import StationNameNormalizer
 
     normalizer = StationNameNormalizer()
 
@@ -132,7 +132,7 @@ def test_standardize_station_name_handles_mappings():
 
 @pytest.mark.asyncio
 async def test_station_breakdown_consolidates_and_counts():
-    from src.common.pnl_calculator_helpers.breakdown_calculator import BreakdownCalculator
+    from common.pnl_calculator_helpers.breakdown_calculator import BreakdownCalculator
 
     trades = [
         _build_trade(station="DEN", pnl_offset=5),
@@ -152,7 +152,7 @@ async def test_station_breakdown_consolidates_and_counts():
 
 @pytest.mark.asyncio
 async def test_rule_breakdown_groups_by_rule():
-    from src.common.pnl_calculator_helpers.breakdown_calculator import BreakdownCalculator
+    from common.pnl_calculator_helpers.breakdown_calculator import BreakdownCalculator
 
     trades = [
         _build_trade(rule="rule_3", pnl_offset=5),
@@ -204,7 +204,7 @@ async def test_store_unrealized_pnl_snapshot_persists(monkeypatch):
 
     fixed_now = datetime(2024, 1, 5, tzinfo=timezone.utc)
     monkeypatch.setattr(
-        "src.common.pnl_calculator_helpers.snapshot_manager.get_current_utc", lambda: fixed_now
+        "common.pnl_calculator_helpers.snapshot_manager.get_current_utc", lambda: fixed_now
     )
 
     await calculator.store_unrealized_pnl_snapshot(date(2024, 1, 4), 250)
@@ -243,7 +243,7 @@ async def test_update_daily_unrealized_pnl_persists(monkeypatch):
     calculator = PnLCalculator(store)
 
     monkeypatch.setattr(
-        "src.common.pnl_calculator.PnLCalculator.store_unrealized_pnl_snapshot", AsyncMock()
+        "common.pnl_calculator.PnLCalculator.store_unrealized_pnl_snapshot", AsyncMock()
     )
 
     result = await calculator.update_daily_unrealized_pnl(date(2024, 1, 1))
@@ -323,7 +323,7 @@ async def test_get_current_day_unrealized_pnl(monkeypatch):
     calculator = PnLCalculator(store)
 
     monkeypatch.setattr(
-        "src.common.pnl_calculator_helpers.daily_operations.get_timezone_aware_date",
+        "common.pnl_calculator_helpers.daily_operations.get_timezone_aware_date",
         lambda tz: today,
     )
 
@@ -338,7 +338,7 @@ async def test_get_current_day_unrealized_pnl_returns_zero_on_error(monkeypatch)
     calculator = PnLCalculator(store)
 
     monkeypatch.setattr(
-        "src.common.pnl_calculator_helpers.daily_operations.get_timezone_aware_date",
+        "common.pnl_calculator_helpers.daily_operations.get_timezone_aware_date",
         lambda tz: date(2024, 1, 6),
     )
 
@@ -349,11 +349,11 @@ async def test_get_current_day_unrealized_pnl_returns_zero_on_error(monkeypatch)
 @pytest.mark.asyncio
 async def test_generate_aggregated_report_by_close_date_empty(monkeypatch):
     monkeypatch.setattr(
-        "src.common.pnl_calculator_helpers.reportgenerator_helpers.empty_report_factory.get_timezone_aware_date",
+        "common.pnl_calculator_helpers.reportgenerator_helpers.empty_report_factory.get_timezone_aware_date",
         lambda tz: date(2024, 1, 7),
     )
     monkeypatch.setattr(
-        "src.common.pnl_calculator_helpers.reportgenerator_helpers.close_date_report_builder.get_timezone_aware_date",
+        "common.pnl_calculator_helpers.reportgenerator_helpers.close_date_report_builder.get_timezone_aware_date",
         lambda tz: date(2024, 1, 7),
     )
 
@@ -381,7 +381,7 @@ async def test_generate_aggregated_report_by_close_date(monkeypatch):
     calculator = PnLCalculator(store)
 
     monkeypatch.setattr(
-        "src.common.pnl_calculator_helpers.reportgenerator_helpers.close_date_report_builder.get_timezone_aware_date",
+        "common.pnl_calculator_helpers.reportgenerator_helpers.close_date_report_builder.get_timezone_aware_date",
         lambda tz: date(2024, 1, 9),
     )
     report = await calculator.generate_aggregated_report_by_close_date(trades)
@@ -525,7 +525,7 @@ async def test_get_yesterday_unrealized_pnl(monkeypatch):
     calculator = PnLCalculator(store)
 
     monkeypatch.setattr(
-        "src.common.pnl_calculator_helpers.daily_operations.get_timezone_aware_date",
+        "common.pnl_calculator_helpers.daily_operations.get_timezone_aware_date",
         lambda tz: yesterday + timedelta(days=1),
     )
 
@@ -540,7 +540,7 @@ async def test_get_yesterday_unrealized_pnl_returns_zero_on_error(monkeypatch):
     calculator = PnLCalculator(store)
 
     monkeypatch.setattr(
-        "src.common.pnl_calculator_helpers.daily_operations.get_timezone_aware_date",
+        "common.pnl_calculator_helpers.daily_operations.get_timezone_aware_date",
         lambda tz: date(2024, 1, 10),
     )
 
@@ -601,7 +601,7 @@ async def test_get_today_unified_pnl(monkeypatch):
 
     calculator.unified_calc.get_unified_pnl_for_date = fake_get  # type: ignore[method-assign]
     monkeypatch.setattr(
-        "src.common.pnl_calculator_helpers.unified_pnl_calculator.get_timezone_aware_date",
+        "common.pnl_calculator_helpers.unified_pnl_calculator.get_timezone_aware_date",
         lambda tz: date(2024, 1, 14),
     )
 
@@ -623,7 +623,7 @@ async def test_get_yesterday_unified_pnl(monkeypatch):
 
     calculator.unified_calc.get_unified_pnl_for_date = fake_get  # type: ignore[method-assign]
     monkeypatch.setattr(
-        "src.common.pnl_calculator_helpers.unified_pnl_calculator.get_timezone_aware_date",
+        "common.pnl_calculator_helpers.unified_pnl_calculator.get_timezone_aware_date",
         lambda tz: date(2024, 1, 15),
     )
 
@@ -639,7 +639,7 @@ async def test_update_daily_unrealized_pnl_handles_no_trades(monkeypatch):
     calculator = PnLCalculator(store)
 
     monkeypatch.setattr(
-        "src.common.pnl_calculator.PnLCalculator.store_unrealized_pnl_snapshot", AsyncMock()
+        "common.pnl_calculator.PnLCalculator.store_unrealized_pnl_snapshot", AsyncMock()
     )
 
     value = await calculator.update_daily_unrealized_pnl(date(2024, 1, 16))

@@ -1,12 +1,12 @@
 import importlib
 
 MODULES = [
-    "src.common.redis_protocol.kalshi_store.protocols",
-    "src.common.redis_protocol.kalshi_store.protocols_connections",
-    "src.common.redis_protocol.kalshi_store.protocols_subscriptions",
-    "src.common.redis_protocol.kalshi_store.subscription_factory",
-    "src.common.redis_protocol.parsing.kalshi_helpers",
-    "src.common.redis_protocol.probability_store.keys_helpers",
+    "common.redis_protocol.kalshi_store.protocols",
+    "common.redis_protocol.kalshi_store.protocols_connections",
+    "common.redis_protocol.kalshi_store.protocols_subscriptions",
+    "common.redis_protocol.kalshi_store.subscription_factory",
+    "common.redis_protocol.parsing.kalshi_helpers",
+    "common.redis_protocol.probability_store.keys_helpers",
 ]
 
 

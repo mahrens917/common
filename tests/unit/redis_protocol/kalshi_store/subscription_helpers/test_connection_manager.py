@@ -2,7 +2,7 @@ import logging
 
 import pytest
 
-from src.common.redis_protocol.kalshi_store.subscription_helpers.connection_manager import (
+from common.redis_protocol.kalshi_store.subscription_helpers.connection_manager import (
     ConnectionManager,
 )
 

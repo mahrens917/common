@@ -1,8 +1,8 @@
 import unittest
 from unittest.mock import AsyncMock, MagicMock, Mock, patch
 
-from src.common.health.service_health_checker_helpers.redis_status_checker import check_redis_status
-from src.common.health.service_health_types import ServiceHealth, ServiceHealthInfo
+from common.health.service_health_checker_helpers.redis_status_checker import check_redis_status
+from common.health.service_health_types import ServiceHealth, ServiceHealthInfo
 
 
 class TestRedisStatusChecker(unittest.IsolatedAsyncioTestCase):
@@ -15,7 +15,7 @@ class TestRedisStatusChecker(unittest.IsolatedAsyncioTestCase):
         # We need to mock evaluate_status_health since it contains logic we want to bypass or test integrally
         # Here I'll just let it run if it's simple, but better to mock it if we only test redis fetching logic
         with patch(
-            "src.common.health.service_health_checker_helpers.redis_status_checker.evaluate_status_health"
+            "common.health.service_health_checker_helpers.redis_status_checker.evaluate_status_health"
         ) as mock_eval:
             mock_eval.return_value = ServiceHealthInfo(health=ServiceHealth.HEALTHY)
 

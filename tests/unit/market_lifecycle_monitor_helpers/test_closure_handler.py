@@ -2,9 +2,9 @@
 
 import pytest
 
-from src.common.market_lifecycle_monitor_helpers.close_detector import CloseDetector
-from src.common.market_lifecycle_monitor_helpers.closure_handler import ClosureHandler
-from src.common.market_lifecycle_monitor_helpers.state_tracker import MarketState
+from common.market_lifecycle_monitor_helpers.close_detector import CloseDetector
+from common.market_lifecycle_monitor_helpers.closure_handler import ClosureHandler
+from common.market_lifecycle_monitor_helpers.state_tracker import MarketState
 
 
 class _StubCloseDetector(CloseDetector):

@@ -2,7 +2,7 @@ from unittest.mock import AsyncMock
 
 import pytest
 
-from src.common import redis_utils
+from common import redis_utils
 
 
 @pytest.mark.asyncio
@@ -18,7 +18,7 @@ async def test_get_redis_connection_uses_pool(monkeypatch):
         return fresh_client
 
     monkeypatch.setattr(
-        "src.common.redis_protocol.connection_pool_core.get_redis_pool", fake_get_pool
+        "common.redis_protocol.connection_pool_core.get_redis_pool", fake_get_pool
     )
     monkeypatch.setattr(redis_utils.redis.asyncio, "Redis", fake_async_redis)
 
@@ -33,7 +33,7 @@ async def test_get_redis_connection_raises_on_pool_error(monkeypatch):
         raise RuntimeError("pool down")
 
     monkeypatch.setattr(
-        "src.common.redis_protocol.connection_pool_core.get_redis_pool", fake_get_pool
+        "common.redis_protocol.connection_pool_core.get_redis_pool", fake_get_pool
     )
 
     with pytest.raises(ConnectionError) as excinfo:

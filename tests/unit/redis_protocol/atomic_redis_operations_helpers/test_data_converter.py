@@ -2,7 +2,7 @@ from unittest.mock import Mock
 
 import pytest
 
-from src.common.redis_protocol.atomic_redis_operations_helpers.data_converter import (
+from common.redis_protocol.atomic_redis_operations_helpers.data_converter import (
     DataConverter,
     RedisDataValidationError,
 )

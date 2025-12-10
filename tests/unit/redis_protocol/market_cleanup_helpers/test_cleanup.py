@@ -7,7 +7,7 @@ from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 
-from src.common.redis_protocol.market_cleanup_helpers.cleanup import (
+from common.redis_protocol.market_cleanup_helpers.cleanup import (
     MIN_DERIBIT_KEY_PARTS,
     ExpiredMarketCleaner,
 )
@@ -131,7 +131,7 @@ class TestCleanupKalshiMarkets:
         cleaner = ExpiredMarketCleaner(mock_redis, grace_period_days=1)
 
         with patch(
-            "src.common.redis_protocol.market_cleanup_helpers.cleanup.logger"
+            "common.redis_protocol.market_cleanup_helpers.cleanup.logger"
         ) as mock_logger:
             await cleaner.cleanup_kalshi_markets()
 
@@ -191,7 +191,7 @@ class TestProcessKalshiMarketKey:
 
         cleaner = ExpiredMarketCleaner(mock_redis, grace_period_days=1)
 
-        with patch("src.common.redis_protocol.market_cleanup_helpers.cleanup.logger"):
+        with patch("common.redis_protocol.market_cleanup_helpers.cleanup.logger"):
             result = await cleaner._process_kalshi_market_key(b"markets:kalshi:test:TICKER1")
 
         assert result is True
@@ -240,7 +240,7 @@ class TestCleanupDeribitOptions:
 
         cleaner = ExpiredMarketCleaner(mock_redis, grace_period_days=1)
 
-        with patch("src.common.redis_protocol.market_cleanup_helpers.cleanup.logger"):
+        with patch("common.redis_protocol.market_cleanup_helpers.cleanup.logger"):
             result = await cleaner.cleanup_deribit_options()
 
         assert result == 1
@@ -274,7 +274,7 @@ class TestCleanupDeribitOptions:
 
         cleaner = ExpiredMarketCleaner(mock_redis, grace_period_days=1)
 
-        with patch("src.common.redis_protocol.market_cleanup_helpers.cleanup.logger"):
+        with patch("common.redis_protocol.market_cleanup_helpers.cleanup.logger"):
             result = await cleaner.cleanup_deribit_options()
 
         assert result == 1
@@ -291,7 +291,7 @@ class TestCleanupDeribitOptions:
         cleaner = ExpiredMarketCleaner(mock_redis, grace_period_days=1)
 
         with patch(
-            "src.common.redis_protocol.market_cleanup_helpers.cleanup.logger"
+            "common.redis_protocol.market_cleanup_helpers.cleanup.logger"
         ) as mock_logger:
             await cleaner.cleanup_deribit_options()
 
@@ -316,7 +316,7 @@ class TestCleanupDeribitOptions:
 
         cleaner = ExpiredMarketCleaner(mock_redis, grace_period_days=1)
 
-        with patch("src.common.redis_protocol.market_cleanup_helpers.cleanup.logger"):
+        with patch("common.redis_protocol.market_cleanup_helpers.cleanup.logger"):
             result = await cleaner.cleanup_deribit_options()
 
         assert result == 2

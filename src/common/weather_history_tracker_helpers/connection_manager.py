@@ -4,8 +4,8 @@ from __future__ import annotations
 
 from typing import Awaitable, Callable, Optional
 
-from src.common.redis_connection_manager import RedisConnectionManager
-from src.common.redis_protocol.typing import RedisClient
+from common.redis_connection_manager import RedisConnectionManager
+from common.redis_protocol.typing import RedisClient
 
 
 class WeatherHistoryConnectionManager(RedisConnectionManager):

@@ -2,7 +2,7 @@ import importlib
 
 import pytest
 
-from src.common.redis_schema import validators
+from common.redis_schema import validators
 
 
 @pytest.fixture(autouse=True)

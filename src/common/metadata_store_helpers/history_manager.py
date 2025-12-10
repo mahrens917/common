@@ -8,9 +8,9 @@ from typing import Any, Dict, List, Optional, TypedDict
 
 from redis.exceptions import RedisError
 
-from src.common.redis_protocol.config import HISTORY_KEY_PREFIX
-from src.common.redis_protocol.typing import RedisClient, ensure_awaitable
-from src.common.redis_utils import RedisOperationError
+from common.redis_protocol.config import HISTORY_KEY_PREFIX
+from common.redis_protocol.typing import RedisClient, ensure_awaitable
+from common.redis_utils import RedisOperationError
 
 logger = logging.getLogger(__name__)
 

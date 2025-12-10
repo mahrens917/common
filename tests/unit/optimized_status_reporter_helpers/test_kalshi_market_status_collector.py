@@ -5,7 +5,7 @@ from unittest.mock import AsyncMock, MagicMock
 
 import pytest
 
-from src.common.optimized_status_reporter_helpers.kalshi_market_status_collector import (
+from common.optimized_status_reporter_helpers.kalshi_market_status_collector import (
     KalshiMarketStatusCollector,
 )
 

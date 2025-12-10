@@ -10,11 +10,11 @@ from unittest.mock import AsyncMock, Mock
 import orjson
 import pytest
 
-import src.common.redis_protocol.kalshi_store as kalshi_store_module
-import src.common.redis_protocol.market_normalization as normalization_module
-from src.common.redis_protocol.kalshi_store import KalshiStore, KalshiStoreError
-from src.common.redis_protocol.kalshi_store.store_initializer import initialize_kalshi_store
-from src.common.redis_protocol.market_normalization import (
+import common.redis_protocol.kalshi_store as kalshi_store_module
+import common.redis_protocol.market_normalization as normalization_module
+from common.redis_protocol.kalshi_store import KalshiStore, KalshiStoreError
+from common.redis_protocol.kalshi_store.store_initializer import initialize_kalshi_store
+from common.redis_protocol.market_normalization import (
     convert_numeric_field,
     derive_expiry_iso,
     derive_strike_fields,
@@ -26,7 +26,7 @@ from src.common.redis_protocol.market_normalization import (
     select_timestamp_value,
     sync_top_of_book_fields,
 )
-from src.common.redis_protocol.market_normalization_core import ProbabilityValueError
+from common.redis_protocol.market_normalization_core import ProbabilityValueError
 
 _CONST_2025 = 2025
 _TEST_COUNT_10 = 10
@@ -44,13 +44,13 @@ _VAL_1_25 = 1.25
 _VAL_30_0 = 30.0
 _VAL_5_0 = 5.0
 
-from src.common.redis_protocol.retry import (
+from common.redis_protocol.retry import (
     RedisFatalError,
     RedisRetryContext,
     RedisRetryError,
 )
-from src.common.redis_protocol.weather_station_resolver import WeatherStationResolver
-from src.common.redis_schema import build_kalshi_market_key
+from common.redis_protocol.weather_station_resolver import WeatherStationResolver
+from common.redis_schema import build_kalshi_market_key
 
 
 @pytest.fixture
@@ -480,7 +480,7 @@ async def test_ensure_connection_creates_new_client(monkeypatch, connection_stor
         return DummyRedis()
 
     # Monkeypatch the canonical get_redis_client from connection_pool_core
-    import src.common.redis_protocol.connection_pool_core as pool_core
+    import common.redis_protocol.connection_pool_core as pool_core
 
     monkeypatch.setattr(pool_core, "get_redis_client", fake_get_redis_client)
 
@@ -505,7 +505,7 @@ async def test_ensure_connection_failure(monkeypatch, connection_store):
         return FailingRedis()
 
     # Monkeypatch the canonical get_redis_client from connection_pool_core
-    import src.common.redis_protocol.connection_pool_core as pool_core
+    import common.redis_protocol.connection_pool_core as pool_core
 
     monkeypatch.setattr(pool_core, "get_redis_client", fake_get_redis_client)
 
@@ -1014,7 +1014,7 @@ async def test_store_market_metadata_persists_fields(monkeypatch, store: KalshiS
         return {"status": "open", "ticker": market_ticker}
 
     # Patch validation and build functions in the market_metadata_builder module
-    import src.common.redis_protocol.market_metadata_builder as metadata_builder_module
+    import common.redis_protocol.market_metadata_builder as metadata_builder_module
 
     monkeypatch.setattr(metadata_builder_module, "_extract_time_fields", fake_extract_time_fields)
     monkeypatch.setattr(
@@ -1042,7 +1042,7 @@ async def test_store_market_metadata_requires_connection(monkeypatch, store: Kal
     def fake_extract_strike_fields(ticker, strike_type_raw, floor_strike_api, cap_strike_api):
         return {"strike_type": "between", "floor_strike": "0", "cap_strike": "100"}
 
-    import src.common.redis_protocol.market_metadata_builder as metadata_builder_module
+    import common.redis_protocol.market_metadata_builder as metadata_builder_module
 
     monkeypatch.setattr(metadata_builder_module, "_extract_time_fields", fake_extract_time_fields)
     monkeypatch.setattr(
@@ -1117,7 +1117,7 @@ async def test_get_markets_by_currency_filters_records(
 
     fixed_now = datetime(2024, 12, 1, tzinfo=timezone.utc)
     monkeypatch.setattr(
-        "src.common.time_utils.get_current_utc",
+        "common.time_utils.get_current_utc",
         lambda: fixed_now,
     )
 
@@ -1306,7 +1306,7 @@ async def test_is_market_expired_detects_close_time(monkeypatch, store: KalshiSt
     )
 
     monkeypatch.setattr(
-        "src.common.time_utils.get_current_utc",
+        "common.time_utils.get_current_utc",
         lambda: datetime(2024, 1, 2, tzinfo=timezone.utc),
     )
 

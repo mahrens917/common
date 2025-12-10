@@ -5,7 +5,7 @@ from unittest.mock import AsyncMock, MagicMock, Mock, patch
 
 import pytest
 
-from src.common.redis_protocol.kalshi_store.dependencies_factory import (
+from common.redis_protocol.kalshi_store.dependencies_factory import (
     KalshiStoreDependencies,
     KalshiStoreDependenciesFactory,
 )
@@ -105,7 +105,7 @@ class TestKalshiStoreDependencies:
 class TestKalshiStoreDependenciesFactory:
     """Tests for KalshiStoreDependenciesFactory."""
 
-    @patch("src.common.redis_protocol.kalshi_store.dependencies_factory.factory_helpers")
+    @patch("common.redis_protocol.kalshi_store.dependencies_factory.factory_helpers")
     def test_create_returns_dependencies_container(
         self, mock_helpers, mock_logger, mock_redis, mock_weather_resolver, mock_update_callback
     ):
@@ -188,7 +188,7 @@ class TestKalshiStoreDependenciesFactory:
         assert result.storage_delegator is mock_storage_delegator
         assert result.attr_resolver is mock_attr_resolver
 
-    @patch("src.common.redis_protocol.kalshi_store.dependencies_factory.factory_helpers")
+    @patch("common.redis_protocol.kalshi_store.dependencies_factory.factory_helpers")
     def test_create_calls_helper_functions_in_order(
         self, mock_helpers, mock_logger, mock_redis, mock_weather_resolver, mock_update_callback
     ):
@@ -237,7 +237,7 @@ class TestKalshiStoreDependenciesFactory:
         mock_helpers.create_delegators.assert_called_once_with(mock_core, mock_weather_resolver)
         mock_helpers.create_attribute_resolver.assert_called_once_with(mock_delegators)
 
-    @patch("src.common.redis_protocol.kalshi_store.dependencies_factory.factory_helpers")
+    @patch("common.redis_protocol.kalshi_store.dependencies_factory.factory_helpers")
     def test_create_with_none_redis(
         self, mock_helpers, mock_logger, mock_weather_resolver, mock_update_callback
     ):
@@ -282,7 +282,7 @@ class TestKalshiStoreDependenciesFactory:
             mock_logger, None, None, mock_weather_resolver, mock_update_callback
         )
 
-    @patch("src.common.redis_protocol.kalshi_store.dependencies_factory.factory_helpers")
+    @patch("common.redis_protocol.kalshi_store.dependencies_factory.factory_helpers")
     def test_create_with_none_service_prefix(
         self, mock_helpers, mock_logger, mock_redis, mock_weather_resolver, mock_update_callback
     ):
@@ -327,7 +327,7 @@ class TestKalshiStoreDependenciesFactory:
         call_args = mock_helpers.create_core_components.call_args
         assert call_args[0][2] is None
 
-    @patch("src.common.redis_protocol.kalshi_store.dependencies_factory.factory_helpers")
+    @patch("common.redis_protocol.kalshi_store.dependencies_factory.factory_helpers")
     def test_create_passes_weather_resolver_correctly(
         self, mock_helpers, mock_logger, mock_redis, mock_weather_resolver, mock_update_callback
     ):
@@ -375,7 +375,7 @@ class TestKalshiStoreDependenciesFactory:
         call_args = mock_helpers.create_delegators.call_args
         assert call_args[0][1] is mock_weather_resolver
 
-    @patch("src.common.redis_protocol.kalshi_store.dependencies_factory.factory_helpers")
+    @patch("common.redis_protocol.kalshi_store.dependencies_factory.factory_helpers")
     def test_create_static_method(
         self, mock_helpers, mock_logger, mock_redis, mock_weather_resolver, mock_update_callback
     ):
@@ -418,7 +418,7 @@ class TestKalshiStoreDependenciesFactory:
 
         assert isinstance(result, KalshiStoreDependencies)
 
-    @patch("src.common.redis_protocol.kalshi_store.dependencies_factory.factory_helpers")
+    @patch("common.redis_protocol.kalshi_store.dependencies_factory.factory_helpers")
     def test_create_with_ws_service_prefix(
         self, mock_helpers, mock_logger, mock_redis, mock_weather_resolver, mock_update_callback
     ):
@@ -462,7 +462,7 @@ class TestKalshiStoreDependenciesFactory:
         call_args = mock_helpers.create_core_components.call_args
         assert call_args[0][2] == "ws"
 
-    @patch("src.common.redis_protocol.kalshi_store.dependencies_factory.factory_helpers")
+    @patch("common.redis_protocol.kalshi_store.dependencies_factory.factory_helpers")
     def test_create_with_rest_service_prefix(
         self, mock_helpers, mock_logger, mock_redis, mock_weather_resolver, mock_update_callback
     ):

@@ -4,7 +4,7 @@ from unittest.mock import AsyncMock, Mock, patch
 
 import pytest
 
-from src.common.optimized_status_reporter_helpers.report_printer_coordinator import (
+from common.optimized_status_reporter_helpers.report_printer_coordinator import (
     ReportPrinterCoordinator,
 )
 
@@ -58,7 +58,7 @@ class TestReportPrinterCoordinator:
             "log_activity": {},
         }
 
-        with patch("src.common.time_utils.get_current_utc") as mock_get_current_utc:
+        with patch("common.time_utils.get_current_utc") as mock_get_current_utc:
             mock_get_current_utc.return_value.strftime.return_value = "2023-01-01 12:00:00"
 
             await coordinator.print_status_report(status_data)

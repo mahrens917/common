@@ -5,23 +5,23 @@ from unittest.mock import AsyncMock
 
 import pytest
 
-from src.common.redis_protocol.optimized_market_store import OptimizedMarketStore, logger
-from src.common.redis_schema.markets import DeribitInstrumentKey, DeribitInstrumentType
+from common.redis_protocol.optimized_market_store import OptimizedMarketStore, logger
+from common.redis_schema.markets import DeribitInstrumentKey, DeribitInstrumentType
 
 
 def _make_store(fake):
     from types import MethodType
 
-    from src.common.redis_protocol.optimized_market_store_helpers.expiry_converter import (
+    from common.redis_protocol.optimized_market_store_helpers.expiry_converter import (
         ExpiryConverter,
     )
-    from src.common.redis_protocol.optimized_market_store_helpers.instrument_fetcher import (
+    from common.redis_protocol.optimized_market_store_helpers.instrument_fetcher import (
         InstrumentFetcher,
     )
-    from src.common.redis_protocol.optimized_market_store_helpers.market_data_fetcher import (
+    from common.redis_protocol.optimized_market_store_helpers.market_data_fetcher import (
         MarketDataFetcher,
     )
-    from src.common.redis_protocol.optimized_market_store_helpers.spot_price_fetcher import (
+    from common.redis_protocol.optimized_market_store_helpers.spot_price_fetcher import (
         SpotPriceFetcher,
     )
 
@@ -59,7 +59,7 @@ async def test_get_spot_price_returns_mid(fake_redis):
 
 @pytest.mark.asyncio
 async def test_get_spot_price_requires_market_data(fake_redis):
-    from src.common.exceptions import DataError
+    from common.exceptions import DataError
 
     store = _make_store(fake_redis)
     with pytest.raises(DataError):
@@ -82,7 +82,7 @@ async def test_get_spot_price_requires_expected_fields(fake_redis):
 
 @pytest.mark.asyncio
 async def test_get_spot_price_validates_spread(fake_redis):
-    from src.common.exceptions import ValidationError
+    from common.exceptions import ValidationError
 
     store = _make_store(fake_redis)
     key = DeribitInstrumentKey(
@@ -98,7 +98,7 @@ async def test_get_spot_price_validates_spread(fake_redis):
 
 @pytest.mark.asyncio
 async def test_get_spot_price_rejects_non_positive(fake_redis):
-    from src.common.exceptions import ValidationError
+    from common.exceptions import ValidationError
 
     store = _make_store(fake_redis)
     key = DeribitInstrumentKey(
@@ -129,7 +129,7 @@ async def test_get_usdc_bid_ask_prices_validates(fake_redis):
 
 @pytest.mark.asyncio
 async def test_get_usdc_bid_ask_prices_requires_fields(fake_redis):
-    from src.common.exceptions import DataError
+    from common.exceptions import DataError
 
     store = _make_store(fake_redis)
     key = DeribitInstrumentKey(
@@ -145,7 +145,7 @@ async def test_get_usdc_bid_ask_prices_requires_fields(fake_redis):
 
 @pytest.mark.asyncio
 async def test_get_usdc_bid_ask_prices_validates_numeric(fake_redis):
-    from src.common.exceptions import ValidationError
+    from common.exceptions import ValidationError
 
     store = _make_store(fake_redis)
     key = DeribitInstrumentKey(
@@ -161,7 +161,7 @@ async def test_get_usdc_bid_ask_prices_validates_numeric(fake_redis):
 
 @pytest.mark.asyncio
 async def test_get_usdc_bid_ask_prices_requires_market_data(fake_redis):
-    from src.common.exceptions import DataError
+    from common.exceptions import DataError
 
     store = _make_store(fake_redis)
 
@@ -172,7 +172,7 @@ async def test_get_usdc_bid_ask_prices_requires_market_data(fake_redis):
 @pytest.mark.asyncio
 async def test_create_logs_and_reraises(monkeypatch):
     monkeypatch.setattr(
-        "src.common.redis_protocol.optimized_market_store_helpers.redis_initializer.get_redis_pool",
+        "common.redis_protocol.optimized_market_store_helpers.redis_initializer.get_redis_pool",
         AsyncMock(side_effect=RuntimeError("boom")),
     )
 
@@ -230,7 +230,7 @@ async def test_close_closes_redis():
 
 @pytest.mark.asyncio
 async def test_get_options_by_currency_returns_empty_on_failure(monkeypatch):
-    from src.common.redis_protocol.optimized_market_store_helpers.instrument_fetcher import (
+    from common.redis_protocol.optimized_market_store_helpers.instrument_fetcher import (
         InstrumentFetcher,
     )
 
@@ -249,7 +249,7 @@ async def test_get_options_by_currency_returns_empty_on_failure(monkeypatch):
 
 @pytest.mark.asyncio
 async def test_get_futures_by_currency_returns_empty_on_failure(monkeypatch):
-    from src.common.redis_protocol.optimized_market_store_helpers.instrument_fetcher import (
+    from common.redis_protocol.optimized_market_store_helpers.instrument_fetcher import (
         InstrumentFetcher,
     )
 
@@ -268,7 +268,7 @@ async def test_get_futures_by_currency_returns_empty_on_failure(monkeypatch):
 
 @pytest.mark.asyncio
 async def test_get_puts_by_currency_returns_empty_on_failure(monkeypatch):
-    from src.common.redis_protocol.optimized_market_store_helpers.instrument_fetcher import (
+    from common.redis_protocol.optimized_market_store_helpers.instrument_fetcher import (
         InstrumentFetcher,
     )
 

@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from typing import List, Set
 
-from src.common.websocket.interfaces import SubscriptionAwareWebSocketClient
+from common.websocket.interfaces import SubscriptionAwareWebSocketClient
 
 
 class TestSubscriptionAwareWebSocketClient:
@@ -12,7 +12,7 @@ class TestSubscriptionAwareWebSocketClient:
 
     def test_protocol_is_importable(self) -> None:
         """Protocol can be imported from module."""
-        from src.common.websocket import interfaces
+        from common.websocket import interfaces
 
         assert "SubscriptionAwareWebSocketClient" in interfaces.__all__
 

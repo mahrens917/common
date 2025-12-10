@@ -2,7 +2,7 @@
 
 from typing import Any, Callable, Mapping, Optional
 
-from src.common.redis_schema import is_supported_kalshi_ticker
+from common.redis_schema import is_supported_kalshi_ticker
 
 
 def validate_ticker_support(

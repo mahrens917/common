@@ -6,9 +6,9 @@ Prints simple sections without complex sub-components.
 
 from typing import Any, Dict, Optional, Tuple
 
-from src.common.health.log_activity_monitor import LogActivity
-from src.common.monitoring import ProcessStatus
-from src.common.optimized_status_reporter_helpers.status_line import emit_status_line
+from common.health.log_activity_monitor import LogActivity
+from common.monitoring import ProcessStatus
+from common.optimized_status_reporter_helpers.status_line import emit_status_line
 
 from .monitor_service_printer import MonitorServicePrinter
 

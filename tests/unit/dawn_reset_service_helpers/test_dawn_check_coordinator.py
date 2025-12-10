@@ -3,7 +3,7 @@
 from datetime import datetime, timedelta
 from unittest.mock import MagicMock
 
-from src.common.dawn_reset_service_helpers.dawn_check_coordinator import DawnCheckCoordinator
+from common.dawn_reset_service_helpers.dawn_check_coordinator import DawnCheckCoordinator
 
 
 class TestDawnCheckCoordinatorCheckNewTradingDay:

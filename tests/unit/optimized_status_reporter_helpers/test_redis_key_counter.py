@@ -4,7 +4,7 @@ from unittest.mock import AsyncMock, Mock, patch
 
 import pytest
 
-from src.common.optimized_status_reporter_helpers.redis_key_counter import (
+from common.optimized_status_reporter_helpers.redis_key_counter import (
     RedisKeyCounter,
 )
 
@@ -74,7 +74,7 @@ class TestRedisKeyCounter:
         """Test collect_key_counts successfully gathers all counts."""
         # Mocking get_schema_config
         with patch(
-            "src.common.optimized_status_reporter_helpers.redis_key_counter.get_schema_config"
+            "common.optimized_status_reporter_helpers.redis_key_counter.get_schema_config"
         ) as mock_get_schema_config:
             mock_schema = Mock()
             mock_schema.deribit_market_prefix = "deribit"
@@ -107,7 +107,7 @@ class TestRedisKeyCounter:
     async def test_collect_key_counts_async_gather_exception(self, counter):
         """Test collect_key_counts handles exceptions during asyncio.gather."""
         with patch(
-            "src.common.optimized_status_reporter_helpers.redis_key_counter.get_schema_config"
+            "common.optimized_status_reporter_helpers.redis_key_counter.get_schema_config"
         ) as mock_get_schema_config:
             mock_schema = Mock()
             mock_schema.deribit_market_prefix = "deribit"

@@ -3,10 +3,10 @@ from types import SimpleNamespace
 
 import pytest
 
-from src.common.memory_monitor_helpers.collection_tracker import CollectionTracker
-from src.common.memory_monitor_helpers.snapshot_collector import MemorySnapshot, SnapshotCollector
-from src.common.memory_monitor_helpers.status_formatter import StatusFormatter
-from src.common.memory_monitor_helpers.trend_analyzer import TrendAnalyzer
+from common.memory_monitor_helpers.collection_tracker import CollectionTracker
+from common.memory_monitor_helpers.snapshot_collector import MemorySnapshot, SnapshotCollector
+from common.memory_monitor_helpers.status_formatter import StatusFormatter
+from common.memory_monitor_helpers.trend_analyzer import TrendAnalyzer
 
 
 class _FakeMetricsReader:

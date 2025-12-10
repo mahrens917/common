@@ -2,7 +2,7 @@ from unittest.mock import Mock
 
 import pytest
 
-from src.common.redis_protocol.kalshi_store.writer_helpers.orderbook_writer_helpers.trade_mapping_builder import (
+from common.redis_protocol.kalshi_store.writer_helpers.orderbook_writer_helpers.trade_mapping_builder import (
     build_trade_tick_mapping,
 )
 

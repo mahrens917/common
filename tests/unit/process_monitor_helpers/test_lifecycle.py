@@ -5,7 +5,7 @@ from types import SimpleNamespace
 
 import pytest
 
-from src.common.process_monitor_helpers.lifecycle import LifecycleManager
+from common.process_monitor_helpers.lifecycle import LifecycleManager
 
 
 @pytest.mark.asyncio
@@ -41,7 +41,7 @@ async def test_stop_background_scanning_cancels_on_timeout(monkeypatch):
         raise asyncio.TimeoutError()
 
     monkeypatch.setattr(
-        "src.common.process_monitor_helpers.lifecycle.asyncio.wait_for", raise_timeout
+        "common.process_monitor_helpers.lifecycle.asyncio.wait_for", raise_timeout
     )
 
     await manager.stop_background_scanning()

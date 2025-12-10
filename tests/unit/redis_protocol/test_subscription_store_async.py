@@ -2,9 +2,9 @@ from __future__ import annotations
 
 import pytest
 
-from src.common.redis_protocol import config as redis_config
-from src.common.redis_protocol.messages import InstrumentMetadata, SubscriptionUpdate
-from src.common.redis_protocol.subscription_store import SubscriptionStore
+from common.redis_protocol import config as redis_config
+from common.redis_protocol.messages import InstrumentMetadata, SubscriptionUpdate
+from common.redis_protocol.subscription_store import SubscriptionStore
 
 
 def _make_store(fake) -> SubscriptionStore:

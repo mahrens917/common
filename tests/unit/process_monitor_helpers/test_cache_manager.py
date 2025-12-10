@@ -4,8 +4,8 @@ import time
 
 import psutil
 
-from src.common.process_monitor import ProcessInfo
-from src.common.process_monitor_helpers.cache_manager import ProcessCacheManager
+from common.process_monitor import ProcessInfo
+from common.process_monitor_helpers.cache_manager import ProcessCacheManager
 
 
 def test_filter_and_freshness_checks():
@@ -29,7 +29,7 @@ def test_update_process_metrics_removes_dead_process(monkeypatch):
         raise psutil.NoSuchProcess(1)
 
     monkeypatch.setattr(
-        "src.common.process_monitor_helpers.cache_manager.psutil.Process", fake_process
+        "common.process_monitor_helpers.cache_manager.psutil.Process", fake_process
     )
 
     result = manager.update_process_metrics(1, cache)
@@ -46,7 +46,7 @@ def test_update_process_metrics_updates_existing(monkeypatch):
         pass
 
     monkeypatch.setattr(
-        "src.common.process_monitor_helpers.cache_manager.psutil.Process",
+        "common.process_monitor_helpers.cache_manager.psutil.Process",
         lambda pid: DummyProcess(),
     )
 

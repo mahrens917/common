@@ -11,7 +11,7 @@ from unittest.mock import MagicMock, patch
 import pytest
 import pytz
 
-from src.common.time_helpers.timezone import (
+from common.time_helpers.timezone import (
     ensure_timezone_aware,
     format_datetime,
     format_timestamp,

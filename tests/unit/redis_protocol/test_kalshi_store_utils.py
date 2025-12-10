@@ -4,10 +4,10 @@ from zoneinfo import ZoneInfo
 
 import pytest
 
-import src.common.redis_protocol.market_normalization as normalization_module
-from src.common.redis_protocol import kalshi_store
-from src.common.redis_protocol.kalshi_store import KalshiStore
-from src.common.redis_protocol.market_normalization import (
+import common.redis_protocol.market_normalization as normalization_module
+from common.redis_protocol import kalshi_store
+from common.redis_protocol.kalshi_store import KalshiStore
+from common.redis_protocol.market_normalization import (
     convert_numeric_field,
     derive_expiry_iso,
     format_probability_value,
@@ -23,11 +23,11 @@ _CONST_30 = 30
 _TEST_COUNT_3 = 3
 _TEST_ID_123 = 123
 
-from src.common.redis_protocol.weather_station_resolver import (
+from common.redis_protocol.weather_station_resolver import (
     WeatherStationMappingError,
     WeatherStationResolver,
 )
-from src.common.redis_schema import KalshiMarketCategory, KalshiMarketDescriptor
+from common.redis_schema import KalshiMarketCategory, KalshiMarketDescriptor
 
 
 @pytest.fixture
@@ -37,7 +37,7 @@ def store():
 
 
 def test_convert_numeric_field_handles_strings_and_invalid():
-    from src.common.exceptions import ValidationError
+    from common.exceptions import ValidationError
 
     assert convert_numeric_field("12.5") == pytest.approx(_VAL_12_5)
     assert convert_numeric_field("  ") is None
@@ -152,7 +152,7 @@ def test_derive_expiry_iso_uses_future_timestamp():
 
 
 def test_derive_expiry_iso_errors_when_timestamp_in_past():
-    from src.common.exceptions import DataError
+    from common.exceptions import DataError
 
     past = datetime.now(timezone.utc) - timedelta(minutes=5)
     metadata = {"timestamp": str(past.timestamp())}
@@ -175,7 +175,7 @@ def test_derive_expiry_iso_errors_when_timestamp_in_past():
 
 
 def test_derive_expiry_iso_errors_when_metadata_missing(monkeypatch):
-    from src.common.exceptions import DataError
+    from common.exceptions import DataError
 
     descriptor = KalshiMarketDescriptor(
         key="market:ABC",

@@ -7,7 +7,7 @@ from dataclasses import dataclass
 from datetime import datetime, timezone
 from typing import Any, Mapping, Optional, Tuple
 
-from src.common.redis_schema import is_supported_kalshi_ticker
+from common.redis_schema import is_supported_kalshi_ticker
 
 from .kalshi_helpers import (
     compute_strike_value,

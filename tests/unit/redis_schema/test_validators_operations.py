@@ -2,18 +2,18 @@ from __future__ import annotations
 
 import pytest
 
-from src.common.redis_schema.operations import (
+from common.redis_schema.operations import (
     MetricStreamKey,
     ServiceStatusKey,
     SubscriptionKey,
     SubscriptionType,
 )
-from src.common.redis_schema.validators import register_namespace, validate_registered_key
+from common.redis_schema.validators import register_namespace, validate_registered_key
 
 
 def test_register_namespace_detects_conflicts(monkeypatch):
     monkeypatch.setattr(
-        "src.common.redis_schema.validators._registered_prefixes", {}, raising=False
+        "common.redis_schema.validators._registered_prefixes", {}, raising=False
     )
 
     register_namespace("ops:test:", "Test namespace")
@@ -25,7 +25,7 @@ def test_register_namespace_detects_conflicts(monkeypatch):
 
 def test_validate_registered_key(monkeypatch):
     monkeypatch.setattr(
-        "src.common.redis_schema.validators._registered_prefixes", {}, raising=False
+        "common.redis_schema.validators._registered_prefixes", {}, raising=False
     )
     register_namespace("ops:status:", "Status keys")
 

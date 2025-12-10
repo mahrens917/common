@@ -6,7 +6,7 @@ import weakref
 
 import pytest
 
-from src.common import alerter_factory
+from common import alerter_factory
 
 
 class DummyAlerter:

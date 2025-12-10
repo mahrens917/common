@@ -1,6 +1,6 @@
 """Tests for metadata parser."""
 
-from src.common.redis_protocol.kalshi_store.reader_helpers.metadataextractor_helpers.metadata_parser import (
+from common.redis_protocol.kalshi_store.reader_helpers.metadataextractor_helpers.metadata_parser import (
     MetadataParser,
 )
 

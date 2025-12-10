@@ -2,10 +2,10 @@ from unittest.mock import Mock
 
 import pytest
 
-from src.common.status_reporter_helpers.base_reporter import WriterBackedReporter
-from src.common.status_reporter_helpers.lifecycle_reporter import LifecycleReporter
-from src.common.status_reporter_helpers.market_reporter import MarketReporter
-from src.common.status_reporter_helpers.message_formatter import MessageFormatter
+from common.status_reporter_helpers.base_reporter import WriterBackedReporter
+from common.status_reporter_helpers.lifecycle_reporter import LifecycleReporter
+from common.status_reporter_helpers.market_reporter import MarketReporter
+from common.status_reporter_helpers.message_formatter import MessageFormatter
 
 
 class TestWriterBackedReporter:

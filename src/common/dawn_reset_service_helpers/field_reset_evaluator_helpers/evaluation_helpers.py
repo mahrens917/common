@@ -3,7 +3,7 @@
 from datetime import datetime
 from typing import Optional, Tuple
 
-from src.common.exceptions import DataError
+from common.exceptions import DataError
 
 from .boundary_checker import BoundaryChecker, format_timestamp
 from .dawn_calculator import DawnCalculator

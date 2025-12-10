@@ -2,7 +2,7 @@ import unittest
 from datetime import date
 from unittest.mock import AsyncMock, Mock
 
-from src.common.report_generator_helpers.daily_pnl_collector import DailyPnLCollector
+from common.report_generator_helpers.daily_pnl_collector import DailyPnLCollector
 
 
 class TestDailyPnLCollector(unittest.IsolatedAsyncioTestCase):

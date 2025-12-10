@@ -2,8 +2,8 @@ from datetime import datetime, timezone
 
 import pytest
 
-from src.common.redis_protocol.kalshi_store.market_skip import MarketSkip
-from src.common.redis_protocol.kalshi_store.reader_helpers.metadataextractor_helpers.market_record_builder import (
+from common.redis_protocol.kalshi_store.market_skip import MarketSkip
+from common.redis_protocol.kalshi_store.reader_helpers.metadataextractor_helpers.market_record_builder import (
     MarketRecordBuilder,
     _decode_metadata_payload,
 )
@@ -53,7 +53,7 @@ def _build_raw_hash():
 @pytest.fixture(autouse=True)
 def patch_build_key(monkeypatch):
     monkeypatch.setattr(
-        "src.common.redis_protocol.kalshi_store.reader_helpers.metadataextractor_helpers.market_record_builder.build_kalshi_market_key",
+        "common.redis_protocol.kalshi_store.reader_helpers.metadataextractor_helpers.market_record_builder.build_kalshi_market_key",
         lambda ticker: f"key-{ticker}",
     )
     yield

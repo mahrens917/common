@@ -1,5 +1,5 @@
-from src.common.redis_protocol.kalshi_store.reader_helpers import aggregator_utils
-from src.common.value_coercion import string_or_else, to_optional_float
+from common.redis_protocol.kalshi_store.reader_helpers import aggregator_utils
+from common.value_coercion import string_or_else, to_optional_float
 
 
 def test_build_strike_summary_preserves_order():

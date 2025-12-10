@@ -5,7 +5,7 @@ from unittest.mock import AsyncMock, MagicMock
 import orjson
 import pytest
 
-from src.common.redis_protocol.kalshi_store.orderbook_helpers.message_processing.normalizer import (
+from common.redis_protocol.kalshi_store.orderbook_helpers.message_processing.normalizer import (
     normalize_price_map,
     normalize_snapshot_json,
 )

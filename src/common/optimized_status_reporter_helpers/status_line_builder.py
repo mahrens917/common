@@ -2,8 +2,8 @@
 
 from typing import Any, Optional
 
-from src.common.health.log_activity_monitor import LogActivity, LogActivityStatus
-from src.common.monitoring import ProcessStatus
+from common.health.log_activity_monitor import LogActivity, LogActivityStatus
+from common.monitoring import ProcessStatus
 
 
 def get_status_emoji(running: bool, activity: Optional[LogActivity]) -> str:

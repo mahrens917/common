@@ -4,7 +4,7 @@ from typing import Any, Dict, List, Optional
 
 import pytest
 
-from src.common.kalshi_rate_limiter import (
+from common.kalshi_rate_limiter import (
     KALSHI_READ_REQUESTS_PER_SECOND,
     KalshiRateLimiter,
     QueueFullError,

@@ -7,13 +7,13 @@ from typing import List
 import pytest
 import redis.exceptions
 
-from src.common.redis_protocol.optimized_market_store_helpers.instrument_fetcher import (
+from common.redis_protocol.optimized_market_store_helpers.instrument_fetcher import (
     InstrumentFetcher,
 )
-from src.common.redis_protocol.optimized_market_store_helpers.instrument_name_builder import (
+from common.redis_protocol.optimized_market_store_helpers.instrument_name_builder import (
     InstrumentNameBuilder,
 )
-from src.common.redis_schema import DeribitInstrumentDescriptor, DeribitInstrumentType
+from common.redis_schema import DeribitInstrumentDescriptor, DeribitInstrumentType
 
 
 @pytest.mark.asyncio

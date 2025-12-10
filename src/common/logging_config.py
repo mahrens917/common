@@ -18,8 +18,8 @@ import threading
 from pathlib import Path
 from typing import Any, Optional, Set
 
-from src.common.config import env_bool
-from src.common.process_killer import SERVICE_PROCESS_PATTERNS
+from common.config import env_bool
+from common.process_killer import SERVICE_PROCESS_PATTERNS
 
 # Thread-safe lock for logging configuration
 _config_lock = threading.Lock()

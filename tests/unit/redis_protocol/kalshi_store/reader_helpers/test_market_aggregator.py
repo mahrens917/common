@@ -1,7 +1,7 @@
 import pytest
 
-from src.common.exceptions import DataError
-from src.common.redis_protocol.kalshi_store.reader_helpers import market_aggregator
+from common.exceptions import DataError
+from common.redis_protocol.kalshi_store.reader_helpers import market_aggregator
 
 
 def test_aggregate_markets_by_point_success():

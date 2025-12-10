@@ -1,6 +1,6 @@
 """Tests for timestamp helpers module."""
 
-from src.common.redis_protocol.kalshi_store.writer_helpers.timestamp_helpers import (
+from common.redis_protocol.kalshi_store.writer_helpers.timestamp_helpers import (
     TimestampConverter,
 )
 

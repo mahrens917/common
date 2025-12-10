@@ -2,7 +2,7 @@ import json
 
 import pytest
 
-from src.common.service_status import (
+from common.service_status import (
     HealthStatus,
     ServiceStatus,
     create_status_data,
@@ -45,7 +45,7 @@ async def test_set_service_status_serializes_and_stores(monkeypatch):
     async def fake_get_redis_connection():
         return FakeRedis()
 
-    monkeypatch.setattr("src.common.service_status.get_redis_connection", fake_get_redis_connection)
+    monkeypatch.setattr("common.service_status.get_redis_connection", fake_get_redis_connection)
     monkeypatch.setattr("time.time", lambda: 123.0)
 
     await set_service_status(

@@ -4,7 +4,7 @@ from datetime import datetime, timezone
 
 import pytest
 
-from src.common.redis_protocol.parsing import kalshi_helpers
+from common.redis_protocol.parsing import kalshi_helpers
 
 
 @pytest.mark.parametrize(

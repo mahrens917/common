@@ -5,10 +5,10 @@ Delegates to BaseConfigLoader for JSON loading operations.
 
 from typing import Any, Dict, Optional
 
-from src.common.config import env_float, env_int
-from src.common.config.errors import ConfigurationError
-from src.common.config_loader import load_config
-from src.common.exceptions import ConfigurationError
+from common.config import env_float, env_int
+from common.config.errors import ConfigurationError
+from common.config_loader import load_config
+from common.exceptions import ConfigurationError
 
 _RECOMMENDED_INT_VALUES = {
     "CONNECTION_TIMEOUT_SECONDS": 30,

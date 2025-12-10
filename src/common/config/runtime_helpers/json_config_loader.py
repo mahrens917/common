@@ -6,7 +6,7 @@ Delegates to BaseConfigLoader for JSON loading, adds environment variable normal
 from pathlib import Path
 from typing import Any, Dict
 
-from src.common.config_loader import BaseConfigLoader
+from common.config_loader import BaseConfigLoader
 
 from ..errors import ConfigurationError
 

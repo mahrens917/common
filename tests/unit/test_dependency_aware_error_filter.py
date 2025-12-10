@@ -4,7 +4,7 @@ from unittest.mock import AsyncMock
 
 import pytest
 
-from src.common.dependency_aware_error_filter import (
+from common.dependency_aware_error_filter import (
     DependencyAwareErrorFilter,
     ErrorSuppressionConfig,
 )
@@ -101,7 +101,7 @@ async def test_context_manager_manages_redis_connection(monkeypatch):
         return fake_redis
 
     monkeypatch.setattr(
-        "src.common.dependency_aware_error_filter.get_redis_connection",
+        "common.dependency_aware_error_filter.get_redis_connection",
         fake_get_connection,
     )
 
@@ -120,7 +120,7 @@ async def test_context_manager_logs_when_exiting_due_to_error(monkeypatch, caplo
         return fake_redis
 
     monkeypatch.setattr(
-        "src.common.dependency_aware_error_filter.get_redis_connection",
+        "common.dependency_aware_error_filter.get_redis_connection",
         fake_get_connection,
     )
 

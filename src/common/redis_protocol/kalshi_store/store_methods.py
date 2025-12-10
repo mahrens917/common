@@ -77,7 +77,7 @@ async def get_interpolation_results(store, currency: str) -> Dict[str, Dict[str,
     import sys
 
     try:
-        package_module = sys.modules.get("src.common.redis_protocol.kalshi_store")
+        package_module = sys.modules.get("common.redis_protocol.kalshi_store")
         module_logger = getattr(package_module, "logger", logger)
         if not await store._ensure_redis_connection():
             module_logger.error("Failed to ensure Redis connection for get_interpolation_results")
@@ -101,7 +101,7 @@ async def get_interpolation_results(store, currency: str) -> Dict[str, Dict[str,
                 results[ticker] = data
     except REDIS_ERRORS as exc:
         module_logger = getattr(
-            sys.modules.get("src.common.redis_protocol.kalshi_store"), "logger", logger
+            sys.modules.get("common.redis_protocol.kalshi_store"), "logger", logger
         )
         module_logger.error(
             "Redis error getting interpolation results for %s: %s",
@@ -358,9 +358,9 @@ def _resolve_market_strike(metadata: Dict[str, Any]) -> Optional[float]:
     """
     Derive a numeric strike from metadata payload.
 
-    Delegates to src.common.strike_helpers.resolve_strike_from_metadata.
+    Delegates to common.strike_helpers.resolve_strike_from_metadata.
     """
-    from src.common.strike_helpers import resolve_strike_from_metadata
+    from common.strike_helpers import resolve_strike_from_metadata
 
     return resolve_strike_from_metadata(metadata)
 
@@ -369,9 +369,9 @@ def _parse_strike_values(floor_strike, cap_strike) -> tuple[Optional[float], Opt
     """
     Parse floor and cap strike values.
 
-    Delegates to src.common.strike_helpers.parse_strike_bounds.
+    Delegates to common.strike_helpers.parse_strike_bounds.
     """
-    from src.common.strike_helpers import parse_strike_bounds
+    from common.strike_helpers import parse_strike_bounds
 
     return parse_strike_bounds(floor_strike, cap_strike)
 
@@ -382,8 +382,8 @@ def _calculate_strike_from_type(
     """
     Calculate strike based on type and values.
 
-    Delegates to src.common.strike_helpers.calculate_strike_value.
+    Delegates to common.strike_helpers.calculate_strike_value.
     """
-    from src.common.strike_helpers import calculate_strike_value
+    from common.strike_helpers import calculate_strike_value
 
     return calculate_strike_value(strike_type, floor_value, cap_value)

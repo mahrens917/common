@@ -4,7 +4,7 @@ import logging
 from datetime import timedelta
 from typing import Any, Optional
 
-from src.common.redis_protocol.typing import RedisClient, ensure_awaitable
+from common.redis_protocol.typing import RedisClient, ensure_awaitable
 
 from .hash_validator import HashValidator
 
@@ -38,7 +38,7 @@ class ServiceUpdater:
             if not await _ensure_supported_hash(self.redis_client, history_key, service_name):
                 return
 
-            from src.common.time_utils import get_current_utc
+            from common.time_utils import get_current_utc
 
             current_time = get_current_utc()
             windows = _build_time_window_cutoffs(current_time)

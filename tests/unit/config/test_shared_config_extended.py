@@ -1,6 +1,6 @@
 import pytest
 
-from src.common.config import ConfigurationError, runtime, shared
+from common.config import ConfigurationError, runtime, shared
 
 
 @pytest.fixture(autouse=True)

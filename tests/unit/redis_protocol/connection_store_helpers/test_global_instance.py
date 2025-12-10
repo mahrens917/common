@@ -2,8 +2,8 @@ from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 
-from src.common.redis_protocol.connection_store_helpers import global_instance
-from src.common.redis_protocol.connection_store_helpers.global_instance import get_connection_store
+from common.redis_protocol.connection_store_helpers import global_instance
+from common.redis_protocol.connection_store_helpers.global_instance import get_connection_store
 
 
 class TestGlobalInstance:
@@ -15,7 +15,7 @@ class TestGlobalInstance:
 
     @pytest.mark.asyncio
     async def test_get_connection_store_initializes_once(self):
-        with patch("src.common.redis_protocol.connection_store.ConnectionStore") as MockStore:
+        with patch("common.redis_protocol.connection_store.ConnectionStore") as MockStore:
             instance = AsyncMock()
             MockStore.return_value = instance
 

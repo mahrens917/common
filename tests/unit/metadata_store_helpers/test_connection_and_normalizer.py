@@ -3,15 +3,15 @@ from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 
-from src.common.metadata_store_helpers.connection_manager import ConnectionManager
-from src.common.metadata_store_helpers.data_normalizer import DataNormalizer
+from common.metadata_store_helpers.connection_manager import ConnectionManager
+from common.metadata_store_helpers.data_normalizer import DataNormalizer
 
 
 class TestConnectionManager(unittest.IsolatedAsyncioTestCase):
     async def test_initialize_and_get_client(self):
         manager = ConnectionManager()
         with patch(
-            "src.common.metadata_store_helpers.connection_manager.get_redis_connection",
+            "common.metadata_store_helpers.connection_manager.get_redis_connection",
             new_callable=AsyncMock,
         ) as mock_get_conn:
             mock_client = AsyncMock()
@@ -30,7 +30,7 @@ class TestConnectionManager(unittest.IsolatedAsyncioTestCase):
     async def test_get_client_fails(self):
         manager = ConnectionManager()
         with patch(
-            "src.common.metadata_store_helpers.connection_manager.get_redis_connection",
+            "common.metadata_store_helpers.connection_manager.get_redis_connection",
             new_callable=AsyncMock,
         ) as mock_get_conn:
             mock_get_conn.return_value = None

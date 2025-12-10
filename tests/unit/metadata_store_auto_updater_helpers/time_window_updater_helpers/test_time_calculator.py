@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from datetime import datetime
 
-from src.common.metadata_store_auto_updater_helpers.time_window_updater_helpers.time_calculator import (
+from common.metadata_store_auto_updater_helpers.time_window_updater_helpers.time_calculator import (
     calculate_time_thresholds,
 )
 

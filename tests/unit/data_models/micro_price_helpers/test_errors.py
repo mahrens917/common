@@ -1,6 +1,6 @@
 """Tests for micro price errors module."""
 
-from src.common.data_models.micro_price_helpers.errors import (
+from common.data_models.micro_price_helpers.errors import (
     OptionDataConversionError,
 )
 

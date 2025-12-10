@@ -2,8 +2,8 @@ from typing import cast
 
 import pytest
 
-from src.common.redis_protocol.connection_store import ConnectionStore
-from src.common.redis_protocol.connection_store_helpers.initialization_manager import (
+from common.redis_protocol.connection_store import ConnectionStore
+from common.redis_protocol.connection_store_helpers.initialization_manager import (
     InitializationManager,
 )
 
@@ -29,7 +29,7 @@ async def test_initialization_manager(monkeypatch):
         return "redis-client"
 
     monkeypatch.setattr(
-        "src.common.redis_protocol.connection_pool_core.get_redis_client",
+        "common.redis_protocol.connection_pool_core.get_redis_client",
         fake_get_redis_client,
     )
 
@@ -49,15 +49,15 @@ async def test_initialization_manager(monkeypatch):
             constructed["reconnect"] = (getter, key)
 
     monkeypatch.setattr(
-        "src.common.redis_protocol.connection_store_helpers.state_manager.StateManager",
+        "common.redis_protocol.connection_store_helpers.state_manager.StateManager",
         _StateManager,
     )
     monkeypatch.setattr(
-        "src.common.redis_protocol.connection_store_helpers.metrics_manager.MetricsManager",
+        "common.redis_protocol.connection_store_helpers.metrics_manager.MetricsManager",
         _MetricsManager,
     )
     monkeypatch.setattr(
-        "src.common.redis_protocol.connection_store_helpers.reconnection_event_manager.ReconnectionEventManager",
+        "common.redis_protocol.connection_store_helpers.reconnection_event_manager.ReconnectionEventManager",
         _ReconnectionEventManager,
     )
 

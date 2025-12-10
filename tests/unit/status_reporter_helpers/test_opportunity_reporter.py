@@ -1,6 +1,6 @@
 import pytest
 
-from src.common.status_reporter_helpers.opportunity_reporter import (
+from common.status_reporter_helpers.opportunity_reporter import (
     OpportunityReporter,
     _extract_value_in_parentheses,
     _is_buy_yes_ask_rule,

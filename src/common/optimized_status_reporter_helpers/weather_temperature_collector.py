@@ -6,8 +6,8 @@ Gathers current temperatures for all weather stations.
 
 from typing import Any, Dict, List
 
-from src.common.redis_protocol.converters import decode_redis_hash
-from src.common.redis_schema import WeatherStationKey
+from common.redis_protocol.converters import decode_redis_hash
+from common.redis_schema import WeatherStationKey
 
 DEFAULT_WEATHER_EMOJI = "🌡️"
 

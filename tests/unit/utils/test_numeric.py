@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import pytest
 
-from src.common.utils.numeric import (
+from common.utils.numeric import (
     coerce_float_default,
     coerce_float_optional,
     coerce_float_strict,

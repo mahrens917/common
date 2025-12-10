@@ -2,7 +2,7 @@
 
 import pytest
 
-from src.common.connection_manager_helpers.notification_manager import NotificationManager
+from common.connection_manager_helpers.notification_manager import NotificationManager
 
 
 class TestNotificationManager:

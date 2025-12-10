@@ -5,9 +5,9 @@ from unittest.mock import AsyncMock, MagicMock
 
 import pytest
 
-from src.common.redis_schema.operations import ServiceStatusKey
-from src.common.service_lifecycle.status_reporter_mixin import StatusReporterMixin
-from src.common.service_status import ServiceStatus
+from common.redis_schema.operations import ServiceStatusKey
+from common.service_lifecycle.status_reporter_mixin import StatusReporterMixin
+from common.service_status import ServiceStatus
 
 
 class ServiceUnderTest(StatusReporterMixin):

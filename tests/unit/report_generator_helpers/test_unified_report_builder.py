@@ -2,8 +2,8 @@ import unittest
 from datetime import date, datetime
 from unittest.mock import AsyncMock, Mock, patch
 
-from src.common.data_models.trade_record import PnLBreakdown, PnLReport
-from src.common.report_generator_helpers.unified_report_builder import UnifiedReportBuilder
+from common.data_models.trade_record import PnLBreakdown, PnLReport
+from common.report_generator_helpers.unified_report_builder import UnifiedReportBuilder
 
 
 class TestUnifiedReportBuilder(unittest.IsolatedAsyncioTestCase):
@@ -23,7 +23,7 @@ class TestUnifiedReportBuilder(unittest.IsolatedAsyncioTestCase):
             self.timezone,
         )
 
-    @patch("src.common.report_generator_helpers.unified_report_builder.get_timezone_aware_date")
+    @patch("common.report_generator_helpers.unified_report_builder.get_timezone_aware_date")
     async def test_generate_unified_pnl_report(self, mock_get_date):
         mock_now = datetime(2023, 10, 31)
         mock_get_date.return_value = mock_now
@@ -50,7 +50,7 @@ class TestUnifiedReportBuilder(unittest.IsolatedAsyncioTestCase):
         self.mock_unified_formatter.format_unified_pnl_section.assert_called()
         self.mock_time_period_formatter.format_time_period_section.assert_called()
 
-    @patch("src.common.report_generator_helpers.unified_report_builder.get_timezone_aware_date")
+    @patch("common.report_generator_helpers.unified_report_builder.get_timezone_aware_date")
     async def test_generate_unified_pnl_data(self, mock_get_date):
         mock_now = datetime(2023, 10, 31)
         mock_get_date.return_value = mock_now

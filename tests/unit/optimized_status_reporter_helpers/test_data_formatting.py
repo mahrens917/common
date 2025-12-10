@@ -4,7 +4,7 @@ from unittest.mock import Mock
 
 import pytest
 
-from src.common.optimized_status_reporter_helpers.data_formatting import (
+from common.optimized_status_reporter_helpers.data_formatting import (
     DataFormatting,
 )
 

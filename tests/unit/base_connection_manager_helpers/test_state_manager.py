@@ -4,8 +4,8 @@ from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 
-from src.common.base_connection_manager_helpers.state_manager import ConnectionStateManager
-from src.common.connection_state import ConnectionState
+from common.base_connection_manager_helpers.state_manager import ConnectionStateManager
+from common.connection_state import ConnectionState
 
 
 class TestConnectionStateManagerInit:
@@ -34,7 +34,7 @@ class TestConnectionStateManagerTransitionState:
         manager = ConnectionStateManager(service_name="test_service")
 
         with patch(
-            "src.common.base_connection_manager_helpers.state_manager.safely_schedule_coroutine"
+            "common.base_connection_manager_helpers.state_manager.safely_schedule_coroutine"
         ):
             manager.transition_state(ConnectionState.READY)
 
@@ -46,7 +46,7 @@ class TestConnectionStateManagerTransitionState:
         initial_time = manager.state_change_time
 
         with patch(
-            "src.common.base_connection_manager_helpers.state_manager.safely_schedule_coroutine"
+            "common.base_connection_manager_helpers.state_manager.safely_schedule_coroutine"
         ):
             with patch("time.time", return_value=initial_time + 10):
                 manager.transition_state(ConnectionState.READY)
@@ -58,7 +58,7 @@ class TestConnectionStateManagerTransitionState:
         manager = ConnectionStateManager(service_name="test_service")
 
         with patch(
-            "src.common.base_connection_manager_helpers.state_manager.safely_schedule_coroutine"
+            "common.base_connection_manager_helpers.state_manager.safely_schedule_coroutine"
         ) as mock_schedule:
             manager.transition_state(ConnectionState.READY)
 
@@ -70,7 +70,7 @@ class TestConnectionStateManagerTransitionState:
         # Initial state is DISCONNECTED
 
         with patch(
-            "src.common.base_connection_manager_helpers.state_manager.safely_schedule_coroutine"
+            "common.base_connection_manager_helpers.state_manager.safely_schedule_coroutine"
         ) as mock_schedule:
             manager.transition_state(ConnectionState.DISCONNECTED)
 
@@ -81,7 +81,7 @@ class TestConnectionStateManagerTransitionState:
         manager = ConnectionStateManager(service_name="test_service")
 
         with patch(
-            "src.common.base_connection_manager_helpers.state_manager.safely_schedule_coroutine"
+            "common.base_connection_manager_helpers.state_manager.safely_schedule_coroutine"
         ):
             with patch.object(manager.logger, "info") as mock_log:
                 manager.transition_state(ConnectionState.READY)
@@ -102,7 +102,7 @@ class TestConnectionStateManagerInitializeStateTracker:
         mock_tracker = MagicMock()
 
         with patch(
-            "src.common.base_connection_manager_helpers.state_manager.get_connection_state_tracker",
+            "common.base_connection_manager_helpers.state_manager.get_connection_state_tracker",
             new_callable=AsyncMock,
             return_value=mock_tracker,
         ):
@@ -118,7 +118,7 @@ class TestConnectionStateManagerInitializeStateTracker:
         manager.state_tracker = mock_tracker
 
         with patch(
-            "src.common.base_connection_manager_helpers.state_manager.get_connection_state_tracker",
+            "common.base_connection_manager_helpers.state_manager.get_connection_state_tracker",
             new_callable=AsyncMock,
         ) as mock_get:
             await manager._initialize_state_tracker()
@@ -138,7 +138,7 @@ class TestConnectionStateManagerBroadcastStateChange:
         mock_tracker.update_connection_state = AsyncMock()
 
         with patch(
-            "src.common.base_connection_manager_helpers.state_manager.get_connection_state_tracker",
+            "common.base_connection_manager_helpers.state_manager.get_connection_state_tracker",
             new_callable=AsyncMock,
             return_value=mock_tracker,
         ):
@@ -169,7 +169,7 @@ class TestConnectionStateManagerBroadcastStateChange:
         manager = ConnectionStateManager(service_name="test_service")
 
         with patch(
-            "src.common.base_connection_manager_helpers.state_manager.get_connection_state_tracker",
+            "common.base_connection_manager_helpers.state_manager.get_connection_state_tracker",
             new_callable=AsyncMock,
             return_value=None,
         ):
@@ -191,7 +191,7 @@ class TestConnectionStateManagerGetState:
         manager = ConnectionStateManager(service_name="test_service")
 
         with patch(
-            "src.common.base_connection_manager_helpers.state_manager.safely_schedule_coroutine"
+            "common.base_connection_manager_helpers.state_manager.safely_schedule_coroutine"
         ):
             manager.transition_state(ConnectionState.READY)
 

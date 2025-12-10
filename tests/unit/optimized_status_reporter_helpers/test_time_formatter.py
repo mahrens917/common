@@ -6,7 +6,7 @@ from unittest.mock import Mock
 
 import pytest
 
-from src.common.optimized_status_reporter_helpers.time_formatter import (
+from common.optimized_status_reporter_helpers.time_formatter import (
     TimeFormatter,
 )
 

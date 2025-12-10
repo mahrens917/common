@@ -2,9 +2,9 @@ import importlib
 
 import pytest
 
-from src.common.redis_schema import analytics
-from src.common.redis_schema.analytics import PdfSurfaceKey, ProbabilitySliceKey, SurfaceType
-from src.common.redis_schema.validators import _registered_prefixes
+from common.redis_schema import analytics
+from common.redis_schema.analytics import PdfSurfaceKey, ProbabilitySliceKey, SurfaceType
+from common.redis_schema.validators import _registered_prefixes
 
 
 @pytest.fixture(autouse=True)

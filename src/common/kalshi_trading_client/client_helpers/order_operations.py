@@ -5,9 +5,9 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Any, Dict, List, Optional
 
 if TYPE_CHECKING:
-    from src.common.data_models.trading import OrderRequest, OrderResponse
-    from src.common.order_execution import OrderPoller, TradeFinalizer
-    from src.common.trading.polling_workflow import PollingOutcome
+    from common.data_models.trading import OrderRequest, OrderResponse
+    from common.order_execution import OrderPoller, TradeFinalizer
+    from common.trading.polling_workflow import PollingOutcome
 
 from ..services import OrderService
 
@@ -103,7 +103,7 @@ def apply_polling_outcome(
 
 async def calculate_order_fees(market_ticker: str, quantity: int, price_cents: int) -> int:
     """Calculate fees for an order (delegates to canonical fee calculator)."""
-    from src.common.kalshi_trading_client.services.order_helpers.fee_calculator import (
+    from common.kalshi_trading_client.services.order_helpers.fee_calculator import (
         calculate_order_fees as _calculate_order_fees,
     )
 

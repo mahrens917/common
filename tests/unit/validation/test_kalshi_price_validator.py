@@ -2,7 +2,7 @@
 
 import pytest
 
-from src.common.validation.kalshi_price_validator import (
+from common.validation.kalshi_price_validator import (
     KALSHI_MAX_PRICE_CENTS,
     KALSHI_MIN_PRICE_CENTS,
     validate_kalshi_bid_ask_relationship,

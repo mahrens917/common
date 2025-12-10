@@ -5,7 +5,7 @@ from unittest.mock import AsyncMock, MagicMock
 
 import pytest
 
-from src.common.redis_protocol.kalshi_store.connection_helpers import connection_verifier
+from common.redis_protocol.kalshi_store.connection_helpers import connection_verifier
 
 
 class DummyRedisError(Exception):

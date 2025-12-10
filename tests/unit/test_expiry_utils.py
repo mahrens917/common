@@ -5,8 +5,8 @@ from unittest.mock import Mock, patch
 
 import pytest
 
-from src.common.exceptions import InvalidMarketDataError, ValidationError
-from src.common.expiry_utils import (
+from common.exceptions import InvalidMarketDataError, ValidationError
+from common.expiry_utils import (
     _compute_time_to_expiry_years,
     _ensure_timezone_awareness,
     _extract_market_expiry_value,
@@ -138,7 +138,7 @@ class TestComputeTimeToExpiryYears:
         current = datetime(2025, 1, 1, tzinfo=timezone.utc)
 
         with patch(
-            "src.common.time_helpers.expiry_conversions.calculate_time_to_expiry_years"
+            "common.time_helpers.expiry_conversions.calculate_time_to_expiry_years"
         ) as mock_canonical:
             mock_canonical.return_value = 0.416
             result = _compute_time_to_expiry_years(expiry, current)
@@ -158,7 +158,7 @@ class TestCalculateTimeToExpiryFromMarketData:
         market = {"close_time": expiry}
 
         with patch(
-            "src.common.expiry_utils._compute_time_to_expiry_years",
+            "common.expiry_utils._compute_time_to_expiry_years",
             return_value=0.416,
         ):
             result = calculate_time_to_expiry_from_market_data(market, current)
@@ -171,7 +171,7 @@ class TestCalculateTimeToExpiryFromMarketData:
         market = {"close_time": expiry}
 
         with patch(
-            "src.common.expiry_utils._compute_time_to_expiry_years",
+            "common.expiry_utils._compute_time_to_expiry_years",
             return_value=-1.0,
         ):
             result = calculate_time_to_expiry_from_market_data(market, current)
@@ -184,7 +184,7 @@ class TestCalculateTimeToExpiryFromMarketData:
         market = {"close_time": expiry_naive}
 
         with patch(
-            "src.common.expiry_utils._compute_time_to_expiry_years",
+            "common.expiry_utils._compute_time_to_expiry_years",
             return_value=0.416,
         ):
             result = calculate_time_to_expiry_from_market_data(market, current_naive)
@@ -219,7 +219,7 @@ class TestGroupMarketsByExpiry:
         ]
 
         with patch(
-            "src.common.expiry_utils.calculate_time_to_expiry_from_market_data",
+            "common.expiry_utils.calculate_time_to_expiry_from_market_data",
             return_value=0.416,
         ):
             result = group_markets_by_expiry(markets, current)
@@ -245,7 +245,7 @@ class TestGroupMarketsByExpiry:
             return 0.916
 
         with patch(
-            "src.common.expiry_utils.calculate_time_to_expiry_from_market_data",
+            "common.expiry_utils.calculate_time_to_expiry_from_market_data",
             side_effect=mock_time_to_expiry,
         ):
             result = group_markets_by_expiry(markets, current)
@@ -273,7 +273,7 @@ class TestGroupMarketsByExpiry:
             return 0.0  # Expired
 
         with patch(
-            "src.common.expiry_utils.calculate_time_to_expiry_from_market_data",
+            "common.expiry_utils.calculate_time_to_expiry_from_market_data",
             side_effect=mock_time_to_expiry,
         ):
             result = group_markets_by_expiry(markets, current)
@@ -297,7 +297,7 @@ class TestGroupMarketsByExpiry:
             return 1.0  # Should map to bucket 2
 
         with patch(
-            "src.common.expiry_utils.calculate_time_to_expiry_from_market_data",
+            "common.expiry_utils.calculate_time_to_expiry_from_market_data",
             side_effect=mock_time_to_expiry,
         ):
             result = group_markets_by_expiry(markets, current, use_time_buckets=True)
@@ -316,7 +316,7 @@ class TestGroupMarketsByExpiry:
         ]
 
         with patch(
-            "src.common.expiry_utils.calculate_time_to_expiry_from_market_data",
+            "common.expiry_utils.calculate_time_to_expiry_from_market_data",
             side_effect=ValueError("Invalid"),
         ):
             with pytest.raises(ValueError, match="No valid markets found"):
@@ -344,7 +344,7 @@ class TestValidateExpiryGroupStrikes:
         }
 
         with patch(
-            "src.common.expiry_utils._extract_unique_strikes_from_markets",
+            "common.expiry_utils._extract_unique_strikes_from_markets",
             side_effect=[[100.0, 110.0, 120.0], [100.0, 105.0]],
         ):
             result = validate_expiry_group_strikes(expiry_groups, minimum_strikes=2)
@@ -370,7 +370,7 @@ class TestValidateExpiryGroupStrikes:
         }
 
         with patch(
-            "src.common.expiry_utils._extract_unique_strikes_from_markets",
+            "common.expiry_utils._extract_unique_strikes_from_markets",
             side_effect=[[100.0, 110.0, 120.0], [100.0]],
         ):
             result = validate_expiry_group_strikes(expiry_groups, minimum_strikes=2)
@@ -390,7 +390,7 @@ class TestValidateExpiryGroupStrikes:
         }
 
         with patch(
-            "src.common.expiry_utils._extract_unique_strikes_from_markets",
+            "common.expiry_utils._extract_unique_strikes_from_markets",
             side_effect=[[100.0], [100.0]],
         ):
             with pytest.raises(ValidationError, match="No expiry groups have sufficient strikes"):
@@ -409,7 +409,7 @@ class TestExtractUniqueStrikesFromMarkets:
         ]
 
         with patch(
-            "src.common.expiry_utils._extract_strikes_from_market",
+            "common.expiry_utils._extract_strikes_from_market",
             side_effect=[[100.0], [110.0], [100.0]],
         ):
             result = _extract_unique_strikes_from_markets(markets)
@@ -432,7 +432,7 @@ class TestExtractUniqueStrikesFromMarkets:
             return [float(market["strike"])]
 
         with patch(
-            "src.common.expiry_utils._extract_strikes_from_market",
+            "common.expiry_utils._extract_strikes_from_market",
             side_effect=mock_extract,
         ):
             result = _extract_unique_strikes_from_markets(markets)

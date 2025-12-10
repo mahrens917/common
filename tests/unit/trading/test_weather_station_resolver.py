@@ -8,8 +8,8 @@ from unittest.mock import mock_open
 
 import pytest
 
-from src.common.config.weather import WeatherConfigError
-from src.common.trading.weather_station import (
+from common.config.weather import WeatherConfigError
+from common.trading.weather_station import (
     WeatherStationResolver,
     load_weather_station_mapping,
 )
@@ -82,7 +82,7 @@ def test_load_weather_station_mapping_uses_config_loader(
     monkeypatch: pytest.MonkeyPatch, base_mapping: Dict[str, Dict]
 ) -> None:
     monkeypatch.setattr(
-        "src.common.trading.weather_station._load_config_weather_station_mapping",
+        "common.trading.weather_station._load_config_weather_station_mapping",
         lambda: base_mapping,
     )
     assert load_weather_station_mapping() == base_mapping
@@ -95,7 +95,7 @@ def test_load_weather_station_mapping_propagates_config_error(
         raise WeatherConfigError("boom")
 
     monkeypatch.setattr(
-        "src.common.trading.weather_station._load_config_weather_station_mapping", fail
+        "common.trading.weather_station._load_config_weather_station_mapping", fail
     )
 
     with pytest.raises(WeatherConfigError):

@@ -11,13 +11,13 @@ from typing import Dict, Optional
 
 import aiohttp
 
-from src.common.config import env_str
-from src.common.session_tracker_helpers.dependencies_factory import (
+from common.config import env_str
+from common.session_tracker_helpers.dependencies_factory import (
     SessionTrackerDependencies,
     SessionTrackerDependenciesFactory,
 )
-from src.common.session_tracker_helpers.models import SessionInfo
-from src.common.session_tracker_mixins import (
+from common.session_tracker_helpers.models import SessionInfo
+from common.session_tracker_mixins import (
     SessionTrackerActivityMixin,
     SessionTrackerQueryMixin,
     SessionTrackerSyncMixin,

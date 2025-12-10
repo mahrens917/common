@@ -4,20 +4,20 @@ from types import SimpleNamespace
 import pytest
 from redis.exceptions import RedisError
 
-from src.common.exceptions import DataError
-from src.common.redis_protocol.kalshi_store.cleaner import (
+from common.exceptions import DataError
+from common.redis_protocol.kalshi_store.cleaner import (
     KalshiMarketCleaner,
     _key_patterns,
     _metadata_patterns,
     _normalize_category_name,
 )
-from src.common.redis_protocol.kalshi_store.cleaner_helpers.market_remover import MarketRemover
-from src.common.redis_protocol.kalshi_store.cleaner_helpers.metadata_cleaner import MetadataCleaner
-from src.common.redis_protocol.kalshi_store.cleaner_helpers.pipeline_executor import (
+from common.redis_protocol.kalshi_store.cleaner_helpers.market_remover import MarketRemover
+from common.redis_protocol.kalshi_store.cleaner_helpers.metadata_cleaner import MetadataCleaner
+from common.redis_protocol.kalshi_store.cleaner_helpers.pipeline_executor import (
     PipelineExecutor,
 )
-from src.common.redis_protocol.kalshi_store.cleanup_delegator import CleanupDelegator
-from src.common.redis_schema.markets import KalshiMarketCategory
+from common.redis_protocol.kalshi_store.cleanup_delegator import CleanupDelegator
+from common.redis_schema.markets import KalshiMarketCategory
 
 
 class _FakePipeline:

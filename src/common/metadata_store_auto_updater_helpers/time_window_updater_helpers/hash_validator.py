@@ -3,7 +3,7 @@
 import logging
 from typing import Optional
 
-from src.common.redis_protocol.typing import RedisClient, ensure_awaitable
+from common.redis_protocol.typing import RedisClient, ensure_awaitable
 
 logger = logging.getLogger(__name__)
 REDIS_ERRORS = (Exception,)

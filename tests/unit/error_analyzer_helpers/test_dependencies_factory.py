@@ -2,8 +2,8 @@
 
 from unittest.mock import MagicMock
 
-from src.common.error_analyzer_helpers import dependencies_factory
-from src.common.error_analyzer_helpers.dependencies_factory import (
+from common.error_analyzer_helpers import dependencies_factory
+from common.error_analyzer_helpers.dependencies_factory import (
     ErrorAnalyzerDependencies,
     ErrorAnalyzerDependenciesFactory,
     OptionalDependencies,

@@ -4,8 +4,8 @@ import logging
 from datetime import datetime, timezone
 from typing import TYPE_CHECKING, Optional
 
-from src.common.exceptions import ValidationError
-from src.common.time_helpers.expiry_conversions import parse_expiry_datetime
+from common.exceptions import ValidationError
+from common.time_helpers.expiry_conversions import parse_expiry_datetime
 
 from ....redis_schema import DeribitInstrumentDescriptor
 

@@ -2,7 +2,7 @@
 
 from datetime import datetime, timezone
 
-from src.common.dawn_reset_service_helpers.timestamp_resolver import TimestampResolver
+from common.dawn_reset_service_helpers.timestamp_resolver import TimestampResolver
 
 
 class TestTimestampResolverGetLastDawnResetTimestamp:

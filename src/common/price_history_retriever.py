@@ -10,9 +10,9 @@ import logging
 from datetime import datetime, timedelta
 from typing import List, Tuple
 
-from src.common.price_history_utils import generate_redis_key, validate_currency
-from src.common.redis_protocol.typing import RedisClient, ensure_awaitable
-from src.common.time_utils import get_current_utc
+from common.price_history_utils import generate_redis_key, validate_currency
+from common.redis_protocol.typing import RedisClient, ensure_awaitable
+from common.time_utils import get_current_utc
 
 from .price_history_connection_manager import REDIS_ERRORS
 from .price_history_parser import PriceHistoryParser

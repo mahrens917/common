@@ -2,8 +2,8 @@
 
 from typing import Optional, Tuple
 
-from src.common.config_loader import load_config
-from src.common.constants.validation import MIN_KEY_PARTS
+from common.config_loader import load_config
+from common.constants.validation import MIN_KEY_PARTS
 
 from ..markets import DeribitInstrumentType
 

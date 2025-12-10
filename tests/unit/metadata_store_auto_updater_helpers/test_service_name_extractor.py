@@ -1,4 +1,4 @@
-from src.common.metadata_store_auto_updater_helpers.service_name_extractor import (
+from common.metadata_store_auto_updater_helpers.service_name_extractor import (
     ServiceNameExtractor,
 )
 

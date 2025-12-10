@@ -1,4 +1,4 @@
-from src.common.status_data_models import (
+from common.status_data_models import (
     PriceData,
     RedisMetrics,
     ServiceInfo,

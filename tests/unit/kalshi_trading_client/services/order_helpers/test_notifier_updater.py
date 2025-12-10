@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from unittest.mock import MagicMock, patch
 
-from src.common.kalshi_trading_client.services.order_helpers.notifier_updater import (
+from common.kalshi_trading_client.services.order_helpers.notifier_updater import (
     has_sufficient_balance_for_trade_with_fees,
     update_metadata_telegram_handler,
     update_order_notifier,
@@ -55,7 +55,7 @@ class TestHasSufficientBalanceForTradeWithFees:
     def test_delegates_to_validation_operations(self) -> None:
         """Delegates to ValidationOperations."""
         with patch(
-            "src.common.kalshi_trading_client.services.order_helpers.order_service_operations.ValidationOperations"
+            "common.kalshi_trading_client.services.order_helpers.order_service_operations.ValidationOperations"
         ) as mock_ops:
             mock_ops.has_sufficient_balance_for_trade_with_fees.return_value = True
 
@@ -71,7 +71,7 @@ class TestHasSufficientBalanceForTradeWithFees:
     def test_returns_false_when_insufficient(self) -> None:
         """Returns False when balance is insufficient."""
         with patch(
-            "src.common.kalshi_trading_client.services.order_helpers.order_service_operations.ValidationOperations"
+            "common.kalshi_trading_client.services.order_helpers.order_service_operations.ValidationOperations"
         ) as mock_ops:
             mock_ops.has_sufficient_balance_for_trade_with_fees.return_value = False
 

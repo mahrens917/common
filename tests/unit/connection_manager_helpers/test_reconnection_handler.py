@@ -2,7 +2,7 @@
 
 import pytest
 
-from src.common.connection_manager_helpers.reconnection_handler import ReconnectionHandler
+from common.connection_manager_helpers.reconnection_handler import ReconnectionHandler
 
 
 class TestReconnectionHandler:

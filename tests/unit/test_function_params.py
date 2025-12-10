@@ -6,7 +6,7 @@ from typing import Any
 
 import pytest
 
-from src.common.function_params import (
+from common.function_params import (
     HTTPFetchParams,
     MarketUpdateParams,
     ServiceDependencies,

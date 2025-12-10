@@ -25,28 +25,28 @@ def factory_mocks():
     """Fixture providing all dependency factory mocks."""
     with (
         patch(
-            "src.common.alert_suppression_manager_helpers.dependencies_factory.DependencyInitializer"
+            "common.alert_suppression_manager_helpers.dependencies_factory.DependencyInitializer"
         ) as mock_dependency_init_class,
         patch(
-            "src.common.alert_suppression_manager_helpers.dependencies_factory.SuppressionTracker"
+            "common.alert_suppression_manager_helpers.dependencies_factory.SuppressionTracker"
         ) as mock_tracker_class,
         patch(
-            "src.common.alert_suppression_manager_helpers.dependencies_factory.AlertEvaluator"
+            "common.alert_suppression_manager_helpers.dependencies_factory.AlertEvaluator"
         ) as mock_evaluator_class,
         patch(
-            "src.common.alert_suppression_manager_helpers.dependencies_factory.TimeWindowManager"
+            "common.alert_suppression_manager_helpers.dependencies_factory.TimeWindowManager"
         ) as mock_time_window_class,
         patch(
-            "src.common.alert_suppression_manager_helpers.dependencies_factory.ContextBuilder"
+            "common.alert_suppression_manager_helpers.dependencies_factory.ContextBuilder"
         ) as mock_context_builder_class,
         patch(
-            "src.common.alert_suppression_manager_helpers.dependencies_factory.DecisionCoordinator"
+            "common.alert_suppression_manager_helpers.dependencies_factory.DecisionCoordinator"
         ) as mock_decision_coordinator_class,
         patch(
-            "src.common.alert_suppression_manager_helpers.dependencies_factory.StateManager"
+            "common.alert_suppression_manager_helpers.dependencies_factory.StateManager"
         ) as mock_state_manager_class,
         patch(
-            "src.common.alert_suppression_manager_helpers.dependencies_factory.ErrorClassifierAdapter"
+            "common.alert_suppression_manager_helpers.dependencies_factory.ErrorClassifierAdapter"
         ) as mock_error_adapter_class,
     ):
         yield DependencyFactoryMocks(
@@ -66,7 +66,7 @@ class TestAlertSuppressionManagerDependencies:
 
     def test_dataclass_creation_with_all_fields(self):
         """Test creating AlertSuppressionManagerDependencies with all fields."""
-        from src.common.alert_suppression_manager_helpers.dependencies_factory import (
+        from common.alert_suppression_manager_helpers.dependencies_factory import (
             AlertSuppressionManagerDependencies,
         )
 
@@ -101,7 +101,7 @@ class TestAlertSuppressionManagerDependencies:
 
     def test_dataclass_has_correct_fields(self):
         """Test that dataclass has all required fields."""
-        from src.common.alert_suppression_manager_helpers.dependencies_factory import (
+        from common.alert_suppression_manager_helpers.dependencies_factory import (
             AlertSuppressionManagerDependencies,
         )
 
@@ -120,7 +120,7 @@ class TestAlertSuppressionManagerDependencies:
 
     def test_dataclass_is_mutable(self):
         """Test that dataclass instances are mutable."""
-        from src.common.alert_suppression_manager_helpers.dependencies_factory import (
+        from common.alert_suppression_manager_helpers.dependencies_factory import (
             AlertSuppressionManagerDependencies,
         )
 
@@ -145,7 +145,7 @@ class TestOptionalDependencies:
 
     def test_dataclass_creation_with_all_none(self):
         """Test creating OptionalDependencies with all fields as None."""
-        from src.common.alert_suppression_manager_helpers.dependencies_factory import (
+        from common.alert_suppression_manager_helpers.dependencies_factory import (
             OptionalDependencies,
         )
 
@@ -162,7 +162,7 @@ class TestOptionalDependencies:
 
     def test_dataclass_creation_with_some_fields(self):
         """Test creating OptionalDependencies with some fields set."""
-        from src.common.alert_suppression_manager_helpers.dependencies_factory import (
+        from common.alert_suppression_manager_helpers.dependencies_factory import (
             OptionalDependencies,
         )
 
@@ -178,7 +178,7 @@ class TestOptionalDependencies:
 
     def test_dataclass_is_frozen(self):
         """Test that OptionalDependencies is frozen (immutable)."""
-        from src.common.alert_suppression_manager_helpers.dependencies_factory import (
+        from common.alert_suppression_manager_helpers.dependencies_factory import (
             OptionalDependencies,
         )
 
@@ -189,7 +189,7 @@ class TestOptionalDependencies:
 
     def test_dataclass_has_correct_fields(self):
         """Test that dataclass has all required optional fields."""
-        from src.common.alert_suppression_manager_helpers.dependencies_factory import (
+        from common.alert_suppression_manager_helpers.dependencies_factory import (
             OptionalDependencies,
         )
 
@@ -212,10 +212,10 @@ class TestDependenciesFactoryCreate:
 
     def test_create_instantiates_all_dependencies(self, factory_mocks):
         """Test that create method instantiates all dependencies correctly."""
-        from src.common.alert_suppression_manager_helpers.alert_evaluator import (
+        from common.alert_suppression_manager_helpers.alert_evaluator import (
             SuppressionRule,
         )
-        from src.common.alert_suppression_manager_helpers.dependencies_factory import (
+        from common.alert_suppression_manager_helpers.dependencies_factory import (
             AlertSuppressionManagerDependencies,
             AlertSuppressionManagerDependenciesFactory,
         )
@@ -271,10 +271,10 @@ class TestDependenciesFactoryCreate:
 
     def test_create_passes_suppression_rule_correctly(self, factory_mocks):
         """Test that suppression_rule is passed to correct constructors."""
-        from src.common.alert_suppression_manager_helpers.alert_evaluator import (
+        from common.alert_suppression_manager_helpers.alert_evaluator import (
             SuppressionRule,
         )
-        from src.common.alert_suppression_manager_helpers.dependencies_factory import (
+        from common.alert_suppression_manager_helpers.dependencies_factory import (
             AlertSuppressionManagerDependenciesFactory,
         )
 
@@ -290,10 +290,10 @@ class TestDependenciesFactoryCreate:
 
     def test_create_uses_fixed_max_history_entries(self, factory_mocks):
         """Test that SuppressionTracker is created with max_history_entries=1000."""
-        from src.common.alert_suppression_manager_helpers.alert_evaluator import (
+        from common.alert_suppression_manager_helpers.alert_evaluator import (
             SuppressionRule,
         )
-        from src.common.alert_suppression_manager_helpers.dependencies_factory import (
+        from common.alert_suppression_manager_helpers.dependencies_factory import (
             AlertSuppressionManagerDependenciesFactory,
         )
 
@@ -304,10 +304,10 @@ class TestDependenciesFactoryCreate:
 
     def test_create_sets_error_adapter_to_none(self, factory_mocks):
         """Test that error_adapter is set to None (not instantiated)."""
-        from src.common.alert_suppression_manager_helpers.alert_evaluator import (
+        from common.alert_suppression_manager_helpers.alert_evaluator import (
             SuppressionRule,
         )
-        from src.common.alert_suppression_manager_helpers.dependencies_factory import (
+        from common.alert_suppression_manager_helpers.dependencies_factory import (
             AlertSuppressionManagerDependenciesFactory,
         )
 
@@ -324,10 +324,10 @@ class TestDependenciesFactoryCreateOrUse:
 
     def test_create_or_use_with_none_optional_deps_calls_create(self):
         """Test that when optional_deps is None, calls create method."""
-        from src.common.alert_suppression_manager_helpers.alert_evaluator import (
+        from common.alert_suppression_manager_helpers.alert_evaluator import (
             SuppressionRule,
         )
-        from src.common.alert_suppression_manager_helpers.dependencies_factory import (
+        from common.alert_suppression_manager_helpers.dependencies_factory import (
             AlertSuppressionManagerDependenciesFactory,
         )
 
@@ -345,10 +345,10 @@ class TestDependenciesFactoryCreateOrUse:
 
     def test_create_or_use_with_all_optional_deps_uses_provided(self, factory_mocks):
         """Test that when all optional deps provided, they are used."""
-        from src.common.alert_suppression_manager_helpers.alert_evaluator import (
+        from common.alert_suppression_manager_helpers.alert_evaluator import (
             SuppressionRule,
         )
-        from src.common.alert_suppression_manager_helpers.dependencies_factory import (
+        from common.alert_suppression_manager_helpers.dependencies_factory import (
             AlertSuppressionManagerDependencies,
             AlertSuppressionManagerDependenciesFactory,
             OptionalDependencies,
@@ -398,10 +398,10 @@ class TestDependenciesFactoryCreateOrUse:
 
     def test_create_or_use_with_partial_optional_deps_merges(self, factory_mocks):
         """Test that when some optional deps provided, merges with defaults."""
-        from src.common.alert_suppression_manager_helpers.alert_evaluator import (
+        from common.alert_suppression_manager_helpers.alert_evaluator import (
             SuppressionRule,
         )
-        from src.common.alert_suppression_manager_helpers.dependencies_factory import (
+        from common.alert_suppression_manager_helpers.dependencies_factory import (
             AlertSuppressionManagerDependencies,
             AlertSuppressionManagerDependenciesFactory,
             OptionalDependencies,
@@ -452,10 +452,10 @@ class TestDependenciesFactoryCreateOrUse:
 
     def test_create_or_use_with_empty_optional_deps_uses_defaults(self, factory_mocks):
         """Test that when optional deps has all None, uses defaults."""
-        from src.common.alert_suppression_manager_helpers.alert_evaluator import (
+        from common.alert_suppression_manager_helpers.alert_evaluator import (
             SuppressionRule,
         )
-        from src.common.alert_suppression_manager_helpers.dependencies_factory import (
+        from common.alert_suppression_manager_helpers.dependencies_factory import (
             AlertSuppressionManagerDependencies,
             AlertSuppressionManagerDependenciesFactory,
             OptionalDependencies,
@@ -502,10 +502,10 @@ class TestDependenciesFactoryCreateOrUse:
 
     def test_create_or_use_merge_preserves_all_provided(self, factory_mocks):
         """Test that merge logic preserves all provided dependencies."""
-        from src.common.alert_suppression_manager_helpers.alert_evaluator import (
+        from common.alert_suppression_manager_helpers.alert_evaluator import (
             SuppressionRule,
         )
-        from src.common.alert_suppression_manager_helpers.dependencies_factory import (
+        from common.alert_suppression_manager_helpers.dependencies_factory import (
             AlertSuppressionManagerDependenciesFactory,
             OptionalDependencies,
         )
@@ -547,7 +547,7 @@ class TestModuleIntegration:
 
     def test_all_classes_importable(self):
         """Test that all classes are importable."""
-        from src.common.alert_suppression_manager_helpers import dependencies_factory
+        from common.alert_suppression_manager_helpers import dependencies_factory
 
         assert hasattr(dependencies_factory, "AlertSuppressionManagerDependencies")
         assert hasattr(dependencies_factory, "OptionalDependencies")
@@ -555,7 +555,7 @@ class TestModuleIntegration:
 
     def test_field_count_matches_between_dataclasses(self):
         """Test that both dataclasses have the same number of fields."""
-        from src.common.alert_suppression_manager_helpers.dependencies_factory import (
+        from common.alert_suppression_manager_helpers.dependencies_factory import (
             AlertSuppressionManagerDependencies,
             OptionalDependencies,
         )
@@ -567,10 +567,10 @@ class TestModuleIntegration:
 
     def test_factory_methods_return_correct_type(self, factory_mocks):
         """Test that both factory methods return AlertSuppressionManagerDependencies."""
-        from src.common.alert_suppression_manager_helpers.alert_evaluator import (
+        from common.alert_suppression_manager_helpers.alert_evaluator import (
             SuppressionRule,
         )
-        from src.common.alert_suppression_manager_helpers.dependencies_factory import (
+        from common.alert_suppression_manager_helpers.dependencies_factory import (
             AlertSuppressionManagerDependencies,
             AlertSuppressionManagerDependenciesFactory,
         )

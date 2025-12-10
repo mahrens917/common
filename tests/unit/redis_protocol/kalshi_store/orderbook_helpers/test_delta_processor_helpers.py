@@ -6,7 +6,7 @@ import orjson
 import pytest
 from redis.exceptions import RedisError
 
-from src.common.redis_protocol.kalshi_store.orderbook_helpers.delta_processor_helpers import (
+from common.redis_protocol.kalshi_store.orderbook_helpers.delta_processor_helpers import (
     apply_delta_to_orderbook,
     determine_side_field_and_price,
     extract_trade_prices,
@@ -374,7 +374,7 @@ class TestUpdateBestPrices:
     """Tests for update_best_prices function."""
 
     @patch(
-        "src.common.redis_protocol.kalshi_store.orderbook_helpers.delta_processor_helpers.extract_best_bid"
+        "common.redis_protocol.kalshi_store.orderbook_helpers.delta_processor_helpers.extract_best_bid"
     )
     async def test_update_yes_bids_best_prices(self, mock_extract_bid):
         """Test updating best prices for yes_bids."""
@@ -396,7 +396,7 @@ class TestUpdateBestPrices:
         store_optional_field_func.assert_any_await(redis, "market:TEST", "yes_bid_size", 100)
 
     @patch(
-        "src.common.redis_protocol.kalshi_store.orderbook_helpers.delta_processor_helpers.extract_best_ask"
+        "common.redis_protocol.kalshi_store.orderbook_helpers.delta_processor_helpers.extract_best_ask"
     )
     async def test_update_yes_asks_best_prices(self, mock_extract_ask):
         """Test updating best prices for yes_asks."""
@@ -418,7 +418,7 @@ class TestUpdateBestPrices:
         store_optional_field_func.assert_any_await(redis, "market:TEST", "yes_ask_size", 75)
 
     @patch(
-        "src.common.redis_protocol.kalshi_store.orderbook_helpers.delta_processor_helpers.extract_best_bid"
+        "common.redis_protocol.kalshi_store.orderbook_helpers.delta_processor_helpers.extract_best_bid"
     )
     async def test_update_yes_bids_with_none_values(self, mock_extract_bid):
         """Test updating yes_bids when extract returns None."""
@@ -440,7 +440,7 @@ class TestUpdateBestPrices:
         store_optional_field_func.assert_any_await(redis, "market:TEST", "yes_bid_size", None)
 
     @patch(
-        "src.common.redis_protocol.kalshi_store.orderbook_helpers.delta_processor_helpers.extract_best_ask"
+        "common.redis_protocol.kalshi_store.orderbook_helpers.delta_processor_helpers.extract_best_ask"
     )
     async def test_update_yes_asks_with_none_values(self, mock_extract_ask):
         """Test updating yes_asks when extract returns None."""

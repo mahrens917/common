@@ -4,8 +4,8 @@ from __future__ import annotations
 
 from unittest.mock import MagicMock
 
-from src.common.data_models.trading import OrderStatus
-from src.common.order_execution.finalizer_helpers.data_builder import (
+from common.data_models.trading import OrderStatus
+from common.order_execution.finalizer_helpers.data_builder import (
     build_order_data_payload,
     build_response_data_payload,
 )

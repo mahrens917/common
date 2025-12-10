@@ -1,6 +1,6 @@
 """Shared helpers for price history recording/retrieval."""
 
-from src.common.exceptions import ValidationError
+from common.exceptions import ValidationError
 
 
 def validate_currency(currency: str) -> None:

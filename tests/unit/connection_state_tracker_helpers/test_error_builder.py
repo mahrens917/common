@@ -4,7 +4,7 @@ from unittest.mock import patch
 
 import pytest
 
-from src.common.connection_state_tracker_helpers.error_builder import (
+from common.connection_state_tracker_helpers.error_builder import (
     ConnectionStateTrackerError,
     build_tracker_error,
 )
@@ -33,7 +33,7 @@ class TestBuildTrackerError:
         """Returns ConnectionStateTrackerError instance."""
         original = ValueError("original error")
 
-        with patch("src.common.connection_state_tracker_helpers.error_builder.logger"):
+        with patch("common.connection_state_tracker_helpers.error_builder.logger"):
             result = build_tracker_error("Failed to persist", original)
 
         assert isinstance(result, ConnectionStateTrackerError)
@@ -42,7 +42,7 @@ class TestBuildTrackerError:
         """Returned error has the provided message."""
         original = ValueError("original error")
 
-        with patch("src.common.connection_state_tracker_helpers.error_builder.logger"):
+        with patch("common.connection_state_tracker_helpers.error_builder.logger"):
             result = build_tracker_error("Failed to persist", original)
 
         assert str(result) == "Failed to persist"
@@ -51,7 +51,7 @@ class TestBuildTrackerError:
         """Returned error has original error as cause."""
         original = ValueError("original error")
 
-        with patch("src.common.connection_state_tracker_helpers.error_builder.logger"):
+        with patch("common.connection_state_tracker_helpers.error_builder.logger"):
             result = build_tracker_error("Failed to persist", original)
 
         assert result.__cause__ is original
@@ -61,7 +61,7 @@ class TestBuildTrackerError:
         original = ValueError("original error")
 
         with patch(
-            "src.common.connection_state_tracker_helpers.error_builder.logger"
+            "common.connection_state_tracker_helpers.error_builder.logger"
         ) as mock_logger:
             build_tracker_error("Failed to persist", original)
 

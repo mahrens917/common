@@ -5,7 +5,7 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
-from src.common.dawn_reset_service_helpers.field_reset_evaluator import FieldResetEvaluator
+from common.dawn_reset_service_helpers.field_reset_evaluator import FieldResetEvaluator
 
 
 class TestFieldResetEvaluatorInit:
@@ -83,7 +83,7 @@ class TestFieldResetEvaluatorShouldResetField:
         evaluator._evaluation_cases = MagicMock()
         evaluator._evaluation_cases.evaluate_first_run.return_value = (True, boundary)
 
-        with patch("src.common.time_utils.get_current_utc") as mock_time:
+        with patch("common.time_utils.get_current_utc") as mock_time:
             mock_time.return_value = datetime(2025, 1, 15, 12, 0, 0, tzinfo=timezone.utc)
 
             result, returned_boundary = evaluator.should_reset_field(

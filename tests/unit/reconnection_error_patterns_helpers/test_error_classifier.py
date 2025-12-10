@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import pytest
 
-from src.common.reconnection_error_patterns_helpers.error_classifier import (
+from common.reconnection_error_patterns_helpers.error_classifier import (
     ErrorTypeClassifier,
 )
 

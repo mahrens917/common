@@ -2,7 +2,7 @@
 
 from unittest.mock import MagicMock
 
-from src.common.dawn_reset_service_helpers.dependencies_factory import (
+from common.dawn_reset_service_helpers.dependencies_factory import (
     CreateOrUseConfig,
     DawnResetServiceDependencies,
     DawnResetServiceDependenciesFactory,

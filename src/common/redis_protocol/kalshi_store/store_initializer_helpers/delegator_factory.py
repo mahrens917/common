@@ -2,24 +2,24 @@
 
 from dataclasses import dataclass
 
-from src.common.redis_protocol.kalshi_store.attribute_resolver import (
+from common.redis_protocol.kalshi_store.attribute_resolver import (
     AttributeResolver,
     AttributeResolverDelegators,
 )
-from src.common.redis_protocol.kalshi_store.cleanup_delegator import CleanupDelegator
-from src.common.redis_protocol.kalshi_store.facade_coordinator import (
+from common.redis_protocol.kalshi_store.cleanup_delegator import CleanupDelegator
+from common.redis_protocol.kalshi_store.facade_coordinator import (
     ConnectionDelegator,
     MarketQueryDelegator,
     MetadataDelegator,
     SubscriptionDelegator,
 )
-from src.common.redis_protocol.kalshi_store.facade_helpers_modules.property_manager import (
+from common.redis_protocol.kalshi_store.facade_helpers_modules.property_manager import (
     PropertyManager,
 )
-from src.common.redis_protocol.kalshi_store.orderbook_delegator import OrderbookDelegator
-from src.common.redis_protocol.kalshi_store.storage_delegator import StorageDelegator
-from src.common.redis_protocol.kalshi_store.utility_delegator import UtilityDelegator
-from src.common.redis_protocol.kalshi_store.write_delegator import WriteDelegator
+from common.redis_protocol.kalshi_store.orderbook_delegator import OrderbookDelegator
+from common.redis_protocol.kalshi_store.storage_delegator import StorageDelegator
+from common.redis_protocol.kalshi_store.utility_delegator import UtilityDelegator
+from common.redis_protocol.kalshi_store.write_delegator import WriteDelegator
 
 
 @dataclass(frozen=True)

@@ -1,7 +1,7 @@
 import unittest
 from unittest.mock import Mock
 
-from src.common.report_generator_helpers.dollar_converter import DollarConverter
+from common.report_generator_helpers.dollar_converter import DollarConverter
 
 
 class TestDollarConverter(unittest.TestCase):

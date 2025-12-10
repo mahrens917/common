@@ -5,7 +5,7 @@ from unittest.mock import Mock, patch
 
 import pytest
 
-from src.common.data_models.market_data import (
+from common.data_models.market_data import (
     DeribitFuturesData,
     DeribitOptionData,
     Instrument,
@@ -340,13 +340,13 @@ class TestMicroPriceOptionData:
 
         with (
             patch(
-                "src.common.data_models.market_data.MicroPriceValidator.validate_basic_option_data"
+                "common.data_models.market_data.MicroPriceValidator.validate_basic_option_data"
             ),
             patch(
-                "src.common.data_models.market_data.MicroPriceValidator.validate_micro_price_calculations"
+                "common.data_models.market_data.MicroPriceValidator.validate_micro_price_calculations"
             ),
             patch(
-                "src.common.data_models.market_data.MicroPriceValidator.validate_mathematical_relationships"
+                "common.data_models.market_data.MicroPriceValidator.validate_mathematical_relationships"
             ),
         ):
             data = MicroPriceOptionData(
@@ -382,13 +382,13 @@ class TestMicroPriceOptionData:
 
         with (
             patch(
-                "src.common.data_models.market_data.MicroPriceValidator.validate_basic_option_data"
+                "common.data_models.market_data.MicroPriceValidator.validate_basic_option_data"
             ) as mock_validate,
             patch(
-                "src.common.data_models.market_data.MicroPriceValidator.validate_micro_price_calculations"
+                "common.data_models.market_data.MicroPriceValidator.validate_micro_price_calculations"
             ),
             patch(
-                "src.common.data_models.market_data.MicroPriceValidator.validate_mathematical_relationships"
+                "common.data_models.market_data.MicroPriceValidator.validate_mathematical_relationships"
             ),
         ):
             MicroPriceOptionData(
@@ -423,13 +423,13 @@ class TestMicroPriceOptionDataMethods:
 
         with (
             patch(
-                "src.common.data_models.market_data.MicroPriceValidator.validate_basic_option_data"
+                "common.data_models.market_data.MicroPriceValidator.validate_basic_option_data"
             ),
             patch(
-                "src.common.data_models.market_data.MicroPriceValidator.validate_micro_price_calculations"
+                "common.data_models.market_data.MicroPriceValidator.validate_micro_price_calculations"
             ),
             patch(
-                "src.common.data_models.market_data.MicroPriceValidator.validate_mathematical_relationships"
+                "common.data_models.market_data.MicroPriceValidator.validate_mathematical_relationships"
             ),
         ):
             data = MicroPriceOptionData(
@@ -452,7 +452,7 @@ class TestMicroPriceOptionDataMethods:
             )
 
         with patch(
-            "src.common.data_models.market_data.MicroPriceValidator.validate_micro_price_constraints",
+            "common.data_models.market_data.MicroPriceValidator.validate_micro_price_constraints",
             return_value=True,
         ):
             result = data.validate_micro_price_constraints()
@@ -465,13 +465,13 @@ class TestMicroPriceOptionDataMethods:
 
         with (
             patch(
-                "src.common.data_models.market_data.MicroPriceValidator.validate_basic_option_data"
+                "common.data_models.market_data.MicroPriceValidator.validate_basic_option_data"
             ),
             patch(
-                "src.common.data_models.market_data.MicroPriceValidator.validate_micro_price_calculations"
+                "common.data_models.market_data.MicroPriceValidator.validate_micro_price_calculations"
             ),
             patch(
-                "src.common.data_models.market_data.MicroPriceValidator.validate_mathematical_relationships"
+                "common.data_models.market_data.MicroPriceValidator.validate_mathematical_relationships"
             ),
         ):
             data = MicroPriceOptionData(
@@ -494,7 +494,7 @@ class TestMicroPriceOptionDataMethods:
             )
 
         with patch(
-            "src.common.data_models.market_data.MicroPriceValidator.get_validation_errors",
+            "common.data_models.market_data.MicroPriceValidator.get_validation_errors",
             return_value=[],
         ):
             assert data.is_valid() is True
@@ -506,13 +506,13 @@ class TestMicroPriceOptionDataMethods:
 
         with (
             patch(
-                "src.common.data_models.market_data.MicroPriceValidator.validate_basic_option_data"
+                "common.data_models.market_data.MicroPriceValidator.validate_basic_option_data"
             ),
             patch(
-                "src.common.data_models.market_data.MicroPriceValidator.validate_micro_price_calculations"
+                "common.data_models.market_data.MicroPriceValidator.validate_micro_price_calculations"
             ),
             patch(
-                "src.common.data_models.market_data.MicroPriceValidator.validate_mathematical_relationships"
+                "common.data_models.market_data.MicroPriceValidator.validate_mathematical_relationships"
             ),
         ):
             data = MicroPriceOptionData(
@@ -535,7 +535,7 @@ class TestMicroPriceOptionDataMethods:
             )
 
         with patch(
-            "src.common.data_models.market_data.MicroPriceValidator.get_validation_errors",
+            "common.data_models.market_data.MicroPriceValidator.get_validation_errors",
             return_value=["Error 1", "Error 2"],
         ):
             errors = data.get_validation_errors()
@@ -548,13 +548,13 @@ class TestMicroPriceOptionDataMethods:
 
         with (
             patch(
-                "src.common.data_models.market_data.MicroPriceValidator.validate_basic_option_data"
+                "common.data_models.market_data.MicroPriceValidator.validate_basic_option_data"
             ),
             patch(
-                "src.common.data_models.market_data.MicroPriceValidator.validate_micro_price_calculations"
+                "common.data_models.market_data.MicroPriceValidator.validate_micro_price_calculations"
             ),
             patch(
-                "src.common.data_models.market_data.MicroPriceValidator.validate_mathematical_relationships"
+                "common.data_models.market_data.MicroPriceValidator.validate_mathematical_relationships"
             ),
         ):
             data = MicroPriceOptionData(
@@ -577,7 +577,7 @@ class TestMicroPriceOptionDataMethods:
             )
 
         with patch(
-            "src.common.data_models.market_data.MicroPriceCalculator.compute_intrinsic_value",
+            "common.data_models.market_data.MicroPriceCalculator.compute_intrinsic_value",
             return_value=2000.0,
         ):
             intrinsic = data.intrinsic_value(47000.0)
@@ -590,13 +590,13 @@ class TestMicroPriceOptionDataMethods:
 
         with (
             patch(
-                "src.common.data_models.market_data.MicroPriceValidator.validate_basic_option_data"
+                "common.data_models.market_data.MicroPriceValidator.validate_basic_option_data"
             ),
             patch(
-                "src.common.data_models.market_data.MicroPriceValidator.validate_micro_price_calculations"
+                "common.data_models.market_data.MicroPriceValidator.validate_micro_price_calculations"
             ),
             patch(
-                "src.common.data_models.market_data.MicroPriceValidator.validate_mathematical_relationships"
+                "common.data_models.market_data.MicroPriceValidator.validate_mathematical_relationships"
             ),
         ):
             data = MicroPriceOptionData(
@@ -619,7 +619,7 @@ class TestMicroPriceOptionDataMethods:
             )
 
         with patch(
-            "src.common.data_models.market_data.MicroPriceCalculator.compute_time_value",
+            "common.data_models.market_data.MicroPriceCalculator.compute_time_value",
             return_value=500.0,
         ):
             time_val = data.time_value(47000.0)
@@ -636,13 +636,13 @@ class TestMicroPriceOptionDataProperties:
 
         with (
             patch(
-                "src.common.data_models.market_data.MicroPriceValidator.validate_basic_option_data"
+                "common.data_models.market_data.MicroPriceValidator.validate_basic_option_data"
             ),
             patch(
-                "src.common.data_models.market_data.MicroPriceValidator.validate_micro_price_calculations"
+                "common.data_models.market_data.MicroPriceValidator.validate_micro_price_calculations"
             ),
             patch(
-                "src.common.data_models.market_data.MicroPriceValidator.validate_mathematical_relationships"
+                "common.data_models.market_data.MicroPriceValidator.validate_mathematical_relationships"
             ),
         ):
             data = MicroPriceOptionData(
@@ -665,7 +665,7 @@ class TestMicroPriceOptionDataProperties:
             )
 
         with patch(
-            "src.common.data_models.market_data.MicroPriceProperties.get_is_future",
+            "common.data_models.market_data.MicroPriceProperties.get_is_future",
             return_value=False,
         ):
             assert data.is_future is False
@@ -677,13 +677,13 @@ class TestMicroPriceOptionDataProperties:
 
         with (
             patch(
-                "src.common.data_models.market_data.MicroPriceValidator.validate_basic_option_data"
+                "common.data_models.market_data.MicroPriceValidator.validate_basic_option_data"
             ),
             patch(
-                "src.common.data_models.market_data.MicroPriceValidator.validate_micro_price_calculations"
+                "common.data_models.market_data.MicroPriceValidator.validate_micro_price_calculations"
             ),
             patch(
-                "src.common.data_models.market_data.MicroPriceValidator.validate_mathematical_relationships"
+                "common.data_models.market_data.MicroPriceValidator.validate_mathematical_relationships"
             ),
         ):
             data = MicroPriceOptionData(
@@ -706,7 +706,7 @@ class TestMicroPriceOptionDataProperties:
             )
 
         with patch(
-            "src.common.data_models.market_data.MicroPriceProperties.get_bid_price",
+            "common.data_models.market_data.MicroPriceProperties.get_bid_price",
             return_value=1500.0,
         ):
             assert data.bid_price == 1500.0
@@ -718,13 +718,13 @@ class TestMicroPriceOptionDataProperties:
 
         with (
             patch(
-                "src.common.data_models.market_data.MicroPriceValidator.validate_basic_option_data"
+                "common.data_models.market_data.MicroPriceValidator.validate_basic_option_data"
             ),
             patch(
-                "src.common.data_models.market_data.MicroPriceValidator.validate_micro_price_calculations"
+                "common.data_models.market_data.MicroPriceValidator.validate_micro_price_calculations"
             ),
             patch(
-                "src.common.data_models.market_data.MicroPriceValidator.validate_mathematical_relationships"
+                "common.data_models.market_data.MicroPriceValidator.validate_mathematical_relationships"
             ),
         ):
             data = MicroPriceOptionData(
@@ -747,7 +747,7 @@ class TestMicroPriceOptionDataProperties:
             )
 
         with patch(
-            "src.common.data_models.market_data.MicroPriceProperties.get_mid_price",
+            "common.data_models.market_data.MicroPriceProperties.get_mid_price",
             return_value=1525.0,
         ):
             assert data.mid_price == 1525.0
@@ -759,13 +759,13 @@ class TestMicroPriceOptionDataProperties:
 
         with (
             patch(
-                "src.common.data_models.market_data.MicroPriceValidator.validate_basic_option_data"
+                "common.data_models.market_data.MicroPriceValidator.validate_basic_option_data"
             ),
             patch(
-                "src.common.data_models.market_data.MicroPriceValidator.validate_micro_price_calculations"
+                "common.data_models.market_data.MicroPriceValidator.validate_micro_price_calculations"
             ),
             patch(
-                "src.common.data_models.market_data.MicroPriceValidator.validate_mathematical_relationships"
+                "common.data_models.market_data.MicroPriceValidator.validate_mathematical_relationships"
             ),
         ):
             data = MicroPriceOptionData(
@@ -788,7 +788,7 @@ class TestMicroPriceOptionDataProperties:
             )
 
         with patch(
-            "src.common.data_models.market_data.MicroPriceProperties.check_is_call",
+            "common.data_models.market_data.MicroPriceProperties.check_is_call",
             return_value=True,
         ):
             assert data.is_call is True

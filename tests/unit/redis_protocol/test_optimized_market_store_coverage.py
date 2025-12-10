@@ -4,11 +4,11 @@ from typing import Any
 
 import pytest
 
-from src.common.redis_protocol.optimized_market_store import OptimizedMarketStore
-from src.common.redis_protocol.optimized_market_store_helpers.instrument_fetcher import (
+from common.redis_protocol.optimized_market_store import OptimizedMarketStore
+from common.redis_protocol.optimized_market_store_helpers.instrument_fetcher import (
     InstrumentFetcher,
 )
-from src.common.redis_protocol.optimized_market_store_helpers.instrument_fetcher_helpers.redis_scanner import (
+from common.redis_protocol.optimized_market_store_helpers.instrument_fetcher_helpers.redis_scanner import (
     RedisInstrumentScanner,
 )
 
@@ -60,7 +60,7 @@ async def test_redis_instrument_scanner_fetches_data(monkeypatch):
         )
 
     monkeypatch.setattr(
-        "src.common.redis_protocol.optimized_market_store_helpers.instrument_fetcher_helpers.redis_scanner.parse_deribit_market_key",
+        "common.redis_protocol.optimized_market_store_helpers.instrument_fetcher_helpers.redis_scanner.parse_deribit_market_key",
         lambda key: dummy_descriptor,
     )
 
@@ -156,7 +156,7 @@ class _FailingInitializer:
 @pytest.mark.asyncio
 async def test_optimized_market_store_happy_path(monkeypatch):
     monkeypatch.setattr(
-        "src.common.redis_protocol.optimized_market_store.RedisInitializer", _StubInitializer
+        "common.redis_protocol.optimized_market_store.RedisInitializer", _StubInitializer
     )
 
     store = OptimizedMarketStore("redis")
@@ -180,7 +180,7 @@ async def test_optimized_market_store_happy_path(monkeypatch):
 @pytest.mark.asyncio
 async def test_optimized_market_store_handles_errors(monkeypatch):
     monkeypatch.setattr(
-        "src.common.redis_protocol.optimized_market_store.RedisInitializer", _StubInitializer
+        "common.redis_protocol.optimized_market_store.RedisInitializer", _StubInitializer
     )
     store = OptimizedMarketStore("redis")
     store.instrument_fetcher = _StubFetcher(Exception("fail"))  # type: ignore[assignment]
@@ -190,7 +190,7 @@ async def test_optimized_market_store_handles_errors(monkeypatch):
     assert await store.get_futures_by_currency("BTC") == []
 
     monkeypatch.setattr(
-        "src.common.redis_protocol.optimized_market_store.RedisInitializer", _FailingInitializer
+        "common.redis_protocol.optimized_market_store.RedisInitializer", _FailingInitializer
     )
     store2 = OptimizedMarketStore("redis")
     with pytest.raises(RuntimeError):

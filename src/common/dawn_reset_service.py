@@ -8,7 +8,7 @@ that need to reset when trading opens (at dawn) rather than at midnight.
 from datetime import datetime
 from typing import Any, Dict, Optional, Tuple
 
-from src.common.exceptions import DataError
+from common.exceptions import DataError
 
 from .dawn_reset_service_helpers import (
     FieldResetApplicatorWithAlert,

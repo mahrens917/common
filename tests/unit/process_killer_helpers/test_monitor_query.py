@@ -6,7 +6,7 @@ from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 
-from src.common.process_killer_helpers.monitor_query import query_monitor_for_processes
+from common.process_killer_helpers.monitor_query import query_monitor_for_processes
 
 
 class TestQueryMonitorForProcesses:
@@ -19,7 +19,7 @@ class TestQueryMonitorForProcesses:
         mock_monitor.find_processes_by_keywords = AsyncMock(return_value=[])
 
         with patch(
-            "src.common.process_killer_helpers.monitor_query.process_monitor_module.get_global_process_monitor",
+            "common.process_killer_helpers.monitor_query.process_monitor_module.get_global_process_monitor",
             return_value=mock_monitor,
         ):
             await query_monitor_for_processes(["python"], "test_service")
@@ -35,7 +35,7 @@ class TestQueryMonitorForProcesses:
         mock_monitor.find_processes_by_keywords = AsyncMock(return_value=[proc1, proc2])
 
         with patch(
-            "src.common.process_killer_helpers.monitor_query.process_monitor_module.get_global_process_monitor",
+            "common.process_killer_helpers.monitor_query.process_monitor_module.get_global_process_monitor",
             return_value=mock_monitor,
         ):
             result = await query_monitor_for_processes(["service"], "test_service")
@@ -56,7 +56,7 @@ class TestQueryMonitorForProcesses:
         mock_monitor.find_processes_by_keywords = AsyncMock(return_value=process_gen())
 
         with patch(
-            "src.common.process_killer_helpers.monitor_query.process_monitor_module.get_global_process_monitor",
+            "common.process_killer_helpers.monitor_query.process_monitor_module.get_global_process_monitor",
             return_value=mock_monitor,
         ):
             result = await query_monitor_for_processes(["keyword"], "service")
@@ -73,7 +73,7 @@ class TestQueryMonitorForProcesses:
         keywords = ["python", "service", "main"]
 
         with patch(
-            "src.common.process_killer_helpers.monitor_query.process_monitor_module.get_global_process_monitor",
+            "common.process_killer_helpers.monitor_query.process_monitor_module.get_global_process_monitor",
             return_value=mock_monitor,
         ):
             await query_monitor_for_processes(keywords, "my_service")

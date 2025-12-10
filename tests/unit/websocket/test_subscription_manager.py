@@ -2,7 +2,7 @@ from unittest.mock import AsyncMock, Mock, patch
 
 import pytest
 
-from src.common.websocket.subscription_manager import UnifiedSubscriptionManager
+from common.websocket.subscription_manager import UnifiedSubscriptionManager
 
 
 class TestUnifiedSubscriptionManager:

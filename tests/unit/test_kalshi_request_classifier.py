@@ -2,8 +2,8 @@ import logging
 
 import pytest
 
-from src.common import kalshi_request_classifier as classifier
-from src.common.kalshi_rate_limiter import RequestType
+from common import kalshi_request_classifier as classifier
+from common.kalshi_rate_limiter import RequestType
 
 
 @pytest.mark.parametrize(

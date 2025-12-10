@@ -4,12 +4,12 @@ from unittest.mock import AsyncMock
 
 import pytest
 
-from src.common.dependency_aware_error_filter_helpers.dependency_checker import DependencyChecker
-from src.common.dependency_aware_error_filter_helpers.pattern_matcher import (
+from common.dependency_aware_error_filter_helpers.dependency_checker import DependencyChecker
+from common.dependency_aware_error_filter_helpers.pattern_matcher import (
     DependencyErrorPattern,
     PatternMatcher,
 )
-from src.common.dependency_aware_error_filter_helpers.status_updater import StatusUpdater
+from common.dependency_aware_error_filter_helpers.status_updater import StatusUpdater
 
 pytestmark = pytest.mark.unit
 

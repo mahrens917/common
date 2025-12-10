@@ -2,14 +2,14 @@ from types import SimpleNamespace
 
 import pytest
 
-from src.common.dependency_validator import (
+from common.dependency_validator import (
     DependencyValidator,
     LDMNotInstalledError,
 )
 
 
 def test_validate_ldm_dependencies_missing(monkeypatch):
-    monkeypatch.setattr("src.common.dependency_validator.shutil.which", lambda _: None)
+    monkeypatch.setattr("common.dependency_validator.shutil.which", lambda _: None)
 
     with pytest.raises(LDMNotInstalledError):
         DependencyValidator.validate_ldm_dependencies()
@@ -17,7 +17,7 @@ def test_validate_ldm_dependencies_missing(monkeypatch):
 
 def test_validate_ldm_dependencies_success(monkeypatch):
     monkeypatch.setattr(
-        "src.common.dependency_validator.shutil.which", lambda _: "/usr/bin/pqstream"
+        "common.dependency_validator.shutil.which", lambda _: "/usr/bin/pqstream"
     )
 
     DependencyValidator.validate_ldm_dependencies()
@@ -66,7 +66,7 @@ def test_validate_weather_dependencies_requires_ldm(monkeypatch):
         sources=SimpleNamespace(metar_source="ldm", asos_source="api"),
     )
 
-    monkeypatch.setattr("src.common.dependency_validator.get_weather_settings", lambda: settings)
+    monkeypatch.setattr("common.dependency_validator.get_weather_settings", lambda: settings)
     monkeypatch.setattr(
         DependencyValidator,
         "validate_ldm_dependencies",
@@ -85,7 +85,7 @@ def test_validate_weather_dependencies_skips_non_ldm(monkeypatch):
         sources=SimpleNamespace(metar_source="api", asos_source="https"),
     )
 
-    monkeypatch.setattr("src.common.dependency_validator.get_weather_settings", lambda: settings)
+    monkeypatch.setattr("common.dependency_validator.get_weather_settings", lambda: settings)
     monkeypatch.setattr(
         DependencyValidator,
         "validate_ldm_dependencies",

@@ -8,7 +8,7 @@ import asyncio
 import logging
 from typing import Any, Dict, List, Optional
 
-from src.common.monitoring import ProcessStatus
+from common.monitoring import ProcessStatus
 
 logger = logging.getLogger(__name__)
 

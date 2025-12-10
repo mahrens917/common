@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from src.common.market_data_parser_helpers.contract_validator_helpers.error_handler import (
+from common.market_data_parser_helpers.contract_validator_helpers.error_handler import (
     ErrorHandler,
 )
 

@@ -3,7 +3,7 @@
 import logging
 from datetime import datetime, timezone
 
-from src.common.exceptions import ValidationError
+from common.exceptions import ValidationError
 
 from ...data_models.instrument import Instrument
 

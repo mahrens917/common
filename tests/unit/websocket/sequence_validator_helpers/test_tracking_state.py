@@ -1,6 +1,6 @@
 """Tests for tracking state module."""
 
-from src.common.websocket.sequence_validator_helpers.tracking_state import (
+from common.websocket.sequence_validator_helpers.tracking_state import (
     TrackingState,
 )
 

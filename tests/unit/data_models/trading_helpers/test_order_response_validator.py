@@ -2,8 +2,8 @@ import unittest
 from datetime import datetime
 from unittest.mock import MagicMock, Mock
 
-from src.common.data_models.trading import OrderAction, OrderSide, OrderStatus, OrderType
-from src.common.data_models.trading_helpers.order_response_validator import (
+from common.data_models.trading import OrderAction, OrderSide, OrderStatus, OrderType
+from common.data_models.trading_helpers.order_response_validator import (
     validate_order_response_counts,
     validate_order_response_enums,
     validate_order_response_fills,

@@ -1,4 +1,4 @@
-from src.common.user_display_helpers.metric_display import format_timing_summary
+from common.user_display_helpers.metric_display import format_timing_summary
 
 
 def test_timing_summary_allows_small_gap_with_dynamic_tolerance():

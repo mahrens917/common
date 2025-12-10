@@ -9,11 +9,11 @@ import asyncio
 import logging
 from typing import Any, Dict, Optional
 
-from src.common.optimized_status_reporter_helpers.log_activity_formatter import (
+from common.optimized_status_reporter_helpers.log_activity_formatter import (
     LogActivityFormatter,
 )
-from src.common.optimized_status_reporter_helpers.time_formatter import TimeFormatter
-from src.common.optimized_status_reporter_mixins import (
+from common.optimized_status_reporter_helpers.time_formatter import TimeFormatter
+from common.optimized_status_reporter_mixins import (
     StatusReporterFormatterMixin,
     StatusReporterWeatherMixin,
 )
@@ -62,8 +62,8 @@ class OptimizedStatusReporter(
     async def generate_and_stream_status_report(self) -> Dict[str, Any]:
         """Generate and stream status report using optimized patterns."""
 
-        from src.common.process_monitor import get_global_process_monitor
-        from src.common.redis_protocol.connection_pool_core import get_redis_client
+        from common.process_monitor import get_global_process_monitor
+        from common.redis_protocol.connection_pool_core import get_redis_client
 
         try:
             redis_client = await get_redis_client()
@@ -95,8 +95,8 @@ class OptimizedStatusReporter(
         Creates and cleans up a Redis client when one is not provided.
         """
 
-        from src.common.process_monitor import get_global_process_monitor
-        from src.common.redis_protocol.connection_pool_core import get_redis_client as get_client
+        from common.process_monitor import get_global_process_monitor
+        from common.redis_protocol.connection_pool_core import get_redis_client as get_client
 
         owns_client = False
         if redis_client is None:

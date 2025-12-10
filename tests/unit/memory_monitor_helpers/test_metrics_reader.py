@@ -7,7 +7,7 @@ from unittest.mock import MagicMock, patch
 import psutil
 import pytest
 
-from src.common.memory_monitor_helpers.metrics_reader import MetricsReader
+from common.memory_monitor_helpers.metrics_reader import MetricsReader
 
 
 class TestInit:
@@ -409,7 +409,7 @@ class TestErrorConstants:
 
     def test_psutil_errors_includes_psutil_error(self):
         """Test that PSUTIL_ERRORS includes psutil.Error."""
-        from src.common.memory_monitor_helpers.metrics_reader import (
+        from common.memory_monitor_helpers.metrics_reader import (
             PSUTIL_ERRORS,
         )
 
@@ -417,7 +417,7 @@ class TestErrorConstants:
 
     def test_psutil_errors_includes_os_error(self):
         """Test that PSUTIL_ERRORS includes OSError."""
-        from src.common.memory_monitor_helpers.metrics_reader import (
+        from common.memory_monitor_helpers.metrics_reader import (
             PSUTIL_ERRORS,
         )
 
@@ -425,7 +425,7 @@ class TestErrorConstants:
 
     def test_task_query_errors_includes_runtime_error(self):
         """Test that TASK_QUERY_ERRORS includes RuntimeError."""
-        from src.common.memory_monitor_helpers.metrics_reader import (
+        from common.memory_monitor_helpers.metrics_reader import (
             TASK_QUERY_ERRORS,
         )
 
@@ -433,7 +433,7 @@ class TestErrorConstants:
 
     def test_task_query_errors_includes_value_error(self):
         """Test that TASK_QUERY_ERRORS includes ValueError."""
-        from src.common.memory_monitor_helpers.metrics_reader import (
+        from common.memory_monitor_helpers.metrics_reader import (
             TASK_QUERY_ERRORS,
         )
 

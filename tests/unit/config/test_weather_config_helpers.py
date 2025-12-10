@@ -5,7 +5,7 @@ from pathlib import Path
 
 import pytest
 
-from src.common.config.weather import (
+from common.config.weather import (
     WeatherConfigError,
     load_weather_station_mapping,
     load_weather_trading_config,

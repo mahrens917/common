@@ -3,7 +3,7 @@ from unittest.mock import AsyncMock
 import orjson
 import pytest
 
-from src.common.redis_protocol.probability_store import (
+from common.redis_protocol.probability_store import (
     ProbabilityDataNotFoundError,
     ProbabilityStore,
 )

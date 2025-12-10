@@ -16,7 +16,7 @@ def decode_payload(value: Any) -> Any:
 
 def to_float_value(value: Any) -> Optional[float]:
     """Convert value to float, returning None on failure. Delegates to canonical implementation."""
-    from src.common.utils.numeric import coerce_float_optional
+    from common.utils.numeric import coerce_float_optional
 
     decoded = decode_payload(value)
     if decoded in ("None",):
@@ -31,7 +31,7 @@ def to_float_value(value: Any) -> Optional[float]:
 
 def to_int_value(value: Any) -> Optional[int]:
     """Convert value to int, returning None on failure. Delegates to canonical implementation."""
-    from src.common.utils.numeric import coerce_int_optional
+    from common.utils.numeric import coerce_int_optional
 
     decoded = decode_payload(value)
     if decoded in ("None",):

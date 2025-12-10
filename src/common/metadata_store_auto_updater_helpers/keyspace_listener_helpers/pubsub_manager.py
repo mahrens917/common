@@ -3,9 +3,9 @@
 import asyncio
 import logging
 
-from src.common.connection_manager_helpers.shutdown_mixin import ShutdownRequestMixin
-from src.common.redis_protocol.connection import perform_redis_health_check
-from src.common.redis_protocol.typing import RedisClient, ensure_awaitable
+from common.connection_manager_helpers.shutdown_mixin import ShutdownRequestMixin
+from common.redis_protocol.connection import perform_redis_health_check
+from common.redis_protocol.typing import RedisClient, ensure_awaitable
 
 logger = logging.getLogger(__name__)
 

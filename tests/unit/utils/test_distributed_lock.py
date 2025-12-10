@@ -1,6 +1,6 @@
 import pytest
 
-from src.common.utils.distributed_lock import (
+from common.utils.distributed_lock import (
     DistributedLock,
     LockUnavailableError,
     create_liquidation_lock,

@@ -5,7 +5,7 @@ from __future__ import annotations
 from datetime import datetime, timezone
 from typing import Any, Callable, Dict, List, Optional
 
-from src.common.exceptions import DataError
+from common.exceptions import DataError
 
 from ...parsing import parse_expiry_token
 

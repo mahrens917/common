@@ -3,10 +3,10 @@ from unittest.mock import MagicMock
 
 import pytest
 
-from src.common.redis_protocol.kalshi_store.metadata_helpers.station_extraction import (
+from common.redis_protocol.kalshi_store.metadata_helpers.station_extraction import (
     extract_station_from_ticker,
 )
-from src.common.redis_protocol.weather_station_resolver import WeatherStationMappingError
+from common.redis_protocol.weather_station_resolver import WeatherStationMappingError
 
 LOGGER = logging.getLogger(__name__)
 

@@ -15,13 +15,13 @@ def _get_module_attr(name: str, default_value: Any) -> Any:
     The helper looks within the current module and the package root so unit
     tests can monkey-patch helpers without depending on import order.
     """
-    module = sys.modules.get("src.common.redis_protocol.trade_store.store")
+    module = sys.modules.get("common.redis_protocol.trade_store.store")
     if module is not None and hasattr(module, name):
         value = getattr(module, name)
         if value is not None:
             return value
 
-    package = sys.modules.get("src.common.redis_protocol.trade_store")
+    package = sys.modules.get("common.redis_protocol.trade_store")
     if package is not None and hasattr(package, name):
         value = getattr(package, name)
         if value is not None:
@@ -64,7 +64,7 @@ class DependencyResolver:
         """Get Redis pool factory from trade_store module."""
         from ... import get_redis_pool
 
-        module = importlib.import_module("src.common.redis_protocol.trade_store")
+        module = importlib.import_module("common.redis_protocol.trade_store")
         return getattr(module, "get_redis_pool", get_redis_pool)
 
     @staticmethod
@@ -72,7 +72,7 @@ class DependencyResolver:
         """Get Redis client class for instantiation."""
         import redis.asyncio
 
-        module = importlib.import_module("src.common.redis_protocol.trade_store")
+        module = importlib.import_module("common.redis_protocol.trade_store")
         module_cls = getattr(module, "Redis", None)
 
         # Avoid using monkey-patched sentinel value

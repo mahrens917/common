@@ -3,7 +3,7 @@ from datetime import datetime, timedelta, timezone
 
 import pytest
 
-from src.common.redis_protocol.kalshi_store.reader_helpers import expiry_checker
+from common.redis_protocol.kalshi_store.reader_helpers import expiry_checker
 
 
 class _DummyRedis:
@@ -18,15 +18,15 @@ class _DummyRedis:
 async def test_is_market_expired_logs_and_returns_true(monkeypatch):
     now = datetime.now(timezone.utc)
     monkeypatch.setattr(
-        "src.common.redis_protocol.kalshi_store.reader_helpers.expiry_checker.get_current_utc",
+        "common.redis_protocol.kalshi_store.reader_helpers.expiry_checker.get_current_utc",
         lambda: now,
     )
     monkeypatch.setattr(
-        "src.common.redis_protocol.kalshi_store.reader_helpers.expiry_checker.CloseTimeParser.decode_close_time_string",
+        "common.redis_protocol.kalshi_store.reader_helpers.expiry_checker.CloseTimeParser.decode_close_time_string",
         lambda raw: raw.decode("utf-8") if isinstance(raw, bytes) else raw,
     )
     monkeypatch.setattr(
-        "src.common.redis_protocol.kalshi_store.reader_helpers.expiry_checker.CloseTimeParser.parse_close_time_from_field",
+        "common.redis_protocol.kalshi_store.reader_helpers.expiry_checker.CloseTimeParser.parse_close_time_from_field",
         lambda raw: now - timedelta(minutes=1),
     )
     redis = _DummyRedis({"close_time": "old"})
@@ -40,11 +40,11 @@ async def test_is_market_settled_handles_future(monkeypatch):
     now = datetime.now(timezone.utc)
     future = now + timedelta(minutes=5)
     monkeypatch.setattr(
-        "src.common.redis_protocol.kalshi_store.reader_helpers.expiry_checker.get_current_utc",
+        "common.redis_protocol.kalshi_store.reader_helpers.expiry_checker.get_current_utc",
         lambda: now,
     )
     monkeypatch.setattr(
-        "src.common.redis_protocol.kalshi_store.reader_helpers.expiry_checker.CloseTimeParser.decode_close_time_string",
+        "common.redis_protocol.kalshi_store.reader_helpers.expiry_checker.CloseTimeParser.decode_close_time_string",
         lambda raw: raw.decode("utf-8") if isinstance(raw, bytes) else raw,
     )
     redis = _DummyRedis({"close_time": future.isoformat()})
@@ -79,7 +79,7 @@ async def test_is_market_expired_logs_errors(monkeypatch):
 async def test_is_market_settled_handles_missing_close(monkeypatch):
     checker = expiry_checker.ExpiryChecker(logger_instance=logging.getLogger("tests"))
     monkeypatch.setattr(
-        "src.common.redis_protocol.kalshi_store.reader_helpers.expiry_checker.CloseTimeParser.decode_close_time_string",
+        "common.redis_protocol.kalshi_store.reader_helpers.expiry_checker.CloseTimeParser.decode_close_time_string",
         lambda raw: "",
     )
     result = await expiry_checker.ExpiryChecker.is_market_settled(
@@ -92,11 +92,11 @@ async def test_is_market_settled_handles_missing_close(monkeypatch):
 async def test_is_market_expired_returns_false_when_not_expired(monkeypatch):
     now = datetime.now(timezone.utc)
     monkeypatch.setattr(
-        "src.common.redis_protocol.kalshi_store.reader_helpers.expiry_checker.get_current_utc",
+        "common.redis_protocol.kalshi_store.reader_helpers.expiry_checker.get_current_utc",
         lambda: now,
     )
     monkeypatch.setattr(
-        "src.common.redis_protocol.kalshi_store.reader_helpers.expiry_checker.CloseTimeParser.parse_close_time_from_field",
+        "common.redis_protocol.kalshi_store.reader_helpers.expiry_checker.CloseTimeParser.parse_close_time_from_field",
         lambda raw: None,
     )
     result = await expiry_checker.ExpiryChecker.is_market_expired(

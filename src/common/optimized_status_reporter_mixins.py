@@ -6,7 +6,7 @@ from typing import TYPE_CHECKING, Any, Dict, Optional
 from unittest.mock import Mock
 
 if TYPE_CHECKING:
-    from src.common.optimized_status_reporter_helpers.log_activity_formatter import (
+    from common.optimized_status_reporter_helpers.log_activity_formatter import (
         LogActivityFormatter,
     )
 

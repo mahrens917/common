@@ -6,17 +6,17 @@ from unittest.mock import AsyncMock
 import aiohttp
 import pytest
 
-from src.common.kalshi_rate_limiter_helpers.metrics_collector import MetricsCollector
-from src.common.kalshi_rate_limiter_helpers.request_executor import (
+from common.kalshi_rate_limiter_helpers.metrics_collector import MetricsCollector
+from common.kalshi_rate_limiter_helpers.request_executor import (
     RequestExecutor,
     _is_shutdown_error,
 )
-from src.common.kalshi_rate_limiter_helpers.token_manager import TokenManager
-from src.common.kalshi_rate_limiter_helpers.worker_manager import WorkerManager
-from src.common.kalshi_rate_limiter_helpers.worker_manager_helpers.error_classifier import (
+from common.kalshi_rate_limiter_helpers.token_manager import TokenManager
+from common.kalshi_rate_limiter_helpers.worker_manager import WorkerManager
+from common.kalshi_rate_limiter_helpers.worker_manager_helpers.error_classifier import (
     ErrorClassifier,
 )
-from src.common.kalshi_rate_limiter_helpers.worker_manager_helpers.request_processor import (
+from common.kalshi_rate_limiter_helpers.worker_manager_helpers.request_processor import (
     RequestProcessor,
 )
 
@@ -45,7 +45,7 @@ def test_token_manager_refill_and_consume(monkeypatch):
     token_manager = TokenManager(2, 1)
     token_manager.last_refill_time = 0.0
     monkeypatch.setattr(
-        "src.common.kalshi_rate_limiter_helpers.token_manager.time.time", lambda: 2.0
+        "common.kalshi_rate_limiter_helpers.token_manager.time.time", lambda: 2.0
     )
 
     assert token_manager.refill_tokens_if_needed() is True
@@ -87,7 +87,7 @@ async def test_request_executor_success_and_error(monkeypatch):
         return {"ok": True, "path": data["path"]}
 
     monkeypatch.setattr(
-        "src.common.kalshi_rate_limiter_helpers.request_executor._perform_http_request",
+        "common.kalshi_rate_limiter_helpers.request_executor._perform_http_request",
         fake_http_request,
     )
 
@@ -106,7 +106,7 @@ async def test_request_executor_success_and_error(monkeypatch):
         raise aiohttp.ClientError("boom")
 
     monkeypatch.setattr(
-        "src.common.kalshi_rate_limiter_helpers.request_executor._perform_http_request",
+        "common.kalshi_rate_limiter_helpers.request_executor._perform_http_request",
         failing_http_request,
     )
     request_data["error_callback"] = lambda exc: error_calls.append(str(exc))
@@ -122,7 +122,7 @@ async def test_request_executor_skips_when_shutdown(monkeypatch):
     errors = []
 
     monkeypatch.setattr(
-        "src.common.kalshi_rate_limiter_helpers.request_executor._perform_http_request",
+        "common.kalshi_rate_limiter_helpers.request_executor._perform_http_request",
         AsyncMock(),
     )
 
@@ -211,7 +211,7 @@ async def test_worker_manager_starts_and_shuts_down(monkeypatch):
             return True
 
     monkeypatch.setattr(
-        "src.common.kalshi_rate_limiter_helpers.worker_manager_helpers.RequestProcessor",
+        "common.kalshi_rate_limiter_helpers.worker_manager_helpers.RequestProcessor",
         DummyProcessor,
     )
 

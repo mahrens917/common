@@ -2,8 +2,8 @@
 
 from typing import Union
 
-from src.common.exceptions import DataError
-from src.common.time_helpers.timestamp_parser import parse_timestamp
+from common.exceptions import DataError
+from common.time_helpers.timestamp_parser import parse_timestamp
 
 
 def parse_utc_timestamp(value: Union[str, int, float]) -> int:

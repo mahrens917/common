@@ -1,12 +1,12 @@
 import unittest
 from unittest.mock import Mock
 
-from src.common.pnl_calculator import PnLCalculator
-from src.common.report_generator_helpers.coordinator_factory import CoordinatorFactory
-from src.common.report_generator_helpers.message_formatter import MessageFormatter
-from src.common.report_generator_helpers.report_coordinator import ReportCoordinator
-from src.common.report_generator_helpers.summary_report_builder import SummaryReportBuilder
-from src.common.report_generator_helpers.unified_report_builder import UnifiedReportBuilder
+from common.pnl_calculator import PnLCalculator
+from common.report_generator_helpers.coordinator_factory import CoordinatorFactory
+from common.report_generator_helpers.message_formatter import MessageFormatter
+from common.report_generator_helpers.report_coordinator import ReportCoordinator
+from common.report_generator_helpers.summary_report_builder import SummaryReportBuilder
+from common.report_generator_helpers.unified_report_builder import UnifiedReportBuilder
 
 
 class TestCoordinatorFactory(unittest.TestCase):

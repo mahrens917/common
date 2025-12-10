@@ -2,7 +2,7 @@ from datetime import datetime, timezone
 
 import pytest
 
-from src.common import api_response_validators as validators
+from common import api_response_validators as validators
 
 
 def test_validate_portfolio_balance_response_success():

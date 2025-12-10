@@ -2,14 +2,14 @@
 
 import pytest
 
-from src.common.alert_suppression_manager_helpers.alert_evaluator import (
+from common.alert_suppression_manager_helpers.alert_evaluator import (
     AlertEvaluator,
     SuppressionContext,
     SuppressionRule,
     _evaluate_during_reconnection,
     _evaluate_recovery_alert,
 )
-from src.common.alert_suppression_manager_helpers.suppression_tracker import AlertType
+from common.alert_suppression_manager_helpers.suppression_tracker import AlertType
 
 
 def test_suppression_rule_defaults():

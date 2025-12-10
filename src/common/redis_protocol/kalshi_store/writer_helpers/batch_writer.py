@@ -65,7 +65,7 @@ class BatchWriter:
         if "interp_error_ask" in result:
             pipe.hset(market_key, "interp_error_ask", str(float(result["interp_error_ask"])))
 
-        from src.common.time_helpers.timezone import get_current_utc
+        from common.time_helpers.timezone import get_current_utc
 
         pipe.hset(market_key, "interpolation_timestamp", get_current_utc().isoformat())
 

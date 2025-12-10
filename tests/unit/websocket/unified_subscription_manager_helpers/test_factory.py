@@ -2,7 +2,7 @@ from unittest.mock import Mock, patch
 
 import pytest
 
-from src.common.websocket.unified_subscription_manager_helpers.factory import (
+from common.websocket.unified_subscription_manager_helpers.factory import (
     UnifiedSubscriptionManagerFactory,
 )
 
@@ -18,19 +18,19 @@ class TestUnifiedSubscriptionManagerFactory:
 
         with (
             patch(
-                "src.common.websocket.unified_subscription_manager_helpers.factory.LifecycleManager"
+                "common.websocket.unified_subscription_manager_helpers.factory.LifecycleManager"
             ) as MockLifecycle,
             patch(
-                "src.common.websocket.unified_subscription_manager_helpers.factory.UpdateHandler"
+                "common.websocket.unified_subscription_manager_helpers.factory.UpdateHandler"
             ) as MockUpdate,
             patch(
-                "src.common.websocket.unified_subscription_manager_helpers.factory.SubscriptionProcessor"
+                "common.websocket.unified_subscription_manager_helpers.factory.SubscriptionProcessor"
             ) as MockSubProc,
             patch(
-                "src.common.websocket.unified_subscription_manager_helpers.factory.HealthValidator"
+                "common.websocket.unified_subscription_manager_helpers.factory.HealthValidator"
             ) as MockHealth,
             patch(
-                "src.common.websocket.unified_subscription_manager_helpers.factory.MonitoringLoop"
+                "common.websocket.unified_subscription_manager_helpers.factory.MonitoringLoop"
             ) as MockLoop,
         ):
 

@@ -2,7 +2,7 @@ import asyncio
 
 import pytest
 
-from src.common.scraper_connection_manager_helpers.health_monitor import ScraperHealthMonitor
+from common.scraper_connection_manager_helpers.health_monitor import ScraperHealthMonitor
 
 
 class DummyResponse:

@@ -2,16 +2,16 @@ import asyncio
 
 import pytest
 
-from src.common.optimized_status_reporter_helpers.weather_temperature_collector_helpers.data_processor import (
+from common.optimized_status_reporter_helpers.weather_temperature_collector_helpers.data_processor import (
     process_weather_results,
 )
-from src.common.optimized_status_reporter_helpers.weather_temperature_collector_helpers.key_scanner import (
+from common.optimized_status_reporter_helpers.weather_temperature_collector_helpers.key_scanner import (
     KeyScanner,
 )
-from src.common.optimized_status_reporter_helpers.weather_temperature_collector_helpers.station_scanner import (
+from common.optimized_status_reporter_helpers.weather_temperature_collector_helpers.station_scanner import (
     scan_weather_stations,
 )
-from src.common.optimized_status_reporter_helpers.weather_temperature_collector_helpers.temperature_extractor import (
+from common.optimized_status_reporter_helpers.weather_temperature_collector_helpers.temperature_extractor import (
     TemperatureExtractor,
 )
 

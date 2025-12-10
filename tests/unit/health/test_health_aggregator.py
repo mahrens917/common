@@ -4,14 +4,14 @@ from unittest.mock import AsyncMock, MagicMock
 
 import pytest
 
-from src.common.health.health_aggregator import ServiceHealthAggregator
-from src.common.health.health_types import OverallServiceStatus
+from common.health.health_aggregator import ServiceHealthAggregator
+from common.health.health_types import OverallServiceStatus
 
 _VAL_42_5 = 42.5
 
-from src.common.health.log_activity_monitor import LogActivity, LogActivityStatus
-from src.common.health.process_health_monitor import ProcessHealthInfo, ProcessStatus
-from src.common.health.service_health_types import ServiceHealth, ServiceHealthInfo
+from common.health.log_activity_monitor import LogActivity, LogActivityStatus
+from common.health.process_health_monitor import ProcessHealthInfo, ProcessStatus
+from common.health.service_health_types import ServiceHealth, ServiceHealthInfo
 
 
 def make_aggregator(monkeypatch, *, process_result, log_result, service_result):

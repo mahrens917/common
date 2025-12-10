@@ -2,8 +2,8 @@ from unittest.mock import AsyncMock, MagicMock, Mock, patch
 
 import pytest
 
-from src.common.redis_protocol.probability_store.exceptions import ProbabilityStoreError
-from src.common.redis_protocol.probability_store.probabilityingestion_helpers.compact_store_helpers import (
+from common.redis_protocol.probability_store.exceptions import ProbabilityStoreError
+from common.redis_protocol.probability_store.probabilityingestion_helpers.compact_store_helpers import (
     execute_storage_pipeline,
     handle_storage_errors,
     log_sample_fields,
@@ -23,7 +23,7 @@ class TestCompactStoreHelpers:
         # successful_sets should be sum of bool(res) for res in results[1:]
 
         with patch(
-            "src.common.redis_protocol.probability_store.pipeline.execute_pipeline"
+            "common.redis_protocol.probability_store.pipeline.execute_pipeline"
         ) as mock_exec:
             mock_exec.return_value = [True, True, True]
             redis.hlen.return_value = 2
@@ -39,7 +39,7 @@ class TestCompactStoreHelpers:
         pipeline = MagicMock()
 
         with patch(
-            "src.common.redis_protocol.probability_store.pipeline.execute_pipeline"
+            "common.redis_protocol.probability_store.pipeline.execute_pipeline"
         ) as mock_exec:
             mock_exec.return_value = [True]  # Expected 3
 
@@ -52,7 +52,7 @@ class TestCompactStoreHelpers:
         pipeline = MagicMock()
 
         with patch(
-            "src.common.redis_protocol.probability_store.pipeline.execute_pipeline"
+            "common.redis_protocol.probability_store.pipeline.execute_pipeline"
         ) as mock_exec:
             # 3 results, but one set returned False/0
             mock_exec.return_value = [True, True, False]
@@ -66,7 +66,7 @@ class TestCompactStoreHelpers:
         pipeline = MagicMock()
 
         with patch(
-            "src.common.redis_protocol.probability_store.pipeline.execute_pipeline"
+            "common.redis_protocol.probability_store.pipeline.execute_pipeline"
         ) as mock_exec:
             mock_exec.return_value = [True, True, True]
             redis.hlen.return_value = 1  # Expected 2
@@ -83,7 +83,7 @@ class TestCompactStoreHelpers:
         data = {}
 
         with patch(
-            "src.common.redis_protocol.probability_store.probabilityingestion_helpers.compact_store_helpers.logger"
+            "common.redis_protocol.probability_store.probabilityingestion_helpers.compact_store_helpers.logger"
         ) as mock_logger:
             results = list(log_sample_fields(iterator, data))
 

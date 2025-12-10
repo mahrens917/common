@@ -4,7 +4,7 @@ from unittest.mock import MagicMock
 
 import pytest
 
-from src.common.kalshi_trading_client.dependencies_factory import (
+from common.kalshi_trading_client.dependencies_factory import (
     DependencyCreationConfig,
     KalshiTradingClientDependenciesFactory,
 )
@@ -38,7 +38,7 @@ class _DummyTradeStoreManager:
 def _patch_client_initializer(monkeypatch):
     _DummyClientInitializer.calls.clear()
     monkeypatch.setattr(
-        "src.common.kalshi_trading_client.client_helpers.ClientInitializer",
+        "common.kalshi_trading_client.client_helpers.ClientInitializer",
         _DummyClientInitializer,
     )
 
@@ -51,12 +51,12 @@ def test_create_requires_trade_store():
 def test_create_initializes_all_components(monkeypatch):
     _patch_client_initializer(monkeypatch)
     monkeypatch.setattr(
-        "src.common.kalshi_trading_client.dependencies_factory.TradeStoreManager",
+        "common.kalshi_trading_client.dependencies_factory.TradeStoreManager",
         _DummyTradeStoreManager,
     )
     notifier = MagicMock(name="notifier")
     monkeypatch.setattr(
-        "src.common.kalshi_trading_client.dependencies_factory.TradeNotifierAdapter",
+        "common.kalshi_trading_client.dependencies_factory.TradeNotifierAdapter",
         lambda: notifier,
     )
 

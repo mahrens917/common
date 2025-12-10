@@ -6,9 +6,9 @@ from unittest.mock import AsyncMock, MagicMock
 
 import pytest
 
-from src.common.order_execution.finalizer_helpers.storage import store_trade_record
-from src.common.redis_protocol.trade_store import TradeStoreError
-from src.common.trading_exceptions import KalshiTradePersistenceError
+from common.order_execution.finalizer_helpers.storage import store_trade_record
+from common.redis_protocol.trade_store import TradeStoreError
+from common.trading_exceptions import KalshiTradePersistenceError
 
 
 class TestStoreTradeRecord:

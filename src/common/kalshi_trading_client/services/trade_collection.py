@@ -8,7 +8,7 @@ Trade collection lifecycle helpers.
 import logging
 from typing import Awaitable, Callable
 
-from src.common.exceptions import ValidationError
+from common.exceptions import ValidationError
 
 from ...redis_protocol.trade_store import TradeStore
 

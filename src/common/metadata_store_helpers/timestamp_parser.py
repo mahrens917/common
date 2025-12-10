@@ -2,14 +2,14 @@
 
 from typing import Optional
 
-from src.common.time_helpers.timestamp_parser import parse_timestamp
+from common.time_helpers.timestamp_parser import parse_timestamp
 
 
 def parse_history_timestamp(datetime_str: str) -> Optional[int]:
     """
     Parse timestamp string from history data.
 
-    Delegates to canonical implementation in src.common.time_helpers.timestamp_parser.
+    Delegates to canonical implementation in common.time_helpers.timestamp_parser.
 
     Args:
         datetime_str: Timestamp string

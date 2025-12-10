@@ -4,8 +4,8 @@ from types import SimpleNamespace
 import aiohttp
 import pytest
 
-from src.common.connection_config import ConnectionConfig
-from src.common.rest_connection_manager import RESTConnectionManager
+from common.connection_config import ConnectionConfig
+from common.rest_connection_manager import RESTConnectionManager
 
 _CONST_200 = 200
 _CONST_503 = 503
@@ -94,20 +94,20 @@ class FakeSession:
 def patched_environment(monkeypatch):
     fake_session = FakeSession()
     monkeypatch.setattr(
-        "src.common.rest_connection_manager.aiohttp.ClientSession",
+        "common.rest_connection_manager.aiohttp.ClientSession",
         lambda *args, **kwargs: fake_session,
     )
     monkeypatch.setattr(
-        "src.common.rest_connection_manager.track_existing_session",
+        "common.rest_connection_manager.track_existing_session",
         lambda session, name: "session-id",
     )
     closed_ids = []
     monkeypatch.setattr(
-        "src.common.rest_connection_manager.track_session_close",
+        "common.rest_connection_manager.track_session_close",
         lambda session_id: closed_ids.append(session_id),
     )
     monkeypatch.setattr(
-        "src.common.connection_manager.get_connection_config",
+        "common.connection_manager.get_connection_config",
         lambda service: ConnectionConfig(),
     )
     return fake_session, closed_ids

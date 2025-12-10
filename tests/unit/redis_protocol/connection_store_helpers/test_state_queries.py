@@ -4,11 +4,11 @@ from __future__ import annotations
 
 import time
 
-from src.common.connection_state import ConnectionState
-from src.common.redis_protocol.connection_store_helpers.state_processor import (
+from common.connection_state import ConnectionState
+from common.redis_protocol.connection_store_helpers.state_processor import (
     ConnectionStateInfo,
 )
-from src.common.redis_protocol.connection_store_helpers.state_queries import (
+from common.redis_protocol.connection_store_helpers.state_queries import (
     filter_reconnecting_services,
     is_reconnecting,
 )

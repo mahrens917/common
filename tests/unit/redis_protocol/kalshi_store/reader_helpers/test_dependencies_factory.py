@@ -1,6 +1,6 @@
 import logging
 
-from src.common.redis_protocol.kalshi_store.reader_helpers import dependencies_factory
+from common.redis_protocol.kalshi_store.reader_helpers import dependencies_factory
 
 
 def test_dependencies_factory_creates_components(monkeypatch):
@@ -8,7 +8,7 @@ def test_dependencies_factory_creates_components(monkeypatch):
         pass
 
     monkeypatch.setattr(
-        "src.common.redis_protocol.kalshi_store.reader_helpers.dependencies_factory.KalshiMetadataAdapter",
+        "common.redis_protocol.kalshi_store.reader_helpers.dependencies_factory.KalshiMetadataAdapter",
         DummyAdapter,
     )
     deps = dependencies_factory.KalshiMarketReaderDependenciesFactory.create(

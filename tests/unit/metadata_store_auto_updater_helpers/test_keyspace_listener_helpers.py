@@ -3,14 +3,14 @@ from unittest.mock import AsyncMock, MagicMock, Mock, patch
 
 import pytest
 
-from src.common.metadata_store_auto_updater_helpers.keyspace_listener import KeyspaceListener
-from src.common.metadata_store_auto_updater_helpers.keyspace_listener_helpers.event_handler import (
+from common.metadata_store_auto_updater_helpers.keyspace_listener import KeyspaceListener
+from common.metadata_store_auto_updater_helpers.keyspace_listener_helpers.event_handler import (
     EventHandler,
 )
-from src.common.metadata_store_auto_updater_helpers.keyspace_listener_helpers.pubsub_manager import (
+from common.metadata_store_auto_updater_helpers.keyspace_listener_helpers.pubsub_manager import (
     PubsubManager,
 )
-from src.common.metadata_store_auto_updater_helpers.keyspace_listener_helpers.service_extractor import (
+from common.metadata_store_auto_updater_helpers.keyspace_listener_helpers.service_extractor import (
     ServiceExtractor,
 )
 
@@ -138,7 +138,7 @@ class TestPubsubManager:
         mock_pubsub.listen = mock_listen
 
         with patch(
-            "src.common.metadata_store_auto_updater_helpers.keyspace_listener_helpers.pubsub_manager.perform_redis_health_check",
+            "common.metadata_store_auto_updater_helpers.keyspace_listener_helpers.pubsub_manager.perform_redis_health_check",
             return_value=True,
         ):
             await manager.listen_with_retry()
@@ -151,7 +151,7 @@ class TestPubsubManager:
     async def test_listen_with_retry_health_check_failure(self, manager):
         with (
             patch(
-                "src.common.metadata_store_auto_updater_helpers.keyspace_listener_helpers.pubsub_manager.perform_redis_health_check",
+                "common.metadata_store_auto_updater_helpers.keyspace_listener_helpers.pubsub_manager.perform_redis_health_check",
                 return_value=False,
             ),
             patch("asyncio.sleep", return_value=None),
@@ -171,7 +171,7 @@ class TestPubsubManager:
 
         with (
             patch(
-                "src.common.metadata_store_auto_updater_helpers.keyspace_listener_helpers.pubsub_manager.perform_redis_health_check",
+                "common.metadata_store_auto_updater_helpers.keyspace_listener_helpers.pubsub_manager.perform_redis_health_check",
                 return_value=True,
             ),
             patch("asyncio.sleep", return_value=None),
@@ -194,7 +194,7 @@ class TestPubsubManager:
     @pytest.mark.asyncio
     async def test_cancelled_error(self, manager):
         with patch(
-            "src.common.metadata_store_auto_updater_helpers.keyspace_listener_helpers.pubsub_manager.perform_redis_health_check",
+            "common.metadata_store_auto_updater_helpers.keyspace_listener_helpers.pubsub_manager.perform_redis_health_check",
             side_effect=asyncio.CancelledError,
         ):
             with pytest.raises(asyncio.CancelledError):

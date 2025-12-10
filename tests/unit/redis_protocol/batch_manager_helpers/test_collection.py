@@ -7,7 +7,7 @@ from unittest.mock import patch
 
 import pytest
 
-from src.common.redis_protocol.batch_manager_helpers.collection import BatchCollector
+from common.redis_protocol.batch_manager_helpers.collection import BatchCollector
 
 EXPECTED_BATCH_SIZE = 2
 

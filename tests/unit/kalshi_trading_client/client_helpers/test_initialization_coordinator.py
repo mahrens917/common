@@ -4,7 +4,7 @@ from unittest.mock import Mock, call, patch
 
 import pytest
 
-from src.common.kalshi_trading_client.client_helpers.initialization_coordinator import (
+from common.kalshi_trading_client.client_helpers.initialization_coordinator import (
     InitializationCoordinator,
     _build_initialization_result,
     _create_service_stack,
@@ -28,19 +28,19 @@ class TestInitializationCoordinator:
 
         with (
             patch(
-                "src.common.kalshi_trading_client.client_helpers.initialization_coordinator._initialize_core_clients"
+                "common.kalshi_trading_client.client_helpers.initialization_coordinator._initialize_core_clients"
             ) as mock_core,
             patch(
-                "src.common.kalshi_trading_client.client_helpers.initialization_coordinator.ClientInitializer"
+                "common.kalshi_trading_client.client_helpers.initialization_coordinator.ClientInitializer"
             ) as mock_initializer,
             patch(
-                "src.common.kalshi_trading_client.client_helpers.initialization_coordinator._create_service_stack"
+                "common.kalshi_trading_client.client_helpers.initialization_coordinator._create_service_stack"
             ) as mock_stack,
             patch(
-                "src.common.kalshi_trading_client.client_helpers.initialization_coordinator._wire_order_dependencies"
+                "common.kalshi_trading_client.client_helpers.initialization_coordinator._wire_order_dependencies"
             ) as mock_wire,
             patch(
-                "src.common.kalshi_trading_client.client_helpers.initialization_coordinator._build_initialization_result"
+                "common.kalshi_trading_client.client_helpers.initialization_coordinator._build_initialization_result"
             ) as mock_build,
         ):
 
@@ -79,19 +79,19 @@ class TestInitializationCoordinator:
 
         with (
             patch(
-                "src.common.kalshi_trading_client.client_helpers.initialization_coordinator._initialize_core_clients"
+                "common.kalshi_trading_client.client_helpers.initialization_coordinator._initialize_core_clients"
             ) as mock_core,
             patch(
-                "src.common.kalshi_trading_client.client_helpers.initialization_coordinator.ClientInitializer"
+                "common.kalshi_trading_client.client_helpers.initialization_coordinator.ClientInitializer"
             ) as mock_initializer,
             patch(
-                "src.common.kalshi_trading_client.client_helpers.initialization_coordinator._create_service_stack"
+                "common.kalshi_trading_client.client_helpers.initialization_coordinator._create_service_stack"
             ) as mock_stack,
             patch(
-                "src.common.kalshi_trading_client.client_helpers.initialization_coordinator._wire_order_dependencies"
+                "common.kalshi_trading_client.client_helpers.initialization_coordinator._wire_order_dependencies"
             ),
             patch(
-                "src.common.kalshi_trading_client.client_helpers.initialization_coordinator._build_initialization_result"
+                "common.kalshi_trading_client.client_helpers.initialization_coordinator._build_initialization_result"
             ),
         ):
 
@@ -118,19 +118,19 @@ class TestInitializationCoordinator:
         """Should extract config values using ClientInitializer."""
         with (
             patch(
-                "src.common.kalshi_trading_client.client_helpers.initialization_coordinator._initialize_core_clients"
+                "common.kalshi_trading_client.client_helpers.initialization_coordinator._initialize_core_clients"
             ) as mock_core,
             patch(
-                "src.common.kalshi_trading_client.client_helpers.initialization_coordinator.ClientInitializer"
+                "common.kalshi_trading_client.client_helpers.initialization_coordinator.ClientInitializer"
             ) as mock_initializer,
             patch(
-                "src.common.kalshi_trading_client.client_helpers.initialization_coordinator._create_service_stack"
+                "common.kalshi_trading_client.client_helpers.initialization_coordinator._create_service_stack"
             ) as mock_stack,
             patch(
-                "src.common.kalshi_trading_client.client_helpers.initialization_coordinator._wire_order_dependencies"
+                "common.kalshi_trading_client.client_helpers.initialization_coordinator._wire_order_dependencies"
             ),
             patch(
-                "src.common.kalshi_trading_client.client_helpers.initialization_coordinator._build_initialization_result"
+                "common.kalshi_trading_client.client_helpers.initialization_coordinator._build_initialization_result"
             ),
         ):
 
@@ -154,19 +154,19 @@ class TestInitializationCoordinator:
 
         with (
             patch(
-                "src.common.kalshi_trading_client.client_helpers.initialization_coordinator._initialize_core_clients"
+                "common.kalshi_trading_client.client_helpers.initialization_coordinator._initialize_core_clients"
             ) as mock_core,
             patch(
-                "src.common.kalshi_trading_client.client_helpers.initialization_coordinator.ClientInitializer"
+                "common.kalshi_trading_client.client_helpers.initialization_coordinator.ClientInitializer"
             ) as mock_initializer,
             patch(
-                "src.common.kalshi_trading_client.client_helpers.initialization_coordinator._create_service_stack"
+                "common.kalshi_trading_client.client_helpers.initialization_coordinator._create_service_stack"
             ) as mock_stack,
             patch(
-                "src.common.kalshi_trading_client.client_helpers.initialization_coordinator._wire_order_dependencies"
+                "common.kalshi_trading_client.client_helpers.initialization_coordinator._wire_order_dependencies"
             ),
             patch(
-                "src.common.kalshi_trading_client.client_helpers.initialization_coordinator._build_initialization_result"
+                "common.kalshi_trading_client.client_helpers.initialization_coordinator._build_initialization_result"
             ),
         ):
 
@@ -193,19 +193,19 @@ class TestInitializationCoordinator:
 
         with (
             patch(
-                "src.common.kalshi_trading_client.client_helpers.initialization_coordinator._initialize_core_clients"
+                "common.kalshi_trading_client.client_helpers.initialization_coordinator._initialize_core_clients"
             ) as mock_core,
             patch(
-                "src.common.kalshi_trading_client.client_helpers.initialization_coordinator.ClientInitializer"
+                "common.kalshi_trading_client.client_helpers.initialization_coordinator.ClientInitializer"
             ) as mock_initializer,
             patch(
-                "src.common.kalshi_trading_client.client_helpers.initialization_coordinator._create_service_stack"
+                "common.kalshi_trading_client.client_helpers.initialization_coordinator._create_service_stack"
             ) as mock_stack,
             patch(
-                "src.common.kalshi_trading_client.client_helpers.initialization_coordinator._wire_order_dependencies"
+                "common.kalshi_trading_client.client_helpers.initialization_coordinator._wire_order_dependencies"
             ),
             patch(
-                "src.common.kalshi_trading_client.client_helpers.initialization_coordinator._build_initialization_result"
+                "common.kalshi_trading_client.client_helpers.initialization_coordinator._build_initialization_result"
             ),
         ):
 
@@ -240,19 +240,19 @@ class TestInitializationCoordinator:
 
         with (
             patch(
-                "src.common.kalshi_trading_client.client_helpers.initialization_coordinator._initialize_core_clients"
+                "common.kalshi_trading_client.client_helpers.initialization_coordinator._initialize_core_clients"
             ) as mock_core,
             patch(
-                "src.common.kalshi_trading_client.client_helpers.initialization_coordinator.ClientInitializer"
+                "common.kalshi_trading_client.client_helpers.initialization_coordinator.ClientInitializer"
             ) as mock_initializer,
             patch(
-                "src.common.kalshi_trading_client.client_helpers.initialization_coordinator._create_service_stack"
+                "common.kalshi_trading_client.client_helpers.initialization_coordinator._create_service_stack"
             ) as mock_stack,
             patch(
-                "src.common.kalshi_trading_client.client_helpers.initialization_coordinator._wire_order_dependencies"
+                "common.kalshi_trading_client.client_helpers.initialization_coordinator._wire_order_dependencies"
             ) as mock_wire,
             patch(
-                "src.common.kalshi_trading_client.client_helpers.initialization_coordinator._build_initialization_result"
+                "common.kalshi_trading_client.client_helpers.initialization_coordinator._build_initialization_result"
             ),
         ):
 
@@ -274,19 +274,19 @@ class TestInitializationCoordinator:
 
         with (
             patch(
-                "src.common.kalshi_trading_client.client_helpers.initialization_coordinator._initialize_core_clients"
+                "common.kalshi_trading_client.client_helpers.initialization_coordinator._initialize_core_clients"
             ) as mock_core,
             patch(
-                "src.common.kalshi_trading_client.client_helpers.initialization_coordinator.ClientInitializer"
+                "common.kalshi_trading_client.client_helpers.initialization_coordinator.ClientInitializer"
             ) as mock_initializer,
             patch(
-                "src.common.kalshi_trading_client.client_helpers.initialization_coordinator._create_service_stack"
+                "common.kalshi_trading_client.client_helpers.initialization_coordinator._create_service_stack"
             ) as mock_stack,
             patch(
-                "src.common.kalshi_trading_client.client_helpers.initialization_coordinator._wire_order_dependencies"
+                "common.kalshi_trading_client.client_helpers.initialization_coordinator._wire_order_dependencies"
             ),
             patch(
-                "src.common.kalshi_trading_client.client_helpers.initialization_coordinator._build_initialization_result"
+                "common.kalshi_trading_client.client_helpers.initialization_coordinator._build_initialization_result"
             ),
         ):
 
@@ -318,13 +318,13 @@ class TestInitializeCoreClients:
 
         with (
             patch(
-                "src.common.kalshi_trading_client.client_helpers.initialization_coordinator.ClientInitializer"
+                "common.kalshi_trading_client.client_helpers.initialization_coordinator.ClientInitializer"
             ) as mock_initializer,
             patch(
-                "src.common.kalshi_trading_client.client_helpers.initialization_coordinator.TradeStoreManager"
+                "common.kalshi_trading_client.client_helpers.initialization_coordinator.TradeStoreManager"
             ),
             patch(
-                "src.common.kalshi_trading_client.client_helpers.initialization_coordinator.TradeNotifierAdapter"
+                "common.kalshi_trading_client.client_helpers.initialization_coordinator.TradeNotifierAdapter"
             ),
         ):
 
@@ -346,13 +346,13 @@ class TestInitializeCoreClients:
 
         with (
             patch(
-                "src.common.kalshi_trading_client.client_helpers.initialization_coordinator.ClientInitializer"
+                "common.kalshi_trading_client.client_helpers.initialization_coordinator.ClientInitializer"
             ) as mock_initializer,
             patch(
-                "src.common.kalshi_trading_client.client_helpers.initialization_coordinator.TradeStoreManager"
+                "common.kalshi_trading_client.client_helpers.initialization_coordinator.TradeStoreManager"
             ),
             patch(
-                "src.common.kalshi_trading_client.client_helpers.initialization_coordinator.TradeNotifierAdapter"
+                "common.kalshi_trading_client.client_helpers.initialization_coordinator.TradeNotifierAdapter"
             ),
         ):
 
@@ -373,13 +373,13 @@ class TestInitializeCoreClients:
 
         with (
             patch(
-                "src.common.kalshi_trading_client.client_helpers.initialization_coordinator.ClientInitializer"
+                "common.kalshi_trading_client.client_helpers.initialization_coordinator.ClientInitializer"
             ) as mock_initializer,
             patch(
-                "src.common.kalshi_trading_client.client_helpers.initialization_coordinator.TradeStoreManager"
+                "common.kalshi_trading_client.client_helpers.initialization_coordinator.TradeStoreManager"
             ) as mock_tsm_class,
             patch(
-                "src.common.kalshi_trading_client.client_helpers.initialization_coordinator.TradeNotifierAdapter"
+                "common.kalshi_trading_client.client_helpers.initialization_coordinator.TradeNotifierAdapter"
             ),
         ):
 
@@ -402,13 +402,13 @@ class TestInitializeCoreClients:
         """Should create TradeNotifierAdapter."""
         with (
             patch(
-                "src.common.kalshi_trading_client.client_helpers.initialization_coordinator.ClientInitializer"
+                "common.kalshi_trading_client.client_helpers.initialization_coordinator.ClientInitializer"
             ) as mock_initializer,
             patch(
-                "src.common.kalshi_trading_client.client_helpers.initialization_coordinator.TradeStoreManager"
+                "common.kalshi_trading_client.client_helpers.initialization_coordinator.TradeStoreManager"
             ),
             patch(
-                "src.common.kalshi_trading_client.client_helpers.initialization_coordinator.TradeNotifierAdapter"
+                "common.kalshi_trading_client.client_helpers.initialization_coordinator.TradeNotifierAdapter"
             ) as mock_notifier_class,
         ):
 
@@ -426,13 +426,13 @@ class TestInitializeCoreClients:
         """Should return tuple of four components."""
         with (
             patch(
-                "src.common.kalshi_trading_client.client_helpers.initialization_coordinator.ClientInitializer"
+                "common.kalshi_trading_client.client_helpers.initialization_coordinator.ClientInitializer"
             ) as mock_initializer,
             patch(
-                "src.common.kalshi_trading_client.client_helpers.initialization_coordinator.TradeStoreManager"
+                "common.kalshi_trading_client.client_helpers.initialization_coordinator.TradeStoreManager"
             ),
             patch(
-                "src.common.kalshi_trading_client.client_helpers.initialization_coordinator.TradeNotifierAdapter"
+                "common.kalshi_trading_client.client_helpers.initialization_coordinator.TradeNotifierAdapter"
             ),
         ):
 
@@ -455,10 +455,10 @@ class TestCreateServiceStack:
 
         with (
             patch(
-                "src.common.kalshi_trading_client.client_helpers.initialization_coordinator.create_service_providers"
+                "common.kalshi_trading_client.client_helpers.initialization_coordinator.create_service_providers"
             ) as mock_create_providers,
             patch(
-                "src.common.kalshi_trading_client.client_helpers.initialization_coordinator.ClientInitializer"
+                "common.kalshi_trading_client.client_helpers.initialization_coordinator.ClientInitializer"
             ) as mock_initializer,
         ):
 
@@ -487,10 +487,10 @@ class TestCreateServiceStack:
 
         with (
             patch(
-                "src.common.kalshi_trading_client.client_helpers.initialization_coordinator.create_service_providers"
+                "common.kalshi_trading_client.client_helpers.initialization_coordinator.create_service_providers"
             ) as mock_create_providers,
             patch(
-                "src.common.kalshi_trading_client.client_helpers.initialization_coordinator.ClientInitializer"
+                "common.kalshi_trading_client.client_helpers.initialization_coordinator.ClientInitializer"
             ) as mock_initializer,
         ):
 
@@ -523,10 +523,10 @@ class TestCreateServiceStack:
 
         with (
             patch(
-                "src.common.kalshi_trading_client.client_helpers.initialization_coordinator.create_service_providers"
+                "common.kalshi_trading_client.client_helpers.initialization_coordinator.create_service_providers"
             ) as mock_create_providers,
             patch(
-                "src.common.kalshi_trading_client.client_helpers.initialization_coordinator.ClientInitializer"
+                "common.kalshi_trading_client.client_helpers.initialization_coordinator.ClientInitializer"
             ) as mock_initializer,
         ):
 

@@ -17,7 +17,7 @@ class ConnectionSettingsHelper(ConnectionHelperBase):
         Returns:
             Dictionary of connection settings
         """
-        package = importlib.import_module("src.common.redis_protocol.trade_store")
+        package = importlib.import_module("common.redis_protocol.trade_store")
         needs_logging_reset = self.connection.connection_settings is None
         self.connection.connection_settings = {
             "host": getattr(package, "REDIS_HOST", REDIS_HOST),

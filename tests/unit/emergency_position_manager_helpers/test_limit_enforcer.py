@@ -6,7 +6,7 @@ from unittest.mock import AsyncMock, MagicMock
 
 import pytest
 
-from src.common.emergency_position_manager_helpers.limit_enforcer import (
+from common.emergency_position_manager_helpers.limit_enforcer import (
     LimitEnforcer,
     _calculate_total_exposure,
     _sorted_high_risk_assessments,

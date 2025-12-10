@@ -4,7 +4,7 @@ from unittest.mock import MagicMock
 
 import pytest
 
-from src.common.data_conversion.micro_price_helpers.field_validator import FieldValidator
+from common.data_conversion.micro_price_helpers.field_validator import FieldValidator
 
 DEFAULT_TEST_BID_SIZE = 100.0
 DEFAULT_TEST_ASK_SIZE = 150.0

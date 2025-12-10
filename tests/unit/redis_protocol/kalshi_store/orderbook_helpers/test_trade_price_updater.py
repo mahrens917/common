@@ -6,7 +6,7 @@ from unittest.mock import AsyncMock, MagicMock
 
 import pytest
 
-from src.common.redis_protocol.kalshi_store.orderbook_helpers.trade_price_updater import (
+from common.redis_protocol.kalshi_store.orderbook_helpers.trade_price_updater import (
     TradePriceUpdater,
 )
 

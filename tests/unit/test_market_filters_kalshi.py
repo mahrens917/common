@@ -3,7 +3,7 @@ from typing import Any, Mapping, Optional, Tuple
 
 import pytest
 
-from src.common.market_filters import kalshi
+from common.market_filters import kalshi
 
 _TEST_COUNT_3 = 3
 _TEST_COUNT_4 = 4

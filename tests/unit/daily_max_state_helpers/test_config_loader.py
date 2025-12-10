@@ -5,12 +5,12 @@ from unittest.mock import MagicMock
 
 import pytest
 
-from src.common.daily_max_state_helpers import config_loader as loader_module
-from src.common.daily_max_state_helpers.config_loader import (
+from common.daily_max_state_helpers import config_loader as loader_module
+from common.daily_max_state_helpers.config_loader import (
     ConfigLoader,
     MetarConfigLoadError,
 )
-from src.common.exceptions import ConfigurationError
+from common.exceptions import ConfigurationError
 
 
 def _patch_loader(

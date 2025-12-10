@@ -7,7 +7,7 @@ from dataclasses import dataclass
 from enum import Enum
 from typing import Optional
 
-from src.common.exceptions import ValidationError
+from common.exceptions import ValidationError
 
 from .namespaces import KeyBuilder, RedisNamespace, sanitize_segment
 from .validators import register_namespace

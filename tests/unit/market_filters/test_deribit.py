@@ -3,7 +3,7 @@
 from datetime import datetime, timedelta, timezone
 from unittest.mock import MagicMock
 
-from src.common.market_filters.deribit import (
+from common.market_filters.deribit import (
     DeribitFutureValidation,
     DeribitOptionValidation,
     validate_deribit_future,

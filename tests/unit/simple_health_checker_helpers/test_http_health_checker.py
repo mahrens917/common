@@ -4,8 +4,8 @@ from unittest.mock import AsyncMock, MagicMock, patch
 import pytest
 from aiohttp import ClientError
 
-from src.common.simple_health_checker_helpers.http_health_checker import HttpHealthChecker
-from src.common.simple_health_checker_helpers.types import HealthStatus
+from common.simple_health_checker_helpers.http_health_checker import HttpHealthChecker
+from common.simple_health_checker_helpers.types import HealthStatus
 
 
 class TestHttpHealthChecker:

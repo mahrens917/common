@@ -6,7 +6,7 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
-from src.common.data_models.micro_price_helpers.calculations import MicroPriceCalculator
+from common.data_models.micro_price_helpers.calculations import MicroPriceCalculator
 
 
 class TestComputeIntrinsicValue:
@@ -161,7 +161,7 @@ class TestComputeMicroPriceMetrics:
     """Tests for compute_micro_price_metrics method."""
 
     @patch(
-        "src.common.data_models.micro_price_helpers.calculations.MetricsCalculator.compute_micro_price_metrics"
+        "common.data_models.micro_price_helpers.calculations.MetricsCalculator.compute_micro_price_metrics"
     )
     def test_delegates_to_metrics_calculator(self, mock_compute: MagicMock) -> None:
         """Test that method delegates to MetricsCalculator."""
@@ -176,7 +176,7 @@ class TestComputeMicroPriceMetrics:
         )
 
     @patch(
-        "src.common.data_models.micro_price_helpers.calculations.MetricsCalculator.compute_micro_price_metrics"
+        "common.data_models.micro_price_helpers.calculations.MetricsCalculator.compute_micro_price_metrics"
     )
     def test_reorders_return_values(self, mock_compute: MagicMock) -> None:
         """Test that return values are reordered correctly."""
@@ -191,7 +191,7 @@ class TestComputeMicroPriceMetrics:
         assert result == (2.0, 0.039, 0.6, 51.0, 0.45, 0.55)
 
     @patch(
-        "src.common.data_models.micro_price_helpers.calculations.MetricsCalculator.compute_micro_price_metrics"
+        "common.data_models.micro_price_helpers.calculations.MetricsCalculator.compute_micro_price_metrics"
     )
     def test_passes_symbol_unknown(self, mock_compute: MagicMock) -> None:
         """Test that symbol 'UNKNOWN' is passed to MetricsCalculator."""
@@ -205,7 +205,7 @@ class TestComputeMicroPriceMetrics:
         assert call_kwargs["symbol"] == "UNKNOWN"
 
     @patch(
-        "src.common.data_models.micro_price_helpers.calculations.MetricsCalculator.compute_micro_price_metrics"
+        "common.data_models.micro_price_helpers.calculations.MetricsCalculator.compute_micro_price_metrics"
     )
     def test_maps_parameter_names(self, mock_compute: MagicMock) -> None:
         """Test that parameter names are correctly mapped."""
@@ -222,7 +222,7 @@ class TestComputeMicroPriceMetrics:
         assert call_kwargs["ask_size"] == 80.0
 
     @patch(
-        "src.common.data_models.micro_price_helpers.calculations.MetricsCalculator.compute_micro_price_metrics"
+        "common.data_models.micro_price_helpers.calculations.MetricsCalculator.compute_micro_price_metrics"
     )
     def test_returns_six_element_tuple(self, mock_compute: MagicMock) -> None:
         """Test that return value is a 6-element tuple."""
@@ -236,7 +236,7 @@ class TestComputeMicroPriceMetrics:
         assert len(result) == 6
 
     @patch(
-        "src.common.data_models.micro_price_helpers.calculations.MetricsCalculator.compute_micro_price_metrics"
+        "common.data_models.micro_price_helpers.calculations.MetricsCalculator.compute_micro_price_metrics"
     )
     def test_handles_equal_bid_ask_sizes(self, mock_compute: MagicMock) -> None:
         """Test with equal bid and ask sizes."""
@@ -252,7 +252,7 @@ class TestComputeMicroPriceMetrics:
         assert result[5] == 0.5  # h
 
     @patch(
-        "src.common.data_models.micro_price_helpers.calculations.MetricsCalculator.compute_micro_price_metrics"
+        "common.data_models.micro_price_helpers.calculations.MetricsCalculator.compute_micro_price_metrics"
     )
     def test_handles_large_spread(self, mock_compute: MagicMock) -> None:
         """Test with large spread between bid and ask."""

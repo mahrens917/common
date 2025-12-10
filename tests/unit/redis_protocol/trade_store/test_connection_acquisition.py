@@ -4,8 +4,8 @@ import asyncio
 
 import pytest
 
-from src.common.redis_protocol.trade_store.errors import TradeStoreError
-from src.common.redis_protocol.trade_store.store_helpers.connection_manager_helpers.acquisition import (
+from common.redis_protocol.trade_store.errors import TradeStoreError
+from common.redis_protocol.trade_store.store_helpers.connection_manager_helpers.acquisition import (
     ConnectionAcquisitionHelper,
 )
 

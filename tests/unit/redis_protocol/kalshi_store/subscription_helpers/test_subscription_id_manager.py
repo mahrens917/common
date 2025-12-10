@@ -7,7 +7,7 @@ from unittest.mock import AsyncMock, MagicMock
 
 import pytest
 
-from src.common.redis_protocol.kalshi_store.subscription_helpers import (
+from common.redis_protocol.kalshi_store.subscription_helpers import (
     subscription_id_manager,
 )
 

@@ -3,7 +3,7 @@ from unittest.mock import AsyncMock, Mock, patch
 
 import pytest
 
-from src.common.websocket.connection_health_monitor_helpers.monitor_lifecycle import (
+from common.websocket.connection_health_monitor_helpers.monitor_lifecycle import (
     MonitorLifecycle,
 )
 
@@ -33,7 +33,7 @@ class TestMonitorLifecycle:
         callback = AsyncMock()
 
         with patch(
-            "src.common.websocket.connection_health_monitor_helpers.monitor_lifecycle.logger"
+            "common.websocket.connection_health_monitor_helpers.monitor_lifecycle.logger"
         ) as mock_logger:
             await lifecycle.start_monitoring(callback)
             mock_logger.warning.assert_called_with("test_service health monitoring already started")

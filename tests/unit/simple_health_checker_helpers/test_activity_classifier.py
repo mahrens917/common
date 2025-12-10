@@ -1,6 +1,6 @@
 import pytest
 
-from src.common.simple_health_checker_helpers.activity_classifier import ActivityClassifier
+from common.simple_health_checker_helpers.activity_classifier import ActivityClassifier
 
 
 class TestActivityClassifier:

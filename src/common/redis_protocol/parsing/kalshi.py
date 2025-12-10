@@ -7,7 +7,7 @@ from datetime import datetime, timedelta, timezone
 from typing import Optional, Tuple
 from zoneinfo import ZoneInfo
 
-from src.common.exceptions import DataError, ValidationError
+from common.exceptions import DataError, ValidationError
 
 # Constants
 _CONST_2 = 2

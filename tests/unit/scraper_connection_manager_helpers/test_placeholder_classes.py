@@ -2,12 +2,12 @@ import asyncio
 import unittest
 from unittest.mock import Mock
 
-from src.common.scraper_connection_manager_helpers.connection_establisher import (
+from common.scraper_connection_manager_helpers.connection_establisher import (
     ConnectionEstablisher,
 )
-from src.common.scraper_connection_manager_helpers.content_validator import ContentValidator
-from src.common.scraper_connection_manager_helpers.health_checker import HealthChecker
-from src.common.scraper_connection_manager_helpers.scraper_operations import ScraperOperations
+from common.scraper_connection_manager_helpers.content_validator import ContentValidator
+from common.scraper_connection_manager_helpers.health_checker import HealthChecker
+from common.scraper_connection_manager_helpers.scraper_operations import ScraperOperations
 
 
 class TestPlaceholderClasses(unittest.IsolatedAsyncioTestCase):

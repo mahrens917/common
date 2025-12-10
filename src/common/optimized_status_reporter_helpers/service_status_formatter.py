@@ -6,11 +6,11 @@ Builds status display lines for individual services.
 
 from typing import TYPE_CHECKING, Any, Dict, Optional
 
-from src.common.monitoring import ProcessStatus
+from common.monitoring import ProcessStatus
 
 if TYPE_CHECKING:
-    from src.common.health.log_activity_monitor_helpers.types import LogActivity
-    from src.common.monitoring.process_models import ProcessInfo
+    from common.health.log_activity_monitor_helpers.types import LogActivity
+    from common.monitoring.process_models import ProcessInfo
 
 
 class ServiceStatusFormatter:
@@ -29,7 +29,7 @@ class ServiceStatusFormatter:
         activity: Optional["LogActivity"],
     ) -> str:
         """Build complete status line for a service."""
-        from src.common.health.log_activity_monitor import LogActivityStatus
+        from common.health.log_activity_monitor import LogActivityStatus
 
         if running:
             emoji = "🟢"

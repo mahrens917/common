@@ -2,8 +2,8 @@ from datetime import datetime, timezone
 
 import pytest
 
-from src.common.data_models.trading import OrderAction, OrderSide
-from src.common.data_models.trading_signals import (
+from common.data_models.trading import OrderAction, OrderSide
+from common.data_models.trading_signals import (
     TradingSignal,
     TradingSignalBatch,
     TradingSignalType,

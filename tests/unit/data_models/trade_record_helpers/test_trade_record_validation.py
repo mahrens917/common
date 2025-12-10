@@ -7,8 +7,8 @@ from unittest.mock import MagicMock
 
 import pytest
 
-from src.common.data_models.trade_record import TradeSide
-from src.common.data_models.trade_record_helpers.trade_record_validation import (
+from common.data_models.trade_record import TradeSide
+from common.data_models.trade_record_helpers.trade_record_validation import (
     ERR_INVALID_TRADE_AMOUNT,
     ERR_MISSING_REQUIRED_FIELD,
     validate_and_normalize_category,
@@ -21,8 +21,8 @@ from src.common.data_models.trade_record_helpers.trade_record_validation import 
     validate_trade_side,
     validate_weather_station,
 )
-from src.common.exceptions import ValidationError
-from src.common.redis_schema.markets import KalshiMarketCategory
+from common.exceptions import ValidationError
+from common.redis_schema.markets import KalshiMarketCategory
 
 
 class TestValidateBasicFields:

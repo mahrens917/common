@@ -2,7 +2,7 @@
 
 import logging
 
-from src.common.redis_protocol.typing import RedisClient, ensure_awaitable
+from common.redis_protocol.typing import RedisClient, ensure_awaitable
 
 from .cleanup_helpers import expiration_checker
 

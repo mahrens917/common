@@ -4,7 +4,7 @@ from io import StringIO
 
 import pytest
 
-from src.common.status_reporter import StatusReporter
+from common.status_reporter import StatusReporter
 
 
 @pytest.fixture

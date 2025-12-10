@@ -1,13 +1,13 @@
 """Micro price calculations and intrinsic value computations.
 
 IMPORTANT: This module delegates to the canonical implementation in
-src.common.data_conversion.micro_price_helpers.metrics_calculator.MetricsCalculator
+common.data_conversion.micro_price_helpers.metrics_calculator.MetricsCalculator
 
 The canonical implementation is used by MicroPriceConverter, which is the
 "single source of truth" for micro price conversion throughout the codebase.
 """
 
-from src.common.data_conversion.micro_price_helpers.metrics_calculator import MetricsCalculator
+from common.data_conversion.micro_price_helpers.metrics_calculator import MetricsCalculator
 
 
 class MicroPriceCalculator:

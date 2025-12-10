@@ -2,7 +2,7 @@
 
 from datetime import datetime, timezone
 
-from src.common.redis_protocol.kalshi_store.writer_helpers.timestamp_converter import (
+from common.redis_protocol.kalshi_store.writer_helpers.timestamp_converter import (
     convert_numeric_timestamp,
     convert_string_timestamp,
 )

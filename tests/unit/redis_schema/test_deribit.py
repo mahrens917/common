@@ -1,7 +1,7 @@
 import pytest
 
-from src.common.redis_schema.deribit import parse_deribit_market_key
-from src.common.redis_schema.markets import DeribitInstrumentType
+from common.redis_schema.deribit import parse_deribit_market_key
+from common.redis_schema.markets import DeribitInstrumentType
 
 
 def test_parse_deribit_spot_key():

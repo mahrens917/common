@@ -2,7 +2,7 @@ from datetime import datetime, timezone
 
 import pytest
 
-from src.common.time_helpers.location import (
+from common.time_helpers.location import (
     MAX_LATITUDE,
     MAX_LONGITUDE,
     MIN_LATITUDE,
@@ -10,7 +10,7 @@ from src.common.time_helpers.location import (
     _get_timezone_heuristic,
     get_timezone_from_coordinates,
 )
-from src.common.time_utils.local import calculate_local_midnight_utc, is_after_local_midnight
+from common.time_utils.local import calculate_local_midnight_utc, is_after_local_midnight
 
 
 def test_get_timezone_from_coordinates_validates_bounds():
@@ -43,7 +43,7 @@ def test_local_midnight_and_after_check(monkeypatch):
 
     # Use a fixed timezone response
     monkeypatch.setattr(
-        "src.common.time_helpers.location.get_timezone_from_coordinates",
+        "common.time_helpers.location.get_timezone_from_coordinates",
         lambda *_args, **_kwargs: "UTC",
     )
 

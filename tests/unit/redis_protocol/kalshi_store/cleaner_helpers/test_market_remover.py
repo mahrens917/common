@@ -2,7 +2,7 @@ import asyncio
 
 import pytest
 
-from src.common.redis_protocol.kalshi_store.cleaner_helpers import market_remover, pipeline_executor
+from common.redis_protocol.kalshi_store.cleaner_helpers import market_remover, pipeline_executor
 
 
 class _DummyPipeline:

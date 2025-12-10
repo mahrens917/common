@@ -5,21 +5,21 @@ from typing import Any, Dict, Optional
 
 import pytest
 
-from src.common.redis_protocol.kalshi_store.market_skip import MarketSkip
-from src.common.redis_protocol.kalshi_store.reader_helpers.metadataextractor_helpers.market_record_builder_helpers import (
+from common.redis_protocol.kalshi_store.market_skip import MarketSkip
+from common.redis_protocol.kalshi_store.reader_helpers.metadataextractor_helpers.market_record_builder_helpers import (
     field_extractor as field_helpers,
 )
-from src.common.redis_protocol.kalshi_store.reader_helpers.metadataextractor_helpers.market_record_builder_helpers import (
+from common.redis_protocol.kalshi_store.reader_helpers.metadataextractor_helpers.market_record_builder_helpers import (
     metadata_builder,
     record_validator,
 )
-from src.common.redis_protocol.kalshi_store.reader_helpers.metadataextractor_helpers.metadata_parser import (
+from common.redis_protocol.kalshi_store.reader_helpers.metadataextractor_helpers.metadata_parser import (
     MetadataParser,
 )
-from src.common.redis_protocol.kalshi_store.reader_helpers.metadataextractor_helpers.price_extractor import (
+from common.redis_protocol.kalshi_store.reader_helpers.metadataextractor_helpers.price_extractor import (
     PriceExtractor,
 )
-from src.common.strike_helpers import calculate_strike_value, parse_strike_bounds
+from common.strike_helpers import calculate_strike_value, parse_strike_bounds
 
 
 def _string_converter(value: Any, fallback: Optional[Any] = None) -> Any:

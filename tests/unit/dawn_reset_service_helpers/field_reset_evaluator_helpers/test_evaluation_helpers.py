@@ -5,12 +5,12 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
-from src.common.dawn_reset_service_helpers.field_reset_evaluator_helpers.evaluation_helpers import (
+from common.dawn_reset_service_helpers.field_reset_evaluator_helpers.evaluation_helpers import (
     BoundaryEvaluator,
     TimestampCrossingEvaluator,
     _BaseEvaluator,
 )
-from src.common.exceptions import DataError
+from common.exceptions import DataError
 
 
 class TestBaseEvaluator:

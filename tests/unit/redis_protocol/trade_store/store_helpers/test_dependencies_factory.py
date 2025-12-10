@@ -3,7 +3,7 @@ from unittest.mock import Mock
 
 import pytest
 
-from src.common.redis_protocol.trade_store.store_helpers.dependencies_factory import (
+from common.redis_protocol.trade_store.store_helpers.dependencies_factory import (
     TradeStoreDependencies,
     TradeStoreDependenciesFactory,
 )

@@ -1,6 +1,6 @@
 """Tests for strike bounds builder module."""
 
-from src.common.redis_protocol.market_normalization_helpers.strike_bounds_builder import (
+from common.redis_protocol.market_normalization_helpers.strike_bounds_builder import (
     apply_prefix_bounds,
     determine_keyword_type,
     finalize_bounds,

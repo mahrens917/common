@@ -2,7 +2,7 @@ from types import SimpleNamespace
 
 import pytest
 
-from src.common.redis_protocol.kalshi_store.reader_helpers import strike_matcher
+from common.redis_protocol.kalshi_store.reader_helpers import strike_matcher
 
 
 class _DummyTickerParser:
@@ -34,7 +34,7 @@ class _DummyRedis:
 @pytest.mark.asyncio
 async def test_find_matching_market_success(monkeypatch):
     monkeypatch.setattr(
-        "src.common.redis_protocol.kalshi_store.reader_helpers.strike_matcher.ensure_awaitable",
+        "common.redis_protocol.kalshi_store.reader_helpers.strike_matcher.ensure_awaitable",
         lambda value: value,
     )
     deps = strike_matcher.MarketMatcherDependencies(

@@ -1,13 +1,13 @@
 """
 Shared value coercion helpers re-exported for general-purpose usage.
 
-These wrap the canonical utilities under ``src.common.redis_protocol.kalshi_store.utils_coercion``
+These wrap the canonical utilities under ``common.redis_protocol.kalshi_store.utils_coercion``
 so higher-level modules no longer need to access redis-specific helpers directly.
 """
 
 from typing import Any, Dict, List, Optional
 
-from src.common.redis_protocol.kalshi_store import utils_coercion
+from common.redis_protocol.kalshi_store import utils_coercion
 
 __all__ = [
     "bool_or_else",

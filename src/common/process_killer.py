@@ -6,7 +6,7 @@ to prevent duplicates when starting services. Uses configuration-driven
 timeouts and provides consistent singleton enforcement across all services.
 
 Usage:
-    from src.common.process_killer import ensure_single_instance
+    from common.process_killer import ensure_single_instance
 
     # Ensure only one instance of kalshi is running
     ensure_single_instance("kalshi")
@@ -17,7 +17,7 @@ import logging
 import os
 from typing import List, Optional
 
-from src.common.config import env_bool
+from common.config import env_bool
 
 from .connection_config import ConnectionConfig
 
@@ -223,7 +223,7 @@ async def _get_process_monitor():
     """Return global process monitor if available."""
     from importlib import import_module
 
-    monitor_mod = import_module("src.common.process_monitor")
+    monitor_mod = import_module("common.process_monitor")
     return await monitor_mod.get_global_process_monitor()
 
 

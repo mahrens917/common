@@ -2,8 +2,8 @@
 
 from typing import Any, Dict, Mapping
 
-from src.common.exceptions import ValidationError
-from src.common.validation.required_fields import (
+from common.exceptions import ValidationError
+from common.validation.required_fields import (
     validate_required_fields as _validate_required_fields_common,
 )
 

@@ -6,8 +6,8 @@ from unittest.mock import Mock
 
 import pytest
 
-from src.common.config.weather import WeatherConfigError
-from src.common.redis_protocol.weather_station_resolver import (
+from common.config.weather import WeatherConfigError
+from common.redis_protocol.weather_station_resolver import (
     WeatherStationMappingError,
     WeatherStationResolver,
 )

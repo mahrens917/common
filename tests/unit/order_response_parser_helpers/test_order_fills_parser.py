@@ -6,8 +6,8 @@ from datetime import datetime
 
 import pytest
 
-from src.common.exceptions import DataError, ValidationError
-from src.common.order_response_parser_helpers.order_fills_parser import (
+from common.exceptions import DataError, ValidationError
+from common.order_response_parser_helpers.order_fills_parser import (
     _extract_fill_count,
     _extract_fill_timestamp,
     _parse_single_fill,
@@ -202,7 +202,7 @@ class TestValidateTotalFillCount:
 
     def test_passes_when_counts_match(self) -> None:
         """Passes when fill counts sum to expected."""
-        from src.common.data_models.trading import OrderFill
+        from common.data_models.trading import OrderFill
 
         fills = [
             OrderFill(price_cents=50, count=5, timestamp=datetime.now()),
@@ -213,7 +213,7 @@ class TestValidateTotalFillCount:
 
     def test_raises_when_counts_mismatch(self) -> None:
         """Raises ValueError when counts don't match."""
-        from src.common.data_models.trading import OrderFill
+        from common.data_models.trading import OrderFill
 
         fills = [
             OrderFill(price_cents=50, count=5, timestamp=datetime.now()),

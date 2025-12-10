@@ -5,7 +5,7 @@ from __future__ import annotations
 from datetime import datetime
 from typing import Any, Callable, Dict, Mapping, Optional
 
-from src.common.exceptions import DataError
+from common.exceptions import DataError
 
 from ..redis_schema import KalshiMarketDescriptor
 from .kalshi_store.metadata_helpers.expiry_derivation import derive_expiry_iso_impl

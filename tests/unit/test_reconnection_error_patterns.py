@@ -4,7 +4,7 @@ import re
 
 import pytest
 
-from src.common.reconnection_error_patterns import (
+from common.reconnection_error_patterns import (
     DEFAULT_SERVICE_TYPE_MAPPING,
     RECONNECTION_ERROR_PATTERNS,
     ReconnectionErrorClassifier,

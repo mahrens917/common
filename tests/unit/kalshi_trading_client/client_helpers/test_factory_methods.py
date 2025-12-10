@@ -2,8 +2,8 @@
 
 from unittest.mock import MagicMock
 
-from src.common.kalshi_trading_client.client_helpers import factory_methods
-from src.common.kalshi_trading_client.client_helpers.factory_methods import FactoryMethods
+from common.kalshi_trading_client.client_helpers import factory_methods
+from common.kalshi_trading_client.client_helpers.factory_methods import FactoryMethods
 
 
 def test_create_order_poller_delegates_get_fills(monkeypatch):

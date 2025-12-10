@@ -1,6 +1,6 @@
 from datetime import datetime, timezone
 
-from src.common.redis_protocol.kalshi_store import utils
+from common.redis_protocol.kalshi_store import utils
 
 
 def test_utils_reexports_normalise_trade_timestamp_string_and_numeric():

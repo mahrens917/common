@@ -9,7 +9,7 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
-from src.common.redis_protocol.persistence_manager_helpers.validation_manager import (
+from common.redis_protocol.persistence_manager_helpers.validation_manager import (
     ValidationManager,
     check_aof_enabled,
     check_rdb_enabled,

@@ -1,6 +1,6 @@
 import pytest
 
-from src.common.redis_protocol.kalshi_store.utils_coercion_helpers import type_coercion as tc
+from common.redis_protocol.kalshi_store.utils_coercion_helpers import type_coercion as tc
 
 
 @pytest.mark.parametrize(

@@ -2,8 +2,8 @@ import math
 
 import pytest
 
-from src.common.exceptions import ValidationError
-from src.common.redis_protocol.kalshi_store import utils_coercion as utils
+from common.exceptions import ValidationError
+from common.redis_protocol.kalshi_store import utils_coercion as utils
 
 
 def test_bool_and_numeric_defaults():

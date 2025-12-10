@@ -10,8 +10,8 @@ from pathlib import Path
 
 import pytest
 
-from src.common.config.errors import ConfigurationError
-from src.common.config.redis_schema import (
+from common.config.errors import ConfigurationError
+from common.config.redis_schema import (
     AnalyticsKeys,
     CFBKeys,
     MarketKeys,
@@ -270,7 +270,7 @@ class TestConfigurationErrorHandling:
             )
         )
 
-        monkeypatch.setattr("src.common.config.redis_schema.CONFIG_PATH", config_file)
+        monkeypatch.setattr("common.config.redis_schema.CONFIG_PATH", config_file)
 
         with pytest.raises(ConfigurationError):
             RedisSchemaConfig.load()
@@ -292,7 +292,7 @@ class TestConfigurationErrorHandling:
             )
         )
 
-        monkeypatch.setattr("src.common.config.redis_schema.CONFIG_PATH", config_file)
+        monkeypatch.setattr("common.config.redis_schema.CONFIG_PATH", config_file)
 
         with pytest.raises(ConfigurationError):
             RedisSchemaConfig.load()

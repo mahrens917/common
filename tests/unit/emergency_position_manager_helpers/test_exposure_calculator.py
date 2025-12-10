@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from unittest.mock import MagicMock
 
-from src.common.emergency_position_manager_helpers.exposure_calculator import (
+from common.emergency_position_manager_helpers.exposure_calculator import (
     calculate_total_exposure,
     get_sorted_high_risk_positions,
     should_reduce_exposure,

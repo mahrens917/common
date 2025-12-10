@@ -7,7 +7,7 @@ from unittest.mock import AsyncMock, MagicMock
 
 import pytest
 
-from src.common.dependency_monitor_helpers.dependency_checker import (
+from common.dependency_monitor_helpers.dependency_checker import (
     DependencyChecker,
     DependencyConfig,
     DependencyState,

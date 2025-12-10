@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from typing import Any, Dict, Optional, Tuple
 
-from src.common.exceptions import DataError
+from common.exceptions import DataError
 
 # Constants
 _CONST_2 = 2

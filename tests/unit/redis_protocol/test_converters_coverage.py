@@ -2,7 +2,7 @@ import math
 
 import pytest
 
-from src.common.redis_protocol.converters import (
+from common.redis_protocol.converters import (
     FloatCoercionError,
     coerce_float,
     decode_redis_hash,

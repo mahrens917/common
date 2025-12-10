@@ -6,8 +6,8 @@ from unittest.mock import AsyncMock, MagicMock
 
 import pytest
 
-from src.common.monitoring import ProcessStatus
-from src.common.optimized_status_reporter_helpers.tracker_status_collector import (
+from common.monitoring import ProcessStatus
+from common.optimized_status_reporter_helpers.tracker_status_collector import (
     TRACKER_STATUS_ERRORS,
     TrackerStatusCollector,
 )

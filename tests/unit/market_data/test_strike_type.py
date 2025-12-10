@@ -2,7 +2,7 @@
 
 import pytest
 
-from src.common.market_data.strike_type import extract_strike_type_from_ticker
+from common.market_data.strike_type import extract_strike_type_from_ticker
 
 
 @pytest.mark.parametrize(

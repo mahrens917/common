@@ -4,7 +4,7 @@ from unittest.mock import AsyncMock
 
 import pytest
 
-from src.common.websocket.message_stats_collector import MessageStatsCollector
+from common.websocket.message_stats_collector import MessageStatsCollector
 
 _TEST_COUNT_2 = 2
 _TEST_COUNT_3 = 3
@@ -39,7 +39,7 @@ async def test_check_and_record_rate_updates_state(monkeypatch):
     collector._message_count = _TEST_COUNT_5
     collector._last_rate_time = 0
 
-    monkeypatch.setattr("src.common.websocket.message_stats_collector.time.time", lambda: 2.0)
+    monkeypatch.setattr("common.websocket.message_stats_collector.time.time", lambda: 2.0)
 
     collector._check_silent_failure = AsyncMock()
     collector._write_to_history_redis = AsyncMock()
@@ -94,7 +94,7 @@ async def test_write_to_history_redis_records_data(monkeypatch):
         return fake_client
 
     monkeypatch.setattr(
-        "src.common.websocket.message_stats_collector.get_redis_connection",
+        "common.websocket.message_stats_collector.get_redis_connection",
         fake_get_connection,
     )
 
@@ -121,7 +121,7 @@ async def test_write_to_history_redis_raises_on_failure(monkeypatch):
         return fake_client
 
     monkeypatch.setattr(
-        "src.common.websocket.message_stats_collector.get_redis_connection",
+        "common.websocket.message_stats_collector.get_redis_connection",
         fake_get_connection,
     )
 

@@ -2,7 +2,7 @@
 
 import pytest
 
-from src.common import value_coercion
+from common import value_coercion
 
 
 @pytest.mark.parametrize("value, otherwise_val", [(True, False), (0, 1)])

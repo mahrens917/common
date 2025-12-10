@@ -3,8 +3,8 @@ from datetime import datetime, timedelta, timezone
 
 import pytest
 
-from src.common.daily_max_state import DailyMaxState
-from src.common.midnight_reset_service import MidnightResetService
+from common.daily_max_state import DailyMaxState
+from common.midnight_reset_service import MidnightResetService
 
 _CONST_68 = 68
 _CONST_72 = 72
@@ -22,11 +22,11 @@ def test_is_new_local_day_triggers(monkeypatch, service):
     current = previous + timedelta(hours=5)
 
     monkeypatch.setattr(
-        "src.common.time_utils.get_current_utc",
+        "common.time_utils.get_current_utc",
         lambda: current,
     )
     monkeypatch.setattr(
-        "src.common.midnight_reset_service.calculate_local_midnight_utc",
+        "common.midnight_reset_service.calculate_local_midnight_utc",
         lambda lat, lon, ts: previous + timedelta(hours=3),
     )
 
@@ -43,11 +43,11 @@ def test_apply_field_resets(monkeypatch, service):
     current_time = previous_timestamp + timedelta(hours=2)
 
     monkeypatch.setattr(
-        "src.common.midnight_reset_service.calculate_local_midnight_utc",
+        "common.midnight_reset_service.calculate_local_midnight_utc",
         lambda lat, lon, ts: previous_timestamp + timedelta(hours=6),
     )
     monkeypatch.setattr(
-        "src.common.time_utils.get_current_utc",
+        "common.time_utils.get_current_utc",
         lambda: current_time,
     )
 
@@ -62,9 +62,9 @@ def test_apply_field_resets(monkeypatch, service):
 
 def test_apply_confidence_based_max_temp_logic(monkeypatch, service):
     current_time = datetime(2024, 1, 2, 6, 0, tzinfo=timezone.utc)
-    monkeypatch.setattr("src.common.time_utils.get_current_utc", lambda: current_time)
+    monkeypatch.setattr("common.time_utils.get_current_utc", lambda: current_time)
     monkeypatch.setattr(
-        "src.common.midnight_reset_service.calculate_local_midnight_utc",
+        "common.midnight_reset_service.calculate_local_midnight_utc",
         lambda lat, lon, ts: ts.replace(hour=5),
     )
 
@@ -90,7 +90,7 @@ def test_apply_field_resets_clears_opt_in_fields(monkeypatch, service):
     current_time = previous_timestamp + timedelta(hours=4)
 
     monkeypatch.setattr(
-        "src.common.midnight_reset_service.calculate_local_midnight_utc",
+        "common.midnight_reset_service.calculate_local_midnight_utc",
         lambda lat, lon, ts: previous_timestamp + timedelta(hours=1),
     )
     previous_data = {"last_updated": previous_timestamp.isoformat()}

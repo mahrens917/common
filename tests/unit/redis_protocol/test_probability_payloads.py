@@ -5,7 +5,7 @@ from decimal import Decimal
 
 import pytest
 
-from src.common.redis_protocol.probability_payloads import (
+from common.redis_protocol.probability_payloads import (
     ProbabilityRecord,
     build_probability_record,
     normalise_strike_value,

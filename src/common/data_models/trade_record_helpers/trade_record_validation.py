@@ -3,7 +3,7 @@
 from datetime import datetime
 from typing import TYPE_CHECKING, Any
 
-from src.common.exceptions import ValidationError
+from common.exceptions import ValidationError
 
 from ...redis_schema.markets import KalshiMarketCategory
 from .trade_record_utils import is_trade_reason_valid

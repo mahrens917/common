@@ -18,7 +18,7 @@ async def get_redis_client_for_reporter(
     Returns:
         Redis client instance
     """
-    from src.common.redis_utils import get_redis_connection
+    from common.redis_utils import get_redis_connection
 
     if redis_client is not None:
         return redis_client

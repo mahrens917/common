@@ -2,7 +2,7 @@
 
 from datetime import datetime
 
-from src.common.dawn_reset_service_helpers.cache_manager import CacheManager
+from common.dawn_reset_service_helpers.cache_manager import CacheManager
 
 DEFAULT_TEST_CACHE_MAX_SIZE = 3
 

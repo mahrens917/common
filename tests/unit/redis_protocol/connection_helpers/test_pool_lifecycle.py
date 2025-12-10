@@ -6,7 +6,7 @@ from unittest.mock import MagicMock
 
 import pytest
 
-from src.common.redis_protocol.connection_helpers.pool_lifecycle import should_rebuild_pool
+from common.redis_protocol.connection_helpers.pool_lifecycle import should_rebuild_pool
 
 
 class TestShouldRebuildPool:

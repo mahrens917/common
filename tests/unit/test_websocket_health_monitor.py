@@ -3,7 +3,7 @@ import asyncio
 import pytest
 from websockets import WebSocketException
 
-from src.common.websocket_connection_manager_helpers.health_monitor import WebSocketHealthMonitor
+from common.websocket_connection_manager_helpers.health_monitor import WebSocketHealthMonitor
 
 DEFAULT_WEBSOCKET_PONG_TIMEOUT_SECONDS = 0.01
 

@@ -1,6 +1,6 @@
 """Tests for strike calculator using canonical strike_helpers."""
 
-from src.common.strike_helpers import calculate_strike_value, parse_strike_bounds
+from common.strike_helpers import calculate_strike_value, parse_strike_bounds
 
 
 class TestCalculateStrikeValue:

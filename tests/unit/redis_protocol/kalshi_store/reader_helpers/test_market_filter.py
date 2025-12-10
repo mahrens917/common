@@ -3,7 +3,7 @@ from types import SimpleNamespace
 
 import pytest
 
-from src.common.redis_protocol.kalshi_store.reader_helpers import market_filter
+from common.redis_protocol.kalshi_store.reader_helpers import market_filter
 
 
 class _DummyRedis:
@@ -21,7 +21,7 @@ class _DummyRedis:
 async def test_find_currency_market_tickers_filters_by_currency(monkeypatch):
     redis = _DummyRedis()
     monkeypatch.setattr(
-        "src.common.redis_protocol.kalshi_store.reader_helpers.market_filter.parse_kalshi_market_key",
+        "common.redis_protocol.kalshi_store.reader_helpers.market_filter.parse_kalshi_market_key",
         lambda key: SimpleNamespace(ticker="KXBTC-TK1"),
     )
     filt = market_filter.MarketFilter(logger_instance=logging.getLogger("test"))

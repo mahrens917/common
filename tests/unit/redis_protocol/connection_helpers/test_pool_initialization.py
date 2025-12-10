@@ -6,7 +6,7 @@ from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 
-from src.common.redis_protocol.connection_helpers.pool_initialization import create_and_test_pool
+from common.redis_protocol.connection_helpers.pool_initialization import create_and_test_pool
 
 
 class TestCreateAndTestPool:
@@ -18,16 +18,16 @@ class TestCreateAndTestPool:
         current_loop = asyncio.get_event_loop()
 
         with patch(
-            "src.common.redis_protocol.connection_helpers.pool_initialization.build_pool_settings"
+            "common.redis_protocol.connection_helpers.pool_initialization.build_pool_settings"
         ) as mock_settings:
             with patch(
-                "src.common.redis_protocol.connection_helpers.pool_initialization.mask_sensitive_settings"
+                "common.redis_protocol.connection_helpers.pool_initialization.mask_sensitive_settings"
             ) as mock_mask:
                 with patch(
-                    "src.common.redis_protocol.connection_helpers.pool_initialization.redis.asyncio.ConnectionPool"
+                    "common.redis_protocol.connection_helpers.pool_initialization.redis.asyncio.ConnectionPool"
                 ) as mock_pool_cls:
                     with patch(
-                        "src.common.redis_protocol.connection_helpers.pool_initialization.test_pool_connection"
+                        "common.redis_protocol.connection_helpers.pool_initialization.test_pool_connection"
                     ) as mock_test:
                         mock_settings.return_value = {"max_connections": 10}
                         mock_mask.return_value = {"max_connections": 10}
@@ -48,16 +48,16 @@ class TestCreateAndTestPool:
         current_loop = asyncio.get_event_loop()
 
         with patch(
-            "src.common.redis_protocol.connection_helpers.pool_initialization.build_pool_settings"
+            "common.redis_protocol.connection_helpers.pool_initialization.build_pool_settings"
         ) as mock_settings:
             with patch(
-                "src.common.redis_protocol.connection_helpers.pool_initialization.mask_sensitive_settings"
+                "common.redis_protocol.connection_helpers.pool_initialization.mask_sensitive_settings"
             ):
                 with patch(
-                    "src.common.redis_protocol.connection_helpers.pool_initialization.redis.asyncio.ConnectionPool"
+                    "common.redis_protocol.connection_helpers.pool_initialization.redis.asyncio.ConnectionPool"
                 ) as mock_pool_cls:
                     with patch(
-                        "src.common.redis_protocol.connection_helpers.pool_initialization.test_pool_connection"
+                        "common.redis_protocol.connection_helpers.pool_initialization.test_pool_connection"
                     ) as mock_test:
                         mock_settings.return_value = {}
                         mock_pool = MagicMock()
@@ -73,16 +73,16 @@ class TestCreateAndTestPool:
         current_loop = asyncio.get_event_loop()
 
         with patch(
-            "src.common.redis_protocol.connection_helpers.pool_initialization.build_pool_settings"
+            "common.redis_protocol.connection_helpers.pool_initialization.build_pool_settings"
         ) as mock_settings:
             with patch(
-                "src.common.redis_protocol.connection_helpers.pool_initialization.mask_sensitive_settings"
+                "common.redis_protocol.connection_helpers.pool_initialization.mask_sensitive_settings"
             ):
                 with patch(
-                    "src.common.redis_protocol.connection_helpers.pool_initialization.redis.asyncio.ConnectionPool"
+                    "common.redis_protocol.connection_helpers.pool_initialization.redis.asyncio.ConnectionPool"
                 ):
                     with patch(
-                        "src.common.redis_protocol.connection_helpers.pool_initialization.test_pool_connection"
+                        "common.redis_protocol.connection_helpers.pool_initialization.test_pool_connection"
                     ) as mock_test:
                         mock_settings.return_value = {}
                         mock_test.side_effect = RuntimeError("Connection failed")

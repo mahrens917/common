@@ -3,7 +3,7 @@
 import logging
 from typing import Any, Dict
 
-from src.common.exceptions import DataError
+from common.exceptions import DataError
 
 from ....redis_schema import DeribitInstrumentKey, DeribitInstrumentType
 from ...error_types import REDIS_ERRORS

@@ -1,7 +1,7 @@
 import unittest
 from unittest.mock import Mock
 
-from src.common.report_generator_helpers.unified_pnl_formatter import UnifiedPnLFormatter
+from common.report_generator_helpers.unified_pnl_formatter import UnifiedPnLFormatter
 
 DEFAULT_UNIFIED_PNL_TRADE_COUNT = 10
 

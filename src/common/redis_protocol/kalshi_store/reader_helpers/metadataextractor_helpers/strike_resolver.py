@@ -1,12 +1,12 @@
 """
 Strike Resolver - Resolve strike prices from metadata.
 
-Delegates to src.common.strike_helpers for all strike calculations.
+Delegates to common.strike_helpers for all strike calculations.
 """
 
 from typing import Any, Callable, Dict, Optional
 
-from src.common.strike_helpers import calculate_strike_value, parse_strike_bounds
+from common.strike_helpers import calculate_strike_value, parse_strike_bounds
 
 __all__ = ["StrikeResolver"]
 

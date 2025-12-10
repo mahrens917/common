@@ -2,7 +2,7 @@ from datetime import datetime, timezone
 
 import pytest
 
-from src.common.market_data_parser import (
+from common.market_data_parser import (
     DateTimeCorruptionError,
     DeribitInstrumentParser,
     MarketDataValidator,
@@ -20,7 +20,7 @@ _TEST_COUNT_9 = 9
 @pytest.fixture(autouse=True)
 def fixed_current_time(monkeypatch):
     monkeypatch.setattr(
-        "src.common.time_utils.get_current_utc",
+        "common.time_utils.get_current_utc",
         lambda: datetime(2024, 1, 1, tzinfo=timezone.utc),
     )
 

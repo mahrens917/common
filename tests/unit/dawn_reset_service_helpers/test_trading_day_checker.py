@@ -3,7 +3,7 @@
 from datetime import datetime, timedelta, timezone
 from unittest.mock import MagicMock, patch
 
-from src.common.dawn_reset_service_helpers.trading_day_checker import TradingDayChecker
+from common.dawn_reset_service_helpers.trading_day_checker import TradingDayChecker
 
 
 class TestTradingDayCheckerInit:
@@ -66,7 +66,7 @@ class TestTradingDayCheckerIsNewTradingDay:
         curr = datetime(2025, 1, 15, 12, 0, 0, tzinfo=timezone.utc)
 
         with patch(
-            "src.common.dawn_reset_service_helpers.trading_day_checker.calculate_dawn_utc"
+            "common.dawn_reset_service_helpers.trading_day_checker.calculate_dawn_utc"
         ) as mock_dawn:
             mock_dawn.return_value = datetime(2025, 1, 15, 11, 0, 0, tzinfo=timezone.utc)
 
@@ -91,11 +91,11 @@ class TestTradingDayCheckerIsNewTradingDay:
         )
         prev = datetime(2025, 1, 14, 12, 0, 0, tzinfo=timezone.utc)
 
-        with patch("src.common.time_utils.get_current_utc") as mock_time:
+        with patch("common.time_utils.get_current_utc") as mock_time:
             mock_time.return_value = datetime(2025, 1, 15, 12, 0, 0, tzinfo=timezone.utc)
 
             with patch(
-                "src.common.dawn_reset_service_helpers.trading_day_checker.calculate_dawn_utc"
+                "common.dawn_reset_service_helpers.trading_day_checker.calculate_dawn_utc"
             ) as mock_dawn:
                 mock_dawn.return_value = datetime(2025, 1, 15, 11, 0, 0, tzinfo=timezone.utc)
 
@@ -120,7 +120,7 @@ class TestTradingDayCheckerIsNewTradingDay:
         curr = datetime(2025, 1, 15, 12, 0, 0, tzinfo=timezone.utc)
 
         with patch(
-            "src.common.dawn_reset_service_helpers.trading_day_checker.calculate_dawn_utc"
+            "common.dawn_reset_service_helpers.trading_day_checker.calculate_dawn_utc"
         ) as mock_dawn:
             mock_dawn.return_value = datetime(2025, 1, 15, 11, 0, 0, tzinfo=timezone.utc)
 

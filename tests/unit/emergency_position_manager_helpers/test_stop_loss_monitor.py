@@ -4,7 +4,7 @@ from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 
-from src.common.emergency_position_manager_helpers.stop_loss_monitor import StopLossMonitor
+from common.emergency_position_manager_helpers.stop_loss_monitor import StopLossMonitor
 
 DEFAULT_STOP_LOSS_MONITOR_CALL_THRESHOLD = 2
 
@@ -34,7 +34,7 @@ class TestStopLossMonitorCreateStopLossMonitor:
         monitor = StopLossMonitor(trading_client=client, position_closer=closer)
         monitored_positions = {}
 
-        with patch("src.common.emergency_position_manager_helpers.stop_loss_monitor.logger"):
+        with patch("common.emergency_position_manager_helpers.stop_loss_monitor.logger"):
             await monitor.create_stop_loss_monitor(
                 "KXBTC-25JAN01", -500, monitored_positions, check_interval_seconds=0.01
             )
@@ -48,7 +48,7 @@ class TestStopLossMonitorCreateStopLossMonitor:
         monitor = StopLossMonitor(trading_client=client, position_closer=closer)
         monitored_positions = {"KXBTC-25JAN01": True}
 
-        with patch("src.common.emergency_position_manager_helpers.stop_loss_monitor.logger"):
+        with patch("common.emergency_position_manager_helpers.stop_loss_monitor.logger"):
             await monitor.create_stop_loss_monitor(
                 "KXBTC-25JAN01", -500, monitored_positions, check_interval_seconds=0.01
             )
@@ -66,7 +66,7 @@ class TestStopLossMonitorCreateStopLossMonitor:
         monitor = StopLossMonitor(trading_client=client, position_closer=closer)
         monitored_positions = {"KXBTC-25JAN01": True}
 
-        with patch("src.common.emergency_position_manager_helpers.stop_loss_monitor.logger"):
+        with patch("common.emergency_position_manager_helpers.stop_loss_monitor.logger"):
             await monitor.create_stop_loss_monitor(
                 "KXBTC-25JAN01", -500, monitored_positions, check_interval_seconds=0.01
             )
@@ -76,7 +76,7 @@ class TestStopLossMonitorCreateStopLossMonitor:
     @pytest.mark.asyncio
     async def test_handles_trading_error(self) -> None:
         """Handles trading errors gracefully and continues monitoring."""
-        from src.common.trading_exceptions import KalshiTradingError
+        from common.trading_exceptions import KalshiTradingError
 
         client = MagicMock()
         call_count = 0
@@ -93,7 +93,7 @@ class TestStopLossMonitorCreateStopLossMonitor:
         monitor = StopLossMonitor(trading_client=client, position_closer=closer)
         monitored_positions = {"KXBTC-25JAN01": True}
 
-        with patch("src.common.emergency_position_manager_helpers.stop_loss_monitor.logger"):
+        with patch("common.emergency_position_manager_helpers.stop_loss_monitor.logger"):
             await monitor.create_stop_loss_monitor(
                 "KXBTC-25JAN01", -500, monitored_positions, check_interval_seconds=0.01
             )
@@ -121,7 +121,7 @@ class TestStopLossMonitorCreateStopLossMonitor:
         monitor = StopLossMonitor(trading_client=client, position_closer=closer)
         monitored_positions = {"KXBTC-25JAN01": True}
 
-        with patch("src.common.emergency_position_manager_helpers.stop_loss_monitor.logger"):
+        with patch("common.emergency_position_manager_helpers.stop_loss_monitor.logger"):
             await monitor.create_stop_loss_monitor(
                 "KXBTC-25JAN01", -500, monitored_positions, check_interval_seconds=0.01
             )

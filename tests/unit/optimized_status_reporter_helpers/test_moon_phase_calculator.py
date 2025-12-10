@@ -7,7 +7,7 @@ from unittest.mock import MagicMock, patch  # Import MagicMock
 
 import pytest
 
-from src.common.optimized_status_reporter_helpers.moon_phase_calculator import (
+from common.optimized_status_reporter_helpers.moon_phase_calculator import (
     MoonPhaseCalculator,
 )
 
@@ -48,7 +48,7 @@ class TestMoonPhaseCalculator:
 
         # Patch the `datetime` class as it's imported into `moon_phase_calculator`
         mock_datetime_class = mocker.patch(
-            "src.common.optimized_status_reporter_helpers.moon_phase_calculator.datetime"
+            "common.optimized_status_reporter_helpers.moon_phase_calculator.datetime"
         )
 
         # Configure the `now()` method of the mocked datetime class
@@ -61,7 +61,7 @@ class TestMoonPhaseCalculator:
 
         # Patch the `timezone` imported into the module to ensure it's the real one
         mocker.patch(
-            "src.common.optimized_status_reporter_helpers.moon_phase_calculator.timezone",
+            "common.optimized_status_reporter_helpers.moon_phase_calculator.timezone",
             real_timezone,
         )
 
@@ -72,7 +72,7 @@ class TestMoonPhaseCalculator:
         """Test get_moon_phase_emoji returns default emoji on exception."""
         # Patch the `datetime` class directly as it's imported into `moon_phase_calculator`
         mock_datetime_class = mocker.patch(
-            "src.common.optimized_status_reporter_helpers.moon_phase_calculator.datetime"
+            "common.optimized_status_reporter_helpers.moon_phase_calculator.datetime"
         )
 
         # Force an exception during calculation, e.g., in total_seconds, by making now() return a mock that raises
@@ -82,7 +82,7 @@ class TestMoonPhaseCalculator:
         )  # Needed to prevent other errors.
 
         mocker.patch(
-            "src.common.optimized_status_reporter_helpers.moon_phase_calculator.timezone",
+            "common.optimized_status_reporter_helpers.moon_phase_calculator.timezone",
             real_timezone,
         )
 

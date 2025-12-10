@@ -2,7 +2,7 @@ from datetime import date
 
 import pytest
 
-from src.common.redis_schema.trades import (
+from common.redis_schema.trades import (
     TradeIndexKey,
     TradeRecordKey,
     TradeSummaryKey,

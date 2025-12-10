@@ -9,8 +9,8 @@ from unittest.mock import AsyncMock, MagicMock, patch
 import pytest
 from redis.exceptions import RedisError
 
-from src.common.connection_state import ConnectionState
-from src.common.connection_state_tracker_helpers.delegator import (
+from common.connection_state import ConnectionState
+from common.connection_state_tracker_helpers.delegator import (
     STORE_ERROR_TYPES,
     EventManagerDelegator,
     StateQuerierDelegator,

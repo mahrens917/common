@@ -7,22 +7,22 @@ import pytest
 DEFAULT_MAX_TEMP_THRESHOLD_F = 60
 DEFAULT_MAX_TEMP_RESULT_F = 72
 
-from src.common.exceptions import DataError
-from src.common.midnight_reset_service_helpers.daily_checker import DailyChecker
-from src.common.midnight_reset_service_helpers.delegator import MidnightResetDelegator
-from src.common.midnight_reset_service_helpers.factory import create_midnight_reset_service
-from src.common.midnight_reset_service_helpers.field_reset_applicator import FieldResetApplicator
-from src.common.midnight_reset_service_helpers.max_temp_processor import (
+from common.exceptions import DataError
+from common.midnight_reset_service_helpers.daily_checker import DailyChecker
+from common.midnight_reset_service_helpers.delegator import MidnightResetDelegator
+from common.midnight_reset_service_helpers.factory import create_midnight_reset_service
+from common.midnight_reset_service_helpers.field_reset_applicator import FieldResetApplicator
+from common.midnight_reset_service_helpers.max_temp_processor import (
     MaxTempProcessingConfig,
     MaxTempProcessor,
 )
-from src.common.midnight_reset_service_helpers.max_temp_processor_helpers import (
+from common.midnight_reset_service_helpers.max_temp_processor_helpers import (
     add_observations_to_state,
     extract_result_for_trading,
     initialize_or_restore_daily_state,
 )
-from src.common.midnight_reset_service_helpers.reset_evaluator import ResetEvaluator
-from src.common.midnight_reset_service_helpers.timestamp_mapper import TimestampMapper
+from common.midnight_reset_service_helpers.reset_evaluator import ResetEvaluator
+from common.midnight_reset_service_helpers.timestamp_mapper import TimestampMapper
 
 pytestmark = pytest.mark.unit
 
@@ -32,7 +32,7 @@ def test_daily_checker_detects_new_day(monkeypatch):
     previous = datetime(2024, 1, 1, 23, 0, tzinfo=timezone.utc)
     now = previous + timedelta(hours=2)
     monkeypatch.setattr(
-        "src.common.midnight_reset_service_helpers.daily_checker.calculate_local_midnight_utc",
+        "common.midnight_reset_service_helpers.daily_checker.calculate_local_midnight_utc",
         lambda lat, lon, ts: previous + timedelta(hours=1),
     )
 
@@ -40,7 +40,7 @@ def test_daily_checker_detects_new_day(monkeypatch):
 
     # Before the midnight boundary we should not reset
     monkeypatch.setattr(
-        "src.common.midnight_reset_service_helpers.daily_checker.calculate_local_midnight_utc",
+        "common.midnight_reset_service_helpers.daily_checker.calculate_local_midnight_utc",
         lambda lat, lon, ts: previous + timedelta(hours=3),
     )
     assert checker.is_new_local_day(10.0, 20.0, previous, now) is False
@@ -153,7 +153,7 @@ def test_factory_creates_wired_service(monkeypatch):
     current = previous + timedelta(hours=2)
 
     monkeypatch.setattr(
-        "src.common.midnight_reset_service_helpers.daily_checker.calculate_local_midnight_utc",
+        "common.midnight_reset_service_helpers.daily_checker.calculate_local_midnight_utc",
         lambda lat, lon, ts: previous + timedelta(hours=1),
     )
 
@@ -243,7 +243,7 @@ def test_max_temp_processor_helpers_initialize_and_extract(monkeypatch):
 
     stub_state = StubDailyState()
     monkeypatch.setattr(
-        "src.common.daily_max_state.create_daily_max_state",
+        "common.daily_max_state.create_daily_max_state",
         lambda: stub_state,
     )
 

@@ -7,7 +7,7 @@ from unittest.mock import AsyncMock, MagicMock, patch
 import pytest
 from redis.exceptions import RedisError
 
-from src.common.optimized_status_reporter_helpers.status_report_coordinator import (
+from common.optimized_status_reporter_helpers.status_report_coordinator import (
     ConsolePrinter,
     DataGatherer,
     DataGathererCollectors,
@@ -17,7 +17,7 @@ from src.common.optimized_status_reporter_helpers.status_report_coordinator impo
     StatusReportCoordinatorConfig,
     _build_status_dict,
 )
-from src.common.redis_utils import RedisOperationError
+from common.redis_utils import RedisOperationError
 
 
 @pytest.fixture
@@ -204,7 +204,7 @@ class TestDataGathererGatherAllStatusData:
             return mock_process_monitor
 
         with patch(
-            "src.common.process_monitor.get_global_process_monitor", side_effect=mock_get_monitor
+            "common.process_monitor.get_global_process_monitor", side_effect=mock_get_monitor
         ):
             result = await gatherer.gather_all_status_data(mock_redis)
 
@@ -260,7 +260,7 @@ class TestDataGathererGatherAllStatusData:
             return mock_process_monitor
 
         with patch(
-            "src.common.process_monitor.get_global_process_monitor", side_effect=mock_get_monitor
+            "common.process_monitor.get_global_process_monitor", side_effect=mock_get_monitor
         ):
             await gatherer.gather_all_status_data(mock_redis)
 
@@ -348,7 +348,7 @@ class TestConsolePrinterPrintFullStatus:
         }
 
         with patch(
-            "src.common.optimized_status_reporter_helpers.status_report_coordinator.get_current_utc"
+            "common.optimized_status_reporter_helpers.status_report_coordinator.get_current_utc"
         ) as mock_time:
             mock_time.return_value.strftime.return_value = "2025-01-01 12:00:00"
             await printer.print_full_status(status_data)
@@ -376,7 +376,7 @@ class TestConsolePrinterPrintFullStatus:
         }
 
         with patch(
-            "src.common.optimized_status_reporter_helpers.status_report_coordinator.get_current_utc"
+            "common.optimized_status_reporter_helpers.status_report_coordinator.get_current_utc"
         ) as mock_time:
             mock_time.return_value.strftime.return_value = "2025-01-01 12:00:00"
             await printer.print_full_status(status_data)
@@ -402,7 +402,7 @@ class TestConsolePrinterPrintFullStatus:
         }
 
         with patch(
-            "src.common.optimized_status_reporter_helpers.status_report_coordinator.get_current_utc"
+            "common.optimized_status_reporter_helpers.status_report_coordinator.get_current_utc"
         ) as mock_time:
             mock_time.return_value.strftime.return_value = "2025-01-01 12:00:00"
             await printer.print_full_status(status_data)
@@ -426,7 +426,7 @@ class TestConsolePrinterPrintFullStatus:
         }
 
         with patch(
-            "src.common.optimized_status_reporter_helpers.status_report_coordinator.get_current_utc"
+            "common.optimized_status_reporter_helpers.status_report_coordinator.get_current_utc"
         ) as mock_time:
             mock_time.return_value.strftime.return_value = "2025-01-01 12:00:00"
             await printer.print_full_status(status_data)
@@ -504,7 +504,7 @@ class TestStatusReportCoordinatorGenerateAndStreamStatusReport:
         }
 
         with patch(
-            "src.common.redis_protocol.connection_pool_core.get_redis_client"
+            "common.redis_protocol.connection_pool_core.get_redis_client"
         ) as mock_get_client:
             mock_client = AsyncMock()
             mock_get_client.return_value = mock_client
@@ -536,7 +536,7 @@ class TestStatusReportCoordinatorGenerateAndStreamStatusReport:
         coordinator = StatusReportCoordinator(config)
 
         with patch(
-            "src.common.redis_protocol.connection_pool_core.get_redis_client"
+            "common.redis_protocol.connection_pool_core.get_redis_client"
         ) as mock_get_client:
             mock_get_client.side_effect = RedisError("Connection failed")
 
@@ -560,7 +560,7 @@ class TestStatusReportCoordinatorGenerateAndStreamStatusReport:
         coordinator = StatusReportCoordinator(config)
 
         with patch(
-            "src.common.redis_protocol.connection_pool_core.get_redis_client"
+            "common.redis_protocol.connection_pool_core.get_redis_client"
         ) as mock_get_client:
             mock_get_client.side_effect = RedisOperationError("Operation failed")
 
@@ -584,7 +584,7 @@ class TestStatusReportCoordinatorGenerateAndStreamStatusReport:
         coordinator = StatusReportCoordinator(config)
 
         with patch(
-            "src.common.redis_protocol.connection_pool_core.get_redis_client"
+            "common.redis_protocol.connection_pool_core.get_redis_client"
         ) as mock_get_client:
             mock_get_client.side_effect = ConnectionError("Network error")
 
@@ -608,7 +608,7 @@ class TestStatusReportCoordinatorGenerateAndStreamStatusReport:
         coordinator = StatusReportCoordinator(config)
 
         with patch(
-            "src.common.redis_protocol.connection_pool_core.get_redis_client"
+            "common.redis_protocol.connection_pool_core.get_redis_client"
         ) as mock_get_client:
             mock_get_client.side_effect = TimeoutError("Request timeout")
 
@@ -632,7 +632,7 @@ class TestStatusReportCoordinatorGenerateAndStreamStatusReport:
         coordinator = StatusReportCoordinator(config)
 
         with patch(
-            "src.common.redis_protocol.connection_pool_core.get_redis_client"
+            "common.redis_protocol.connection_pool_core.get_redis_client"
         ) as mock_get_client:
             mock_get_client.side_effect = asyncio.TimeoutError("Async timeout")
 
@@ -656,7 +656,7 @@ class TestStatusReportCoordinatorGenerateAndStreamStatusReport:
         coordinator = StatusReportCoordinator(config)
 
         with patch(
-            "src.common.redis_protocol.connection_pool_core.get_redis_client"
+            "common.redis_protocol.connection_pool_core.get_redis_client"
         ) as mock_get_client:
             mock_get_client.side_effect = RuntimeError("Runtime error")
 
@@ -680,7 +680,7 @@ class TestStatusReportCoordinatorGenerateAndStreamStatusReport:
         coordinator = StatusReportCoordinator(config)
 
         with patch(
-            "src.common.redis_protocol.connection_pool_core.get_redis_client"
+            "common.redis_protocol.connection_pool_core.get_redis_client"
         ) as mock_get_client:
             mock_get_client.side_effect = ValueError("Invalid value")
 
@@ -704,7 +704,7 @@ class TestStatusReportCoordinatorGenerateAndStreamStatusReport:
         coordinator = StatusReportCoordinator(config)
 
         with patch(
-            "src.common.redis_protocol.connection_pool_core.get_redis_client"
+            "common.redis_protocol.connection_pool_core.get_redis_client"
         ) as mock_get_client:
             mock_get_client.side_effect = ImportError("Module not found")
 
@@ -728,12 +728,12 @@ class TestStatusReportCoordinatorGenerateAndStreamStatusReport:
         coordinator = StatusReportCoordinator(config)
 
         with patch(
-            "src.common.redis_protocol.connection_pool_core.get_redis_client"
+            "common.redis_protocol.connection_pool_core.get_redis_client"
         ) as mock_get_client:
             mock_get_client.side_effect = RedisError("Test error")
 
             with patch(
-                "src.common.optimized_status_reporter_helpers.status_report_coordinator.logger"
+                "common.optimized_status_reporter_helpers.status_report_coordinator.logger"
             ) as mock_logger:
                 with pytest.raises(RuntimeError):
                     await coordinator.generate_and_stream_status_report()

@@ -3,7 +3,7 @@ from unittest.mock import AsyncMock, MagicMock, Mock
 
 import pytest
 
-from src.common.metadata_store_auto_updater_helpers.batch_processor import BatchProcessor
+from common.metadata_store_auto_updater_helpers.batch_processor import BatchProcessor
 
 
 class TestBatchProcessor:

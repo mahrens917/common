@@ -1,6 +1,6 @@
 import pytest
 
-from src.common.redis_protocol.parsing.kalshi_helpers.token_validator import (
+from common.redis_protocol.parsing.kalshi_helpers.token_validator import (
     parse_token_components,
     validate_and_normalize_token,
 )

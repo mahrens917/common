@@ -1,6 +1,6 @@
 import pytest
 
-from src.common.kalshi_trading_client.client_helpers.attribute_resolver import (
+from common.kalshi_trading_client.client_helpers.attribute_resolver import (
     ClientAttributeResolver,
 )
 

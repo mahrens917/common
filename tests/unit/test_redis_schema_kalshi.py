@@ -1,7 +1,7 @@
 import pytest
 
-from src.common.redis_schema import kalshi as redis_kalshi
-from src.common.redis_schema.markets import KalshiMarketCategory, KalshiMarketKey
+from common.redis_schema import kalshi as redis_kalshi
+from common.redis_schema.markets import KalshiMarketCategory, KalshiMarketKey
 
 
 def test_describe_kalshi_ticker_known_prefix() -> None:

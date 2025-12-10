@@ -3,7 +3,7 @@
 from datetime import datetime
 from typing import Any, List, Mapping
 
-from src.common.validation.required_fields import (
+from common.validation.required_fields import (
     validate_required_fields as _validate_required_fields_common,
 )
 

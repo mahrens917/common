@@ -3,11 +3,11 @@ from datetime import timezone
 
 import pytest
 
-from src.common.market_filters.kalshi import parse_expiry_datetime
-from src.common.redis_protocol.market_metadata_builder import build_market_metadata
-from src.common.redis_protocol.market_normalization import convert_numeric_field
-from src.common.redis_protocol.weather_station_resolver import WeatherStationResolver
-from src.common.redis_schema import describe_kalshi_ticker
+from common.market_filters.kalshi import parse_expiry_datetime
+from common.redis_protocol.market_metadata_builder import build_market_metadata
+from common.redis_protocol.market_normalization import convert_numeric_field
+from common.redis_protocol.weather_station_resolver import WeatherStationResolver
+from common.redis_schema import describe_kalshi_ticker
 
 _VAL_1_25 = 1.25
 _VAL_2_0 = 2.0
@@ -62,7 +62,7 @@ def test_build_market_metadata_populates_required_fields(monkeypatch):
             assert ticker == "KXHIGHNYC-25JAN20-B080"
             return "KNYC"
 
-    monkeypatch.setattr("src.common.redis_protocol.market_metadata_builder.time.time", lambda: 123)
+    monkeypatch.setattr("common.redis_protocol.market_metadata_builder.time.time", lambda: 123)
 
     metadata = build_market_metadata(
         market_ticker="KXHIGHNYC-25JAN20-B080",

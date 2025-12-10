@@ -2,11 +2,11 @@ import time
 
 import pytest
 
-from src.common.backoff_manager import BackoffManager
-from src.common.backoff_manager_helpers.delay_calculator import DelayCalculator
-from src.common.backoff_manager_helpers.retry_checker import RetryChecker
-from src.common.backoff_manager_helpers.state_manager import BackoffStateManager
-from src.common.backoff_manager_helpers.types import BackoffConfig, BackoffType
+from common.backoff_manager import BackoffManager
+from common.backoff_manager_helpers.delay_calculator import DelayCalculator
+from common.backoff_manager_helpers.retry_checker import RetryChecker
+from common.backoff_manager_helpers.state_manager import BackoffStateManager
+from common.backoff_manager_helpers.types import BackoffConfig, BackoffType
 
 
 class _UnhealthyNetwork:
@@ -34,7 +34,7 @@ def test_delay_calculator_uses_network_multiplier_and_jitter(monkeypatch):
     )
     network_monitor = _UnhealthyNetwork()
     # Keep jitter deterministic
-    monkeypatch.setattr("src.common.backoff_manager.random.uniform", lambda a, b: 0.0)
+    monkeypatch.setattr("common.backoff_manager.random.uniform", lambda a, b: 0.0)
 
     delay = DelayCalculator.calculate_full_delay(config, 2, network_monitor, "svc")
 
@@ -81,7 +81,7 @@ def test_retry_checker_blocks_after_max_attempts():
 
 
 def test_backoff_manager_reports_status(monkeypatch):
-    monkeypatch.setattr("src.common.backoff_manager.random.uniform", lambda a, b: 0.0)
+    monkeypatch.setattr("common.backoff_manager.random.uniform", lambda a, b: 0.0)
     config = BackoffConfig(
         initial_delay=0.5,
         max_delay=2.0,

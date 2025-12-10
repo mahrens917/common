@@ -3,7 +3,7 @@
 import logging
 import time
 
-from src.common.redis_protocol.typing import RedisClient
+from common.redis_protocol.typing import RedisClient
 
 from .writer_operations import increment_metadata_counter, update_hash_fields
 

@@ -3,8 +3,8 @@ from unittest.mock import AsyncMock, Mock, patch
 
 import pytest
 
-from src.common.redis_protocol.retry import RedisFatalError, RedisRetryError
-from src.common.redis_protocol.trade_store.store_helpers.connection_manager_helpers.retry_helpers.executor import (
+from common.redis_protocol.retry import RedisFatalError, RedisRetryError
+from common.redis_protocol.trade_store.store_helpers.connection_manager_helpers.retry_helpers.executor import (
     execute_retry_operation,
 )
 
@@ -19,7 +19,7 @@ class TestExecutor:
         logger = Mock(spec=logging.Logger)
 
         with patch(
-            "src.common.redis_protocol.trade_store.store_helpers.connection_manager_helpers.retry_helpers.executor.execute_with_retry",
+            "common.redis_protocol.trade_store.store_helpers.connection_manager_helpers.retry_helpers.executor.execute_with_retry",
             new_callable=AsyncMock,
         ) as mock_execute:
             result = await execute_retry_operation(operation, policy, context, on_retry, logger)
@@ -38,7 +38,7 @@ class TestExecutor:
         logger = Mock(spec=logging.Logger)
 
         with patch(
-            "src.common.redis_protocol.trade_store.store_helpers.connection_manager_helpers.retry_helpers.executor.execute_with_retry",
+            "common.redis_protocol.trade_store.store_helpers.connection_manager_helpers.retry_helpers.executor.execute_with_retry",
             side_effect=RedisFatalError("fatal"),
         ):
             result = await execute_retry_operation(operation, policy, context, on_retry, logger)
@@ -54,7 +54,7 @@ class TestExecutor:
         logger = Mock(spec=logging.Logger)
 
         with patch(
-            "src.common.redis_protocol.trade_store.store_helpers.connection_manager_helpers.retry_helpers.executor.execute_with_retry",
+            "common.redis_protocol.trade_store.store_helpers.connection_manager_helpers.retry_helpers.executor.execute_with_retry",
             side_effect=RedisRetryError("retry failed"),
         ):
             result = await execute_retry_operation(operation, policy, context, on_retry, logger)

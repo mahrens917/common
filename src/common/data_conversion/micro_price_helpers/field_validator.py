@@ -21,7 +21,7 @@ class FieldValidator:
         Validate that all required fields are present on the instrument.
 
         This is an object-attribute validator, distinct from the mapping-key
-        validator in src.common.validation.required_fields.
+        validator in common.validation.required_fields.
         """
         symbol = FieldResolver.resolve_symbol_for_logging(instrument)
         missing_fields = [

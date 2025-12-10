@@ -4,8 +4,8 @@ from __future__ import annotations
 
 import pytest
 
-from src.common.redis_schema.deribit_helpers.key_parser import DeribitKeyParser
-from src.common.redis_schema.markets import DeribitInstrumentType
+from common.redis_schema.deribit_helpers.key_parser import DeribitKeyParser
+from common.redis_schema.markets import DeribitInstrumentType
 
 
 class TestParseInstrumentType:

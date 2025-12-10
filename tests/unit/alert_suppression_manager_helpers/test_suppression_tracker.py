@@ -2,7 +2,7 @@
 
 import pytest
 
-from src.common.alert_suppression_manager_helpers.suppression_tracker import (
+from common.alert_suppression_manager_helpers.suppression_tracker import (
     AlertType,
     SuppressionDecision,
     SuppressionTracker,

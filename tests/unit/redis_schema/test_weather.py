@@ -2,8 +2,8 @@
 
 import pytest
 
-from src.common.exceptions import ValidationError
-from src.common.redis_schema.weather import (
+from common.exceptions import ValidationError
+from common.redis_schema.weather import (
     WeatherAlertKey,
     WeatherHistoryKey,
     WeatherStationKey,

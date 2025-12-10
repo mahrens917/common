@@ -6,7 +6,7 @@ from unittest.mock import MagicMock
 
 import pytest
 
-from src.common.optimized_status_reporter_helpers.system_health_printer import (
+from common.optimized_status_reporter_helpers.system_health_printer import (
     SystemHealthPrinter,
 )
 

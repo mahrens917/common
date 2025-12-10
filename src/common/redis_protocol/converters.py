@@ -11,7 +11,7 @@ formats without hunting for bespoke parsing logic.
 import math
 from typing import Any, Iterable, Mapping
 
-from src.common.exceptions import DataError
+from common.exceptions import DataError
 
 
 class FloatCoercionError(ValueError, DataError):
@@ -67,7 +67,7 @@ def coerce_float(
 ) -> float | None:
     """Convert a Redis field to ``float`` with shared null handling.
 
-    Delegates to canonical implementation in src.common.utils.numeric with additional
+    Delegates to canonical implementation in common.utils.numeric with additional
     handling for null sentinels and finite-only requirements.
 
     Many Redis hashes store numeric values as strings. This helper centralises
@@ -88,7 +88,7 @@ def coerce_float(
     Raises:
         ValueError: If the value cannot be coerced and ``allow_none`` is ``False``.
     """
-    from src.common.utils.numeric import coerce_float_optional
+    from common.utils.numeric import coerce_float_optional
 
     # Early return for None
     if value is None:

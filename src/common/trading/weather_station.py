@@ -8,10 +8,10 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Dict, Iterable, Mapping, Optional
 
-from src.common.config.weather import (
+from common.config.weather import (
     WeatherConfigError,
 )
-from src.common.config.weather import (
+from common.config.weather import (
     load_weather_station_mapping as _load_config_weather_station_mapping,
 )
 

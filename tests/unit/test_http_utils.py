@@ -1,6 +1,6 @@
 from types import SimpleNamespace
 
-from src.common import http_utils
+from common import http_utils
 
 
 def test_is_aiohttp_session_open_returns_false_for_none() -> None:

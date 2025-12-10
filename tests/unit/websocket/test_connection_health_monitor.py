@@ -3,7 +3,7 @@ from unittest.mock import AsyncMock, Mock, patch
 
 import pytest
 
-from src.common.websocket.connection_health_monitor import ConnectionHealthMonitor
+from common.websocket.connection_health_monitor import ConnectionHealthMonitor
 
 
 class TestConnectionHealthMonitor:
@@ -43,7 +43,7 @@ class TestConnectionHealthMonitor:
         monitor._health_checker = Mock()
 
         with patch(
-            "src.common.websocket.connection_health_monitor.time.time",
+            "common.websocket.connection_health_monitor.time.time",
             return_value=monitor._last_health_check + 10,
         ):
             await monitor.check_health()

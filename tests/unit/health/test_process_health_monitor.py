@@ -3,7 +3,7 @@ from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 
-from src.common.health.process_health_monitor import (
+from common.health.process_health_monitor import (
     ProcessHealthInfo,
     ProcessHealthMonitor,
     ProcessStatus,
@@ -26,7 +26,7 @@ async def test_get_process_status_not_found(monkeypatch):
     fake_monitor.get_service_processes = AsyncMock(return_value=[])
 
     monkeypatch.setattr(
-        "src.common.health.process_health_monitor.get_global_process_monitor",
+        "common.health.process_health_monitor.get_global_process_monitor",
         AsyncMock(return_value=fake_monitor),
     )
 
@@ -41,10 +41,10 @@ async def test_get_process_status_running_without_psutil(monkeypatch):
     fake_monitor.get_service_processes = AsyncMock(return_value=[FakeProcessInfo(pid=123)])
 
     monkeypatch.setattr(
-        "src.common.health.process_health_monitor.get_global_process_monitor",
+        "common.health.process_health_monitor.get_global_process_monitor",
         AsyncMock(return_value=fake_monitor),
     )
-    monkeypatch.setattr("src.common.health.process_health_monitor.psutil", None)
+    monkeypatch.setattr("common.health.process_health_monitor.psutil", None)
 
     status = await monitor.get_process_status("service")
     assert status.status == ProcessStatus.RUNNING
@@ -70,10 +70,10 @@ async def test_get_process_status_uses_psutil(monkeypatch):
     fake_psutil = SimpleNamespace(Process=lambda pid: FakePsutilProcess(pid))
 
     monkeypatch.setattr(
-        "src.common.health.process_health_monitor.get_global_process_monitor",
+        "common.health.process_health_monitor.get_global_process_monitor",
         AsyncMock(return_value=fake_monitor),
     )
-    monkeypatch.setattr("src.common.health.process_health_monitor.psutil", fake_psutil)
+    monkeypatch.setattr("common.health.process_health_monitor.psutil", fake_psutil)
 
     status = await monitor.get_process_status("svc")
     assert status.status == ProcessStatus.RUNNING
@@ -87,10 +87,10 @@ async def test_get_all_service_process_status(monkeypatch):
     fake_monitor.get_service_processes = AsyncMock(return_value=[FakeProcessInfo(pid=1)])
 
     monkeypatch.setattr(
-        "src.common.health.process_health_monitor.get_global_process_monitor",
+        "common.health.process_health_monitor.get_global_process_monitor",
         AsyncMock(return_value=fake_monitor),
     )
-    monkeypatch.setattr("src.common.health.process_health_monitor.psutil", None)
+    monkeypatch.setattr("common.health.process_health_monitor.psutil", None)
 
     result = await monitor.get_all_service_process_status(["a", "b"])
     assert result["a"].status == ProcessStatus.RUNNING

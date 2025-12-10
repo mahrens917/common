@@ -5,7 +5,7 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
-from src.common.emergency_position_manager_helpers.risk_assessor import (
+from common.emergency_position_manager_helpers.risk_assessor import (
     PositionRiskAssessment,
     RiskAssessor,
     RiskLimits,
@@ -211,7 +211,7 @@ class TestRiskAssessorAssessPositionRisk:
         position.unrealized_pnl_cents = 100
         creation_time = datetime.now(timezone.utc) - timedelta(hours=1)
 
-        with patch("src.common.time_utils.get_current_utc") as mock_time:
+        with patch("common.time_utils.get_current_utc") as mock_time:
             mock_time.return_value = datetime.now(timezone.utc)
             assessment = await assessor.assess_position_risk(position, creation_time)
 
@@ -236,7 +236,7 @@ class TestRiskAssessorAssessPositionRisk:
         position.unrealized_pnl_cents = 100
         creation_time = datetime.now(timezone.utc) - timedelta(hours=1)
 
-        with patch("src.common.time_utils.get_current_utc") as mock_time:
+        with patch("common.time_utils.get_current_utc") as mock_time:
             mock_time.return_value = datetime.now(timezone.utc)
             assessment = await assessor.assess_position_risk(position, creation_time)
 
@@ -259,7 +259,7 @@ class TestRiskAssessorAssessPositionRisk:
         position.unrealized_pnl_cents = -6000  # Exceeds 5000 limit
         creation_time = datetime.now(timezone.utc) - timedelta(hours=1)
 
-        with patch("src.common.time_utils.get_current_utc") as mock_time:
+        with patch("common.time_utils.get_current_utc") as mock_time:
             mock_time.return_value = datetime.now(timezone.utc)
             assessment = await assessor.assess_position_risk(position, creation_time)
 
@@ -283,7 +283,7 @@ class TestRiskAssessorAssessPositionRisk:
         now = datetime.now(timezone.utc)
         creation_time = now - timedelta(hours=30)  # Exceeds 24 hours
 
-        with patch("src.common.time_utils.get_current_utc") as mock_time:
+        with patch("common.time_utils.get_current_utc") as mock_time:
             mock_time.return_value = now
             assessment = await assessor.assess_position_risk(position, creation_time)
 
@@ -306,10 +306,10 @@ class TestRiskAssessorAssessPositionRisk:
         position.unrealized_pnl_cents = 100
         creation_time = datetime.now(timezone.utc) - timedelta(hours=1)
 
-        with patch("src.common.time_utils.get_current_utc") as mock_time:
+        with patch("common.time_utils.get_current_utc") as mock_time:
             mock_time.return_value = datetime.now(timezone.utc)
             with patch(
-                "src.common.emergency_position_manager_helpers.risk_assessor.logger"
+                "common.emergency_position_manager_helpers.risk_assessor.logger"
             ) as mock_logger:
                 await assessor.assess_position_risk(position, creation_time)
 
@@ -332,7 +332,7 @@ class TestRiskAssessorAssessPositionRisk:
         now = datetime(2025, 1, 15, 12, 0, 0, tzinfo=timezone.utc)
         creation_time = datetime(2025, 1, 15, 6, 0, 0, tzinfo=timezone.utc)  # 6 hours ago
 
-        with patch("src.common.time_utils.get_current_utc") as mock_time:
+        with patch("common.time_utils.get_current_utc") as mock_time:
             mock_time.return_value = now
             assessment = await assessor.assess_position_risk(position, creation_time)
 
@@ -354,7 +354,7 @@ class TestRiskAssessorAssessPositionRisk:
         position.unrealized_pnl_cents = 100
         creation_time = datetime.now(timezone.utc) - timedelta(hours=1)
 
-        with patch("src.common.time_utils.get_current_utc") as mock_time:
+        with patch("common.time_utils.get_current_utc") as mock_time:
             mock_time.return_value = datetime.now(timezone.utc)
             assessment = await assessor.assess_position_risk(position, creation_time)
 

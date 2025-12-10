@@ -4,7 +4,7 @@ from datetime import datetime
 
 import pytest
 
-from src.common.data_models.trading_helpers.error_validator import (
+from common.data_models.trading_helpers.error_validator import (
     ERR_MISSING_ERROR_CODE,
     ERR_MISSING_ERROR_MESSAGE,
     validate_error_code,

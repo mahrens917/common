@@ -72,7 +72,7 @@ def is_after_local_midnight(
     # Import at runtime to avoid circular imports
     import sys
 
-    time_utils_module = sys.modules.get("src.common.time_utils")
+    time_utils_module = sys.modules.get("common.time_utils")
     if time_utils_module and hasattr(time_utils_module, "calculate_local_midnight_utc"):
         _calc_midnight = getattr(time_utils_module, "calculate_local_midnight_utc")
     else:

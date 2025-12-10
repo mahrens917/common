@@ -3,8 +3,8 @@
 import logging
 from collections import defaultdict
 
-from src.common.redis_protocol.config import HISTORY_KEY_PREFIX
-from src.common.redis_protocol.typing import RedisClient, ensure_awaitable
+from common.redis_protocol.config import HISTORY_KEY_PREFIX
+from common.redis_protocol.typing import RedisClient, ensure_awaitable
 
 from .service_name_extractor import ServiceNameExtractor
 

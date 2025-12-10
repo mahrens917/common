@@ -1,12 +1,12 @@
 """
 Strike calculation helpers.
 
-Delegates to src.common.strike_helpers for all strike calculations.
+Delegates to common.strike_helpers for all strike calculations.
 """
 
 from typing import Any, Optional
 
-from src.common.strike_helpers import (
+from common.strike_helpers import (
     calculate_strike_value,
     parse_strike_bounds,
 )
@@ -18,7 +18,7 @@ def parse_strike_values(
     """
     Parse floor and cap strike values.
 
-    Delegates to src.common.strike_helpers.parse_strike_bounds.
+    Delegates to common.strike_helpers.parse_strike_bounds.
 
     Args:
         floor_strike: Raw floor strike value

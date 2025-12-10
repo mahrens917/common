@@ -1,6 +1,6 @@
 import pytest
 
-from src.common.redis_protocol.kalshi_store.reader_helpers import snapshot_reader
+from common.redis_protocol.kalshi_store.reader_helpers import snapshot_reader
 
 
 class _DummyHelpers:
@@ -23,7 +23,7 @@ class _DummyHelpers:
 @pytest.mark.asyncio
 async def test_snapshot_reader_methods(monkeypatch):
     monkeypatch.setattr(
-        "src.common.redis_protocol.kalshi_store.reader_helpers.snapshot_reader.helpers",
+        "common.redis_protocol.kalshi_store.reader_helpers.snapshot_reader.helpers",
         _DummyHelpers(),
     )
     reader = snapshot_reader.SnapshotReader(

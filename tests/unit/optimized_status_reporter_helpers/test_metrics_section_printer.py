@@ -5,7 +5,7 @@ from unittest.mock import Mock, patch
 
 import pytest
 
-from src.common.optimized_status_reporter_helpers.metrics_section_printer import (
+from common.optimized_status_reporter_helpers.metrics_section_printer import (
     MetricsSectionPrinter,
 )
 
@@ -70,7 +70,7 @@ class TestMetricsSectionPrinter:
         assert printer._emitted[-1] == "  🟢 CFB Messages - 9"
 
     @patch(
-        "src.common.optimized_status_reporter_helpers.metrics_section_printer.get_weather_settings"
+        "common.optimized_status_reporter_helpers.metrics_section_printer.get_weather_settings"
     )
     def test_print_weather_metrics_section_disables_asos_when_off(
         self, mock_get_weather_settings, printer, data_coercion
@@ -87,7 +87,7 @@ class TestMetricsSectionPrinter:
         assert printer._emitted[-1] == "  🟢 METAR Temperature Changes - 4"
 
     @patch(
-        "src.common.optimized_status_reporter_helpers.metrics_section_printer.get_weather_settings"
+        "common.optimized_status_reporter_helpers.metrics_section_printer.get_weather_settings"
     )
     def test_print_weather_metrics_section_prints_asos_and_metar(
         self, mock_get_weather_settings, printer, data_coercion

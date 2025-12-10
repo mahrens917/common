@@ -6,7 +6,7 @@ from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 
-from src.common.optimized_status_reporter_helpers.coordinator_factory_helpers import (
+from common.optimized_status_reporter_helpers.coordinator_factory_helpers import (
     StatusReportCollectors,
     create_calculators,
     create_coordinator_with_redis,
@@ -68,9 +68,9 @@ class TestCreateUtilityComponents:
 
     def test_returns_correct_types(self) -> None:
         """Returns correct types for each component."""
-        from src.common.optimized_status_reporter_helpers.data_coercion import DataCoercion
-        from src.common.optimized_status_reporter_helpers.data_formatting import DataFormatting
-        from src.common.optimized_status_reporter_helpers.time_formatter import TimeFormatter
+        from common.optimized_status_reporter_helpers.data_coercion import DataCoercion
+        from common.optimized_status_reporter_helpers.data_formatting import DataFormatting
+        from common.optimized_status_reporter_helpers.time_formatter import TimeFormatter
 
         data_coercion, data_formatting, time_formatter = create_utility_components()
 
@@ -84,7 +84,7 @@ class TestCreateCalculators:
 
     def test_returns_day_night_detector(self) -> None:
         """Returns DayNightDetector instance."""
-        from src.common.optimized_status_reporter_helpers.day_night_detector import (
+        from common.optimized_status_reporter_helpers.day_night_detector import (
             DayNightDetector,
         )
 
@@ -116,16 +116,16 @@ class TestCreateNonRedisCollectors:
 
     def test_returns_correct_collector_types(self) -> None:
         """Returns correct types for each collector."""
-        from src.common.optimized_status_reporter_helpers.health_snapshot_collector import (
+        from common.optimized_status_reporter_helpers.health_snapshot_collector import (
             HealthSnapshotCollector,
         )
-        from src.common.optimized_status_reporter_helpers.log_activity_collector import (
+        from common.optimized_status_reporter_helpers.log_activity_collector import (
             LogActivityCollector,
         )
-        from src.common.optimized_status_reporter_helpers.service_state_collector import (
+        from common.optimized_status_reporter_helpers.service_state_collector import (
             ServiceStateCollector,
         )
-        from src.common.optimized_status_reporter_helpers.tracker_status_collector import (
+        from common.optimized_status_reporter_helpers.tracker_status_collector import (
             TrackerStatusCollector,
         )
 
@@ -175,7 +175,7 @@ class TestCreateCoordinatorWithRedis:
     @pytest.mark.asyncio
     async def test_creates_coordinator(self) -> None:
         """Creates StatusReportCoordinator with all dependencies."""
-        from src.common.optimized_status_reporter_helpers.status_report_coordinator import (
+        from common.optimized_status_reporter_helpers.status_report_coordinator import (
             StatusReportCoordinator,
         )
 

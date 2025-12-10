@@ -5,8 +5,8 @@ from __future__ import annotations
 import json
 import time
 
-from src.common.connection_state import ConnectionState
-from src.common.redis_protocol.connection_store_helpers.state_serializer import (
+from common.connection_state import ConnectionState
+from common.redis_protocol.connection_store_helpers.state_serializer import (
     deserialize_state_info,
     parse_all_states,
 )

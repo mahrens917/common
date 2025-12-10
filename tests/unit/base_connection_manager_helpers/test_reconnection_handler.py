@@ -4,7 +4,7 @@ from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 
-from src.common.base_connection_manager_helpers.reconnection_handler import ReconnectionHandler
+from common.base_connection_manager_helpers.reconnection_handler import ReconnectionHandler
 
 
 class TestReconnectionHandlerInit:

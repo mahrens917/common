@@ -2,8 +2,8 @@ from unittest.mock import AsyncMock, Mock
 
 import pytest
 
-from src.common.redis_protocol.error_types import RedisError
-from src.common.redis_protocol.persistence_manager_helpers.snapshot_manager import SnapshotManager
+from common.redis_protocol.error_types import RedisError
+from common.redis_protocol.persistence_manager_helpers.snapshot_manager import SnapshotManager
 
 
 class TestSnapshotManager:

@@ -5,8 +5,8 @@ from types import SimpleNamespace
 import pytest
 import redis.exceptions
 
-from src.common.redis_protocol.probability_store.exceptions import ProbabilityStoreError
-from src.common.redis_protocol.probability_store.probabilityingestion_helpers.human_readable_store import (
+from common.redis_protocol.probability_store.exceptions import ProbabilityStoreError
+from common.redis_protocol.probability_store.probabilityingestion_helpers.human_readable_store import (
     HumanReadableStore,
 )
 
@@ -63,11 +63,11 @@ async def test_store_probabilities_human_readable_success(monkeypatch):
         return ["del", "set1", "set2"]
 
     monkeypatch.setattr(
-        "src.common.redis_protocol.probability_store.probabilityingestion_helpers.human_readable_store.create_pipeline",
+        "common.redis_protocol.probability_store.probabilityingestion_helpers.human_readable_store.create_pipeline",
         _create_pipeline,
     )
     monkeypatch.setattr(
-        "src.common.redis_protocol.probability_store.probabilityingestion_helpers.human_readable_store.execute_pipeline",
+        "common.redis_protocol.probability_store.probabilityingestion_helpers.human_readable_store.execute_pipeline",
         _execute,
     )
 
@@ -77,11 +77,11 @@ async def test_store_probabilities_human_readable_success(monkeypatch):
         recorded["verify"] = (redis, tuple(sample_keys), currency)
 
     monkeypatch.setattr(
-        "src.common.redis_protocol.probability_store.probabilityingestion_helpers.human_readable_store.verify_probability_storage",
+        "common.redis_protocol.probability_store.probabilityingestion_helpers.human_readable_store.verify_probability_storage",
         _verify,
     )
     monkeypatch.setattr(
-        "src.common.redis_protocol.probability_store.probabilityingestion_helpers.human_readable_store.log_event_ticker_summary",
+        "common.redis_protocol.probability_store.probabilityingestion_helpers.human_readable_store.log_event_ticker_summary",
         lambda currency, count, counts: recorded.setdefault("log", (currency, count, counts)),
     )
 
@@ -114,11 +114,11 @@ async def test_store_probabilities_human_readable_handles_failures(monkeypatch):
         return []
 
     monkeypatch.setattr(
-        "src.common.redis_protocol.probability_store.probabilityingestion_helpers.human_readable_store.create_pipeline",
+        "common.redis_protocol.probability_store.probabilityingestion_helpers.human_readable_store.create_pipeline",
         _create_pipeline,
     )
     monkeypatch.setattr(
-        "src.common.redis_protocol.probability_store.probabilityingestion_helpers.human_readable_store.execute_pipeline",
+        "common.redis_protocol.probability_store.probabilityingestion_helpers.human_readable_store.execute_pipeline",
         _execute,
     )
 
@@ -131,15 +131,15 @@ async def test_store_probabilities_human_readable_handles_failures(monkeypatch):
         failure_context["connectivity"] = (redis, currency)
 
     monkeypatch.setattr(
-        "src.common.redis_protocol.probability_store.probabilityingestion_helpers.human_readable_store.log_event_ticker_summary",
+        "common.redis_protocol.probability_store.probabilityingestion_helpers.human_readable_store.log_event_ticker_summary",
         lambda *args, **kwargs: None,
     )
     monkeypatch.setattr(
-        "src.common.redis_protocol.probability_store.diagnostics.log_failure_context",
+        "common.redis_protocol.probability_store.diagnostics.log_failure_context",
         _log_failure,
     )
     monkeypatch.setattr(
-        "src.common.redis_protocol.probability_store.verification.run_direct_connectivity_test",
+        "common.redis_protocol.probability_store.verification.run_direct_connectivity_test",
         _connectivity,
     )
 

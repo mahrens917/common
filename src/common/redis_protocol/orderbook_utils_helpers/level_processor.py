@@ -2,8 +2,8 @@
 
 from typing import Any, Dict, List
 
-from src.common.config_loader import load_config
-from src.common.exceptions import DataError
+from common.config_loader import load_config
+from common.exceptions import DataError
 
 VALIDATION_CONFIG = load_config("validation_constants.json")
 

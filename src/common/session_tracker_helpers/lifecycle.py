@@ -7,8 +7,8 @@ from typing import Dict
 
 import aiohttp
 
-from src.common.session_tracker_helpers.models import SessionInfo
-from src.common.session_tracker_helpers.stack_tracer import get_stack_trace
+from common.session_tracker_helpers.models import SessionInfo
+from common.session_tracker_helpers.stack_tracer import get_stack_trace
 
 logger = logging.getLogger(__name__)
 

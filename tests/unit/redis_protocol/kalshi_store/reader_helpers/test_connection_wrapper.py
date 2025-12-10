@@ -2,7 +2,7 @@ import logging
 
 import pytest
 
-from src.common.redis_protocol.kalshi_store.reader_helpers.connection_wrapper import (
+from common.redis_protocol.kalshi_store.reader_helpers.connection_wrapper import (
     ReaderConnectionWrapper,
 )
 
@@ -35,7 +35,7 @@ async def test_ensure_or_raise_calls_helper(monkeypatch):
         return await fn()
 
     monkeypatch.setattr(
-        "src.common.redis_protocol.kalshi_store.reader_helpers.connection_wrapper.ensure_or_raise",
+        "common.redis_protocol.kalshi_store.reader_helpers.connection_wrapper.ensure_or_raise",
         ensure_or_raise,
     )
 

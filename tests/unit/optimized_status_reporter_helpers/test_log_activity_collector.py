@@ -6,11 +6,11 @@ from unittest.mock import AsyncMock, MagicMock, Mock, patch
 import pytest
 from redis.exceptions import RedisError
 
-from src.common.health.log_activity_monitor import LogActivity, LogActivityStatus
-from src.common.optimized_status_reporter_helpers.log_activity_collector import (
+from common.health.log_activity_monitor import LogActivity, LogActivityStatus
+from common.optimized_status_reporter_helpers.log_activity_collector import (
     LogActivityCollector,
 )
-from src.common.redis_utils import RedisOperationError
+from common.redis_utils import RedisOperationError
 
 
 class TestLogActivityCollector:
@@ -30,7 +30,7 @@ class TestLogActivityCollector:
         """LogActivityCollector instance with mocked dependencies."""
         # Patch LogActivityMonitor during initialization
         with patch(
-            "src.common.optimized_status_reporter_helpers.log_activity_collector.LogActivityMonitor"
+            "common.optimized_status_reporter_helpers.log_activity_collector.LogActivityMonitor"
         ) as mock_monitor_class:
             mock_monitor_class.return_value = AsyncMock()  # Make the instance an AsyncMock
             mock_monitor_instance = mock_monitor_class.return_value
@@ -44,7 +44,7 @@ class TestLogActivityCollector:
     def test_init_sets_up_monitor(self, mock_process_manager):
         """Test initialization correctly sets up LogActivityMonitor."""
         with patch(
-            "src.common.optimized_status_reporter_helpers.log_activity_collector.LogActivityMonitor"
+            "common.optimized_status_reporter_helpers.log_activity_collector.LogActivityMonitor"
         ) as mock_monitor_class:
             with patch.object(
                 Path,

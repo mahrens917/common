@@ -6,8 +6,8 @@ from unittest.mock import MagicMock
 
 import pytest
 
-from src.common.data_models.trade_record import TradeSide
-from src.common.data_models.trade_record_helpers.trade_record_pnl import (
+from common.data_models.trade_record import TradeSide
+from common.data_models.trade_record_helpers.trade_record_pnl import (
     ERR_INVALID_PNL_VALUE,
     calculate_current_pnl_cents,
     calculate_realised_pnl_cents,

@@ -11,8 +11,8 @@ from typing import Any, Dict
 
 from redis.exceptions import RedisError
 
-from src.common.redis_utils import RedisOperationError
-from src.common.time_utils import get_current_utc
+from common.redis_utils import RedisOperationError
+from common.time_utils import get_current_utc
 
 logger = logging.getLogger(__name__)
 
@@ -105,7 +105,7 @@ class DataGatherer:
         self.kalshi_market_status_collector = collectors.kalshi_market_status_collector
 
     async def gather_all_status_data(self, redis_client) -> Dict[str, Any]:
-        from src.common.process_monitor import get_global_process_monitor
+        from common.process_monitor import get_global_process_monitor
 
         process_monitor = await get_global_process_monitor()
         running_services = await self.service_state_collector.collect_running_services()
@@ -244,7 +244,7 @@ class StatusReportCoordinator:
         )
 
     async def generate_and_stream_status_report(self) -> Dict[str, Any]:
-        from src.common.redis_protocol.connection_pool_core import get_redis_client
+        from common.redis_protocol.connection_pool_core import get_redis_client
 
         try:
             redis_client = await get_redis_client()

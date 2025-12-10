@@ -1,8 +1,8 @@
 import unittest
 from unittest.mock import Mock
 
-from src.common.data_models.trade_record import PnLReport
-from src.common.report_generator_helpers.time_period_formatter import TimePeriodFormatter
+from common.data_models.trade_record import PnLReport
+from common.report_generator_helpers.time_period_formatter import TimePeriodFormatter
 
 
 class TestTimePeriodFormatter(unittest.TestCase):

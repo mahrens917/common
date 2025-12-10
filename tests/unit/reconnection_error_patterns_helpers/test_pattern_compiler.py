@@ -6,11 +6,11 @@ import re
 
 import pytest
 
-from src.common.reconnection_error_patterns_helpers.pattern_compiler import (
+from common.reconnection_error_patterns_helpers.pattern_compiler import (
     RECONNECTION_ERROR_PATTERNS,
     PatternCompiler,
 )
-from src.common.reconnection_error_patterns_helpers.service_type_manager import ServiceType
+from common.reconnection_error_patterns_helpers.service_type_manager import ServiceType
 
 
 class TestReconnectionErrorPatterns:

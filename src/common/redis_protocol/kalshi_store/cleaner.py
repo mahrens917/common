@@ -11,8 +11,8 @@ from typing import Iterable, List, Optional, Sequence, Union
 
 from redis.asyncio import Redis
 
-from src.common.exceptions import DataError
-from src.common.redis_schema.markets import KalshiMarketCategory
+from common.exceptions import DataError
+from common.redis_schema.markets import KalshiMarketCategory
 
 from .cleaner_helpers import MarketRemover, MetadataCleaner, ServiceKeyRemover
 from .connection import RedisConnectionManager

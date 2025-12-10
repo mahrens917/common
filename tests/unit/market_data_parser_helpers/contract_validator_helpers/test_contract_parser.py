@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from unittest.mock import MagicMock, patch
 
-from src.common.market_data_parser_helpers.contract_validator_helpers.contract_parser import (
+from common.market_data_parser_helpers.contract_validator_helpers.contract_parser import (
     ContractParser,
 )
 
@@ -15,7 +15,7 @@ class TestContractParser:
     def test_parse_instrument_delegates_to_deribit_parser(self) -> None:
         """parse_instrument delegates to DeribitInstrumentParser."""
         with patch(
-            "src.common.market_data_parser_helpers.contract_validator_helpers.contract_parser.DeribitInstrumentParser"
+            "common.market_data_parser_helpers.contract_validator_helpers.contract_parser.DeribitInstrumentParser"
         ) as mock_parser:
             mock_result = MagicMock()
             mock_parser.parse_instrument.return_value = mock_result
@@ -30,7 +30,7 @@ class TestContractParser:
     def test_parse_instrument_passes_expected_symbol(self) -> None:
         """parse_instrument passes expected_symbol as strict_symbol."""
         with patch(
-            "src.common.market_data_parser_helpers.contract_validator_helpers.contract_parser.DeribitInstrumentParser"
+            "common.market_data_parser_helpers.contract_validator_helpers.contract_parser.DeribitInstrumentParser"
         ) as mock_parser:
             mock_parser.parse_instrument.return_value = MagicMock()
 
@@ -45,7 +45,7 @@ class TestContractParser:
         expected_result = {"parsed": True, "symbol": "BTC"}
 
         with patch(
-            "src.common.market_data_parser_helpers.contract_validator_helpers.contract_parser.DeribitInstrumentParser"
+            "common.market_data_parser_helpers.contract_validator_helpers.contract_parser.DeribitInstrumentParser"
         ) as mock_parser:
             mock_parser.parse_instrument.return_value = expected_result
 

@@ -4,9 +4,9 @@ from types import SimpleNamespace
 
 import pytest
 
-from src.common.data_models.trading import OrderSide, PortfolioPosition
-from src.common.market_lifecycle_monitor_helpers.settlement_validator import SettlementValidator
-from src.common.market_lifecycle_monitor_helpers.state_tracker import SettlementInfo
+from common.data_models.trading import OrderSide, PortfolioPosition
+from common.market_lifecycle_monitor_helpers.settlement_validator import SettlementValidator
+from common.market_lifecycle_monitor_helpers.state_tracker import SettlementInfo
 
 
 @pytest.mark.asyncio

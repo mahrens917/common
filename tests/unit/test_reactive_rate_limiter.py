@@ -3,7 +3,7 @@ import time
 
 import pytest
 
-from src.common.reactive_rate_limiter import ReactiveRateLimiter
+from common.reactive_rate_limiter import ReactiveRateLimiter
 
 _TEST_COUNT_2 = 2
 

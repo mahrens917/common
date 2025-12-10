@@ -2,8 +2,8 @@ from datetime import datetime
 
 import pytest
 
-from src.common.redis_protocol.probability_store.exceptions import ProbabilityStoreError
-from src.common.redis_protocol.probability_store.keys import (
+from common.redis_protocol.probability_store.exceptions import ProbabilityStoreError
+from common.redis_protocol.probability_store.keys import (
     expiry_sort_key,
     parse_probability_key,
     strike_sort_key,

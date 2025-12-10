@@ -2,8 +2,8 @@ import unittest
 from datetime import date, datetime
 from unittest.mock import AsyncMock, Mock, patch
 
-from src.common.data_models.trade_record import PnLReport
-from src.common.report_generator_helpers.report_coordinator import ReportCoordinator
+from common.data_models.trade_record import PnLReport
+from common.report_generator_helpers.report_coordinator import ReportCoordinator
 
 
 class TestReportCoordinator(unittest.IsolatedAsyncioTestCase):
@@ -46,8 +46,8 @@ class TestReportCoordinator(unittest.IsolatedAsyncioTestCase):
         self.mock_pnl_calculator.generate_aggregated_report.assert_called_with(start_date, end_date)
         self.mock_basic_formatter.format_pnl_report.assert_called()
 
-    @patch("src.common.report_generator_helpers.report_coordinator.get_current_utc")
-    @patch("src.common.report_generator_helpers.report_coordinator.get_timezone_aware_date")
+    @patch("common.report_generator_helpers.report_coordinator.get_current_utc")
+    @patch("common.report_generator_helpers.report_coordinator.get_timezone_aware_date")
     async def test_generate_current_day_report_utc(self, mock_get_tz_date, mock_get_utc):
         mock_now = datetime(2023, 10, 27, 12, 0, 0)
         mock_get_utc.return_value = mock_now
@@ -68,8 +68,8 @@ class TestReportCoordinator(unittest.IsolatedAsyncioTestCase):
             mock_report, 500, "October 27, 2023"
         )
 
-    @patch("src.common.report_generator_helpers.report_coordinator.get_current_date_in_timezone")
-    @patch("src.common.report_generator_helpers.report_coordinator.get_timezone_aware_date")
+    @patch("common.report_generator_helpers.report_coordinator.get_current_date_in_timezone")
+    @patch("common.report_generator_helpers.report_coordinator.get_timezone_aware_date")
     async def test_generate_current_day_report_custom_tz(self, mock_get_tz_date, mock_get_date_tz):
         coordinator = ReportCoordinator(
             self.mock_pnl_calculator,
@@ -117,8 +117,8 @@ class TestReportCoordinator(unittest.IsolatedAsyncioTestCase):
         # I'll just patch the module functions directly in the test method arguments
         pass
 
-    @patch("src.common.report_generator_helpers.report_coordinator.get_current_date_in_timezone")
-    @patch("src.common.report_generator_helpers.report_coordinator.get_timezone_aware_date")
+    @patch("common.report_generator_helpers.report_coordinator.get_current_date_in_timezone")
+    @patch("common.report_generator_helpers.report_coordinator.get_timezone_aware_date")
     async def test_generate_current_day_report_non_utc(self, mock_get_aware, mock_get_tz):
         coordinator = ReportCoordinator(
             self.mock_pnl_calculator,

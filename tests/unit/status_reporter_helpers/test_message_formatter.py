@@ -1,6 +1,6 @@
 import pytest
 
-from src.common.status_reporter_helpers.message_formatter import MessageFormatter
+from common.status_reporter_helpers.message_formatter import MessageFormatter
 
 
 class TestMessageFormatter:

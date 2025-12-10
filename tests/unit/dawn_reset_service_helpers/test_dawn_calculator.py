@@ -5,7 +5,7 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
-from src.common.dawn_reset_service_helpers.dawn_calculator import DawnCalculator
+from common.dawn_reset_service_helpers.dawn_calculator import DawnCalculator
 
 
 class TestDawnCalculatorIsNewTradingDay:
@@ -46,7 +46,7 @@ class TestDawnCalculatorIsNewTradingDay:
         prev_ts = datetime(2024, 12, 1, 5, 0, 0)
 
         with patch(
-            "src.common.dawn_reset_service_helpers.dawn_calculator.get_current_utc"
+            "common.dawn_reset_service_helpers.dawn_calculator.get_current_utc"
         ) as mock_now:
             mock_now.return_value = datetime(2024, 12, 1, 5, 30, 0)
 
@@ -108,7 +108,7 @@ class TestDawnCalculatorResolveLatestDawnBoundary:
         calculator = DawnCalculator(calculate_dawn_fn=mock_calculate_dawn)
 
         with patch(
-            "src.common.dawn_reset_service_helpers.dawn_calculator.get_current_utc"
+            "common.dawn_reset_service_helpers.dawn_calculator.get_current_utc"
         ) as mock_now:
             mock_now.return_value = datetime(2024, 12, 1, 8, 0, 0)
 

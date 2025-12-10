@@ -3,7 +3,7 @@ from unittest.mock import AsyncMock, Mock, patch
 
 import pytest
 
-from src.common.websocket.unified_subscription_manager_helpers.monitoring_loop import MonitoringLoop
+from common.websocket.unified_subscription_manager_helpers.monitoring_loop import MonitoringLoop
 
 
 class TestMonitoringLoop:
@@ -26,7 +26,7 @@ class TestMonitoringLoop:
         loop._listen_loop = AsyncMock(side_effect=mock_listen_loop)
 
         with patch(
-            "src.common.redis_protocol.connection_pool_core.get_redis_client",
+            "common.redis_protocol.connection_pool_core.get_redis_client",
             new_callable=AsyncMock,
         ) as mock_get_client:
             mock_get_client.return_value = redis_client
@@ -41,7 +41,7 @@ class TestMonitoringLoop:
     @pytest.mark.asyncio
     async def test_run_fatal_error(self, loop):
         with patch(
-            "src.common.redis_protocol.connection_pool_core.get_redis_client",
+            "common.redis_protocol.connection_pool_core.get_redis_client",
             new_callable=AsyncMock,
         ) as mock_get_client:
             mock_get_client.side_effect = RuntimeError("Fatal")
@@ -91,7 +91,7 @@ class TestMonitoringLoop:
         with (
             patch("asyncio.sleep", side_effect=[None, asyncio.CancelledError()]) as mock_sleep,
             patch(
-                "src.common.websocket.unified_subscription_manager_helpers.monitoring_loop.logger"
+                "common.websocket.unified_subscription_manager_helpers.monitoring_loop.logger"
             ) as mock_logger,
         ):
 

@@ -5,7 +5,7 @@ from __future__ import annotations
 import math
 from typing import Any, Dict, List, Mapping, MutableMapping, Optional, Tuple
 
-from src.common.exceptions import ValidationError
+from common.exceptions import ValidationError
 
 from ..market_filters.kalshi import extract_best_ask, extract_best_bid
 from .market_normalization_helpers import (

@@ -6,29 +6,29 @@ import asyncio
 
 import pytest
 
-from src.common.kalshi_trading_client.client_helpers.initialization_coordinator_helpers.service_creator import (
+from common.kalshi_trading_client.client_helpers.initialization_coordinator_helpers.service_creator import (
     create_services,
 )
-from src.common.kalshi_trading_client.services.order_helpers.dependencies_factory import (
+from common.kalshi_trading_client.services.order_helpers.dependencies_factory import (
     OrderServiceDependenciesFactory,
     OrderServiceOptionalDeps,
     OrderServiceRequiredDeps,
 )
-from src.common.kalshi_trading_client.services.order_helpers.dependency_initializer import (
+from common.kalshi_trading_client.services.order_helpers.dependency_initializer import (
     DependencyContainer,
     initialize_dependencies,
 )
-from src.common.kalshi_trading_client.services.order_helpers.factory_utils import (
+from common.kalshi_trading_client.services.order_helpers.factory_utils import (
     _DefaultDependencies,
     create_or_use_dependencies,
 )
-from src.common.kalshi_trading_client.services.order_helpers.order_creator_helpers import (
+from common.kalshi_trading_client.services.order_helpers.order_creator_helpers import (
     handle_order_error,
     handle_unexpected_error,
     store_order_metadata_safely,
 )
-from src.common.redis_protocol.trade_store import TradeStoreError
-from src.common.trading_exceptions import KalshiAPIError, KalshiTradePersistenceError
+from common.redis_protocol.trade_store import TradeStoreError
+from common.trading_exceptions import KalshiAPIError, KalshiTradePersistenceError
 
 
 class _StubOrderResponse:
@@ -211,11 +211,11 @@ def test_service_creator_invokes_factories(monkeypatch):
         return ("portfolio", _StubOrders(), "trade_collection")
 
     monkeypatch.setattr(
-        "src.common.kalshi_trading_client.client_helpers.initialization_coordinator_helpers.service_creator.create_service_providers",
+        "common.kalshi_trading_client.client_helpers.initialization_coordinator_helpers.service_creator.create_service_providers",
         fake_create_service_providers,
     )
     monkeypatch.setattr(
-        "src.common.kalshi_trading_client.client_helpers.initialization_coordinator_helpers.service_creator.ClientInitializer.create_services",
+        "common.kalshi_trading_client.client_helpers.initialization_coordinator_helpers.service_creator.ClientInitializer.create_services",
         staticmethod(fake_create_services),
     )
 

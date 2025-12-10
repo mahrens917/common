@@ -4,7 +4,7 @@ from unittest.mock import AsyncMock, MagicMock, Mock, patch
 import pytest
 from websockets import WebSocketException
 
-from src.common.websocket_connection_manager_helpers.connection_lifecycle_helpers import (
+from common.websocket_connection_manager_helpers.connection_lifecycle_helpers import (
     connection_establisher,
 )
 

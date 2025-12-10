@@ -2,7 +2,7 @@ import asyncio
 
 import pytest
 
-from src.common.redis_protocol.kalshi_store.cleaner_helpers.metadata_cleaner import (
+from common.redis_protocol.kalshi_store.cleaner_helpers.metadata_cleaner import (
     MetadataCleaner,
 )
 

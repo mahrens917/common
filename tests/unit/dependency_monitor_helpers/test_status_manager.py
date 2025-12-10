@@ -5,12 +5,12 @@ from unittest.mock import AsyncMock, MagicMock, Mock, patch
 
 import pytest
 
-from src.common.dependency_monitor_helpers.dependency_checker import (
+from common.dependency_monitor_helpers.dependency_checker import (
     DependencyConfig,
     DependencyState,
     DependencyStatus,
 )
-from src.common.dependency_monitor_helpers.status_manager import StatusManager
+from common.dependency_monitor_helpers.status_manager import StatusManager
 
 
 @pytest.fixture

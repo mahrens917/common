@@ -1,6 +1,6 @@
 import pytest
 
-from src.common.redis_protocol.persistence_manager_helpers.data_serializer import (
+from common.redis_protocol.persistence_manager_helpers.data_serializer import (
     DataSerializer,
     build_status_dict,
     format_persistence_status,

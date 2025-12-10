@@ -7,7 +7,7 @@ from pathlib import Path
 
 import pytest
 
-from src.common import service_runner
+from common import service_runner
 
 
 @pytest.mark.skipif(service_runner.fcntl is None, reason="fcntl not available on this platform")

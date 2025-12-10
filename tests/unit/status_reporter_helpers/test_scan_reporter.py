@@ -2,10 +2,10 @@ from unittest.mock import Mock
 
 import pytest
 
-from src.common.status_reporter_helpers.message_formatter import MessageFormatter
-from src.common.status_reporter_helpers.scan_reporter import ScanReporter
-from src.common.status_reporter_helpers.summary_builder import SummaryBuilder
-from src.common.status_reporter_helpers.time_formatter import TimeFormatter
+from common.status_reporter_helpers.message_formatter import MessageFormatter
+from common.status_reporter_helpers.scan_reporter import ScanReporter
+from common.status_reporter_helpers.summary_builder import SummaryBuilder
+from common.status_reporter_helpers.time_formatter import TimeFormatter
 
 
 class TestScanReporter:

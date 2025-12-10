@@ -4,7 +4,7 @@ from typing import Any, Dict
 
 import pytest
 
-from src.common.redis_protocol.kalshi_store.reader_helpers.metadataextractor_helpers.strike_resolver import (
+from common.redis_protocol.kalshi_store.reader_helpers.metadataextractor_helpers.strike_resolver import (
     StrikeResolver,
 )
 

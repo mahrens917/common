@@ -4,11 +4,11 @@ import asyncio
 
 import pytest
 
-from src.common.redis_protocol.probability_store.exceptions import (
+from common.redis_protocol.probability_store.exceptions import (
     ProbabilityStoreError,
     ProbabilityStoreInitializationError,
 )
-from src.common.redis_protocol.probability_store.store import ProbabilityStore
+from common.redis_protocol.probability_store.store import ProbabilityStore
 
 
 class DummyRedis:

@@ -4,8 +4,8 @@ import logging
 from pathlib import Path
 from typing import Any, Dict
 
-from src.common.config_loader import BaseConfigLoader
-from src.common.exceptions import ConfigurationError
+from common.config_loader import BaseConfigLoader
+from common.exceptions import ConfigurationError
 
 logger = logging.getLogger(__name__)
 

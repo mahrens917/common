@@ -3,7 +3,7 @@
 import logging
 from typing import Dict
 
-from src.common.redis_protocol.typing import RedisClient
+from common.redis_protocol.typing import RedisClient
 
 from .keyspace_listener_helpers import EventHandler, PubsubManager, ServiceExtractor
 

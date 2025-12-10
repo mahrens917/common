@@ -9,7 +9,7 @@ from redis.exceptions import ConnectionError as RedisConnectionError
 from redis.exceptions import RedisError
 from redis.exceptions import TimeoutError as RedisTimeoutError
 
-from src.common.redis_protocol.connection_wrappers import (
+from common.redis_protocol.connection_wrappers import (
     RedisConnection,
     RedisConnectionManager,
 )
@@ -42,11 +42,11 @@ async def test_redis_connection_connect_establishes_connection():
 
     with (
         patch(
-            "src.common.redis_protocol.connection_wrappers.get_redis_client",
+            "common.redis_protocol.connection_wrappers.get_redis_client",
             new_callable=AsyncMock,
             return_value=fake_client,
         ) as mock_get_client,
-        patch("src.common.redis_protocol.connection_wrappers.record_pool_acquired") as mock_record,
+        patch("common.redis_protocol.connection_wrappers.record_pool_acquired") as mock_record,
     ):
         conn = RedisConnection()
         result = await conn.connect()
@@ -63,7 +63,7 @@ async def test_redis_connection_connect_reuses_existing_client():
     fake_client = _FakeRedisClient()
 
     with patch(
-        "src.common.redis_protocol.connection_wrappers.get_redis_client",
+        "common.redis_protocol.connection_wrappers.get_redis_client",
         new_callable=AsyncMock,
         return_value=fake_client,
     ) as mock_get_client:
@@ -84,7 +84,7 @@ async def test_redis_connection_connect_raises_on_connection_error():
     fake_client = _FakeRedisClient(should_fail_ping=True)
 
     with patch(
-        "src.common.redis_protocol.connection_wrappers.get_redis_client",
+        "common.redis_protocol.connection_wrappers.get_redis_client",
         new_callable=AsyncMock,
         return_value=fake_client,
     ):
@@ -98,7 +98,7 @@ async def test_redis_connection_connect_raises_on_connection_error():
 async def test_redis_connection_connect_handles_redis_error():
     """Test that connect handles RedisError during connection."""
     with patch(
-        "src.common.redis_protocol.connection_wrappers.get_redis_client",
+        "common.redis_protocol.connection_wrappers.get_redis_client",
         new_callable=AsyncMock,
         side_effect=RedisError("Redis error"),
     ):
@@ -112,7 +112,7 @@ async def test_redis_connection_connect_handles_redis_error():
 async def test_redis_connection_connect_handles_timeout_error():
     """Test that connect handles TimeoutError during connection."""
     with patch(
-        "src.common.redis_protocol.connection_wrappers.get_redis_client",
+        "common.redis_protocol.connection_wrappers.get_redis_client",
         new_callable=AsyncMock,
         side_effect=RedisTimeoutError("Timeout"),
     ):
@@ -126,7 +126,7 @@ async def test_redis_connection_connect_handles_timeout_error():
 async def test_redis_connection_connect_handles_runtime_error():
     """Test that connect handles RuntimeError during connection."""
     with patch(
-        "src.common.redis_protocol.connection_wrappers.get_redis_client",
+        "common.redis_protocol.connection_wrappers.get_redis_client",
         new_callable=AsyncMock,
         side_effect=RuntimeError("Runtime error"),
     ):
@@ -142,7 +142,7 @@ async def test_redis_connection_get_client_connects_if_not_connected():
     fake_client = _FakeRedisClient()
 
     with patch(
-        "src.common.redis_protocol.connection_wrappers.get_redis_client",
+        "common.redis_protocol.connection_wrappers.get_redis_client",
         new_callable=AsyncMock,
         return_value=fake_client,
     ):
@@ -159,7 +159,7 @@ async def test_redis_connection_get_client_returns_existing_client():
     fake_client = _FakeRedisClient()
 
     with patch(
-        "src.common.redis_protocol.connection_wrappers.get_redis_client",
+        "common.redis_protocol.connection_wrappers.get_redis_client",
         new_callable=AsyncMock,
         return_value=fake_client,
     ):
@@ -179,11 +179,11 @@ async def test_redis_connection_close_closes_client():
 
     with (
         patch(
-            "src.common.redis_protocol.connection_wrappers.get_redis_client",
+            "common.redis_protocol.connection_wrappers.get_redis_client",
             new_callable=AsyncMock,
             return_value=fake_client,
         ),
-        patch("src.common.redis_protocol.connection_wrappers.record_pool_returned") as mock_record,
+        patch("common.redis_protocol.connection_wrappers.record_pool_returned") as mock_record,
     ):
         conn = RedisConnection()
         await conn.connect()
@@ -199,7 +199,7 @@ async def test_redis_connection_close_resets_client_reference():
     fake_client = _FakeRedisClient()
 
     with patch(
-        "src.common.redis_protocol.connection_wrappers.get_redis_client",
+        "common.redis_protocol.connection_wrappers.get_redis_client",
         new_callable=AsyncMock,
         return_value=fake_client,
     ):
@@ -230,11 +230,11 @@ async def test_redis_connection_close_handles_redis_error():
 
     with (
         patch(
-            "src.common.redis_protocol.connection_wrappers.get_redis_client",
+            "common.redis_protocol.connection_wrappers.get_redis_client",
             new_callable=AsyncMock,
             return_value=fake_client,
         ),
-        patch("src.common.redis_protocol.connection_wrappers.logger"),
+        patch("common.redis_protocol.connection_wrappers.logger"),
     ):
         conn = RedisConnection()
         await conn.connect()
@@ -255,11 +255,11 @@ async def test_redis_connection_close_handles_connection_error():
 
     with (
         patch(
-            "src.common.redis_protocol.connection_wrappers.get_redis_client",
+            "common.redis_protocol.connection_wrappers.get_redis_client",
             new_callable=AsyncMock,
             return_value=fake_client,
         ),
-        patch("src.common.redis_protocol.connection_wrappers.logger"),
+        patch("common.redis_protocol.connection_wrappers.logger"),
     ):
         conn = RedisConnection()
         await conn.connect()
@@ -275,11 +275,11 @@ async def test_redis_connection_manager_get_connection_establishes_connection():
 
     with (
         patch(
-            "src.common.redis_protocol.connection_wrappers.get_redis_client",
+            "common.redis_protocol.connection_wrappers.get_redis_client",
             new_callable=AsyncMock,
             return_value=fake_client,
         ) as mock_get_client,
-        patch("src.common.redis_protocol.connection_wrappers.record_pool_acquired") as mock_record,
+        patch("common.redis_protocol.connection_wrappers.record_pool_acquired") as mock_record,
     ):
         manager = RedisConnectionManager()
         result = await manager.get_connection()
@@ -295,7 +295,7 @@ async def test_redis_connection_manager_get_connection_reuses_existing():
     fake_client = _FakeRedisClient()
 
     with patch(
-        "src.common.redis_protocol.connection_wrappers.get_redis_client",
+        "common.redis_protocol.connection_wrappers.get_redis_client",
         new_callable=AsyncMock,
         return_value=fake_client,
     ) as mock_get_client:
@@ -312,7 +312,7 @@ async def test_redis_connection_manager_get_connection_reuses_existing():
 async def test_redis_connection_manager_get_connection_raises_on_error():
     """Test that get_connection raises ConnectionError on failure."""
     with patch(
-        "src.common.redis_protocol.connection_wrappers.get_redis_client",
+        "common.redis_protocol.connection_wrappers.get_redis_client",
         new_callable=AsyncMock,
         side_effect=RedisConnectionError("Connection failed"),
     ):
@@ -326,7 +326,7 @@ async def test_redis_connection_manager_get_connection_raises_on_error():
 async def test_redis_connection_manager_get_connection_handles_timeout():
     """Test that get_connection handles timeout errors."""
     with patch(
-        "src.common.redis_protocol.connection_wrappers.get_redis_client",
+        "common.redis_protocol.connection_wrappers.get_redis_client",
         new_callable=AsyncMock,
         side_effect=RedisTimeoutError("Timeout"),
     ):
@@ -340,7 +340,7 @@ async def test_redis_connection_manager_get_connection_handles_timeout():
 async def test_redis_connection_manager_get_connection_handles_oserror():
     """Test that get_connection handles OSError."""
     with patch(
-        "src.common.redis_protocol.connection_wrappers.get_redis_client",
+        "common.redis_protocol.connection_wrappers.get_redis_client",
         new_callable=AsyncMock,
         side_effect=OSError("OS error"),
     ):
@@ -354,7 +354,7 @@ async def test_redis_connection_manager_get_connection_handles_oserror():
 async def test_redis_connection_manager_get_connection_handles_value_error():
     """Test that get_connection handles ValueError."""
     with patch(
-        "src.common.redis_protocol.connection_wrappers.get_redis_client",
+        "common.redis_protocol.connection_wrappers.get_redis_client",
         new_callable=AsyncMock,
         side_effect=ValueError("Value error"),
     ):
@@ -371,11 +371,11 @@ async def test_redis_connection_manager_close_closes_connection():
 
     with (
         patch(
-            "src.common.redis_protocol.connection_wrappers.get_redis_client",
+            "common.redis_protocol.connection_wrappers.get_redis_client",
             new_callable=AsyncMock,
             return_value=fake_client,
         ),
-        patch("src.common.redis_protocol.connection_wrappers.record_pool_returned") as mock_record,
+        patch("common.redis_protocol.connection_wrappers.record_pool_returned") as mock_record,
     ):
         manager = RedisConnectionManager()
         await manager.get_connection()
@@ -391,7 +391,7 @@ async def test_redis_connection_manager_close_resets_connection_reference():
     fake_client = _FakeRedisClient()
 
     with patch(
-        "src.common.redis_protocol.connection_wrappers.get_redis_client",
+        "common.redis_protocol.connection_wrappers.get_redis_client",
         new_callable=AsyncMock,
         return_value=fake_client,
     ):
@@ -422,11 +422,11 @@ async def test_redis_connection_manager_close_handles_redis_error():
 
     with (
         patch(
-            "src.common.redis_protocol.connection_wrappers.get_redis_client",
+            "common.redis_protocol.connection_wrappers.get_redis_client",
             new_callable=AsyncMock,
             return_value=fake_client,
         ),
-        patch("src.common.redis_protocol.connection_wrappers.logger"),
+        patch("common.redis_protocol.connection_wrappers.logger"),
     ):
         manager = RedisConnectionManager()
         await manager.get_connection()
@@ -447,11 +447,11 @@ async def test_redis_connection_manager_close_handles_connection_error():
 
     with (
         patch(
-            "src.common.redis_protocol.connection_wrappers.get_redis_client",
+            "common.redis_protocol.connection_wrappers.get_redis_client",
             new_callable=AsyncMock,
             return_value=fake_client,
         ),
-        patch("src.common.redis_protocol.connection_wrappers.logger"),
+        patch("common.redis_protocol.connection_wrappers.logger"),
     ):
         manager = RedisConnectionManager()
         await manager.get_connection()
@@ -472,11 +472,11 @@ async def test_redis_connection_manager_close_handles_timeout_error():
 
     with (
         patch(
-            "src.common.redis_protocol.connection_wrappers.get_redis_client",
+            "common.redis_protocol.connection_wrappers.get_redis_client",
             new_callable=AsyncMock,
             return_value=fake_client,
         ),
-        patch("src.common.redis_protocol.connection_wrappers.logger"),
+        patch("common.redis_protocol.connection_wrappers.logger"),
     ):
         manager = RedisConnectionManager()
         await manager.get_connection()
@@ -492,7 +492,7 @@ async def test_redis_connection_multiple_connect_close_cycles():
     fake_client2 = _FakeRedisClient()
 
     with patch(
-        "src.common.redis_protocol.connection_wrappers.get_redis_client",
+        "common.redis_protocol.connection_wrappers.get_redis_client",
         new_callable=AsyncMock,
         side_effect=[fake_client1, fake_client2],
     ):
@@ -514,7 +514,7 @@ async def test_redis_connection_manager_multiple_get_close_cycles():
     fake_client2 = _FakeRedisClient()
 
     with patch(
-        "src.common.redis_protocol.connection_wrappers.get_redis_client",
+        "common.redis_protocol.connection_wrappers.get_redis_client",
         new_callable=AsyncMock,
         side_effect=[fake_client1, fake_client2],
     ):

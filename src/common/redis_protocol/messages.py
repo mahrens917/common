@@ -10,7 +10,7 @@ from typing import Any, Optional, Union
 
 import orjson
 
-from src.common.exceptions import ValidationError
+from common.exceptions import ValidationError
 
 from .messages_helpers.field_validator import validate_float_field, validate_required_field
 from .messages_helpers.option_normalizer import normalize_option_type

@@ -1,8 +1,8 @@
 import pytest
 from redis.exceptions import RedisError
 
-from src.common.redis_protocol.error_types import REDIS_ERRORS
-from src.common.redis_protocol.kalshi_store.cleaner_helpers.pipeline_executor import (
+from common.redis_protocol.error_types import REDIS_ERRORS
+from common.redis_protocol.kalshi_store.cleaner_helpers.pipeline_executor import (
     PipelineExecutor,
 )
 

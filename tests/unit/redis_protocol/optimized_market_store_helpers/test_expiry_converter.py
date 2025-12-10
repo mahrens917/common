@@ -7,8 +7,8 @@ from unittest.mock import patch
 
 import pytest
 
-from src.common.exceptions import DataError
-from src.common.redis_protocol.optimized_market_store_helpers.expiry_converter import (
+from common.exceptions import DataError
+from common.redis_protocol.optimized_market_store_helpers.expiry_converter import (
     ExpiryConverter,
 )
 
@@ -98,48 +98,48 @@ class TestExpiryConverterConvertExpiryToIso:
     """Tests for convert_expiry_to_iso method"""
 
     @patch(
-        "src.common.redis_protocol.optimized_market_store_helpers.expiry_converter.DERIBIT_EXPIRY_HOUR",
+        "common.redis_protocol.optimized_market_store_helpers.expiry_converter.DERIBIT_EXPIRY_HOUR",
         8,
     )
     @patch(
-        "src.common.redis_protocol.optimized_market_store_helpers.expiry_converter.EPOCH_START",
+        "common.redis_protocol.optimized_market_store_helpers.expiry_converter.EPOCH_START",
         datetime(2020, 1, 1, tzinfo=timezone.utc),
     )
     def test_converts_valid_deribit_format(self):
         with patch(
-            "src.common.redis_protocol.optimized_market_store_helpers.expiry_converter.validate_expiry_hour",
+            "common.redis_protocol.optimized_market_store_helpers.expiry_converter.validate_expiry_hour",
             return_value=True,
         ):
             result = ExpiryConverter.convert_expiry_to_iso("15MAR24")
             assert result == "2024-03-15T08:00:00+00:00"
 
     @patch(
-        "src.common.redis_protocol.optimized_market_store_helpers.expiry_converter.DERIBIT_EXPIRY_HOUR",
+        "common.redis_protocol.optimized_market_store_helpers.expiry_converter.DERIBIT_EXPIRY_HOUR",
         8,
     )
     @patch(
-        "src.common.redis_protocol.optimized_market_store_helpers.expiry_converter.EPOCH_START",
+        "common.redis_protocol.optimized_market_store_helpers.expiry_converter.EPOCH_START",
         datetime(2025, 1, 1, tzinfo=timezone.utc),
     )
     def test_converts_single_digit_day_deribit(self):
         with patch(
-            "src.common.redis_protocol.optimized_market_store_helpers.expiry_converter.validate_expiry_hour",
+            "common.redis_protocol.optimized_market_store_helpers.expiry_converter.validate_expiry_hour",
             return_value=True,
         ):
             result = ExpiryConverter.convert_expiry_to_iso("5JAN25")
             assert result == "2025-01-05T08:00:00+00:00"
 
     @patch(
-        "src.common.redis_protocol.optimized_market_store_helpers.expiry_converter.DERIBIT_EXPIRY_HOUR",
+        "common.redis_protocol.optimized_market_store_helpers.expiry_converter.DERIBIT_EXPIRY_HOUR",
         8,
     )
     @patch(
-        "src.common.redis_protocol.optimized_market_store_helpers.expiry_converter.EPOCH_START",
+        "common.redis_protocol.optimized_market_store_helpers.expiry_converter.EPOCH_START",
         datetime(2025, 1, 1, tzinfo=timezone.utc),
     )
     def test_converts_all_months_deribit(self):
         with patch(
-            "src.common.redis_protocol.optimized_market_store_helpers.expiry_converter.validate_expiry_hour",
+            "common.redis_protocol.optimized_market_store_helpers.expiry_converter.validate_expiry_hour",
             return_value=True,
         ):
             expected_conversions = [
@@ -161,16 +161,16 @@ class TestExpiryConverterConvertExpiryToIso:
                 assert result == expected_iso
 
     @patch(
-        "src.common.redis_protocol.optimized_market_store_helpers.expiry_converter.DERIBIT_EXPIRY_HOUR",
+        "common.redis_protocol.optimized_market_store_helpers.expiry_converter.DERIBIT_EXPIRY_HOUR",
         8,
     )
     @patch(
-        "src.common.redis_protocol.optimized_market_store_helpers.expiry_converter.EPOCH_START",
+        "common.redis_protocol.optimized_market_store_helpers.expiry_converter.EPOCH_START",
         datetime(2025, 1, 1, tzinfo=timezone.utc),
     )
     def test_converts_different_years_deribit(self):
         with patch(
-            "src.common.redis_protocol.optimized_market_store_helpers.expiry_converter.validate_expiry_hour",
+            "common.redis_protocol.optimized_market_store_helpers.expiry_converter.validate_expiry_hour",
             return_value=True,
         ):
             result_25 = ExpiryConverter.convert_expiry_to_iso("15MAR25")
@@ -180,32 +180,32 @@ class TestExpiryConverterConvertExpiryToIso:
             assert result_99 == "2099-03-15T08:00:00+00:00"
 
     @patch(
-        "src.common.redis_protocol.optimized_market_store_helpers.expiry_converter.DERIBIT_EXPIRY_HOUR",
+        "common.redis_protocol.optimized_market_store_helpers.expiry_converter.DERIBIT_EXPIRY_HOUR",
         8,
     )
     @patch(
-        "src.common.redis_protocol.optimized_market_store_helpers.expiry_converter.EPOCH_START",
+        "common.redis_protocol.optimized_market_store_helpers.expiry_converter.EPOCH_START",
         datetime(2025, 1, 1, tzinfo=timezone.utc),
     )
     def test_returns_original_string_if_no_regex_match(self):
         with patch(
-            "src.common.redis_protocol.optimized_market_store_helpers.expiry_converter.validate_expiry_hour",
+            "common.redis_protocol.optimized_market_store_helpers.expiry_converter.validate_expiry_hour",
             return_value=True,
         ):
             result = ExpiryConverter.convert_expiry_to_iso("not-a-deribit-format")
             assert result == "not-a-deribit-format"
 
     @patch(
-        "src.common.redis_protocol.optimized_market_store_helpers.expiry_converter.DERIBIT_EXPIRY_HOUR",
+        "common.redis_protocol.optimized_market_store_helpers.expiry_converter.DERIBIT_EXPIRY_HOUR",
         8,
     )
     @patch(
-        "src.common.redis_protocol.optimized_market_store_helpers.expiry_converter.EPOCH_START",
+        "common.redis_protocol.optimized_market_store_helpers.expiry_converter.EPOCH_START",
         datetime(2025, 1, 1, tzinfo=timezone.utc),
     )
     def test_returns_original_string_if_already_iso_format(self):
         with patch(
-            "src.common.redis_protocol.optimized_market_store_helpers.expiry_converter.validate_expiry_hour",
+            "common.redis_protocol.optimized_market_store_helpers.expiry_converter.validate_expiry_hour",
             return_value=True,
         ):
             iso_string = "2024-03-15T08:00:00Z"
@@ -213,43 +213,43 @@ class TestExpiryConverterConvertExpiryToIso:
             assert result == iso_string
 
     @patch(
-        "src.common.redis_protocol.optimized_market_store_helpers.expiry_converter.DERIBIT_EXPIRY_HOUR",
+        "common.redis_protocol.optimized_market_store_helpers.expiry_converter.DERIBIT_EXPIRY_HOUR",
         8,
     )
     @patch(
-        "src.common.redis_protocol.optimized_market_store_helpers.expiry_converter.EPOCH_START",
+        "common.redis_protocol.optimized_market_store_helpers.expiry_converter.EPOCH_START",
         datetime(2025, 1, 1, tzinfo=timezone.utc),
     )
     def test_returns_original_if_before_epoch_start(self):
         with patch(
-            "src.common.redis_protocol.optimized_market_store_helpers.expiry_converter.validate_expiry_hour",
+            "common.redis_protocol.optimized_market_store_helpers.expiry_converter.validate_expiry_hour",
             return_value=True,
         ):
             result = ExpiryConverter.convert_expiry_to_iso("15DEC24")
             assert result == "15DEC24"
 
     @patch(
-        "src.common.redis_protocol.optimized_market_store_helpers.expiry_converter.DERIBIT_EXPIRY_HOUR",
+        "common.redis_protocol.optimized_market_store_helpers.expiry_converter.DERIBIT_EXPIRY_HOUR",
         8,
     )
     @patch(
-        "src.common.redis_protocol.optimized_market_store_helpers.expiry_converter.EPOCH_START",
+        "common.redis_protocol.optimized_market_store_helpers.expiry_converter.EPOCH_START",
         datetime(2025, 1, 1, tzinfo=timezone.utc),
     )
     def test_returns_original_if_validate_expiry_hour_fails(self):
         with patch(
-            "src.common.redis_protocol.optimized_market_store_helpers.expiry_converter.validate_expiry_hour",
+            "common.redis_protocol.optimized_market_store_helpers.expiry_converter.validate_expiry_hour",
             return_value=False,
         ):
             result = ExpiryConverter.convert_expiry_to_iso("15MAR25")
             assert result == "15MAR25"
 
     @patch(
-        "src.common.redis_protocol.optimized_market_store_helpers.expiry_converter.DERIBIT_EXPIRY_HOUR",
+        "common.redis_protocol.optimized_market_store_helpers.expiry_converter.DERIBIT_EXPIRY_HOUR",
         8,
     )
     @patch(
-        "src.common.redis_protocol.optimized_market_store_helpers.expiry_converter.EPOCH_START",
+        "common.redis_protocol.optimized_market_store_helpers.expiry_converter.EPOCH_START",
         datetime(2025, 1, 1, tzinfo=timezone.utc),
     )
     def test_raises_data_error_on_invalid_month(self):
@@ -259,11 +259,11 @@ class TestExpiryConverterConvertExpiryToIso:
         assert "15XXX25" in str(exc_info.value)
 
     @patch(
-        "src.common.redis_protocol.optimized_market_store_helpers.expiry_converter.DERIBIT_EXPIRY_HOUR",
+        "common.redis_protocol.optimized_market_store_helpers.expiry_converter.DERIBIT_EXPIRY_HOUR",
         8,
     )
     @patch(
-        "src.common.redis_protocol.optimized_market_store_helpers.expiry_converter.EPOCH_START",
+        "common.redis_protocol.optimized_market_store_helpers.expiry_converter.EPOCH_START",
         datetime(2025, 1, 1, tzinfo=timezone.utc),
     )
     def test_raises_data_error_on_invalid_day(self):
@@ -272,11 +272,11 @@ class TestExpiryConverterConvertExpiryToIso:
         assert "Failed to convert Deribit to ISO format" in str(exc_info.value)
 
     @patch(
-        "src.common.redis_protocol.optimized_market_store_helpers.expiry_converter.DERIBIT_EXPIRY_HOUR",
+        "common.redis_protocol.optimized_market_store_helpers.expiry_converter.DERIBIT_EXPIRY_HOUR",
         8,
     )
     @patch(
-        "src.common.redis_protocol.optimized_market_store_helpers.expiry_converter.EPOCH_START",
+        "common.redis_protocol.optimized_market_store_helpers.expiry_converter.EPOCH_START",
         datetime(2025, 1, 1, tzinfo=timezone.utc),
     )
     def test_raises_data_error_preserves_original_exception(self):
@@ -286,32 +286,32 @@ class TestExpiryConverterConvertExpiryToIso:
         assert isinstance(exc_info.value.__cause__, ValueError)
 
     @patch(
-        "src.common.redis_protocol.optimized_market_store_helpers.expiry_converter.DERIBIT_EXPIRY_HOUR",
+        "common.redis_protocol.optimized_market_store_helpers.expiry_converter.DERIBIT_EXPIRY_HOUR",
         8,
     )
     @patch(
-        "src.common.redis_protocol.optimized_market_store_helpers.expiry_converter.EPOCH_START",
+        "common.redis_protocol.optimized_market_store_helpers.expiry_converter.EPOCH_START",
         datetime(2025, 1, 1, tzinfo=timezone.utc),
     )
     def test_handles_leap_year_correctly(self):
         with patch(
-            "src.common.redis_protocol.optimized_market_store_helpers.expiry_converter.validate_expiry_hour",
+            "common.redis_protocol.optimized_market_store_helpers.expiry_converter.validate_expiry_hour",
             return_value=True,
         ):
             result = ExpiryConverter.convert_expiry_to_iso("29FEB28")
             assert result == "2028-02-29T08:00:00+00:00"
 
     @patch(
-        "src.common.redis_protocol.optimized_market_store_helpers.expiry_converter.DERIBIT_EXPIRY_HOUR",
+        "common.redis_protocol.optimized_market_store_helpers.expiry_converter.DERIBIT_EXPIRY_HOUR",
         8,
     )
     @patch(
-        "src.common.redis_protocol.optimized_market_store_helpers.expiry_converter.EPOCH_START",
+        "common.redis_protocol.optimized_market_store_helpers.expiry_converter.EPOCH_START",
         datetime(2025, 1, 1, tzinfo=timezone.utc),
     )
     def test_validates_timezone_is_utc(self):
         with patch(
-            "src.common.redis_protocol.optimized_market_store_helpers.expiry_converter.validate_expiry_hour",
+            "common.redis_protocol.optimized_market_store_helpers.expiry_converter.validate_expiry_hour",
             return_value=True,
         ):
             result = ExpiryConverter.convert_expiry_to_iso("15MAR25")
@@ -319,16 +319,16 @@ class TestExpiryConverterConvertExpiryToIso:
             assert parsed_dt.tzinfo == timezone.utc
 
     @patch(
-        "src.common.redis_protocol.optimized_market_store_helpers.expiry_converter.DERIBIT_EXPIRY_HOUR",
+        "common.redis_protocol.optimized_market_store_helpers.expiry_converter.DERIBIT_EXPIRY_HOUR",
         8,
     )
     @patch(
-        "src.common.redis_protocol.optimized_market_store_helpers.expiry_converter.EPOCH_START",
+        "common.redis_protocol.optimized_market_store_helpers.expiry_converter.EPOCH_START",
         datetime(2025, 1, 1, tzinfo=timezone.utc),
     )
     def test_validates_hour_is_deribit_expiry_hour(self):
         with patch(
-            "src.common.redis_protocol.optimized_market_store_helpers.expiry_converter.validate_expiry_hour",
+            "common.redis_protocol.optimized_market_store_helpers.expiry_converter.validate_expiry_hour",
             return_value=True,
         ):
             result = ExpiryConverter.convert_expiry_to_iso("15MAR25")
@@ -340,16 +340,16 @@ class TestExpiryConverterRoundTrip:
     """Tests for round-trip conversions"""
 
     @patch(
-        "src.common.redis_protocol.optimized_market_store_helpers.expiry_converter.DERIBIT_EXPIRY_HOUR",
+        "common.redis_protocol.optimized_market_store_helpers.expiry_converter.DERIBIT_EXPIRY_HOUR",
         8,
     )
     @patch(
-        "src.common.redis_protocol.optimized_market_store_helpers.expiry_converter.EPOCH_START",
+        "common.redis_protocol.optimized_market_store_helpers.expiry_converter.EPOCH_START",
         datetime(2025, 1, 1, tzinfo=timezone.utc),
     )
     def test_iso_to_deribit_to_iso_roundtrip(self):
         with patch(
-            "src.common.redis_protocol.optimized_market_store_helpers.expiry_converter.validate_expiry_hour",
+            "common.redis_protocol.optimized_market_store_helpers.expiry_converter.validate_expiry_hour",
             return_value=True,
         ):
             original = "2025-03-15T08:00:00+00:00"
@@ -358,16 +358,16 @@ class TestExpiryConverterRoundTrip:
             assert result == original
 
     @patch(
-        "src.common.redis_protocol.optimized_market_store_helpers.expiry_converter.DERIBIT_EXPIRY_HOUR",
+        "common.redis_protocol.optimized_market_store_helpers.expiry_converter.DERIBIT_EXPIRY_HOUR",
         8,
     )
     @patch(
-        "src.common.redis_protocol.optimized_market_store_helpers.expiry_converter.EPOCH_START",
+        "common.redis_protocol.optimized_market_store_helpers.expiry_converter.EPOCH_START",
         datetime(2025, 1, 1, tzinfo=timezone.utc),
     )
     def test_deribit_to_iso_to_deribit_roundtrip(self):
         with patch(
-            "src.common.redis_protocol.optimized_market_store_helpers.expiry_converter.validate_expiry_hour",
+            "common.redis_protocol.optimized_market_store_helpers.expiry_converter.validate_expiry_hour",
             return_value=True,
         ):
             original = "15MAR25"
@@ -376,16 +376,16 @@ class TestExpiryConverterRoundTrip:
             assert result == original
 
     @patch(
-        "src.common.redis_protocol.optimized_market_store_helpers.expiry_converter.DERIBIT_EXPIRY_HOUR",
+        "common.redis_protocol.optimized_market_store_helpers.expiry_converter.DERIBIT_EXPIRY_HOUR",
         8,
     )
     @patch(
-        "src.common.redis_protocol.optimized_market_store_helpers.expiry_converter.EPOCH_START",
+        "common.redis_protocol.optimized_market_store_helpers.expiry_converter.EPOCH_START",
         datetime(2025, 1, 1, tzinfo=timezone.utc),
     )
     def test_multiple_roundtrip_conversions(self):
         with patch(
-            "src.common.redis_protocol.optimized_market_store_helpers.expiry_converter.validate_expiry_hour",
+            "common.redis_protocol.optimized_market_store_helpers.expiry_converter.validate_expiry_hour",
             return_value=True,
         ):
             test_dates = [
@@ -407,16 +407,16 @@ class TestExpiryConverterEdgeCases:
         assert isinstance(converter, ExpiryConverter)
 
     @patch(
-        "src.common.redis_protocol.optimized_market_store_helpers.expiry_converter.DERIBIT_EXPIRY_HOUR",
+        "common.redis_protocol.optimized_market_store_helpers.expiry_converter.DERIBIT_EXPIRY_HOUR",
         8,
     )
     @patch(
-        "src.common.redis_protocol.optimized_market_store_helpers.expiry_converter.EPOCH_START",
+        "common.redis_protocol.optimized_market_store_helpers.expiry_converter.EPOCH_START",
         datetime(2025, 1, 1, tzinfo=timezone.utc),
     )
     def test_handles_end_of_month_dates(self):
         with patch(
-            "src.common.redis_protocol.optimized_market_store_helpers.expiry_converter.validate_expiry_hour",
+            "common.redis_protocol.optimized_market_store_helpers.expiry_converter.validate_expiry_hour",
             return_value=True,
         ):
             result_jan = ExpiryConverter.convert_expiry_to_iso("31JAN25")
@@ -433,16 +433,16 @@ class TestExpiryConverterEdgeCases:
         assert result == "15MAR24"
 
     @patch(
-        "src.common.redis_protocol.optimized_market_store_helpers.expiry_converter.DERIBIT_EXPIRY_HOUR",
+        "common.redis_protocol.optimized_market_store_helpers.expiry_converter.DERIBIT_EXPIRY_HOUR",
         8,
     )
     @patch(
-        "src.common.redis_protocol.optimized_market_store_helpers.expiry_converter.EPOCH_START",
+        "common.redis_protocol.optimized_market_store_helpers.expiry_converter.EPOCH_START",
         datetime(1999, 1, 1, tzinfo=timezone.utc),
     )
     def test_handles_year_2100(self):
         with patch(
-            "src.common.redis_protocol.optimized_market_store_helpers.expiry_converter.validate_expiry_hour",
+            "common.redis_protocol.optimized_market_store_helpers.expiry_converter.validate_expiry_hour",
             return_value=True,
         ):
             result = ExpiryConverter.convert_expiry_to_iso("15MAR00")
@@ -453,19 +453,19 @@ class TestExpiryConverterEdgeCases:
         result2 = ExpiryConverter.convert_iso_to_deribit("2024-03-15T10:00:00+02:00")
         assert result1 == result2 == "15MAR24"
 
-    @patch("src.common.redis_protocol.optimized_market_store_helpers.expiry_converter.logger")
+    @patch("common.redis_protocol.optimized_market_store_helpers.expiry_converter.logger")
     def test_logs_exception_on_iso_conversion_error(self, mock_logger):
         with pytest.raises(DataError):
             ExpiryConverter.convert_iso_to_deribit("invalid")
         mock_logger.exception.assert_called_once()
 
-    @patch("src.common.redis_protocol.optimized_market_store_helpers.expiry_converter.logger")
+    @patch("common.redis_protocol.optimized_market_store_helpers.expiry_converter.logger")
     @patch(
-        "src.common.redis_protocol.optimized_market_store_helpers.expiry_converter.DERIBIT_EXPIRY_HOUR",
+        "common.redis_protocol.optimized_market_store_helpers.expiry_converter.DERIBIT_EXPIRY_HOUR",
         8,
     )
     @patch(
-        "src.common.redis_protocol.optimized_market_store_helpers.expiry_converter.EPOCH_START",
+        "common.redis_protocol.optimized_market_store_helpers.expiry_converter.EPOCH_START",
         datetime(2025, 1, 1, tzinfo=timezone.utc),
     )
     def test_logs_exception_on_deribit_conversion_error(self, mock_logger):

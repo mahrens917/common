@@ -11,7 +11,7 @@ import math
 from collections import Counter
 from typing import Any, Dict, List, Optional
 
-from src.common.exceptions import ValidationError
+from common.exceptions import ValidationError
 
 from ...config.weather import WeatherConfigError, load_weather_station_mapping
 from ...market_filters.kalshi import extract_best_ask, extract_best_bid
@@ -91,7 +91,7 @@ def _convert_numeric_field(value: Any) -> Optional[float]:  # pragma: no cover -
     """
     Convert a field value to numeric format for proper data storage.
 
-    Delegates to canonical implementation in src.common.utils.numeric.
+    Delegates to canonical implementation in common.utils.numeric.
 
     Args:
         value: The value to convert (can be string, number, or None)
@@ -99,7 +99,7 @@ def _convert_numeric_field(value: Any) -> Optional[float]:  # pragma: no cover -
     Returns:
         Numeric value or None if empty/invalid
     """
-    from src.common.utils.numeric import coerce_float_optional
+    from common.utils.numeric import coerce_float_optional
 
     if value is None or value in ("", "None"):
         return None
@@ -183,7 +183,7 @@ def _float_or_default(value: Any, default: float = 0.0) -> float:
     """
     Coerce value to float with optional default.
 
-    Delegates to canonical implementation in src.common.utils.numeric.
+    Delegates to canonical implementation in common.utils.numeric.
 
     Args:
         value: Value to coerce
@@ -192,7 +192,7 @@ def _float_or_default(value: Any, default: float = 0.0) -> float:
     Returns:
         Float representation or default
     """
-    from src.common.utils.numeric import coerce_float_default
+    from common.utils.numeric import coerce_float_default
 
     return coerce_float_default(value, default)
 
@@ -207,7 +207,7 @@ def float_or_default(
     """
     Coerce value to float with optional error raising.
 
-    Delegates to canonical implementation in src.common.utils.numeric.
+    Delegates to canonical implementation in common.utils.numeric.
 
     When ``raise_on_error`` is False (default), this mirrors ``_float_or_default`` and
     returns the provided ``default`` for invalid inputs. When True, a ``ValueError`` is

@@ -2,8 +2,8 @@
 
 from typing import Any, Dict
 
-from src.common.config import env_int
-from src.common.connectionconfig_helpers.config_loader import (
+from common.config import env_int
+from common.connectionconfig_helpers.config_loader import (
     load_websocket_config,
     resolve_cfb_setting,
 )
@@ -74,7 +74,7 @@ def get_service_specific_config(service_name: str) -> Dict[str, Any]:
     }
 
     if service_name == "weather":
-        from src.common.connectionconfig_helpers.config_loader import load_weather_config
+        from common.connectionconfig_helpers.config_loader import load_weather_config
 
         return load_weather_config()
 

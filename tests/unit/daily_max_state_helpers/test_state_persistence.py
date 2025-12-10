@@ -5,7 +5,7 @@ from __future__ import annotations
 from datetime import datetime
 from unittest.mock import patch
 
-from src.common.daily_max_state_helpers.state_persistence import StatePersistence
+from common.daily_max_state_helpers.state_persistence import StatePersistence
 
 
 class TestStatePersistence:
@@ -30,7 +30,7 @@ class TestStatePersistence:
         persistence = StatePersistence(state)
 
         with patch(
-            "src.common.daily_max_state_helpers.state_manager.StateManager.reset_for_new_day"
+            "common.daily_max_state_helpers.state_manager.StateManager.reset_for_new_day"
         ) as mock_reset:
             persistence.reset_for_new_day()
             mock_reset.assert_called_once_with(state)
@@ -48,7 +48,7 @@ class TestStatePersistence:
         persistence = StatePersistence(state)
 
         with patch(
-            "src.common.daily_max_state_helpers.state_manager.StateManager.get_state_dict"
+            "common.daily_max_state_helpers.state_manager.StateManager.get_state_dict"
         ) as mock_get:
             mock_get.return_value = {"serialized": True}
             result = persistence.get_state_dict()
@@ -62,7 +62,7 @@ class TestStatePersistence:
         persistence = StatePersistence(state)
 
         with patch(
-            "src.common.daily_max_state_helpers.state_manager.StateManager.load_from_state_dict"
+            "common.daily_max_state_helpers.state_manager.StateManager.load_from_state_dict"
         ) as mock_load:
             persistence.load_from_state_dict(state_dict)
             mock_load.assert_called_once_with(state, state_dict)

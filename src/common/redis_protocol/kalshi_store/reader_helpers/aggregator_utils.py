@@ -6,11 +6,11 @@ Utility functions for market aggregator operations.
 
 from typing import Any, Dict, List, Optional, Tuple
 
-from src.common.redis_protocol.kalshi_store.utils_coercion import coerce_mapping as _coerce_mapping
-from src.common.redis_protocol.kalshi_store.utils_coercion import (
+from common.redis_protocol.kalshi_store.utils_coercion import coerce_mapping as _coerce_mapping
+from common.redis_protocol.kalshi_store.utils_coercion import (
     string_or_default as _string_or_default,
 )
-from src.common.redis_protocol.kalshi_store.utils_coercion import (
+from common.redis_protocol.kalshi_store.utils_coercion import (
     to_optional_float as canonical_to_optional_float,
 )
 

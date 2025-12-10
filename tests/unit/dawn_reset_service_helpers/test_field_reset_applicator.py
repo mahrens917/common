@@ -2,7 +2,7 @@
 
 from unittest.mock import patch
 
-from src.common.dawn_reset_service_helpers.field_reset_applicator import FieldResetApplicator
+from common.dawn_reset_service_helpers.field_reset_applicator import FieldResetApplicator
 
 
 class TestFieldResetApplicatorApplyResetLogic:
@@ -12,7 +12,7 @@ class TestFieldResetApplicatorApplyResetLogic:
         """Clears field when reset is needed for CLEAR_ON_RESET_FIELDS."""
         applicator = FieldResetApplicator()
 
-        with patch("src.common.dawn_reset_service_helpers.field_reset_applicator.logger"):
+        with patch("common.dawn_reset_service_helpers.field_reset_applicator.logger"):
             result = applicator.apply_reset_logic(
                 "t_yes_bid", 50.0, {"t_yes_bid": 45.0}, was_reset=True
             )
@@ -23,7 +23,7 @@ class TestFieldResetApplicatorApplyResetLogic:
         """Returns current value when reset is needed for non-clear fields."""
         applicator = FieldResetApplicator()
 
-        with patch("src.common.dawn_reset_service_helpers.field_reset_applicator.logger"):
+        with patch("common.dawn_reset_service_helpers.field_reset_applicator.logger"):
             result = applicator.apply_reset_logic(
                 "other_field", 50.0, {"other_field": 45.0}, was_reset=True
             )
@@ -34,7 +34,7 @@ class TestFieldResetApplicatorApplyResetLogic:
         """Preserves previous value when no reset and current is None."""
         applicator = FieldResetApplicator()
 
-        with patch("src.common.dawn_reset_service_helpers.field_reset_applicator.logger"):
+        with patch("common.dawn_reset_service_helpers.field_reset_applicator.logger"):
             result = applicator.apply_reset_logic(
                 "other_field", None, {"other_field": 45.0}, was_reset=False
             )
@@ -45,7 +45,7 @@ class TestFieldResetApplicatorApplyResetLogic:
         """Uses current value when no reset and no previous data."""
         applicator = FieldResetApplicator()
 
-        with patch("src.common.dawn_reset_service_helpers.field_reset_applicator.logger"):
+        with patch("common.dawn_reset_service_helpers.field_reset_applicator.logger"):
             result = applicator.apply_reset_logic("other_field", 50.0, {}, was_reset=False)
 
         assert result == 50.0
@@ -58,7 +58,7 @@ class TestFieldResetApplicatorApplyResetValue:
         """Clears t_yes_bid field."""
         applicator = FieldResetApplicator()
 
-        with patch("src.common.dawn_reset_service_helpers.field_reset_applicator.logger"):
+        with patch("common.dawn_reset_service_helpers.field_reset_applicator.logger"):
             result = applicator._apply_reset_value("t_yes_bid", 50.0)
 
         assert result is None
@@ -67,7 +67,7 @@ class TestFieldResetApplicatorApplyResetValue:
         """Clears t_yes_ask field."""
         applicator = FieldResetApplicator()
 
-        with patch("src.common.dawn_reset_service_helpers.field_reset_applicator.logger"):
+        with patch("common.dawn_reset_service_helpers.field_reset_applicator.logger"):
             result = applicator._apply_reset_value("t_yes_ask", 55.0)
 
         assert result is None
@@ -76,7 +76,7 @@ class TestFieldResetApplicatorApplyResetValue:
         """Clears weather_explanation field."""
         applicator = FieldResetApplicator()
 
-        with patch("src.common.dawn_reset_service_helpers.field_reset_applicator.logger"):
+        with patch("common.dawn_reset_service_helpers.field_reset_applicator.logger"):
             result = applicator._apply_reset_value("weather_explanation", "Some explanation")
 
         assert result is None
@@ -85,7 +85,7 @@ class TestFieldResetApplicatorApplyResetValue:
         """Clears last_rule_applied field."""
         applicator = FieldResetApplicator()
 
-        with patch("src.common.dawn_reset_service_helpers.field_reset_applicator.logger"):
+        with patch("common.dawn_reset_service_helpers.field_reset_applicator.logger"):
             result = applicator._apply_reset_value("last_rule_applied", "rule_1")
 
         assert result is None
@@ -94,7 +94,7 @@ class TestFieldResetApplicatorApplyResetValue:
         """Clears maxT field."""
         applicator = FieldResetApplicator()
 
-        with patch("src.common.dawn_reset_service_helpers.field_reset_applicator.logger"):
+        with patch("common.dawn_reset_service_helpers.field_reset_applicator.logger"):
             result = applicator._apply_reset_value("maxT", 75.0)
 
         assert result is None
@@ -103,7 +103,7 @@ class TestFieldResetApplicatorApplyResetValue:
         """Clears minT field."""
         applicator = FieldResetApplicator()
 
-        with patch("src.common.dawn_reset_service_helpers.field_reset_applicator.logger"):
+        with patch("common.dawn_reset_service_helpers.field_reset_applicator.logger"):
             result = applicator._apply_reset_value("minT", 32.0)
 
         assert result is None
@@ -112,7 +112,7 @@ class TestFieldResetApplicatorApplyResetValue:
         """Returns current value for non-clear fields."""
         applicator = FieldResetApplicator()
 
-        with patch("src.common.dawn_reset_service_helpers.field_reset_applicator.logger"):
+        with patch("common.dawn_reset_service_helpers.field_reset_applicator.logger"):
             result = applicator._apply_reset_value("max_temp_f", 75.0)
 
         assert result == 75.0
@@ -125,7 +125,7 @@ class TestFieldResetApplicatorPreserveExistingValue:
         """Uses previous value when current is None."""
         applicator = FieldResetApplicator()
 
-        with patch("src.common.dawn_reset_service_helpers.field_reset_applicator.logger"):
+        with patch("common.dawn_reset_service_helpers.field_reset_applicator.logger"):
             result = applicator._preserve_existing_value("max_temp_f", None, {"max_temp_f": 75.0})
 
         assert result == 75.0
@@ -134,7 +134,7 @@ class TestFieldResetApplicatorPreserveExistingValue:
         """Uses current value when not None."""
         applicator = FieldResetApplicator()
 
-        with patch("src.common.dawn_reset_service_helpers.field_reset_applicator.logger"):
+        with patch("common.dawn_reset_service_helpers.field_reset_applicator.logger"):
             result = applicator._preserve_existing_value("max_temp_f", 80.0, {"max_temp_f": 75.0})
 
         assert result == 80.0
@@ -143,7 +143,7 @@ class TestFieldResetApplicatorPreserveExistingValue:
         """Uses current value when field not in previous data."""
         applicator = FieldResetApplicator()
 
-        with patch("src.common.dawn_reset_service_helpers.field_reset_applicator.logger"):
+        with patch("common.dawn_reset_service_helpers.field_reset_applicator.logger"):
             result = applicator._preserve_existing_value("max_temp_f", 80.0, {})
 
         assert result == 80.0
@@ -152,7 +152,7 @@ class TestFieldResetApplicatorPreserveExistingValue:
         """Uses None when current is None and no previous data."""
         applicator = FieldResetApplicator()
 
-        with patch("src.common.dawn_reset_service_helpers.field_reset_applicator.logger"):
+        with patch("common.dawn_reset_service_helpers.field_reset_applicator.logger"):
             result = applicator._preserve_existing_value("max_temp_f", None, {})
 
         assert result is None

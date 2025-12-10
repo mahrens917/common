@@ -1,20 +1,20 @@
 import pytest
 
-from src.common.alert_suppression_manager_helpers.alert_evaluator import (
+from common.alert_suppression_manager_helpers.alert_evaluator import (
     AlertEvaluator,
     SuppressionContext,
     SuppressionRule,
 )
-from src.common.alert_suppression_manager_helpers.decision_coordinator import (
+from common.alert_suppression_manager_helpers.decision_coordinator import (
     DecisionCoordinator,
 )
-from src.common.alert_suppression_manager_helpers.dependency_initializer import (
+from common.alert_suppression_manager_helpers.dependency_initializer import (
     DependencyInitializer,
 )
-from src.common.alert_suppression_manager_helpers.error_classifier_adapter import (
+from common.alert_suppression_manager_helpers.error_classifier_adapter import (
     ErrorClassifierAdapter,
 )
-from src.common.alert_suppression_manager_helpers.suppression_tracker import (
+from common.alert_suppression_manager_helpers.suppression_tracker import (
     AlertType,
     SuppressionDecision,
     SuppressionTracker,
@@ -147,11 +147,11 @@ async def test_dependency_initializer_initializes_and_requires(monkeypatch):
         return "classifier"
 
     monkeypatch.setattr(
-        "src.common.alert_suppression_manager_helpers.dependency_initializer.get_connection_state_tracker",
+        "common.alert_suppression_manager_helpers.dependency_initializer.get_connection_state_tracker",
         fake_state_tracker,
     )
     monkeypatch.setattr(
-        "src.common.alert_suppression_manager_helpers.dependency_initializer.get_error_classifier",
+        "common.alert_suppression_manager_helpers.dependency_initializer.get_error_classifier",
         fake_error_classifier,
     )
 

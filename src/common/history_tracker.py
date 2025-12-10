@@ -17,11 +17,11 @@ from typing import List, Optional, Tuple
 
 from redis.exceptions import RedisError
 
-from src.common.exceptions import ValidationError
-from src.common.redis_protocol.config import HISTORY_KEY_PREFIX, HISTORY_TTL_SECONDS
-from src.common.redis_protocol.typing import RedisClient, ensure_awaitable
-from src.common.redis_utils import RedisOperationError, get_redis_connection
-from src.common.time_utils import get_current_utc
+from common.exceptions import ValidationError
+from common.redis_protocol.config import HISTORY_KEY_PREFIX, HISTORY_TTL_SECONDS
+from common.redis_protocol.typing import RedisClient, ensure_awaitable
+from common.redis_utils import RedisOperationError, get_redis_connection
+from common.time_utils import get_current_utc
 
 logger = logging.getLogger(__name__)
 

@@ -5,7 +5,7 @@ from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 
-from src.common.base_connection_manager_helpers.connection_lifecycle import (
+from common.base_connection_manager_helpers.connection_lifecycle import (
     ConnectionLifecycleManager,
 )
 

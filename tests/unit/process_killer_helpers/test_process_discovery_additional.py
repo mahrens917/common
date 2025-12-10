@@ -5,7 +5,7 @@ from types import SimpleNamespace
 import psutil
 import pytest
 
-from src.common.process_killer_helpers.process_discovery import (
+from common.process_killer_helpers.process_discovery import (
     collect_process_candidates,
 )
 
@@ -16,16 +16,16 @@ async def test_collect_process_candidates_returns_filtered(monkeypatch):
         return [SimpleNamespace(pid=1, name="python", cmdline=["python", "app"])]
 
     monkeypatch.setattr(
-        "src.common.process_killer_helpers.monitor_query.query_monitor_for_processes",
+        "common.process_killer_helpers.monitor_query.query_monitor_for_processes",
         fake_query,
     )
 
     monkeypatch.setattr(
-        "src.common.process_killer_helpers.process_normalizer.normalize_process",
+        "common.process_killer_helpers.process_normalizer.normalize_process",
         lambda raw, service_name: raw,
     )
     monkeypatch.setattr(
-        "src.common.process_killer_helpers.process_filter.filter_processes_by_pid",
+        "common.process_killer_helpers.process_filter.filter_processes_by_pid",
         lambda normalized, exclude_pid: ["filtered"] if normalized else [],
     )
 
@@ -39,7 +39,7 @@ async def test_collect_process_candidates_falls_back_to_psutil(monkeypatch):
         return []
 
     monkeypatch.setattr(
-        "src.common.process_killer_helpers.monitor_query.query_monitor_for_processes",
+        "common.process_killer_helpers.monitor_query.query_monitor_for_processes",
         fake_query,
     )
 
@@ -51,7 +51,7 @@ async def test_collect_process_candidates_falls_back_to_psutil(monkeypatch):
         return normalized
 
     monkeypatch.setattr(
-        "src.common.process_killer_helpers.process_normalizer.normalize_process",
+        "common.process_killer_helpers.process_normalizer.normalize_process",
         fake_normalize,
     )
 
@@ -64,7 +64,7 @@ async def test_collect_process_candidates_falls_back_to_psutil(monkeypatch):
         return normalized
 
     monkeypatch.setattr(
-        "src.common.process_killer_helpers.process_filter.filter_processes_by_pid",
+        "common.process_killer_helpers.process_filter.filter_processes_by_pid",
         fake_filter,
     )
 

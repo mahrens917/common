@@ -8,7 +8,7 @@ from typing import cast
 import aiohttp
 import pytest
 
-from src.common.session_tracker import (
+from common.session_tracker import (
     SessionTracker,
     log_session_diagnostics,
     track_existing_session,
@@ -108,7 +108,7 @@ def test_cleanup_old_session_records(monkeypatch: pytest.MonkeyPatch):
 @pytest.mark.asyncio
 async def test_tracked_session_context_manager_closes(monkeypatch: pytest.MonkeyPatch):
     tracker = fresh_tracker()
-    monkeypatch.setattr("src.common.session_tracker.session_tracker", tracker)
+    monkeypatch.setattr("common.session_tracker.session_tracker", tracker)
 
     async with tracked_session("svc") as (session, session_id):
         assert session_id in tracker.sessions
@@ -124,7 +124,7 @@ async def test_tracked_session_context_manager_closes(monkeypatch: pytest.Monkey
 @pytest.mark.asyncio
 async def test_tracked_session_closes_existing(monkeypatch: pytest.MonkeyPatch):
     tracker = fresh_tracker()
-    monkeypatch.setattr("src.common.session_tracker.session_tracker", tracker)
+    monkeypatch.setattr("common.session_tracker.session_tracker", tracker)
 
     session = aiohttp.ClientSession()
     session_id = track_existing_session(session, "svc")
@@ -139,7 +139,7 @@ async def test_tracked_session_closes_existing(monkeypatch: pytest.MonkeyPatch):
 @pytest.mark.asyncio
 async def test_log_session_diagnostics(monkeypatch: pytest.MonkeyPatch, caplog):
     tracker = fresh_tracker()
-    monkeypatch.setattr("src.common.session_tracker.session_tracker", tracker)
+    monkeypatch.setattr("common.session_tracker.session_tracker", tracker)
 
     session = FakeSession()
     session_id = tracker.track_session_creation(cast(aiohttp.ClientSession, session), "svc")

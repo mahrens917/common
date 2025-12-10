@@ -4,7 +4,7 @@ from datetime import date, datetime, timezone
 
 import pytest
 
-from src.common.validation_guards import (
+from common.validation_guards import (
     require,
     require_date,
     require_datetime,

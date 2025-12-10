@@ -1,8 +1,8 @@
 import unittest
 from unittest.mock import Mock
 
-from src.common.data_models.trade_record import PnLReport
-from src.common.report_generator_helpers.basic_pnl_formatter import BasicPnLFormatter
+from common.data_models.trade_record import PnLReport
+from common.report_generator_helpers.basic_pnl_formatter import BasicPnLFormatter
 
 
 class TestBasicPnLFormatter(unittest.TestCase):

@@ -16,7 +16,7 @@ from functools import lru_cache
 from pathlib import Path
 from typing import Dict, Literal
 
-from src.common.redis_schema import ensure_uppercase_icao
+from common.redis_schema import ensure_uppercase_icao
 
 _PRECISION_SETTINGS_PATH = (
     Path(__file__).resolve().parents[2] / "config" / "weather_precision_settings.json"

@@ -3,8 +3,8 @@ from unittest.mock import Mock, patch
 
 import pytest
 
-from src.common.simple_health_checker_helpers.log_health_checker import LogHealthChecker
-from src.common.simple_health_checker_helpers.types import HealthStatus
+from common.simple_health_checker_helpers.log_health_checker import LogHealthChecker
+from common.simple_health_checker_helpers.types import HealthStatus
 
 
 class TestLogHealthChecker:

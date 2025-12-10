@@ -4,7 +4,7 @@ from datetime import datetime, timezone
 import numpy as np
 import pytest
 
-from src.common.validation import DataIntegrityError, DataIntegrityValidator
+from common.validation import DataIntegrityError, DataIntegrityValidator
 from tests.helpers.array_builders import literal_array
 
 _CONST_NEG_2 = -2
@@ -140,7 +140,7 @@ def test_log_validation_success_emits_debug(caplog):
 
 def test_create_validation_summary(monkeypatch):
     timestamp = datetime(2024, 1, 1, tzinfo=timezone.utc)
-    monkeypatch.setattr("src.common.time_utils.get_current_utc", lambda: timestamp)
+    monkeypatch.setattr("common.time_utils.get_current_utc", lambda: timestamp)
 
     summary = DataIntegrityValidator.create_validation_summary(
         [("field", "value"), ("other", "x" * 60)]

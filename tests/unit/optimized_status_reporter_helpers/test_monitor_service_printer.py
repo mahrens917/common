@@ -6,9 +6,9 @@ from unittest.mock import MagicMock
 
 import pytest
 
-from src.common.health.log_activity_monitor import LogActivity, LogActivityStatus
-from src.common.monitoring import ProcessStatus
-from src.common.optimized_status_reporter_helpers.monitor_service_printer import (
+from common.health.log_activity_monitor import LogActivity, LogActivityStatus
+from common.monitoring import ProcessStatus
+from common.optimized_status_reporter_helpers.monitor_service_printer import (
     MonitorServicePrinter,
 )
 

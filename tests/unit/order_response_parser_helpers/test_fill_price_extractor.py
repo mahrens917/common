@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from src.common.order_response_parser_helpers.fill_price_extractor import (
+from common.order_response_parser_helpers.fill_price_extractor import (
     _is_valid_maker_cost,
     extract_average_fill_price,
 )

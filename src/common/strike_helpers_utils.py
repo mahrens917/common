@@ -1,4 +1,4 @@
-"""Helper utilities split from :mod:`src.common.strike_helpers`."""
+"""Helper utilities split from :mod:`common.strike_helpers`."""
 
 from __future__ import annotations
 

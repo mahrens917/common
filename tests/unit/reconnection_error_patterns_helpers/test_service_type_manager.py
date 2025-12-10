@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import pytest
 
-from src.common.reconnection_error_patterns_helpers.service_type_manager import (
+from common.reconnection_error_patterns_helpers.service_type_manager import (
     DEFAULT_SERVICE_TYPE_MAPPING,
     ServiceType,
     ServiceTypeManager,

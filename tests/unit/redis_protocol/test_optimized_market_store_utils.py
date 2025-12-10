@@ -7,9 +7,9 @@ from unittest.mock import AsyncMock
 
 import pytest
 
-from src.common.data_models.instrument import Instrument
-from src.common.redis_protocol.optimized_market_store import OptimizedMarketStore
-from src.common.redis_schema.markets import (
+from common.data_models.instrument import Instrument
+from common.redis_protocol.optimized_market_store import OptimizedMarketStore
+from common.redis_schema.markets import (
     DeribitInstrumentDescriptor,
     DeribitInstrumentKey,
     DeribitInstrumentType,
@@ -31,16 +31,16 @@ class FakeRedis:
 
 
 def make_store(redis_mapping: dict[str, dict[str, str]]):
-    from src.common.redis_protocol.optimized_market_store_helpers.expiry_converter import (
+    from common.redis_protocol.optimized_market_store_helpers.expiry_converter import (
         ExpiryConverter,
     )
-    from src.common.redis_protocol.optimized_market_store_helpers.instrument_fetcher import (
+    from common.redis_protocol.optimized_market_store_helpers.instrument_fetcher import (
         InstrumentFetcher,
     )
-    from src.common.redis_protocol.optimized_market_store_helpers.market_data_fetcher import (
+    from common.redis_protocol.optimized_market_store_helpers.market_data_fetcher import (
         MarketDataFetcher,
     )
-    from src.common.redis_protocol.optimized_market_store_helpers.spot_price_fetcher import (
+    from common.redis_protocol.optimized_market_store_helpers.spot_price_fetcher import (
         SpotPriceFetcher,
     )
 
@@ -172,7 +172,7 @@ def test_init_with_redis_instance_sets_pool(monkeypatch):
         def publish(self): ...
 
     monkeypatch.setattr(
-        "src.common.redis_protocol.optimized_market_store_helpers.redis_initializer.AtomicRedisOperations",
+        "common.redis_protocol.optimized_market_store_helpers.redis_initializer.AtomicRedisOperations",
         lambda _redis: "atomic",
         raising=False,
     )
@@ -184,7 +184,7 @@ def test_init_with_redis_instance_sets_pool(monkeypatch):
 
 
 def test_is_redis_like_detection():
-    from src.common.redis_protocol.optimized_market_store_helpers.redis_initializer import (
+    from common.redis_protocol.optimized_market_store_helpers.redis_initializer import (
         RedisInitializer,
     )
 
@@ -232,17 +232,17 @@ async def test_create_initializes_from_connection_pool(monkeypatch):
     pool_instance = DummyPool()
 
     monkeypatch.setattr(
-        "src.common.redis_protocol.optimized_market_store_helpers.redis_initializer.ConnectionPool",
+        "common.redis_protocol.optimized_market_store_helpers.redis_initializer.ConnectionPool",
         DummyPool,
         raising=False,
     )
     monkeypatch.setattr(
-        "src.common.redis_protocol.optimized_market_store_helpers.redis_initializer.redis.asyncio.Redis",
+        "common.redis_protocol.optimized_market_store_helpers.redis_initializer.redis.asyncio.Redis",
         lambda *_, **kwargs: DummyRedis(**kwargs),
         raising=False,
     )
     monkeypatch.setattr(
-        "src.common.redis_protocol.optimized_market_store_helpers.redis_initializer.get_redis_pool",
+        "common.redis_protocol.optimized_market_store_helpers.redis_initializer.get_redis_pool",
         AsyncMock(return_value=pool_instance),
         raising=False,
     )
@@ -254,7 +254,7 @@ async def test_create_initializes_from_connection_pool(monkeypatch):
 
 
 def test_format_key_spot_and_option():
-    from src.common.redis_protocol.optimized_market_store_helpers.market_data_fetcher_helpers.key_builder import (
+    from common.redis_protocol.optimized_market_store_helpers.market_data_fetcher_helpers.key_builder import (
         format_key,
     )
 
@@ -273,7 +273,7 @@ def test_format_key_spot_and_option():
     ],
 )
 def test_convert_iso_to_deribit(iso, expected):
-    from src.common.redis_protocol.optimized_market_store_helpers.expiry_converter import (
+    from common.redis_protocol.optimized_market_store_helpers.expiry_converter import (
         ExpiryConverter,
     )
 
@@ -282,8 +282,8 @@ def test_convert_iso_to_deribit(iso, expected):
 
 
 def test_convert_iso_to_deribit_invalid():
-    from src.common.exceptions import DataError
-    from src.common.redis_protocol.optimized_market_store_helpers.expiry_converter import (
+    from common.exceptions import DataError
+    from common.redis_protocol.optimized_market_store_helpers.expiry_converter import (
         ExpiryConverter,
     )
 
@@ -300,7 +300,7 @@ def test_convert_iso_to_deribit_invalid():
     ],
 )
 def test_convert_expiry_to_iso(deribit, expected):
-    from src.common.redis_protocol.optimized_market_store_helpers.expiry_converter import (
+    from common.redis_protocol.optimized_market_store_helpers.expiry_converter import (
         ExpiryConverter,
     )
 
@@ -309,7 +309,7 @@ def test_convert_expiry_to_iso(deribit, expected):
 
 
 def test_convert_expiry_to_iso_invalid():
-    from src.common.redis_protocol.optimized_market_store_helpers.expiry_converter import (
+    from common.redis_protocol.optimized_market_store_helpers.expiry_converter import (
         ExpiryConverter,
     )
 
@@ -318,7 +318,7 @@ def test_convert_expiry_to_iso_invalid():
 
 
 def test_convert_expiry_to_iso_prior_epoch():
-    from src.common.redis_protocol.optimized_market_store_helpers.expiry_converter import (
+    from common.redis_protocol.optimized_market_store_helpers.expiry_converter import (
         ExpiryConverter,
     )
 
@@ -327,14 +327,14 @@ def test_convert_expiry_to_iso_prior_epoch():
 
 
 def test_convert_expiry_to_iso_invalid_expiry_hour(monkeypatch):
-    from src.common.redis_protocol.optimized_market_store_helpers.expiry_converter import (
+    from common.redis_protocol.optimized_market_store_helpers.expiry_converter import (
         ExpiryConverter,
     )
 
     converter = ExpiryConverter()
 
     monkeypatch.setattr(
-        "src.common.redis_protocol.optimized_market_store_helpers.expiry_converter.validate_expiry_hour",
+        "common.redis_protocol.optimized_market_store_helpers.expiry_converter.validate_expiry_hour",
         lambda *_args, **_kwargs: False,
         raising=False,
     )
@@ -343,7 +343,7 @@ def test_convert_expiry_to_iso_invalid_expiry_hour(monkeypatch):
 
 
 def test_convert_expiry_to_iso_raises_for_bad_month():
-    from src.common.exceptions import DataError
+    from common.exceptions import DataError
 
     store = make_store({})
     with pytest.raises(DataError):
@@ -352,7 +352,7 @@ def test_convert_expiry_to_iso_raises_for_bad_month():
 
 @pytest.mark.asyncio
 async def test_get_market_data_errors_when_missing_required_fields():
-    from src.common.exceptions import DataError
+    from common.exceptions import DataError
 
     key = "market:BTC-SPOT"
     store = make_store({key: {"best_bid": "10"}})
@@ -369,7 +369,7 @@ async def test_get_market_data_errors_when_missing_required_fields():
 
 @pytest.mark.asyncio
 async def test_get_market_data_handles_conversion_errors(monkeypatch):
-    from src.common.exceptions import ValidationError
+    from common.exceptions import ValidationError
 
     store = make_store({})
     instrument = Instrument(
@@ -394,7 +394,7 @@ async def test_get_market_data_requires_expiry(monkeypatch):
 
 @pytest.mark.asyncio
 async def test_get_market_data_returns_none_when_no_data():
-    from src.common.exceptions import DataError
+    from common.exceptions import DataError
 
     store = make_store({})
 
@@ -535,7 +535,7 @@ async def test_get_all_instruments_builds_results(monkeypatch):
     store.atomic_ops = None
 
     # Initialize required helpers
-    from src.common.redis_protocol.optimized_market_store_helpers.instrument_fetcher import (
+    from common.redis_protocol.optimized_market_store_helpers.instrument_fetcher import (
         InstrumentFetcher,
     )
 
@@ -570,7 +570,7 @@ async def test_get_all_instruments_returns_empty_when_no_keys(monkeypatch):
     monkeypatch.setattr(store, "_get_redis", get_redis_mock)
 
     # Initialize required helpers
-    from src.common.redis_protocol.optimized_market_store_helpers.instrument_fetcher import (
+    from common.redis_protocol.optimized_market_store_helpers.instrument_fetcher import (
         InstrumentFetcher,
     )
 
@@ -596,14 +596,14 @@ async def test_get_all_instruments_returns_empty_when_no_descriptors(monkeypatch
     monkeypatch.setattr(store, "_get_redis", get_redis_mock)
 
     # Initialize required helpers
-    from src.common.redis_protocol.optimized_market_store_helpers.instrument_fetcher import (
+    from common.redis_protocol.optimized_market_store_helpers.instrument_fetcher import (
         InstrumentFetcher,
     )
 
     store._instrument_fetcher = InstrumentFetcher(get_redis_mock)
 
     monkeypatch.setattr(
-        "src.common.redis_protocol.optimized_market_store_helpers.instrument_fetcher_helpers.redis_scanner.parse_deribit_market_key",
+        "common.redis_protocol.optimized_market_store_helpers.instrument_fetcher_helpers.redis_scanner.parse_deribit_market_key",
         lambda key: SimpleNamespace(
             currency="ETH",
             expiry_iso="2025-02-28",
@@ -630,7 +630,7 @@ async def test_get_all_instruments_handles_edge_cases(monkeypatch):
     monkeypatch.setattr(store, "_get_redis", get_redis_mock)
 
     # Initialize required helpers
-    from src.common.redis_protocol.optimized_market_store_helpers.instrument_fetcher import (
+    from common.redis_protocol.optimized_market_store_helpers.instrument_fetcher import (
         InstrumentFetcher,
     )
 
@@ -644,7 +644,7 @@ async def test_get_all_instruments_handles_edge_cases(monkeypatch):
         return descriptor_map[key]
 
     monkeypatch.setattr(
-        "src.common.redis_protocol.optimized_market_store_helpers.instrument_fetcher_helpers.redis_scanner.parse_deribit_market_key",
+        "common.redis_protocol.optimized_market_store_helpers.instrument_fetcher_helpers.redis_scanner.parse_deribit_market_key",
         fake_parse,
     )
 

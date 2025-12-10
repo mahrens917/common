@@ -4,7 +4,7 @@ from datetime import datetime, timezone
 
 import pytest
 
-from src.common.data_models.trading import (
+from common.data_models.trading import (
     MarketValidationData,
     OrderAction,
     OrderFill,

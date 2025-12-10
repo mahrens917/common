@@ -2,13 +2,13 @@
 
 from datetime import datetime
 
-from src.common.redis_protocol.parsing.kalshi import (
+from common.redis_protocol.parsing.kalshi import (
     parse_day_month_year_format as _canonical_parse_day_month_year_format,
 )
-from src.common.redis_protocol.parsing.kalshi import (
+from common.redis_protocol.parsing.kalshi import (
     parse_intraday_format as _canonical_parse_intraday_format,
 )
-from src.common.redis_protocol.parsing.kalshi import (
+from common.redis_protocol.parsing.kalshi import (
     parse_year_month_day_format as _canonical_parse_year_month_day_format,
 )
 

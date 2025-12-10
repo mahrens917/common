@@ -10,8 +10,8 @@ import logging
 from collections import defaultdict
 from typing import Optional
 
-from src.common.metadata_store import MetadataStore
-from src.common.metadata_store_auto_updater_helpers import (
+from common.metadata_store import MetadataStore
+from common.metadata_store_auto_updater_helpers import (
     BatchProcessor,
     InitializationManager,
     KeyspaceListener,

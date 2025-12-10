@@ -43,7 +43,7 @@ class BatchReader:
             import sys
 
             results = {}
-            module = sys.modules.get("src.common.redis_protocol.kalshi_store")
+            module = sys.modules.get("common.redis_protocol.kalshi_store")
             key_parser = getattr(module, "parse_kalshi_market_key", parse_kalshi_market_key)
 
             for key in market_keys:

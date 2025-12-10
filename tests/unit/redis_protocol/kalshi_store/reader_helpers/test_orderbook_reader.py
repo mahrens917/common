@@ -8,8 +8,8 @@ from unittest.mock import AsyncMock, MagicMock
 
 import pytest
 
-from src.common.exceptions import DataError
-from src.common.redis_protocol.kalshi_store.reader_helpers import (
+from common.exceptions import DataError
+from common.redis_protocol.kalshi_store.reader_helpers import (
     orderbook_parser,
     orderbook_reader,
 )
@@ -80,7 +80,7 @@ async def test_get_orderbook_side_handles_errors(monkeypatch):
 
 def test_extract_orderbook_sizes_success(monkeypatch):
     monkeypatch.setattr(
-        "src.common.orderbook_utils.extract_best_bid_ask",
+        "common.orderbook_utils.extract_best_bid_ask",
         lambda data: (1.0, 2.0),
     )
     payload = {
@@ -99,7 +99,7 @@ def test_extract_orderbook_sizes_missing_orderbook():
 
 def test_extract_orderbook_sizes_actor_returns_non_dict(monkeypatch):
     monkeypatch.setattr(
-        "src.common.orderbook_utils.extract_best_bid_ask",
+        "common.orderbook_utils.extract_best_bid_ask",
         lambda data: (1.0, 2.0),
     )
     monkeypatch.setattr(
@@ -114,7 +114,7 @@ def test_extract_orderbook_sizes_actor_returns_non_dict(monkeypatch):
 
 def test_extract_orderbook_sizes_missing_price(monkeypatch):
     monkeypatch.setattr(
-        "src.common.orderbook_utils.extract_best_bid_ask",
+        "common.orderbook_utils.extract_best_bid_ask",
         lambda data: (1.0, 2.0),
     )
     monkeypatch.setattr(

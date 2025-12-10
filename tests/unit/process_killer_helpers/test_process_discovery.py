@@ -7,7 +7,7 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
-from src.common.process_killer_helpers.process_discovery import (
+from common.process_killer_helpers.process_discovery import (
     _console,
     build_matching_processes,
     create_psutil_process,
@@ -98,7 +98,7 @@ class TestBuildMatchingProcesses:
         mock_process.pid = 456
 
         with patch(
-            "src.common.process_killer_helpers.process_discovery.create_psutil_process",
+            "common.process_killer_helpers.process_discovery.create_psutil_process",
             return_value=mock_process,
         ):
             result = build_matching_processes(
@@ -115,7 +115,7 @@ class TestBuildMatchingProcesses:
         mock_process.pid = 456
 
         with patch(
-            "src.common.process_killer_helpers.process_discovery.create_psutil_process",
+            "common.process_killer_helpers.process_discovery.create_psutil_process",
             return_value=mock_process,
         ):
             result = build_matching_processes(
@@ -135,7 +135,7 @@ class TestBuildMatchingProcesses:
         mock_process.pid = 456
 
         with patch(
-            "src.common.process_killer_helpers.process_discovery.create_psutil_process",
+            "common.process_killer_helpers.process_discovery.create_psutil_process",
             return_value=mock_process,
         ):
             with pytest.raises(RuntimeError, match="Unexpected executable"):
@@ -152,7 +152,7 @@ class TestBuildMatchingProcesses:
         candidates = [SimpleNamespace(pid=456, name="python", cmdline=["python"])]
 
         with patch(
-            "src.common.process_killer_helpers.process_discovery.create_psutil_process",
+            "common.process_killer_helpers.process_discovery.create_psutil_process",
             return_value=None,
         ):
             result = build_matching_processes(

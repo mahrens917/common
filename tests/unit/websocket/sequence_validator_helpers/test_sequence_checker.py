@@ -4,7 +4,7 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
-from src.common.websocket.sequence_validator_helpers.sequence_checker import (
+from common.websocket.sequence_validator_helpers.sequence_checker import (
     SequenceChecker,
     SequenceGapError,
 )
@@ -75,7 +75,7 @@ class TestSequenceChecker:
         mock_state.get_gap_count.return_value = EXPECTED_GAP_SIZE
         checker = SequenceChecker("deribit", DEFAULT_SEQUENCE_MAX_GAP_SIZE, mock_state)
 
-        with patch("src.common.websocket.sequence_validator_helpers.sequence_checker.logger"):
+        with patch("common.websocket.sequence_validator_helpers.sequence_checker.logger"):
             is_valid, gap_size = checker.validate_sequence(123, 105)
 
         mock_state.increment_gap_count.assert_called_once_with(123, EXPECTED_GAP_SIZE)
@@ -91,7 +91,7 @@ class TestSequenceChecker:
         mock_state.get_gap_count.return_value = 15
         checker = SequenceChecker("deribit", DEFAULT_SEQUENCE_MAX_GAP_SIZE, mock_state)
 
-        with patch("src.common.websocket.sequence_validator_helpers.sequence_checker.logger"):
+        with patch("common.websocket.sequence_validator_helpers.sequence_checker.logger"):
             with pytest.raises(SequenceGapError) as exc_info:
                 checker.validate_sequence(123, 105)
 
@@ -104,7 +104,7 @@ class TestSequenceChecker:
         mock_state.get_last_seq.return_value = 100
         checker = SequenceChecker("deribit", 10, mock_state)
 
-        with patch("src.common.websocket.sequence_validator_helpers.sequence_checker.logger"):
+        with patch("common.websocket.sequence_validator_helpers.sequence_checker.logger"):
             is_valid, gap_size = checker.validate_sequence(123, 95)
 
         mock_state.update_sequence.assert_not_called()

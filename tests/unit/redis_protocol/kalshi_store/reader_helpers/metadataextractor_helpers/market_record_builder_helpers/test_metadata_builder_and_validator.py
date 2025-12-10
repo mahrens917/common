@@ -5,11 +5,11 @@ from unittest.mock import MagicMock
 
 import pytest
 
-from src.common.redis_protocol.kalshi_store.market_skip import MarketSkip
-from src.common.redis_protocol.kalshi_store.reader_helpers.metadataextractor_helpers.market_record_builder_helpers.metadata_builder import (
+from common.redis_protocol.kalshi_store.market_skip import MarketSkip
+from common.redis_protocol.kalshi_store.reader_helpers.metadataextractor_helpers.market_record_builder_helpers.metadata_builder import (
     MetadataBuilder,
 )
-from src.common.redis_protocol.kalshi_store.reader_helpers.metadataextractor_helpers.market_record_builder_helpers.record_validator import (
+from common.redis_protocol.kalshi_store.reader_helpers.metadataextractor_helpers.market_record_builder_helpers.record_validator import (
     RecordValidator,
 )
 

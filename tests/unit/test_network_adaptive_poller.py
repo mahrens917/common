@@ -1,4 +1,4 @@
-from src.common.network_adaptive_poller import NetworkAdaptivePoller
+from common.network_adaptive_poller import NetworkAdaptivePoller
 
 _CONST_20 = 20
 _CONST_25 = 25

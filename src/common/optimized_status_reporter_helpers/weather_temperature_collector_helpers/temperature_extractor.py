@@ -2,7 +2,7 @@
 
 from typing import Any, Dict, List
 
-from src.common.redis_protocol.converters import decode_redis_hash
+from common.redis_protocol.converters import decode_redis_hash
 
 DEFAULT_WEATHER_EMOJI = "🌡️"
 

@@ -5,8 +5,8 @@ from unittest.mock import MagicMock
 
 import pytest
 
-from src.common.redis_protocol.kalshi_store.market_skip import MarketSkip
-from src.common.redis_protocol.kalshi_store.reader_helpers.metadataextractor_helpers.market_record_builder_helpers.field_extractor import (
+from common.redis_protocol.kalshi_store.market_skip import MarketSkip
+from common.redis_protocol.kalshi_store.reader_helpers.metadataextractor_helpers.market_record_builder_helpers.field_extractor import (
     build_record_dict,
     extract_and_merge_metadata,
     extract_and_validate_close_time,

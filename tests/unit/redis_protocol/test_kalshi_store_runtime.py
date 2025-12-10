@@ -6,10 +6,10 @@ from typing import Any, Dict, List, Tuple
 
 import pytest
 
-from src.common.config.weather import WeatherConfigError
-from src.common.redis_protocol.kalshi_store import KalshiStore
-from src.common.redis_protocol.market_normalization import format_probability_value
-from src.common.redis_protocol.weather_station_resolver import WeatherStationResolver
+from common.config.weather import WeatherConfigError
+from common.redis_protocol.kalshi_store import KalshiStore
+from common.redis_protocol.market_normalization import format_probability_value
+from common.redis_protocol.weather_station_resolver import WeatherStationResolver
 
 
 class _FakeRedis:
@@ -71,7 +71,7 @@ def test_kalshi_store_handles_mapping_loader_failure(monkeypatch):
         raise WeatherConfigError("missing mapping")
 
     monkeypatch.setattr(
-        "src.common.redis_protocol.kalshi_store.store._default_weather_station_loader",
+        "common.redis_protocol.kalshi_store.store._default_weather_station_loader",
         failing_loader,
     )
     with pytest.raises(WeatherConfigError):

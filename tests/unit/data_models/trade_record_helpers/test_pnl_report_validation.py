@@ -6,7 +6,7 @@ from datetime import date
 
 import pytest
 
-from src.common.data_models.trade_record_helpers.pnl_report_validation import (
+from common.data_models.trade_record_helpers.pnl_report_validation import (
     _validate_breakdown_dicts,
     _validate_date_fields,
     _validate_numeric_fields,

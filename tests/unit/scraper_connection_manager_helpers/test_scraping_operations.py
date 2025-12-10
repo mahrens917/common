@@ -7,7 +7,7 @@ from unittest.mock import AsyncMock, MagicMock
 import aiohttp
 import pytest
 
-from src.common.scraper_connection_manager_helpers.scraping_operations import ScrapingOperations
+from common.scraper_connection_manager_helpers.scraping_operations import ScrapingOperations
 
 
 class DummySessionProvider:

@@ -3,7 +3,7 @@
 from datetime import datetime
 from typing import TYPE_CHECKING, cast
 
-from src.common.exceptions import ValidationError
+from common.exceptions import ValidationError
 
 from ...constants import MAX_PRICE_CENTS, MIN_PRICE_CENTS
 

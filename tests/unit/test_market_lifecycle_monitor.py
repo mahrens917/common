@@ -5,13 +5,13 @@ from unittest.mock import AsyncMock
 
 import pytest
 
-from src.common.data_models.trading import OrderSide, PortfolioPosition
-from src.common.market_lifecycle_monitor import (
+from common.data_models.trading import OrderSide, PortfolioPosition
+from common.market_lifecycle_monitor import (
     MarketInfo,
     MarketLifecycleMonitor,
     SettlementInfo,
 )
-from src.common.market_lifecycle_monitor_helpers.state_tracker import MarketState
+from common.market_lifecycle_monitor_helpers.state_tracker import MarketState
 
 
 class FakeTradingClient:
@@ -38,7 +38,7 @@ class FakeEmergencyManager:
 def fixed_now(monkeypatch):
     now = datetime(2024, 8, 20, 12, tzinfo=timezone.utc)
     monkeypatch.setattr(
-        "src.common.market_lifecycle_monitor.get_current_utc",
+        "common.market_lifecycle_monitor.get_current_utc",
         lambda: now,
     )
     return now
@@ -309,7 +309,7 @@ def test_parse_market_info_handles_invalid_close(monkeypatch):
     client = FakeTradingClient()
     monitor = MarketLifecycleMonitor(client)
     monkeypatch.setattr(
-        "src.common.market_lifecycle_monitor.get_current_utc",
+        "common.market_lifecycle_monitor.get_current_utc",
         lambda: datetime(2024, 8, 20, tzinfo=timezone.utc),
     )
 

@@ -2,8 +2,8 @@
 
 from __future__ import annotations
 
-from src.common.error_analyzer_helpers.data_classes import ErrorCategory
-from src.common.error_analyzer_helpers.error_categorizer_helpers.checker_registry import (
+from common.error_analyzer_helpers.data_classes import ErrorCategory
+from common.error_analyzer_helpers.error_categorizer_helpers.checker_registry import (
     CheckerRegistry,
 )
 

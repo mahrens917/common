@@ -6,10 +6,10 @@ from unittest.mock import AsyncMock, MagicMock
 
 import pytest
 
-from src.common.base_connection_manager_helpers.health_coordinator_helpers.health_checker import (
+from common.base_connection_manager_helpers.health_coordinator_helpers.health_checker import (
     HealthChecker,
 )
-from src.common.connection_state import ConnectionState
+from common.connection_state import ConnectionState
 
 
 class TestHealthCheckerInit:

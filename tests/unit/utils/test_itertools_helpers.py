@@ -1,6 +1,6 @@
 """Tests for iterable helper utilities."""
 
-from src.common.utils.itertools_helpers import chunk
+from common.utils.itertools_helpers import chunk
 
 
 def test_chunk_splits_sequence_evenly():

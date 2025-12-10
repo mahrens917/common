@@ -2,8 +2,8 @@ import unittest
 from datetime import date, datetime
 from unittest.mock import AsyncMock, Mock, patch
 
-from src.common.data_models.trade_record import PnLReport
-from src.common.report_generator_helpers.summary_report_builder import SummaryReportBuilder
+from common.data_models.trade_record import PnLReport
+from common.report_generator_helpers.summary_report_builder import SummaryReportBuilder
 
 
 class TestSummaryReportBuilder(unittest.IsolatedAsyncioTestCase):
@@ -17,7 +17,7 @@ class TestSummaryReportBuilder(unittest.IsolatedAsyncioTestCase):
             self.timezone,
         )
 
-    @patch("src.common.report_generator_helpers.summary_report_builder.get_timezone_aware_date")
+    @patch("common.report_generator_helpers.summary_report_builder.get_timezone_aware_date")
     async def test_generate_summary_stats(self, mock_get_date):
         mock_now = datetime(2023, 10, 31)
         mock_get_date.return_value = mock_now

@@ -3,11 +3,11 @@ from __future__ import annotations
 import pytest
 import redis.exceptions
 
-from src.common.redis_protocol.subscription_store_helpers.channel_resolver import ChannelResolver
-from src.common.redis_protocol.subscription_store_helpers.connection_manager import (
+from common.redis_protocol.subscription_store_helpers.channel_resolver import ChannelResolver
+from common.redis_protocol.subscription_store_helpers.connection_manager import (
     SubscriptionStoreConnectionManager,
 )
-from src.common.redis_protocol.subscription_store_helpers.retrieval import SubscriptionRetrieval
+from common.redis_protocol.subscription_store_helpers.retrieval import SubscriptionRetrieval
 
 
 class _FakePubSub:
@@ -35,7 +35,7 @@ async def test_subscription_connection_manager_initialize_and_cleanup(monkeypatc
     fake_pool = object()
     fake_redis = _FakeRedis()
     monkeypatch.setattr(
-        "src.common.redis_protocol.subscription_store_helpers.connection_manager.Redis",
+        "common.redis_protocol.subscription_store_helpers.connection_manager.Redis",
         lambda *args, **kwargs: fake_redis,
     )
 
@@ -63,10 +63,10 @@ async def test_subscription_connection_manager_fetches_pool(monkeypatch):
         return fake_pool
 
     monkeypatch.setattr(
-        "src.common.redis_protocol.subscription_store_helpers.connection_manager.Redis",
+        "common.redis_protocol.subscription_store_helpers.connection_manager.Redis",
         lambda *args, **kwargs: fake_redis,
     )
-    import src.common.redis_protocol.connection as connection_module
+    import common.redis_protocol.connection as connection_module
 
     monkeypatch.setattr(connection_module, "get_redis_pool", _get_pool)
 

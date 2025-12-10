@@ -1,6 +1,6 @@
 """Tests for price validator module."""
 
-from src.common.market_filters.deribit_helpers.price_validator import PriceValidator
+from common.market_filters.deribit_helpers.price_validator import PriceValidator
 
 
 class TestPriceValidatorValidateQuotes:

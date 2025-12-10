@@ -2,8 +2,8 @@ from unittest.mock import AsyncMock
 
 import pytest
 
-from src.common.order_execution import OrderPoller
-from src.common.trading_exceptions import KalshiOrderPollingError
+from common.order_execution import OrderPoller
+from common.trading_exceptions import KalshiOrderPollingError
 
 _TEST_COUNT_3 = 3
 

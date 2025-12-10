@@ -6,10 +6,10 @@ from unittest.mock import MagicMock
 
 import pytest
 
-from src.common.order_execution.finalizer_helpers.validation_helper import (
+from common.order_execution.finalizer_helpers.validation_helper import (
     validate_order_metadata,
 )
-from src.common.trading_exceptions import KalshiTradePersistenceError
+from common.trading_exceptions import KalshiTradePersistenceError
 
 
 class TestValidateOrderMetadata:

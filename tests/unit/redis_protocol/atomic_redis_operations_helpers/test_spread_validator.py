@@ -6,7 +6,7 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
-from src.common.redis_protocol.atomic_redis_operations_helpers.spread_validator import (
+from common.redis_protocol.atomic_redis_operations_helpers.spread_validator import (
     RedisDataValidationError,
     SpreadValidator,
 )

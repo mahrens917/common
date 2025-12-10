@@ -1,8 +1,8 @@
 import unittest
 from unittest.mock import Mock
 
-from src.common.data_models.trade_record import PnLReport
-from src.common.report_generator_helpers.current_day_formatter import CurrentDayFormatter
+from common.data_models.trade_record import PnLReport
+from common.report_generator_helpers.current_day_formatter import CurrentDayFormatter
 
 
 class TestCurrentDayFormatter(unittest.TestCase):

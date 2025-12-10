@@ -5,7 +5,7 @@ from unittest.mock import AsyncMock, MagicMock
 
 import pytest
 
-from src.common.connection_state_tracker_helpers.state_querier import StateQuerier
+from common.connection_state_tracker_helpers.state_querier import StateQuerier
 
 
 class TestStateQuerier:

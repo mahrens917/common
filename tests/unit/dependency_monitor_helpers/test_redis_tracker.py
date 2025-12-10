@@ -6,7 +6,7 @@ from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 
-from src.common.dependency_monitor_helpers.redis_tracker import (
+from common.dependency_monitor_helpers.redis_tracker import (
     RedisTracker,
     _capture_async_result,
 )
@@ -162,7 +162,7 @@ class TestUpdateDependencyStatus:
     @pytest.mark.asyncio
     async def test_returns_early_when_no_redis(self) -> None:
         """Returns early when redis is None."""
-        from src.common.dependency_monitor_helpers.dependency_checker import (
+        from common.dependency_monitor_helpers.dependency_checker import (
             DependencyStatus,
         )
 
@@ -175,7 +175,7 @@ class TestUpdateDependencyStatus:
     @pytest.mark.asyncio
     async def test_updates_status_in_redis(self) -> None:
         """Updates dependency status in Redis hash."""
-        from src.common.dependency_monitor_helpers.dependency_checker import (
+        from common.dependency_monitor_helpers.dependency_checker import (
             DependencyStatus,
         )
 
@@ -194,7 +194,7 @@ class TestUpdateDependencyStatus:
     @pytest.mark.asyncio
     async def test_handles_hset_error(self) -> None:
         """Handles error during hset operation."""
-        from src.common.dependency_monitor_helpers.dependency_checker import (
+        from common.dependency_monitor_helpers.dependency_checker import (
             DependencyStatus,
         )
 

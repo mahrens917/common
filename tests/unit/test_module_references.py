@@ -126,12 +126,12 @@ def mock_modules() -> List[str]:
 def clear_module_cache():
     """Clear the module cache before and after each test."""
     # Remove module if already imported
-    if "src.common._module_references" in sys.modules:
-        del sys.modules["src.common._module_references"]
+    if "common._module_references" in sys.modules:
+        del sys.modules["common._module_references"]
     yield
     # Clean up after test
-    if "src.common._module_references" in sys.modules:
-        del sys.modules["src.common._module_references"]
+    if "common._module_references" in sys.modules:
+        del sys.modules["common._module_references"]
 
 
 pytestmark = pytest.mark.usefixtures("clear_module_cache")
@@ -143,11 +143,11 @@ def test_module_references_without_env_variable():
     os.environ.pop("REFERENCE_UNUSED_MODULES", None)
 
     # Import the module
-    import src.common._module_references  # noqa: F401
+    import common._module_references  # noqa: F401
 
     # Verify that none of the referenced modules were imported
     # (We can't directly verify non-imports, but we can verify the module loads without error)
-    assert "src.common._module_references" in sys.modules
+    assert "common._module_references" in sys.modules
 
 
 def test_module_references_with_env_variable_empty():
@@ -155,10 +155,10 @@ def test_module_references_with_env_variable_empty():
     os.environ["REFERENCE_UNUSED_MODULES"] = ""
 
     # Import the module
-    import src.common._module_references  # noqa: F401
+    import common._module_references  # noqa: F401
 
     # Module should load successfully
-    assert "src.common._module_references" in sys.modules
+    assert "common._module_references" in sys.modules
 
 
 def test_module_references_with_env_variable_set(mock_modules):
@@ -171,10 +171,10 @@ def test_module_references_with_env_variable_set(mock_modules):
             sys.modules[module_name] = MagicMock()
 
         # Import the module
-        import src.common._module_references  # noqa: F401
+        import common._module_references  # noqa: F401
 
         # Verify module loaded successfully
-        assert "src.common._module_references" in sys.modules
+        assert "common._module_references" in sys.modules
 
 
 def test_module_references_with_env_variable_true(mock_modules):
@@ -187,10 +187,10 @@ def test_module_references_with_env_variable_true(mock_modules):
             sys.modules[module_name] = MagicMock()
 
         # Import the module
-        import src.common._module_references  # noqa: F401
+        import common._module_references  # noqa: F401
 
         # Verify module loaded successfully
-        assert "src.common._module_references" in sys.modules
+        assert "common._module_references" in sys.modules
 
 
 def test_module_references_import_side_effects():
@@ -201,14 +201,14 @@ def test_module_references_import_side_effects():
     modules_before = set(sys.modules.keys())
 
     # Import the module
-    import src.common._module_references  # noqa: F401
+    import common._module_references  # noqa: F401
 
     # Count modules after import
     modules_after = set(sys.modules.keys())
 
     # Only the _module_references module itself should be added
     new_modules = modules_after - modules_before
-    assert "src.common._module_references" in new_modules
+    assert "common._module_references" in new_modules
 
 
 def test_module_references_can_be_imported_multiple_times():
@@ -216,13 +216,13 @@ def test_module_references_can_be_imported_multiple_times():
     os.environ.pop("REFERENCE_UNUSED_MODULES", None)
 
     # Import multiple times
-    import src.common._module_references  # noqa: F401
+    import common._module_references  # noqa: F401
 
     # Re-import using importlib
-    importlib.reload(sys.modules["src.common._module_references"])
+    importlib.reload(sys.modules["common._module_references"])
 
     # Should not raise any errors
-    assert "src.common._module_references" in sys.modules
+    assert "common._module_references" in sys.modules
 
 
 def test_module_references_env_variable_case_sensitivity(mock_modules):
@@ -232,8 +232,8 @@ def test_module_references_env_variable_case_sensitivity(mock_modules):
         os.environ["REFERENCE_UNUSED_MODULES"] = value
 
         # Clear module if already loaded
-        if "src.common._module_references" in sys.modules:
-            del sys.modules["src.common._module_references"]
+        if "common._module_references" in sys.modules:
+            del sys.modules["common._module_references"]
 
         # Mock all imports to prevent actual module loading
         with patch.dict("sys.modules"):
@@ -241,30 +241,30 @@ def test_module_references_env_variable_case_sensitivity(mock_modules):
                 sys.modules[module_name] = MagicMock()
 
             # Import should work with any truthy value
-            import src.common._module_references  # noqa: F401
+            import common._module_references  # noqa: F401
 
-            assert "src.common._module_references" in sys.modules
+            assert "common._module_references" in sys.modules
 
 
 def test_module_docstring_present():
     """Test that the module has a proper docstring."""
     os.environ.pop("REFERENCE_UNUSED_MODULES", None)
 
-    import src.common._module_references
+    import common._module_references
 
-    assert src.common._module_references.__doc__ is not None
-    assert "References optional modules" in src.common._module_references.__doc__
-    assert "unused_module_guard" in src.common._module_references.__doc__
+    assert common._module_references.__doc__ is not None
+    assert "References optional modules" in common._module_references.__doc__
+    assert "unused_module_guard" in common._module_references.__doc__
 
 
 def test_module_has_no_exports():
     """Test that the module doesn't export anything (it's just for side effects)."""
     os.environ.pop("REFERENCE_UNUSED_MODULES", None)
 
-    import src.common._module_references
+    import common._module_references
 
     # Get all non-private attributes
-    public_attrs = [attr for attr in dir(src.common._module_references) if not attr.startswith("_")]
+    public_attrs = [attr for attr in dir(common._module_references) if not attr.startswith("_")]
 
     # Should only have 'os' from the import
     assert "os" in public_attrs
@@ -310,8 +310,8 @@ def test_module_name_convention():
     """Test that the module follows underscore naming convention for private modules."""
     os.environ.pop("REFERENCE_UNUSED_MODULES", None)
 
-    import src.common._module_references
+    import common._module_references
 
     # Module name should start with underscore (private convention)
-    assert src.common._module_references.__name__ == "src.common._module_references"
-    assert src.common._module_references.__name__.split(".")[-1].startswith("_")
+    assert common._module_references.__name__ == "common._module_references"
+    assert common._module_references.__name__.split(".")[-1].startswith("_")

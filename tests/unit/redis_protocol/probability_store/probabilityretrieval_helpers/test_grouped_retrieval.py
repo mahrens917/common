@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import pytest
 
-from src.common.redis_protocol.probability_store.probabilityretrieval_helpers import (
+from common.redis_protocol.probability_store.probabilityretrieval_helpers import (
     grouped_retrieval,
 )
 

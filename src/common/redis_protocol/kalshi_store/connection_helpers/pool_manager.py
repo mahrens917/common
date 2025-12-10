@@ -29,7 +29,7 @@ class PoolManager:
         Delegates to canonical get_redis_client() from connection_pool_core
         to ensure consistent connection pooling across the codebase.
         """
-        from src.common.redis_protocol.connection_pool_core import get_redis_client
+        from common.redis_protocol.connection_pool_core import get_redis_client
 
         return await get_redis_client()
 
@@ -49,7 +49,7 @@ class PoolManager:
         try:
             import importlib
 
-            kalshi_store_pkg = importlib.import_module("src.common.redis_protocol.kalshi_store")
+            kalshi_store_pkg = importlib.import_module("common.redis_protocol.kalshi_store")
             cleanup = getattr(kalshi_store_pkg, "cleanup_redis_pool", cleanup_redis_pool)
             await cleanup()
         except RuntimeError:

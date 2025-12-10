@@ -1,6 +1,6 @@
 import pytest
 
-from src.common.status_reporter_helpers.time_formatter import TimeFormatter
+from common.status_reporter_helpers.time_formatter import TimeFormatter
 
 
 class TestTimeFormatter:

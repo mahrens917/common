@@ -2,7 +2,7 @@ from unittest.mock import AsyncMock, Mock, patch
 
 import pytest
 
-from src.common.websocket.unified_subscription_manager_helpers.update_handler import UpdateHandler
+from common.websocket.unified_subscription_manager_helpers.update_handler import UpdateHandler
 
 
 class TestUpdateHandler:

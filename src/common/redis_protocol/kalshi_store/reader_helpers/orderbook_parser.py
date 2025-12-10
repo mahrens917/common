@@ -2,14 +2,14 @@
 Orderbook parsing and size extraction helper.
 
 This module provides Redis-specific orderbook parsing utilities that delegate to
-canonical implementations in src.common.orderbook_utils for actual parsing logic.
+canonical implementations in common.orderbook_utils for actual parsing logic.
 """
 
 import logging
 from typing import Any, Dict
 
-from src.common.exceptions import DataError
-from src.common.parsing_utils import safe_orjson_loads
+from common.exceptions import DataError
+from common.parsing_utils import safe_orjson_loads
 
 logger = logging.getLogger(__name__)
 
@@ -18,7 +18,7 @@ def extract_orderbook_sizes(market_ticker: str, market_data: Dict[str, Any]) -> 
     """
     Extract best bid/ask sizes from a market snapshot orderbook.
 
-    Delegates best-price resolution to src.common.orderbook_utils to ensure
+    Delegates best-price resolution to common.orderbook_utils to ensure
     consistent parsing across Redis helpers.
     """
     orderbook_blob = market_data.get("orderbook")
@@ -32,7 +32,7 @@ def extract_orderbook_sizes(market_ticker: str, market_data: Dict[str, Any]) -> 
     if not isinstance(orderbook, dict):
         raise TypeError(f"Orderbook payload malformed for {market_ticker}")
 
-    from src.common.orderbook_utils import extract_best_bid_ask
+    from common.orderbook_utils import extract_best_bid_ask
 
     best_bid_price, best_ask_price = extract_best_bid_ask(orderbook)
     if best_bid_price is None or best_ask_price is None:
@@ -52,7 +52,7 @@ def parse_orderbook_json(json_data: Any, field_name: str, ticker: str) -> Dict[s
 
     This is a thin wrapper around safe_orjson_loads() that handles Redis-specific
     patterns (None, bytes, empty strings). For more complex orderbook parsing,
-    use functions from src.common.orderbook_utils.
+    use functions from common.orderbook_utils.
 
     Args:
         json_data: JSON data to parse (may be None, bytes, or string)
@@ -108,7 +108,7 @@ def extract_best_prices_from_orderbook(
     """
     Extract best bid and ask prices from orderbook.
 
-    Delegates to canonical implementation in src.common.orderbook_utils.extract_best_bid_ask()
+    Delegates to canonical implementation in common.orderbook_utils.extract_best_bid_ask()
     with additional error handling for Kalshi store operations.
 
     Args:
@@ -121,7 +121,7 @@ def extract_best_prices_from_orderbook(
     Raises:
         DataError: If prices cannot be extracted
     """
-    from src.common.orderbook_utils import extract_best_bid_ask
+    from common.orderbook_utils import extract_best_bid_ask
 
     best_bid, best_ask = extract_best_bid_ask(orderbook)
 

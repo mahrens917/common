@@ -2,8 +2,8 @@ from datetime import datetime
 
 import pytest
 
-import src.common.user_display as user_display_module
-from src.common.user_display import UserDisplay
+import common.user_display as user_display_module
+from common.user_display import UserDisplay
 
 _TEST_COUNT_2 = 2
 

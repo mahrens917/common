@@ -4,7 +4,7 @@ from unittest.mock import AsyncMock, MagicMock
 
 import pytest
 
-from src.common.redis_protocol.kalshi_store import KalshiStore
+from common.redis_protocol.kalshi_store import KalshiStore
 
 
 @pytest.mark.asyncio
@@ -96,7 +96,7 @@ async def test_update_orderbook_routes_snapshot(monkeypatch) -> None:
     store = KalshiStore(redis=None, weather_resolver=MagicMock())
 
     monkeypatch.setattr(
-        "src.common.redis_protocol.kalshi_store.merge_orderbook_payload",
+        "common.redis_protocol.kalshi_store.merge_orderbook_payload",
         lambda message: ("orderbook_snapshot", {"yes": []}, "TEST"),
     )
 
@@ -114,7 +114,7 @@ async def test_update_orderbook_routes_delta(monkeypatch) -> None:
     store = KalshiStore(redis=None, weather_resolver=MagicMock())
 
     monkeypatch.setattr(
-        "src.common.redis_protocol.kalshi_store.merge_orderbook_payload",
+        "common.redis_protocol.kalshi_store.merge_orderbook_payload",
         lambda message: (
             "orderbook_delta",
             {"side": "yes", "price": 45, "delta": 2},
@@ -136,7 +136,7 @@ async def test_update_orderbook_handles_unsupported_message(monkeypatch) -> None
     store = KalshiStore(redis=None, weather_resolver=MagicMock())
 
     monkeypatch.setattr(
-        "src.common.redis_protocol.kalshi_store.merge_orderbook_payload",
+        "common.redis_protocol.kalshi_store.merge_orderbook_payload",
         lambda message: ("unknown", {}, "TEST"),
     )
 
@@ -151,7 +151,7 @@ async def test_update_orderbook_tolerates_missing_prices(monkeypatch) -> None:
     store = KalshiStore(redis=None, weather_resolver=MagicMock())
 
     monkeypatch.setattr(
-        "src.common.redis_protocol.kalshi_store.merge_orderbook_payload",
+        "common.redis_protocol.kalshi_store.merge_orderbook_payload",
         lambda message: ("orderbook_snapshot", {"yes": []}, "TEST"),
     )
 
@@ -219,7 +219,7 @@ async def test_update_orderbook_handles_processing_error(monkeypatch) -> None:
 
     store._orderbook._snapshot_processor.process_orderbook_snapshot = AsyncMock(side_effect=explode)
     monkeypatch.setattr(
-        "src.common.redis_protocol.kalshi_store.merge_orderbook_payload",
+        "common.redis_protocol.kalshi_store.merge_orderbook_payload",
         lambda message: ("orderbook_snapshot", {}, "TEST"),
     )
 
@@ -240,7 +240,7 @@ async def test_update_orderbook_treats_illiquid_market_as_success(monkeypatch) -
         side_effect=illiquid
     )
     monkeypatch.setattr(
-        "src.common.redis_protocol.kalshi_store.merge_orderbook_payload",
+        "common.redis_protocol.kalshi_store.merge_orderbook_payload",
         lambda message: ("orderbook_snapshot", {}, "TEST"),
     )
 

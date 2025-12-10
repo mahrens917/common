@@ -1,6 +1,6 @@
 """Tests for liquidity validator module."""
 
-from src.common.market_filters.deribit_helpers.liquidity_validator import LiquidityValidator
+from common.market_filters.deribit_helpers.liquidity_validator import LiquidityValidator
 
 
 class TestLiquidityValidatorValidateSizes:

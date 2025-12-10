@@ -5,8 +5,8 @@ from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 
-from src.common.emergency_position_manager import EmergencyPositionManager
-from src.common.emergency_position_manager_helpers.risk_assessor import (
+from common.emergency_position_manager import EmergencyPositionManager
+from common.emergency_position_manager_helpers.risk_assessor import (
     RiskLimits,
     create_test_risk_limits,
 )
@@ -90,7 +90,7 @@ class TestEmergencyPositionManagerRegisterPosition:
         risk_limits = create_test_risk_limits(TEST_RISK_CENTS)
         manager = EmergencyPositionManager(trading_client, risk_limits)
 
-        with patch("src.common.time_utils.get_current_utc") as mock_time:
+        with patch("common.time_utils.get_current_utc") as mock_time:
             mock_time.return_value = datetime(2025, 1, 15, 12, 0, 0, tzinfo=timezone.utc)
             manager.register_position("TEST-TICKER")
 

@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import pytest
 
-from src.common.utils.http_helpers import build_http_session
+from common.utils.http_helpers import build_http_session
 
 
 class TestBuildHttpSession:
@@ -71,6 +71,6 @@ class TestBuildHttpSession:
 
     def test_module_exports(self) -> None:
         """Module exports build_http_session in __all__."""
-        from src.common.utils import http_helpers
+        from common.utils import http_helpers
 
         assert "build_http_session" in http_helpers.__all__

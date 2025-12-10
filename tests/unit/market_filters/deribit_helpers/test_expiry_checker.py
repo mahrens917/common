@@ -2,7 +2,7 @@
 
 from datetime import datetime, timezone
 
-from src.common.market_filters.deribit_helpers.expiry_checker import ExpiryChecker
+from common.market_filters.deribit_helpers.expiry_checker import ExpiryChecker
 
 
 class TestExpiryCheckerNormalizeExpiry:

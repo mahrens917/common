@@ -11,7 +11,7 @@ from datetime import datetime
 from enum import Enum
 from typing import Optional, cast
 
-from src.common.validation_guards import require
+from common.validation_guards import require
 
 from .trading import OrderAction, OrderSide
 

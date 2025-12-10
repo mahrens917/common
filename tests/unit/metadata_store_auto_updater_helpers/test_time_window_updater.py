@@ -4,11 +4,11 @@ from unittest.mock import AsyncMock, MagicMock, Mock, patch
 
 import pytest
 
-from src.common.metadata_store_auto_updater_helpers.time_window_updater import TimeWindowUpdater
-from src.common.metadata_store_auto_updater_helpers.time_window_updater_helpers.hash_validator import (
+from common.metadata_store_auto_updater_helpers.time_window_updater import TimeWindowUpdater
+from common.metadata_store_auto_updater_helpers.time_window_updater_helpers.hash_validator import (
     HashValidator,
 )
-from src.common.metadata_store_auto_updater_helpers.time_window_updater_helpers.service_updater import (
+from common.metadata_store_auto_updater_helpers.time_window_updater_helpers.service_updater import (
     ServiceUpdater,
     _calculate_window_counts,
     _persist_counts,
@@ -56,7 +56,7 @@ class TestTimeWindowUpdater:
         with (
             patch("asyncio.sleep", side_effect=side_effect),
             patch(
-                "src.common.metadata_store_auto_updater_helpers.time_window_updater.logger"
+                "common.metadata_store_auto_updater_helpers.time_window_updater.logger"
             ) as mock_logger,
         ):
             await updater.run()
@@ -93,15 +93,15 @@ class TestServiceUpdater:
 
         with (
             patch(
-                "src.common.metadata_store_auto_updater_helpers.time_window_updater_helpers.service_updater._ensure_supported_hash",
+                "common.metadata_store_auto_updater_helpers.time_window_updater_helpers.service_updater._ensure_supported_hash",
                 return_value=True,
             ),
-            patch("src.common.time_utils.get_current_utc") as mock_time,
+            patch("common.time_utils.get_current_utc") as mock_time,
             patch(
-                "src.common.metadata_store_auto_updater_helpers.time_window_updater_helpers.service_updater._calculate_window_counts"
+                "common.metadata_store_auto_updater_helpers.time_window_updater_helpers.service_updater._calculate_window_counts"
             ) as mock_calc,
             patch(
-                "src.common.metadata_store_auto_updater_helpers.time_window_updater_helpers.service_updater._persist_counts"
+                "common.metadata_store_auto_updater_helpers.time_window_updater_helpers.service_updater._persist_counts"
             ) as mock_persist,
         ):
 
@@ -116,7 +116,7 @@ class TestServiceUpdater:
     @pytest.mark.asyncio
     async def test_update_service_time_windows_unsupported_hash(self, updater):
         with patch(
-            "src.common.metadata_store_auto_updater_helpers.time_window_updater_helpers.service_updater._ensure_supported_hash",
+            "common.metadata_store_auto_updater_helpers.time_window_updater_helpers.service_updater._ensure_supported_hash",
             return_value=False,
         ):
             await updater.update_service_time_windows("test_service")
@@ -126,7 +126,7 @@ class TestServiceUpdater:
     async def test_update_service_time_windows_no_client(self, updater):
         updater.redis_client = None
         with patch(
-            "src.common.metadata_store_auto_updater_helpers.time_window_updater_helpers.service_updater._ensure_supported_hash",
+            "common.metadata_store_auto_updater_helpers.time_window_updater_helpers.service_updater._ensure_supported_hash",
             return_value=True,
         ):
             await updater.update_service_time_windows("test_service")

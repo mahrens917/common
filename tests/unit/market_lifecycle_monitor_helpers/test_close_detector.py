@@ -2,9 +2,9 @@
 
 import pytest
 
-from src.common.data_models.trading import OrderSide, PortfolioPosition
-from src.common.market_lifecycle_monitor_helpers.close_detector import CloseDetector
-from src.common.trading_exceptions import KalshiTradingError
+from common.data_models.trading import OrderSide, PortfolioPosition
+from common.market_lifecycle_monitor_helpers.close_detector import CloseDetector
+from common.trading_exceptions import KalshiTradingError
 
 
 class _StubTradingClient:

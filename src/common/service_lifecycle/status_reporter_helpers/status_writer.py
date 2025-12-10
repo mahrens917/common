@@ -8,8 +8,8 @@ from typing import Any, Dict
 from redis.asyncio import Redis
 from redis.exceptions import RedisError
 
-from src.common.redis_protocol.typing import ensure_awaitable
-from src.common.service_status import ServiceStatus
+from common.redis_protocol.typing import ensure_awaitable
+from common.service_status import ServiceStatus
 
 logger = logging.getLogger(__name__)
 

@@ -9,7 +9,7 @@ from unittest.mock import AsyncMock, MagicMock
 
 import pytest
 
-from src.common import process_killer
+from common import process_killer
 from tests.helpers.process_killer_test_helper import create_monitor_mock
 
 REAL_CONSOLE = process_killer._console
@@ -135,7 +135,7 @@ async def test_kill_existing_processes_terminates_match(monkeypatch, psutil_stub
         }
     )
 
-    process_monitor_module = importlib.import_module("src.common.process_monitor")
+    process_monitor_module = importlib.import_module("common.process_monitor")
     monkeypatch.setattr(
         process_monitor_module,
         "get_global_process_monitor",
@@ -175,7 +175,7 @@ async def test_kill_existing_processes_force_kill_on_timeout(monkeypatch, psutil
         }
     )
 
-    process_monitor_module = importlib.import_module("src.common.process_monitor")
+    process_monitor_module = importlib.import_module("common.process_monitor")
     monkeypatch.setattr(
         process_monitor_module,
         "get_global_process_monitor",
@@ -213,7 +213,7 @@ async def test_kill_existing_processes_skips_when_no_matches(monkeypatch, psutil
         }
     )
 
-    process_monitor_module = importlib.import_module("src.common.process_monitor")
+    process_monitor_module = importlib.import_module("common.process_monitor")
     monkeypatch.setattr(
         process_monitor_module,
         "get_global_process_monitor",
@@ -266,7 +266,7 @@ async def test_kill_existing_processes_handles_process_lookup_errors(monkeypatch
         {501: SimpleNamespace(name="python", cmdline=["python", "-m", "src.kalshi"])}
     )
 
-    process_monitor_module = importlib.import_module("src.common.process_monitor")
+    process_monitor_module = importlib.import_module("common.process_monitor")
     monkeypatch.setattr(
         process_monitor_module,
         "get_global_process_monitor",
@@ -296,7 +296,7 @@ async def test_kill_existing_processes_handles_termination_exception(monkeypatch
         {602: SimpleNamespace(name="python", cmdline=["python", "-m", "src.kalshi"])}
     )
 
-    process_monitor_module = importlib.import_module("src.common.process_monitor")
+    process_monitor_module = importlib.import_module("common.process_monitor")
     monkeypatch.setattr(
         process_monitor_module,
         "get_global_process_monitor",
@@ -378,7 +378,7 @@ async def test_kill_processes_without_current_exclusion_kills(monkeypatch, psuti
         }
     )
 
-    process_monitor_module = importlib.import_module("src.common.process_monitor")
+    process_monitor_module = importlib.import_module("common.process_monitor")
     monkeypatch.setattr(
         process_monitor_module,
         "get_global_process_monitor",
@@ -404,7 +404,7 @@ async def test_kill_existing_processes_reports_force_kill_timeout(monkeypatch, p
         {800: SimpleNamespace(name="python3", cmdline=["python", "-m", "src.kalshi"])}
     )
 
-    process_monitor_module = importlib.import_module("src.common.process_monitor")
+    process_monitor_module = importlib.import_module("common.process_monitor")
     monkeypatch.setattr(
         process_monitor_module,
         "get_global_process_monitor",
@@ -438,7 +438,7 @@ async def test_kill_existing_processes_handles_kill_race(monkeypatch, psutil_stu
         {801: SimpleNamespace(name="python3", cmdline=["python", "-m", "src.kalshi"])}
     )
 
-    process_monitor_module = importlib.import_module("src.common.process_monitor")
+    process_monitor_module = importlib.import_module("common.process_monitor")
     monkeypatch.setattr(
         process_monitor_module,
         "get_global_process_monitor",
@@ -472,7 +472,7 @@ async def test_kill_existing_processes_handles_error_without_pid(monkeypatch, ps
         {900: SimpleNamespace(name="python3", cmdline=["python", "-m", "src.kalshi"])}
     )
 
-    process_monitor_module = importlib.import_module("src.common.process_monitor")
+    process_monitor_module = importlib.import_module("common.process_monitor")
     monkeypatch.setattr(
         process_monitor_module,
         "get_global_process_monitor",
@@ -522,7 +522,7 @@ async def test_kill_processes_without_current_exclusion_skips_process_errors(
         }
     )
 
-    process_monitor_module = importlib.import_module("src.common.process_monitor")
+    process_monitor_module = importlib.import_module("common.process_monitor")
     monkeypatch.setattr(
         process_monitor_module,
         "get_global_process_monitor",
@@ -557,7 +557,7 @@ async def test_kill_processes_without_current_exclusion_handles_pidless_error(
         }
     )
 
-    process_monitor_module = importlib.import_module("src.common.process_monitor")
+    process_monitor_module = importlib.import_module("common.process_monitor")
     monkeypatch.setattr(
         process_monitor_module,
         "get_global_process_monitor",
@@ -593,7 +593,7 @@ async def test_kill_processes_without_current_exclusion_handles_terminate_failur
         }
     )
 
-    process_monitor_module = importlib.import_module("src.common.process_monitor")
+    process_monitor_module = importlib.import_module("common.process_monitor")
     monkeypatch.setattr(
         process_monitor_module,
         "get_global_process_monitor",
@@ -624,7 +624,7 @@ async def test_kill_processes_without_current_exclusion_reports_graceful_exit(
         }
     )
 
-    process_monitor_module = importlib.import_module("src.common.process_monitor")
+    process_monitor_module = importlib.import_module("common.process_monitor")
     monkeypatch.setattr(
         process_monitor_module,
         "get_global_process_monitor",

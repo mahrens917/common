@@ -5,7 +5,7 @@ from unittest.mock import patch
 
 import pytest
 
-from src.common.data_models.trading import (
+from common.data_models.trading import (
     MarketValidationData,
     OrderAction,
     OrderFill,
@@ -88,7 +88,7 @@ class TestPortfolioBalance:
     def test_validation_called_on_init(self):
         """Test that validation is called during initialization."""
         now = datetime.now(timezone.utc)
-        with patch("src.common.data_models.trading.validate_portfolio_balance") as mock_validate:
+        with patch("common.data_models.trading.validate_portfolio_balance") as mock_validate:
             PortfolioBalance(balance_cents=50000, timestamp=now, currency="USD")
 
             mock_validate.assert_called_once_with(50000, "USD", now)
@@ -121,7 +121,7 @@ class TestPortfolioPosition:
     def test_validation_called_on_init(self):
         """Test that validation is called during initialization."""
         now = datetime.now(timezone.utc)
-        with patch("src.common.data_models.trading.validate_portfolio_position") as mock_validate:
+        with patch("common.data_models.trading.validate_portfolio_position") as mock_validate:
             PortfolioPosition(
                 ticker="KMARKT-25JAN01",
                 position_count=100,
@@ -182,12 +182,12 @@ class TestOrderRequest:
 
     def test_validation_called_on_init(self):
         """Test that all validation functions are called."""
-        with patch("src.common.data_models.trading.validate_order_request_enums") as mock_enum_val:
+        with patch("common.data_models.trading.validate_order_request_enums") as mock_enum_val:
             with patch(
-                "src.common.data_models.trading.validate_order_request_price"
+                "common.data_models.trading.validate_order_request_price"
             ) as mock_price_val:
                 with patch(
-                    "src.common.data_models.trading.validate_order_request_metadata"
+                    "common.data_models.trading.validate_order_request_metadata"
                 ) as mock_meta_val:
                     request = OrderRequest(
                         ticker="KMARKT-25JAN01",
@@ -227,7 +227,7 @@ class TestOrderFill:
     def test_validation_called_on_init(self):
         """Test that validation is called during initialization."""
         now = datetime.now(timezone.utc)
-        with patch("src.common.data_models.trading.validate_order_fill") as mock_validate:
+        with patch("common.data_models.trading.validate_order_fill") as mock_validate:
             OrderFill(price_cents=75, count=10, timestamp=now)
 
             mock_validate.assert_called_once_with(75, 10, now)
@@ -312,18 +312,18 @@ class TestOrderResponse:
             OrderFill(price_cents=DEFAULT_FILL_PRICE, count=DEFAULT_FILLED_COUNT, timestamp=now)
         ]
 
-        with patch("src.common.data_models.trading.validate_order_response_enums") as mock_enum_val:
+        with patch("common.data_models.trading.validate_order_response_enums") as mock_enum_val:
             with patch(
-                "src.common.data_models.trading.validate_order_response_counts"
+                "common.data_models.trading.validate_order_response_counts"
             ) as mock_count_val:
                 with patch(
-                    "src.common.data_models.trading.validate_order_response_price"
+                    "common.data_models.trading.validate_order_response_price"
                 ) as mock_price_val:
                     with patch(
-                        "src.common.data_models.trading.validate_order_response_fills"
+                        "common.data_models.trading.validate_order_response_fills"
                     ) as mock_fill_val:
                         with patch(
-                            "src.common.data_models.trading.validate_order_response_metadata"
+                            "common.data_models.trading.validate_order_response_metadata"
                         ) as mock_meta_val:
                             OrderResponse(
                                 order_id="exchange-order-456",
@@ -389,7 +389,7 @@ class TestTradingError:
     def test_validation_called_on_init(self):
         """Test that validation is called during initialization."""
         now = datetime.now(timezone.utc)
-        with patch("src.common.data_models.trading.validate_trading_error") as mock_validate:
+        with patch("common.data_models.trading.validate_trading_error") as mock_validate:
             TradingError(
                 error_code="TEST_ERROR",
                 error_message="Test message",
@@ -447,7 +447,7 @@ class TestMarketValidationData:
         """Test that validation is called during initialization."""
         now = datetime.now(timezone.utc)
         with patch(
-            "src.common.data_models.trading.validate_market_validation_data"
+            "common.data_models.trading.validate_market_validation_data"
         ) as mock_validate:
             MarketValidationData(
                 ticker="KMARKT-25JAN01",

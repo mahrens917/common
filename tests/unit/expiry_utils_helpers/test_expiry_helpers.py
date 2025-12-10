@@ -7,12 +7,12 @@ from types import SimpleNamespace
 
 import pytest
 
-from src.common.exceptions import DataError
-from src.common.expiry_utils_helpers import (
+from common.exceptions import DataError
+from common.expiry_utils_helpers import (
     extract_expiry_from_market,
     parse_expiry_to_datetime,
 )
-from src.common.expiry_utils_helpers.expiry_extractor import extract_expiry_from_market
+from common.expiry_utils_helpers.expiry_extractor import extract_expiry_from_market
 
 
 class TestExpiryUtilsHelpersModule:
@@ -20,13 +20,13 @@ class TestExpiryUtilsHelpersModule:
 
     def test_module_exports_extract_expiry_from_market(self) -> None:
         """Module exports extract_expiry_from_market function."""
-        from src.common import expiry_utils_helpers
+        from common import expiry_utils_helpers
 
         assert "extract_expiry_from_market" in expiry_utils_helpers.__all__
 
     def test_module_exports_parse_expiry_to_datetime(self) -> None:
         """Module exports parse_expiry_to_datetime function."""
-        from src.common import expiry_utils_helpers
+        from common import expiry_utils_helpers
 
         assert "parse_expiry_to_datetime" in expiry_utils_helpers.__all__
 

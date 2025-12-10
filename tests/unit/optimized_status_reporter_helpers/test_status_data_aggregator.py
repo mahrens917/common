@@ -4,7 +4,7 @@ from unittest.mock import AsyncMock, Mock, patch
 
 import pytest
 
-from src.common.optimized_status_reporter_helpers.status_data_aggregator import (
+from common.optimized_status_reporter_helpers.status_data_aggregator import (
     StatusDataAggregator,
     StatusDataCollectors,
 )

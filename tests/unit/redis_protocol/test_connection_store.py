@@ -5,8 +5,8 @@ from unittest.mock import AsyncMock, patch
 
 import pytest
 
-from src.common.connection_state import ConnectionState
-from src.common.redis_protocol.connection_store import ConnectionStateInfo, ConnectionStore
+from common.connection_state import ConnectionState
+from common.redis_protocol.connection_store import ConnectionStateInfo, ConnectionStore
 
 
 class FakeRedis:
@@ -52,7 +52,7 @@ async def test_store_and_get_connection_state(monkeypatch):
     fake = FakeRedis()
     store = ConnectionStore()
     monkeypatch.setattr(
-        "src.common.redis_protocol.connection_store.get_redis_pool",
+        "common.redis_protocol.connection_store.get_redis_pool",
         AsyncMock(return_value=None),
     )
     store.redis_client = fake  # type: ignore[assignment]

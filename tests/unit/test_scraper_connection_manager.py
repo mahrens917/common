@@ -4,7 +4,7 @@ from unittest.mock import AsyncMock, MagicMock
 
 import pytest
 
-from src.common import scraper_connection_manager as scraper_module
+from common import scraper_connection_manager as scraper_module
 
 DEFAULT_SCRAPER_CONNECTION_LIMIT = 10
 DEFAULT_SCRAPER_CONNECTION_LIMIT_PER_HOST = 5

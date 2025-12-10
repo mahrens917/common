@@ -8,20 +8,20 @@ class TestTimeUtilsReexports:
 
     def test_expiry_constants_exported(self) -> None:
         """Test that expiry constants are exported."""
-        from src.common.time_utils import DERIBIT_EXPIRY_HOUR, EPOCH_START
+        from common.time_utils import DERIBIT_EXPIRY_HOUR, EPOCH_START
 
         assert DERIBIT_EXPIRY_HOUR is not None
         assert EPOCH_START is not None
 
     def test_datetime_expiry_class_exported(self) -> None:
         """Test that DateTimeExpiry class is exported."""
-        from src.common.time_utils import DateTimeExpiry
+        from common.time_utils import DateTimeExpiry
 
         assert DateTimeExpiry is not None
 
     def test_expiry_functions_exported(self) -> None:
         """Test that expiry functions are exported."""
-        from src.common.time_utils import (
+        from common.time_utils import (
             calculate_time_to_expiry_years,
             find_closest_expiry,
             format_time_key,
@@ -47,7 +47,7 @@ class TestTimeUtilsReexports:
 
     def test_timezone_functions_exported(self) -> None:
         """Test that timezone functions are exported."""
-        from src.common.time_utils import (
+        from common.time_utils import (
             ensure_timezone_aware,
             format_datetime,
             get_current_date_in_timezone,
@@ -75,19 +75,19 @@ class TestTimeUtilsReexports:
 
     def test_location_function_exported(self) -> None:
         """Test that location function is exported."""
-        from src.common.time_utils import get_timezone_from_coordinates
+        from common.time_utils import get_timezone_from_coordinates
 
         assert callable(get_timezone_from_coordinates)
 
     def test_timestamp_parser_exported(self) -> None:
         """Test that timestamp parser is exported."""
-        from src.common.time_utils import parse_timestamp
+        from common.time_utils import parse_timestamp
 
         assert callable(parse_timestamp)
 
     def test_astronomical_functions_exported(self) -> None:
         """Test that astronomical computation functions are exported."""
-        from src.common.time_utils import (
+        from common.time_utils import (
             calculate_dawn_utc,
             calculate_dusk_utc,
             calculate_local_midnight_utc,
@@ -109,13 +109,13 @@ class TestTimeUtilsReexports:
 
     def test_astronomical_error_exported(self) -> None:
         """Test that AstronomicalComputationError is exported."""
-        from src.common.time_utils import AstronomicalComputationError
+        from common.time_utils import AstronomicalComputationError
 
         assert issubclass(AstronomicalComputationError, Exception)
 
     def test_all_attribute_complete(self) -> None:
         """Test that __all__ contains all expected exports."""
-        from src.common import time_utils
+        from common import time_utils
 
         expected_exports = {
             "AstronomicalComputationError",

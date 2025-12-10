@@ -8,8 +8,8 @@ from typing import Awaitable, Callable, Optional
 
 from redis.exceptions import RedisError
 
-from src.common.redis_protocol.typing import RedisClient, ensure_awaitable
-from src.common.redis_utils import RedisOperationError, get_redis_connection
+from common.redis_protocol.typing import RedisClient, ensure_awaitable
+from common.redis_utils import RedisOperationError, get_redis_connection
 
 logger = logging.getLogger(__name__)
 

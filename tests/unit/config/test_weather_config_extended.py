@@ -3,7 +3,7 @@ from pathlib import Path
 
 import pytest
 
-from src.common.config.weather import (
+from common.config.weather import (
     WeatherConfigError,
     _load_from_directory,
     _resolve_config_json,
@@ -38,7 +38,7 @@ def test_resolve_config_json_branches(monkeypatch, tmp_path):
     assert _resolve_config_json(file_path.name, tmp_path) == {"value": 1}
 
     monkeypatch.setattr(
-        "src.common.config.weather.load_config_json",
+        "common.config.weather.load_config_json",
         lambda name: (_ for _ in ()).throw(WeatherConfigLoadError("missing", ["config_dir"])),
     )
     with pytest.raises(WeatherConfigError):

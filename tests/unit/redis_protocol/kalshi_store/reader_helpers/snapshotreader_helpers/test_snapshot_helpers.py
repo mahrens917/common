@@ -1,19 +1,19 @@
 import pytest
 
-from src.common.redis_protocol.kalshi_store.reader_helpers.snapshotreader_helpers.field_accessor import (
+from common.redis_protocol.kalshi_store.reader_helpers.snapshotreader_helpers.field_accessor import (
     get_market_field,
 )
-from src.common.redis_protocol.kalshi_store.reader_helpers.snapshotreader_helpers.market_tracker import (
+from common.redis_protocol.kalshi_store.reader_helpers.snapshotreader_helpers.market_tracker import (
     is_market_tracked,
 )
-from src.common.redis_protocol.kalshi_store.reader_helpers.snapshotreader_helpers.metadata_operations import (
+from common.redis_protocol.kalshi_store.reader_helpers.snapshotreader_helpers.metadata_operations import (
     get_market_metadata,
 )
-from src.common.redis_protocol.kalshi_store.reader_helpers.snapshotreader_helpers.snapshot_retriever import (
+from common.redis_protocol.kalshi_store.reader_helpers.snapshotreader_helpers.snapshot_retriever import (
     KalshiStoreError,
     get_market_snapshot,
 )
-from src.common.redis_protocol.kalshi_store.reader_helpers.snapshotreader_helpers.subscription_retriever import (
+from common.redis_protocol.kalshi_store.reader_helpers.snapshotreader_helpers.subscription_retriever import (
     get_subscribed_markets,
 )
 
@@ -71,7 +71,7 @@ async def test_get_market_metadata_uses_adapter(monkeypatch):
         return {"field": "value", "yes_bids": "keep", "no_asks": "keep"}
 
     monkeypatch.setattr(
-        "src.common.redis_protocol.kalshi_store.reader_helpers.snapshotreader_helpers.metadata_operations.get_market_snapshot",
+        "common.redis_protocol.kalshi_store.reader_helpers.snapshotreader_helpers.metadata_operations.get_market_snapshot",
         fake_snapshot,
     )
 

@@ -6,9 +6,9 @@ import asyncio
 
 import pytest
 
-from src.common.base_connection_manager_helpers.retry_coordinator import RetryCoordinator
-from src.common.connection_state import ConnectionState
-from src.common.daily_max_state_helpers.config_loader import (
+from common.base_connection_manager_helpers.retry_coordinator import RetryCoordinator
+from common.connection_state import ConnectionState
+from common.daily_max_state_helpers.config_loader import (
     ConfigLoader,
     MetarConfigLoadError,
 )

@@ -11,7 +11,7 @@ from typing import Any, Dict, Optional
 
 import orjson
 
-from src.common.redis_schema import build_kalshi_market_key
+from common.redis_schema import build_kalshi_market_key
 
 from ...market_skip import MarketSkip
 

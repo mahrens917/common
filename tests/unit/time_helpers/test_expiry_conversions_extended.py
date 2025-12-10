@@ -2,8 +2,8 @@ from datetime import datetime, timedelta, timezone
 
 import pytest
 
-from src.common.time_helpers import expiry
-from src.common.time_helpers.expiry_conversions import (
+from common.time_helpers import expiry
+from common.time_helpers.expiry_conversions import (
     DERIBIT_EXPIRY_HOUR,
     EPOCH_START,
     calculate_time_to_expiry_years,
@@ -46,7 +46,7 @@ def test_time_to_expiry_and_epoch_clamping(monkeypatch, caplog):
     # Reset clamp flag in both modules
     monkeypatch.setattr(expiry, "_PRE_EPOCH_CLAMP_LOGGED", False)
     monkeypatch.setattr(
-        "src.common.time_helpers.expiry_conversions._PRE_EPOCH_CLAMP_LOGGED",
+        "common.time_helpers.expiry_conversions._PRE_EPOCH_CLAMP_LOGGED",
         False,
         raising=False,
     )
@@ -108,7 +108,7 @@ def test_resolve_expiry_to_datetime_handles_types(monkeypatch):
         def fromtimestamp(ts, tz=None):
             raise ValueError("bad timestamp")
 
-    monkeypatch.setattr("src.common.time_helpers.expiry_conversions.datetime", FakeDateTime)
+    monkeypatch.setattr("common.time_helpers.expiry_conversions.datetime", FakeDateTime)
     with pytest.raises(ValueError):
         resolve_expiry_to_datetime(123, instrument_name="instr")
 

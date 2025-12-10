@@ -4,7 +4,7 @@ from unittest.mock import AsyncMock
 
 import pytest
 
-from src.common.redis_protocol.probability_store import (
+from common.redis_protocol.probability_store import (
     ProbabilityData,
     ProbabilityDataNotFoundError,
     ProbabilityStore,
@@ -219,7 +219,7 @@ async def test_verify_probability_storage_runs_connectivity(monkeypatch):
         called = True
 
     monkeypatch.setattr(
-        "src.common.redis_protocol.probability_store.verification.run_direct_connectivity_test",
+        "common.redis_protocol.probability_store.verification.run_direct_connectivity_test",
         fake_connectivity,
     )
 

@@ -5,8 +5,8 @@ from unittest.mock import AsyncMock
 import pytest
 from websockets import WebSocketException
 
-from src.common.connection_state import ConnectionState
-from src.common.websocket_connection_manager import WebSocketConnectionManager
+from common.connection_state import ConnectionState
+from common.websocket_connection_manager import WebSocketConnectionManager
 
 DEFAULT_WEBSOCKET_CONNECTION_TIMEOUT_SECONDS = 0.5
 DEFAULT_WEBSOCKET_PONG_TIMEOUT_SECONDS = 0.01
@@ -115,7 +115,7 @@ async def test_establish_connection_uses_websockets_connect(monkeypatch):
     async def fake_connect(*args, **kwargs):
         return connection
 
-    monkeypatch.setattr("src.common.websocket_connection_manager.websockets.connect", fake_connect)
+    monkeypatch.setattr("common.websocket_connection_manager.websockets.connect", fake_connect)
 
     manager = make_manager()
     assert await manager.establish_connection() is True
@@ -135,7 +135,7 @@ async def test_establish_connection_timeout_raises(monkeypatch):
         raise asyncio.TimeoutError
 
     manager = make_manager(connection_factory=factory)
-    monkeypatch.setattr("src.common.websocket_connection_manager.asyncio.wait_for", fake_wait_for)
+    monkeypatch.setattr("common.websocket_connection_manager.asyncio.wait_for", fake_wait_for)
 
     with pytest.raises(TimeoutError):
         await manager.establish_connection()

@@ -4,7 +4,7 @@ from unittest.mock import AsyncMock, MagicMock
 
 import pytest
 
-from src.common.kalshi_trading_client.client_helpers.private_methods import PrivateMethods
+from common.kalshi_trading_client.client_helpers.private_methods import PrivateMethods
 
 
 def _build_private_methods():
@@ -25,7 +25,7 @@ def test_order_operations_wrappers(monkeypatch):
     order_ops.has_sufficient_balance_for_trade_with_fees.return_value = True
 
     monkeypatch.setattr(
-        "src.common.kalshi_trading_client.client_helpers.order_operations.OrderOperations",
+        "common.kalshi_trading_client.client_helpers.order_operations.OrderOperations",
         order_ops,
     )
 
@@ -53,7 +53,7 @@ def test_trade_context_resolver_wrappers(monkeypatch):
     resolver.resolve_trade_context.return_value = ("type", None)
 
     monkeypatch.setattr(
-        "src.common.kalshi_trading_client.client_helpers.trade_context.TradeContextResolver",
+        "common.kalshi_trading_client.client_helpers.trade_context.TradeContextResolver",
         resolver,
     )
 
@@ -72,7 +72,7 @@ async def test_async_operations(monkeypatch):
     instance = _build_private_methods()
     calculation = AsyncMock(return_value=10)
     monkeypatch.setattr(
-        "src.common.kalshi_trading_client.services.order_helpers.fee_calculator.calculate_order_fees",
+        "common.kalshi_trading_client.services.order_helpers.fee_calculator.calculate_order_fees",
         calculation,
     )
 
@@ -80,7 +80,7 @@ async def test_async_operations(monkeypatch):
     order_ops.get_trade_metadata_from_order = AsyncMock(return_value=("rule", "reason"))
 
     monkeypatch.setattr(
-        "src.common.kalshi_trading_client.client_helpers.order_operations.OrderOperations",
+        "common.kalshi_trading_client.client_helpers.order_operations.OrderOperations",
         order_ops,
     )
 
@@ -106,7 +106,7 @@ def test_factory_methods_wrappers(monkeypatch):
     factory.create_trade_finalizer.return_value = "finalizer"
 
     monkeypatch.setattr(
-        "src.common.kalshi_trading_client.client_helpers.factory_methods.FactoryMethods",
+        "common.kalshi_trading_client.client_helpers.factory_methods.FactoryMethods",
         factory,
     )
 

@@ -6,7 +6,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, List
 
 if TYPE_CHECKING:
-    from src.common.data_models.trading import PortfolioBalance, PortfolioPosition
+    from common.data_models.trading import PortfolioBalance, PortfolioPosition
 
     from ..services import PortfolioService
 

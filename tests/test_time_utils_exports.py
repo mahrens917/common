@@ -2,7 +2,7 @@ import datetime
 
 import pytest
 
-from src.common import time_utils
+from common import time_utils
 
 
 def test_current_utc_is_timezone_aware():

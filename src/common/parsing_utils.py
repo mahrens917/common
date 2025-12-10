@@ -86,7 +86,7 @@ def safe_float_parse(
     """
     Convert value to float with strict error handling.
 
-    Delegates to canonical implementation in src.common.utils.numeric with additional
+    Delegates to canonical implementation in common.utils.numeric with additional
     handling for NaN/infinity rejection.
 
     Args:
@@ -100,7 +100,7 @@ def safe_float_parse(
         ValueError: If value is None, empty, cannot be converted to float,
                    or is NaN/infinity when not allowed
     """
-    from src.common.utils.numeric import coerce_float_strict
+    from common.utils.numeric import coerce_float_strict
 
     if value in (None, ""):
         return otherwise

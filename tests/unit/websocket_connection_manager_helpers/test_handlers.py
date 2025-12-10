@@ -2,7 +2,7 @@
 
 import pytest
 
-from src.common.websocket_connection_manager_helpers import (
+from common.websocket_connection_manager_helpers import (
     message_handler,
     ping_pong_manager,
     ws_connection_handler,

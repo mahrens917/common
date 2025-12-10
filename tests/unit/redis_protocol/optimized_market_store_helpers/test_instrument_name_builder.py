@@ -6,10 +6,10 @@ from dataclasses import replace
 
 import pytest
 
-from src.common.redis_protocol.optimized_market_store_helpers.instrument_name_builder import (
+from common.redis_protocol.optimized_market_store_helpers.instrument_name_builder import (
     InstrumentNameBuilder,
 )
-from src.common.redis_schema import DeribitInstrumentDescriptor, DeribitInstrumentType
+from common.redis_schema import DeribitInstrumentDescriptor, DeribitInstrumentType
 
 
 def _create_descriptor(**overrides) -> DeribitInstrumentDescriptor:

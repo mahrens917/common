@@ -9,7 +9,7 @@ from typing import Dict, Optional
 
 from redis.asyncio import Redis
 
-from src.common.config.redis_schema import get_schema_config
+from common.config.redis_schema import get_schema_config
 
 
 class RedisKeyCounter:

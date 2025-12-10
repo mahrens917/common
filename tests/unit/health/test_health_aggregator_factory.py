@@ -2,8 +2,8 @@
 
 from unittest.mock import MagicMock
 
-from src.common.health import health_aggregator_factory
-from src.common.health.health_aggregator_factory import (
+from common.health import health_aggregator_factory
+from common.health.health_aggregator_factory import (
     OptionalDependencies,
     ServiceHealthAggregatorDependencies,
     ServiceHealthAggregatorFactory,

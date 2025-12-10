@@ -2,7 +2,7 @@ from types import SimpleNamespace
 
 import pytest
 
-from src.common.process_utils import FailedServiceMixin, collect_failed_services
+from common.process_utils import FailedServiceMixin, collect_failed_services
 
 
 def test_collect_failed_services_filters_by_status():

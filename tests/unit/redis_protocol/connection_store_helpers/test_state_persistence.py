@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import json
 
-from src.common.redis_protocol.connection_store_helpers.state_persistence import (
+from common.redis_protocol.connection_store_helpers.state_persistence import (
     try_deserialize_state,
     try_serialize_state,
 )

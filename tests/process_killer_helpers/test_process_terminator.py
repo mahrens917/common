@@ -4,7 +4,7 @@ from typing import Any
 
 import pytest
 
-from src.common.process_killer_helpers import process_terminator as terminator
+from common.process_killer_helpers import process_terminator as terminator
 
 
 @pytest.fixture(autouse=True)

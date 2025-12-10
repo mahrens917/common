@@ -110,7 +110,7 @@ def _resolve_market_strike(metadata: Dict[str, Any]) -> Optional[float]:
     """
     Calculate strike from floor/cap/strike_type metadata.
 
-    Delegates to src.common.strike_helpers.resolve_strike_from_metadata.
+    Delegates to common.strike_helpers.resolve_strike_from_metadata.
 
     Args:
         metadata: Market metadata dictionary
@@ -118,7 +118,7 @@ def _resolve_market_strike(metadata: Dict[str, Any]) -> Optional[float]:
     Returns:
         Calculated strike value or None if cannot be determined
     """
-    from src.common.strike_helpers import resolve_strike_from_metadata
+    from common.strike_helpers import resolve_strike_from_metadata
 
     return resolve_strike_from_metadata(metadata)
 
@@ -129,7 +129,7 @@ def _coerce_strike_bounds(
     """
     Parse floor and cap strike bounds.
 
-    Delegates to src.common.strike_helpers.parse_strike_bounds.
+    Delegates to common.strike_helpers.parse_strike_bounds.
 
     Args:
         floor_strike: Raw floor strike value
@@ -138,7 +138,7 @@ def _coerce_strike_bounds(
     Returns:
         Tuple of (floor_value, cap_value)
     """
-    from src.common.strike_helpers import parse_strike_bounds
+    from common.strike_helpers import parse_strike_bounds
 
     floor_value, cap_value = parse_strike_bounds(floor_strike, cap_strike)
 
@@ -157,7 +157,7 @@ def _resolve_strike_from_bounds(
     """
     Calculate representative strike from bounds.
 
-    Delegates to src.common.strike_helpers.calculate_strike_value.
+    Delegates to common.strike_helpers.calculate_strike_value.
 
     Args:
         strike_type: Type of strike
@@ -167,7 +167,7 @@ def _resolve_strike_from_bounds(
     Returns:
         Calculated strike or None
     """
-    from src.common.strike_helpers import calculate_strike_value
+    from common.strike_helpers import calculate_strike_value
 
     return calculate_strike_value(strike_type, floor_value, cap_value)
 

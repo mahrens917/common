@@ -6,8 +6,8 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Optional
 
 if TYPE_CHECKING:
-    from src.common.redis_protocol.trade_store import TradeStore
-    from src.common.trading import TradeStoreManager
+    from common.redis_protocol.trade_store import TradeStore
+    from common.trading import TradeStoreManager
 
 
 class TradeStoreOperations:

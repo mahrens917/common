@@ -3,7 +3,7 @@ from unittest.mock import AsyncMock, MagicMock, patch
 import pytest
 import redis.exceptions
 
-from src.common.redis_protocol.persistence_manager import (
+from common.redis_protocol.persistence_manager import (
     RedisPersistenceManager,
     ensure_redis_persistence,
     get_redis_persistence_status,
@@ -124,7 +124,7 @@ class TestModuleFunctions:
     @pytest.mark.asyncio
     async def test_ensure_redis_persistence_success(self):
         with patch(
-            "src.common.redis_protocol.persistence_manager.RedisPersistenceManager"
+            "common.redis_protocol.persistence_manager.RedisPersistenceManager"
         ) as MockManager:
             manager = MockManager.return_value
             manager.initialize = AsyncMock()
@@ -137,7 +137,7 @@ class TestModuleFunctions:
     @pytest.mark.asyncio
     async def test_ensure_redis_persistence_needs_config(self):
         with patch(
-            "src.common.redis_protocol.persistence_manager.RedisPersistenceManager"
+            "common.redis_protocol.persistence_manager.RedisPersistenceManager"
         ) as MockManager:
             manager = MockManager.return_value
             manager.initialize = AsyncMock()
@@ -153,7 +153,7 @@ class TestModuleFunctions:
     @pytest.mark.asyncio
     async def test_ensure_redis_persistence_config_fails(self):
         with patch(
-            "src.common.redis_protocol.persistence_manager.RedisPersistenceManager"
+            "common.redis_protocol.persistence_manager.RedisPersistenceManager"
         ) as MockManager:
             manager = MockManager.return_value
             manager.initialize = AsyncMock()
@@ -166,7 +166,7 @@ class TestModuleFunctions:
     @pytest.mark.asyncio
     async def test_get_redis_persistence_status(self):
         with patch(
-            "src.common.redis_protocol.persistence_manager.RedisPersistenceManager"
+            "common.redis_protocol.persistence_manager.RedisPersistenceManager"
         ) as MockManager:
             manager = MockManager.return_value
             manager.initialize = AsyncMock()

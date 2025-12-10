@@ -2,7 +2,7 @@
 
 import logging
 
-from src.common.backoff_manager import random as backoff_random
+from common.backoff_manager import random as backoff_random
 
 from .types import BackoffConfig
 

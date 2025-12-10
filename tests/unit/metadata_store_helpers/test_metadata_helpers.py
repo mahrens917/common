@@ -6,19 +6,19 @@ from unittest.mock import AsyncMock, MagicMock, Mock, patch
 
 import pytest
 
-from src.common.exceptions import DataError
-from src.common.metadata_store_helpers.history_manager import HistoryManager
-from src.common.metadata_store_helpers.metadata_reader import MetadataReader
-from src.common.metadata_store_helpers.metadata_writer import MetadataWriter
+from common.exceptions import DataError
+from common.metadata_store_helpers.history_manager import HistoryManager
+from common.metadata_store_helpers.metadata_reader import MetadataReader
+from common.metadata_store_helpers.metadata_writer import MetadataWriter
 
 DEFAULT_TOTAL_MESSAGE_COUNT = 500
-from src.common.metadata_store_helpers.operations_facade import OperationsFacade
-from src.common.metadata_store_helpers.reader_operations import (
+from common.metadata_store_helpers.operations_facade import OperationsFacade
+from common.metadata_store_helpers.reader_operations import (
     fetch_hash_data,
     fetch_hash_field,
     fetch_service_keys,
 )
-from src.common.metadata_store_helpers.writer_operations import (
+from common.metadata_store_helpers.writer_operations import (
     increment_metadata_counter,
     update_hash_fields,
 )
@@ -140,7 +140,7 @@ class TestMetadataWriter(unittest.IsolatedAsyncioTestCase):
 
     async def test_increment_service_count(self):
         with patch(
-            "src.common.metadata_store_helpers.metadata_writer.increment_metadata_counter",
+            "common.metadata_store_helpers.metadata_writer.increment_metadata_counter",
             new_callable=AsyncMock,
         ) as mock_incr:
             mock_incr.return_value = True
@@ -152,7 +152,7 @@ class TestMetadataWriter(unittest.IsolatedAsyncioTestCase):
 
     async def test_update_time_window_counts(self):
         with patch(
-            "src.common.metadata_store_helpers.metadata_writer.update_hash_fields",
+            "common.metadata_store_helpers.metadata_writer.update_hash_fields",
             new_callable=AsyncMock,
         ) as mock_update:
             mock_update.return_value = True
@@ -169,7 +169,7 @@ class TestMetadataWriter(unittest.IsolatedAsyncioTestCase):
 
     async def test_update_weather_time_window_counts(self):
         with patch(
-            "src.common.metadata_store_helpers.metadata_writer.update_hash_fields",
+            "common.metadata_store_helpers.metadata_writer.update_hash_fields",
             new_callable=AsyncMock,
         ) as mock_update:
             mock_update.return_value = True
@@ -190,7 +190,7 @@ class TestMetadataWriter(unittest.IsolatedAsyncioTestCase):
 
     async def test_initialize_service_count(self):
         with patch(
-            "src.common.metadata_store_helpers.metadata_writer.update_hash_fields",
+            "common.metadata_store_helpers.metadata_writer.update_hash_fields",
             new_callable=AsyncMock,
         ) as mock_update:
             mock_update.return_value = True

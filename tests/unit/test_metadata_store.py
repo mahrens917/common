@@ -4,8 +4,8 @@ from unittest.mock import AsyncMock
 
 import pytest
 
-from src.common import metadata_store as metadata_module
-from src.common.metadata_store import MetadataStore
+from common import metadata_store as metadata_module
+from common.metadata_store import MetadataStore
 
 
 class DummyConnectionManager:

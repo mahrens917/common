@@ -2,7 +2,7 @@
 
 import pytest
 
-from src.common.redis_protocol.kalshi_store.reader_helpers.snapshotreader_helpers import (
+from common.redis_protocol.kalshi_store.reader_helpers.snapshotreader_helpers import (
     market_tracker,
 )
 

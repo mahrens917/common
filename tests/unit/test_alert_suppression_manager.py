@@ -6,7 +6,7 @@ from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 
-from src.common.alert_suppression_manager import (
+from common.alert_suppression_manager import (
     AlertSuppressionManager,
     _build_components,
     _load_rule_and_mapping,
@@ -14,8 +14,8 @@ from src.common.alert_suppression_manager import (
     _SuppressionComponents,
     get_alert_suppression_manager,
 )
-from src.common.alert_suppression_manager_helpers.alert_evaluator import SuppressionRule
-from src.common.alert_suppression_manager_helpers.suppression_tracker import (
+from common.alert_suppression_manager_helpers.alert_evaluator import SuppressionRule
+from common.alert_suppression_manager_helpers.suppression_tracker import (
     AlertType,
     SuppressionDecision,
 )
@@ -45,11 +45,11 @@ class TestLoadRuleAndMapping:
         mock_rule = MagicMock(spec=SuppressionRule)
 
         with patch(
-            "src.common.alert_suppression_manager.load_suppression_config",
+            "common.alert_suppression_manager.load_suppression_config",
             return_value=mock_config,
         ) as mock_load:
             with patch(
-                "src.common.alert_suppression_manager.build_suppression_rule_from_config",
+                "common.alert_suppression_manager.build_suppression_rule_from_config",
                 return_value=mock_rule,
             ):
                 result_rule, mapping = _load_rule_and_mapping(None, "config/test.json")
@@ -97,7 +97,7 @@ class TestLogConfiguration:
         rule.grace_period_seconds = 30
         rule.suppressed_alert_types = [AlertType.ERROR_LOG, AlertType.HEALTH_CHECK]
 
-        with patch("src.common.alert_suppression_manager.logger") as mock_logger:
+        with patch("common.alert_suppression_manager.logger") as mock_logger:
             _log_configuration(rule)
 
         mock_logger.debug.assert_called_once()
@@ -117,7 +117,7 @@ class TestAlertSuppressionManager:
         rule.grace_period_seconds = 30
         rule.suppressed_alert_types = []
 
-        with patch("src.common.alert_suppression_manager.logger"):
+        with patch("common.alert_suppression_manager.logger"):
             manager = AlertSuppressionManager(suppression_rule=rule)
 
         assert manager.suppression_rule is rule
@@ -136,14 +136,14 @@ class TestAlertSuppressionManager:
         mock_rule.suppressed_alert_types = []
 
         with patch(
-            "src.common.alert_suppression_manager.load_suppression_config",
+            "common.alert_suppression_manager.load_suppression_config",
             return_value=mock_config,
         ):
             with patch(
-                "src.common.alert_suppression_manager.build_suppression_rule_from_config",
+                "common.alert_suppression_manager.build_suppression_rule_from_config",
                 return_value=mock_rule,
             ):
-                with patch("src.common.alert_suppression_manager.logger"):
+                with patch("common.alert_suppression_manager.logger"):
                     manager = AlertSuppressionManager(config_path="config/test.json")
 
         assert manager.suppression_rule is mock_rule
@@ -156,7 +156,7 @@ class TestAlertSuppressionManager:
         rule.grace_period_seconds = 30
         rule.suppressed_alert_types = []
 
-        with patch("src.common.alert_suppression_manager.logger"):
+        with patch("common.alert_suppression_manager.logger"):
             manager = AlertSuppressionManager(suppression_rule=rule)
 
         assert hasattr(manager, "dependency_init")
@@ -180,7 +180,7 @@ class TestAlertSuppressionManagerInitialize:
         rule.grace_period_seconds = 30
         rule.suppressed_alert_types = []
 
-        with patch("src.common.alert_suppression_manager.logger"):
+        with patch("common.alert_suppression_manager.logger"):
             manager = AlertSuppressionManager(suppression_rule=rule)
 
         manager.dependency_init = AsyncMock()
@@ -199,7 +199,7 @@ class TestAlertSuppressionManagerInitialize:
         rule.grace_period_seconds = 30
         rule.suppressed_alert_types = []
 
-        with patch("src.common.alert_suppression_manager.logger"):
+        with patch("common.alert_suppression_manager.logger"):
             manager = AlertSuppressionManager(suppression_rule=rule)
 
         mock_classifier = MagicMock()
@@ -208,7 +208,7 @@ class TestAlertSuppressionManagerInitialize:
         manager.dependency_init.error_classifier = mock_classifier
 
         with patch(
-            "src.common.alert_suppression_manager_helpers.error_classifier_adapter.ErrorClassifierAdapter"
+            "common.alert_suppression_manager_helpers.error_classifier_adapter.ErrorClassifierAdapter"
         ):
             await manager.initialize()
 
@@ -225,7 +225,7 @@ class TestAlertSuppressionManagerResolveServiceType:
         rule.grace_period_seconds = 30
         rule.suppressed_alert_types = []
 
-        with patch("src.common.alert_suppression_manager.logger"):
+        with patch("common.alert_suppression_manager.logger"):
             manager = AlertSuppressionManager(suppression_rule=rule)
 
         manager.service_type_mapping = {"kalshi": "exchange", "weather": "data_source"}
@@ -241,7 +241,7 @@ class TestAlertSuppressionManagerResolveServiceType:
         rule.grace_period_seconds = 30
         rule.suppressed_alert_types = []
 
-        with patch("src.common.alert_suppression_manager.logger"):
+        with patch("common.alert_suppression_manager.logger"):
             manager = AlertSuppressionManager(suppression_rule=rule)
 
         manager.service_type_mapping = {"kalshi": "exchange"}
@@ -264,7 +264,7 @@ class TestAlertSuppressionManagerShouldSuppressAlert:
         rule.grace_period_seconds = 30
         rule.suppressed_alert_types = []
 
-        with patch("src.common.alert_suppression_manager.logger"):
+        with patch("common.alert_suppression_manager.logger"):
             manager = AlertSuppressionManager(suppression_rule=rule)
 
         manager.service_type_mapping = {"kalshi": "exchange"}
@@ -294,7 +294,7 @@ class TestAlertSuppressionManagerGetSuppressionReason:
         rule.grace_period_seconds = 30
         rule.suppressed_alert_types = []
 
-        with patch("src.common.alert_suppression_manager.logger"):
+        with patch("common.alert_suppression_manager.logger"):
             manager = AlertSuppressionManager(suppression_rule=rule)
 
         mock_decision = MagicMock()
@@ -314,7 +314,7 @@ class TestAlertSuppressionManagerGetSuppressionReason:
         rule.grace_period_seconds = 30
         rule.suppressed_alert_types = []
 
-        with patch("src.common.alert_suppression_manager.logger"):
+        with patch("common.alert_suppression_manager.logger"):
             manager = AlertSuppressionManager(suppression_rule=rule)
 
         mock_decision = MagicMock()
@@ -337,7 +337,7 @@ class TestAlertSuppressionManagerClassifyErrorType:
         rule.grace_period_seconds = 30
         rule.suppressed_alert_types = []
 
-        with patch("src.common.alert_suppression_manager.logger"):
+        with patch("common.alert_suppression_manager.logger"):
             manager = AlertSuppressionManager(suppression_rule=rule)
 
         manager.error_adapter = MagicMock()
@@ -361,7 +361,7 @@ class TestAlertSuppressionManagerIsReconnectionError:
         rule.grace_period_seconds = 30
         rule.suppressed_alert_types = []
 
-        with patch("src.common.alert_suppression_manager.logger"):
+        with patch("common.alert_suppression_manager.logger"):
             manager = AlertSuppressionManager(suppression_rule=rule)
 
         manager.error_adapter = MagicMock()
@@ -386,7 +386,7 @@ class TestSuppressionStats:
         rule.max_suppression_duration_seconds = DEFAULT_SUPPRESSION_DURATION_SECONDS
         rule.suppressed_alert_types = [AlertType.ERROR_LOG]
 
-        with patch("src.common.alert_suppression_manager.logger"):
+        with patch("common.alert_suppression_manager.logger"):
             manager = AlertSuppressionManager(suppression_rule=rule)
 
         expected_stats = {
@@ -418,7 +418,7 @@ class TestAlertSuppressionManagerGetRecentDecisions:
         rule.grace_period_seconds = 30
         rule.suppressed_alert_types = []
 
-        with patch("src.common.alert_suppression_manager.logger"):
+        with patch("common.alert_suppression_manager.logger"):
             manager = AlertSuppressionManager(suppression_rule=rule)
 
         mock_decisions = [MagicMock(), MagicMock()]
@@ -437,7 +437,7 @@ class TestAlertSuppressionManagerGetRecentDecisions:
         rule.grace_period_seconds = 30
         rule.suppressed_alert_types = []
 
-        with patch("src.common.alert_suppression_manager.logger"):
+        with patch("common.alert_suppression_manager.logger"):
             manager = AlertSuppressionManager(suppression_rule=rule)
 
         manager.tracker = MagicMock()
@@ -454,7 +454,7 @@ class TestGetAlertSuppressionManager:
     @pytest.mark.asyncio
     async def test_creates_new_instance_when_none_exists(self) -> None:
         """Creates new instance when global is None."""
-        import src.common.alert_suppression_manager as module
+        import common.alert_suppression_manager as module
 
         module._alert_suppression_manager = None
 
@@ -485,7 +485,7 @@ class TestGetAlertSuppressionManager:
     @pytest.mark.asyncio
     async def test_returns_existing_instance(self) -> None:
         """Returns existing instance when already created."""
-        import src.common.alert_suppression_manager as module
+        import common.alert_suppression_manager as module
 
         mock_manager = MagicMock()
         module._alert_suppression_manager = mock_manager

@@ -1,4 +1,4 @@
-from src.common.redis_protocol.kalshi_store.subscription_helpers.key_provider import KeyProvider
+from common.redis_protocol.kalshi_store.subscription_helpers.key_provider import KeyProvider
 
 
 def test_key_provider_properties():

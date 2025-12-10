@@ -3,7 +3,7 @@ from types import SimpleNamespace
 
 import pytest
 
-from src.common.memory_monitor import (
+from common.memory_monitor import (
     MemoryMonitor,
     get_memory_monitor,
     start_service_memory_monitoring,
@@ -173,7 +173,7 @@ async def test_start_and_stop_monitoring_lifecycle(monkeypatch, patch_psutil):
 
 
 def test_get_memory_monitor_returns_cached_instance(monkeypatch):
-    import src.common.memory_monitor as memory_monitor_module
+    import common.memory_monitor as memory_monitor_module
 
     monkeypatch.setattr(memory_monitor_module, "_service_monitors", {})
     monitor_a = get_memory_monitor("svc-a", check_interval_seconds=5)
@@ -183,7 +183,7 @@ def test_get_memory_monitor_returns_cached_instance(monkeypatch):
 
 @pytest.mark.asyncio
 async def test_start_service_memory_monitoring_tracks_collections(monkeypatch, patch_psutil):
-    import src.common.memory_monitor as memory_monitor_module
+    import common.memory_monitor as memory_monitor_module
 
     monkeypatch.setattr(memory_monitor_module, "_service_monitors", {})
     tracked_sizes = {"queue": 0}
@@ -219,7 +219,7 @@ async def test_monitoring_loop_runs_single_iteration(monkeypatch, patch_psutil):
         monitor.shutdown_requested = True
         return snapshot
 
-    monkeypatch.setattr("src.common.memory_monitor.asyncio.sleep", fast_sleep)
+    monkeypatch.setattr("common.memory_monitor.asyncio.sleep", fast_sleep)
     monkeypatch.setattr(monitor, "take_snapshot", wrapped_snapshot)
 
     await monitor._monitoring_loop()
@@ -238,7 +238,7 @@ async def test_monitoring_loop_handles_snapshot_errors(monkeypatch, patch_psutil
     def failing_snapshot():
         raise ValueError("boom")
 
-    monkeypatch.setattr("src.common.memory_monitor.asyncio.sleep", fast_sleep)
+    monkeypatch.setattr("common.memory_monitor.asyncio.sleep", fast_sleep)
     monkeypatch.setattr(monitor, "take_snapshot", failing_snapshot)
 
     await monitor._monitoring_loop()
@@ -271,7 +271,7 @@ async def test_start_monitoring_warns_when_already_running(monkeypatch, patch_ps
 
 @pytest.mark.asyncio
 async def test_start_service_memory_monitoring_propagates_failure(monkeypatch, patch_psutil):
-    import src.common.memory_monitor as memory_monitor_module
+    import common.memory_monitor as memory_monitor_module
 
     monkeypatch.setattr(memory_monitor_module, "_service_monitors", {})
 

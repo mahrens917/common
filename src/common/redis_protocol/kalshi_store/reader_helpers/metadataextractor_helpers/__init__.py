@@ -1,6 +1,6 @@
 """Helper modules for MetadataExtractor functionality."""
 
-from src.common.redis_protocol.kalshi_store.reader_helpers.metadataextractor_helpers.strike_resolver import (
+from common.redis_protocol.kalshi_store.reader_helpers.metadataextractor_helpers.strike_resolver import (
     StrikeResolver,
 )
 

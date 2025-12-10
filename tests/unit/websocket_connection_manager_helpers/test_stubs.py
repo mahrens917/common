@@ -2,9 +2,9 @@
 
 import pytest
 
-from src.common.websocket_connection_manager_helpers.message_handler import MessageHandler
-from src.common.websocket_connection_manager_helpers.ping_pong_manager import PingPongManager
-from src.common.websocket_connection_manager_helpers.ws_connection_handler import (
+from common.websocket_connection_manager_helpers.message_handler import MessageHandler
+from common.websocket_connection_manager_helpers.ping_pong_manager import PingPongManager
+from common.websocket_connection_manager_helpers.ws_connection_handler import (
     WsConnectionHandler,
 )
 

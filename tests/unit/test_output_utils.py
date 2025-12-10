@@ -4,7 +4,7 @@ from pathlib import Path
 
 import pytest
 
-from src.common import output_utils
+from common import output_utils
 
 
 def _set_root_handlers(root_logger: logging.Logger, handlers: list[logging.Handler]) -> None:
@@ -18,7 +18,7 @@ def test_output_console_with_headers(
     monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
 ) -> None:
     monkeypatch.setattr(
-        "src.common.time_utils.get_current_utc", lambda: datetime(2024, 1, 2, 3, 4, 5), raising=True
+        "common.time_utils.get_current_utc", lambda: datetime(2024, 1, 2, 3, 4, 5), raising=True
     )
 
     output_utils.output("test message", level="warning", headers=True, log=False)

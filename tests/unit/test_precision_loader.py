@@ -3,7 +3,7 @@ from pathlib import Path
 
 import pytest
 
-from src.common.precision_loader import (
+from common.precision_loader import (
     PrecisionConfigError,
     _load_precision_config,
     get_asos_precision,
@@ -39,7 +39,7 @@ def test_precision_loader_resolves_relative_manifest_path(monkeypatch, tmp_path)
     )
 
     monkeypatch.setattr(
-        "src.common.precision_loader._PRECISION_SETTINGS_PATH",
+        "common.precision_loader._PRECISION_SETTINGS_PATH",
         settings_path,
     )
     monkeypatch.delenv("WEATHER_PRECISION_CONFIG_PATH", raising=False)
@@ -75,7 +75,7 @@ def test_precision_loader_missing_station(monkeypatch, tmp_path):
         encoding="utf-8",
     )
     monkeypatch.setattr(
-        "src.common.precision_loader._PRECISION_SETTINGS_PATH",
+        "common.precision_loader._PRECISION_SETTINGS_PATH",
         settings_path,
     )
 
@@ -95,7 +95,7 @@ def test_precision_loader_invalid_source(monkeypatch, tmp_path):
         encoding="utf-8",
     )
     monkeypatch.setattr(
-        "src.common.precision_loader._PRECISION_SETTINGS_PATH",
+        "common.precision_loader._PRECISION_SETTINGS_PATH",
         settings_path,
     )
 

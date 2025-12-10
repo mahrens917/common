@@ -3,7 +3,7 @@
 import logging
 from typing import Any, Optional
 
-from src.common.redis_protocol.typing import ensure_awaitable
+from common.redis_protocol.typing import ensure_awaitable
 
 logger = logging.getLogger(__name__)
 

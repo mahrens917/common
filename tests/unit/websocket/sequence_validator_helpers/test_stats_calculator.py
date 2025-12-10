@@ -2,7 +2,7 @@
 
 from unittest.mock import MagicMock, patch
 
-from src.common.websocket.sequence_validator_helpers.stats_calculator import (
+from common.websocket.sequence_validator_helpers.stats_calculator import (
     StatsCalculator,
 )
 
@@ -69,7 +69,7 @@ class TestStatsCalculator:
         calculator = StatsCalculator("deribit", 10, mock_state)
 
         with patch(
-            "src.common.websocket.sequence_validator_helpers.stats_calculator.logger"
+            "common.websocket.sequence_validator_helpers.stats_calculator.logger"
         ) as mock_logger:
             calculator.log_stats()
 
@@ -83,7 +83,7 @@ class TestStatsCalculator:
         calculator = StatsCalculator("deribit", 10, mock_state)
 
         with patch(
-            "src.common.websocket.sequence_validator_helpers.stats_calculator.logger"
+            "common.websocket.sequence_validator_helpers.stats_calculator.logger"
         ) as mock_logger:
             calculator.log_stats()
 

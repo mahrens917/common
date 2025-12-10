@@ -8,7 +8,7 @@ from unittest.mock import patch
 
 import pytest
 
-from src.common.market_filters.kalshi_helpers.result_builder import (
+from common.market_filters.kalshi_helpers.result_builder import (
     MarketPricingInfo,
     MarketStrikeInfo,
     build_failure_result,
@@ -209,7 +209,7 @@ class TestBuildSuccessResult:
         )
 
         with patch(
-            "src.common.market_filters.kalshi_helpers.pricing_validator.check_side_validity"
+            "common.market_filters.kalshi_helpers.pricing_validator.check_side_validity"
         ) as mock_check:
             mock_check.return_value = True
             result = build_success_result(strike_info, pricing_info)
@@ -237,7 +237,7 @@ class TestBuildSuccessResult:
         )
 
         with patch(
-            "src.common.market_filters.kalshi_helpers.pricing_validator.check_side_validity"
+            "common.market_filters.kalshi_helpers.pricing_validator.check_side_validity"
         ) as mock_check:
             mock_check.return_value = True
             result = build_success_result(strike_info, pricing_info)
@@ -268,7 +268,7 @@ class TestBuildSuccessResult:
         )
 
         with patch(
-            "src.common.market_filters.kalshi_helpers.pricing_validator.check_side_validity"
+            "common.market_filters.kalshi_helpers.pricing_validator.check_side_validity"
         ) as mock_check:
             mock_check.return_value = True
             result = build_success_result(strike_info, pricing_info)
@@ -298,7 +298,7 @@ class TestBuildSuccessResult:
         )
 
         with patch(
-            "src.common.market_filters.kalshi_helpers.pricing_validator.check_side_validity"
+            "common.market_filters.kalshi_helpers.pricing_validator.check_side_validity"
         ) as mock_check:
             mock_check.return_value = False
             result = build_success_result(strike_info, pricing_info)
@@ -327,7 +327,7 @@ class TestBuildSuccessResult:
         )
 
         with patch(
-            "src.common.market_filters.kalshi_helpers.pricing_validator.check_side_validity"
+            "common.market_filters.kalshi_helpers.pricing_validator.check_side_validity"
         ) as mock_check:
             mock_check.return_value = True
             result = build_success_result(strike_info, pricing_info)

@@ -3,16 +3,16 @@ from types import SimpleNamespace
 
 import pytest
 
-from src.common.redis_protocol.persistence_manager_helpers.config_orchestrator import (
+from common.redis_protocol.persistence_manager_helpers.config_orchestrator import (
     ConfigOrchestrator,
 )
-from src.common.redis_protocol.persistence_manager_helpers.connection_manager import (
+from common.redis_protocol.persistence_manager_helpers.connection_manager import (
     ConnectionManager as PersistenceConnectionManager,
 )
-from src.common.scraper_connection_manager_helpers.connection_lifecycle import (
+from common.scraper_connection_manager_helpers.connection_lifecycle import (
     ScraperConnectionLifecycle,
 )
-from src.common.scraper_connection_manager_helpers.scraping_operations import ScrapingOperations
+from common.scraper_connection_manager_helpers.scraping_operations import ScrapingOperations
 
 
 class _StubHealth:
@@ -133,11 +133,11 @@ async def test_persistence_connection_manager(monkeypatch):
         return "pool"
 
     monkeypatch.setattr(
-        "src.common.redis_protocol.persistence_manager_helpers.connection_manager.get_redis_pool",
+        "common.redis_protocol.persistence_manager_helpers.connection_manager.get_redis_pool",
         fake_pool,
     )
     monkeypatch.setattr(
-        "src.common.redis_protocol.persistence_manager_helpers.connection_manager.Redis",
+        "common.redis_protocol.persistence_manager_helpers.connection_manager.Redis",
         lambda connection_pool=None, decode_responses=True: StubRedis(),
     )
 
@@ -179,7 +179,7 @@ async def test_config_orchestrator_coordinates(monkeypatch):
 
 @pytest.mark.asyncio
 async def test_content_validation_handler_metrics_and_failures(monkeypatch):
-    from src.common.scraper_connection_manager_helpers.content_validation import (
+    from common.scraper_connection_manager_helpers.content_validation import (
         ContentValidationHandler,
     )
 
@@ -209,7 +209,7 @@ async def test_content_validation_handler_metrics_and_failures(monkeypatch):
 
 @pytest.mark.asyncio
 async def test_scraper_session_manager_lifecycle(monkeypatch):
-    from src.common.scraper_connection_manager_helpers import session_manager
+    from common.scraper_connection_manager_helpers import session_manager
 
     created_sessions = []
 

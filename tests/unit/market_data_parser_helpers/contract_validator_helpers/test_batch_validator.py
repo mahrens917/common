@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from unittest.mock import MagicMock, patch
 
-from src.common.market_data_parser_helpers.contract_validator_helpers.batch_validator import (
+from common.market_data_parser_helpers.contract_validator_helpers.batch_validator import (
     BatchValidator,
 )
 
@@ -19,7 +19,7 @@ class TestBatchValidator:
         options_data = {"contract_names": ["BTC-25JAN01-100000-C", "BTC-25FEB01-95000-P"]}
 
         with patch(
-            "src.common.market_data_parser_helpers.contract_validator.ContractValidator"
+            "common.market_data_parser_helpers.contract_validator.ContractValidator"
         ) as mock_validator:
             mock_validator.validate_contract.return_value = (True, None, {})
 
@@ -34,7 +34,7 @@ class TestBatchValidator:
         options_data = {"contract_names": ["VALID-1", "INVALID-2", "VALID-3"]}
 
         with patch(
-            "src.common.market_data_parser_helpers.contract_validator.ContractValidator"
+            "common.market_data_parser_helpers.contract_validator.ContractValidator"
         ) as mock_validator:
             mock_validator.validate_contract.side_effect = [
                 (True, None, {}),
@@ -52,7 +52,7 @@ class TestBatchValidator:
         options_data = {"contract_names": ["INVALID-1", "INVALID-2"]}
 
         with patch(
-            "src.common.market_data_parser_helpers.contract_validator.ContractValidator"
+            "common.market_data_parser_helpers.contract_validator.ContractValidator"
         ) as mock_validator:
             mock_validator.validate_contract.side_effect = [
                 (False, "Error 1", {}),
@@ -69,7 +69,7 @@ class TestBatchValidator:
         options_data = {"contract_names": ["CONTRACT-1", "CONTRACT-2", "CONTRACT-3"]}
 
         with patch(
-            "src.common.market_data_parser_helpers.contract_validator.ContractValidator"
+            "common.market_data_parser_helpers.contract_validator.ContractValidator"
         ) as mock_validator:
             mock_validator.validate_contract.side_effect = [
                 (False, "Error 1", {"symbol_mismatches": 1}),
@@ -88,7 +88,7 @@ class TestBatchValidator:
         options_data = {"contract_names": ["CONTRACT-A", "CONTRACT-B"]}
 
         with patch(
-            "src.common.market_data_parser_helpers.contract_validator.ContractValidator"
+            "common.market_data_parser_helpers.contract_validator.ContractValidator"
         ) as mock_validator:
             mock_validator.validate_contract.return_value = (True, None, {})
 
@@ -103,7 +103,7 @@ class TestBatchValidator:
         options_data = {"contract_names": []}
 
         with patch(
-            "src.common.market_data_parser_helpers.contract_validator.ContractValidator"
+            "common.market_data_parser_helpers.contract_validator.ContractValidator"
         ) as mock_validator:
             valid_count, issues, stats = BatchValidator.validate_contracts(options_data, "BTC")
 
@@ -117,7 +117,7 @@ class TestBatchValidator:
         options_data = {"contract_names": ["CONTRACT-1"]}
 
         with patch(
-            "src.common.market_data_parser_helpers.contract_validator.ContractValidator"
+            "common.market_data_parser_helpers.contract_validator.ContractValidator"
         ) as mock_validator:
             mock_validator.validate_contract.return_value = (False, None, {})
 

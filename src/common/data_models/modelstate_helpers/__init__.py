@@ -1,7 +1,7 @@
 """Helper modules for ModelState functionality."""
 
 # Import strike functions from canonical source
-from src.common.strike_helpers import (
+from common.strike_helpers import (
     check_strike_in_range,
     decode_redis_key,
     extract_strike_from_key,

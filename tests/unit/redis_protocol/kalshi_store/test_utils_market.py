@@ -4,7 +4,7 @@ from unittest.mock import patch
 
 import pytest
 
-from src.common.redis_protocol.kalshi_store.utils_market import (
+from common.redis_protocol.kalshi_store.utils_market import (
     _coerce_strike_bounds,
     _extract_orderbook_sizes,
     _normalise_timestamp_numeric,
@@ -86,7 +86,7 @@ class TestUtilsMarket:
 
     def test_extract_orderbook_sizes(self):
         with patch(
-            "src.common.redis_protocol.kalshi_store.utils_market.extract_orderbook_sizes"
+            "common.redis_protocol.kalshi_store.utils_market.extract_orderbook_sizes"
         ) as mock_extract:
             mock_extract.return_value = (10.0, 20.0)
             assert _extract_orderbook_sizes("ticker", {}) == (10.0, 20.0)

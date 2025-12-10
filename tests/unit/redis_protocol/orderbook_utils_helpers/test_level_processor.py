@@ -4,8 +4,8 @@ from unittest.mock import patch
 
 import pytest
 
-from src.common.exceptions import DataError
-from src.common.redis_protocol.orderbook_utils_helpers.level_processor import (
+from common.exceptions import DataError
+from common.redis_protocol.orderbook_utils_helpers.level_processor import (
     LevelProcessor,
 )
 

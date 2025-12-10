@@ -1,6 +1,6 @@
 import pytest
 
-from src.common.config.errors import ConfigurationError
+from common.config.errors import ConfigurationError
 
 
 @pytest.mark.parametrize(

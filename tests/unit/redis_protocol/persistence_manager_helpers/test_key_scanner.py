@@ -6,7 +6,7 @@ from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 
-from src.common.redis_protocol.persistence_manager_helpers.key_scanner import KeyScanner
+from common.redis_protocol.persistence_manager_helpers.key_scanner import KeyScanner
 
 
 class TestKeyScanner:
@@ -43,7 +43,7 @@ class TestGetConfigInfo:
         redis = AsyncMock()
         redis.config_get = AsyncMock(side_effect=RedisError("Connection failed"))
 
-        with patch("src.common.redis_protocol.persistence_manager_helpers.key_scanner.logger"):
+        with patch("common.redis_protocol.persistence_manager_helpers.key_scanner.logger"):
             result = await scanner.get_config_info(redis)
 
         assert result == {}
@@ -55,7 +55,7 @@ class TestGetConfigInfo:
         redis = AsyncMock()
         redis.config_get = AsyncMock(side_effect=ConnectionError("Connection failed"))
 
-        with patch("src.common.redis_protocol.persistence_manager_helpers.key_scanner.logger"):
+        with patch("common.redis_protocol.persistence_manager_helpers.key_scanner.logger"):
             result = await scanner.get_config_info(redis)
 
         assert result == {}
@@ -87,7 +87,7 @@ class TestGetPersistenceInfo:
         redis = AsyncMock()
         redis.info = AsyncMock(side_effect=RedisError("Connection failed"))
 
-        with patch("src.common.redis_protocol.persistence_manager_helpers.key_scanner.logger"):
+        with patch("common.redis_protocol.persistence_manager_helpers.key_scanner.logger"):
             result = await scanner.get_persistence_info(redis)
 
         assert result == {}

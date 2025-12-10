@@ -3,8 +3,8 @@
 import logging
 from typing import Optional, Set
 
-from src.common.exceptions import DataError
-from src.common.redis_protocol.typing import RedisClient
+from common.exceptions import DataError
+from common.redis_protocol.typing import RedisClient
 
 from .data_normalizer import DataNormalizer
 from .reader_operations import fetch_hash_data, fetch_hash_field, fetch_service_keys

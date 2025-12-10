@@ -5,8 +5,8 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
-from src.common.data_conversion.micro_price_helpers.field_resolver import FieldResolver
-from src.common.exceptions import ValidationError
+from common.data_conversion.micro_price_helpers.field_resolver import FieldResolver
+from common.exceptions import ValidationError
 
 
 class TestFieldResolverResolveSymbolForLogging:
@@ -178,7 +178,7 @@ class TestFieldResolverResolveQuoteTimestamp:
         instrument.mark_price_timestamp = None
         instrument.timestamp = None
 
-        with patch("src.common.time_utils.get_current_utc") as mock_get_time:
+        with patch("common.time_utils.get_current_utc") as mock_get_time:
             mock_get_time.return_value = datetime(2025, 1, 15, 12, 0, 0, tzinfo=timezone.utc)
 
             result = FieldResolver.resolve_quote_timestamp(instrument)

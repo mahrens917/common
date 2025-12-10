@@ -17,7 +17,7 @@ from typing import Any, Dict, List, Union
 
 from dateutil import parser
 
-from src.common.exceptions import InvalidMarketDataError, ValidationError
+from common.exceptions import InvalidMarketDataError, ValidationError
 
 logger = logging.getLogger(__name__)
 
@@ -70,10 +70,10 @@ def _compute_time_to_expiry_years(expiry_time: datetime, current_time: datetime)
     """
     Return the difference between two datetimes expressed in years.
 
-    Delegates to canonical implementation in src.common.time_helpers.expiry_conversions.
+    Delegates to canonical implementation in common.time_helpers.expiry_conversions.
     Note: parameter order is reversed compared to canonical (expiry first, current second).
     """
-    from src.common.time_helpers.expiry_conversions import (
+    from common.time_helpers.expiry_conversions import (
         calculate_time_to_expiry_years as _calculate_canonical,
     )
 

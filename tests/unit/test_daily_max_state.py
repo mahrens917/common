@@ -3,7 +3,7 @@ from datetime import datetime, timezone
 
 import pytest
 
-from src.common.daily_max_state import DailyMaxState, MetarConfigLoadError, cli_temp_f
+from common.daily_max_state import DailyMaxState, MetarConfigLoadError, cli_temp_f
 
 _CONST_100 = 100
 _CONST_32 = 32

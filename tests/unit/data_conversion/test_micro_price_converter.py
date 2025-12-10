@@ -3,7 +3,7 @@
 from datetime import datetime
 from unittest.mock import MagicMock, patch
 
-from src.common.data_conversion.micro_price_converter import MicroPriceConverter
+from common.data_conversion.micro_price_converter import MicroPriceConverter
 
 
 class TestMicroPriceConverterConvertSingle:
@@ -19,16 +19,16 @@ class TestMicroPriceConverterConvertSingle:
 
         # Patch the helper modules at their source location (the package __init__)
         with patch(
-            "src.common.data_conversion.micro_price_helpers.FieldValidator"
+            "common.data_conversion.micro_price_helpers.FieldValidator"
         ) as mock_validator_cls:
             with patch(
-                "src.common.data_conversion.micro_price_helpers.FieldResolver"
+                "common.data_conversion.micro_price_helpers.FieldResolver"
             ) as mock_resolver_cls:
                 with patch(
-                    "src.common.data_conversion.micro_price_helpers.MetricsCalculator"
+                    "common.data_conversion.micro_price_helpers.MetricsCalculator"
                 ) as mock_calculator_cls:
                     with patch(
-                        "src.common.data_conversion.micro_price_converter.MicroPriceOptionData"
+                        "common.data_conversion.micro_price_converter.MicroPriceOptionData"
                     ) as mock_data_cls:
                         # Setup mocks
                         mock_validator_cls.extract_prices_and_sizes.return_value = (
@@ -74,7 +74,7 @@ class TestMicroPriceConverterConvertList:
         mock_result = [MagicMock(), MagicMock()]
 
         with patch(
-            "src.common.data_conversion.micro_price_helpers.BatchConverter"
+            "common.data_conversion.micro_price_helpers.BatchConverter"
         ) as mock_batch_cls:
             mock_batch_cls.convert_instruments_to_micro_price_data.return_value = mock_result
 
@@ -91,7 +91,7 @@ class TestMicroPriceConverterConvertList:
         mock_result = [MagicMock()]
 
         with patch(
-            "src.common.data_conversion.micro_price_helpers.BatchConverter"
+            "common.data_conversion.micro_price_helpers.BatchConverter"
         ) as mock_batch_cls:
             mock_batch_cls.convert_instruments_to_micro_price_data.return_value = mock_result
 

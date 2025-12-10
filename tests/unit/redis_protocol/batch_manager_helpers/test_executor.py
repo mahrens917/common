@@ -8,7 +8,7 @@ from unittest.mock import AsyncMock, patch
 import pytest
 from redis.exceptions import RedisError
 
-from src.common.redis_protocol.batch_manager_helpers.executor import BatchExecutor
+from common.redis_protocol.batch_manager_helpers.executor import BatchExecutor
 
 
 class TestBatchExecutor:
@@ -63,7 +63,7 @@ class TestExecute:
         batch = ["item1"]
 
         # Patch logger to prevent logging format error from masking the test
-        with patch("src.common.redis_protocol.batch_manager_helpers.executor.logger"):
+        with patch("common.redis_protocol.batch_manager_helpers.executor.logger"):
             with pytest.raises(RedisError):
                 await executor.execute(batch, batch_size=1, batch_time=0.1, reason="test")
 
@@ -74,7 +74,7 @@ class TestExecute:
         executor = BatchExecutor[str](process_batch=process_batch, name="test")
         batch = ["item1"]
 
-        with patch("src.common.redis_protocol.batch_manager_helpers.executor.logger"):
+        with patch("common.redis_protocol.batch_manager_helpers.executor.logger"):
             with pytest.raises(ConnectionError):
                 await executor.execute(batch, batch_size=1, batch_time=0.1, reason="test")
 
@@ -85,7 +85,7 @@ class TestExecute:
         executor = BatchExecutor[str](process_batch=process_batch, name="test")
         batch = ["item1"]
 
-        with patch("src.common.redis_protocol.batch_manager_helpers.executor.logger"):
+        with patch("common.redis_protocol.batch_manager_helpers.executor.logger"):
             with pytest.raises(TimeoutError):
                 await executor.execute(batch, batch_size=1, batch_time=0.1, reason="test")
 
@@ -96,7 +96,7 @@ class TestExecute:
         executor = BatchExecutor[str](process_batch=process_batch, name="test")
         batch = ["item1"]
 
-        with patch("src.common.redis_protocol.batch_manager_helpers.executor.logger"):
+        with patch("common.redis_protocol.batch_manager_helpers.executor.logger"):
             with pytest.raises(RuntimeError):
                 await executor.execute(batch, batch_size=1, batch_time=0.1, reason="test")
 
@@ -107,7 +107,7 @@ class TestExecute:
         executor = BatchExecutor[str](process_batch=process_batch, name="test")
         batch = ["item1"]
 
-        with patch("src.common.redis_protocol.batch_manager_helpers.executor.logger"):
+        with patch("common.redis_protocol.batch_manager_helpers.executor.logger"):
             with pytest.raises(ValueError):
                 await executor.execute(batch, batch_size=1, batch_time=0.1, reason="test")
 
@@ -128,7 +128,7 @@ class TestExecute:
         executor = BatchExecutor[str](process_batch=process_batch, name="test")
         batch = ["item1"]
 
-        with patch("src.common.redis_protocol.batch_manager_helpers.executor.logger"):
+        with patch("common.redis_protocol.batch_manager_helpers.executor.logger"):
             with pytest.raises(OSError):
                 await executor.execute(batch, batch_size=1, batch_time=0.1, reason="test")
 

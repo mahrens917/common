@@ -7,7 +7,7 @@ from typing import Any, Optional
 
 from redis.asyncio import Redis
 
-from src.common.redis_schema.operations import ServiceStatusKey
+from common.redis_schema.operations import ServiceStatusKey
 
 logger = logging.getLogger(__name__)
 

@@ -5,15 +5,15 @@ from __future__ import annotations
 import logging
 from typing import Any, Dict, Optional, Protocol, cast
 
-from src.common.backoff_manager_helpers import (
+from common.backoff_manager_helpers import (
     DEFAULT_BACKOFF_CONFIGS,
     BackoffConfig,
     BackoffType,
 )
-from src.common.backoff_manager_helpers.delay_calculator import DelayCalculator
-from src.common.backoff_manager_helpers.retry_checker import RetryChecker
-from src.common.backoff_manager_helpers.state_manager import BackoffStateManager
-from src.common.backoff_manager_helpers.status_reporter import BackoffStatusReporter
+from common.backoff_manager_helpers.delay_calculator import DelayCalculator
+from common.backoff_manager_helpers.retry_checker import RetryChecker
+from common.backoff_manager_helpers.state_manager import BackoffStateManager
+from common.backoff_manager_helpers.status_reporter import BackoffStatusReporter
 
 __all__ = ["BackoffManager", "BackoffConfig", "BackoffType"]
 

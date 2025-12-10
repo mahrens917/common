@@ -2,11 +2,11 @@
 
 import pytest
 
-from src.common.redis_schema.deribit_helpers.key_validator import (
+from common.redis_schema.deribit_helpers.key_validator import (
     VALIDATION_CONFIG,
     DeribitKeyValidator,
 )
-from src.common.redis_schema.markets import (
+from common.redis_schema.markets import (
     DeribitInstrumentDescriptor,
     DeribitInstrumentKey,
     DeribitInstrumentType,

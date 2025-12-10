@@ -5,7 +5,7 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
-from src.common.async_helpers import _resolve_coroutine, safely_schedule_coroutine
+from common.async_helpers import _resolve_coroutine, safely_schedule_coroutine
 
 
 async def sample_coro():

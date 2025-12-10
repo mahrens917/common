@@ -2,8 +2,8 @@ import asyncio
 
 import pytest
 
-from src.common.connection_helpers import ensure_session_or_raise, ensure_websocket_or_raise
-from src.common.health.types import HealthCheckResult
+from common.connection_helpers import ensure_session_or_raise, ensure_websocket_or_raise
+from common.health.types import HealthCheckResult
 
 
 class DummyLogger:

@@ -4,14 +4,14 @@ from unittest.mock import patch
 
 import pytest
 
-from src.common.connectionconfig_helpers.config_loader import (
+from common.connectionconfig_helpers.config_loader import (
     load_weather_config,
     load_websocket_config,
     require_env_float,
     require_env_int,
     resolve_cfb_setting,
 )
-from src.common.exceptions import ConfigurationError
+from common.exceptions import ConfigurationError
 
 
 class TestRequireEnvInt:
@@ -20,7 +20,7 @@ class TestRequireEnvInt:
     def test_returns_env_value_when_set(self) -> None:
         """Returns environment value when set."""
         with patch(
-            "src.common.connectionconfig_helpers.config_loader.env_int",
+            "common.connectionconfig_helpers.config_loader.env_int",
             return_value=42,
         ):
             result = require_env_int("CUSTOM_VAR")
@@ -30,7 +30,7 @@ class TestRequireEnvInt:
     def test_recommends_value_for_known_variable(self) -> None:
         """Reports a recommended value when a known variable is missing."""
         with patch(
-            "src.common.connectionconfig_helpers.config_loader.env_int",
+            "common.connectionconfig_helpers.config_loader.env_int",
             return_value=None,
         ):
             with pytest.raises(ConfigurationError, match="recommended"):
@@ -39,7 +39,7 @@ class TestRequireEnvInt:
     def test_raises_for_unknown_variable(self) -> None:
         """Raises ConfigurationError for unknown variable when env not set."""
         with patch(
-            "src.common.connectionconfig_helpers.config_loader.env_int",
+            "common.connectionconfig_helpers.config_loader.env_int",
             return_value=None,
         ):
             with pytest.raises(ConfigurationError, match="must be defined"):
@@ -52,7 +52,7 @@ class TestRequireEnvFloat:
     def test_returns_env_value_when_set(self) -> None:
         """Returns environment value when set."""
         with patch(
-            "src.common.connectionconfig_helpers.config_loader.env_float",
+            "common.connectionconfig_helpers.config_loader.env_float",
             return_value=3.14,
         ):
             result = require_env_float("CUSTOM_VAR")
@@ -62,7 +62,7 @@ class TestRequireEnvFloat:
     def test_recommends_value_for_known_variable(self) -> None:
         """Reports a recommended value when a known variable is missing."""
         with patch(
-            "src.common.connectionconfig_helpers.config_loader.env_float",
+            "common.connectionconfig_helpers.config_loader.env_float",
             return_value=None,
         ):
             with pytest.raises(ConfigurationError, match="recommended"):
@@ -71,7 +71,7 @@ class TestRequireEnvFloat:
     def test_raises_for_unknown_variable(self) -> None:
         """Raises ConfigurationError for unknown variable when env not set."""
         with patch(
-            "src.common.connectionconfig_helpers.config_loader.env_float",
+            "common.connectionconfig_helpers.config_loader.env_float",
             return_value=None,
         ):
             with pytest.raises(ConfigurationError, match="must be defined"):
@@ -107,7 +107,7 @@ class TestLoadWebsocketConfig:
         """Returns config when file exists."""
         mock_config = {"host": "localhost", "port": 8080}
         with patch(
-            "src.common.connectionconfig_helpers.config_loader.load_config",
+            "common.connectionconfig_helpers.config_loader.load_config",
             return_value=mock_config,
         ):
             result = load_websocket_config()
@@ -117,7 +117,7 @@ class TestLoadWebsocketConfig:
     def test_returns_empty_dict_when_file_not_found(self) -> None:
         """Returns empty dict when file not found."""
         with patch(
-            "src.common.connectionconfig_helpers.config_loader.load_config",
+            "common.connectionconfig_helpers.config_loader.load_config",
             side_effect=FileNotFoundError,
         ):
             result = load_websocket_config()
@@ -137,7 +137,7 @@ class TestLoadWeatherConfig:
             "extra_field": "ignored",
         }
         with patch(
-            "src.common.connectionconfig_helpers.config_loader.load_config",
+            "common.connectionconfig_helpers.config_loader.load_config",
             return_value=mock_config,
         ):
             result = load_weather_config()
@@ -150,7 +150,7 @@ class TestLoadWeatherConfig:
     def test_raises_file_not_found_when_missing(self) -> None:
         """Raises FileNotFoundError when config file missing."""
         with patch(
-            "src.common.connectionconfig_helpers.config_loader.load_config",
+            "common.connectionconfig_helpers.config_loader.load_config",
             side_effect=FileNotFoundError,
         ):
             with pytest.raises(FileNotFoundError, match="not found"):
@@ -163,7 +163,7 @@ class TestLoadWeatherConfig:
             # Missing request_timeout_seconds and reconnection_initial_delay_seconds
         }
         with patch(
-            "src.common.connectionconfig_helpers.config_loader.load_config",
+            "common.connectionconfig_helpers.config_loader.load_config",
             return_value=mock_config,
         ):
             with pytest.raises(ConfigurationError, match="missing required field"):

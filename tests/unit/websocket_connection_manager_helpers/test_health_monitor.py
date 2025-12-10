@@ -5,8 +5,8 @@ from unittest.mock import AsyncMock, Mock, patch
 import pytest
 from websockets import WebSocketException
 
-from src.common.health.types import HealthCheckResult
-from src.common.websocket_connection_manager_helpers.health_monitor import WebSocketHealthMonitor
+from common.health.types import HealthCheckResult
+from common.websocket_connection_manager_helpers.health_monitor import WebSocketHealthMonitor
 
 
 class TestWebSocketHealthMonitor:

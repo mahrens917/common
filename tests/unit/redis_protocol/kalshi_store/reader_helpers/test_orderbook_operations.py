@@ -4,7 +4,7 @@ from unittest.mock import AsyncMock, MagicMock
 
 import pytest
 
-from src.common.redis_protocol.kalshi_store.reader_helpers.orderbook_operations import (
+from common.redis_protocol.kalshi_store.reader_helpers.orderbook_operations import (
     get_orderbook_side_with_connection_check,
     get_orderbook_with_connection_check,
 )

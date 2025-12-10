@@ -3,8 +3,8 @@
 import logging
 from typing import Optional
 
-from src.common.redis_protocol.typing import RedisClient
-from src.common.redis_utils import get_redis_connection
+from common.redis_protocol.typing import RedisClient
+from common.redis_utils import get_redis_connection
 
 logger = logging.getLogger(__name__)
 

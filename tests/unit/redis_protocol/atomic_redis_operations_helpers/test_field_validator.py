@@ -6,7 +6,7 @@ from unittest.mock import MagicMock
 
 import pytest
 
-from src.common.redis_protocol.atomic_redis_operations_helpers.field_validator import (
+from common.redis_protocol.atomic_redis_operations_helpers.field_validator import (
     FieldValidator,
     RedisDataValidationError,
 )

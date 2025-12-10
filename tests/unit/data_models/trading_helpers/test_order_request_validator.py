@@ -1,8 +1,8 @@
 import unittest
 from unittest.mock import MagicMock, Mock
 
-from src.common.data_models.trading import OrderAction, OrderSide, OrderType, TimeInForce
-from src.common.data_models.trading_helpers.order_request_validator import (
+from common.data_models.trading import OrderAction, OrderSide, OrderType, TimeInForce
+from common.data_models.trading_helpers.order_request_validator import (
     validate_order_request_enums,
     validate_order_request_metadata,
     validate_order_request_price,

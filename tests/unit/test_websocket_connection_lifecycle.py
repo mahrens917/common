@@ -2,7 +2,7 @@ from unittest.mock import AsyncMock
 
 import pytest
 
-from src.common.websocket_connection_manager_helpers.connection_lifecycle import (
+from common.websocket_connection_manager_helpers.connection_lifecycle import (
     WebSocketConnectionLifecycle,
     _validate_connection,
 )

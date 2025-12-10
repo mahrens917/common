@@ -6,7 +6,7 @@ from unittest.mock import AsyncMock
 
 import pytest
 
-from src.common.redis_protocol.kalshi_store.reader_helpers.expiry_operations import (
+from common.redis_protocol.kalshi_store.reader_helpers.expiry_operations import (
     check_expiry_status,
     check_settlement_status,
 )

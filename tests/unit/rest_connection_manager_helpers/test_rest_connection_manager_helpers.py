@@ -5,10 +5,10 @@ from unittest.mock import AsyncMock
 import aiohttp
 import pytest
 
-from src.common.rest_connection_manager_helpers.connection_lifecycle import RESTConnectionLifecycle
-from src.common.rest_connection_manager_helpers.health_monitor import RESTHealthMonitor
-from src.common.rest_connection_manager_helpers.request_operations import RESTRequestOperations
-from src.common.rest_connection_manager_helpers.session_manager import RESTSessionManager
+from common.rest_connection_manager_helpers.connection_lifecycle import RESTConnectionLifecycle
+from common.rest_connection_manager_helpers.health_monitor import RESTHealthMonitor
+from common.rest_connection_manager_helpers.request_operations import RESTRequestOperations
+from common.rest_connection_manager_helpers.session_manager import RESTSessionManager
 
 pytestmark = pytest.mark.unit
 
@@ -231,11 +231,11 @@ async def test_rest_session_manager_lifecycle(monkeypatch):
     created = []
     closed = []
     monkeypatch.setattr(
-        "src.common.rest_connection_manager_helpers.session_manager.aiohttp.ClientSession",
+        "common.rest_connection_manager_helpers.session_manager.aiohttp.ClientSession",
         lambda *args, **kwargs: FakeClientSession(),
     )
     monkeypatch.setattr(
-        "src.common.rest_connection_manager_helpers.session_manager.aiohttp.TCPConnector",
+        "common.rest_connection_manager_helpers.session_manager.aiohttp.TCPConnector",
         lambda *args, **kwargs: FakeConnector(),
     )
 

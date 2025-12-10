@@ -7,7 +7,7 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
-from src.common.orderbook_utils import (
+from common.orderbook_utils import (
     _filter_valid_pairs,
     _get_default_price_result,
     _parse_price_size_pairs,
@@ -70,7 +70,7 @@ class TestParseOrderbookField:
         """Returns INVALID_PRICE_DATA skip reason for invalid JSON."""
         market_data = {"yes_bids": "not valid json"}
 
-        with patch("src.common.orderbook_utils.logger"):
+        with patch("common.orderbook_utils.logger"):
             result, skip_reason = parse_orderbook_field(market_data, "yes_bids", "TEST-TICKER")
 
         assert result is None
@@ -106,7 +106,7 @@ class TestParseOrderbookLevels:
         """Returns None when price cannot be converted to float."""
         order_book = {"invalid": 100}
 
-        with patch("src.common.orderbook_utils.logger"):
+        with patch("common.orderbook_utils.logger"):
             result = parse_orderbook_levels(order_book, is_buy_order=True)
 
         assert result is None
@@ -115,7 +115,7 @@ class TestParseOrderbookLevels:
         """Returns None when size cannot be converted to int."""
         order_book = {"50": "invalid"}
 
-        with patch("src.common.orderbook_utils.logger"):
+        with patch("common.orderbook_utils.logger"):
             result = parse_orderbook_levels(order_book, is_buy_order=True)
 
         assert result is None
@@ -158,7 +158,7 @@ class TestExtractBestPriceFromJson:
 
     def test_returns_none_for_invalid_json(self) -> None:
         """Returns None for invalid JSON."""
-        with patch("src.common.orderbook_utils.logger"):
+        with patch("common.orderbook_utils.logger"):
             best_price, best_size = extract_best_price_from_json("invalid json", is_bid=True)
 
         assert best_price is None
@@ -319,7 +319,7 @@ class TestExtractBestPriceFromDict:
         """Handles invalid data types gracefully."""
         order_book = {"invalid": "not_a_number"}
 
-        with patch("src.common.orderbook_utils.logger"):
+        with patch("common.orderbook_utils.logger"):
             best_price, best_size = extract_best_price_from_dict(order_book, is_bid=True)
 
         assert best_price is None

@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from unittest.mock import MagicMock
 
-from src.common.error_analyzer_helpers.error_categorizer_helpers.checker_dispatcher import (
+from common.error_analyzer_helpers.error_categorizer_helpers.checker_dispatcher import (
     dispatch_category_check,
 )
 

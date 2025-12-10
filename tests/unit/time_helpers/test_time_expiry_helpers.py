@@ -4,8 +4,8 @@ from datetime import datetime, timedelta, timezone
 
 import pytest
 
-from src.common.time_helpers import expiry as expiry_module
-from src.common.time_helpers.expiry import (
+from common.time_helpers import expiry as expiry_module
+from common.time_helpers.expiry import (
     DateTimeExpiry,
     calculate_time_to_expiry_years,
     find_closest_expiry,

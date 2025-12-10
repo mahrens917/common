@@ -5,8 +5,8 @@ from unittest.mock import AsyncMock, MagicMock, Mock, patch
 import aiohttp
 import pytest
 
-from src.common.health.types import HealthCheckResult
-from src.common.scraper_connection_manager_helpers.health_monitor import ScraperHealthMonitor
+from common.health.types import HealthCheckResult
+from common.scraper_connection_manager_helpers.health_monitor import ScraperHealthMonitor
 
 
 class TestScraperHealthMonitor:

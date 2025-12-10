@@ -2,7 +2,7 @@ from unittest.mock import Mock, patch
 
 import pytest
 
-from src.common.status_reporter_helpers.trade_status_reporter import TradeStatusReporter
+from common.status_reporter_helpers.trade_status_reporter import TradeStatusReporter
 
 
 class TestTradeStatusReporter:
@@ -16,7 +16,7 @@ class TestTradeStatusReporter:
 
     def test_trade_opportunity_found(self, reporter, writer):
         with patch(
-            "src.common.status_reporter_helpers.trade_status_reporter.OpportunityReporter"
+            "common.status_reporter_helpers.trade_status_reporter.OpportunityReporter"
         ) as MockOpp:
             MockOpp.format_opportunity.return_value = "Opp Msg"
             reporter.trade_opportunity_found("T", "A", "S", 1, "R", "W")
@@ -25,7 +25,7 @@ class TestTradeStatusReporter:
 
     def test_trade_executed(self, reporter, writer):
         with patch(
-            "src.common.status_reporter_helpers.trade_status_reporter.TradeReporter"
+            "common.status_reporter_helpers.trade_status_reporter.TradeReporter"
         ) as MockTrade:
             MockTrade.format_trade_executed.return_value = "Exec Msg"
             reporter.trade_executed("T", "A", "S", 1, "ID")
@@ -34,7 +34,7 @@ class TestTradeStatusReporter:
 
     def test_trade_failed(self, reporter, writer):
         with patch(
-            "src.common.status_reporter_helpers.trade_status_reporter.TradeReporter"
+            "common.status_reporter_helpers.trade_status_reporter.TradeReporter"
         ) as MockTrade:
             MockTrade.format_trade_failed.return_value = "Fail Msg"
             reporter.trade_failed("T", "R")
@@ -43,7 +43,7 @@ class TestTradeStatusReporter:
 
     def test_insufficient_balance(self, reporter, writer):
         with patch(
-            "src.common.status_reporter_helpers.trade_status_reporter.TradeReporter"
+            "common.status_reporter_helpers.trade_status_reporter.TradeReporter"
         ) as MockTrade:
             MockTrade.format_insufficient_balance.return_value = "Bal Msg"
             reporter.insufficient_balance("T", 10, 5)
@@ -52,7 +52,7 @@ class TestTradeStatusReporter:
 
     def test_balance_updated(self, reporter, writer):
         with patch(
-            "src.common.status_reporter_helpers.trade_status_reporter.TradeReporter"
+            "common.status_reporter_helpers.trade_status_reporter.TradeReporter"
         ) as MockTrade:
             MockTrade.format_balance_updated.return_value = "Upd Msg"
             reporter.balance_updated(10, 20)

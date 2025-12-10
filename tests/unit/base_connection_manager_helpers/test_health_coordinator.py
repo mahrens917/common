@@ -4,8 +4,8 @@ from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 
-from src.common.base_connection_manager_helpers.health_coordinator import HealthCoordinator
-from src.common.connection_state import ConnectionState
+from common.base_connection_manager_helpers.health_coordinator import HealthCoordinator
+from common.connection_state import ConnectionState
 
 
 class TestHealthCoordinatorInit:

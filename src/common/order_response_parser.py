@@ -13,7 +13,7 @@ from dataclasses import dataclass
 from datetime import datetime
 from typing import Any, Dict, List, Optional, Tuple, Type, TypeGuard
 
-from src.common.order_response_parser_exceptions import (
+from common.order_response_parser_exceptions import (
     EmptyClientOrderIdError,
     EmptyOrderDataError,
     EmptyOrderIdError,

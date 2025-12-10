@@ -3,7 +3,7 @@
 from datetime import datetime, timezone
 from unittest.mock import patch
 
-from src.common.dawn_reset_service_helpers.field_reset_evaluator_helpers.boundary_checker import (
+from common.dawn_reset_service_helpers.field_reset_evaluator_helpers.boundary_checker import (
     BoundaryChecker,
     _format_timestamp,
 )
@@ -83,7 +83,7 @@ class TestBoundaryCheckerLogSkip:
         boundary = datetime(2025, 1, 15, 11, 0, 0, tzinfo=timezone.utc)
 
         with patch(
-            "src.common.dawn_reset_service_helpers.field_reset_evaluator_helpers.boundary_checker.logger"
+            "common.dawn_reset_service_helpers.field_reset_evaluator_helpers.boundary_checker.logger"
         ) as mock_logger:
             BoundaryChecker.log_skip(last_reset, boundary, "test_context")
 
@@ -94,7 +94,7 @@ class TestBoundaryCheckerLogSkip:
     def test_handles_none_values_in_log(self) -> None:
         """Handles None values in log message."""
         with patch(
-            "src.common.dawn_reset_service_helpers.field_reset_evaluator_helpers.boundary_checker.logger"
+            "common.dawn_reset_service_helpers.field_reset_evaluator_helpers.boundary_checker.logger"
         ) as mock_logger:
             BoundaryChecker.log_skip(None, None, "test_context")
 

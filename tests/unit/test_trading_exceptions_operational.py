@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import pytest
 
-from src.common.trading_exceptions_operational import (
+from common.trading_exceptions_operational import (
     KalshiAPIError,
     KalshiConfigurationError,
     KalshiDataIntegrityError,
@@ -319,7 +319,7 @@ class TestExceptionInheritance:
 
     def test_all_inherit_from_kalshi_trading_error(self) -> None:
         """All exceptions inherit from KalshiTradingError."""
-        from src.common.trading_exceptions_core import KalshiTradingError
+        from common.trading_exceptions_core import KalshiTradingError
 
         exceptions = [
             KalshiNetworkError("msg"),

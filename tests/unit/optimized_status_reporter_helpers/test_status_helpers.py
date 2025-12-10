@@ -4,51 +4,51 @@ from types import SimpleNamespace
 
 import pytest
 
-from src.common.data_conversion.micro_price_helpers.batch_converter import BatchConverter
-from src.common.data_models.trading import OrderSide, OrderType
-from src.common.deribit.utils import is_supported_ticker
-from src.common.health.log_activity_monitor import LogActivityStatus
-from src.common.monitoring import ProcessStatus
-from src.common.optimized_status_reporter_helpers.data_coercion import DataCoercion
-from src.common.optimized_status_reporter_helpers.day_night_detector import DayNightDetector
-from src.common.optimized_status_reporter_helpers.health_snapshot_collector import (
+from common.data_conversion.micro_price_helpers.batch_converter import BatchConverter
+from common.data_models.trading import OrderSide, OrderType
+from common.deribit.utils import is_supported_ticker
+from common.health.log_activity_monitor import LogActivityStatus
+from common.monitoring import ProcessStatus
+from common.optimized_status_reporter_helpers.data_coercion import DataCoercion
+from common.optimized_status_reporter_helpers.day_night_detector import DayNightDetector
+from common.optimized_status_reporter_helpers.health_snapshot_collector import (
     HealthSnapshotCollector,
 )
-from src.common.optimized_status_reporter_helpers.log_activity_formatter import (
+from common.optimized_status_reporter_helpers.log_activity_formatter import (
     LogActivityFormatter,
 )
-from src.common.optimized_status_reporter_helpers.metrics_section_printer import (
+from common.optimized_status_reporter_helpers.metrics_section_printer import (
     MetricsSectionPrinter,
 )
-from src.common.optimized_status_reporter_helpers.realtime_metrics_collector import (
+from common.optimized_status_reporter_helpers.realtime_metrics_collector import (
     RealtimeMetricsCollector,
 )
-from src.common.optimized_status_reporter_helpers.section_printer import SectionPrinter
-from src.common.optimized_status_reporter_helpers.service_printer import ServicePrinter
-from src.common.optimized_status_reporter_helpers.service_status_formatter import (
+from common.optimized_status_reporter_helpers.section_printer import SectionPrinter
+from common.optimized_status_reporter_helpers.service_printer import ServicePrinter
+from common.optimized_status_reporter_helpers.service_status_formatter import (
     ServiceStatusFormatter,
 )
-from src.common.optimized_status_reporter_helpers.status_line_builder import (
+from common.optimized_status_reporter_helpers.status_line_builder import (
     get_status_emoji,
     resolve_service_status,
 )
-from src.common.optimized_status_reporter_helpers.time_formatter import TimeFormatter
-from src.common.optimized_status_reporter_helpers.weather_section_generator import (
+from common.optimized_status_reporter_helpers.time_formatter import TimeFormatter
+from common.optimized_status_reporter_helpers.weather_section_generator import (
     WeatherSectionGenerator,
 )
-from src.common.optimized_status_reporter_helpers.weather_temperature_collector import (
+from common.optimized_status_reporter_helpers.weather_temperature_collector import (
     WeatherTemperatureCollector,
     _build_temperature_map,
     _parse_station_weather,
 )
-from src.common.redis_protocol import SubscriptionUpdate
-from src.common.time_utils.solar import calculate_solar_noon_utc, is_after_solar_noon
-from src.common.trading.order_payloads import build_order_payload
-from src.common.validation.probability import clamp_probability, first_valid_probability
-from src.common.websocket.unified_subscription_manager_helpers.subscription_processor import (
+from common.redis_protocol import SubscriptionUpdate
+from common.time_utils.solar import calculate_solar_noon_utc, is_after_solar_noon
+from common.trading.order_payloads import build_order_payload
+from common.validation.probability import clamp_probability, first_valid_probability
+from common.websocket.unified_subscription_manager_helpers.subscription_processor import (
     SubscriptionProcessor,
 )
-from src.common.websocket.unified_subscription_manager_helpers.update_handler import (
+from common.websocket.unified_subscription_manager_helpers.update_handler import (
     UpdateHandler,
 )
 
@@ -110,7 +110,7 @@ def test_metrics_section_printer_sections(monkeypatch):
             asos_source = "OFF"
 
     monkeypatch.setattr(
-        "src.common.optimized_status_reporter_helpers.metrics_section_printer.get_weather_settings",
+        "common.optimized_status_reporter_helpers.metrics_section_printer.get_weather_settings",
         lambda: StubWeatherSettings(),
     )
 
@@ -316,7 +316,7 @@ def test_day_night_detector_and_weather_helpers(monkeypatch):
     )
     detector._station_coordinates = {"ABC": {"latitude": 0.0, "longitude": 0.0}}
     monkeypatch.setattr(
-        "src.common.optimized_status_reporter_helpers.day_night_detector.is_between_dawn_and_dusk",
+        "common.optimized_status_reporter_helpers.day_night_detector.is_between_dawn_and_dusk",
         lambda *_: False,
     )
     assert detector.get_day_night_icon("ABC") == "🌙"

@@ -38,7 +38,7 @@ class MonitoringLoop:
 
     async def run(self) -> None:
         """Monitor Redis subscription updates."""
-        from src.common.redis_protocol.connection_pool_core import get_redis_client
+        from common.redis_protocol.connection_pool_core import get_redis_client
 
         redis_client = await get_redis_client()
 

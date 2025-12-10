@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from types import SimpleNamespace
 
-from src.common.redis_protocol.persistence_manager_helpers.dependencies_factory import (
+from common.redis_protocol.persistence_manager_helpers.dependencies_factory import (
     RedisPersistenceManagerDependenciesFactory,
 )
 
@@ -20,7 +20,7 @@ def test_create_sets_redis_on_connection(monkeypatch):
             self.set_calls += 1
 
     monkeypatch.setattr(
-        "src.common.redis_protocol.persistence_manager_helpers.dependencies_factory.ConnectionManager",
+        "common.redis_protocol.persistence_manager_helpers.dependencies_factory.ConnectionManager",
         FakeConnection,
     )
 

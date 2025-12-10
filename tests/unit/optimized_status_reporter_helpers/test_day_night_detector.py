@@ -6,7 +6,7 @@ from unittest.mock import Mock, patch
 
 import pytest
 
-from src.common.optimized_status_reporter_helpers.day_night_detector import (
+from common.optimized_status_reporter_helpers.day_night_detector import (
     DayNightDetector,
 )
 
@@ -168,7 +168,7 @@ class TestDayNightDetector:
         assert detector.get_day_night_icon("KNYC") == ""
 
     @patch(
-        "src.common.optimized_status_reporter_helpers.day_night_detector.is_between_dawn_and_dusk",
+        "common.optimized_status_reporter_helpers.day_night_detector.is_between_dawn_and_dusk",
         return_value=True,
     )
     def test_get_day_night_icon_daytime(
@@ -179,7 +179,7 @@ class TestDayNightDetector:
         mock_is_between_dawn_and_dusk.assert_called_once_with(40.71, -74.01)
 
     @patch(
-        "src.common.optimized_status_reporter_helpers.day_night_detector.is_between_dawn_and_dusk",
+        "common.optimized_status_reporter_helpers.day_night_detector.is_between_dawn_and_dusk",
         return_value=False,
     )
     def test_get_day_night_icon_nighttime(
@@ -191,7 +191,7 @@ class TestDayNightDetector:
         mock_moon_phase_calculator.get_moon_phase_emoji.assert_called_once()
 
     @patch(
-        "src.common.optimized_status_reporter_helpers.day_night_detector.is_between_dawn_and_dusk",
+        "common.optimized_status_reporter_helpers.day_night_detector.is_between_dawn_and_dusk",
         side_effect=ValueError("Test error"),
     )
     def test_get_day_night_icon_exception_handling(

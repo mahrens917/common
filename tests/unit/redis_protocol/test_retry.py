@@ -5,7 +5,7 @@ import logging
 
 import pytest
 
-from src.common.redis_protocol.retry import (
+from common.redis_protocol.retry import (
     RedisFatalError,
     RedisRetryContext,
     RedisRetryPolicy,

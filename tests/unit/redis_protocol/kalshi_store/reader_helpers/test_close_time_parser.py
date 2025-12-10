@@ -2,7 +2,7 @@ from datetime import datetime
 
 import pytest
 
-from src.common.redis_protocol.kalshi_store.reader_helpers import close_time_parser
+from common.redis_protocol.kalshi_store.reader_helpers import close_time_parser
 
 
 def test_parse_close_time_success(monkeypatch):
