@@ -49,23 +49,31 @@ class MemoryMonitor:
 
     def track_collection(self, name: str, size_getter: Callable[[], int]) -> None:
         self._collection_tracker.track_collection(name, size_getter)
+
     def get_current_memory_usage(self) -> float:
         return self._metrics_reader.get_current_memory_usage()
+
     def get_system_memory_percent(self) -> float:
         return self._metrics_reader.get_system_memory_percent()
+
     def get_current_task_count(self) -> int:
         return self._metrics_reader.get_current_task_count()
 
     def take_snapshot(self) -> MemorySnapshot:
         return self._snapshot_collector.take_snapshot_with_overrides(task_count_supplier=self.get_current_task_count)
+
     def analyze_memory_trends(self) -> Dict[str, Any]:
         return self._trend_analyzer.analyze_memory_trends(self._snapshot_collector.get_snapshots())
+
     def log_alerts(self, analysis: Dict[str, Any]) -> None:
         self._alert_logger.log_alerts(analysis)
+
     async def start_monitoring(self) -> None:
         await self._loop_manager.start_monitoring()
+
     async def stop_monitoring(self) -> None:
         await self._loop_manager.stop_monitoring()
+
     def get_status(self) -> Dict[str, Any]:
         return self._status_formatter.get_status()
 
