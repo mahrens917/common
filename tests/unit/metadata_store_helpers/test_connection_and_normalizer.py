@@ -62,9 +62,9 @@ class TestDataNormalizer(unittest.TestCase):
         assert DataNormalizer.int_field(data, "b") == 2
         assert DataNormalizer.int_field(data, "c") == 3
         assert DataNormalizer.int_field(data, "d") == 1
-        assert DataNormalizer.int_field(data, "e", default=10) == 10
-        assert DataNormalizer.int_field(data, "f", default=5) == 5
-        assert DataNormalizer.int_field(data, "missing", default=99) == 99
+        assert DataNormalizer.int_field(data, "e", value_on_error=10) == 10
+        assert DataNormalizer.int_field(data, "f", value_on_error=5) == 5
+        assert DataNormalizer.int_field(data, "missing", value_on_error=99) == 99
 
         with pytest.raises(ValueError):
             DataNormalizer.int_field({"x": "invalid"}, "x")
@@ -75,9 +75,9 @@ class TestDataNormalizer(unittest.TestCase):
         assert DataNormalizer.float_field(data, "b") == 2.5
         assert DataNormalizer.float_field(data, "c") == 3.0
         assert DataNormalizer.float_field(data, "d") == 1.0
-        assert DataNormalizer.float_field(data, "e", default=10.5) == 10.5
-        assert DataNormalizer.float_field(data, "f", default=5.5) == 5.5
-        assert DataNormalizer.float_field(data, "missing", default=99.9) == 99.9
+        assert DataNormalizer.float_field(data, "e", value_on_error=10.5) == 10.5
+        assert DataNormalizer.float_field(data, "f", value_on_error=5.5) == 5.5
+        assert DataNormalizer.float_field(data, "missing", value_on_error=99.9) == 99.9
 
         with pytest.raises(ValueError):
             DataNormalizer.float_field({"x": "invalid"}, "x")

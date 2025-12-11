@@ -89,7 +89,7 @@ async def test_calculate_probability_sums_matching_keys():
 
     state = ModelState(probability_store, currency="BTC")
 
-    probability = await state.calculate_probability(35000, 50000, time_to_expiry=0.5)
+    probability = await state.calculate_probability(35000, 50000)
 
     assert probability == pytest.approx(0.60)
     redis_client.keys.assert_awaited_once_with("probabilities:BTC:*")
@@ -108,7 +108,7 @@ async def test_calculate_probability_raises_when_no_keys():
     state = ModelState(probability_store, currency="ETH")
 
     with pytest.raises(ModelProbabilityDataUnavailable):
-        await state.calculate_probability(1000, 2000, time_to_expiry=0.1)
+        await state.calculate_probability(1000, 2000)
     redis_client.keys.assert_awaited_once_with("probabilities:ETH:*")
     redis_client.hgetall.assert_not_called()
 
@@ -121,4 +121,4 @@ async def test_calculate_probability_raises_on_error():
     state = ModelState(probability_store, currency="BTC")
 
     with pytest.raises(ModelProbabilityCalculationError):
-        await state.calculate_probability(1000, 2000, time_to_expiry=0.1)
+        await state.calculate_probability(1000, 2000)

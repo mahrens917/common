@@ -23,7 +23,7 @@ def test_get_str_coerces_to_string():
     ],
 )
 def test_get_bool_defaults(mapping, expected):
-    assert get_bool(mapping, "flag", default=expected) is expected
+    assert get_bool(mapping, "flag", initial_value=expected) is expected
 
 
 def test_get_bool_coerces_values():
