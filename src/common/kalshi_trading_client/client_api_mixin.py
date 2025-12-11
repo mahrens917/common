@@ -46,6 +46,13 @@ class KalshiTradingClientAPIMixin:
         return await self._api.get_all_fills(min_ts, max_ts, ticker, cursor)
 
     async def start_trade_collection(self) -> bool:
+        store_getter = getattr(self, "_get_trade_store", None)
+        if store_getter is None:
+            raise ValueError("Trade store required for trade collection")
+        try:
+            await store_getter()
+        except (AttributeError, RuntimeError, ValueError, TypeError) as exc:
+            raise ValueError("Trade store required for trade collection") from exc
         result = await self._api.start_trade_collection()
         self.is_running = result
         return result
