@@ -143,19 +143,20 @@ async def test_should_suppress_error_handles_internal_failures():
 
 @pytest.mark.asyncio
 async def test_is_dependency_unavailable_handles_status_variants():
-    config = ErrorSuppressionConfig(dependency_error_patterns={"svc": [r"unavailable"]})
+    # Patterns are organized by dependency name, not service name
+    config = ErrorSuppressionConfig(dependency_error_patterns={"db": [r"db.*error", r"database.*unavailable"]})
     filter_ = DependencyAwareErrorFilter(config)
     fake_redis = FakeRedis()
     filter_.redis = fake_redis
 
-    # When dependency status is "Unknown", should suppress errors with unavailable pattern
+    # When dependency status is "Unknown", should suppress matching errors
     fake_redis.sets["service_dependencies:svc"] = {"db"}
     fake_redis.hashes["dependency_status:svc"] = {"db": "Unknown"}
-    assert await filter_.should_suppress_error("svc", "unavailable") is True
+    assert await filter_.should_suppress_error("svc", "db connection error") is True
 
     # When dependency status is "available", should not suppress
     fake_redis.hashes["dependency_status:svc"]["db"] = "available"
-    assert await filter_.should_suppress_error("svc", "unavailable") is False
+    assert await filter_.should_suppress_error("svc", "db connection error") is False
 
 
 @pytest.mark.asyncio
@@ -183,7 +184,8 @@ async def test_get_service_dependencies_decodes_bytes():
 
 @pytest.mark.asyncio
 async def test_dependency_related_error_handles_pattern_failures(caplog):
-    config = ErrorSuppressionConfig(dependency_error_patterns={"svc": [r"matched"]})
+    # Patterns are organized by dependency name
+    config = ErrorSuppressionConfig(dependency_error_patterns={"db": [r"matched"]})
     filter_ = DependencyAwareErrorFilter(config)
     fake_redis = FakeRedis()
     filter_.redis = fake_redis
