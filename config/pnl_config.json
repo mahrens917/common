@@ -1,0 +1,8 @@
+{
+  "trade_collection": {
+    "historical_start_date": "2024-01-01"
+  },
+  "reporting": {
+    "timezone": "America/New_York"
+  }
+}
