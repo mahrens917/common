@@ -1,0 +1,14 @@
+{
+  "trading_fees": {
+    "general_fee_coefficient": 0.001,
+    "maker_fee_coefficient": 0.0005,
+    "maker_fee_products": ["BTC-M1", "ETH-M1"]
+  },
+  "symbol_mappings": {
+    "mappings": {
+      "BTC-M1": "BTCUSD",
+      "ETH-M1": "ETHUSD",
+      "SPY": "SPY"
+    }
+  }
+}

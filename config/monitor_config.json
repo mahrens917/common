@@ -1,0 +1,14 @@
+{
+  "alert_suppression": {
+    "enabled": true,
+    "grace_period_seconds": 30,
+    "suppression_rules": {
+      "during_reconnection": ["CONNECTION_FAILURE", "RECONNECTION_ATTEMPT"],
+      "service_type_mapping": {
+        "websocket": "CONNECTION_FAILURE",
+        "rest": "CONNECTION_FAILURE",
+        "redis": "CONNECTION_FAILURE"
+      }
+    }
+  }
+}
