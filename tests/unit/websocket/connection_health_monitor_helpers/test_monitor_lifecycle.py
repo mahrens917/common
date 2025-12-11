@@ -20,8 +20,8 @@ class TestMonitorLifecycle:
         await lifecycle.start_monitoring(callback)
         assert lifecycle._monitoring_task is not None
 
-        # Let it run for a bit
-        await asyncio.sleep(0)
+        # Let the monitoring loop complete its sleep and call the callback
+        await asyncio.sleep(0.15)
 
         await lifecycle.stop_monitoring()
         assert lifecycle._monitoring_task is None
