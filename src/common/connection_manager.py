@@ -139,9 +139,13 @@ class BaseConnectionManager(ConnectionLifecycleMixin, PropertyAccessorsMixin, AB
         self.service_name = service_name
         self.config = get_connection_config(service_name)
         if alerter is None:
-            from ..monitor.alerter import Alerter  # type: ignore
+            try:
+                from monitor.alerter import Alerter
 
-            self.alerter = Alerter()
+                self.alerter = Alerter()
+            except ImportError:
+                # monitor.alerter is optional - use null object pattern if unavailable
+                self.alerter = None
         else:
             self.alerter = alerter
 
