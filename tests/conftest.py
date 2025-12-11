@@ -264,17 +264,37 @@ def fake_redis_client_factory(monkeypatch):
 @pytest.fixture
 def stub_schema_config(monkeypatch):
     """Provide a stub schema config."""
-    from common.config.redis_schema import SchemaConfig
+    from common.config.redis_schema import RedisSchemaConfig
 
-    stub = SchemaConfig(
+    stub = RedisSchemaConfig(
         kalshi_market_prefix="markets:kalshi",
-        kalshi_subscription_key="subscriptions:kalshi",
+        kalshi_weather_prefix="weather:kalshi",
+        kalshi_subscriptions_key="subscriptions:kalshi",
+        kalshi_subscription_ids_key="subscription_ids:kalshi",
+        kalshi_trading_active_key="trading_active:kalshi",
+        kalshi_exchange_active_key="exchange_active:kalshi",
         deribit_market_prefix="markets:deribit",
-        deribit_subscription_key="subscriptions:deribit",
+        deribit_spot_prefix="spot:deribit",
+        deribit_gp_surface_prefix="surface:deribit",
+        deribit_gp_metadata_key="metadata:deribit",
+        deribit_subscriptions_key="subscriptions:deribit",
+        deribit_instrument_lookup_key="instruments:deribit",
+        weather_station_prefix="stations:weather",
+        weather_station_history_prefix="history:weather",
+        weather_station_mapping_key="mapping:weather",
+        weather_forecast_prefix="forecast:weather",
+        weather_features_prefix="features:weather",
+        weather_rule_4_trigger_suffix="rule4",
+        pdf_phase4_filters_key="filters:pdf",
+        monitoring_status_prefix="status:monitoring",
+        monitoring_history_prefix="history:monitoring",
+        monitoring_monitor_jobs_prefix="jobs:monitoring",
+        cfb_price_prefix="prices:cfb",
     )
 
-    # Set as the global default
-    monkeypatch.setattr("common.config.redis_schema._global_config", stub)
+    # Mock the class variable and the load method
+    monkeypatch.setattr(RedisSchemaConfig, "_instance", stub)
+    monkeypatch.setattr("common.config.redis_schema.get_schema_config", lambda: stub)
 
     return stub
 
@@ -282,18 +302,38 @@ def stub_schema_config(monkeypatch):
 @pytest.fixture
 def schema_config_factory(monkeypatch):
     """Provide a factory for creating custom schema configs."""
-    from common.config.redis_schema import SchemaConfig
+    from common.config.redis_schema import RedisSchemaConfig
 
-    def factory(**kwargs) -> SchemaConfig:
+    def factory(**kwargs) -> RedisSchemaConfig:
         """Create and set a schema config."""
-        config = SchemaConfig(
+        config = RedisSchemaConfig(
             kalshi_market_prefix=kwargs.get("kalshi_market_prefix", "markets:kalshi"),
-            kalshi_subscription_key=kwargs.get("kalshi_subscription_key", "subscriptions:kalshi"),
+            kalshi_weather_prefix=kwargs.get("kalshi_weather_prefix", "weather:kalshi"),
+            kalshi_subscriptions_key=kwargs.get("kalshi_subscriptions_key", "subscriptions:kalshi"),
+            kalshi_subscription_ids_key=kwargs.get("kalshi_subscription_ids_key", "subscription_ids:kalshi"),
+            kalshi_trading_active_key=kwargs.get("kalshi_trading_active_key", "trading_active:kalshi"),
+            kalshi_exchange_active_key=kwargs.get("kalshi_exchange_active_key", "exchange_active:kalshi"),
             deribit_market_prefix=kwargs.get("deribit_market_prefix", "markets:deribit"),
-            deribit_subscription_key=kwargs.get("deribit_subscription_key", "subscriptions:deribit"),
+            deribit_spot_prefix=kwargs.get("deribit_spot_prefix", "spot:deribit"),
+            deribit_gp_surface_prefix=kwargs.get("deribit_gp_surface_prefix", "surface:deribit"),
+            deribit_gp_metadata_key=kwargs.get("deribit_gp_metadata_key", "metadata:deribit"),
+            deribit_subscriptions_key=kwargs.get("deribit_subscriptions_key", "subscriptions:deribit"),
+            deribit_instrument_lookup_key=kwargs.get("deribit_instrument_lookup_key", "instruments:deribit"),
+            weather_station_prefix=kwargs.get("weather_station_prefix", "stations:weather"),
+            weather_station_history_prefix=kwargs.get("weather_station_history_prefix", "history:weather"),
+            weather_station_mapping_key=kwargs.get("weather_station_mapping_key", "mapping:weather"),
+            weather_forecast_prefix=kwargs.get("weather_forecast_prefix", "forecast:weather"),
+            weather_features_prefix=kwargs.get("weather_features_prefix", "features:weather"),
+            weather_rule_4_trigger_suffix=kwargs.get("weather_rule_4_trigger_suffix", "rule4"),
+            pdf_phase4_filters_key=kwargs.get("pdf_phase4_filters_key", "filters:pdf"),
+            monitoring_status_prefix=kwargs.get("monitoring_status_prefix", "status:monitoring"),
+            monitoring_history_prefix=kwargs.get("monitoring_history_prefix", "history:monitoring"),
+            monitoring_monitor_jobs_prefix=kwargs.get("monitoring_monitor_jobs_prefix", "jobs:monitoring"),
+            cfb_price_prefix=kwargs.get("cfb_price_prefix", "prices:cfb"),
         )
         # Set as the global default
-        monkeypatch.setattr("common.config.redis_schema._global_config", config)
+        monkeypatch.setattr(RedisSchemaConfig, "_instance", config)
+        monkeypatch.setattr("common.config.redis_schema.get_schema_config", lambda: config)
         return config
 
     return factory
