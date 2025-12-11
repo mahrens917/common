@@ -6,6 +6,8 @@ unused_module_guard from complaining about modules that exist but are
 not imported directly in normal operations.
 """
 
+# pyright: ignore[reportUnusedImport]
+
 import os
 
 # Check if module referencing is enabled

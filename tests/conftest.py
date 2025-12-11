@@ -333,49 +333,30 @@ class FakeRedisPipeline:
         results = []
         for cmd, args in self.commands:
             if cmd == "set":
-                key, value = args
-                result = await self.fake_redis.set(key, value)
-                results.append(result)
+                result = await self.fake_redis.set(args[0], args[1])
             elif cmd == "sadd":
-                key, members = args
-                result = await self.fake_redis.sadd(key, *members)
-                results.append(result)
+                result = await self.fake_redis.sadd(args[0], *args[1])
             elif cmd == "hset":
-                key, mapping = args
-                result = await self.fake_redis.hset(key, mapping)
-                results.append(result)
+                result = await self.fake_redis.hset(args[0], args[1])
             elif cmd == "hget":
-                key, field = args
-                result = await self.fake_redis.hget(key, field)
-                results.append(result)
+                result = await self.fake_redis.hget(args[0], args[1])
             elif cmd == "hincrby":
-                key, field, increment = args
-                result = await self.fake_redis.hincrby(key, field, increment)
-                results.append(result)
+                result = await self.fake_redis.hincrby(args[0], args[1], args[2])
             elif cmd == "expire":
-                key, seconds = args
-                result = await self.fake_redis.expire(key, seconds)
-                results.append(result)
+                result = await self.fake_redis.expire(args[0], args[1])
             elif cmd == "hdel":
-                key, fields = args
-                result = await self.fake_redis.hdel(key, *fields)
-                results.append(result)
+                result = await self.fake_redis.hdel(args[0], *args[1])
             elif cmd == "delete":
-                keys = args
-                result = await self.fake_redis.delete(*keys)
-                results.append(result)
+                result = await self.fake_redis.delete(*args)
             elif cmd == "exists":
-                keys = args
-                result = await self.fake_redis.exists(*keys)
-                results.append(result)
+                result = await self.fake_redis.exists(*args)
             elif cmd == "srem":
-                key, members = args
-                result = await self.fake_redis.srem(key, *members)
-                results.append(result)
+                result = await self.fake_redis.srem(args[0], *args[1])
             elif cmd == "publish":
-                channel, message = args
-                result = await self.fake_redis.publish(channel, message)
-                results.append(result)
+                result = await self.fake_redis.publish(args[0], args[1])
+            else:
+                result = None
+            results.append(result)
         self.commands.clear()
         return results
 

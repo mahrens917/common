@@ -92,45 +92,31 @@ class MemoryMonitor:
     @property
     def memory_growth_threshold_mb(self) -> float:
         return self._memory_growth_threshold_mb
-
     @memory_growth_threshold_mb.setter
     def memory_growth_threshold_mb(self, value: float) -> None:
-        self._memory_growth_threshold_mb = value
+        object.__setattr__(self, "_memory_growth_threshold_mb", value)
         if hasattr(self, "_trend_analyzer"):
             self._trend_analyzer.memory_growth_threshold_mb = value
-
     @property
     def collection_growth_threshold(self) -> int:
         return self._collection_growth_threshold
-
     @collection_growth_threshold.setter
     def collection_growth_threshold(self, value: int) -> None:
-        self._collection_growth_threshold = value
+        object.__setattr__(self, "_collection_growth_threshold", value)
         if hasattr(self, "_trend_analyzer"):
             self._trend_analyzer.collection_growth_threshold = value
-
     @property
     def task_count_threshold(self) -> int:
         return self._task_count_threshold
-
     @task_count_threshold.setter
     def task_count_threshold(self, value: int) -> None:
-        self._task_count_threshold = value
+        object.__setattr__(self, "_task_count_threshold", value)
         if hasattr(self, "_trend_analyzer"):
             self._trend_analyzer.task_count_threshold = value
 
     @property
     def shutdown_requested(self) -> bool:
         return self._loop_manager.shutdown_requested
-
-    def __setattr__(self, n: str, v):
-        object.__setattr__(self, n, v)
-        if n == "memory_growth_threshold_mb" and hasattr(self, "_trend_analyzer"):
-            self._trend_analyzer.memory_growth_threshold_mb = v
-        elif n in ("collection_growth_threshold", "task_count_threshold") and hasattr(self, "_trend_analyzer"):
-            setattr(self._trend_analyzer, n, v)
-        elif n == "shutdown_requested" and hasattr(self, "_loop_manager"):
-            self._loop_manager.shutdown_requested = v
 
     async def _monitoring_loop(self):
         return await self._loop_manager._monitoring_loop()

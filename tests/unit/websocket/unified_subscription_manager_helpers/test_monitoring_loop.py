@@ -102,7 +102,7 @@ class TestMonitoringLoop:
             mock_logger.exception.assert_called()
             # It might be called multiple times if loop ran multiple times
             args = mock_logger.exception.call_args
-            assert "Error monitoring %s subscriptions: %s" in args[0][0]
+            assert "Error monitoring %s subscriptions" in args[0][0]
 
     @pytest.mark.asyncio
     async def test_cleanup_pubsub_error(self, loop):
