@@ -56,3 +56,9 @@ class ReconnectionHandler:
             await asyncio.sleep(backoff_delay)
             return True
         return False
+
+    async def reconnect(self):
+        """
+        Main reconnection method - default stub implementation.
+        """
+        return None

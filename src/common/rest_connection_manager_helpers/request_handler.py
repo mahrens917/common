@@ -23,6 +23,6 @@ class RequestHandler(ShutdownRequestMixin):
 
     async def handle_request(self, *args, **kwargs):
         """
-        Main operation method - returns None by default.
+        Main operation method - must be implemented by subclasses.
         """
-        return None
+        raise NotImplementedError("Subclasses must implement handle_request()")
