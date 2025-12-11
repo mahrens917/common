@@ -126,7 +126,7 @@ class IMarketReader(Protocol):
         """Get orderbook for market."""
         ...
 
-    async def get_market_field(self, ticker: str, field: str, *, default: Optional[str] = None) -> Optional[str]:
+    async def get_market_field(self, ticker: str, field: str, *, fallback_value: Optional[str] = None) -> Optional[str]:
         """Get single market field."""
         ...
 
@@ -274,7 +274,7 @@ class IMarketQueryDelegator(Protocol):
         """Get orderbook."""
         ...
 
-    async def get_market_field(self, ticker: str, field: str, *, default: Optional[str] = None) -> Optional[str]:
+    async def get_market_field(self, ticker: str, field: str, *, fallback_value: Optional[str] = None) -> Optional[str]:
         """Get market field."""
         ...
 
