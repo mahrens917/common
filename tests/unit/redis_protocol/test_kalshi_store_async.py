@@ -12,6 +12,7 @@ from common.redis_protocol.market_normalization import (
     format_probability_value,
     sync_top_of_book_fields,
 )
+from common.redis_protocol.market_normalization_core import ProbabilityValueError
 
 _VAL_13_0 = 13.0
 _VAL_42_0 = 42.0
@@ -46,9 +47,9 @@ def test_format_probability_value_trims_insignificant_zeroes():
 
 
 def test_format_probability_value_rejects_invalid_inputs():
-    with pytest.raises(TypeError):
+    with pytest.raises(ProbabilityValueError):
         format_probability_value("not-a-number")
-    with pytest.raises(TypeError):
+    with pytest.raises(ProbabilityValueError):
         format_probability_value(float("inf"))
 
 

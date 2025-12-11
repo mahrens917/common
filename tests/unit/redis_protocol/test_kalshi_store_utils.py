@@ -15,6 +15,7 @@ from common.redis_protocol.market_normalization import (
     parse_expiry_token,
     select_timestamp_value,
 )
+from common.redis_protocol.market_normalization_core import ProbabilityValueError
 
 _CONST_12 = 12
 _VAL_12_5 = 12.5
@@ -221,8 +222,8 @@ def test_format_probability_value_trims_trailing_zeroes():
     assert format_probability_value(0.1234000) == "0.1234"
     assert format_probability_value("0.5000") == "0.5"
 
-    with pytest.raises(TypeError):
+    with pytest.raises(ProbabilityValueError):
         format_probability_value(float("inf"))
 
-    with pytest.raises(TypeError):
+    with pytest.raises(ProbabilityValueError):
         format_probability_value("not-a-number")
