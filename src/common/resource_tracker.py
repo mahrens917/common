@@ -33,7 +33,7 @@ class ResourceTracker:
                 from redis.exceptions import RedisError
 
                 redis = await self._get_redis()
-            except (RedisError, OSError, RuntimeError, Exception) as exc:
+            except (RedisError, OSError, RuntimeError, ConnectionError, ValueError) as exc:
                 logger.error("Failed to initialize resource trackers: %s", exc, exc_info=True)
                 return False
             self._cpu_tracker = CpuTracker(redis)

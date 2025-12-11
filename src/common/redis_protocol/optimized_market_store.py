@@ -88,7 +88,7 @@ class OptimizedMarketStore:
             return []
         try:
             return await fetcher.get_all_instruments(currency)
-        except (RuntimeError, ValueError, AttributeError, Exception) as exc:
+        except (RuntimeError, ValueError, AttributeError, KeyError, OSError, ConnectionError) as exc:
             log = getattr(self, "logger", logger)
             log.error("Failed to fetch instruments for %s: %s", currency, exc, exc_info=True)
             return []

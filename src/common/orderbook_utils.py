@@ -32,7 +32,7 @@ def parse_orderbook_field(market_data: Dict[str, Any], field_name: str, ticker: 
 
     try:
         field_dict = safe_json_loads(field_json)
-    except (ValueError, Exception):
+    except (ValueError, TypeError, KeyError, OSError):
         logger.exception(f"Failed to parse {field_name} JSON for {ticker}")
         return None, "INVALID_PRICE_DATA"
 

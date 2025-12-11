@@ -311,11 +311,11 @@ def _safe_pid(proc) -> str:
         return "unknown"
     try:
         pid = getattr(proc, "pid", None)
-    except Exception:
+    except (AttributeError, RuntimeError, OSError):
         return "unknown"
     if pid is None:
         return "unknown"
     try:
         return str(pid)
-    except Exception:
+    except (ValueError, TypeError, AttributeError):
         return "unknown"

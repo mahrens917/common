@@ -86,7 +86,7 @@ class InitializationManager:
             self.pubsub_client = None
             try:
                 await asyncio.wait_for(ensure_awaitable(client.aclose()), timeout=3.0)
-            except Exception:
+            except (asyncio.TimeoutError, ConnectionError, OSError, RuntimeError, AttributeError):
                 logger.warning("Failed to close pubsub client", exc_info=True)
 
         if self.redis_client:
@@ -94,5 +94,5 @@ class InitializationManager:
             self.redis_client = None
             try:
                 await asyncio.wait_for(ensure_awaitable(client.aclose()), timeout=3.0)
-            except Exception:
+            except (asyncio.TimeoutError, ConnectionError, OSError, RuntimeError, AttributeError):
                 logger.warning("Failed to close redis client", exc_info=True)

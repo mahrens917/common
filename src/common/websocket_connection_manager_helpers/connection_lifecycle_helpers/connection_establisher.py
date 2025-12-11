@@ -69,7 +69,7 @@ async def connect_with_factory(connection_factory: Callable, timeout: float, ser
     """
     try:
         websocket_connection = await asyncio.wait_for(connection_factory(), timeout=timeout)
-    except Exception as exc:
+    except (asyncio.TimeoutError, WebSocketException, OSError, ValueError, RuntimeError, AttributeError, TypeError, KeyError, ConnectionError) as exc:
         handled_exc = handle_connection_error(exc, service_name, logger)
         if handled_exc is exc:
             raise

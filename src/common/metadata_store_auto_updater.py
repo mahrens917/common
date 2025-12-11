@@ -94,6 +94,6 @@ class MetadataStoreAutoUpdater:
         await self.init_manager.cleanup()
         try:
             await self.metadata_store.cleanup()
-        except Exception as exc:  # pragm coverage? but general
+        except (RuntimeError, OSError, ValueError, AttributeError, ConnectionError) as exc:
             logger.warning("Metadata store cleanup failed during stop: %s", exc)
         logger.info("MetadataStore auto-updater stopped")
