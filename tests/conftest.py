@@ -328,34 +328,29 @@ class FakeRedisPipeline:
         self.commands.append(("publish", (channel, message)))
         return self
 
+    async def _execute_command(self, cmd: str, args: tuple) -> Any:
+        """Execute a single command. Dispatch based on command type."""
+        dispatcher = {
+            "set": lambda: self.fake_redis.set(args[0], args[1]),
+            "sadd": lambda: self.fake_redis.sadd(args[0], *args[1]),
+            "hset": lambda: self.fake_redis.hset(args[0], args[1]),
+            "hget": lambda: self.fake_redis.hget(args[0], args[1]),
+            "hincrby": lambda: self.fake_redis.hincrby(args[0], args[1], args[2]),
+            "expire": lambda: self.fake_redis.expire(args[0], args[1]),
+            "hdel": lambda: self.fake_redis.hdel(args[0], *args[1]),
+            "delete": lambda: self.fake_redis.delete(*args),
+            "exists": lambda: self.fake_redis.exists(*args),
+            "srem": lambda: self.fake_redis.srem(args[0], *args[1]),
+            "publish": lambda: self.fake_redis.publish(args[0], args[1]),
+        }
+        handler = dispatcher.get(cmd)
+        return await handler() if handler else None
+
     async def execute(self) -> list[Any]:
         """Execute all commands."""
         results = []
         for cmd, args in self.commands:
-            if cmd == "set":
-                result = await self.fake_redis.set(args[0], args[1])
-            elif cmd == "sadd":
-                result = await self.fake_redis.sadd(args[0], *args[1])
-            elif cmd == "hset":
-                result = await self.fake_redis.hset(args[0], args[1])
-            elif cmd == "hget":
-                result = await self.fake_redis.hget(args[0], args[1])
-            elif cmd == "hincrby":
-                result = await self.fake_redis.hincrby(args[0], args[1], args[2])
-            elif cmd == "expire":
-                result = await self.fake_redis.expire(args[0], args[1])
-            elif cmd == "hdel":
-                result = await self.fake_redis.hdel(args[0], *args[1])
-            elif cmd == "delete":
-                result = await self.fake_redis.delete(*args)
-            elif cmd == "exists":
-                result = await self.fake_redis.exists(*args)
-            elif cmd == "srem":
-                result = await self.fake_redis.srem(args[0], *args[1])
-            elif cmd == "publish":
-                result = await self.fake_redis.publish(args[0], args[1])
-            else:
-                result = None
+            result = await self._execute_command(cmd, args)
             results.append(result)
         self.commands.clear()
         return results
