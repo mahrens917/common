@@ -75,6 +75,24 @@ def test_register_shutdown_hook_handles_missing_event_loop(monkeypatch):
         assert loop.is_closed()
 
 
+def test_create_alerter_returns_instance(monkeypatch):
+    registry = weakref.WeakSet()
+    monkeypatch.setattr(alerter_factory, "_shutdown_registry", registry)
+
+    registered = []
+
+    def fake_register(func):
+        registered.append(func)
+
+    monkeypatch.setattr(alerter_factory.atexit, "register", fake_register)
+
+    alerter = alerter_factory.create_alerter()
+
+    assert alerter is not None
+    assert len(registered) == 1
+    assert alerter in registry
+
+
 def test_create_alerter_for_service_logs(monkeypatch, caplog):
     created = DummyAlerter()
     monkeypatch.setattr(alerter_factory, "create_alerter", lambda: created)
