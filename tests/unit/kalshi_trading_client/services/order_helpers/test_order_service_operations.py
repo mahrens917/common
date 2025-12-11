@@ -75,4 +75,4 @@ async def test_metadata_operations_delegates(monkeypatch):
 
     handler = MagicMock()
     operations.update_telegram_handler(handler)
-    assert metadata_fetcher._telegram_handler is handler
+    metadata_fetcher.set_telegram_handler.assert_called_once_with(handler)
