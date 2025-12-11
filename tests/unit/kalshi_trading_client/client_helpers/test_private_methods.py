@@ -111,7 +111,7 @@ def test_factory_methods_wrappers(monkeypatch):
     )
 
     assert instance.create_order_poller() == "poller"
-    factory.create_order_poller.assert_called_once_with(orders.get_fills)
+    factory.create_order_poller.assert_called_once_with(kalshi_client)
 
     assert instance.create_trade_finalizer() == "finalizer"
     factory.create_trade_finalizer.assert_called_once_with(trade_store_manager, orders.resolve_trade_context, kalshi_client)

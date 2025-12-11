@@ -25,6 +25,7 @@ class TradeNotifierAdapter:
                     TradeNotificationError,
                     get_trade_notifier,
                 )
+
                 notifier_supplier = get_trade_notifier
                 error_types = tuple(notification_error_types or (TradeNotificationError,))
             except ImportError:
@@ -71,6 +72,7 @@ class TradeNotifierAdapter:
         if not error_types:
             try:
                 from kalshi.notifications.trade_notifier import TradeNotificationError  # type: ignore[import]
+
                 error_types = (TradeNotificationError,)
             except ImportError:
                 error_types = (RuntimeError,)

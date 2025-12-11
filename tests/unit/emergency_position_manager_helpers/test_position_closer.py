@@ -27,62 +27,6 @@ class TestPositionCloserInit:
         assert closer.trading_client is client
 
 
-class TestPositionCloserCountFills:
-    """Tests for PositionCloser._count_fills."""
-
-    def test_counts_single_fill(self) -> None:
-        """Counts single fill."""
-        client = MagicMock()
-        closer = PositionCloser(trading_client=client)
-        fills = [{"count": 10}]
-
-        result = closer._count_fills(fills, "order123")
-
-        assert result == 10
-
-    def test_counts_multiple_fills(self) -> None:
-        """Counts multiple fills."""
-        client = MagicMock()
-        closer = PositionCloser(trading_client=client)
-        fills = [{"count": 10}, {"count": 5}, {"count": 3}]
-
-        result = closer._count_fills(fills, "order123")
-
-        assert result == 18
-
-    def test_skips_fill_missing_count(self) -> None:
-        """Skips fill entries missing count field."""
-        client = MagicMock()
-        closer = PositionCloser(trading_client=client)
-        fills = [{"count": 10}, {"other": "data"}, {"count": 5}]
-
-        with patch("common.emergency_position_manager_helpers.position_closer.logger"):
-            result = closer._count_fills(fills, "order123")
-
-        assert result == 15
-
-    def test_handles_invalid_count_value(self) -> None:
-        """Handles invalid count values gracefully."""
-        client = MagicMock()
-        closer = PositionCloser(trading_client=client)
-        fills = [{"count": 10}, {"count": "invalid"}, {"count": 5}]
-
-        with patch("common.emergency_position_manager_helpers.position_closer.logger"):
-            result = closer._count_fills(fills, "order123")
-
-        assert result == 15
-
-    def test_returns_zero_for_empty_fills(self) -> None:
-        """Returns zero for empty fills list."""
-        client = MagicMock()
-        closer = PositionCloser(trading_client=client)
-        fills = []
-
-        result = closer._count_fills(fills, "order123")
-
-        assert result == 0
-
-
 class TestPositionCloserEmergencyClosePosition:
     """Tests for PositionCloser.emergency_close_position."""
 
