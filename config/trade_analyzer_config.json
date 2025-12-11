@@ -1,11 +1,12 @@
 {
   "trading_fees": {
-    "general_fee_coefficient": 0.001,
-    "maker_fee_coefficient": 0.0005,
-    "maker_fee_products": ["BTC-M1", "ETH-M1"]
+    "general_fee_coefficient": 0.07,
+    "maker_fee_coefficient": 0.0175,
+    "maker_fee_products": ["BTC-M1", "ETH-M1", "kxnba-series"]
   },
   "symbol_mappings": {
     "mappings": {
+      "BTC": "general",
       "BTC-M1": "BTCUSD",
       "ETH-M1": "ETHUSD",
       "SPY": "SPY"
