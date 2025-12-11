@@ -138,9 +138,9 @@ class FakeRedis:
         for key in keys:
             yield key
 
-    def pipeline(self):
+    def pipeline(self, transaction: bool = True):
         """Create a pipeline context."""
-        return FakeRedisPipeline(self)
+        return FakeRedisPipeline(self, transaction=transaction)
 
     def dump_set(self, key: str) -> set[str]:
         """Dump contents of a set (test helper)."""
@@ -158,8 +158,9 @@ class FakeRedis:
 class FakeRedisPipeline:
     """Redis pipeline mock."""
 
-    def __init__(self, fake_redis: FakeRedis):
+    def __init__(self, fake_redis: FakeRedis, transaction: bool = True):
         self.fake_redis = fake_redis
+        self.transaction = transaction
         self.commands: list[tuple[str, Any]] = []
 
     def set(self, key: str, value: str | bytes) -> "FakeRedisPipeline":
@@ -192,6 +193,16 @@ class FakeRedisPipeline:
         self.commands.append(("hdel", (key, fields)))
         return self
 
+    def delete(self, *keys: str) -> "FakeRedisPipeline":
+        """Pipeline delete."""
+        self.commands.append(("delete", keys))
+        return self
+
+    def exists(self, *keys: str) -> "FakeRedisPipeline":
+        """Pipeline exists."""
+        self.commands.append(("exists", keys))
+        return self
+
     async def execute(self) -> list[Any]:
         """Execute all commands."""
         results = []
@@ -219,6 +230,14 @@ class FakeRedisPipeline:
             elif cmd == "hdel":
                 key, fields = args
                 result = await self.fake_redis.hdel(key, *fields)
+                results.append(result)
+            elif cmd == "delete":
+                keys = args
+                result = await self.fake_redis.delete(*keys)
+                results.append(result)
+            elif cmd == "exists":
+                keys = args
+                result = await self.fake_redis.exists(*keys)
                 results.append(result)
         self.commands.clear()
         return results
