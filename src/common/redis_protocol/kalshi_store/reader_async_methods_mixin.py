@@ -50,7 +50,7 @@ class KalshiMarketReaderAsyncMethodsMixin:
         """Get market metadata."""
         raise NotImplementedError
 
-    async def get_market_field(self, ticker: str, field: str, default: Optional[str] = None) -> str:
+    async def get_market_field(self, ticker: str, field: str, fallback_value: Optional[str] = None) -> str:
         """Get specific market field."""
         raise NotImplementedError
 
