@@ -32,9 +32,9 @@ class MetadataExtractor:
         )
 
     @staticmethod
-    def string_or_default(value: Any, default: str = "") -> str:
-        """Convert value to string or return default"""
-        return TypeConverter.string_or_default(value, default)
+    def string_or_default(value: Any, fallback_value: str = "") -> str:
+        """Convert value to string or return fallback value"""
+        return TypeConverter.string_or_default(value, fallback_value)
 
     @staticmethod
     def normalize_hash(raw_hash: Dict[Any, Any]) -> Dict[str, Any]:

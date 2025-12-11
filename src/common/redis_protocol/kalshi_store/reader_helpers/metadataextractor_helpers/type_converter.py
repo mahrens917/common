@@ -13,18 +13,18 @@ class TypeConverter:
     """Handle type conversions for metadata extraction"""
 
     @staticmethod
-    def string_or_default(value: Any, default: str = "") -> str:
+    def string_or_default(value: Any, fallback_value: str = "") -> str:
         """
-        Convert value to string or return default
+        Convert value to string or return fallback value
 
         Args:
             value: Value to convert
-            default: Default value if conversion fails
+            fallback_value: Fallback value if conversion fails
 
         Returns:
-            String representation or default
+            String representation or fallback value
         """
-        return _string_or_default(value, default)
+        return _string_or_default(value, fallback_value)
 
     @staticmethod
     def normalize_hash(raw_hash: Dict[Any, Any]) -> Dict[str, Any]:

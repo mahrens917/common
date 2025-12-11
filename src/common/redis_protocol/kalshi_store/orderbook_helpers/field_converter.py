@@ -15,6 +15,6 @@ class FieldConverter:
         return _convert_numeric_field(value)
 
     @staticmethod
-    def string_or_default(value: Any, default: str = "") -> str:
-        """Convert value to string or return default."""
-        return _string_or_default(value, default)
+    def string_or_default(value: Any, fallback_value: str = "") -> str:
+        """Convert value to string or return fallback value."""
+        return _string_or_default(value, fallback_value)

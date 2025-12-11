@@ -21,9 +21,9 @@ def to_optional_float(value: Any, *, context: str) -> Optional[float]:
     return canonical_to_optional_float(value, context=context)
 
 
-def string_or_default(value: Any, default: str = "") -> str:
+def string_or_default(value: Any, fallback_value: str = "") -> str:
     """Delegate string coercion to canonical helper."""
-    return _string_or_default(value, default)
+    return _string_or_default(value, fallback_value)
 
 
 def build_strike_summary(

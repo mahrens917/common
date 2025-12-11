@@ -49,22 +49,22 @@ class StaticUtilities:
         return util_coerce_mapping(candidate)
 
     @staticmethod
-    def string_or_default(value: Any, default: str = "") -> str:
-        """Coerce value to string with default."""
+    def string_or_default(value: Any, fallback_value: str = "") -> str:
+        """Coerce value to string with fallback value."""
         from ..utils_coercion import string_or_default as util_string_or_default
 
-        return util_string_or_default(value, default)
+        return util_string_or_default(value, fallback_value)
 
     @staticmethod
-    def int_or_default(value: Any, default: int = 0) -> int:
-        """Coerce value to int with default."""
+    def int_or_default(value: Any, fallback_value: int = 0) -> int:
+        """Coerce value to int with fallback value."""
         from ..utils_coercion import int_or_default as util_int_or_default
 
-        return util_int_or_default(value, default)
+        return util_int_or_default(value, fallback_value)
 
     @staticmethod
-    def float_or_default(value: Any, default: float = 0.0) -> float:
-        """Coerce value to float with default."""
+    def float_or_default(value: Any, fallback_value: float = 0.0) -> float:
+        """Coerce value to float with fallback value."""
         from ..utils_coercion import float_or_default as util_float_or_default
 
-        return util_float_or_default(value, default)
+        return util_float_or_default(value, fallback_value)

@@ -139,65 +139,65 @@ def coerce_sequence(candidate: Any) -> List[Any]:
     return _coerce_sequence_impl(candidate)
 
 
-def _string_or_default(value: Any, default: str = "") -> str:
+def _string_or_default(value: Any, fallback_value: str = "") -> str:
     """
-    Coerce value to string with default.
+    Coerce value to string with fallback value.
 
     Args:
         value: Value to coerce
-        default: Default value if value is None
+        fallback_value: Fallback value if value is None
 
     Returns:
-        String representation or default
+        String representation or fallback value
     """
-    return str(value) if value is not None else default
+    return str(value) if value is not None else fallback_value
 
 
-def string_or_default(value: Any, default: str = "", *, trim: bool = False) -> str:
+def string_or_default(value: Any, fallback_value: str = "", *, trim: bool = False) -> str:
     """Coerce value to string with optional whitespace trimming and byte decoding."""
-    return _string_or_default_impl(value, default, trim=trim)
+    return _string_or_default_impl(value, fallback_value, trim=trim)
 
 
-def _int_or_default(value: Any, default: int = 0) -> int:
+def _int_or_default(value: Any, fallback_value: int = 0) -> int:
     """
-    Coerce value to int with default.
+    Coerce value to int with fallback value.
 
     Args:
         value: Value to coerce
-        default: Default value if coercion fails
+        fallback_value: Fallback value if coercion fails
 
     Returns:
-        Integer representation or default
+        Integer representation or fallback value
     """
-    return _int_or_default_impl(value, default)
+    return _int_or_default_impl(value, fallback_value)
 
 
-def int_or_default(value: Any, default: int = 0) -> int:
+def int_or_default(value: Any, fallback_value: int = 0) -> int:
     """Public wrapper for int coercion helper."""
-    return _int_or_default_impl(value, default)
+    return _int_or_default_impl(value, fallback_value)
 
 
-def _float_or_default(value: Any, default: float = 0.0) -> float:
+def _float_or_default(value: Any, fallback_value: float = 0.0) -> float:
     """
-    Coerce value to float with optional default.
+    Coerce value to float with optional fallback value.
 
     Delegates to canonical implementation in common.utils.numeric.
 
     Args:
         value: Value to coerce
-        default: Default value if coercion fails
+        fallback_value: Fallback value if coercion fails
 
     Returns:
-        Float representation or default
+        Float representation or fallback value
     """
     from common.utils.numeric import coerce_float_default
 
-    return coerce_float_default(value, default)
+    return coerce_float_default(value, fallback_value)
 
 
 def float_or_default(
     value: Any,
-    default: float = 0.0,
+    fallback_value: float = 0.0,
     *,
     raise_on_error: bool = False,
     error_message: str | None = None,
@@ -208,24 +208,24 @@ def float_or_default(
     Delegates to canonical implementation in common.utils.numeric.
 
     When ``raise_on_error`` is False (default), this mirrors ``_float_or_default`` and
-    returns the provided ``default`` for invalid inputs. When True, a ``ValueError`` is
+    returns the provided ``fallback_value`` for invalid inputs. When True, a ``ValueError`` is
     raised using ``error_message`` if provided.
     """
-    return _float_or_default_impl(value, default, raise_on_error=raise_on_error, error_message=error_message)
+    return _float_or_default_impl(value, fallback_value, raise_on_error=raise_on_error, error_message=error_message)
 
 
 def bool_or_default(
     value: Any,
-    default: bool,
+    fallback_value: bool,
     *,
     parse_strings: bool = False,
 ) -> bool:
     """
-    Coerce common boolean representations or return default.
+    Coerce common boolean representations or return fallback value.
 
     When ``parse_strings`` is True, accepts typical truthy/falsey strings.
     """
-    return _bool_or_default_impl(value, default, parse_strings=parse_strings)
+    return _bool_or_default_impl(value, fallback_value, parse_strings=parse_strings)
 
 
 def _counter_value(counter: Counter[str], key: str) -> int:
