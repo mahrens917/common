@@ -214,7 +214,6 @@ async def test_monitoring_loop_runs_single_iteration(monkeypatch, patch_psutil):
     async def mocked_monitoring_loop():
         """Run loop once then exit."""
         monitor.take_snapshot()
-        return None
 
     monkeypatch.setattr(monitor._loop_manager, "_monitoring_loop", mocked_monitoring_loop)
 
@@ -237,7 +236,6 @@ async def test_monitoring_loop_handles_snapshot_errors(monkeypatch, patch_psutil
             monitor.take_snapshot()
         except ValueError:
             pass  # Expected error
-        return None
 
     monkeypatch.setattr(monitor._loop_manager, "_monitoring_loop", mocked_monitoring_loop)
     monkeypatch.setattr(monitor, "take_snapshot", failing_snapshot)

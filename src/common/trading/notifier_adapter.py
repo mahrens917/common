@@ -20,13 +20,16 @@ class TradeNotifierAdapter:
         notification_error_types: Optional[Iterable[Type[Exception]]] = None,
     ) -> None:
         if notifier_supplier is None:
-            from ...kalshi.notifications.trade_notifier import (  # type: ignore
-                TradeNotificationError,
-                get_trade_notifier,
-            )
-
-            notifier_supplier = get_trade_notifier
-            error_types = tuple(notification_error_types or (TradeNotificationError,))
+            try:
+                from kalshi.notifications.trade_notifier import (  # type: ignore[import]
+                    TradeNotificationError,
+                    get_trade_notifier,
+                )
+                notifier_supplier = get_trade_notifier
+                error_types = tuple(notification_error_types or (TradeNotificationError,))
+            except ImportError:
+                notifier_supplier = None
+                error_types = tuple(notification_error_types or ())
         else:
             error_types = tuple(notification_error_types or ())
 
@@ -66,9 +69,11 @@ class TradeNotifierAdapter:
 
         error_types = self._notification_error_types
         if not error_types:
-            from ...kalshi.notifications.trade_notifier import TradeNotificationError  # type: ignore
-
-            error_types = (TradeNotificationError,)
+            try:
+                from kalshi.notifications.trade_notifier import TradeNotificationError  # type: ignore[import]
+                error_types = (TradeNotificationError,)
+            except ImportError:
+                error_types = (RuntimeError,)
 
         try:
             await trade_notifier.send_order_error_notification(order_data, error)
