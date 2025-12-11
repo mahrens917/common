@@ -89,10 +89,12 @@ def _install_trade_notifier(
     client: Optional[KalshiTradingClient] = None,
 ) -> None:
     if client is not None:
-        client._notifier = TradeNotifierAdapter(
+        notifier = TradeNotifierAdapter(
             notifier_supplier=factory,
             notification_error_types=(error_type,),
         )
+        client._notifier = notifier
+        client._orders.update_notifier(notifier)
 
 
 class DummyPoller:
@@ -1122,8 +1124,10 @@ async def test_get_trade_metadata_from_order_alerts_on_failure(monkeypatch, bare
             self.sent = True
             assert "ORD-3" in message
 
-    bare_trading_client.telegram_handler = DummyTelegram()
+    telegram_handler = DummyTelegram()
+    bare_trading_client.telegram_handler = telegram_handler
     bare_trading_client.trade_store = DummyStore()
+    bare_trading_client._orders.update_telegram_handler(telegram_handler)
 
     with pytest.raises(KalshiDataIntegrityError):
         await bare_trading_client._get_trade_metadata_from_order("ORD-3")
@@ -1144,8 +1148,10 @@ async def test_get_trade_metadata_from_order_alerts_on_failure_handles_alert_err
         async def send_alert(self, _):
             raise RuntimeError("telegram fail")
 
-    bare_trading_client.telegram_handler = FailingTelegram()
+    telegram_handler = FailingTelegram()
+    bare_trading_client.telegram_handler = telegram_handler
     bare_trading_client.trade_store = DummyStore()
+    bare_trading_client._orders.update_telegram_handler(telegram_handler)
     caplog.set_level("ERROR")
 
     with pytest.raises(KalshiDataIntegrityError):
