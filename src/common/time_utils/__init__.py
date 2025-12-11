@@ -48,8 +48,6 @@ from .twilight import (
 )
 
 __all__ = [
-    # Re-exported stdlib modules
-    "math",
     # Exceptions
     "AstronomicalComputationError",
     # Re-exported expiry helpers

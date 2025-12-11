@@ -45,6 +45,7 @@ class OptimizedStatusReporter(
         dependencies: Optional[StatusReporterDependencies] = None,
     ):
         """Initialize reporter with all dependencies."""
+        self.process_manager = process_manager
         self._kalshi_client: Optional[KalshiClient] = None
         self._kalshi_client_lock = asyncio.Lock()
         self._emit_status_line = emit_status_line
