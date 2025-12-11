@@ -57,11 +57,30 @@ class FakeRedis:
         """Set expiration on a key."""
         return True
 
-    async def hset(self, key: str, mapping: dict[str, str] | None = None, **kwargs: str) -> int:
-        """Set hash fields."""
+    async def hset(self, key: str, mapping: dict[str, str] | str | None = None, field: str | None = None, value: str | None = None, **kwargs: Any) -> int:
+        """Set hash fields. Supports both old and new redis-py signatures.
+
+        Old API: hset(key, field, value)
+        New API: hset(key, mapping={...}) or hset(key, **kwargs)
+        """
         if key not in self._hashes:
             self._hashes[key] = {}
-        update_map = mapping or kwargs
+
+        # Support old signature: hset(key, field, value)
+        if isinstance(mapping, str) and isinstance(field, str) and value is None:
+            # Called as hset(key, field, value) where mapping is actually the field name
+            # In this case: mapping="field", field="value", value is None
+            update_map = {mapping: field}
+        elif isinstance(mapping, dict):
+            # Called with dict: hset(key, {"field": "value"})
+            update_map = mapping
+        elif mapping is None:
+            # Called with kwargs: hset(key, field="value")
+            update_map = kwargs
+        else:
+            # Fallback for other cases
+            update_map = mapping or kwargs
+
         added = sum(1 for k in update_map if k not in self._hashes[key])
         self._hashes[key].update(update_map)
         return added
@@ -91,6 +110,10 @@ class FakeRedis:
         for f in fields:
             self._hashes[key].pop(f, None)
         return deleted
+
+    async def hlen(self, key: str) -> int:
+        """Get number of fields in a hash."""
+        return len(self._hashes.get(key, {}))
 
     async def incrby(self, key: str, increment: int = 1) -> str:
         """Increment a counter."""
