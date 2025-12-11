@@ -70,6 +70,7 @@ class TestMonitoringLoop:
     @pytest.mark.asyncio
     async def test_stop_cancels_task_on_timeout(self, monitoring_loop, monkeypatch):
         """Test that stop() cancels task if it doesn't complete in time."""
+
         # Create a task that never completes
         async def never_complete():
             while True:

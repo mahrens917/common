@@ -35,9 +35,7 @@ def test_evaluate_first_run(evaluation_cases):
 
     evaluation_cases._boundary_evaluator.evaluate_boundary = MagicMock(return_value=(True, current_timestamp))
 
-    result, reset_time = evaluation_cases.evaluate_first_run(
-        latitude, longitude, current_timestamp, last_dawn_reset, field_name
-    )
+    result, reset_time = evaluation_cases.evaluate_first_run(latitude, longitude, current_timestamp, last_dawn_reset, field_name)
 
     assert result is True
     assert reset_time == current_timestamp

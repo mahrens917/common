@@ -42,16 +42,10 @@ def test_handle_notifier_update_without_service(mock_notifier):
     AttributeHandler.handle_notifier_update(None, mock_notifier)
 
 
-def test_handle_telegram_handler_update_with_service(
-    mock_orders_service, mock_telegram_handler
-):
+def test_handle_telegram_handler_update_with_service(mock_orders_service, mock_telegram_handler):
     """Test handle_telegram_handler_update updates service when provided."""
-    AttributeHandler.handle_telegram_handler_update(
-        mock_orders_service, mock_telegram_handler
-    )
-    mock_orders_service.update_telegram_handler.assert_called_once_with(
-        mock_telegram_handler
-    )
+    AttributeHandler.handle_telegram_handler_update(mock_orders_service, mock_telegram_handler)
+    mock_orders_service.update_telegram_handler.assert_called_once_with(mock_telegram_handler)
 
 
 def test_handle_telegram_handler_update_without_service(mock_telegram_handler):

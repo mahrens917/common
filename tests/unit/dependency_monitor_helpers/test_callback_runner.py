@@ -34,9 +34,7 @@ class TestCallbackRunner:
         executor = MagicMock()
         executor.run_callback = AsyncMock(return_value=None)
 
-        await CallbackRunner.run_callbacks(
-            [callback1, callback2, callback3], "test_service", executor
-        )
+        await CallbackRunner.run_callbacks([callback1, callback2, callback3], "test_service", executor)
 
         assert executor.run_callback.call_count == 3
         executor.run_callback.assert_any_call(callback1)
@@ -59,13 +57,9 @@ class TestCallbackRunner:
         callback1 = MagicMock()
         callback2 = MagicMock()
         executor = MagicMock()
-        executor.run_callback = AsyncMock(
-            side_effect=[RuntimeError("error"), None]
-        )
+        executor.run_callback = AsyncMock(side_effect=[RuntimeError("error"), None])
 
-        await CallbackRunner.run_callbacks(
-            [callback1, callback2], "test_service", executor
-        )
+        await CallbackRunner.run_callbacks([callback1, callback2], "test_service", executor)
 
         assert executor.run_callback.call_count == 2
 
@@ -75,13 +69,9 @@ class TestCallbackRunner:
         callback1 = MagicMock()
         callback2 = MagicMock()
         executor = MagicMock()
-        executor.run_callback = AsyncMock(
-            side_effect=[ValueError("error"), None]
-        )
+        executor.run_callback = AsyncMock(side_effect=[ValueError("error"), None])
 
-        await CallbackRunner.run_callbacks(
-            [callback1, callback2], "test_service", executor
-        )
+        await CallbackRunner.run_callbacks([callback1, callback2], "test_service", executor)
 
         assert executor.run_callback.call_count == 2
 
@@ -91,13 +81,9 @@ class TestCallbackRunner:
         callback1 = MagicMock()
         callback2 = MagicMock()
         executor = MagicMock()
-        executor.run_callback = AsyncMock(
-            side_effect=[TypeError("error"), None]
-        )
+        executor.run_callback = AsyncMock(side_effect=[TypeError("error"), None])
 
-        await CallbackRunner.run_callbacks(
-            [callback1, callback2], "test_service", executor
-        )
+        await CallbackRunner.run_callbacks([callback1, callback2], "test_service", executor)
 
         assert executor.run_callback.call_count == 2
 
@@ -107,13 +93,9 @@ class TestCallbackRunner:
         callback1 = MagicMock()
         callback2 = MagicMock()
         executor = MagicMock()
-        executor.run_callback = AsyncMock(
-            side_effect=[AttributeError("error"), None]
-        )
+        executor.run_callback = AsyncMock(side_effect=[AttributeError("error"), None])
 
-        await CallbackRunner.run_callbacks(
-            [callback1, callback2], "test_service", executor
-        )
+        await CallbackRunner.run_callbacks([callback1, callback2], "test_service", executor)
 
         assert executor.run_callback.call_count == 2
 
@@ -123,13 +105,9 @@ class TestCallbackRunner:
         callback1 = MagicMock()
         callback2 = MagicMock()
         executor = MagicMock()
-        executor.run_callback = AsyncMock(
-            side_effect=[OSError("error"), None]
-        )
+        executor.run_callback = AsyncMock(side_effect=[OSError("error"), None])
 
-        await CallbackRunner.run_callbacks(
-            [callback1, callback2], "test_service", executor
-        )
+        await CallbackRunner.run_callbacks([callback1, callback2], "test_service", executor)
 
         assert executor.run_callback.call_count == 2
 
@@ -139,13 +117,9 @@ class TestCallbackRunner:
         callback1 = MagicMock()
         callback2 = MagicMock()
         executor = MagicMock()
-        executor.run_callback = AsyncMock(
-            side_effect=[KeyError("error"), None]
-        )
+        executor.run_callback = AsyncMock(side_effect=[KeyError("error"), None])
 
-        await CallbackRunner.run_callbacks(
-            [callback1, callback2], "test_service", executor
-        )
+        await CallbackRunner.run_callbacks([callback1, callback2], "test_service", executor)
 
         assert executor.run_callback.call_count == 2
 
@@ -154,9 +128,7 @@ class TestCallbackRunner:
         """Raises CancelledError without catching it."""
         callback = MagicMock()
         executor = MagicMock()
-        executor.run_callback = AsyncMock(
-            side_effect=asyncio.CancelledError()
-        )
+        executor.run_callback = AsyncMock(side_effect=asyncio.CancelledError())
 
         with pytest.raises(asyncio.CancelledError):
             await CallbackRunner.run_callbacks([callback], "test_service", executor)
@@ -189,8 +161,6 @@ class TestCallbackRunner:
             ]
         )
 
-        await CallbackRunner.run_callbacks(
-            [callback1, callback2, callback3], "test_service", executor
-        )
+        await CallbackRunner.run_callbacks([callback1, callback2, callback3], "test_service", executor)
 
         assert executor.run_callback.call_count == 3

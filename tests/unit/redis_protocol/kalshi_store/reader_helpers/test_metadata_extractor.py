@@ -57,7 +57,7 @@ def _monkeypatch_helpers(monkeypatch):
 def test_metadata_extractor_static_helpers(monkeypatch):
     _monkeypatch_helpers(monkeypatch)
     extractor = metadata_extractor.MetadataExtractor(logger_instance=SimpleNamespace())
-    assert extractor.string_or_default("", default="X") == "X"
+    assert extractor.string_or_default("", fallback_value="X") == "X"
     assert extractor.normalize_hash({}) == {"normalized": True}
     snapshot = {}
     extractor.sync_top_of_book_fields(snapshot)

@@ -30,7 +30,7 @@ def test_coerce_sequence(value, expected):
 
 def test_string_int_float_bool_defaults():
     assert tc.string_or_default(b"bytes") == "bytes"
-    assert tc.string_or_default(None, default="x") == "x"
+    assert tc.string_or_default(None, fallback_value="x") == "x"
     assert tc.int_or_default("5") == 5
     assert tc.float_or_default("1.25") == 1.25
     assert tc.bool_or_default("yes", False, parse_strings=True) is True

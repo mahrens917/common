@@ -72,9 +72,7 @@ class TestGenerateWeatherLines:
         printer = MagicMock()
         printer.generate_weather_section = Mock()
         weather_gen = MagicMock()
-        weather_gen.generate_weather_section = MagicMock(
-            return_value=["Generator Line"]
-        )
+        weather_gen.generate_weather_section = MagicMock(return_value=["Generator Line"])
         printer._weather_generator = weather_gen
         temperatures = {"LA": 85}
 
@@ -199,9 +197,7 @@ class TestStatusReporterFormatterMixin:
         class TestReporter(StatusReporterFormatterMixin):
             def __init__(self):
                 self._log_activity_formatter = MagicMock()
-                self._log_activity_formatter.format_log_activity_short = MagicMock(
-                    return_value="formatted"
-                )
+                self._log_activity_formatter.format_log_activity_short = MagicMock(return_value="formatted")
 
         reporter = TestReporter()
         activity = {"action": "test"}
@@ -209,9 +205,7 @@ class TestStatusReporterFormatterMixin:
         result = reporter.format_log_activity_short("service1", activity)
 
         assert result == "formatted"
-        reporter._log_activity_formatter.format_log_activity_short.assert_called_once_with(
-            "service1", activity
-        )
+        reporter._log_activity_formatter.format_log_activity_short.assert_called_once_with("service1", activity)
 
     def test_format_log_activity_short_with_none(self):
         """Test format_log_activity_short with None activity."""
@@ -219,18 +213,14 @@ class TestStatusReporterFormatterMixin:
         class TestReporter(StatusReporterFormatterMixin):
             def __init__(self):
                 self._log_activity_formatter = MagicMock()
-                self._log_activity_formatter.format_log_activity_short = MagicMock(
-                    return_value=None
-                )
+                self._log_activity_formatter.format_log_activity_short = MagicMock(return_value=None)
 
         reporter = TestReporter()
 
         result = reporter.format_log_activity_short("service2", None)
 
         assert result is None
-        reporter._log_activity_formatter.format_log_activity_short.assert_called_once_with(
-            "service2", None
-        )
+        reporter._log_activity_formatter.format_log_activity_short.assert_called_once_with("service2", None)
 
     def test_format_log_activity_short_backward_compatible_alias(self):
         """Test _format_log_activity_short is backward-compatible alias."""
@@ -238,9 +228,7 @@ class TestStatusReporterFormatterMixin:
         class TestReporter(StatusReporterFormatterMixin):
             def __init__(self):
                 self._log_activity_formatter = MagicMock()
-                self._log_activity_formatter.format_log_activity_short = MagicMock(
-                    return_value="aliased"
-                )
+                self._log_activity_formatter.format_log_activity_short = MagicMock(return_value="aliased")
 
         reporter = TestReporter()
         activity = {"action": "alias_test"}
@@ -248,6 +236,4 @@ class TestStatusReporterFormatterMixin:
         result = reporter._format_log_activity_short("service3", activity)
 
         assert result == "aliased"
-        reporter._log_activity_formatter.format_log_activity_short.assert_called_once_with(
-            "service3", activity
-        )
+        reporter._log_activity_formatter.format_log_activity_short.assert_called_once_with("service3", activity)

@@ -106,9 +106,7 @@ async def test_apply_field_resets_with_alert_using_context(
         current_timestamp=datetime(2023, 1, 1, 12, 0, 0),
     )
 
-    final_value, should_reset, boundary = await applicator.apply_field_resets_with_alert(
-        context
-    )
+    final_value, should_reset, boundary = await applicator.apply_field_resets_with_alert(context)
 
     assert final_value == "reset_value"
     assert should_reset is True
@@ -121,12 +119,8 @@ async def test_apply_field_resets_with_alert_using_context(
         {"field1": 15.0},
         datetime(2023, 1, 1, 12, 0, 0),
     )
-    mock_alert_manager.send_reset_alert.assert_called_once_with(
-        "STATION_001", "field1", True, 15.0, 20.0
-    )
-    mock_field_reset_manager.apply_reset_logic.assert_called_once_with(
-        "field1", 20.0, {"field1": 15.0}, True
-    )
+    mock_alert_manager.send_reset_alert.assert_called_once_with("STATION_001", "field1", True, 15.0, 20.0)
+    mock_field_reset_manager.apply_reset_logic.assert_called_once_with("field1", 20.0, {"field1": 15.0}, True)
 
 
 @pytest.mark.asyncio
@@ -155,15 +149,11 @@ async def test_apply_field_resets_with_alert_using_parameters(
         {"field2": 25.0},
         datetime(2023, 1, 2, 14, 0, 0),
     )
-    mock_alert_manager.send_reset_alert.assert_called_once_with(
-        "LA_001", "field2", True, 25.0, 30.0
-    )
+    mock_alert_manager.send_reset_alert.assert_called_once_with("LA_001", "field2", True, 25.0, 30.0)
 
 
 @pytest.mark.asyncio
-async def test_apply_field_resets_with_alert_defaults(
-    applicator, mock_field_reset_manager
-):
+async def test_apply_field_resets_with_alert_defaults(applicator, mock_field_reset_manager):
     """Test apply_field_resets_with_alert with default parameter values."""
     final_value, should_reset, boundary = await applicator.apply_field_resets_with_alert(
         field_name="field1",
@@ -179,9 +169,7 @@ async def test_apply_field_resets_with_alert_defaults(
 
 
 @pytest.mark.asyncio
-async def test_apply_field_resets_with_alert_none_values(
-    applicator, mock_field_reset_manager
-):
+async def test_apply_field_resets_with_alert_none_values(applicator, mock_field_reset_manager):
     """Test apply_field_resets_with_alert with None lat/lon converts to 0.0."""
     await applicator.apply_field_resets_with_alert(
         field_name="field1",
@@ -199,9 +187,7 @@ async def test_apply_field_resets_with_alert_none_values(
 
 
 @pytest.mark.asyncio
-async def test_apply_field_resets_not_in_daily_reset_fields(
-    applicator, mock_alert_manager, mock_should_reset_callback
-):
+async def test_apply_field_resets_not_in_daily_reset_fields(applicator, mock_alert_manager, mock_should_reset_callback):
     """Test apply_field_resets_with_alert for field not in daily_reset_fields."""
     final_value, should_reset, boundary = await applicator.apply_field_resets_with_alert(
         field_name="not_a_reset_field",
@@ -221,9 +207,7 @@ async def test_apply_field_resets_not_in_daily_reset_fields(
 
 
 @pytest.mark.asyncio
-async def test_apply_field_resets_no_reset_needed(
-    applicator, mock_field_reset_manager, mock_alert_manager
-):
+async def test_apply_field_resets_no_reset_needed(applicator, mock_field_reset_manager, mock_alert_manager):
     """Test apply_field_resets_with_alert when callback returns False."""
     applicator.should_reset_callback = MagicMock(return_value=(False, None))
 
@@ -240,12 +224,8 @@ async def test_apply_field_resets_no_reset_needed(
     assert should_reset is False
     assert boundary is None
 
-    mock_alert_manager.send_reset_alert.assert_called_once_with(
-        "STATION_004", "field1", False, 45.0, 50.0
-    )
-    mock_field_reset_manager.apply_reset_logic.assert_called_once_with(
-        "field1", 50.0, {"field1": 45.0}, False
-    )
+    mock_alert_manager.send_reset_alert.assert_called_once_with("STATION_004", "field1", False, 45.0, 50.0)
+    mock_field_reset_manager.apply_reset_logic.assert_called_once_with("field1", 50.0, {"field1": 45.0}, False)
 
 
 @pytest.mark.asyncio
@@ -259,6 +239,4 @@ async def test_send_reset_alert(applicator, mock_alert_manager):
         new_value=0.0,
     )
 
-    mock_alert_manager.send_reset_alert.assert_called_once_with(
-        "STATION_005", "precipitation", True, 5.0, 0.0
-    )
+    mock_alert_manager.send_reset_alert.assert_called_once_with("STATION_005", "precipitation", True, 5.0, 0.0)

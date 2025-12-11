@@ -79,9 +79,7 @@ def test_factory_create_with_service_prefix(
     mock_status_instance = MagicMock()
     mock_status_cls.return_value = mock_status_instance
 
-    deps = KalshiSubscriptionTrackerFactory.create(
-        mock_redis_connection, mock_logger, service_prefix
-    )
+    deps = KalshiSubscriptionTrackerFactory.create(mock_redis_connection, mock_logger, service_prefix)
 
     assert isinstance(deps, KalshiSubscriptionTrackerDependencies)
     assert deps.connection_manager == mock_conn_instance
@@ -126,9 +124,7 @@ def test_factory_create_without_service_prefix(
     mock_status_instance = MagicMock()
     mock_status_cls.return_value = mock_status_instance
 
-    deps = KalshiSubscriptionTrackerFactory.create(
-        mock_redis_connection, mock_logger, None
-    )
+    deps = KalshiSubscriptionTrackerFactory.create(mock_redis_connection, mock_logger, None)
 
     assert isinstance(deps, KalshiSubscriptionTrackerDependencies)
     assert deps.connection_manager == mock_conn_instance
@@ -172,9 +168,7 @@ def test_factory_create_with_empty_string_prefix(
     mock_status_instance = MagicMock()
     mock_status_cls.return_value = mock_status_instance
 
-    deps = KalshiSubscriptionTrackerFactory.create(
-        mock_redis_connection, mock_logger, ""
-    )
+    deps = KalshiSubscriptionTrackerFactory.create(mock_redis_connection, mock_logger, "")
 
     assert isinstance(deps, KalshiSubscriptionTrackerDependencies)
     assert deps.connection_manager == mock_conn_instance

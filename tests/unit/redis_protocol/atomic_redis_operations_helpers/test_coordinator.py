@@ -29,9 +29,7 @@ class TestAtomicOperationsCoordinator:
     @pytest.fixture
     def coordinator(self, mock_redis: Mock) -> AtomicOperationsCoordinator:
         """Create a coordinator instance with mocked components."""
-        with patch(
-            "common.redis_protocol.atomic_redis_operations_helpers.coordinator.AtomicOperationsFactory"
-        ) as mock_factory:
+        with patch("common.redis_protocol.atomic_redis_operations_helpers.coordinator.AtomicOperationsFactory") as mock_factory:
             mock_factory.create_components.return_value = {
                 "transaction_writer": MagicMock(),
                 "data_fetcher": MagicMock(),
@@ -44,9 +42,7 @@ class TestAtomicOperationsCoordinator:
 
     def test_init_stores_redis_client(self, mock_redis: Mock) -> None:
         """Stores redis client."""
-        with patch(
-            "common.redis_protocol.atomic_redis_operations_helpers.coordinator.AtomicOperationsFactory"
-        ) as mock_factory:
+        with patch("common.redis_protocol.atomic_redis_operations_helpers.coordinator.AtomicOperationsFactory") as mock_factory:
             mock_factory.create_components.return_value = {
                 "transaction_writer": MagicMock(),
                 "data_fetcher": MagicMock(),
@@ -61,9 +57,7 @@ class TestAtomicOperationsCoordinator:
 
     def test_init_creates_components(self, mock_redis: Mock) -> None:
         """Creates all helper components."""
-        with patch(
-            "common.redis_protocol.atomic_redis_operations_helpers.coordinator.AtomicOperationsFactory"
-        ) as mock_factory:
+        with patch("common.redis_protocol.atomic_redis_operations_helpers.coordinator.AtomicOperationsFactory") as mock_factory:
             mock_factory.create_components.return_value = {
                 "transaction_writer": MagicMock(),
                 "data_fetcher": MagicMock(),
@@ -98,9 +92,7 @@ class TestAtomicMarketDataWrite:
     @pytest.fixture
     def coordinator(self, mock_redis: Mock) -> AtomicOperationsCoordinator:
         """Create a coordinator instance."""
-        with patch(
-            "common.redis_protocol.atomic_redis_operations_helpers.coordinator.AtomicOperationsFactory"
-        ) as mock_factory:
+        with patch("common.redis_protocol.atomic_redis_operations_helpers.coordinator.AtomicOperationsFactory") as mock_factory:
             mock_factory.create_components.return_value = {
                 "transaction_writer": MagicMock(),
                 "data_fetcher": MagicMock(),
@@ -112,30 +104,20 @@ class TestAtomicMarketDataWrite:
             return AtomicOperationsCoordinator(mock_redis)
 
     @pytest.mark.asyncio
-    async def test_delegates_to_transaction_writer(
-        self, coordinator: AtomicOperationsCoordinator
-    ) -> None:
+    async def test_delegates_to_transaction_writer(self, coordinator: AtomicOperationsCoordinator) -> None:
         """Delegates to transaction writer."""
-        coordinator.transaction_writer.atomic_market_data_write = AsyncMock(
-            return_value=True
-        )
+        coordinator.transaction_writer.atomic_market_data_write = AsyncMock(return_value=True)
         market_data = {"best_bid": 100, "best_ask": 101}
 
         result = await coordinator.atomic_market_data_write("test:key", market_data)
 
         assert result is True
-        coordinator.transaction_writer.atomic_market_data_write.assert_called_once_with(
-            "test:key", market_data
-        )
+        coordinator.transaction_writer.atomic_market_data_write.assert_called_once_with("test:key", market_data)
 
     @pytest.mark.asyncio
-    async def test_returns_false_on_failure(
-        self, coordinator: AtomicOperationsCoordinator
-    ) -> None:
+    async def test_returns_false_on_failure(self, coordinator: AtomicOperationsCoordinator) -> None:
         """Returns False when write fails."""
-        coordinator.transaction_writer.atomic_market_data_write = AsyncMock(
-            return_value=False
-        )
+        coordinator.transaction_writer.atomic_market_data_write = AsyncMock(return_value=False)
         market_data = {"best_bid": 100, "best_ask": 101}
 
         result = await coordinator.atomic_market_data_write("test:key", market_data)
@@ -154,9 +136,7 @@ class TestSafeMarketDataRead:
     @pytest.fixture
     def coordinator(self, mock_redis: Mock) -> AtomicOperationsCoordinator:
         """Create a coordinator instance."""
-        with patch(
-            "common.redis_protocol.atomic_redis_operations_helpers.coordinator.AtomicOperationsFactory"
-        ) as mock_factory:
+        with patch("common.redis_protocol.atomic_redis_operations_helpers.coordinator.AtomicOperationsFactory") as mock_factory:
             mock_components = {
                 "transaction_writer": MagicMock(),
                 "data_fetcher": MagicMock(),
@@ -169,9 +149,7 @@ class TestSafeMarketDataRead:
             return AtomicOperationsCoordinator(mock_redis)
 
     @pytest.mark.asyncio
-    async def test_uses_default_required_fields(
-        self, coordinator: AtomicOperationsCoordinator
-    ) -> None:
+    async def test_uses_default_required_fields(self, coordinator: AtomicOperationsCoordinator) -> None:
         """Uses default required fields when none provided."""
         raw_data = {
             "best_bid": "100",
@@ -188,9 +166,7 @@ class TestSafeMarketDataRead:
 
         coordinator.data_fetcher.fetch_market_data = AsyncMock(return_value=raw_data)
         coordinator.field_validator.ensure_required_fields = MagicMock()
-        coordinator.data_converter.convert_market_payload = MagicMock(
-            return_value=converted_data
-        )
+        coordinator.data_converter.convert_market_payload = MagicMock(return_value=converted_data)
         coordinator.spread_validator.validate_bid_ask_spread = MagicMock()
 
         result = await coordinator.safe_market_data_read("test:key")
@@ -206,41 +182,31 @@ class TestSafeMarketDataRead:
         }
 
     @pytest.mark.asyncio
-    async def test_uses_custom_required_fields(
-        self, coordinator: AtomicOperationsCoordinator
-    ) -> None:
+    async def test_uses_custom_required_fields(self, coordinator: AtomicOperationsCoordinator) -> None:
         """Uses custom required fields when provided."""
         raw_data = {"custom_field": "value"}
         converted_data = {"custom_field": "value"}
 
         coordinator.data_fetcher.fetch_market_data = AsyncMock(return_value=raw_data)
         coordinator.field_validator.ensure_required_fields = MagicMock()
-        coordinator.data_converter.convert_market_payload = MagicMock(
-            return_value=converted_data
-        )
+        coordinator.data_converter.convert_market_payload = MagicMock(return_value=converted_data)
         coordinator.spread_validator.validate_bid_ask_spread = MagicMock()
 
-        result = await coordinator.safe_market_data_read(
-            "test:key", required_fields=["custom_field"]
-        )
+        result = await coordinator.safe_market_data_read("test:key", required_fields=["custom_field"])
 
         assert result == converted_data
         call_args = coordinator.field_validator.ensure_required_fields.call_args
         assert call_args[0][1] == ["custom_field"]
 
     @pytest.mark.asyncio
-    async def test_successful_read_returns_converted_data(
-        self, coordinator: AtomicOperationsCoordinator
-    ) -> None:
+    async def test_successful_read_returns_converted_data(self, coordinator: AtomicOperationsCoordinator) -> None:
         """Returns converted data on successful read."""
         raw_data = {"best_bid": "100", "best_ask": "101"}
         converted_data = {"best_bid": 100.0, "best_ask": 101.0}
 
         coordinator.data_fetcher.fetch_market_data = AsyncMock(return_value=raw_data)
         coordinator.field_validator.ensure_required_fields = MagicMock()
-        coordinator.data_converter.convert_market_payload = MagicMock(
-            return_value=converted_data
-        )
+        coordinator.data_converter.convert_market_payload = MagicMock(return_value=converted_data)
         coordinator.spread_validator.validate_bid_ask_spread = MagicMock()
 
         result = await coordinator.safe_market_data_read("test:key")
@@ -248,18 +214,14 @@ class TestSafeMarketDataRead:
         assert result == converted_data
 
     @pytest.mark.asyncio
-    async def test_calls_all_validators_in_order(
-        self, coordinator: AtomicOperationsCoordinator
-    ) -> None:
+    async def test_calls_all_validators_in_order(self, coordinator: AtomicOperationsCoordinator) -> None:
         """Calls all validation steps in correct order."""
         raw_data = {"best_bid": "100"}
         converted_data = {"best_bid": 100.0}
 
         coordinator.data_fetcher.fetch_market_data = AsyncMock(return_value=raw_data)
         coordinator.field_validator.ensure_required_fields = MagicMock()
-        coordinator.data_converter.convert_market_payload = MagicMock(
-            return_value=converted_data
-        )
+        coordinator.data_converter.convert_market_payload = MagicMock(return_value=converted_data)
         coordinator.spread_validator.validate_bid_ask_spread = MagicMock()
 
         await coordinator.safe_market_data_read("test:key")
@@ -270,9 +232,7 @@ class TestSafeMarketDataRead:
         coordinator.spread_validator.validate_bid_ask_spread.assert_called_once()
 
     @pytest.mark.asyncio
-    async def test_retries_on_validation_error(
-        self, coordinator: AtomicOperationsCoordinator
-    ) -> None:
+    async def test_retries_on_validation_error(self, coordinator: AtomicOperationsCoordinator) -> None:
         """Retries when validation error occurs."""
         raw_data = {"best_bid": "100"}
         converted_data = {"best_bid": 100.0}
@@ -284,9 +244,7 @@ class TestSafeMarketDataRead:
             ]
         )
         coordinator.field_validator.ensure_required_fields = MagicMock()
-        coordinator.data_converter.convert_market_payload = MagicMock(
-            return_value=converted_data
-        )
+        coordinator.data_converter.convert_market_payload = MagicMock(return_value=converted_data)
         coordinator.spread_validator.validate_bid_ask_spread = MagicMock()
 
         with patch("asyncio.sleep", new_callable=AsyncMock):
@@ -296,22 +254,16 @@ class TestSafeMarketDataRead:
         assert coordinator.data_fetcher.fetch_market_data.call_count == 2
 
     @pytest.mark.asyncio
-    async def test_raises_after_max_validation_retries(
-        self, coordinator: AtomicOperationsCoordinator
-    ) -> None:
+    async def test_raises_after_max_validation_retries(self, coordinator: AtomicOperationsCoordinator) -> None:
         """Raises error after max retries exceeded for validation errors."""
-        coordinator.data_fetcher.fetch_market_data = AsyncMock(
-            side_effect=RedisDataValidationError("validation failed")
-        )
+        coordinator.data_fetcher.fetch_market_data = AsyncMock(side_effect=RedisDataValidationError("validation failed"))
 
         with patch("asyncio.sleep", new_callable=AsyncMock):
             with pytest.raises(RedisDataValidationError):
                 await coordinator.safe_market_data_read("test:key")
 
     @pytest.mark.asyncio
-    async def test_retries_on_redis_error(
-        self, coordinator: AtomicOperationsCoordinator
-    ) -> None:
+    async def test_retries_on_redis_error(self, coordinator: AtomicOperationsCoordinator) -> None:
         """Retries when Redis error occurs."""
         raw_data = {"best_bid": "100"}
         converted_data = {"best_bid": 100.0}
@@ -323,9 +275,7 @@ class TestSafeMarketDataRead:
             ]
         )
         coordinator.field_validator.ensure_required_fields = MagicMock()
-        coordinator.data_converter.convert_market_payload = MagicMock(
-            return_value=converted_data
-        )
+        coordinator.data_converter.convert_market_payload = MagicMock(return_value=converted_data)
         coordinator.spread_validator.validate_bid_ask_spread = MagicMock()
 
         with patch("asyncio.sleep", new_callable=AsyncMock):
@@ -334,13 +284,9 @@ class TestSafeMarketDataRead:
         assert result == converted_data
 
     @pytest.mark.asyncio
-    async def test_raises_after_max_redis_error_retries(
-        self, coordinator: AtomicOperationsCoordinator
-    ) -> None:
+    async def test_raises_after_max_redis_error_retries(self, coordinator: AtomicOperationsCoordinator) -> None:
         """Raises error after max retries exceeded for Redis errors."""
-        coordinator.data_fetcher.fetch_market_data = AsyncMock(
-            side_effect=RedisError("connection error")
-        )
+        coordinator.data_fetcher.fetch_market_data = AsyncMock(side_effect=RedisError("connection error"))
 
         with patch("asyncio.sleep", new_callable=AsyncMock):
             with pytest.raises(RedisDataValidationError) as exc_info:
@@ -349,9 +295,7 @@ class TestSafeMarketDataRead:
         assert "Error reading market data" in str(exc_info.value)
 
     @pytest.mark.asyncio
-    async def test_handles_connection_error(
-        self, coordinator: AtomicOperationsCoordinator
-    ) -> None:
+    async def test_handles_connection_error(self, coordinator: AtomicOperationsCoordinator) -> None:
         """Handles ConnectionError properly."""
         raw_data = {"best_bid": "100"}
         converted_data = {"best_bid": 100.0}
@@ -363,9 +307,7 @@ class TestSafeMarketDataRead:
             ]
         )
         coordinator.field_validator.ensure_required_fields = MagicMock()
-        coordinator.data_converter.convert_market_payload = MagicMock(
-            return_value=converted_data
-        )
+        coordinator.data_converter.convert_market_payload = MagicMock(return_value=converted_data)
         coordinator.spread_validator.validate_bid_ask_spread = MagicMock()
 
         with patch("asyncio.sleep", new_callable=AsyncMock):
@@ -374,9 +316,7 @@ class TestSafeMarketDataRead:
         assert result == converted_data
 
     @pytest.mark.asyncio
-    async def test_handles_timeout_error(
-        self, coordinator: AtomicOperationsCoordinator
-    ) -> None:
+    async def test_handles_timeout_error(self, coordinator: AtomicOperationsCoordinator) -> None:
         """Handles TimeoutError properly."""
         raw_data = {"best_bid": "100"}
         converted_data = {"best_bid": 100.0}
@@ -388,9 +328,7 @@ class TestSafeMarketDataRead:
             ]
         )
         coordinator.field_validator.ensure_required_fields = MagicMock()
-        coordinator.data_converter.convert_market_payload = MagicMock(
-            return_value=converted_data
-        )
+        coordinator.data_converter.convert_market_payload = MagicMock(return_value=converted_data)
         coordinator.spread_validator.validate_bid_ask_spread = MagicMock()
 
         with patch("asyncio.sleep", new_callable=AsyncMock):
@@ -399,9 +337,7 @@ class TestSafeMarketDataRead:
         assert result == converted_data
 
     @pytest.mark.asyncio
-    async def test_handles_runtime_error(
-        self, coordinator: AtomicOperationsCoordinator
-    ) -> None:
+    async def test_handles_runtime_error(self, coordinator: AtomicOperationsCoordinator) -> None:
         """Handles RuntimeError properly."""
         raw_data = {"best_bid": "100"}
         converted_data = {"best_bid": 100.0}
@@ -413,9 +349,7 @@ class TestSafeMarketDataRead:
             ]
         )
         coordinator.field_validator.ensure_required_fields = MagicMock()
-        coordinator.data_converter.convert_market_payload = MagicMock(
-            return_value=converted_data
-        )
+        coordinator.data_converter.convert_market_payload = MagicMock(return_value=converted_data)
         coordinator.spread_validator.validate_bid_ask_spread = MagicMock()
 
         with patch("asyncio.sleep", new_callable=AsyncMock):
@@ -424,9 +358,7 @@ class TestSafeMarketDataRead:
         assert result == converted_data
 
     @pytest.mark.asyncio
-    async def test_handles_value_error(
-        self, coordinator: AtomicOperationsCoordinator
-    ) -> None:
+    async def test_handles_value_error(self, coordinator: AtomicOperationsCoordinator) -> None:
         """Handles ValueError properly."""
         raw_data = {"best_bid": "100"}
         converted_data = {"best_bid": 100.0}
@@ -438,9 +370,7 @@ class TestSafeMarketDataRead:
             ]
         )
         coordinator.field_validator.ensure_required_fields = MagicMock()
-        coordinator.data_converter.convert_market_payload = MagicMock(
-            return_value=converted_data
-        )
+        coordinator.data_converter.convert_market_payload = MagicMock(return_value=converted_data)
         coordinator.spread_validator.validate_bid_ask_spread = MagicMock()
 
         with patch("asyncio.sleep", new_callable=AsyncMock):
@@ -449,9 +379,7 @@ class TestSafeMarketDataRead:
         assert result == converted_data
 
     @pytest.mark.asyncio
-    async def test_handles_type_error(
-        self, coordinator: AtomicOperationsCoordinator
-    ) -> None:
+    async def test_handles_type_error(self, coordinator: AtomicOperationsCoordinator) -> None:
         """Handles TypeError properly."""
         raw_data = {"best_bid": "100"}
         converted_data = {"best_bid": 100.0}
@@ -463,9 +391,7 @@ class TestSafeMarketDataRead:
             ]
         )
         coordinator.field_validator.ensure_required_fields = MagicMock()
-        coordinator.data_converter.convert_market_payload = MagicMock(
-            return_value=converted_data
-        )
+        coordinator.data_converter.convert_market_payload = MagicMock(return_value=converted_data)
         coordinator.spread_validator.validate_bid_ask_spread = MagicMock()
 
         with patch("asyncio.sleep", new_callable=AsyncMock):
@@ -474,18 +400,14 @@ class TestSafeMarketDataRead:
         assert result == converted_data
 
     @pytest.mark.asyncio
-    async def test_logs_debug_on_success(
-        self, coordinator: AtomicOperationsCoordinator
-    ) -> None:
+    async def test_logs_debug_on_success(self, coordinator: AtomicOperationsCoordinator) -> None:
         """Logs debug message on successful read."""
         raw_data = {"best_bid": "100"}
         converted_data = {"best_bid": 100.0}
 
         coordinator.data_fetcher.fetch_market_data = AsyncMock(return_value=raw_data)
         coordinator.field_validator.ensure_required_fields = MagicMock()
-        coordinator.data_converter.convert_market_payload = MagicMock(
-            return_value=converted_data
-        )
+        coordinator.data_converter.convert_market_payload = MagicMock(return_value=converted_data)
         coordinator.spread_validator.validate_bid_ask_spread = MagicMock()
         coordinator.logger = MagicMock()
 
@@ -494,13 +416,9 @@ class TestSafeMarketDataRead:
         coordinator.logger.debug.assert_called()
 
     @pytest.mark.asyncio
-    async def test_logs_exception_on_error(
-        self, coordinator: AtomicOperationsCoordinator
-    ) -> None:
+    async def test_logs_exception_on_error(self, coordinator: AtomicOperationsCoordinator) -> None:
         """Logs exception on error."""
-        coordinator.data_fetcher.fetch_market_data = AsyncMock(
-            side_effect=RedisError("error")
-        )
+        coordinator.data_fetcher.fetch_market_data = AsyncMock(side_effect=RedisError("error"))
         coordinator.logger = MagicMock()
 
         with patch("asyncio.sleep", new_callable=AsyncMock):
@@ -521,9 +439,7 @@ class TestAtomicDeleteIfInvalid:
     @pytest.fixture
     def coordinator(self, mock_redis: Mock) -> AtomicOperationsCoordinator:
         """Create a coordinator instance."""
-        with patch(
-            "common.redis_protocol.atomic_redis_operations_helpers.coordinator.AtomicOperationsFactory"
-        ) as mock_factory:
+        with patch("common.redis_protocol.atomic_redis_operations_helpers.coordinator.AtomicOperationsFactory") as mock_factory:
             mock_factory.create_components.return_value = {
                 "transaction_writer": MagicMock(),
                 "data_fetcher": MagicMock(),
@@ -535,30 +451,20 @@ class TestAtomicDeleteIfInvalid:
             return AtomicOperationsCoordinator(mock_redis)
 
     @pytest.mark.asyncio
-    async def test_delegates_to_deletion_validator(
-        self, coordinator: AtomicOperationsCoordinator
-    ) -> None:
+    async def test_delegates_to_deletion_validator(self, coordinator: AtomicOperationsCoordinator) -> None:
         """Delegates to deletion validator."""
-        coordinator.deletion_validator.atomic_delete_if_invalid = AsyncMock(
-            return_value=True
-        )
+        coordinator.deletion_validator.atomic_delete_if_invalid = AsyncMock(return_value=True)
         validation_data: Dict[str, Any] = {"best_bid": 0, "best_ask": 0}
 
         result = await coordinator.atomic_delete_if_invalid("test:key", validation_data)
 
         assert result is True
-        coordinator.deletion_validator.atomic_delete_if_invalid.assert_called_once_with(
-            "test:key", validation_data
-        )
+        coordinator.deletion_validator.atomic_delete_if_invalid.assert_called_once_with("test:key", validation_data)
 
     @pytest.mark.asyncio
-    async def test_returns_false_when_not_deleted(
-        self, coordinator: AtomicOperationsCoordinator
-    ) -> None:
+    async def test_returns_false_when_not_deleted(self, coordinator: AtomicOperationsCoordinator) -> None:
         """Returns False when data is valid and not deleted."""
-        coordinator.deletion_validator.atomic_delete_if_invalid = AsyncMock(
-            return_value=False
-        )
+        coordinator.deletion_validator.atomic_delete_if_invalid = AsyncMock(return_value=False)
         validation_data: Dict[str, Any] = {"best_bid": 100, "best_ask": 101}
 
         result = await coordinator.atomic_delete_if_invalid("test:key", validation_data)
@@ -612,12 +518,14 @@ class TestActualImplementations:
         pipeline_mock.execute = AsyncMock(return_value=[1])
         pipeline_mock.hset = MagicMock()
         redis_mock.pipeline = MagicMock(return_value=pipeline_mock)
-        redis_mock.hgetall = AsyncMock(return_value={
-            "best_bid": "100.5",
-            "best_ask": "101.5",
-            "best_bid_size": "10",
-            "best_ask_size": "20",
-        })
+        redis_mock.hgetall = AsyncMock(
+            return_value={
+                "best_bid": "100.5",
+                "best_ask": "101.5",
+                "best_bid_size": "10",
+                "best_ask_size": "20",
+            }
+        )
         redis_mock.delete = AsyncMock(return_value=1)
         return redis_mock
 
@@ -642,9 +550,7 @@ class TestActualImplementations:
         assert isinstance(result["best_bid"], float)
 
     @pytest.mark.asyncio
-    async def test_actual_safe_read_with_retry_on_validation_error(
-        self, mock_redis: Mock
-    ) -> None:
+    async def test_actual_safe_read_with_retry_on_validation_error(self, mock_redis: Mock) -> None:
         """Test actual safe read retries on validation error."""
         coordinator = AtomicOperationsCoordinator(mock_redis)
         # First call fails, second succeeds
@@ -666,23 +572,17 @@ class TestActualImplementations:
         assert "best_bid" in result
 
     @pytest.mark.asyncio
-    async def test_actual_safe_read_raises_on_missing_fields(
-        self, mock_redis: Mock
-    ) -> None:
+    async def test_actual_safe_read_raises_on_missing_fields(self, mock_redis: Mock) -> None:
         """Test actual safe read raises when required fields missing."""
         coordinator = AtomicOperationsCoordinator(mock_redis)
-        mock_redis.hgetall = AsyncMock(
-            return_value={"other_field": "value"}
-        )
+        mock_redis.hgetall = AsyncMock(return_value={"other_field": "value"})
 
         with patch("asyncio.sleep", new_callable=AsyncMock):
             with pytest.raises(RedisDataValidationError):
                 await coordinator.safe_market_data_read("test:key")
 
     @pytest.mark.asyncio
-    async def test_actual_safe_read_raises_on_redis_error(
-        self, mock_redis: Mock
-    ) -> None:
+    async def test_actual_safe_read_raises_on_redis_error(self, mock_redis: Mock) -> None:
         """Test actual safe read raises on Redis error after retries."""
         coordinator = AtomicOperationsCoordinator(mock_redis)
         mock_redis.hgetall = AsyncMock(side_effect=RedisError("connection failed"))
@@ -694,26 +594,17 @@ class TestActualImplementations:
         assert "Error reading market data" in str(exc_info.value)
 
     @pytest.mark.asyncio
-    async def test_actual_safe_read_with_custom_fields(
-        self, mock_redis: Mock
-    ) -> None:
+    async def test_actual_safe_read_with_custom_fields(self, mock_redis: Mock) -> None:
         """Test actual safe read with custom required fields."""
         coordinator = AtomicOperationsCoordinator(mock_redis)
-        mock_redis.hgetall = AsyncMock(
-            return_value={"custom_field": "100"}
-        )
+        mock_redis.hgetall = AsyncMock(return_value={"custom_field": "100"})
 
-        result = await coordinator.safe_market_data_read(
-            "test:key",
-            required_fields=["custom_field"]
-        )
+        result = await coordinator.safe_market_data_read("test:key", required_fields=["custom_field"])
 
         assert "custom_field" in result
 
     @pytest.mark.asyncio
-    async def test_actual_delete_if_invalid_deletes_on_zero_bid(
-        self, mock_redis: Mock
-    ) -> None:
+    async def test_actual_delete_if_invalid_deletes_on_zero_bid(self, mock_redis: Mock) -> None:
         """Test actual delete when bid is zero."""
         coordinator = AtomicOperationsCoordinator(mock_redis)
         validation_data = {
@@ -728,9 +619,7 @@ class TestActualImplementations:
         assert result is True
 
     @pytest.mark.asyncio
-    async def test_actual_delete_if_invalid_keeps_valid_data(
-        self, mock_redis: Mock
-    ) -> None:
+    async def test_actual_delete_if_invalid_keeps_valid_data(self, mock_redis: Mock) -> None:
         """Test actual delete keeps valid data."""
         coordinator = AtomicOperationsCoordinator(mock_redis)
         validation_data = {
@@ -745,9 +634,7 @@ class TestActualImplementations:
         assert result is False
 
     @pytest.mark.asyncio
-    async def test_actual_safe_read_handles_asyncio_timeout(
-        self, mock_redis: Mock
-    ) -> None:
+    async def test_actual_safe_read_handles_asyncio_timeout(self, mock_redis: Mock) -> None:
         """Test actual safe read handles asyncio.TimeoutError."""
         import asyncio
 

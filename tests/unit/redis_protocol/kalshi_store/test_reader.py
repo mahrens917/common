@@ -320,7 +320,7 @@ async def test_kalshi_market_reader_get_field_returns_default(monkeypatch):
     reader._snapshot_retriever = MagicMock()
     reader._snapshot_retriever.get_field = AsyncMock(side_effect=RuntimeError("boom"))
 
-    assert await reader.get_market_field("KXHIGHTEST", "status", default="fallback") == "fallback"
+    assert await reader.get_market_field("KXHIGHTEST", "status", fallback_value="fallback") == "fallback"
 
 
 @pytest.mark.asyncio
@@ -460,6 +460,7 @@ async def test_kalshi_market_reader_scan_market_keys_no_connection():
 @pytest.mark.asyncio
 async def test_kalshi_market_reader_is_market_expired():
     """Test is_market_expired functionality."""
+
     class StatusStub:
         async def is_expired(self, ticker: str, **kwargs: Any) -> bool:
             return ticker == "EXPIRED"
@@ -490,6 +491,7 @@ async def test_kalshi_market_reader_is_market_expired():
 @pytest.mark.asyncio
 async def test_kalshi_market_reader_is_market_settled():
     """Test is_market_settled functionality."""
+
     class StatusStub:
         async def is_settled(self, ticker: str) -> bool:
             return ticker == "SETTLED"
