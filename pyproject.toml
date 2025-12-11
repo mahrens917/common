@@ -21,7 +21,7 @@ known_first_party = ["src", "scripts", "config", "common"]
 requirements_files = ["requirements.txt"]
 requirements_files_dev = ["scripts/requirements.txt"]
 extend_exclude = [".legacy_backup", "ci_shared", "ci_tools"]
-per_rule_ignores = { DEP002 = ["lxml", "coverage"] }
+per_rule_ignores = { DEP002 = ["lxml", "coverage"], DEP003 = ["monitor", "kalshi"] }
 
 # =============================================================================
 # Standardized Tool Configurations
