@@ -202,6 +202,10 @@ class FakeRedis:
             return filtered
         return [m for m, _ in filtered]
 
+    async def ping(self) -> str:
+        """Ping the Redis server."""
+        return "PONG"
+
     def pipeline(self, transaction: bool = True):
         """Create a pipeline context."""
         return FakeRedisPipeline(self, transaction=transaction)
@@ -237,9 +241,26 @@ class FakeRedisPipeline:
         self.commands.append(("sadd", (key, members)))
         return self
 
-    def hset(self, key: str, mapping: dict[str, str] | None = None, **kwargs: str) -> "FakeRedisPipeline":
-        """Pipeline hset."""
-        self.commands.append(("hset", (key, mapping or kwargs)))
+    def hset(self, key: str, mapping: dict[str, str] | str | None = None, field: str | None = None, value: str | None = None, **kwargs: str) -> "FakeRedisPipeline":
+        """Pipeline hset. Supports both old and new redis-py signatures.
+
+        Old API: hset(key, field, value)
+        New API: hset(key, mapping={...}) or hset(key, **kwargs)
+        """
+        if isinstance(mapping, str) and isinstance(field, str) and value is None:
+            # Old API: hset(key, field, value) where mapping is actually the field name
+            update_map = {mapping: field}
+        elif isinstance(mapping, dict):
+            # New API with dict: hset(key, {"field": "value"})
+            update_map = mapping
+        elif mapping is None:
+            # New API with kwargs: hset(key, field="value")
+            update_map = kwargs
+        else:
+            # Fallback
+            update_map = mapping or kwargs
+
+        self.commands.append(("hset", (key, update_map)))
         return self
 
     def hget(self, key: str, field: str) -> "FakeRedisPipeline":
