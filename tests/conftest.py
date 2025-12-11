@@ -27,6 +27,7 @@ class FakeRedis:
         self._data: dict[str, Any] = {}
         self._sets: dict[str, set[str]] = {}
         self._hashes: dict[str, dict[str, str]] = {}
+        self._sorted_sets: dict[str, dict[str, float]] = {}
 
     async def set(self, key: str, value: str | bytes) -> bool:
         """Set a string value."""
@@ -142,11 +143,14 @@ class FakeRedis:
             if k in self._hashes:
                 del self._hashes[k]
                 deleted += 1
+            if k in self._sorted_sets:
+                del self._sorted_sets[k]
+                deleted += 1
         return deleted
 
     async def exists(self, *keys: str) -> int:
         """Check if keys exist."""
-        return sum(1 for k in keys if k in self._data or k in self._sets or k in self._hashes)
+        return sum(1 for k in keys if k in self._data or k in self._sets or k in self._hashes or k in self._sorted_sets)
 
     async def keys(self, pattern: str) -> list[str]:
         """Get all keys matching pattern."""
@@ -171,6 +175,32 @@ class FakeRedis:
 
         for key in keys:
             yield key
+
+    async def zadd(self, key: str, mapping: dict[str, float] | None = None, **kwargs) -> int:
+        """Add members to a sorted set."""
+        if key not in self._sorted_sets:
+            self._sorted_sets[key] = {}
+
+        update_map = mapping or kwargs
+        added = sum(1 for k in update_map if k not in self._sorted_sets[key])
+        self._sorted_sets[key].update(update_map)
+        return added
+
+    async def zrangebyscore(self, key: str, min_score: float | str, max_score: float | str, withscores: bool = False) -> list:
+        """Get members of a sorted set by score range."""
+        if key not in self._sorted_sets:
+            return []
+
+        min_val = float(min_score) if isinstance(min_score, str) else min_score
+        max_val = float(max_score) if isinstance(max_score, str) else max_score
+
+        members = self._sorted_sets[key]
+        filtered = [(m, s) for m, s in members.items() if min_val <= s <= max_val]
+        filtered.sort(key=lambda x: x[1])
+
+        if withscores:
+            return filtered
+        return [m for m, _ in filtered]
 
     def pipeline(self, transaction: bool = True):
         """Create a pipeline context."""
@@ -210,6 +240,11 @@ class FakeRedisPipeline:
     def hset(self, key: str, mapping: dict[str, str] | None = None, **kwargs: str) -> "FakeRedisPipeline":
         """Pipeline hset."""
         self.commands.append(("hset", (key, mapping or kwargs)))
+        return self
+
+    def hget(self, key: str, field: str) -> "FakeRedisPipeline":
+        """Pipeline hget."""
+        self.commands.append(("hget", (key, field)))
         return self
 
     def hincrby(self, key: str, field: str, increment: int) -> "FakeRedisPipeline":
@@ -252,6 +287,10 @@ class FakeRedisPipeline:
             elif cmd == "hset":
                 key, mapping = args
                 result = await self.fake_redis.hset(key, mapping)
+                results.append(result)
+            elif cmd == "hget":
+                key, field = args
+                result = await self.fake_redis.hget(key, field)
                 results.append(result)
             elif cmd == "hincrby":
                 key, field, increment = args
