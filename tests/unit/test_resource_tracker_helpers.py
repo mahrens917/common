@@ -25,7 +25,7 @@ class FakeRedis:
     async def zremrangebyscore(self, key, min_score, max_score):
         self.commands.append(("zrem", key, min_score, max_score))
 
-    async def zrangebyscore(self, key, start, end, _withscores=False):
+    async def zrangebyscore(self, key, start, end, withscores=False):
         self.commands.append(("zrange", key, start, end))
         return [f"{start}:{42.0}", "invalid"]
 
