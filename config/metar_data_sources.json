@@ -1,0 +1,9 @@
+{
+  "data_sources": {
+    "example_airport": {
+      "icao_code": "KJFK",
+      "location": "New York",
+      "enabled": true
+    }
+  }
+}

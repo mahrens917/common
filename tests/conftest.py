@@ -2,11 +2,22 @@
 
 from __future__ import annotations
 
+import os
 import sys
 from typing import Any
 from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
+
+# Set required environment variables for tests
+os.environ.setdefault("CONNECTION_TIMEOUT_SECONDS", "30")
+os.environ.setdefault("REQUEST_TIMEOUT_SECONDS", "30")
+os.environ.setdefault("RECONNECTION_INITIAL_DELAY_SECONDS", "1")
+os.environ.setdefault("RECONNECTION_MAX_DELAY_SECONDS", "60")
+os.environ.setdefault("RECONNECTION_BACKOFF_MULTIPLIER", "2.0")
+os.environ.setdefault("MAX_CONSECUTIVE_FAILURES", "5")
+os.environ.setdefault("HEALTH_CHECK_INTERVAL_SECONDS", "10")
+os.environ.setdefault("SUBSCRIPTION_TIMEOUT_SECONDS", "5")
 
 
 class FakeRedis:
