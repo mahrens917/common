@@ -16,6 +16,9 @@ if os.environ.get("REFERENCE_UNUSED_MODULES") in ("1", "true"):
     import common.backoff_manager_helpers.delay_calculator  # noqa: F401
     import common.backoff_manager_helpers.retry_checker  # noqa: F401
     import common.connection_state_tracker_helpers.event_manager  # noqa: F401
+
+    # Additional modules needed for unused_module_guard validation
+    import common.connection_state_tracker_helpers.initializer  # noqa: F401
     import common.connection_state_tracker_helpers.state_querier  # noqa: F401
     import common.connection_state_tracker_helpers.state_updater  # noqa: F401
     import common.daily_max_state_helpers.state_persistence  # noqa: F401
@@ -44,6 +47,7 @@ if os.environ.get("REFERENCE_UNUSED_MODULES") in ("1", "true"):
     import common.market_data_parser_helpers.instrument_parser  # noqa: F401
     import common.market_data_parser_helpers.parsed_instrument_validator  # noqa: F401
     import common.market_data_parser_helpers.structure_validator  # noqa: F401
+    import common.market_lifecycle_monitor_helpers.property_bridge  # noqa: F401
     import common.metadata_store_auto_updater_helpers.time_window_updater_helpers.message_counter  # noqa: F401
     import common.midnight_reset_service_helpers.max_temp_processor_helpers  # noqa: F401
     import common.network_adaptive_poller_helpers.interval_adjuster  # noqa: F401
@@ -65,6 +69,7 @@ if os.environ.get("REFERENCE_UNUSED_MODULES") in ("1", "true"):
     import common.process_killer_helpers.process_filter  # noqa: F401
     import common.process_killer_helpers.process_normalizer  # noqa: F401
     import common.process_monitor_helpers.service_patterns  # noqa: F401
+    import common.redis_protocol.atomic_redis_operations_helpers.coordinator  # noqa: F401
     import common.redis_protocol.connection_helpers.pool_initialization  # noqa: F401
     import common.redis_protocol.connection_helpers.pool_lifecycle  # noqa: F401
     import common.redis_protocol.connection_store_helpers.global_instance  # noqa: F401
@@ -76,18 +81,26 @@ if os.environ.get("REFERENCE_UNUSED_MODULES") in ("1", "true"):
     import common.redis_protocol.kalshi_store.orderbook_helpers.best_price_updater  # noqa: F401
     import common.redis_protocol.kalshi_store.orderbook_helpers.delta_field_extractor  # noqa: F401
     import common.redis_protocol.kalshi_store.orderbook_helpers.delta_processor_helpers  # noqa: F401
+    import common.redis_protocol.kalshi_store.orderbook_helpers.message_processing.dispatcher  # noqa: F401
+    import common.redis_protocol.kalshi_store.orderbook_helpers.snapshot_processor_helpers.price_formatting  # noqa: F401
+    import common.redis_protocol.kalshi_store.orderbook_helpers.snapshot_processor_helpers.redis_storage  # noqa: F401
     import common.redis_protocol.kalshi_store.orderbook_helpers.trade_price_updater  # noqa: F401
     import common.redis_protocol.kalshi_store.reader_helpers.expiry_operations  # noqa: F401
     import common.redis_protocol.kalshi_store.reader_helpers.lazy_property_factory  # noqa: F401
     import common.redis_protocol.kalshi_store.reader_helpers.market_operations  # noqa: F401
+    import common.redis_protocol.kalshi_store.reader_helpers.market_query_handler  # noqa: F401
+    import common.redis_protocol.kalshi_store.reader_helpers.market_status_checker  # noqa: F401
     import common.redis_protocol.kalshi_store.reader_helpers.orderbook_operations  # noqa: F401
     import common.redis_protocol.kalshi_store.reader_helpers.snapshot_operations  # noqa: F401
+    import common.redis_protocol.kalshi_store.store_helpers.property_management  # noqa: F401
+    import common.redis_protocol.kalshi_store.store_helpers.static_methods  # noqa: F401
     import common.redis_protocol.kalshi_store.subscription_factory  # noqa: F401
     import common.redis_protocol.kalshi_store.writer_helpers.orderbook_writer_helpers.trade_mapping_builder  # noqa: F401
     import common.redis_protocol.kalshi_store.writer_helpers.timestamp_converter  # noqa: F401
     import common.redis_protocol.kalshi_store.writer_helpers.timestamp_helpers  # noqa: F401
     import common.redis_protocol.market_normalization_helpers.strike_bounds_builder  # noqa: F401
     import common.redis_protocol.market_normalization_helpers.strike_derivation  # noqa: F401
+    import common.redis_protocol.messages_helpers.option_normalizer  # noqa: F401
     import common.redis_protocol.messages_helpers.timestamp_converter  # noqa: F401
     import common.redis_protocol.orderbook_utils_helpers.side_builder  # noqa: F401
     import common.redis_protocol.persistence_manager_helpers.convenience  # noqa: F401
@@ -96,11 +109,16 @@ if os.environ.get("REFERENCE_UNUSED_MODULES") in ("1", "true"):
     import common.redis_protocol.trade_store.optional_field_extractor  # noqa: F401
     import common.redis_protocol.trade_store.store_helpers.api_delegator  # noqa: F401
     import common.redis_protocol.trade_store.trade_record_validator  # noqa: F401
+    import common.resource_tracker_helpers.delegation.history  # noqa: F401
+    import common.resource_tracker_helpers.delegation.monitoring_control  # noqa: F401
+    import common.resource_tracker_helpers.delegation.recording  # noqa: F401
     import common.rest_connection_manager_helpers.connection_info  # noqa: F401
     import common.rest_connection_manager_helpers.request_handler  # noqa: F401
     import common.scraper_connection_manager_helpers.connection_establisher  # noqa: F401
     import common.scraper_connection_manager_helpers.health_monitor_helpers.url_checker  # noqa: F401
     import common.scraper_connection_manager_helpers.scraper_operations  # noqa: F401
+    import common.service_lifecycle.status_reporter_helpers.registration_methods  # noqa: F401
+    import common.service_lifecycle.status_reporter_helpers.status_writer  # noqa: F401
     import common.status_reporter_helpers.lifecycle_reporter  # noqa: F401
     import common.status_reporter_helpers.market_reporter  # noqa: F401
     import common.status_reporter_helpers.rule_explainer  # noqa: F401
@@ -115,20 +133,3 @@ if os.environ.get("REFERENCE_UNUSED_MODULES") in ("1", "true"):
     import common.websocket_connection_manager_helpers.connection_lifecycle_helpers.connection_establisher  # noqa: F401
     import common.websocket_connection_manager_helpers.ping_pong_manager  # noqa: F401
     import common.websocket_connection_manager_helpers.ws_connection_handler  # noqa: F401
-    # Additional modules needed for unused_module_guard validation
-    import common.connection_state_tracker_helpers.initializer  # noqa: F401
-    import common.market_lifecycle_monitor_helpers.property_bridge  # noqa: F401
-    import common.redis_protocol.atomic_redis_operations_helpers.coordinator  # noqa: F401
-    import common.redis_protocol.kalshi_store.orderbook_helpers.message_processing.dispatcher  # noqa: F401
-    import common.redis_protocol.kalshi_store.orderbook_helpers.snapshot_processor_helpers.price_formatting  # noqa: F401
-    import common.redis_protocol.kalshi_store.orderbook_helpers.snapshot_processor_helpers.redis_storage  # noqa: F401
-    import common.redis_protocol.kalshi_store.reader_helpers.market_query_handler  # noqa: F401
-    import common.redis_protocol.kalshi_store.reader_helpers.market_status_checker  # noqa: F401
-    import common.redis_protocol.kalshi_store.store_helpers.property_management  # noqa: F401
-    import common.redis_protocol.kalshi_store.store_helpers.static_methods  # noqa: F401
-    import common.redis_protocol.messages_helpers.option_normalizer  # noqa: F401
-    import common.resource_tracker_helpers.delegation.history  # noqa: F401
-    import common.resource_tracker_helpers.delegation.monitoring_control  # noqa: F401
-    import common.resource_tracker_helpers.delegation.recording  # noqa: F401
-    import common.service_lifecycle.status_reporter_helpers.registration_methods  # noqa: F401
-    import common.service_lifecycle.status_reporter_helpers.status_writer  # noqa: F401

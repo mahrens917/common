@@ -47,30 +47,30 @@ class KeyScanner:
             logger.exception(f"Failed to get persistence info: ")
             return {}
 
-    def extract_config_value(self, config_info: Dict[str, Any], key: str, default: Any = None) -> Any:
+    def extract_config_value(self, config_info: Dict[str, Any], key: str, fallback_value: Any = None) -> Any:
         """
         Extract a configuration value.
 
         Args:
             config_info: Configuration dictionary
             key: Configuration key
-            default: Value if key not found
+            fallback_value: Value if key not found
 
         Returns:
-            Configuration value or default
+            Configuration value or fallback value
         """
-        return config_info.get(key, default)
+        return config_info.get(key, fallback_value)
 
-    def extract_info_value(self, info: Dict[str, Any], key: str, default: Any = None) -> Any:
+    def extract_info_value(self, info: Dict[str, Any], key: str, fallback_value: Any = None) -> Any:
         """
         Extract an info value.
 
         Args:
             info: Info dictionary
             key: Info key
-            default: Default value if key not found
+            fallback_value: Fallback value if key not found
 
         Returns:
-            Info value or default
+            Info value or fallback value
         """
-        return info.get(key, default)
+        return info.get(key, fallback_value)
