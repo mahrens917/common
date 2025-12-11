@@ -92,13 +92,31 @@ class MemoryMonitor:
     def memory_growth_threshold_mb(self) -> float:
         return self._memory_growth_threshold_mb
 
+    @memory_growth_threshold_mb.setter
+    def memory_growth_threshold_mb(self, value: float) -> None:
+        self._memory_growth_threshold_mb = value
+        if hasattr(self, "_trend_analyzer"):
+            self._trend_analyzer.memory_growth_threshold_mb = value
+
     @property
     def collection_growth_threshold(self) -> int:
         return self._collection_growth_threshold
 
+    @collection_growth_threshold.setter
+    def collection_growth_threshold(self, value: int) -> None:
+        self._collection_growth_threshold = value
+        if hasattr(self, "_trend_analyzer"):
+            self._trend_analyzer.collection_growth_threshold = value
+
     @property
     def task_count_threshold(self) -> int:
         return self._task_count_threshold
+
+    @task_count_threshold.setter
+    def task_count_threshold(self, value: int) -> None:
+        self._task_count_threshold = value
+        if hasattr(self, "_trend_analyzer"):
+            self._trend_analyzer.task_count_threshold = value
 
     @property
     def shutdown_requested(self) -> bool:
