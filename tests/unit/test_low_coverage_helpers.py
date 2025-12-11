@@ -283,10 +283,12 @@ def test_connection_manager_helper_stubs():
         asyncio.run(nm.notify())
 
     rm = cm_reconnection_handler.ReconnectionHandler()
-    assert asyncio.run(rm.reconnect()) is None
+    with pytest.raises(NotImplementedError):
+        asyncio.run(rm.reconnect())
 
     sm = cm_state_manager.StateManager(foo="bar")
-    assert asyncio.run(sm.transition_state()) is None
+    with pytest.raises(NotImplementedError):
+        asyncio.run(sm.transition_state())
 
 
 def test_trade_record_codec_roundtrip():

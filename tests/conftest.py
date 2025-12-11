@@ -28,6 +28,7 @@ class FakeRedis:
         self._sets: dict[str, set[str]] = {}
         self._hashes: dict[str, dict[str, str]] = {}
         self._sorted_sets: dict[str, dict[str, float]] = {}
+        self.published: list[tuple[str, str]] = []
 
     async def set(self, key: str, value: str | bytes) -> bool:
         """Set a string value."""
@@ -222,8 +223,9 @@ class FakeRedis:
         return "PONG"
 
     async def publish(self, channel: str, message: str) -> int:
-        """Publish message to channel (no-op in fake Redis)."""
-        return 0
+        """Publish message to channel."""
+        self.published.append((channel, message))
+        return 1
 
     def pipeline(self, transaction: bool = True):
         """Create a pipeline context."""

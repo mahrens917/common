@@ -47,12 +47,13 @@ class KalshiTradingClientAPIMixin:
 
     async def start_trade_collection(self) -> bool:
         store_getter = getattr(self, "_get_trade_store", None)
-        if store_getter is None:
+        if store_getter is not None:
+            try:
+                await store_getter()
+            except (AttributeError, RuntimeError, ValueError, TypeError) as exc:
+                raise ValueError("Trade store required for trade collection") from exc
+        elif not hasattr(self, "trade_store") or self.trade_store is None:
             raise ValueError("Trade store required for trade collection")
-        try:
-            await store_getter()
-        except (AttributeError, RuntimeError, ValueError, TypeError) as exc:
-            raise ValueError("Trade store required for trade collection") from exc
         result = await self._api.start_trade_collection()
         self.is_running = result
         return result

@@ -7,7 +7,8 @@ from common.rest_connection_manager_helpers.request_handler import RequestHandle
 async def test_request_handler_handle_request_noop():
     handler = RequestHandler()
 
-    assert await handler.handle_request() is None
+    with pytest.raises(NotImplementedError):
+        await handler.handle_request()
 
 
 def test_request_handler_retains_dependencies():
