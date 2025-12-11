@@ -334,7 +334,7 @@ def fake_redis() -> FakeRedis:
 def fake_redis_client_factory(monkeypatch):
     """Provide a factory for creating patched fake Redis clients."""
 
-    def factory(module_path: str) -> FakeRedis:
+    def factory(module_path: str = "") -> FakeRedis:
         """Create a fake Redis and patch it into the specified module."""
         fake = FakeRedis()
 
@@ -342,7 +342,7 @@ def fake_redis_client_factory(monkeypatch):
         monkeypatch.setattr("redis.asyncio.Redis", lambda *args, **kwargs: fake)
 
         # Patch the module's get_redis_pool or similar function
-        if "get_redis_pool" in module_path:
+        if module_path and "get_redis_pool" in module_path:
             target_module = module_path.rsplit(".", 1)[0]
             monkeypatch.setattr(
                 f"{target_module}.get_redis_pool",
