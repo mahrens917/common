@@ -51,9 +51,7 @@ class SubscriptionProcessor:
                 subscription_metadata[channel] = (tracking_key, api_type)
 
             if channels_to_subscribe:
-                logger.info(
-                    f"Processing {len(channels_to_subscribe)} pending {self.service_name} subscriptions"
-                )
+                logger.info(f"Processing {len(channels_to_subscribe)} pending {self.service_name} subscriptions")
 
                 # Subscribe to all channels
                 success = await self.websocket_client.subscribe(channels_to_subscribe)
@@ -62,9 +60,7 @@ class SubscriptionProcessor:
                     # Update active instruments for successful subscriptions
                     for channel, (tracking_key, api_type) in subscription_metadata.items():
                         self.active_instruments[tracking_key] = {"api_type": api_type}
-                    logger.info(
-                        f"Successfully subscribed to {len(channels_to_subscribe)} {self.service_name} channels"
-                    )
+                    logger.info(f"Successfully subscribed to {len(channels_to_subscribe)} {self.service_name} channels")
                 else:
                     logger.error(f"Failed to process pending {self.service_name} subscriptions")
 

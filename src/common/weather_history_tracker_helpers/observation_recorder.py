@@ -46,13 +46,9 @@ class WeatherObservationRecorder:
             ValueError: If inputs are invalid
         """
         if not station_icao or not isinstance(station_icao, str):
-            raise ValidationError(
-                f"Invalid station_icao: {station_icao}. Must be non-empty string."
-            )
+            raise ValidationError(f"Invalid station_icao: {station_icao}. Must be non-empty string.")
         if not isinstance(temp_f, (int, float)) or temp_f < _TEMP_MIN or temp_f > _TEMP_MAX:
-            raise ValidationError(
-                f"Invalid temperature: {temp_f}. Must be numeric between -200°F and 200°F."
-            )
+            raise ValidationError(f"Invalid temperature: {temp_f}. Must be numeric between -200°F and 200°F.")
 
     @staticmethod
     def build_observation_payload(temp_f: float) -> tuple[str, int, str]:
@@ -72,9 +68,7 @@ class WeatherObservationRecorder:
         return datetime_str, timestamp, payload
 
     @staticmethod
-    async def record_observation(
-        client: RedisClient, station_icao: str, temp_f: float
-    ) -> tuple[bool, str]:
+    async def record_observation(client: RedisClient, station_icao: str, temp_f: float) -> tuple[bool, str]:
         """
         Record temperature observation to Redis sorted set.
 
@@ -92,25 +86,19 @@ class WeatherObservationRecorder:
             station_icao = ensure_uppercase_icao(station_icao)
 
             # Build payload
-            datetime_str, timestamp, payload = WeatherObservationRecorder.build_observation_payload(
-                temp_f
-            )
+            datetime_str, timestamp, payload = WeatherObservationRecorder.build_observation_payload(temp_f)
 
             # Store in Redis
             redis_key = WeatherHistoryKey(icao=station_icao).key()
             await ensure_awaitable(client.zadd(redis_key, {payload: timestamp}))
 
             # Clean up old entries (keep only last 24 hours)
-            await ensure_awaitable(
-                client.zremrangebyscore(redis_key, "-inf", timestamp - HISTORY_TTL_SECONDS)
-            )
+            await ensure_awaitable(client.zremrangebyscore(redis_key, "-inf", timestamp - HISTORY_TTL_SECONDS))
 
             # Set TTL for automatic cleanup
             await ensure_awaitable(client.expire(redis_key, HISTORY_TTL_SECONDS))
 
-            logger.debug(
-                f"Recorded {station_icao} temperature history: {temp_f:.1f}°F at {datetime_str}"
-            )
+            logger.debug(f"Recorded {station_icao} temperature history: {temp_f:.1f}°F at {datetime_str}")
 
         except REDIS_ERRORS + (
             json.JSONDecodeError,

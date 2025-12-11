@@ -56,9 +56,7 @@ def validate_quantity_and_price(quantity: int, price_cents: int, fee_cents: int)
         raise ValueError(f"Fee cannot be negative: {fee_cents}")
 
 
-def validate_cost_calculation(
-    price_cents: int, quantity: int, fee_cents: int, cost_cents: int
-) -> None:
+def validate_cost_calculation(price_cents: int, quantity: int, fee_cents: int, cost_cents: int) -> None:
     """Validate cost calculation: cost = (price * quantity) + fees."""
 
     expected_cost = (price_cents * quantity) + fee_cents
@@ -93,9 +91,7 @@ def validate_weather_station(weather_station: str | None, market_category: str) 
             raise ValueError("Weather station must be specified for weather trades")
         normalized = weather_station.upper()
         if len(normalized) not in {2, 3, 4}:
-            raise ValidationError(
-                f"Weather station must be a 2-4 letter station code, got: {weather_station}"
-            )
+            raise ValidationError(f"Weather station must be a 2-4 letter station code, got: {weather_station}")
         return normalized
 
     return weather_station
@@ -114,16 +110,12 @@ def validate_trade_metadata(trade_rule: str, trade_reason: str) -> None:
         raise ValueError("Trade reason must be descriptive (min 10 characters)")
 
 
-def validate_settlement_data(
-    settlement_price_cents: int | None, settlement_time: Any | None
-) -> None:
+def validate_settlement_data(settlement_price_cents: int | None, settlement_time: Any | None) -> None:
     """Validate settlement price and time if present."""
 
     if settlement_price_cents is not None:
         if not 0 <= settlement_price_cents <= _CONST_100:
-            raise ValueError(
-                f"Settlement price must be between 0 and 100 cents: {settlement_price_cents}"
-            )
+            raise ValueError(f"Settlement price must be between 0 and 100 cents: {settlement_price_cents}")
 
     if settlement_time is not None and not isinstance(settlement_time, datetime):
         raise ValueError("Settlement time must be a datetime instance")

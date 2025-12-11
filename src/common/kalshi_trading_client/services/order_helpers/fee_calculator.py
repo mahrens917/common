@@ -13,9 +13,7 @@ class FeeCalculator:
     async def calculate_order_fees(market_ticker: str, quantity: int, price_cents: int) -> int:
         """Calculate fees for a proposed order."""
         try:
-            fee_func = getattr(
-                importlib.import_module("common.kalshi_trading_client"), "calculate_fees"
-            )
+            fee_func = getattr(importlib.import_module("common.kalshi_trading_client"), "calculate_fees")
         except AttributeError:
             from ....kalshi_fees import calculate_fees as fee_func
 

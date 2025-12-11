@@ -84,9 +84,7 @@ class TestFieldValidatorExtractPricesAndSizes:
         instrument.best_bid_size = DEFAULT_TEST_BID_SIZE
         instrument.best_ask_size = DEFAULT_TEST_ASK_SIZE
 
-        bid_price, ask_price, bid_size, ask_size = FieldValidator.extract_prices_and_sizes(
-            instrument
-        )
+        bid_price, ask_price, bid_size, ask_size = FieldValidator.extract_prices_and_sizes(instrument)
 
         assert bid_price == 0.5
         assert ask_price == 0.55
@@ -101,9 +99,7 @@ class TestFieldValidatorExtractPricesAndSizes:
         instrument.best_bid_size = "100"
         instrument.best_ask_size = "150"
 
-        bid_price, ask_price, bid_size, ask_size = FieldValidator.extract_prices_and_sizes(
-            instrument
-        )
+        bid_price, ask_price, bid_size, ask_size = FieldValidator.extract_prices_and_sizes(instrument)
 
         assert isinstance(bid_price, float)
         assert isinstance(ask_price, float)

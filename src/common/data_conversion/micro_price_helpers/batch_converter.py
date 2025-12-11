@@ -77,9 +77,7 @@ class BatchConverter:
 
         # Fail-fast validation: if no valid conversions occurred, raise exception
         if len(micro_price_options) == 0:
-            raise ValueError(
-                f"Insufficient valid instruments: no valid conversions from {len(instruments)} input instruments"
-            )
+            raise ValueError(f"Insufficient valid instruments: no valid conversions from {len(instruments)} input instruments")
 
         if conversion_failures or invalid_results:
             logger.info(

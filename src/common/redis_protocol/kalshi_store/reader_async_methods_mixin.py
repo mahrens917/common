@@ -22,21 +22,15 @@ class KalshiMarketReaderAsyncMethodsMixin:
         """Get markets by currency."""
         raise NotImplementedError
 
-    async def get_active_strikes_and_expiries(
-        self, currency: str
-    ) -> Dict[str, List[Dict[str, Any]]]:
+    async def get_active_strikes_and_expiries(self, currency: str) -> Dict[str, List[Dict[str, Any]]]:
         """Get active strikes and expiries for currency."""
         raise NotImplementedError
 
-    async def get_market_data_for_strike_expiry(
-        self, currency: str, expiry: str, strike: float
-    ) -> Optional[Dict[str, Any]]:
+    async def get_market_data_for_strike_expiry(self, currency: str, expiry: str, strike: float) -> Optional[Dict[str, Any]]:
         """Get market data for strike and expiry."""
         raise NotImplementedError
 
-    async def is_market_expired(
-        self, market_ticker: str, metadata: Optional[Dict[str, Any]] = None
-    ) -> bool:
+    async def is_market_expired(self, market_ticker: str, metadata: Optional[Dict[str, Any]] = None) -> bool:
         """Check if market is expired."""
         raise NotImplementedError
 
@@ -44,15 +38,11 @@ class KalshiMarketReaderAsyncMethodsMixin:
         """Check if market is settled."""
         raise NotImplementedError
 
-    async def get_market_snapshot(
-        self, ticker: str, *, include_orderbook: bool = True
-    ) -> Dict[str, Any]:
+    async def get_market_snapshot(self, ticker: str, *, include_orderbook: bool = True) -> Dict[str, Any]:
         """Get market snapshot."""
         raise NotImplementedError
 
-    async def get_market_snapshot_by_key(
-        self, market_key: str, *, include_orderbook: bool = True
-    ) -> Dict[str, Any]:
+    async def get_market_snapshot_by_key(self, market_key: str, *, include_orderbook: bool = True) -> Dict[str, Any]:
         """Get market snapshot by key."""
         raise NotImplementedError
 

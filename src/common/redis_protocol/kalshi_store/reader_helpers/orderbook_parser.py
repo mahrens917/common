@@ -102,9 +102,7 @@ def resolve_orderbook_size(book: Dict[str, Any], price: float, market_ticker: st
     return float(value)
 
 
-def extract_best_prices_from_orderbook(
-    orderbook: Dict[str, Any], market_ticker: str
-) -> tuple[float, float]:
+def extract_best_prices_from_orderbook(orderbook: Dict[str, Any], market_ticker: str) -> tuple[float, float]:
     """
     Extract best bid and ask prices from orderbook.
 

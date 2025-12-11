@@ -98,9 +98,7 @@ async def apply_delta_to_orderbook(
     try:
         side_json = await ensure_awaitable(redis.hget(market_key, side_field))
     except REDIS_ERRORS as exc:
-        logger.error(
-            "Redis error retrieving %s for %s: %s", side_field, market_key, exc, exc_info=True
-        )
+        logger.error("Redis error retrieving %s for %s: %s", side_field, market_key, exc, exc_info=True)
         raise
 
     side_data = SideDataUpdater.parse_side_data(side_json)
@@ -134,9 +132,7 @@ async def update_best_prices(
         await store_optional_field_func(redis, market_key, "yes_ask_size", best_size)
 
 
-async def extract_trade_prices(
-    redis: Redis, market_key: str
-) -> Tuple[Optional[float], Optional[float]]:
+async def extract_trade_prices(redis: Redis, market_key: str) -> Tuple[Optional[float], Optional[float]]:
     """
     Extract yes_bid and yes_ask prices from Redis.
 
@@ -150,12 +146,8 @@ async def extract_trade_prices(
     yes_bid_raw = await ensure_awaitable(redis.hget(market_key, "yes_bid"))
     yes_ask_raw = await ensure_awaitable(redis.hget(market_key, "yes_ask"))
 
-    decoded_yes_bid = (
-        yes_bid_raw.decode("utf-8", "ignore") if isinstance(yes_bid_raw, bytes) else yes_bid_raw
-    )
-    decoded_yes_ask = (
-        yes_ask_raw.decode("utf-8", "ignore") if isinstance(yes_ask_raw, bytes) else yes_ask_raw
-    )
+    decoded_yes_bid = yes_bid_raw.decode("utf-8", "ignore") if isinstance(yes_bid_raw, bytes) else yes_bid_raw
+    decoded_yes_ask = yes_ask_raw.decode("utf-8", "ignore") if isinstance(yes_ask_raw, bytes) else yes_ask_raw
 
     parsed_yes_bid = FieldConverter.convert_numeric_field(decoded_yes_bid)
     parsed_yes_ask = FieldConverter.convert_numeric_field(decoded_yes_ask)

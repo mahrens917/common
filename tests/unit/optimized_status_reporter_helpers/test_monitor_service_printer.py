@@ -156,9 +156,7 @@ class TestBuildMonitorStatusLine:
         process_manager.process_info = {"monitor": info}
         service_status_formatter = MagicMock()
         service_status_formatter.log_activity_formatter.format_age_only.return_value = ""
-        service_status_formatter.resource_tracker.get_process_resource_usage.return_value = (
-            " [CPU: 5%, MEM: 10MB]"
-        )
+        service_status_formatter.resource_tracker.get_process_resource_usage.return_value = " [CPU: 5%, MEM: 10MB]"
         printer = MonitorServicePrinter(process_manager, service_status_formatter)
 
         result = printer.build_monitor_status_line({})

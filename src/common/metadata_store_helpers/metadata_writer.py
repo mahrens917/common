@@ -17,14 +17,10 @@ class MetadataWriter:
         self.metadata_key_prefix = metadata_key_prefix
         self.global_stats_key = global_stats_key
 
-    async def increment_service_count(
-        self, client: RedisClient, service_name: str, count: int = 1
-    ) -> bool:
+    async def increment_service_count(self, client: RedisClient, service_name: str, count: int = 1) -> bool:
         """Increment message count for a service"""
         metadata_key = f"{self.metadata_key_prefix}{service_name}"
-        return await increment_metadata_counter(
-            client, metadata_key, self.global_stats_key, service_name, count
-        )
+        return await increment_metadata_counter(client, metadata_key, self.global_stats_key, service_name, count)
 
     async def update_time_window_counts(
         self,
@@ -58,9 +54,7 @@ class MetadataWriter:
         }
         return await update_hash_fields(client, metadata_key, service_name, mapping)
 
-    async def initialize_service_count(
-        self, client: RedisClient, service_name: str, initial_count: int
-    ) -> bool:
+    async def initialize_service_count(self, client: RedisClient, service_name: str, initial_count: int) -> bool:
         """Initialize service count (used during startup reconciliation)"""
         current_time = time.time()
         metadata_key = f"{self.metadata_key_prefix}{service_name}"

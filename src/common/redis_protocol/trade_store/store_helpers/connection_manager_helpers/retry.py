@@ -71,9 +71,7 @@ def _build_retry_policy(attempts: int, retry_delay: float) -> RedisRetryPolicy:
     )
 
 
-def _create_connection_operation(
-    helper: ConnectionRetryHelper, retry_config: TradeStoreConnectionRetryConfig
-):
+def _create_connection_operation(helper: ConnectionRetryHelper, retry_config: TradeStoreConnectionRetryConfig):
     from .retry_helpers.operation_factory import (
         ConnectionOperationConfig,
         create_connection_operation,

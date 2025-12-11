@@ -28,9 +28,7 @@ HumanReadableProbabilityResult = Mapping[
 logger = logging.getLogger(__name__)
 
 
-async def get_probabilities_human_readable(
-    redis: Redis, currency: str
-) -> Dict[str, ProbabilityByEventTitle]:
+async def get_probabilities_human_readable(redis: Redis, currency: str) -> Dict[str, ProbabilityByEventTitle]:
     """Get probabilities in human-readable format grouped by event title.
 
     Retrieves from `probabilities:{CURRENCY}:{expiry}:{strike_type}:{strike}` keys.
@@ -54,9 +52,7 @@ async def get_probabilities_human_readable(
     try:
         raw_keys = await redis.keys(f"{prefix}*")
     except REDIS_ERRORS as exc:
-        raise ProbabilityStoreError(
-            f"Failed to get human-readable probabilities for {currency_upper}: Redis error {exc}"
-        ) from exc
+        raise ProbabilityStoreError(f"Failed to get human-readable probabilities for {currency_upper}: Redis error {exc}") from exc
 
     if not raw_keys:
         raise ProbabilityDataNotFoundError(currency_upper, "human-readable probabilities")
@@ -69,9 +65,7 @@ async def get_probabilities_human_readable(
 
         data = await ensure_awaitable(redis.hgetall(key_str))
         if not data:
-            raise ProbabilityStoreError(
-                f"Probability payload missing for key {key_str} while building human-readable view"
-            )
+            raise ProbabilityStoreError(f"Probability payload missing for key {key_str} while building human-readable view")
 
         processed_data = decode_probability_hash(
             data,
@@ -84,9 +78,7 @@ async def get_probabilities_human_readable(
             raise ProbabilityStoreError(f"Missing event_title for key {key_str}")
 
         event_title_bucket: ProbabilityByEventTitle = result.setdefault(expiry, {})
-        strike_type_bucket: ProbabilityByStrikeType = event_title_bucket.setdefault(
-            str(event_title), {}
-        )
+        strike_type_bucket: ProbabilityByStrikeType = event_title_bucket.setdefault(str(event_title), {})
         strike_bucket: ProbabilityByStrike = strike_type_bucket.setdefault(strike_type, {})
         strike_bucket[strike] = processed_data
 

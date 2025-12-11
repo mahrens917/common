@@ -32,9 +32,7 @@ def test_get_disk_percent_returns_zero_on_error(monkeypatch):
 
 
 def test_get_memory_percent_linux_reads_proc(monkeypatch):
-    fake_meminfo = io.StringIO(
-        "MemTotal:       1000 kB\nMemFree:        100 kB\nMemAvailable:   250 kB\n"
-    )
+    fake_meminfo = io.StringIO("MemTotal:       1000 kB\nMemFree:        100 kB\nMemAvailable:   250 kB\n")
 
     def fake_open(path, mode="r", *args, **kwargs):
         if path == "/proc/meminfo":

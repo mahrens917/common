@@ -52,9 +52,7 @@ class ErrorAnalyzer:
         self.telegram_notifier = telegram_notifier
         self.error_history: List[ErrorAnalysis] = []
         self.max_history_size = DEFAULT_ERROR_HISTORY_SIZE
-        deps = dependencies or ErrorAnalyzerDependenciesFactory.create(
-            service_name, telegram_notifier
-        )
+        deps = dependencies or ErrorAnalyzerDependenciesFactory.create(service_name, telegram_notifier)
         self.categorizer = deps.categorizer
         self.severity_evaluator = deps.severity_evaluator
         self.root_cause_identifier = deps.root_cause_identifier
@@ -94,9 +92,7 @@ class ErrorAnalyzer:
         _log_error_analysis_result(analysis)
         return analysis
 
-    async def report_recovery(
-        self, recovery_message: str, context: Optional[Dict[str, Any]] = None
-    ) -> None:
+    async def report_recovery(self, recovery_message: str, context: Optional[Dict[str, Any]] = None) -> None:
         """Report service recovery."""
         await self.recovery_reporter.report_recovery(recovery_message, context)
 
@@ -152,18 +148,12 @@ def _analyze_error_event(
     error_message = analysis_context.custom_message or str(analysis_context.error)
     stack_trace = traceback.format_exc()
 
-    category = components.categorizer.categorize_error(
-        analysis_context.error, error_message, analysis_context.context
-    )
-    severity = components.severity_evaluator.determine_severity(
-        analysis_context.error, category, analysis_context.context
-    )
+    category = components.categorizer.categorize_error(analysis_context.error, error_message, analysis_context.context)
+    severity = components.severity_evaluator.determine_severity(analysis_context.error, category, analysis_context.context)
     root_cause = components.root_cause_identifier.identify_root_cause(
         analysis_context.error, error_message, category, analysis_context.context
     )
-    suggested_action = components.action_suggester.suggest_action(
-        analysis_context.error, category, root_cause
-    )
+    suggested_action = components.action_suggester.suggest_action(analysis_context.error, category, root_cause)
     recovery_possible = category != ErrorCategory.CONFIGURATION
 
     return ErrorAnalysis(

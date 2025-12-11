@@ -87,9 +87,7 @@ def test_validate_markets_response_errors():
 
 
 def test_validate_event_response_success():
-    response = {
-        "event": {"ticker": "EVT", "title": "Event", "category": "weather", "series_ticker": "SER"}
-    }
+    response = {"event": {"ticker": "EVT", "title": "Event", "category": "weather", "series_ticker": "SER"}}
     result = validators.validate_event_response(response)
     assert result["ticker"] == "EVT"
 
@@ -180,13 +178,7 @@ def test_validate_series_response_errors():
         validators.validate_series_response({"series": [{"ticker": "SER"}]})
 
     with pytest.raises(TypeError, match="frequency must be string"):
-        validators.validate_series_response(
-            {
-                "series": [
-                    {"ticker": "SER", "title": "Series", "category": "weather", "frequency": 123}
-                ]
-            }
-        )
+        validators.validate_series_response({"series": [{"ticker": "SER", "title": "Series", "category": "weather", "frequency": 123}]})
 
     with pytest.raises(ValueError, match="Invalid status"):
         validators.validate_series_response(
@@ -255,9 +247,7 @@ def test_validate_cancel_order_response_errors(modifier, message):
 
 
 def test_validate_exchange_status_response_success():
-    result = validators.validate_exchange_status_response(
-        {"trading_active": True, "exchange_active": False}
-    )
+    result = validators.validate_exchange_status_response({"trading_active": True, "exchange_active": False})
     assert result["exchange_active"] is False
 
 
@@ -269,6 +259,4 @@ def test_validate_exchange_status_response_errors():
         validators.validate_exchange_status_response({"trading_active": True})
 
     with pytest.raises(TypeError, match="must be boolean"):
-        validators.validate_exchange_status_response(
-            {"trading_active": "yes", "exchange_active": True}
-        )
+        validators.validate_exchange_status_response({"trading_active": "yes", "exchange_active": True})

@@ -15,9 +15,7 @@ class StrikeResolver:
     """Resolve strike prices from metadata fields."""
 
     @staticmethod
-    def resolve_market_strike(
-        metadata: Dict[str, Any], string_converter: Callable[[Any], Any]
-    ) -> Optional[float]:
+    def resolve_market_strike(metadata: Dict[str, Any], string_converter: Callable[[Any], Any]) -> Optional[float]:
         """
         Resolve strike from metadata payload.
 
@@ -32,18 +30,14 @@ class StrikeResolver:
         if strike_type_raw is None:
             return None
         strike_type = string_converter(strike_type_raw).lower()
-        floor_value, cap_value = parse_strike_bounds(
-            metadata.get("floor_strike"), metadata.get("cap_strike")
-        )
+        floor_value, cap_value = parse_strike_bounds(metadata.get("floor_strike"), metadata.get("cap_strike"))
         strike_value = calculate_strike_value(strike_type, floor_value, cap_value)
         if strike_value is not None:
             return strike_value
         return floor_value if floor_value is not None else cap_value
 
     @staticmethod
-    def resolve_strike_from_combined(
-        combined: Dict[str, Any], string_converter: Callable[[Any], Any]
-    ) -> Optional[float]:
+    def resolve_strike_from_combined(combined: Dict[str, Any], string_converter: Callable[[Any], Any]) -> Optional[float]:
         """
         Resolve strike from combined metadata/hash snapshots.
 

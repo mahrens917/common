@@ -64,9 +64,7 @@ def validate_error_timestamp(timestamp: Any) -> None:
         raise TypeError("Error timestamp must be a datetime object")
 
 
-def validate_trading_error(
-    error_code: str, error_message: str, operation_name: str, timestamp: datetime
-) -> None:
+def validate_trading_error(error_code: str, error_message: str, operation_name: str, timestamp: datetime) -> None:
     """
     Validate complete trading error data.
 

@@ -60,9 +60,7 @@ class TradeRecordRepository:
             return None
         trade_json = await ensure_awaitable(client.get(trade_key))
         if not trade_json:
-            raise TradeStoreError(
-                f"Indexed trade payload missing for order {order_id}: {trade_key!r}"
-            )
+            raise TradeStoreError(f"Indexed trade payload missing for order {order_id}: {trade_key!r}")
         return self._codec.decode(trade_json)
 
     async def mark_settled(

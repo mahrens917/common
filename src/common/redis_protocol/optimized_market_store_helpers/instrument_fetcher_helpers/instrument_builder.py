@@ -64,9 +64,7 @@ class InstrumentBuilder:
         normalized_data = _ensure_str_keys(data)
 
         try:
-            expiry_dt = datetime.fromisoformat(
-                f"{descriptor.expiry_iso}T{DERIBIT_EXPIRY_HOUR:02d}:00:00+00:00"
-            )
+            expiry_dt = datetime.fromisoformat(f"{descriptor.expiry_iso}T{DERIBIT_EXPIRY_HOUR:02d}:00:00+00:00")
         except ValueError as exc:
             logger.warning(
                 "KEY_SCAN_DEBUG: Failed to parse expiry %s for key %s (%s)",
@@ -84,9 +82,7 @@ class InstrumentBuilder:
         from ....data_models.instrument import Instrument
 
         return Instrument(
-            instrument_name=InstrumentNameBuilder.derive_instrument_name(
-                descriptor, strike_value=strike_value, option_type=option_type
-            ),
+            instrument_name=InstrumentNameBuilder.derive_instrument_name(descriptor, strike_value=strike_value, option_type=option_type),
             currency=descriptor.currency.upper(),
             expiry=expiry_dt,
             strike=strike_value,

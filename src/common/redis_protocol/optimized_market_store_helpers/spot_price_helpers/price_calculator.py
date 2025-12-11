@@ -31,22 +31,16 @@ class PriceCalculator:
         best_ask_str = market_data.get("best_ask")
 
         if best_bid_str is None or best_ask_str is None:
-            raise ValidationError(
-                "Missing required 'best_bid' or 'best_ask' fields in market data - no default values allowed"
-            )
+            raise ValidationError("Missing required 'best_bid' or 'best_ask' fields in market data - no default values allowed")
 
         best_bid = float(best_bid_str)
         best_ask = float(best_ask_str)
 
         if best_bid <= 0 or best_ask <= 0:
-            raise ValidationError(
-                f"Invalid market prices: bid={best_bid}, ask={best_ask}. Must be positive."
-            )
+            raise ValidationError(f"Invalid market prices: bid={best_bid}, ask={best_ask}. Must be positive.")
 
         if best_ask <= best_bid:
-            raise ValidationError(
-                f"Invalid market spread: bid={best_bid} >= ask={best_ask}. Ask must be greater than bid."
-            )
+            raise ValidationError(f"Invalid market spread: bid={best_bid} >= ask={best_ask}. Ask must be greater than bid.")
 
         # Calculate spot price as mid-price between bid and ask
         spot_price = (best_bid + best_ask) / 2.0
@@ -78,16 +72,12 @@ class PriceCalculator:
         best_bid_str = market_data.get("best_bid")
         best_ask_str = market_data.get("best_ask")
         if best_bid_str is None or best_ask_str is None:
-            raise DataError(
-                f"USDC pair market data incomplete for {currency}; bid='{best_bid_str}', ask='{best_ask_str}'"
-            )
+            raise DataError(f"USDC pair market data incomplete for {currency}; bid='{best_bid_str}', ask='{best_ask_str}'")
 
         try:
             bid_price = float(best_bid_str)
             ask_price = float(best_ask_str)
         except (TypeError, ValueError) as exc:
-            raise ValidationError(
-                f"USDC pair market data invalid for {currency}; bid='{best_bid_str}', ask='{best_ask_str}'"
-            ) from exc
+            raise ValidationError(f"USDC pair market data invalid for {currency}; bid='{best_bid_str}', ask='{best_ask_str}'") from exc
 
         return bid_price, ask_price

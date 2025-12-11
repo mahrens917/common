@@ -39,19 +39,13 @@ class BatchCollector(Generic[T]):
         if not self.current_batch:
             self.batch_start_time = time.time()
 
-        logger.debug(
-            f"{self.name}: Adding item to batch:\n"
-            f"- Current batch size: {len(self.current_batch)}\n"
-            f"- Item: {item}"
-        )
+        logger.debug(f"{self.name}: Adding item to batch:\n" f"- Current batch size: {len(self.current_batch)}\n" f"- Item: {item}")
 
         self.current_batch.append(item)
 
         # Check if size threshold reached
         if len(self.current_batch) >= self.batch_size:
-            logger.debug(
-                f"{self.name}: Size threshold reached ({self.batch_size}), processing batch"
-            )
+            logger.debug(f"{self.name}: Size threshold reached ({self.batch_size}), processing batch")
             return True
 
         return False

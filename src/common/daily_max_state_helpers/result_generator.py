@@ -41,19 +41,14 @@ class ResultGenerator:
         source = state.get("source")
 
         if precision is None or source is None:
-            logger.error(
-                "Daily max result requested but precision=%s, source=%s", precision, source
-            )
+            logger.error("Daily max result requested but precision=%s, source=%s", precision, source)
             return None
 
         # Convert to Fahrenheit using CLI formula
         max_temp_f = cli_temp_f(max_temp_c)
         confidence = ConfidenceCalculator.get_confidence_level(precision)
 
-        logger.debug(
-            f"Daily max result: {max_temp_f}°F from {max_temp_c}°C "
-            f"({confidence} confidence, {source} source)"
-        )
+        logger.debug(f"Daily max result: {max_temp_f}°F from {max_temp_c}°C " f"({confidence} confidence, {source} source)")
 
         return DailyMaxResult(
             max_temp_f=max_temp_f,

@@ -102,9 +102,7 @@ class UserDisplay:
         """Show completion summary"""
         print(format_completion(currency, total_calculations, processing_time))
 
-    def show_error_confidence_summary(
-        self, avg_error: Optional[float], avg_confidence: Optional[float]
-    ):
+    def show_error_confidence_summary(self, avg_error: Optional[float], avg_confidence: Optional[float]):
         """Show error and confidence summary"""
         print(format_error_confidence_summary(avg_error, avg_confidence))
 

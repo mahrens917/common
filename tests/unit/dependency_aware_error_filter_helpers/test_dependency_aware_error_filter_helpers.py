@@ -54,14 +54,10 @@ async def test_is_dependency_unavailable_handles_none_and_errors(caplog):
     redis = AsyncMock()
     redis.hget.return_value = None
 
-    assert (
-        await DependencyChecker.is_dependency_unavailable(redis, "svc", "cache", "status") is False
-    )
+    assert await DependencyChecker.is_dependency_unavailable(redis, "svc", "cache", "status") is False
 
     redis.hget.side_effect = OSError("network")
-    assert (
-        await DependencyChecker.is_dependency_unavailable(redis, "svc", "cache", "status") is False
-    )
+    assert await DependencyChecker.is_dependency_unavailable(redis, "svc", "cache", "status") is False
     assert "Failed to check dependency status" in caplog.text
 
 
@@ -90,9 +86,7 @@ def test_pattern_matcher_matches_and_handles_search_errors(caplog):
     pattern_config.compiled_patterns = [BadPattern(), re.compile("failure", re.IGNORECASE)]
 
     dependency_patterns = {"db": pattern_config}
-    assert PatternMatcher.is_dependency_related_error(
-        "query FAILURE due to timeout", "db", dependency_patterns
-    )
+    assert PatternMatcher.is_dependency_related_error("query FAILURE due to timeout", "db", dependency_patterns)
     assert "Error matching pattern bad" in caplog.text
 
 

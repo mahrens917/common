@@ -55,10 +55,7 @@ class BatchTimer:
     async def _run(self, batch_size: int) -> None:
         """Run timer and call timeout callback."""
         try:
-            logger.debug(
-                f"{self.name}: Timer started - "
-                f"Waiting {self.batch_time_seconds}s with {batch_size} items in batch"
-            )
+            logger.debug(f"{self.name}: Timer started - " f"Waiting {self.batch_time_seconds}s with {batch_size} items in batch")
             await asyncio.sleep(self.batch_time_seconds)
 
             logger.debug(f"{self.name}: Timer expired - Triggering timeout callback")

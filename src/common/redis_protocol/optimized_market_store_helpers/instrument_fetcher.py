@@ -53,9 +53,7 @@ class InstrumentFetcher:
             instruments = await self.get_all_instruments(currency)
             return [instrument for instrument in instruments if not instrument.is_future]
         except REDIS_ERRORS as exc:
-            logger.error(
-                "Error in get_options_by_currency for %s: %s", currency, exc, exc_info=True
-            )
+            logger.error("Error in get_options_by_currency for %s: %s", currency, exc, exc_info=True)
             return []
 
     async def get_futures_by_currency(self, currency: str) -> List:
@@ -64,20 +62,14 @@ class InstrumentFetcher:
             instruments = await self.get_all_instruments(currency)
             return [instrument for instrument in instruments if instrument.is_future]
         except REDIS_ERRORS as exc:
-            logger.error(
-                "Error in get_futures_by_currency for %s: %s", currency, exc, exc_info=True
-            )
+            logger.error("Error in get_futures_by_currency for %s: %s", currency, exc, exc_info=True)
             return []
 
     async def get_puts_by_currency(self, currency: str) -> List:
         """Return all put option instruments for a currency."""
         try:
             instruments = await self.get_all_instruments(currency)
-            return [
-                instrument
-                for instrument in instruments
-                if not instrument.is_future and instrument.option_type == "put"
-            ]
+            return [instrument for instrument in instruments if not instrument.is_future and instrument.option_type == "put"]
         except REDIS_ERRORS as exc:
             logger.error("Error in get_puts_by_currency for %s: %s", currency, exc, exc_info=True)
             return []

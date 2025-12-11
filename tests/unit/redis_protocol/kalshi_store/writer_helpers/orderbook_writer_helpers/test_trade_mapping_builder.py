@@ -26,9 +26,7 @@ class TestTradeMappingBuilder:
         no_price = 50
         raw_price = 50
 
-        mapping = build_trade_tick_mapping(
-            msg, side, yes_price, no_price, raw_price, mock_normalizer
-        )
+        mapping = build_trade_tick_mapping(msg, side, yes_price, no_price, raw_price, mock_normalizer)
 
         assert mapping["last_trade_side"] == "yes"
         assert mapping["last_trade_count"] == "10"

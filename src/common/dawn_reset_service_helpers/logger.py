@@ -49,9 +49,7 @@ class DawnResetLogger:
             return
 
         if context.is_new_day:
-            logger.info(
-                f"🌅 DAWN RESET CHECK: lat={context.latitude:.4f}, lon={context.longitude:.4f}"
-            )
+            logger.info(f"🌅 DAWN RESET CHECK: lat={context.latitude:.4f}, lon={context.longitude:.4f}")
             logger.info(f"   Previous: {context.previous_timestamp.isoformat()}")
             logger.info(f"   Current:  {context.current_timestamp.isoformat()}")
             logger.info(f"   Dawn (previous day): {context.dawn_previous.isoformat()}")
@@ -60,6 +58,4 @@ class DawnResetLogger:
             logger.info(f"   ⏰ New trading day: {context.is_new_day}")
 
             if context.relevant_dawn:
-                logger.info(
-                    f"   ✅ Crossed dawn reset boundary: {context.relevant_dawn.isoformat()}"
-                )
+                logger.info(f"   ✅ Crossed dawn reset boundary: {context.relevant_dawn.isoformat()}")

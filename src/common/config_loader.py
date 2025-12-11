@@ -96,9 +96,7 @@ class BaseConfigLoader:
 
         section = config[section_name]
         if not isinstance(section, dict):
-            raise ConfigurationError(
-                f"Configuration section '{section_name}' must be a dict, got {type(section)}"
-            )
+            raise ConfigurationError(f"Configuration section '{section_name}' must be a dict, got {type(section)}")
 
         return section
 
@@ -119,9 +117,7 @@ class BaseConfigLoader:
         """
         section = self.get_section(config, section_name)
         if parameter_name not in section:
-            raise ConfigurationError(
-                f"Parameter '{parameter_name}' not found in section '{section_name}'"
-            )
+            raise ConfigurationError(f"Parameter '{parameter_name}' not found in section '{section_name}'")
         return section[parameter_name]
 
 

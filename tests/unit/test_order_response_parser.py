@@ -304,17 +304,13 @@ def test_parse_invalid_maker_fees_raises():
 
 
 def test_parse_empty_rejection_reason_raises():
-    payload = _base_order_payload(
-        status="rejected", fill_count=0, maker_fill_cost=0, fills=[], rejection_reason=""
-    )
+    payload = _base_order_payload(status="rejected", fill_count=0, maker_fill_cost=0, fills=[], rejection_reason="")
     with pytest.raises(EmptyRejectionReasonError):
         parse_kalshi_order_response(payload, "RULE_TEST", "Valid test reason")
 
 
 def test_parse_whitespace_rejection_reason_raises():
-    payload = _base_order_payload(
-        status="rejected", fill_count=0, maker_fill_cost=0, fills=[], rejection_reason="   "
-    )
+    payload = _base_order_payload(status="rejected", fill_count=0, maker_fill_cost=0, fills=[], rejection_reason="   ")
     with pytest.raises(EmptyRejectionReasonError):
         parse_kalshi_order_response(payload, "RULE_TEST", "Valid test reason")
 

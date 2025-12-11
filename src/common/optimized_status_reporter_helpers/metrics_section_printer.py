@@ -18,9 +18,7 @@ class MetricsSectionPrinter(StatusLinePrinterBase):
         """Print message metrics section."""
         self._emit_status_line()
         self._emit_status_line("📈 Message Metrics (Past 60 Seconds):")
-        deribit_messages = self.data_coercion.int_or_default(
-            status_data.get("deribit_messages_60s"), 0
-        )
+        deribit_messages = self.data_coercion.int_or_default(status_data.get("deribit_messages_60s"), 0)
         self._emit_status_line(f"  🟢 Deribit Messages - {deribit_messages:,}")
 
         kalshi_status = self.data_coercion.coerce_mapping(status_data.get("kalshi_market_status"))
@@ -28,9 +26,7 @@ class MetricsSectionPrinter(StatusLinePrinterBase):
         if kalshi_trading_active is False:
             self._emit_status_line("  ⚪ Kalshi Messages - N/A (exchange inactive)")
         else:
-            kalshi_messages = self.data_coercion.int_or_default(
-                status_data.get("kalshi_messages_60s"), 0
-            )
+            kalshi_messages = self.data_coercion.int_or_default(status_data.get("kalshi_messages_60s"), 0)
             self._emit_status_line(f"  🟢 Kalshi Messages - {kalshi_messages:,}")
 
         cfb_msgs = self.data_coercion.int_or_default(status_data.get("cfb_messages_60s"), None)
@@ -50,14 +46,10 @@ class MetricsSectionPrinter(StatusLinePrinterBase):
         if asos_source == "off":
             self._emit_status_line("  ⚪ ASOS Temperature Changes - DISABLED")
         else:
-            asos_changes = self.data_coercion.int_or_default(
-                status_data.get("asos_messages_65m"), 0
-            )
+            asos_changes = self.data_coercion.int_or_default(status_data.get("asos_messages_65m"), 0)
             self._emit_status_line(f"  🟢 ASOS Temperature Changes - {asos_changes:,}")
 
-        metar_changes = self.data_coercion.int_or_default(
-            status_data.get("metar_messages_65m"), None
-        )
+        metar_changes = self.data_coercion.int_or_default(status_data.get("metar_messages_65m"), None)
         self._emit_status_line(f"  🟢 METAR Temperature Changes - {metar_changes:,}")
 
     def print_all_health_sections(self, status_data: Dict[str, Any]) -> None:

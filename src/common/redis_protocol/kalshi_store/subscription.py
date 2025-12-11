@@ -71,9 +71,7 @@ class MarketSubscriptionMixin:
             self._market_subscription_manager.get_subscribed_markets,
         )
 
-    async def add_subscribed_market(
-        self, market_ticker: str, *, category: Optional[str] = None
-    ) -> bool:
+    async def add_subscribed_market(self, market_ticker: str, *, category: Optional[str] = None) -> bool:
         return await self._execute_with_connection(
             f"add_subscribed_market {market_ticker}",
             self._market_subscription_manager.add_subscribed_market,
@@ -81,9 +79,7 @@ class MarketSubscriptionMixin:
             category=category,
         )
 
-    async def remove_subscribed_market(
-        self, market_ticker: str, *, category: Optional[str] = None
-    ) -> bool:
+    async def remove_subscribed_market(self, market_ticker: str, *, category: Optional[str] = None) -> bool:
         return await self._execute_with_connection(
             f"remove_subscribed_market {market_ticker}",
             self._market_subscription_manager.remove_subscribed_market,
@@ -155,9 +151,7 @@ class ServiceStatusMixin:
         )
 
 
-class KalshiSubscriptionTracker(
-    SubscriptionConnectionMixin, MarketSubscriptionMixin, SubscriptionIdMixin, ServiceStatusMixin
-):
+class KalshiSubscriptionTracker(SubscriptionConnectionMixin, MarketSubscriptionMixin, SubscriptionIdMixin, ServiceStatusMixin):
     """Manages WebSocket subscription state for Kalshi markets."""
 
     SUBSCRIPTIONS_KEY: Optional[str] = None

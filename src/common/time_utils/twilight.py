@@ -54,16 +54,12 @@ def _normalize_date(date) -> datetime:
     return datetime.combine(date, datetime.min.time(), timezone.utc)
 
 
-def _compute_hour_angle(
-    latitude: float, declination: float, date_utc: datetime, longitude: float, is_dawn: bool
-) -> float:
+def _compute_hour_angle(latitude: float, declination: float, date_utc: datetime, longitude: float, is_dawn: bool) -> float:
     lat_rad = math.radians(latitude)
     decl_rad = math.radians(declination)
     twilight_rad = math.radians(-6.0)
     try:
-        cos_hour_angle = (math.sin(twilight_rad) - math.sin(lat_rad) * math.sin(decl_rad)) / (
-            math.cos(lat_rad) * math.cos(decl_rad)
-        )
+        cos_hour_angle = (math.sin(twilight_rad) - math.sin(lat_rad) * math.sin(decl_rad)) / (math.cos(lat_rad) * math.cos(decl_rad))
         if not -1 <= cos_hour_angle <= 1:
             # Generate appropriate message based on event type (dawn/dusk)
             event_name = "dawn" if is_dawn else "dusk"
@@ -80,9 +76,7 @@ def _compute_hour_angle(
         raise ValueError("Unable to compute twilight for provided coordinates") from exc
 
 
-def _compute_minutes_offset(
-    hour_angle: float, longitude: float, day_of_year: int, is_dawn: bool
-) -> float:
+def _compute_minutes_offset(hour_angle: float, longitude: float, day_of_year: int, is_dawn: bool) -> float:
     B = 2 * math.pi * (day_of_year - 81) / 365
     equation_of_time = 9.87 * math.sin(2 * B) - 7.53 * math.cos(B) - 1.5 * math.sin(B)
     longitude_correction = -4 * longitude
@@ -108,9 +102,7 @@ def _build_twilight_datetime(date_utc: datetime, minutes: float) -> datetime:
     )
 
 
-def _log_twilight(
-    latitude: float, longitude: float, date_utc: datetime, result: datetime, is_dawn: bool
-) -> None:
+def _log_twilight(latitude: float, longitude: float, date_utc: datetime, result: datetime, is_dawn: bool) -> None:
     label = "dawn" if is_dawn else "dusk"
     logger.debug(
         "%s calculation: lat=%s, lon=%s, date=%s, %s=%s",
@@ -123,9 +115,7 @@ def _log_twilight(
     )
 
 
-def is_between_dawn_and_dusk(
-    latitude: float, longitude: float, current_time: Optional[datetime] = None
-) -> bool:
+def is_between_dawn_and_dusk(latitude: float, longitude: float, current_time: Optional[datetime] = None) -> bool:
     """Return True when current time sits between dawn and dusk."""
     current_time = current_time or datetime.now(timezone.utc)
     if current_time.tzinfo is None:
@@ -161,9 +151,7 @@ def is_between_dawn_and_dusk(
     return is_daylight
 
 
-def is_after_midpoint_noon_to_dusk(
-    latitude: float, longitude: float, current_time: Optional[datetime] = None
-) -> bool:
+def is_after_midpoint_noon_to_dusk(latitude: float, longitude: float, current_time: Optional[datetime] = None) -> bool:
     """Check if ``current_time`` is after the midpoint between solar noon and dusk."""
     current_time = current_time or datetime.now(timezone.utc)
     if current_time.tzinfo is None:

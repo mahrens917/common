@@ -28,13 +28,9 @@ class TestLifecycleManager:
     async def test_start_monitoring_already_started(self, manager):
         manager._monitoring_task = AsyncMock()
 
-        with patch(
-            "common.websocket.unified_subscription_manager_helpers.lifecycle_manager.logger"
-        ) as mock_logger:
+        with patch("common.websocket.unified_subscription_manager_helpers.lifecycle_manager.logger") as mock_logger:
             await manager.start_monitoring(AsyncMock()())
-            mock_logger.warning.assert_called_with(
-                "test_service subscription monitoring already started"
-            )
+            mock_logger.warning.assert_called_with("test_service subscription monitoring already started")
 
     @pytest.mark.asyncio
     async def test_stop_monitoring(self, manager):

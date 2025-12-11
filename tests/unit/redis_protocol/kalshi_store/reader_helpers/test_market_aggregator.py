@@ -18,9 +18,7 @@ def test_aggregate_markets_by_point_success():
 def test_aggregate_raises_on_missing_fields():
     aggregator = market_aggregator.MarketAggregator()
     with pytest.raises(DataError):
-        aggregator.aggregate_markets_by_point(
-            [{"expiry": None, "strike": 1.0, "strike_type": "call", "market_ticker": "TK1"}]
-        )
+        aggregator.aggregate_markets_by_point([{"expiry": None, "strike": 1.0, "strike_type": "call", "market_ticker": "TK1"}])
 
 
 def test_aggregate_raises_on_non_numeric_strike():

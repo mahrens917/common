@@ -32,9 +32,7 @@ class TestMonitorLifecycle:
         lifecycle._monitoring_task = Mock()  # Fake existing task
         callback = AsyncMock()
 
-        with patch(
-            "common.websocket.connection_health_monitor_helpers.monitor_lifecycle.logger"
-        ) as mock_logger:
+        with patch("common.websocket.connection_health_monitor_helpers.monitor_lifecycle.logger") as mock_logger:
             await lifecycle.start_monitoring(callback)
             mock_logger.warning.assert_called_with("test_service health monitoring already started")
 

@@ -18,9 +18,7 @@ from typing import Dict, Literal
 
 from common.redis_schema import ensure_uppercase_icao
 
-_PRECISION_SETTINGS_PATH = (
-    Path(__file__).resolve().parents[2] / "config" / "weather_precision_settings.json"
-)
+_PRECISION_SETTINGS_PATH = Path(__file__).resolve().parents[2] / "config" / "weather_precision_settings.json"
 _PRECISION_CONFIG_ENV = "WEATHER_PRECISION_CONFIG_PATH"
 
 PrecisionSource = Literal["metar", "asos"]
@@ -76,11 +74,7 @@ class PrecisionConfigError(RuntimeError):
 
     @classmethod
     def station_metadata_missing(cls, icao: str) -> "PrecisionConfigError":
-        return cls(
-            detail=(
-                f"No precision metadata for station {icao}; update weather_station_precision.json"
-            )
-        )
+        return cls(detail=(f"No precision metadata for station {icao}; update weather_station_precision.json"))
 
 
 def _resolve_precision_manifest_path() -> Path:

@@ -33,20 +33,11 @@ class RedisHealthPrinter(StatusLinePrinterBase):
             if redis_health.status.value == "degraded":
                 self._emit_status_line(f"  ⚠️ Redis Connection - Slow (ping: {ping_duration:.3f}s)")
             else:
-                self._emit_status_line(
-                    f"  🟢 Redis Connection - Healthy (ping: {ping_duration:.3f}s)"
-                )
+                self._emit_status_line(f"  🟢 Redis Connection - Healthy (ping: {ping_duration:.3f}s)")
 
             if pool_metrics:
-                reuse_rate = (
-                    self.data_coercion.float_or_default(
-                        pool_metrics.get("connection_reuse_rate"), 0.0
-                    )
-                    * 100
-                )
-                connection_errors = self.data_coercion.int_or_default(
-                    pool_metrics.get("connection_errors"), 0
-                )
+                reuse_rate = self.data_coercion.float_or_default(pool_metrics.get("connection_reuse_rate"), 0.0) * 100
+                connection_errors = self.data_coercion.int_or_default(pool_metrics.get("connection_errors"), 0)
                 self._emit_status_line(f"  📊 Pool Reuse Rate: {reuse_rate:.1f}%")
                 if connection_errors > 0:
                     self._emit_status_line(f"  ⚠️ Connection Errors: {connection_errors}")
@@ -54,12 +45,8 @@ class RedisHealthPrinter(StatusLinePrinterBase):
             self._emit_status_line("  🟢 Redis Connection - Healthy")
 
         # Print key counts
-        self._emit_status_line(
-            f"  🟢 Deribit Market Data - {status_data['redis_deribit_keys']:,} keys"
-        )
-        self._emit_status_line(
-            f"  🟢 Kalshi Market Data - {status_data['redis_kalshi_keys']:,} keys"
-        )
+        self._emit_status_line(f"  🟢 Deribit Market Data - {status_data['redis_deribit_keys']:,} keys")
+        self._emit_status_line(f"  🟢 Kalshi Market Data - {status_data['redis_kalshi_keys']:,} keys")
         self._emit_status_line(f"  🟢 CFB Price Data - {status_data['redis_cfb_keys']:,} keys")
         self._emit_status_line(f"  🟢 Weather Data - {status_data['redis_weather_keys']:,} keys")
 

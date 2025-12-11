@@ -58,18 +58,14 @@ class RedisInitializer:
                 redis_pool = redis_or_pool.connection_pool
             initialized = True
         else:
-            raise TypeError(
-                f"redis_or_pool must be an async Redis connection or async ConnectionPool, got {type(redis_or_pool)}"
-            )
+            raise TypeError(f"redis_or_pool must be an async Redis connection or async ConnectionPool, got {type(redis_or_pool)}")
 
         atomic_ops = AtomicRedisOperations(redis_client) if redis_client else None
 
         return redis_client, redis_pool, initialized, atomic_ops
 
     @staticmethod
-    async def create_with_pool() -> (
-        tuple[Any, Optional[ConnectionPool], bool, Optional[AtomicRedisOperations]]
-    ):
+    async def create_with_pool() -> tuple[Any, Optional[ConnectionPool], bool, Optional[AtomicRedisOperations]]:
         """
         Create a new Redis connection with a connection pool
 

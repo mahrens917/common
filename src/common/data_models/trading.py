@@ -169,9 +169,7 @@ class OrderRequest:
         """Validate order request parameters"""
         validate_order_request_enums(self.action, self.side, self.order_type, self.time_in_force)
         validate_order_request_price(self.order_type, self.yes_price_cents)
-        validate_order_request_metadata(
-            self.ticker, self.count, self.client_order_id, self.trade_rule, self.trade_reason
-        )
+        validate_order_request_metadata(self.ticker, self.count, self.client_order_id, self.trade_rule, self.trade_reason)
 
 
 @dataclass
@@ -238,9 +236,7 @@ class OrderResponse:
         """Run validation on order response data."""
         validate_order_response_enums(self.status, self.side, self.action, self.order_type)
         validate_order_response_counts(self.filled_count, self.remaining_count, self.status)
-        validate_order_response_price(
-            self.filled_count, self.average_fill_price_cents, self.fees_cents
-        )
+        validate_order_response_price(self.filled_count, self.average_fill_price_cents, self.fees_cents)
         validate_order_response_fills(self.fills, self.filled_count)
         validate_order_response_metadata(
             self.order_id,
@@ -268,9 +264,7 @@ class TradingError:
 
     def __post_init__(self):
         """Validate trading error data"""
-        validate_trading_error(
-            self.error_code, self.error_message, self.operation_name, self.timestamp
-        )
+        validate_trading_error(self.error_code, self.error_message, self.operation_name, self.timestamp)
 
 
 @dataclass

@@ -43,9 +43,7 @@ class StopLossMonitor:
             monitored_positions: Dict of currently monitored positions
             check_interval_seconds: How often to check position
         """
-        logger.info(
-            f"[StopLossMonitor] Starting stop-loss monitor for {ticker} at {stop_loss_cents}¢ loss"
-        )
+        logger.info(f"[StopLossMonitor] Starting stop-loss monitor for {ticker} at {stop_loss_cents}¢ loss")
 
         while ticker in monitored_positions:
             try:
@@ -53,23 +51,16 @@ class StopLossMonitor:
                 position = next((p for p in positions if p.ticker == ticker), None)
 
                 if not position:
-                    logger.info(
-                        f"[StopLossMonitor] Position {ticker} no longer exists, stopping monitor"
-                    )
+                    logger.info(f"[StopLossMonitor] Position {ticker} no longer exists, stopping monitor")
                     break
 
-                if (
-                    position.unrealized_pnl_cents is not None
-                    and position.unrealized_pnl_cents <= stop_loss_cents
-                ):
+                if position.unrealized_pnl_cents is not None and position.unrealized_pnl_cents <= stop_loss_cents:
                     logger.warning(
                         f"[StopLossMonitor] Stop-loss triggered for {ticker}: "
                         f"P&L={position.unrealized_pnl_cents}¢ <= {stop_loss_cents}¢"
                     )
 
-                    await self.position_closer.emergency_close_position(
-                        position, "Stop-loss triggered"
-                    )
+                    await self.position_closer.emergency_close_position(position, "Stop-loss triggered")
                     break
 
                 await asyncio.sleep(check_interval_seconds)

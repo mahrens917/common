@@ -208,9 +208,7 @@ def resolve_expiry_to_datetime(expiry: Any, *, instrument_name: Optional[str] = 
             raise ValueError(f"Invalid timestamp {expiry}{context}: {exc}") from exc
 
     context = f" for {instrument_name}" if instrument_name else ""
-    raise ValueError(
-        f"Expected datetime or numeric timestamp, got {type(expiry).__name__}{context}"
-    )
+    raise ValueError(f"Expected datetime or numeric timestamp, got {type(expiry).__name__}{context}")
 
 
 def is_market_expired(expiry: str) -> bool:

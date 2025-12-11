@@ -32,11 +32,7 @@ class HealthChecker:
         logger.debug(f"Health check passed: {healthy_count}/{total_urls} URLs healthy")
 
     @staticmethod
-    def update_failure_metrics(
-        health_status: Dict, healthy_count: int, total_urls: int, threshold: int, logger
-    ) -> None:
+    def update_failure_metrics(health_status: Dict, healthy_count: int, total_urls: int, threshold: int, logger) -> None:
         """Update metrics on failed health check."""
         health_status["consecutive_scrape_failures"] += 1
-        logger.warning(
-            f"Health check failed: only {healthy_count}/{total_urls} URLs healthy (need {threshold})"
-        )
+        logger.warning(f"Health check failed: only {healthy_count}/{total_urls} URLs healthy (need {threshold})")

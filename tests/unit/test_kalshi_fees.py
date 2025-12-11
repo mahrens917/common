@@ -16,18 +16,14 @@ def _write_config(tmp_path: Path, config: dict) -> Path:
     return config_path
 
 
-def test_load_trade_analyzer_config_missing_file(
-    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
-) -> None:
+def test_load_trade_analyzer_config_missing_file(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setattr(kalshi_fees, "PROJECT_ROOT", tmp_path)
 
     with pytest.raises(FileNotFoundError):
         kalshi_fees._load_trade_analyzer_config()
 
 
-def test_load_trade_analyzer_config_missing_required_section(
-    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
-) -> None:
+def test_load_trade_analyzer_config_missing_required_section(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
     config = {
         "trading_fees": {
             "general_fee_coefficient": 0.07,
@@ -44,9 +40,7 @@ def test_load_trade_analyzer_config_missing_required_section(
     assert "symbol_mappings" in str(err.value)
 
 
-def test_load_trade_analyzer_config_missing_required_field(
-    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
-) -> None:
+def test_load_trade_analyzer_config_missing_required_field(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
     config = {
         "trading_fees": {
             "maker_fee_coefficient": 0.0175,
@@ -63,9 +57,7 @@ def test_load_trade_analyzer_config_missing_required_field(
     assert "general_fee_coefficient" in str(err.value)
 
 
-def test_load_trade_analyzer_config_missing_mappings_key(
-    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
-) -> None:
+def test_load_trade_analyzer_config_missing_mappings_key(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
     config = {
         "trading_fees": {
             "general_fee_coefficient": 0.07,

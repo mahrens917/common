@@ -17,9 +17,7 @@ class TestSubscriptionProcessor:
 
     @pytest.fixture
     def processor(self, websocket_client):
-        return SubscriptionProcessor(
-            "test_service", websocket_client, active_instruments={}, pending_subscriptions=[]
-        )
+        return SubscriptionProcessor("test_service", websocket_client, active_instruments={}, pending_subscriptions=[])
 
     @pytest.mark.asyncio
     async def test_process_pending_no_subscriptions(self, processor):

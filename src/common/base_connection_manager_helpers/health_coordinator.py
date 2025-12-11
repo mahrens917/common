@@ -29,9 +29,7 @@ class HealthCoordinator:
         self.logger = logging.getLogger(f"{__name__}.{service_name}")
         self.reconnection_task: Any = None
 
-    def _transition_state(
-        self, new_state: ConnectionState, error_context: str | None = None
-    ) -> None:
+    def _transition_state(self, new_state: ConnectionState, error_context: str | None = None) -> None:
         """Transition to a new connection state."""
         self.state_manager.transition_state(new_state, error_context)
 

@@ -14,9 +14,7 @@ class EventManager:
     def __init__(self, store: ConnectionStore):
         self.store = store
 
-    async def record_connection_event(
-        self, service_name: str, event_type: str, details: str = ""
-    ) -> None:
+    async def record_connection_event(self, service_name: str, event_type: str, details: str = "") -> None:
         """Record a connection-related event for debugging and monitoring."""
         await self.store.record_reconnection_event(service_name, event_type, details)
 
@@ -24,9 +22,7 @@ class EventManager:
         """Persist supplemental service metrics alongside connection state."""
         return await self.store.store_service_metrics(service_name, metrics)
 
-    async def get_recent_connection_events(
-        self, service_name: str, hours_back: int = 1
-    ) -> List[Dict[str, Any]]:
+    async def get_recent_connection_events(self, service_name: str, hours_back: int = 1) -> List[Dict[str, Any]]:
         """Get recent connection events for a service."""
         return await self.store.get_recent_reconnection_events(service_name, hours_back)
 

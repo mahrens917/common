@@ -31,9 +31,7 @@ async def test_get_kalshi_market_status_caches_client_and_sets_flags(monkeypatch
     collector = KalshiMarketStatusCollector(redis_client=redis_client)
 
     mock_client = AsyncMock()
-    mock_client.get_exchange_status = AsyncMock(
-        return_value={"exchange_active": True, "trading_active": False}
-    )
+    mock_client.get_exchange_status = AsyncMock(return_value={"exchange_active": True, "trading_active": False})
 
     async def fake_get_kalshi_client():
         return mock_client

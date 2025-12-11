@@ -51,22 +51,16 @@ class FieldResetApplicator:
         if field_name not in self._reset_evaluator.DAILY_RESET_FIELDS:
             return current_value, False
 
-        should_reset = self._reset_evaluator.should_reset_field(
-            field_name, latitude, longitude, previous_data, current_timestamp
-        )
+        should_reset = self._reset_evaluator.should_reset_field(field_name, latitude, longitude, previous_data, current_timestamp)
 
         if should_reset:
             if field_name in self.CLEAR_ON_RESET_FIELDS:
                 # Clear the field (set to None)
-                logger.info(
-                    f"🔄 MIDNIGHT RESET: Clearing field '{field_name}' to None (new local day)"
-                )
+                logger.info(f"🔄 MIDNIGHT RESET: Clearing field '{field_name}' to None (new local day)")
                 return None, True
             else:
                 # Keep current value but mark as reset
-                logger.info(
-                    f"🔄 MIDNIGHT RESET: Resetting field '{field_name}' to current value {current_value} (new local day)"
-                )
+                logger.info(f"🔄 MIDNIGHT RESET: Resetting field '{field_name}' to current value {current_value} (new local day)")
                 return current_value, True
         # No reset needed, use previous value if available and current is None
         elif field_name in previous_data and current_value is None:

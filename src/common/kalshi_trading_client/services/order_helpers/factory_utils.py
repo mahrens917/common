@@ -46,9 +46,7 @@ def _resolve_all_deps(provided_deps: dict, defaults: _DefaultDependencies) -> di
         "order_creator": defaults.order_creator,
         "poller": defaults.poller,
     }
-    return {
-        key: _resolve_dep(provided_deps, key, default) for key, default in defaults_dict.items()
-    }
+    return {key: _resolve_dep(provided_deps, key, default) for key, default in defaults_dict.items()}
 
 
 def create_or_use_dependencies(
@@ -70,9 +68,7 @@ def create_or_use_dependencies(
     )
 
     required_keys = ("kalshi_client", "trade_store_getter", "notifier", "telegram_handler")
-    missing = [
-        key for key in required_keys if key not in provided_deps or provided_deps.get(key) is None
-    ]
+    missing = [key for key in required_keys if key not in provided_deps or provided_deps.get(key) is None]
     if missing:
         raise TypeError(f"Missing required dependencies: {', '.join(missing)}")
 

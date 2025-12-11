@@ -17,9 +17,7 @@ class ProcessCacheManager:
     def __init__(self, cache_ttl_seconds: int):
         self.cache_ttl_seconds = cache_ttl_seconds
 
-    def filter_fresh_processes(
-        self, processes: List[ProcessInfo], current_time: Optional[float] = None
-    ) -> List[ProcessInfo]:
+    def filter_fresh_processes(self, processes: List[ProcessInfo], current_time: Optional[float] = None) -> List[ProcessInfo]:
         """
         Filter processes to keep only fresh ones.
 
@@ -33,21 +31,15 @@ class ProcessCacheManager:
         if current_time is None:
             current_time = time.time()
 
-        return [
-            proc for proc in processes if current_time - proc.last_seen < self.cache_ttl_seconds
-        ]
+        return [proc for proc in processes if current_time - proc.last_seen < self.cache_ttl_seconds]
 
-    def is_process_fresh(
-        self, process_info: ProcessInfo, current_time: Optional[float] = None
-    ) -> bool:
+    def is_process_fresh(self, process_info: ProcessInfo, current_time: Optional[float] = None) -> bool:
         """Check if a process is fresh."""
         if current_time is None:
             current_time = time.time()
         return current_time - process_info.last_seen < self.cache_ttl_seconds
 
-    def update_process_metrics(
-        self, pid: int, process_cache: Dict[int, ProcessInfo]
-    ) -> Optional[ProcessInfo]:
+    def update_process_metrics(self, pid: int, process_cache: Dict[int, ProcessInfo]) -> Optional[ProcessInfo]:
         """
         Update CPU and memory metrics for a specific process.
 

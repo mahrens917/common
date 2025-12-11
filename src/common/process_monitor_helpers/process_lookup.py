@@ -9,9 +9,7 @@ class ProcessLookup:
     """Handles process search and keyword matching."""
 
     @staticmethod
-    def find_by_keywords(
-        process_cache: Dict[int, ProcessInfo], keywords: Iterable[str]
-    ) -> List[ProcessInfo]:
+    def find_by_keywords(process_cache: Dict[int, ProcessInfo], keywords: Iterable[str]) -> List[ProcessInfo]:
         """
         Return processes whose command line contains any of the supplied keywords.
 

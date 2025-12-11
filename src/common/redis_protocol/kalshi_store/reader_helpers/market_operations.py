@@ -14,9 +14,7 @@ from ...error_types import REDIS_ERRORS
 logger = logging.getLogger(__name__)
 
 
-async def get_subscribed_markets_safe(
-    redis: Redis, subscriptions_key: str, snapshot_reader
-) -> Set[str]:
+async def get_subscribed_markets_safe(redis: Redis, subscriptions_key: str, snapshot_reader) -> Set[str]:
     """
     Get subscribed markets with error handling
 
@@ -31,9 +29,7 @@ async def get_subscribed_markets_safe(
     return await snapshot_reader.get_subscribed_markets(redis, subscriptions_key)
 
 
-async def check_market_tracked(
-    redis: Redis, market_key: str, market_ticker: str, snapshot_reader
-) -> bool:
+async def check_market_tracked(redis: Redis, market_key: str, market_ticker: str, snapshot_reader) -> bool:
     """
     Check if market is tracked
 
@@ -74,9 +70,7 @@ async def query_market_for_strike_expiry(
         Market data or None
     """
     try:
-        return await market_lookup.get_market_data_for_strike_expiry(
-            redis, currency, expiry, strike, markets, get_market_key_func
-        )
+        return await market_lookup.get_market_data_for_strike_expiry(redis, currency, expiry, strike, markets, get_market_key_func)
     except REDIS_ERRORS as exc:
         logger.error(
             "Redis error getting market data for %s %s @ %s: %s",

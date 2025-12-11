@@ -20,17 +20,13 @@ class SnapshotRetriever:
             redis = await self._conn.get_redis()
         except RuntimeError as exc:
             raise KalshiStoreError("Unable to acquire Redis for market snapshot") from exc
-        return await self._snapshot_reader.get_market_snapshot(
-            redis, self._get_key(ticker), ticker, include_orderbook=include_orderbook
-        )
+        return await self._snapshot_reader.get_market_snapshot(redis, self._get_key(ticker), ticker, include_orderbook=include_orderbook)
 
-    async def get_snapshot_by_key(
-        self, market_key: str, *, include_orderbook: bool = True
-    ) -> Dict[str, Any]:
+    async def get_snapshot_by_key(self, market_key: str, *, include_orderbook: bool = True) -> Dict[str, Any]:
         """Get market snapshot by key."""
         if not market_key:
             raise TypeError("market_key must be provided")
-        from ...redis_schema import parse_kalshi_market_key
+        from ...redis_schema.kalshi import parse_kalshi_market_key
 
         try:
             descriptor = parse_kalshi_market_key(market_key)
@@ -48,6 +44,4 @@ class SnapshotRetriever:
         if not await self._conn.ensure_connection():
             return ""
         redis = await self._conn.get_redis()
-        return await self._snapshot_reader.get_market_field(
-            redis, self._get_key(ticker), ticker, field
-        )
+        return await self._snapshot_reader.get_market_field(redis, self._get_key(ticker), ticker, field)

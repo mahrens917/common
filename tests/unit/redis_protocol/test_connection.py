@@ -191,9 +191,7 @@ async def test_redis_connection_connect_failure(fake_redis_env):
         async def ping(self):
             raise RuntimeError("ping failed")
 
-    fake_redis_env.monkeypatch.setattr(
-        connection_pool_core.redis.asyncio, "Redis", FailingRedisClient
-    )
+    fake_redis_env.monkeypatch.setattr(connection_pool_core.redis.asyncio, "Redis", FailingRedisClient)
 
     redis_connection = connection.RedisConnection()
 

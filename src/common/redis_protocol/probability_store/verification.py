@@ -11,9 +11,7 @@ from redis.asyncio import Redis
 from .exceptions import ProbabilityStoreVerificationError
 
 
-async def verify_probability_storage(
-    redis: Redis, sample_keys: Iterable[str], currency: str
-) -> None:
+async def verify_probability_storage(redis: Redis, sample_keys: Iterable[str], currency: str) -> None:
     keys = list(sample_keys)
     if not keys:
         return
@@ -31,16 +29,12 @@ async def verify_probability_storage(
     if keys_verified != len(keys):
         await run_direct_connectivity_test(redis, currency)
         missing = sorted(key for key, exists in zip(keys, results) if not exists)
-        raise ProbabilityStoreVerificationError(
-            f"Probability storage verification failed for {currency}: missing keys={missing}"
-        )
+        raise ProbabilityStoreVerificationError(f"Probability storage verification failed for {currency}: missing keys={missing}")
 
 
 async def run_direct_connectivity_test(redis: Optional[Redis], currency: str) -> None:
     if redis is None:
-        raise ProbabilityStoreVerificationError(
-            f"Cannot run connectivity test for {currency}: Redis connection is None"
-        )
+        raise ProbabilityStoreVerificationError(f"Cannot run connectivity test for {currency}: Redis connection is None")
 
     test_key = f"probabilities:{currency}:connectivity_probe"
     await redis.set(test_key, "probability-store-connectivity")

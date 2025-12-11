@@ -20,7 +20,7 @@ class TradeNotifierAdapter:
         notification_error_types: Optional[Iterable[Type[Exception]]] = None,
     ) -> None:
         if notifier_supplier is None:
-            from ...kalshi.notifications.trade_notifier import (
+            from ...kalshi.notifications.trade_notifier import (  # type: ignore
                 TradeNotificationError,
                 get_trade_notifier,
             )
@@ -66,7 +66,7 @@ class TradeNotifierAdapter:
 
         error_types = self._notification_error_types
         if not error_types:
-            from ...kalshi.notifications.trade_notifier import TradeNotificationError
+            from ...kalshi.notifications.trade_notifier import TradeNotificationError  # type: ignore
 
             error_types = (TradeNotificationError,)
 

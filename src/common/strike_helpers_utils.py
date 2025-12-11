@@ -24,9 +24,7 @@ def parse_strike_segment(strike_segment: str) -> Tuple[str, str]:
     return prefix, value_str
 
 
-def resolve_strike_type_from_prefix(
-    prefix: str, keyword_type: Optional[str]
-) -> Tuple[str, Optional[float], Optional[float]]:
+def resolve_strike_type_from_prefix(prefix: str, keyword_type: Optional[str]) -> Tuple[str, Optional[float], Optional[float]]:
     strike_type = keyword_type or "greater"
     floor_strike: Optional[float] = None
     cap_strike: Optional[float] = None
@@ -65,9 +63,7 @@ def extract_between_bounds(tokens: List[str]) -> Tuple[Optional[float], Optional
     return floor_strike, cap_strike
 
 
-def compute_representative_strike(
-    cap_strike: Optional[float], floor_strike: Optional[float], strike_value: float
-) -> float:
+def compute_representative_strike(cap_strike: Optional[float], floor_strike: Optional[float], strike_value: float) -> float:
     if cap_strike is not None:
         return cap_strike
     if floor_strike is not None:

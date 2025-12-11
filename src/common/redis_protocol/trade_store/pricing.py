@@ -54,17 +54,13 @@ class TradePriceUpdater:
             for order_id in order_ids:
                 trade = await self._repository.get(search_date, order_id)
                 if trade is None:
-                    raise TradeStoreError(
-                        f"Trade {order_id} expected for {search_date} but payload missing"
-                    )
+                    raise TradeStoreError(f"Trade {order_id} expected for {search_date} but payload missing")
                 if trade.market_ticker != market_ticker:
                     continue
                 await self._apply_price_update(trade, yes_bid=yes_bid, yes_ask=yes_ask)
                 updated_count += 1
 
-        self._logger.debug(
-            "Updated prices for %s trades in market %s", updated_count, market_ticker
-        )
+        self._logger.debug("Updated prices for %s trades in market %s", updated_count, market_ticker)
         return updated_count
 
     async def _apply_price_update(

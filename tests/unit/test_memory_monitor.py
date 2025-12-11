@@ -219,7 +219,7 @@ async def test_monitoring_loop_runs_single_iteration(monkeypatch, patch_psutil):
         monitor.shutdown_requested = True
         return snapshot
 
-    monkeypatch.setattr("common.memory_monitor.asyncio.sleep", fast_sleep)
+    monkeypatch.setattr("asyncio.sleep", fast_sleep)
     monkeypatch.setattr(monitor, "take_snapshot", wrapped_snapshot)
 
     await monitor._monitoring_loop()
@@ -238,7 +238,7 @@ async def test_monitoring_loop_handles_snapshot_errors(monkeypatch, patch_psutil
     def failing_snapshot():
         raise ValueError("boom")
 
-    monkeypatch.setattr("common.memory_monitor.asyncio.sleep", fast_sleep)
+    monkeypatch.setattr("asyncio.sleep", fast_sleep)
     monkeypatch.setattr(monitor, "take_snapshot", failing_snapshot)
 
     await monitor._monitoring_loop()

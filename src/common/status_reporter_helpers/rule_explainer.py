@@ -6,10 +6,7 @@ def explain_theoretical_yes_ask_sell(reason: str, price_cents: int) -> str:
     theoretical_price = "0"
     if "(" in reason:
         theoretical_price = reason.split("(")[1].split(")")[0]
-    return (
-        f"📋 Rule: Theoretical YES ask ({theoretical_price}¢) < "
-        f"Market YES ask ({price_cents}¢) → SELL YES profitable"
-    )
+    return f"📋 Rule: Theoretical YES ask ({theoretical_price}¢) < " f"Market YES ask ({price_cents}¢) → SELL YES profitable"
 
 
 def explain_theoretical_yes_bid_sell() -> str:

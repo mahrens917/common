@@ -6,9 +6,7 @@ import pytest
 from common.redis_protocol.persistence_manager_helpers.config_orchestrator import (
     ConfigOrchestrator,
 )
-from common.redis_protocol.persistence_manager_helpers.connection_manager import (
-    ConnectionManager as PersistenceConnectionManager,
-)
+from common.redis_protocol.persistence_manager_helpers.connection_manager import ConnectionManager as PersistenceConnectionManager
 from common.scraper_connection_manager_helpers.connection_lifecycle import (
     ScraperConnectionLifecycle,
 )

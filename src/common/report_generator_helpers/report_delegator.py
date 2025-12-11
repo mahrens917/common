@@ -78,20 +78,14 @@ class ReportDelegator:
         else:
             return result
 
-    async def generate_settlement_notification(
-        self, trade_date: date, settled_markets: list, daily_report: str
-    ) -> str:
-        return await self.summary_builder.generate_settlement_notification(
-            trade_date, settled_markets, daily_report
-        )
+    async def generate_settlement_notification(self, trade_date: date, settled_markets: list, daily_report: str) -> str:
+        return await self.summary_builder.generate_settlement_notification(trade_date, settled_markets, daily_report)
 
     async def generate_summary_stats(self, days_back: int = 30) -> str:
         try:
             return await self.summary_builder.generate_summary_stats(days_back)
         except DATA_ACCESS_ERRORS as exc:
-            self.logger.error(
-                "Error generating summary stats (%s): %s", type(exc).__name__, exc, exc_info=True
-            )
+            self.logger.error("Error generating summary stats (%s): %s", type(exc).__name__, exc, exc_info=True)
             return "❌ Error generating summary statistics"
 
     async def generate_unified_pnl_report(self) -> str:
@@ -110,7 +104,5 @@ class ReportDelegator:
         try:
             return await self.unified_builder.generate_unified_pnl_data()
         except DATA_ACCESS_ERRORS as exc:
-            self.logger.error(
-                "Error generating unified P&L data (%s): %s", type(exc).__name__, exc, exc_info=True
-            )
+            self.logger.error("Error generating unified P&L data (%s): %s", type(exc).__name__, exc, exc_info=True)
             raise

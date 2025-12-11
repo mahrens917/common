@@ -60,9 +60,7 @@ class TestErrorMatcherMatchesPattern:
         patterns = {ServiceType.WEBSOCKET: [re.compile("connection lost", re.IGNORECASE)]}
         matcher = ErrorMatcher(patterns)
 
-        matches, pattern = matcher.matches_pattern(
-            ServiceType.WEBSOCKET, "WebSocket connection lost unexpectedly"
-        )
+        matches, pattern = matcher.matches_pattern(ServiceType.WEBSOCKET, "WebSocket connection lost unexpectedly")
 
         assert matches is True
         assert pattern == "connection lost"
@@ -97,9 +95,7 @@ class TestErrorMatcherMatchesPattern:
         }
         matcher = ErrorMatcher(patterns)
 
-        matches, pattern = matcher.matches_pattern(
-            ServiceType.WEBSOCKET, "Connection error occurred"
-        )
+        matches, pattern = matcher.matches_pattern(ServiceType.WEBSOCKET, "Connection error occurred")
 
         assert matches is True
         assert pattern == "connection"
@@ -133,9 +129,7 @@ class TestErrorMatcherCheckWithLogging:
         patterns = {ServiceType.WEBSOCKET: [re.compile("connection lost", re.IGNORECASE)]}
         matcher = ErrorMatcher(patterns)
 
-        result = matcher.check_with_logging(
-            "kalshi", ServiceType.WEBSOCKET, "WebSocket connection lost"
-        )
+        result = matcher.check_with_logging("kalshi", ServiceType.WEBSOCKET, "WebSocket connection lost")
 
         assert result is True
 
@@ -144,9 +138,7 @@ class TestErrorMatcherCheckWithLogging:
         patterns = {ServiceType.WEBSOCKET: [re.compile("connection lost", re.IGNORECASE)]}
         matcher = ErrorMatcher(patterns)
 
-        result = matcher.check_with_logging(
-            "kalshi", ServiceType.WEBSOCKET, "Authentication failed"
-        )
+        result = matcher.check_with_logging("kalshi", ServiceType.WEBSOCKET, "Authentication failed")
 
         assert result is False
 
@@ -155,9 +147,7 @@ class TestErrorMatcherCheckWithLogging:
         patterns = {ServiceType.WEBSOCKET: [re.compile("connection lost", re.IGNORECASE)]}
         matcher = ErrorMatcher(patterns)
 
-        with patch(
-            "common.reconnection_error_patterns_helpers.error_matcher.logger"
-        ) as mock_logger:
+        with patch("common.reconnection_error_patterns_helpers.error_matcher.logger") as mock_logger:
             matcher.check_with_logging("kalshi", ServiceType.WEBSOCKET, "WebSocket connection lost")
 
             mock_logger.debug.assert_called_once()
@@ -170,9 +160,7 @@ class TestErrorMatcherCheckWithLogging:
         patterns = {ServiceType.WEBSOCKET: [re.compile("connection lost", re.IGNORECASE)]}
         matcher = ErrorMatcher(patterns)
 
-        with patch(
-            "common.reconnection_error_patterns_helpers.error_matcher.logger"
-        ) as mock_logger:
+        with patch("common.reconnection_error_patterns_helpers.error_matcher.logger") as mock_logger:
             matcher.check_with_logging("kalshi", ServiceType.WEBSOCKET, "Authentication failed")
 
             mock_logger.debug.assert_called_once()
@@ -186,9 +174,7 @@ class TestErrorMatcherCheckWithLogging:
         matcher = ErrorMatcher(patterns)
         long_message = "Connection lost: " + "x" * 200
 
-        with patch(
-            "common.reconnection_error_patterns_helpers.error_matcher.logger"
-        ) as mock_logger:
+        with patch("common.reconnection_error_patterns_helpers.error_matcher.logger") as mock_logger:
             matcher.check_with_logging("kalshi", ServiceType.WEBSOCKET, long_message)
 
             call_args = mock_logger.debug.call_args[0][0]

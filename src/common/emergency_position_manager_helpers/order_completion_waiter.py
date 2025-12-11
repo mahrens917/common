@@ -64,9 +64,7 @@ class OrderCompletionWaiter:
                 logger.warning("[PositionCloser] Error checking order %s", order_id)
                 await asyncio.sleep(1.0)
 
-        logger.warning(
-            "[PositionCloser] Order %s did not complete within %ss", order_id, timeout_seconds
-        )
+        logger.warning("[PositionCloser] Order %s did not complete within %ss", order_id, timeout_seconds)
         return None
 
     @staticmethod
@@ -80,7 +78,5 @@ class OrderCompletionWaiter:
             try:
                 total_filled += int(fill["count"])
             except (TypeError, ValueError):
-                logger.warning(
-                    "[PositionCloser] Invalid fill count for %s: %s", order_id, fill["count"]
-                )
+                logger.warning("[PositionCloser] Invalid fill count for %s: %s", order_id, fill["count"])
         return total_filled

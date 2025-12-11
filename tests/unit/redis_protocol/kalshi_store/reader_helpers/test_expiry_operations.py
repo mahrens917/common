@@ -22,14 +22,10 @@ class TestCheckExpiryStatus:
         expiry_checker = AsyncMock()
         expiry_checker.is_market_expired = AsyncMock(return_value=True)
 
-        result = await check_expiry_status(
-            redis, "markets:kalshi:test:TICKER", "TICKER", expiry_checker
-        )
+        result = await check_expiry_status(redis, "markets:kalshi:test:TICKER", "TICKER", expiry_checker)
 
         assert result is True
-        expiry_checker.is_market_expired.assert_called_once_with(
-            redis, "markets:kalshi:test:TICKER", "TICKER"
-        )
+        expiry_checker.is_market_expired.assert_called_once_with(redis, "markets:kalshi:test:TICKER", "TICKER")
 
     @pytest.mark.asyncio
     async def test_returns_false_when_not_expired(self) -> None:
@@ -38,9 +34,7 @@ class TestCheckExpiryStatus:
         expiry_checker = AsyncMock()
         expiry_checker.is_market_expired = AsyncMock(return_value=False)
 
-        result = await check_expiry_status(
-            redis, "markets:kalshi:test:TICKER", "TICKER", expiry_checker
-        )
+        result = await check_expiry_status(redis, "markets:kalshi:test:TICKER", "TICKER", expiry_checker)
 
         assert result is False
 
@@ -55,14 +49,10 @@ class TestCheckSettlementStatus:
         expiry_checker = AsyncMock()
         expiry_checker.is_market_settled = AsyncMock(return_value=True)
 
-        result = await check_settlement_status(
-            redis, "markets:kalshi:test:TICKER", "TICKER", expiry_checker
-        )
+        result = await check_settlement_status(redis, "markets:kalshi:test:TICKER", "TICKER", expiry_checker)
 
         assert result is True
-        expiry_checker.is_market_settled.assert_called_once_with(
-            redis, "markets:kalshi:test:TICKER", "TICKER"
-        )
+        expiry_checker.is_market_settled.assert_called_once_with(redis, "markets:kalshi:test:TICKER", "TICKER")
 
     @pytest.mark.asyncio
     async def test_returns_false_when_not_settled(self) -> None:
@@ -71,8 +61,6 @@ class TestCheckSettlementStatus:
         expiry_checker = AsyncMock()
         expiry_checker.is_market_settled = AsyncMock(return_value=False)
 
-        result = await check_settlement_status(
-            redis, "markets:kalshi:test:TICKER", "TICKER", expiry_checker
-        )
+        result = await check_settlement_status(redis, "markets:kalshi:test:TICKER", "TICKER", expiry_checker)
 
         assert result is False

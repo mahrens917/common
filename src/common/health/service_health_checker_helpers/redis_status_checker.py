@@ -36,9 +36,7 @@ async def check_redis_status(service_name: str, redis_client: RedisClient) -> Se
         status_data = await ensure_awaitable(redis_client.hgetall(status_key))
 
         if not status_data:
-            return ServiceHealthInfo(
-                health=ServiceHealth.UNRESPONSIVE, error_message="No status data in Redis"
-            )
+            return ServiceHealthInfo(health=ServiceHealth.UNRESPONSIVE, error_message="No status data in Redis")
 
         decoded_data = decode_redis_hash(status_data)
 
@@ -48,15 +46,11 @@ async def check_redis_status(service_name: str, redis_client: RedisClient) -> Se
             status_value = MISSING_STATUS_VALUE
 
         if "timestamp" not in decoded_data:
-            return ServiceHealthInfo(
-                health=ServiceHealth.UNRESPONSIVE, error_message="No timestamp in status data"
-            )
+            return ServiceHealthInfo(health=ServiceHealth.UNRESPONSIVE, error_message="No timestamp in status data")
         timestamp_str = decoded_data["timestamp"]
 
         if not timestamp_str:
-            return ServiceHealthInfo(
-                health=ServiceHealth.UNRESPONSIVE, error_message="No timestamp in status data"
-            )
+            return ServiceHealthInfo(health=ServiceHealth.UNRESPONSIVE, error_message="No timestamp in status data")
 
         try:
             last_update = float(timestamp_str)

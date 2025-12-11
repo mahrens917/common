@@ -50,19 +50,13 @@ class CoordinatorFactory:
         station_formatter = StationBreakdownFormatter(emoji_selector)
         rule_formatter = RuleBreakdownFormatter(emoji_selector)
         basic_pnl_formatter = BasicPnLFormatter(emoji_selector, station_formatter, rule_formatter)
-        current_day_formatter = CurrentDayFormatter(
-            emoji_selector, station_formatter, rule_formatter
-        )
+        current_day_formatter = CurrentDayFormatter(emoji_selector, station_formatter, rule_formatter)
         time_period_formatter = TimePeriodFormatter(emoji_selector, dollar_converter)
-        unified_pnl_formatter = UnifiedPnLFormatter(
-            emoji_selector, dollar_converter, stats_calculator
-        )
+        unified_pnl_formatter = UnifiedPnLFormatter(emoji_selector, dollar_converter, stats_calculator)
         daily_pnl_collector = DailyPnLCollector(pnl_calculator)
 
         # Initialize coordinators
-        report_coordinator = ReportCoordinator(
-            pnl_calculator, basic_pnl_formatter, current_day_formatter, timezone
-        )
+        report_coordinator = ReportCoordinator(pnl_calculator, basic_pnl_formatter, current_day_formatter, timezone)
         summary_builder = SummaryReportBuilder(pnl_calculator, stats_calculator, timezone)
         unified_builder = UnifiedReportBuilder(
             pnl_calculator,

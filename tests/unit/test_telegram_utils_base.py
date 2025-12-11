@@ -15,9 +15,7 @@ class _DummyAlerter:
     async def send_alert(self, message: str, *, alert_type: str) -> None:
         self.alerts.append({"message": message, "alert_type": alert_type})
 
-    def register_command_handler(
-        self, command: str, handler: Callable[[Dict[str, Any]], Awaitable[None]]
-    ) -> None:
+    def register_command_handler(self, command: str, handler: Callable[[Dict[str, Any]], Awaitable[None]]) -> None:
         self.registered[command] = handler
 
 

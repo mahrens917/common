@@ -16,15 +16,9 @@ from common.health.service_health_types import ServiceHealth, ServiceHealthInfo
 
 def make_aggregator(monkeypatch, *, process_result, log_result, service_result):
     aggregator = ServiceHealthAggregator()
-    monkeypatch.setattr(
-        aggregator.process_monitor, "get_process_status", AsyncMock(return_value=process_result)
-    )
-    monkeypatch.setattr(
-        aggregator.log_monitor, "get_log_activity", AsyncMock(return_value=log_result)
-    )
-    monkeypatch.setattr(
-        aggregator.health_checker, "check_service_health", AsyncMock(return_value=service_result)
-    )
+    monkeypatch.setattr(aggregator.process_monitor, "get_process_status", AsyncMock(return_value=process_result))
+    monkeypatch.setattr(aggregator.log_monitor, "get_log_activity", AsyncMock(return_value=log_result))
+    monkeypatch.setattr(aggregator.health_checker, "check_service_health", AsyncMock(return_value=service_result))
     return aggregator
 
 

@@ -31,16 +31,12 @@ async def write_message_count_to_redis(
         ConnectionError: If Redis write fails
     """
     try:
-        datetime_str = datetime.fromtimestamp(current_time, tz=timezone.utc).strftime(
-            "%Y-%m-%d %H:%M:%S"
-        )
+        datetime_str = datetime.fromtimestamp(current_time, tz=timezone.utc).strftime("%Y-%m-%d %H:%M:%S")
         history_key = f"history:{service_name}"
         await ensure_awaitable(redis_client.hset(history_key, datetime_str, str(message_count)))
         await ensure_awaitable(redis_client.expire(history_key, 86400))  # 24 hours
 
-        logger.debug(
-            f"{service_name.upper()}_HISTORY: Recorded {message_count} messages at {datetime_str}"
-        )
+        logger.debug(f"{service_name.upper()}_HISTORY: Recorded {message_count} messages at {datetime_str}")
 
     except REDIS_WRITE_ERRORS as exc:
         logger.exception("CRITICAL: Failed to record %s message count to Redis", service_name)

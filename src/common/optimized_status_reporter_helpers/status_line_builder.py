@@ -17,9 +17,7 @@ def get_status_emoji(running: bool, activity: Optional[LogActivity]) -> str:
     return emoji
 
 
-def _resolve_tracker_status(
-    running: bool, tracker_status: dict[str, Any], bool_or_default_func
-) -> str:
+def _resolve_tracker_status(running: bool, tracker_status: dict[str, Any], bool_or_default_func) -> str:
     """Resolve status specifically for tracker service."""
     # Tracker enabled is True if not explicitly set to False
     enabled_raw = tracker_status.get("enabled")

@@ -59,8 +59,6 @@ def check_silent_failure_threshold(
     if time_since_last_update <= threshold_seconds:
         return False
 
-    error_msg = (
-        f"SILENT_FAILURE_DETECTION: No {service_name} messages for {time_since_last_update:.1f}s"
-    )
+    error_msg = f"SILENT_FAILURE_DETECTION: No {service_name} messages for {time_since_last_update:.1f}s"
     logger.error(error_msg)
     return True

@@ -18,9 +18,7 @@ logger = logging.getLogger(__name__)
 _CONST_2 = 2
 
 
-async def get_subscribed_markets(
-    redis: Redis, subscriptions_key: str
-) -> Set[str]:  # pragma: no cover - Redis coordination
+async def get_subscribed_markets(redis: Redis, subscriptions_key: str) -> Set[str]:  # pragma: no cover - Redis coordination
     """
     Return the set of market tickers currently subscribed across all services.
 

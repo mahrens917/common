@@ -121,9 +121,7 @@ async def test_get_usdc_micro_price_invalid_values(monkeypatch):
         currency="DOGE",
         quote_currency="USDC",
     ).key()
-    store = make_store(
-        {pair_key: {"best_bid": "bad", "best_ask": "1", "best_bid_size": "1", "best_ask_size": "1"}}
-    )
+    store = make_store({pair_key: {"best_bid": "bad", "best_ask": "1", "best_bid_size": "1", "best_ask_size": "1"}})
 
     with pytest.raises(ValidationError):
         await store.get_usdc_micro_price("DOGE")

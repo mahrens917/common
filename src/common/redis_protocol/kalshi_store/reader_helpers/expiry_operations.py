@@ -7,9 +7,7 @@ Handles expiry and settlement status checks.
 from redis.asyncio import Redis
 
 
-async def check_expiry_status(
-    redis: Redis, market_key: str, market_ticker: str, expiry_checker
-) -> bool:
+async def check_expiry_status(redis: Redis, market_key: str, market_ticker: str, expiry_checker) -> bool:
     """
     Check if market is expired
 
@@ -25,9 +23,7 @@ async def check_expiry_status(
     return await expiry_checker.is_market_expired(redis, market_key, market_ticker)
 
 
-async def check_settlement_status(
-    redis: Redis, market_key: str, market_ticker: str, expiry_checker
-) -> bool:
+async def check_settlement_status(redis: Redis, market_key: str, market_ticker: str, expiry_checker) -> bool:
     """
     Check if market is settled
 

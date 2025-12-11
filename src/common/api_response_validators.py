@@ -45,10 +45,7 @@ def validate_portfolio_balance_response(response_data: Dict[str, Any]) -> Dict[s
         raise ValueError("Empty response from portfolio balance API")
 
     if "balance" not in response_data:
-        raise ValueError(
-            f"Missing 'balance' field in response. "
-            f"Available fields: {list(response_data.keys())}"
-        )
+        raise ValueError(f"Missing 'balance' field in response. " f"Available fields: {list(response_data.keys())}")
 
     balance_value = response_data["balance"]
 
@@ -122,10 +119,7 @@ def validate_markets_response(response_data: Dict[str, Any]) -> Dict[str, Any]:
         raise ValueError("Empty response from markets API")
 
     if "markets" not in response_data:
-        raise ValueError(
-            f"Missing 'markets' field in response. "
-            f"Available fields: {list(response_data.keys())}"
-        )
+        raise ValueError(f"Missing 'markets' field in response. " f"Available fields: {list(response_data.keys())}")
 
     markets = response_data["markets"]
 
@@ -173,9 +167,7 @@ def _validate_event_markets(event_data: Dict[str, Any]) -> None:
     if not validate_event_markets_field(event_data):
         return
 
-    event_data["markets"] = [
-        validate_market_object(market, idx) for idx, market in enumerate(event_data["markets"])
-    ]
+    event_data["markets"] = [validate_market_object(market, idx) for idx, market in enumerate(event_data["markets"])]
 
 
 def validate_series_response(response_data: Dict[str, Any]) -> List[Dict[str, Any]]:
@@ -199,10 +191,7 @@ def validate_series_response(response_data: Dict[str, Any]) -> List[Dict[str, An
         raise ValueError("Empty response from series API")
 
     if "series" not in response_data:
-        raise ValueError(
-            f"Missing 'series' field in response. "
-            f"Available fields: {list(response_data.keys())}"
-        )
+        raise ValueError(f"Missing 'series' field in response. " f"Available fields: {list(response_data.keys())}")
 
     series_list = response_data["series"]
 
@@ -274,9 +263,7 @@ def validate_cancel_order_response(response_data: Dict[str, Any]) -> Dict[str, A
 
     # Validate status is 'canceled'
     if order_data["status"] not in ["canceled", "cancelled"]:
-        raise ValueError(
-            f"Expected status 'canceled' for cancel response, got: '{order_data['status']}'"
-        )
+        raise ValueError(f"Expected status 'canceled' for cancel response, got: '{order_data['status']}'")
 
     validate_order_strings(order_data)
     validate_order_enum_fields(order_data)
@@ -307,8 +294,7 @@ def validate_exchange_status_response(response_data: Dict[str, Any]) -> Dict[str
 
     if missing_fields:
         raise ValueError(
-            f"Missing required fields in exchange status: {missing_fields}. "
-            f"Available fields: {list(response_data.keys())}"
+            f"Missing required fields in exchange status: {missing_fields}. " f"Available fields: {list(response_data.keys())}"
         )
 
     # Validate boolean fields

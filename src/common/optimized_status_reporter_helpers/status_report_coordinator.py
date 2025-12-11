@@ -118,9 +118,7 @@ class DataGatherer:
         kalshi_market_status = await self.kalshi_market_status_collector.get_kalshi_market_status()
         log_activity_map, stale_logs = await self.log_activity_collector.collect_log_activity_map()
         tracker_status = await self.tracker_status_collector.collect_tracker_status()
-        running_services = self.tracker_status_collector.merge_tracker_service_state(
-            running_services, tracker_status
-        )
+        running_services = self.tracker_status_collector.merge_tracker_service_state(running_services, tracker_status)
         data = StatusDictData(
             redis_pid=redis_pid,
             running_services=running_services,
@@ -179,20 +177,14 @@ class ConsolePrinter:
         kalshi_status = self.data_coercion.coerce_mapping(status_data.get("kalshi_market_status"))
         self.console_section_printer.print_exchange_info(current_time, kalshi_status)
         self.console_section_printer._emit_status_line()
-        self.console_section_printer.print_price_info(
-            status_data.get("btc_price"), status_data.get("eth_price")
-        )
+        self.console_section_printer.print_price_info(status_data.get("btc_price"), status_data.get("eth_price"))
         self._print_weather_section(status_data)
         self._print_system_update_section(status_data)
         self._print_metrics_sections(status_data)
 
     def _print_weather_section(self, status_data: Dict[str, Any]):
-        weather_temperatures = self.data_coercion.coerce_mapping(
-            status_data.get("weather_temperatures")
-        )
-        weather_lines = self.weather_section_generator.generate_weather_section(
-            weather_temperatures
-        )
+        weather_temperatures = self.data_coercion.coerce_mapping(status_data.get("weather_temperatures"))
+        weather_lines = self.weather_section_generator.generate_weather_section(weather_temperatures)
         self.console_section_printer.print_weather_section(weather_lines)
 
     def _print_system_update_section(self, status_data: Dict[str, Any]):
@@ -200,20 +192,14 @@ class ConsolePrinter:
         self.console_section_printer._emit_status_line("📝 System Update:")
         tracker_status = self.data_coercion.coerce_mapping(status_data.get("tracker_status"))
         log_activity_map = status_data.get("log_activity") or {}
-        healthy_count, total_count = self.console_section_printer.print_managed_services(
-            tracker_status, log_activity_map
-        )
+        healthy_count, total_count = self.console_section_printer.print_managed_services(tracker_status, log_activity_map)
         self.console_section_printer.print_monitor_service(log_activity_map)
-        self.console_section_printer._emit_status_line(
-            f"📊 Process Summary: {healthy_count}/{total_count} running"
-        )
+        self.console_section_printer._emit_status_line(f"📊 Process Summary: {healthy_count}/{total_count} running")
 
     def _print_metrics_sections(self, status_data: Dict[str, Any]):
         tracker_status = self.data_coercion.coerce_mapping(status_data.get("tracker_status"))
         self.console_section_printer.print_redis_health_section(status_data)
-        self.console_section_printer.print_system_resources_section(
-            status_data["system_resources_health"]
-        )
+        self.console_section_printer.print_system_resources_section(status_data["system_resources_health"])
         self.console_section_printer.print_message_metrics_section(status_data)
         self.console_section_printer.print_weather_metrics_section(status_data)
         self.console_section_printer.print_tracker_status_section(tracker_status)
@@ -239,9 +225,7 @@ class StatusReportCoordinator:
             kalshi_market_status_collector=config.collectors.kalshi_market_status_collector,
         )
         self.data_gatherer = DataGatherer(gatherer_collectors)
-        self.console_printer = ConsolePrinter(
-            config.console_section_printer, config.weather_section_generator, config.data_coercion
-        )
+        self.console_printer = ConsolePrinter(config.console_section_printer, config.weather_section_generator, config.data_coercion)
 
     async def generate_and_stream_status_report(self) -> Dict[str, Any]:
         from common.redis_protocol.connection_pool_core import get_redis_client

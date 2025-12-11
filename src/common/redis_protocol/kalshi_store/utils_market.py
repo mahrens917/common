@@ -83,9 +83,7 @@ def normalise_trade_timestamp(value: Any) -> str:
     return _normalise_trade_timestamp(value)
 
 
-def _parse_market_metadata(
-    market_ticker: str, market_data: Dict[str, Any]
-) -> Optional[Dict[str, Any]]:
+def _parse_market_metadata(market_ticker: str, market_data: Dict[str, Any]) -> Optional[Dict[str, Any]]:
     """
     Parse metadata JSON from Redis market data.
 
@@ -123,9 +121,7 @@ def _resolve_market_strike(metadata: Dict[str, Any]) -> Optional[float]:
     return resolve_strike_from_metadata(metadata)
 
 
-def _coerce_strike_bounds(
-    floor_strike: Any, cap_strike: Any
-) -> Tuple[Optional[float], Optional[float]]:
+def _coerce_strike_bounds(floor_strike: Any, cap_strike: Any) -> Tuple[Optional[float], Optional[float]]:
     """
     Parse floor and cap strike bounds.
 
@@ -151,9 +147,7 @@ def _coerce_strike_bounds(
     return floor_value, cap_value
 
 
-def _resolve_strike_from_bounds(
-    strike_type: str, floor_value: Optional[float], cap_value: Optional[float]
-) -> Optional[float]:
+def _resolve_strike_from_bounds(strike_type: str, floor_value: Optional[float], cap_value: Optional[float]) -> Optional[float]:
     """
     Calculate representative strike from bounds.
 
@@ -172,9 +166,7 @@ def _resolve_strike_from_bounds(
     return calculate_strike_value(strike_type, floor_value, cap_value)
 
 
-def _extract_orderbook_sizes(
-    market_ticker: str, market_data: Dict[str, Any]
-) -> tuple[float, float]:
+def _extract_orderbook_sizes(market_ticker: str, market_data: Dict[str, Any]) -> tuple[float, float]:
     """Delegate to canonical orderbook size extractor."""
     return extract_orderbook_sizes(market_ticker, market_data)
 

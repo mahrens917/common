@@ -126,9 +126,7 @@ def _handle_none_value(allow_none: bool) -> float | None:
     raise ValueError("Cannot coerce None to float")
 
 
-def _coerce_string_to_float(
-    value: str, allow_none: bool, null_sentinels: Iterable[str], finite_only: bool
-) -> float | None:
+def _coerce_string_to_float(value: str, allow_none: bool, null_sentinels: Iterable[str], finite_only: bool) -> float | None:
     """Coerce string value to float."""
     stripped = value.strip()
 

@@ -32,9 +32,7 @@ class _FakeEnqueuer:
         if self.raise_exc:
             raise self.raise_exc
         self.calls += 1
-        return SimpleNamespace(
-            field_count=2, sample_keys=["k1", "k2"], event_ticker_counts={"ev": 2}
-        )
+        return SimpleNamespace(field_count=2, sample_keys=["k1", "k2"], event_ticker_counts={"ev": 2})
 
 
 class _StubRedis:
@@ -85,9 +83,7 @@ async def test_store_probabilities_human_readable_success(monkeypatch):
         lambda currency, count, counts: recorded.setdefault("log", (currency, count, counts)),
     )
 
-    result = await store.store_probabilities_human_readable(
-        "eth", {"2024-01-01": {"YES": {"10": 0.5}}}
-    )
+    result = await store.store_probabilities_human_readable("eth", {"2024-01-01": {"YES": {"10": 0.5}}})
 
     assert result is True
     assert collector.deleted == ["old1"]

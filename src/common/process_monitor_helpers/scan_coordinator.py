@@ -69,13 +69,8 @@ class ScanCoordinator:
 
         # If we lost too many processes, do a full scan
         full_scan_triggered = False
-        if (
-            len(process_cache) > 0
-            and len(dead_pids) > len(process_cache) * self.dead_process_threshold
-        ):
-            logger.info(
-                f"Too many dead processes ({len(dead_pids)}/{len(process_cache)}), triggering full scan"
-            )
+        if len(process_cache) > 0 and len(dead_pids) > len(process_cache) * self.dead_process_threshold:
+            logger.info(f"Too many dead processes ({len(dead_pids)}/{len(process_cache)}), triggering full scan")
             full_scan_triggered = True
 
         return process_cache, service_cache, redis_processes, time.time(), full_scan_triggered

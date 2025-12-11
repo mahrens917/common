@@ -18,9 +18,7 @@ class TestBatchValidator:
         """Validates all contracts in options data."""
         options_data = {"contract_names": ["BTC-25JAN01-100000-C", "BTC-25FEB01-95000-P"]}
 
-        with patch(
-            "common.market_data_parser_helpers.contract_validator.ContractValidator"
-        ) as mock_validator:
+        with patch("common.market_data_parser_helpers.contract_validator.ContractValidator") as mock_validator:
             mock_validator.validate_contract.return_value = (True, None, {})
 
             valid_count, issues, stats = BatchValidator.validate_contracts(options_data, "BTC")
@@ -33,9 +31,7 @@ class TestBatchValidator:
         """Counts only valid contracts."""
         options_data = {"contract_names": ["VALID-1", "INVALID-2", "VALID-3"]}
 
-        with patch(
-            "common.market_data_parser_helpers.contract_validator.ContractValidator"
-        ) as mock_validator:
+        with patch("common.market_data_parser_helpers.contract_validator.ContractValidator") as mock_validator:
             mock_validator.validate_contract.side_effect = [
                 (True, None, {}),
                 (False, "Invalid contract", {}),
@@ -51,9 +47,7 @@ class TestBatchValidator:
         """Collects error messages from invalid contracts."""
         options_data = {"contract_names": ["INVALID-1", "INVALID-2"]}
 
-        with patch(
-            "common.market_data_parser_helpers.contract_validator.ContractValidator"
-        ) as mock_validator:
+        with patch("common.market_data_parser_helpers.contract_validator.ContractValidator") as mock_validator:
             mock_validator.validate_contract.side_effect = [
                 (False, "Error 1", {}),
                 (False, "Error 2", {}),
@@ -68,9 +62,7 @@ class TestBatchValidator:
         """Aggregates stats from all validations."""
         options_data = {"contract_names": ["CONTRACT-1", "CONTRACT-2", "CONTRACT-3"]}
 
-        with patch(
-            "common.market_data_parser_helpers.contract_validator.ContractValidator"
-        ) as mock_validator:
+        with patch("common.market_data_parser_helpers.contract_validator.ContractValidator") as mock_validator:
             mock_validator.validate_contract.side_effect = [
                 (False, "Error 1", {"symbol_mismatches": 1}),
                 (False, "Error 2", {"date_errors": 1}),
@@ -87,9 +79,7 @@ class TestBatchValidator:
         """Passes correct index to validator."""
         options_data = {"contract_names": ["CONTRACT-A", "CONTRACT-B"]}
 
-        with patch(
-            "common.market_data_parser_helpers.contract_validator.ContractValidator"
-        ) as mock_validator:
+        with patch("common.market_data_parser_helpers.contract_validator.ContractValidator") as mock_validator:
             mock_validator.validate_contract.return_value = (True, None, {})
 
             BatchValidator.validate_contracts(options_data, "ETH")
@@ -102,9 +92,7 @@ class TestBatchValidator:
         """Handles empty contract list."""
         options_data = {"contract_names": []}
 
-        with patch(
-            "common.market_data_parser_helpers.contract_validator.ContractValidator"
-        ) as mock_validator:
+        with patch("common.market_data_parser_helpers.contract_validator.ContractValidator") as mock_validator:
             valid_count, issues, stats = BatchValidator.validate_contracts(options_data, "BTC")
 
             assert valid_count == 0
@@ -116,9 +104,7 @@ class TestBatchValidator:
         """Skips None error messages in issues list."""
         options_data = {"contract_names": ["CONTRACT-1"]}
 
-        with patch(
-            "common.market_data_parser_helpers.contract_validator.ContractValidator"
-        ) as mock_validator:
+        with patch("common.market_data_parser_helpers.contract_validator.ContractValidator") as mock_validator:
             mock_validator.validate_contract.return_value = (False, None, {})
 
             valid_count, issues, stats = BatchValidator.validate_contracts(options_data, "BTC")

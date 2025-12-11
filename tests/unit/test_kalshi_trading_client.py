@@ -240,9 +240,7 @@ def test_init_configures_attributes(configured_client, config_dict, weather_mapp
     client, _ = configured_client
     assert client.batch_size == config_dict["trade_collection"]["batch_size"]
     assert client.supported_rules == config_dict["market_filters"]["supported_rules"]
-    assert client.icao_to_city_mapping == {
-        info["icao"]: city for city, info in weather_mapping.items()
-    }
+    assert client.icao_to_city_mapping == {info["icao"]: city for city, info in weather_mapping.items()}
 
 
 def test_init_requires_trade_store(monkeypatch, config_dict):
@@ -330,16 +328,12 @@ def test_validate_order_request_rejects_non_uuid_client_id(bare_trading_client):
 
 def test_extract_weather_station_from_alias_maps_known_city(bare_trading_client):
     bare_trading_client.weather_station_mapping = {"AUS": {"icao": "KAUS"}}
-    assert (
-        bare_trading_client._extract_weather_station_from_ticker("KXHIGHAUS-25AUG15-B80") == "KAUS"
-    )
+    assert bare_trading_client._extract_weather_station_from_ticker("KXHIGHAUS-25AUG15-B80") == "KAUS"
 
 
 def test_extract_weather_station_from_alias_falls_back_to_mapping_alias(bare_trading_client):
     bare_trading_client.weather_station_mapping = {"NY": {"icao": "KNYC", "aliases": ["NYC"]}}
-    assert (
-        bare_trading_client._extract_weather_station_from_ticker("KXHIGHNYC-25AUG15-B80") == "KNYC"
-    )
+    assert bare_trading_client._extract_weather_station_from_ticker("KXHIGHNYC-25AUG15-B80") == "KNYC"
 
 
 @pytest.mark.parametrize(
@@ -411,9 +405,7 @@ def test_parse_order_response_with_wrapped_payload(monkeypatch, bare_trading_cli
         assert trade_reason == "Reason long enough"
         return parsed
 
-    monkeypatch.setattr(
-        "common.order_response_parser.validate_order_response_schema", fake_validate
-    )
+    monkeypatch.setattr("common.order_response_parser.validate_order_response_schema", fake_validate)
     monkeypatch.setattr("common.order_response_parser.parse_kalshi_order_response", fake_parse)
 
     result = bare_trading_client._parse_order_response(
@@ -433,9 +425,7 @@ def test_parse_order_response_without_wrapper(monkeypatch, bare_trading_client):
         assert data is response_data
         return parsed
 
-    monkeypatch.setattr(
-        "common.order_response_parser.validate_order_response_schema", fail_validate
-    )
+    monkeypatch.setattr("common.order_response_parser.validate_order_response_schema", fail_validate)
     monkeypatch.setattr("common.order_response_parser.parse_kalshi_order_response", fake_parse)
 
     result = bare_trading_client._parse_order_response(
@@ -448,9 +438,7 @@ def test_parse_order_response_converts_value_error(monkeypatch, bare_trading_cli
     def fake_validate(data):
         return data["order"]
 
-    monkeypatch.setattr(
-        "common.order_response_parser.validate_order_response_schema", fake_validate
-    )
+    monkeypatch.setattr("common.order_response_parser.validate_order_response_schema", fake_validate)
     monkeypatch.setattr(
         "common.order_response_parser.parse_kalshi_order_response",
         lambda *_: (_ for _ in ()).throw(ValueError("bad")),
@@ -470,9 +458,7 @@ def test_parse_order_response_wraps_unexpected_errors(monkeypatch, bare_trading_
     def fake_validate(data):
         return data["order"]
 
-    monkeypatch.setattr(
-        "common.order_response_parser.validate_order_response_schema", fake_validate
-    )
+    monkeypatch.setattr("common.order_response_parser.validate_order_response_schema", fake_validate)
     monkeypatch.setattr(
         "common.order_response_parser.parse_kalshi_order_response",
         lambda *_: (_ for _ in ()).throw(RuntimeError("boom")),
@@ -506,9 +492,7 @@ def test_parse_order_response_schema_validator_failure(monkeypatch, bare_trading
 @pytest.mark.asyncio
 async def test_get_portfolio_balance_success(configured_client):
     client, fake = configured_client
-    balance = PortfolioBalance(
-        balance_cents=1234, currency="USD", timestamp=datetime.now(timezone.utc)
-    )
+    balance = PortfolioBalance(balance_cents=1234, currency="USD", timestamp=datetime.now(timezone.utc))
     fake.get_portfolio_balance.return_value = balance
 
     result = await client.get_portfolio_balance()
@@ -568,9 +552,7 @@ async def test_create_order_stores_metadata(monkeypatch, configured_client):
             calls["initialize"] = True
             return True
 
-        async def store_order_metadata(
-            self, order_id, trade_rule, trade_reason, *, market_category=None, weather_station=None
-        ):
+        async def store_order_metadata(self, order_id, trade_rule, trade_reason, *, market_category=None, weather_station=None):
             calls["metadata"] = (
                 order_id,
                 trade_rule,
@@ -702,9 +684,7 @@ async def test_create_order_handles_unexpected_error(monkeypatch, configured_cli
 
 
 @pytest.mark.asyncio
-async def test_create_order_handles_unexpected_error_notifier_specific(
-    monkeypatch, configured_client
-):
+async def test_create_order_handles_unexpected_error_notifier_specific(monkeypatch, configured_client):
     client, fake = configured_client
     request = _build_order_request()
     fake.create_order.side_effect = RuntimeError("api down")
@@ -739,9 +719,7 @@ async def test_create_order_handles_unexpected_error_notifier_specific(
 async def test_create_order_with_polling_immediate_fill(monkeypatch, configured_client):
     client, fake = configured_client
     request = _build_order_request()
-    response = _build_order_response(
-        filled_count=DEFAULT_ORDER_COUNT, remaining_count=DEFAULT_ORDER_REMAINING_COUNT
-    )
+    response = _build_order_response(filled_count=DEFAULT_ORDER_COUNT, remaining_count=DEFAULT_ORDER_REMAINING_COUNT)
     client.create_order = AsyncMock(return_value=response)
 
     def fail_poller():
@@ -854,9 +832,7 @@ async def test_create_order_with_polling_trade_store_failure(monkeypatch, config
     client.create_order = AsyncMock(return_value=response)
     polling_outcome = PollingOutcome(fills=[{"count": 1}], total_filled=1, average_price_cents=50)
     _install_poller(monkeypatch, client, outcome=polling_outcome)
-    failure = KalshiTradePersistenceError(
-        "store fail", order_id=response.order_id, ticker=response.ticker
-    )
+    failure = KalshiTradePersistenceError("store fail", order_id=response.order_id, ticker=response.ticker)
     _install_finalizer(monkeypatch, client, exc=failure)
 
     with pytest.raises(KalshiTradePersistenceError):
@@ -871,9 +847,7 @@ async def test_create_order_with_polling_missing_metadata(monkeypatch, configure
     client.create_order = AsyncMock(return_value=response)
     polling_outcome = PollingOutcome(fills=[{"count": 1}], total_filled=1, average_price_cents=40)
     _install_poller(monkeypatch, client, outcome=polling_outcome)
-    failure = KalshiTradePersistenceError(
-        "missing metadata", order_id=response.order_id, ticker=response.ticker
-    )
+    failure = KalshiTradePersistenceError("missing metadata", order_id=response.order_id, ticker=response.ticker)
     _install_finalizer(monkeypatch, client, exc=failure)
 
     with pytest.raises(KalshiTradePersistenceError):
@@ -940,9 +914,7 @@ async def test_create_order_with_polling_missing_trade_reason(monkeypatch, confi
     client.create_order = AsyncMock(return_value=response)
     polling_outcome = PollingOutcome(fills=[{"count": 1}], total_filled=1, average_price_cents=40)
     _install_poller(monkeypatch, client, outcome=polling_outcome)
-    failure = KalshiTradePersistenceError(
-        "missing reason", order_id=response.order_id, ticker=response.ticker
-    )
+    failure = KalshiTradePersistenceError("missing reason", order_id=response.order_id, ticker=response.ticker)
     _install_finalizer(monkeypatch, client, exc=failure)
 
     with pytest.raises(KalshiTradePersistenceError):
@@ -958,9 +930,7 @@ async def test_create_order_with_polling_missing_fees(monkeypatch, configured_cl
     client.create_order = AsyncMock(return_value=response)
     polling_outcome = PollingOutcome(fills=[{"count": 1}], total_filled=1, average_price_cents=40)
     _install_poller(monkeypatch, client, outcome=polling_outcome)
-    failure = KalshiTradePersistenceError(
-        "missing fees", order_id=response.order_id, ticker=response.ticker
-    )
+    failure = KalshiTradePersistenceError("missing fees", order_id=response.order_id, ticker=response.ticker)
     _install_finalizer(monkeypatch, client, exc=failure)
 
     with pytest.raises(KalshiTradePersistenceError):
@@ -1162,9 +1132,7 @@ async def test_get_trade_metadata_from_order_alerts_on_failure(monkeypatch, bare
 
 
 @pytest.mark.asyncio
-async def test_get_trade_metadata_from_order_alerts_on_failure_handles_alert_error(
-    monkeypatch, bare_trading_client, caplog
-):
+async def test_get_trade_metadata_from_order_alerts_on_failure_handles_alert_error(monkeypatch, bare_trading_client, caplog):
     class DummyStore:
         async def initialize(self):
             pass
@@ -1207,9 +1175,7 @@ async def test_get_trade_metadata_from_order_short_reason(monkeypatch, bare_trad
 
 
 @pytest.mark.asyncio
-async def test_get_trade_metadata_from_order_reraises_data_integrity(
-    monkeypatch, bare_trading_client
-):
+async def test_get_trade_metadata_from_order_reraises_data_integrity(monkeypatch, bare_trading_client):
     original_error = KalshiDataIntegrityError("historic")
 
     class DummyStore:

@@ -46,9 +46,7 @@ class PatternMatcher:
     """Matches error messages against dependency patterns."""
 
     @staticmethod
-    def is_dependency_related_error(
-        error_message: str, dependency_name: str, dependency_patterns: Dict
-    ) -> bool:
+    def is_dependency_related_error(error_message: str, dependency_name: str, dependency_patterns: Dict) -> bool:
         """Check if an error message is related to a specific dependency."""
         if dependency_name not in dependency_patterns:
             return False
@@ -61,9 +59,7 @@ class PatternMatcher:
         for pattern in compiled_patterns:
             try:
                 if pattern.search(error_message):
-                    logger.debug(
-                        "Error message matches %s pattern: %s", dependency_name, pattern.pattern
-                    )
+                    logger.debug("Error message matches %s pattern: %s", dependency_name, pattern.pattern)
                     return True
             except re.error as exc:
                 logger.warning(

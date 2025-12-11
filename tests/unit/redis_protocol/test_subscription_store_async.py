@@ -42,9 +42,7 @@ async def test_add_and_remove_subscription(fake_redis_client_factory):
     assert added is True
 
     subscription_hash = redis_config.KALSHI_SUBSCRIPTION_KEY
-    assert fake.dump_hash(subscription_hash) == {
-        "instrument:BTC-31JAN25-50000-C": update.metadata.channel
-    }
+    assert fake.dump_hash(subscription_hash) == {"instrument:BTC-31JAN25-50000-C": update.metadata.channel}
     assert fake.published[-1][0] == redis_config.KALSHI_SUBSCRIPTION_CHANNEL
 
     active = await store.get_active_subscriptions()

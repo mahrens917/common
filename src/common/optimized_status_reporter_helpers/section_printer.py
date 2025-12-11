@@ -70,9 +70,7 @@ class SectionPrinter:
         for line in weather_lines:
             self._emit(line)
 
-    def print_tracker_status_section(
-        self, status_data: Dict[str, Any], string_or_default_func, bool_or_default_func
-    ) -> None:
+    def print_tracker_status_section(self, status_data: Dict[str, Any], string_or_default_func, bool_or_default_func) -> None:
         """Print tracker status section."""
         self._emit()
         self._emit("🎯 Tracker Status:")
@@ -84,9 +82,7 @@ class SectionPrinter:
             status_summary = string_or_default_func(tracker_status.get("status_summary"), "Unknown")
             running = bool_or_default_func(tracker_status.get("running"), None)
             enabled_raw = tracker_status.get("enabled")
-            enabled = bool_or_default_func(
-                enabled_raw, enabled_raw if enabled_raw is not None else True
-            )
+            enabled = bool_or_default_func(enabled_raw, enabled_raw if enabled_raw is not None else True)
             if not enabled and not running:
                 status_summary = "🔴 Stopped | Disabled"
             self._emit(f"  {status_summary}")

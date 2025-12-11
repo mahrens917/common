@@ -207,9 +207,7 @@ class TestAlertSuppressionManagerInitialize:
         manager.dependency_init.initialize = AsyncMock()
         manager.dependency_init.error_classifier = mock_classifier
 
-        with patch(
-            "common.alert_suppression_manager_helpers.error_classifier_adapter.ErrorClassifierAdapter"
-        ):
+        with patch("common.alert_suppression_manager_helpers.error_classifier_adapter.ErrorClassifierAdapter"):
             await manager.initialize()
 
         assert manager.error_adapter is not None
@@ -271,9 +269,7 @@ class TestAlertSuppressionManagerShouldSuppressAlert:
 
         mock_decision = MagicMock(spec=SuppressionDecision)
         manager.dependency_init = MagicMock()
-        manager.dependency_init.require_dependencies = MagicMock(
-            return_value=(MagicMock(), MagicMock())
-        )
+        manager.dependency_init.require_dependencies = MagicMock(return_value=(MagicMock(), MagicMock()))
         manager.decision_coordinator = AsyncMock()
         manager.decision_coordinator.make_decision = AsyncMock(return_value=mock_decision)
         manager.initialize = AsyncMock()
@@ -345,9 +341,7 @@ class TestAlertSuppressionManagerClassifyErrorType:
 
         result = manager.classify_error_type("kalshi", "Connection refused")
 
-        manager.error_adapter.classify_error_type.assert_called_once_with(
-            "kalshi", "Connection refused"
-        )
+        manager.error_adapter.classify_error_type.assert_called_once_with("kalshi", "Connection refused")
         assert result == "connection_error"
 
 
@@ -369,9 +363,7 @@ class TestAlertSuppressionManagerIsReconnectionError:
 
         result = manager.is_reconnection_error("kalshi", "Reconnecting...")
 
-        manager.error_adapter.is_reconnection_error.assert_called_once_with(
-            "kalshi", "Reconnecting..."
-        )
+        manager.error_adapter.is_reconnection_error.assert_called_once_with("kalshi", "Reconnecting...")
         assert result is True
 
 
@@ -471,9 +463,7 @@ class TestGetAlertSuppressionManager:
         with patch.object(module, "load_suppression_config", return_value=mock_config):
             with patch.object(module, "build_suppression_rule_from_config", return_value=mock_rule):
                 with patch.object(module, "logger"):
-                    with patch.object(
-                        AlertSuppressionManager, "initialize", new_callable=AsyncMock
-                    ):
+                    with patch.object(AlertSuppressionManager, "initialize", new_callable=AsyncMock):
                         manager = await get_alert_suppression_manager()
 
         assert manager is not None

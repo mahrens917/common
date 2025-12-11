@@ -55,9 +55,7 @@ def test_load_suppression_config_invalid_json(monkeypatch):
     def raise_config_error(x):
         raise ConfigurationError("Invalid JSON")
 
-    monkeypatch.setattr(
-        "common.alert_suppression_manager_helpers.config_loader.load_config", raise_config_error
-    )
+    monkeypatch.setattr("common.alert_suppression_manager_helpers.config_loader.load_config", raise_config_error)
 
     with pytest.raises(ConfigurationError, match="Invalid JSON"):
         load_suppression_config()

@@ -53,14 +53,10 @@ class AtomicOperationsCoordinator:
         self.spread_validator: SpreadValidator = components["spread_validator"]
         self.deletion_validator: DeletionValidator = components["deletion_validator"]
 
-    async def atomic_market_data_write(
-        self, store_key: str, market_data: Mapping[str, Union[str, float, int, None]]
-    ) -> bool:
+    async def atomic_market_data_write(self, store_key: str, market_data: Mapping[str, Union[str, float, int, None]]) -> bool:
         return await self.transaction_writer.atomic_market_data_write(store_key, market_data)
 
-    async def safe_market_data_read(
-        self, store_key: str, required_fields: Optional[List[str]] = None
-    ) -> Dict[str, Any]:
+    async def safe_market_data_read(self, store_key: str, required_fields: Optional[List[str]] = None) -> Dict[str, Any]:
         required_fields = required_fields or [
             "best_bid",
             "best_ask",
@@ -72,12 +68,8 @@ class AtomicOperationsCoordinator:
         for attempt in range(MAX_READ_RETRIES):
             try:
                 raw_data = await self.data_fetcher.fetch_market_data(store_key)
-                self.field_validator.ensure_required_fields(
-                    raw_data, required_fields, store_key, attempt
-                )
-                converted_data = self.data_converter.convert_market_payload(
-                    raw_data, store_key, attempt
-                )
+                self.field_validator.ensure_required_fields(raw_data, required_fields, store_key, attempt)
+                converted_data = self.data_converter.convert_market_payload(raw_data, store_key, attempt)
                 self.spread_validator.validate_bid_ask_spread(converted_data, store_key, attempt)
                 self.logger.debug("Safe read succeeded for key: %s", store_key)
             except RedisDataValidationError as exc:
@@ -89,11 +81,7 @@ class AtomicOperationsCoordinator:
             except REDIS_ATOMIC_ERRORS as exc:
                 message = f"Error reading market data from key {store_key} ({type(exc).__name__})"
                 self.logger.exception("%s, attempt %s/%s")
-                last_error = (
-                    exc
-                    if isinstance(exc, RedisDataValidationError)
-                    else RedisDataValidationError(message)
-                )
+                last_error = exc if isinstance(exc, RedisDataValidationError) else RedisDataValidationError(message)
                 if attempt < MAX_READ_RETRIES - 1:
                     await asyncio.sleep(READ_RETRY_DELAY_MS / 1000.0)
                     continue
@@ -101,27 +89,19 @@ class AtomicOperationsCoordinator:
             else:
                 return converted_data
 
-        final_message = (
-            f"Failed to read consistent data from key {store_key} after {MAX_READ_RETRIES} attempts"
-        )
+        final_message = f"Failed to read consistent data from key {store_key} after {MAX_READ_RETRIES} attempts"
         self.logger.error(final_message)
         raise RedisDataValidationError(final_message) from last_error
 
-    async def atomic_delete_if_invalid(
-        self, store_key: str, validation_data: Dict[str, Any]
-    ) -> bool:
+    async def atomic_delete_if_invalid(self, store_key: str, validation_data: Dict[str, Any]) -> bool:
         return await self.deletion_validator.atomic_delete_if_invalid(store_key, validation_data)
 
 
-async def _atomic_market_data_write(
-    self, store_key: str, market_data: Mapping[str, Union[str, float, int, None]]
-) -> bool:
+async def _atomic_market_data_write(self, store_key: str, market_data: Mapping[str, Union[str, float, int, None]]) -> bool:
     return await self.transaction_writer.atomic_market_data_write(store_key, market_data)
 
 
-async def _safe_market_data_read(
-    self, store_key: str, required_fields: Optional[List[str]] = None
-) -> Dict[str, Any]:
+async def _safe_market_data_read(self, store_key: str, required_fields: Optional[List[str]] = None) -> Dict[str, Any]:
     required_fields = required_fields or [
         "best_bid",
         "best_ask",
@@ -133,12 +113,8 @@ async def _safe_market_data_read(
     for attempt in range(MAX_READ_RETRIES):
         try:
             raw_data = await self.data_fetcher.fetch_market_data(store_key)
-            self.field_validator.ensure_required_fields(
-                raw_data, required_fields, store_key, attempt
-            )
-            converted_data = self.data_converter.convert_market_payload(
-                raw_data, store_key, attempt
-            )
+            self.field_validator.ensure_required_fields(raw_data, required_fields, store_key, attempt)
+            converted_data = self.data_converter.convert_market_payload(raw_data, store_key, attempt)
             self.spread_validator.validate_bid_ask_spread(converted_data, store_key, attempt)
             self.logger.debug("Safe read succeeded for key: %s", store_key)
         except RedisDataValidationError as exc:
@@ -150,11 +126,7 @@ async def _safe_market_data_read(
         except REDIS_ATOMIC_ERRORS as exc:
             message = f"Error reading market data from key {store_key} ({type(exc).__name__})"
             self.logger.exception("%s, attempt %s/%s")
-            last_error = (
-                exc
-                if isinstance(exc, RedisDataValidationError)
-                else RedisDataValidationError(message)
-            )
+            last_error = exc if isinstance(exc, RedisDataValidationError) else RedisDataValidationError(message)
             if attempt < MAX_READ_RETRIES - 1:
                 await asyncio.sleep(READ_RETRY_DELAY_MS / 1000.0)
                 continue
@@ -162,9 +134,7 @@ async def _safe_market_data_read(
         else:
             return converted_data
 
-    final_message = (
-        f"Failed to read consistent data from key {store_key} after {MAX_READ_RETRIES} attempts"
-    )
+    final_message = f"Failed to read consistent data from key {store_key} after {MAX_READ_RETRIES} attempts"
     self.logger.error(final_message)
     raise RedisDataValidationError(final_message) from last_error
 

@@ -41,36 +41,20 @@ class ConnectionConfig:
     """
 
     # Connection establishment timeouts
-    connection_timeout_seconds: int = field(
-        default_factory=partial(require_env_int, "CONNECTION_TIMEOUT_SECONDS")
-    )
-    request_timeout_seconds: int = field(
-        default_factory=partial(require_env_int, "REQUEST_TIMEOUT_SECONDS")
-    )
+    connection_timeout_seconds: int = field(default_factory=partial(require_env_int, "CONNECTION_TIMEOUT_SECONDS"))
+    request_timeout_seconds: int = field(default_factory=partial(require_env_int, "REQUEST_TIMEOUT_SECONDS"))
 
     # Reconnection backoff configuration
-    reconnection_initial_delay_seconds: int = field(
-        default_factory=partial(require_env_int, "RECONNECTION_INITIAL_DELAY_SECONDS")
-    )
-    reconnection_max_delay_seconds: int = field(
-        default_factory=partial(require_env_int, "RECONNECTION_MAX_DELAY_SECONDS")
-    )
-    reconnection_backoff_multiplier: float = field(
-        default_factory=partial(require_env_float, "RECONNECTION_BACKOFF_MULTIPLIER")
-    )
-    max_consecutive_failures: int = field(
-        default_factory=partial(require_env_int, "MAX_CONSECUTIVE_FAILURES")
-    )
+    reconnection_initial_delay_seconds: int = field(default_factory=partial(require_env_int, "RECONNECTION_INITIAL_DELAY_SECONDS"))
+    reconnection_max_delay_seconds: int = field(default_factory=partial(require_env_int, "RECONNECTION_MAX_DELAY_SECONDS"))
+    reconnection_backoff_multiplier: float = field(default_factory=partial(require_env_float, "RECONNECTION_BACKOFF_MULTIPLIER"))
+    max_consecutive_failures: int = field(default_factory=partial(require_env_int, "MAX_CONSECUTIVE_FAILURES"))
 
     # Health monitoring configuration
-    health_check_interval_seconds: int = field(
-        default_factory=partial(require_env_int, "HEALTH_CHECK_INTERVAL_SECONDS")
-    )
+    health_check_interval_seconds: int = field(default_factory=partial(require_env_int, "HEALTH_CHECK_INTERVAL_SECONDS"))
 
     # WebSocket subscription configuration
-    subscription_timeout_seconds: int = field(
-        default_factory=partial(require_env_int, "SUBSCRIPTION_TIMEOUT_SECONDS")
-    )
+    subscription_timeout_seconds: int = field(default_factory=partial(require_env_int, "SUBSCRIPTION_TIMEOUT_SECONDS"))
 
 
 def get_connection_config(service_name: str | None = None) -> ConnectionConfig:

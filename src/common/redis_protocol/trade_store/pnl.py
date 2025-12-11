@@ -77,9 +77,7 @@ class PnLStore:
         except orjson.JSONDecodeError as exc:
             raise TradeStoreError(f"Invalid unrealized P&L JSON for {redis_key}") from exc
 
-    async def get_unrealized_history(
-        self, start_date: date, end_date: date
-    ) -> List[Dict[str, Any]]:
+    async def get_unrealized_history(self, start_date: date, end_date: date) -> List[Dict[str, Any]]:
         history: List[Dict[str, Any]] = []
         current = start_date
         while current <= end_date:

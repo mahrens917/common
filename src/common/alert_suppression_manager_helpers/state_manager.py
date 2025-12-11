@@ -76,9 +76,7 @@ class StateManager:
             },
         }
 
-    def _compute_by_service_stats(
-        self, decisions: list[SuppressionDecision]
-    ) -> Dict[str, Dict[str, int]]:
+    def _compute_by_service_stats(self, decisions: list[SuppressionDecision]) -> Dict[str, Dict[str, int]]:
         """Compute statistics grouped by service."""
         by_service = {}
         for decision in decisions:
@@ -90,9 +88,7 @@ class StateManager:
                 by_service[service]["suppressed"] += 1
         return by_service
 
-    def _compute_by_alert_type_stats(
-        self, decisions: list[SuppressionDecision]
-    ) -> Dict[str, Dict[str, int]]:
+    def _compute_by_alert_type_stats(self, decisions: list[SuppressionDecision]) -> Dict[str, Dict[str, int]]:
         """Compute statistics grouped by alert type."""
         by_alert_type = {}
         for decision in decisions:

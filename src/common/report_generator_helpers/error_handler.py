@@ -44,7 +44,5 @@ class ReportErrorHandler:
         try:
             return await operation(*args, **kwargs)
         except DATA_ACCESS_ERRORS as exc:
-            logger.error(
-                "Error in %s (%s): %s", log_context, type(exc).__name__, exc, exc_info=True
-            )
+            logger.error("Error in %s (%s): %s", log_context, type(exc).__name__, exc, exc_info=True)
             return f"❌ {error_message}"

@@ -96,9 +96,7 @@ def format_probability_value(value: Any) -> str:
     try:
         numeric = float(value)
     except (TypeError, ValueError) as exc:
-        raise ProbabilityValueError(
-            f"Probability value must be float-compatible, got {value}"
-        ) from exc
+        raise ProbabilityValueError(f"Probability value must be float-compatible, got {value}") from exc
 
     if not math.isfinite(numeric):
         raise ProbabilityValueError(f"Probability value must be finite, got {numeric}")
@@ -124,9 +122,7 @@ def derive_strike_fields(market_ticker: str) -> StrikeFields:
 
     keyword_type = _resolve_keyword(tokens)
     strike_type, floor_strike, cap_strike = resolve_strike_type_from_prefix(prefix, keyword_type)
-    floor_strike, cap_strike = _apply_prefix_bounds(
-        prefix, strike_type, strike_value, floor_strike, cap_strike
-    )
+    floor_strike, cap_strike = _apply_prefix_bounds(prefix, strike_type, strike_value, floor_strike, cap_strike)
 
     if strike_type == "between":
         return _derive_between_fields(tokens, floor_strike, cap_strike, strike_value)

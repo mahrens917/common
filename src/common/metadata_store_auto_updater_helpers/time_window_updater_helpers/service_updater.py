@@ -50,14 +50,10 @@ class ServiceUpdater:
             logger.error("Error updating time windows for %s: %s", service_name, exc, exc_info=True)
 
 
-async def _ensure_supported_hash(
-    redis_client: Optional[RedisClient], history_key: str, service_name: str
-) -> bool:
+async def _ensure_supported_hash(redis_client: Optional[RedisClient], history_key: str, service_name: str) -> bool:
     """Validate that the redis key is a hash before processing."""
     if not await HashValidator.ensure_hash_history_key(redis_client, history_key):
-        logger.warning(
-            "Skipping time window update for %s due to unsupported Redis type", service_name
-        )
+        logger.warning("Skipping time window update for %s due to unsupported Redis type", service_name)
         return False
     return True
 
@@ -108,13 +104,8 @@ async def _persist_counts(metadata_store, service_name: str, counts: dict) -> No
     sixty_five_minutes = counts["sixty_five_minutes"]
 
     if service_name in ["asos", "metar"]:
-        await metadata_store.update_weather_time_window_counts(
-            service_name, hour, sixty_seconds, sixty_five_minutes
-        )
-        logger.debug(
-            f"Updated weather time windows for {service_name}: hour={hour}, "
-            f"60s={sixty_seconds}, 65m={sixty_five_minutes}"
-        )
+        await metadata_store.update_weather_time_window_counts(service_name, hour, sixty_seconds, sixty_five_minutes)
+        logger.debug(f"Updated weather time windows for {service_name}: hour={hour}, " f"60s={sixty_seconds}, 65m={sixty_five_minutes}")
         return
 
     await metadata_store.update_time_window_counts(service_name, hour, sixty_seconds)

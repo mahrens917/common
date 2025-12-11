@@ -215,9 +215,7 @@ async def test_check_connection_health_detects_stale_pong():
     loop = asyncio.get_running_loop()
     now = loop.time()
     manager.health_monitor.last_ping_time = now
-    manager.health_monitor.last_pong_time = now - (
-        manager.health_monitor.ping_interval_seconds * 2 + 5
-    )
+    manager.health_monitor.last_pong_time = now - (manager.health_monitor.ping_interval_seconds * 2 + 5)
 
     assert (await manager.check_connection_health()).healthy is False
 

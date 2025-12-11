@@ -47,9 +47,7 @@ class MetadataExtractor:
         OrderbookSyncer.sync_top_of_book_fields(snapshot)
 
     @staticmethod
-    def parse_market_metadata(
-        market_ticker: str, market_data: Dict[str, Any]
-    ) -> Optional[Dict[str, Any]]:
+    def parse_market_metadata(market_ticker: str, market_data: Dict[str, Any]) -> Optional[Dict[str, Any]]:
         """Parse metadata JSON from market data hash"""
         return MetadataParser.parse_market_metadata(market_ticker, market_data)
 
@@ -91,6 +89,4 @@ class MetadataExtractor:
         Raises:
             MarketSkip: If market should be skipped
         """
-        return self._market_record_builder.create_market_record(
-            market_ticker, raw_hash, currency=currency, now=now
-        )
+        return self._market_record_builder.create_market_record(market_ticker, raw_hash, currency=currency, now=now)

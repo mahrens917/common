@@ -82,9 +82,7 @@ class TestBoundaryCheckerLogSkip:
         last_reset = datetime(2025, 1, 15, 12, 0, 0, tzinfo=timezone.utc)
         boundary = datetime(2025, 1, 15, 11, 0, 0, tzinfo=timezone.utc)
 
-        with patch(
-            "common.dawn_reset_service_helpers.field_reset_evaluator_helpers.boundary_checker.logger"
-        ) as mock_logger:
+        with patch("common.dawn_reset_service_helpers.field_reset_evaluator_helpers.boundary_checker.logger") as mock_logger:
             BoundaryChecker.log_skip(last_reset, boundary, "test_context")
 
         mock_logger.debug.assert_called_once()
@@ -93,9 +91,7 @@ class TestBoundaryCheckerLogSkip:
 
     def test_handles_none_values_in_log(self) -> None:
         """Handles None values in log message."""
-        with patch(
-            "common.dawn_reset_service_helpers.field_reset_evaluator_helpers.boundary_checker.logger"
-        ) as mock_logger:
+        with patch("common.dawn_reset_service_helpers.field_reset_evaluator_helpers.boundary_checker.logger") as mock_logger:
             BoundaryChecker.log_skip(None, None, "test_context")
 
         mock_logger.debug.assert_called_once()

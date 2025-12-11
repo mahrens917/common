@@ -40,9 +40,7 @@ async def test_run_scan_loop_logs_and_retries_on_errors(monkeypatch):
     async def fake_sleep(duration):
         sleep_calls.append(duration)
 
-    monkeypatch.setattr(
-        "common.process_monitor_helpers.background_worker.asyncio.sleep", fake_sleep
-    )
+    monkeypatch.setattr("common.process_monitor_helpers.background_worker.asyncio.sleep", fake_sleep)
     worker = BackgroundScanWorker(0, perform_incremental_scan, shutdown_event)
 
     await worker.run_scan_loop()

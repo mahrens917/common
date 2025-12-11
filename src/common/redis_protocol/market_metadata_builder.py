@@ -237,9 +237,7 @@ def _populate_orderbook_fields(metadata: Dict[str, str], market_data: Mapping[st
         metadata[field] = _stringify_json(market_data.get(field))
 
 
-def _apply_descriptor_defaults(
-    metadata: Dict[str, str], descriptor: KalshiMarketDescriptor
-) -> None:
+def _apply_descriptor_defaults(metadata: Dict[str, str], descriptor: KalshiMarketDescriptor) -> None:
     """Apply descriptor values for ticker/category/etc when not already set."""
     metadata.setdefault("ticker", descriptor.ticker)
     metadata.setdefault("category", descriptor.category.value)
@@ -249,9 +247,7 @@ def _apply_descriptor_defaults(
         metadata.setdefault("expiry_token", descriptor.expiry_token)
 
 
-def _populate_event_metadata(
-    metadata: Dict[str, str], event_data: Optional[Mapping[str, Any]]
-) -> None:
+def _populate_event_metadata(metadata: Dict[str, str], event_data: Optional[Mapping[str, Any]]) -> None:
     """Populate event-specific fields when event data is available."""
     if not event_data:
         return
@@ -267,9 +263,7 @@ def _populate_event_metadata(
             "event_type": _stringify(event_data.get("event_type")),
             "event_subtitle": _stringify(event_data.get("sub_title")),
             "strike_period": _stringify(event_data.get("strike_period")),
-            "mutually_exclusive": _stringify(
-                _value_or_default(event_data, "mutually_exclusive", False)
-            ).lower(),
+            "mutually_exclusive": _stringify(_value_or_default(event_data, "mutually_exclusive", False)).lower(),
             "collateral_return_type": _stringify(event_data.get("collateral_return_type")),
             "event_description": _stringify(event_data.get("description")),
             "event_tags": _stringify(_value_or_default(event_data, "tags", [])),

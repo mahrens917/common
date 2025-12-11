@@ -14,18 +14,14 @@ def _service_bucket(backoff_state: Dict, service_name: str) -> Dict[BackoffType,
     return backoff_state.setdefault(service_name, {})
 
 
-def _init_state(
-    bucket: Dict[BackoffType, Dict[str, Any]], backoff_type: BackoffType
-) -> Dict[str, Any]:
+def _init_state(bucket: Dict[BackoffType, Dict[str, Any]], backoff_type: BackoffType) -> Dict[str, Any]:
     return bucket.setdefault(
         backoff_type,
         {"attempt": 0, "last_failure_time": time.time(), "consecutive_failures": 0},
     )
 
 
-def _ensure_state(
-    backoff_state: Dict, service_name: str, backoff_type: BackoffType
-) -> Dict[str, Any]:
+def _ensure_state(backoff_state: Dict, service_name: str, backoff_type: BackoffType) -> Dict[str, Any]:
     bucket = _service_bucket(backoff_state, service_name)
     return _init_state(bucket, backoff_type)
 
@@ -40,9 +36,7 @@ def _reset_state(backoff_state: Dict, service_name: str, backoff_type: Optional[
         return
     if backoff_type in bucket:
         del bucket[backoff_type]
-        logger.debug(
-            "[BackoffManager] Reset backoff state for %s/%s", service_name, backoff_type.value
-        )
+        logger.debug("[BackoffManager] Reset backoff state for %s/%s", service_name, backoff_type.value)
 
 
 def _info_for_missing_state(config: BackoffConfig) -> Dict[str, Any]:
@@ -71,9 +65,7 @@ class BackoffStateManager:
     def __init__(self):
         self.backoff_state: Dict[str, Dict[BackoffType, Dict[str, Any]]] = {}
 
-    def get_or_initialize_state(
-        self, service_name: str, backoff_type: BackoffType
-    ) -> Dict[str, Any]:
+    def get_or_initialize_state(self, service_name: str, backoff_type: BackoffType) -> Dict[str, Any]:
         return _ensure_state(self.backoff_state, service_name, backoff_type)
 
     def update_failure_state(self, service_name: str, backoff_type: BackoffType) -> int:
@@ -89,9 +81,7 @@ class BackoffStateManager:
     def cleanup_old_state(self, max_age_seconds: int = 3600):
         StateCleaner.cleanup_old_state(self.backoff_state, max_age_seconds)
 
-    def get_backoff_info(
-        self, service_name: str, backoff_type: BackoffType, config: BackoffConfig
-    ) -> Dict[str, Any]:
+    def get_backoff_info(self, service_name: str, backoff_type: BackoffType, config: BackoffConfig) -> Dict[str, Any]:
         bucket = self.backoff_state.get(service_name) or {}
         state = bucket.get(backoff_type)
         if not state:

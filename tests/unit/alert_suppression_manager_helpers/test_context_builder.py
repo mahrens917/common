@@ -93,9 +93,7 @@ async def test_build_context_with_reconnection_error(context_builder, monkeypatc
     assert context.service_type == "websocket"
     assert context.is_in_reconnection is True
     assert context.is_reconnection_error is True
-    error_classifier.is_reconnection_error_by_type.assert_called_once_with(
-        "websocket", "Connection timeout"
-    )
+    error_classifier.is_reconnection_error_by_type.assert_called_once_with("websocket", "Connection timeout")
 
 
 @pytest.mark.asyncio
@@ -174,9 +172,7 @@ async def test_determine_reconnection_error_with_pattern():
     )
 
     assert is_error is True
-    error_classifier.is_reconnection_error_by_type.assert_called_once_with(
-        "websocket", "Connection closed"
-    )
+    error_classifier.is_reconnection_error_by_type.assert_called_once_with("websocket", "Connection closed")
 
 
 @pytest.mark.asyncio

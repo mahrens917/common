@@ -20,9 +20,7 @@ class OperationsFacade:
         self.writer = MetadataWriter(metadata_key_prefix, global_stats_key)
         self.history = HistoryManager()
 
-    async def get_service_metadata(
-        self, client: RedisClient, service_name: str
-    ) -> Optional[ServiceMetadata]:
+    async def get_service_metadata(self, client: RedisClient, service_name: str) -> Optional[ServiceMetadata]:
         """Get metadata for a specific service"""
         return await self.reader.get_service_metadata(client, service_name)
 
@@ -34,9 +32,7 @@ class OperationsFacade:
         """Get total message count across all services"""
         return await self.reader.get_total_message_count(client)
 
-    async def increment_service_count(
-        self, client: RedisClient, service_name: str, count: int = 1
-    ) -> bool:
+    async def increment_service_count(self, client: RedisClient, service_name: str, count: int = 1) -> bool:
         """Increment message count for a service"""
         return await self.writer.increment_service_count(client, service_name, count)
 
@@ -48,9 +44,7 @@ class OperationsFacade:
         messages_last_minute: int,
     ) -> bool:
         """Update time-windowed message counts for a service"""
-        return await self.writer.update_time_window_counts(
-            client, service_name, messages_last_hour, messages_last_minute
-        )
+        return await self.writer.update_time_window_counts(client, service_name, messages_last_hour, messages_last_minute)
 
     async def update_weather_time_window_counts(
         self,
@@ -65,14 +59,10 @@ class OperationsFacade:
             client, service_name, messages_last_hour, messages_last_minute, messages_last_65_minutes
         )
 
-    async def initialize_service_count(
-        self, client: RedisClient, service_name: str, initial_count: int
-    ) -> bool:
+    async def initialize_service_count(self, client: RedisClient, service_name: str, initial_count: int) -> bool:
         """Initialize service count (used during startup reconciliation)"""
         return await self.writer.initialize_service_count(client, service_name, initial_count)
 
-    async def get_service_history(
-        self, client: RedisClient, service_name: str, hours: int = 24
-    ) -> List[HistoryEntry]:
+    async def get_service_history(self, client: RedisClient, service_name: str, hours: int = 24) -> List[HistoryEntry]:
         """Get service history for the specified time period"""
         return await self.history.get_service_history(client, service_name, hours)

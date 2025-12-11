@@ -34,13 +34,9 @@ class BreakdownCalculator:
     def __init__(self):
         self.station_normalizer = StationNameNormalizer()
 
-    async def calculate_station_breakdown(
-        self, trades: List[TradeRecord]
-    ) -> Dict[str, PnLBreakdown]:
+    async def calculate_station_breakdown(self, trades: List[TradeRecord]) -> Dict[str, PnLBreakdown]:
         """Calculate P&L breakdown by weather station using current market values."""
-        station_data: Dict[str, StationData] = defaultdict(
-            lambda: StationData(trades=[], cost=0, pnl=0, wins=0)
-        )
+        station_data: Dict[str, StationData] = defaultdict(lambda: StationData(trades=[], cost=0, pnl=0, wins=0))
 
         # Group trades by station with standardization and consolidation logic
         for trade in trades:
@@ -77,9 +73,7 @@ class BreakdownCalculator:
 
     async def calculate_rule_breakdown(self, trades: List[TradeRecord]) -> Dict[str, PnLBreakdown]:
         """Calculate P&L breakdown by trading rule using current market values."""
-        rule_data: Dict[str, RuleData] = defaultdict(
-            lambda: RuleData(trades=[], cost=0, pnl=0, wins=0)
-        )
+        rule_data: Dict[str, RuleData] = defaultdict(lambda: RuleData(trades=[], cost=0, pnl=0, wins=0))
 
         # Group trades by rule
         for trade in trades:

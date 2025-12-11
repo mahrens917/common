@@ -116,30 +116,22 @@ class DummyMarketLookup:
     async def get_markets_by_currency(self, *args: Any, **kwargs: Any) -> List[Dict[str, Any]]:
         return self.markets
 
-    async def get_market_data_for_strike_expiry(
-        self, *args: Any, **kwargs: Any
-    ) -> Optional[Dict[str, Any]]:
+    async def get_market_data_for_strike_expiry(self, *args: Any, **kwargs: Any) -> Optional[Dict[str, Any]]:
         return self.market_data
 
 
 class DummyMarketAggregator:
-    def aggregate_markets_by_point(
-        self, markets: List[Dict[str, Any]]
-    ) -> tuple[Dict[str, Any], Dict[str, Dict[str, Any]]]:
+    def aggregate_markets_by_point(self, markets: List[Dict[str, Any]]) -> tuple[Dict[str, Any], Dict[str, Dict[str, Any]]]:
         grouped = {"points": [market["ticker"] for market in markets]}
         summary = {market["ticker"]: market for market in markets}
         return grouped, summary
 
-    def build_strike_summary(
-        self, grouped: Dict[str, Any], market_by_ticker: Dict[str, Dict[str, Any]]
-    ) -> Dict[str, Any]:
+    def build_strike_summary(self, grouped: Dict[str, Any], market_by_ticker: Dict[str, Dict[str, Any]]) -> Dict[str, Any]:
         return {"summary": list(market_by_ticker)}
 
 
 class DummyMetadataAdapter:
-    def ensure_market_metadata_fields(
-        self, _telemetry: str, snapshot: Dict[str, Any]
-    ) -> Dict[str, Any]:
+    def ensure_market_metadata_fields(self, _telemetry: str, snapshot: Dict[str, Any]) -> Dict[str, Any]:
         return snapshot
 
 
@@ -355,9 +347,7 @@ async def test_kalshi_market_reader_snapshot_and_orderbook_paths(monkeypatch):
     assert await reader.get_market_metadata("KXHIGHTEST") == {"meta": "value"}
 
     redis_mgr = DummyConnectionManager(ensure=False)
-    reader_no_conn = KalshiMarketReader(
-        redis_mgr, LOGGER, DummyMetadataAdapter(), dependencies=dependencies
-    )
+    reader_no_conn = KalshiMarketReader(redis_mgr, LOGGER, DummyMetadataAdapter(), dependencies=dependencies)
     assert await reader_no_conn.get_orderbook("KXHIGHTEST") == {}
     assert await reader_no_conn.get_orderbook_side("KXHIGHTEST", "yes") == {}
 
@@ -388,9 +378,7 @@ async def test_kalshi_market_reader_query_paths(monkeypatch):
         async def get_strikes_and_expiries(self, *args: Any, **kwargs: Any) -> Dict[str, Any]:
             return {"grouped": []}
 
-        async def get_for_strike_expiry(
-            self, *args: Any, **kwargs: Any
-        ) -> Optional[Dict[str, Any]]:
+        async def get_for_strike_expiry(self, *args: Any, **kwargs: Any) -> Optional[Dict[str, Any]]:
             return {"value": 1}
 
         async def get_subscribed_markets(self, *args: Any, **kwargs: Any) -> Set[str]:

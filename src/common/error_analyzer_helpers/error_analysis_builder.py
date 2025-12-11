@@ -9,9 +9,7 @@ from .data_classes import ErrorAnalysis, ErrorCategory
 class ErrorAnalysisBuilder:
     """Builds comprehensive error analysis from exceptions."""
 
-    def __init__(
-        self, service_name, categorizer, severity_evaluator, root_cause_identifier, action_suggester
-    ):
+    def __init__(self, service_name, categorizer, severity_evaluator, root_cause_identifier, action_suggester):
         """Initialize error analysis builder."""
         self.service_name = service_name
         self.categorizer = categorizer
@@ -27,9 +25,7 @@ class ErrorAnalysisBuilder:
 
         category = self.categorizer.categorize_error(error, error_message, context)
         severity = self.severity_evaluator.determine_severity(error, category, context)
-        root_cause = self.root_cause_identifier.identify_root_cause(
-            error, error_message, category, context
-        )
+        root_cause = self.root_cause_identifier.identify_root_cause(error, error_message, category, context)
         suggested_action = self.action_suggester.suggest_action(error, category, root_cause)
         recovery_possible = category != ErrorCategory.CONFIGURATION
 

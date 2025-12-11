@@ -40,9 +40,7 @@ class StatusDataAggregator:
         self._tracker_collector = collectors.tracker_collector
         self._kalshi_collector = collectors.kalshi_collector
 
-    async def gather_status_data(
-        self, redis_client, process_monitor, kalshi_client: KalshiClient
-    ) -> Dict[str, Any]:
+    async def gather_status_data(self, redis_client, process_monitor, kalshi_client: KalshiClient) -> Dict[str, Any]:
         """Gather all status data using collectors."""
         # Collect data in parallel where possible
         running_services = await self._service_collector.collect_running_services()
@@ -65,9 +63,7 @@ class StatusDataAggregator:
         kalshi_status = await self._kalshi_collector.get_kalshi_market_status()
         log_activity_map, stale_logs = await self._log_collector.collect_log_activity_map()
         tracker_status = await self._tracker_collector.collect_tracker_status()
-        running_services = self._tracker_collector.merge_tracker_service_state(
-            running_services, tracker_status
-        )
+        running_services = self._tracker_collector.merge_tracker_service_state(running_services, tracker_status)
 
         return {
             "redis_process": {"pid": redis_pid},

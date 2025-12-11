@@ -59,9 +59,7 @@ class TestOrderPollerHelpers(unittest.IsolatedAsyncioTestCase):
         assert response.average_fill_price_cents == DEFAULT_AVERAGE_PRICE
         assert response.status == OrderStatus.FILLED
 
-    @patch(
-        "common.kalshi_trading_client.services.order_helpers.order_poller_helpers.PollingWorkflow"
-    )
+    @patch("common.kalshi_trading_client.services.order_helpers.order_poller_helpers.PollingWorkflow")
     async def test_execute_polling_workflow_success(self, MockWorkflow):
         mock_workflow_instance = MockWorkflow.return_value
         mock_workflow_instance.execute = AsyncMock(return_value="result")
@@ -73,15 +71,11 @@ class TestOrderPollerHelpers(unittest.IsolatedAsyncioTestCase):
         response.trade_rule = "rule"
         response.trade_reason = "reason"
 
-        result = await execute_polling_workflow(
-            client, poller_factory, "op", response, DEFAULT_TEST_ORDER_COUNT, "cancel_func"
-        )
+        result = await execute_polling_workflow(client, poller_factory, "op", response, DEFAULT_TEST_ORDER_COUNT, "cancel_func")
         assert result == "result"
         MockWorkflow.assert_called()
 
-    @patch(
-        "common.kalshi_trading_client.services.order_helpers.order_poller_helpers.PollingWorkflow"
-    )
+    @patch("common.kalshi_trading_client.services.order_helpers.order_poller_helpers.PollingWorkflow")
     async def test_execute_polling_workflow_failure(self, MockWorkflow):
         mock_workflow_instance = MockWorkflow.return_value
         mock_workflow_instance.execute = AsyncMock(side_effect=KalshiOrderPollingError("error"))
@@ -90,13 +84,9 @@ class TestOrderPollerHelpers(unittest.IsolatedAsyncioTestCase):
         response.order_id = "order_id"
 
         with self.assertRaises(KalshiOrderPollingError):
-            await execute_polling_workflow(
-                Mock(), Mock(), "op", response, DEFAULT_TEST_ORDER_COUNT, "cancel_func"
-            )
+            await execute_polling_workflow(Mock(), Mock(), "op", response, DEFAULT_TEST_ORDER_COUNT, "cancel_func")
 
-    @patch(
-        "common.kalshi_trading_client.services.order_helpers.order_poller_helpers.PollingWorkflow"
-    )
+    @patch("common.kalshi_trading_client.services.order_helpers.order_poller_helpers.PollingWorkflow")
     async def test_execute_polling_workflow_passes_fetch_order(self, MockWorkflow):
         mock_workflow_instance = MockWorkflow.return_value
         mock_workflow_instance.execute = AsyncMock(return_value="result")
@@ -111,9 +101,7 @@ class TestOrderPollerHelpers(unittest.IsolatedAsyncioTestCase):
         response.trade_rule = "rule"
         response.trade_reason = "reason"
 
-        await execute_polling_workflow(
-            client, poller_factory, "op", response, DEFAULT_TEST_ORDER_COUNT, "cancel_func"
-        )
+        await execute_polling_workflow(client, poller_factory, "op", response, DEFAULT_TEST_ORDER_COUNT, "cancel_func")
 
         _, kwargs = MockWorkflow.call_args
         fetch_order = kwargs["fetch_order"]
@@ -146,9 +134,7 @@ class TestOrderPollerHelpers(unittest.IsolatedAsyncioTestCase):
         polling_result.order = order_response
         polling_result.outcome = outcome
 
-        result = await finalize_polling_result(
-            finalizer_factory, "op", order_request, polling_result
-        )
+        result = await finalize_polling_result(finalizer_factory, "op", order_request, polling_result)
 
         assert result == order_response
         assert order_response.filled_count == DEFAULT_TEST_ORDER_COUNT

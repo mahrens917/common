@@ -35,9 +35,7 @@ class TestStopLossMonitorCreateStopLossMonitor:
         monitored_positions = {}
 
         with patch("common.emergency_position_manager_helpers.stop_loss_monitor.logger"):
-            await monitor.create_stop_loss_monitor(
-                "KXBTC-25JAN01", -500, monitored_positions, check_interval_seconds=0.01
-            )
+            await monitor.create_stop_loss_monitor("KXBTC-25JAN01", -500, monitored_positions, check_interval_seconds=0.01)
 
     @pytest.mark.asyncio
     async def test_exits_when_position_no_longer_exists(self) -> None:
@@ -49,9 +47,7 @@ class TestStopLossMonitorCreateStopLossMonitor:
         monitored_positions = {"KXBTC-25JAN01": True}
 
         with patch("common.emergency_position_manager_helpers.stop_loss_monitor.logger"):
-            await monitor.create_stop_loss_monitor(
-                "KXBTC-25JAN01", -500, monitored_positions, check_interval_seconds=0.01
-            )
+            await monitor.create_stop_loss_monitor("KXBTC-25JAN01", -500, monitored_positions, check_interval_seconds=0.01)
 
     @pytest.mark.asyncio
     async def test_triggers_close_when_stop_loss_hit(self) -> None:
@@ -67,9 +63,7 @@ class TestStopLossMonitorCreateStopLossMonitor:
         monitored_positions = {"KXBTC-25JAN01": True}
 
         with patch("common.emergency_position_manager_helpers.stop_loss_monitor.logger"):
-            await monitor.create_stop_loss_monitor(
-                "KXBTC-25JAN01", -500, monitored_positions, check_interval_seconds=0.01
-            )
+            await monitor.create_stop_loss_monitor("KXBTC-25JAN01", -500, monitored_positions, check_interval_seconds=0.01)
 
         closer.emergency_close_position.assert_called_once_with(position, "Stop-loss triggered")
 
@@ -94,9 +88,7 @@ class TestStopLossMonitorCreateStopLossMonitor:
         monitored_positions = {"KXBTC-25JAN01": True}
 
         with patch("common.emergency_position_manager_helpers.stop_loss_monitor.logger"):
-            await monitor.create_stop_loss_monitor(
-                "KXBTC-25JAN01", -500, monitored_positions, check_interval_seconds=0.01
-            )
+            await monitor.create_stop_loss_monitor("KXBTC-25JAN01", -500, monitored_positions, check_interval_seconds=0.01)
 
         assert call_count >= DEFAULT_STOP_LOSS_MONITOR_CALL_THRESHOLD
 
@@ -122,8 +114,6 @@ class TestStopLossMonitorCreateStopLossMonitor:
         monitored_positions = {"KXBTC-25JAN01": True}
 
         with patch("common.emergency_position_manager_helpers.stop_loss_monitor.logger"):
-            await monitor.create_stop_loss_monitor(
-                "KXBTC-25JAN01", -500, monitored_positions, check_interval_seconds=0.01
-            )
+            await monitor.create_stop_loss_monitor("KXBTC-25JAN01", -500, monitored_positions, check_interval_seconds=0.01)
 
         closer.emergency_close_position.assert_not_called()

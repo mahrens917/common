@@ -79,9 +79,7 @@ class LogActivityMonitor:
             logger.exception("Error checking log activity for %s", service_name)
             return LogActivity(status=LogActivityStatus.ERROR, error_message=str(exc))
 
-    async def get_all_service_log_activity(
-        self, service_names: List[str]
-    ) -> Dict[str, LogActivity]:
+    async def get_all_service_log_activity(self, service_names: List[str]) -> Dict[str, LogActivity]:
         results = {}
         for service_name in service_names:
             results[service_name] = await self.get_log_activity(service_name)

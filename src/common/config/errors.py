@@ -7,9 +7,7 @@ class ConfigurationError(RuntimeError):
     """Raised when configuration values are missing or malformed."""
 
     @classmethod
-    def import_failed(
-        cls, module_name: str, class_name: str, context: str = ""
-    ) -> "ConfigurationError":
+    def import_failed(cls, module_name: str, class_name: str, context: str = "") -> "ConfigurationError":
         """Create error for import failure."""
         msg = f"Unable to import {class_name} from {module_name}."
         if context:
@@ -17,9 +15,7 @@ class ConfigurationError(RuntimeError):
         return cls(msg)
 
     @classmethod
-    def invalid_format(
-        cls, param_name: str, received_value: str, expected_format: str = ""
-    ) -> "ConfigurationError":
+    def invalid_format(cls, param_name: str, received_value: str, expected_format: str = "") -> "ConfigurationError":
         """Create error for invalid format."""
         msg = f"{param_name} has invalid format (received {received_value!r})"
         if expected_format:

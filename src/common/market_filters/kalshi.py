@@ -155,9 +155,7 @@ def _invalid_market(
     )
 
 
-def _validate_and_parse_expiry(
-    metadata: Mapping[str, Any], current_time: datetime
-) -> KalshiMarketValidation | tuple[str, datetime]:
+def _validate_and_parse_expiry(metadata: Mapping[str, Any], current_time: datetime) -> KalshiMarketValidation | tuple[str, datetime]:
     """Parse expiry fields and ensure they are valid."""
     expiry_raw, expiry_dt = parse_expiry(metadata)
     if not expiry_raw:
@@ -222,9 +220,7 @@ def _compute_and_validate_strike(
     expiry_raw: str,
 ) -> KalshiMarketValidation | tuple[float, Optional[float], Optional[float]]:
     """Compute strike/floor/cap values."""
-    is_valid_strike, strike_error, strike, floor_strike, cap_strike = compute_strike_value(
-        strike_type_lower, metadata
-    )
+    is_valid_strike, strike_error, strike, floor_strike, cap_strike = compute_strike_value(strike_type_lower, metadata)
     if not is_valid_strike:
         return _invalid_market(
             reason=strike_error or "strike_validation_failed",
@@ -247,18 +243,11 @@ def _resolve_and_validate_pricing(
     orderbook: Optional[Mapping[str, Any]],
     require_pricing: bool,
     strike_info: "_StrikeInfo",
-) -> (
-    KalshiMarketValidation
-    | tuple[Optional[float], Optional[int], Optional[float], Optional[int], bool]
-):
+) -> KalshiMarketValidation | tuple[Optional[float], Optional[int], Optional[float], Optional[int], bool]:
     """Resolve best bid/ask and ensure pricing meets requirements."""
-    (bid_price, bid_size), (ask_price, ask_size), has_orderbook = _resolve_top_of_book(
-        metadata, orderbook
-    )
+    (bid_price, bid_size), (ask_price, ask_size), has_orderbook = _resolve_top_of_book(metadata, orderbook)
 
-    is_valid_pricing, pricing_reason = validate_pricing_data(
-        bid_price, bid_size, ask_price, ask_size, require_pricing
-    )
+    is_valid_pricing, pricing_reason = validate_pricing_data(bid_price, bid_size, ask_price, ask_size, require_pricing)
     if not is_valid_pricing:
         return _invalid_market(
             reason=pricing_reason or "pricing_validation_failed",

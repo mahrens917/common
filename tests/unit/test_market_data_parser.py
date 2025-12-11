@@ -227,8 +227,7 @@ def test_validate_and_parse_market_data_skips_invalid_entries():
     valid_contracts = ["BTC-8JUN25-50000-C"] * 9
     raw_data = {
         "strikes": [50000.0] * 9 + [51000.0],
-        "expiries": [datetime(2025, 6, 8, 8, tzinfo=timezone.utc) for _ in range(9)]
-        + [datetime(2025, 6, 8, 8, tzinfo=timezone.utc)],
+        "expiries": [datetime(2025, 6, 8, 8, tzinfo=timezone.utc) for _ in range(9)] + [datetime(2025, 6, 8, 8, tzinfo=timezone.utc)],
         "implied_volatilities": [0.5] * 10,
         "contract_names": valid_contracts + ["INVALID"],
     }

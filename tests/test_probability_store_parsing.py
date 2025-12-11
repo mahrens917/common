@@ -15,9 +15,7 @@ from common.redis_protocol.probability_store.exceptions import ProbabilityStoreE
 
 def _load_strike_parser_module() -> ModuleType:
     module_path = pathlib.Path("src/common/redis_protocol/probability_store/keys_helpers.py")
-    spec = importlib.util.spec_from_file_location(
-        "common.redis_protocol.probability_store.keys_helpers_file", module_path
-    )
+    spec = importlib.util.spec_from_file_location("common.redis_protocol.probability_store.keys_helpers_file", module_path)
     module = importlib.util.module_from_spec(spec)
     assert spec is not None and spec.loader is not None
     spec.loader.exec_module(module)  # type: ignore[attr-defined]

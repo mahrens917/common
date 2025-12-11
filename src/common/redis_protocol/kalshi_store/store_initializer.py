@@ -136,9 +136,7 @@ def _apply_delegators(store: "KalshiStore", delegators: "DelegatorSet") -> None:
     store.set_storage_delegator(delegators.storage_delegator)
 
 
-def _build_orderbook_processor(
-    connection: RedisConnectionManager, store: "KalshiStore"
-) -> KalshiOrderbookProcessor:
+def _build_orderbook_processor(connection: RedisConnectionManager, store: "KalshiStore") -> KalshiOrderbookProcessor:
     """Construct the KalshiOrderbookProcessor used by the store."""
     return KalshiOrderbookProcessor(
         redis_connection_manager=connection,

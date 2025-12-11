@@ -47,7 +47,5 @@ class ConfigLoader:
         if not data_sources:
             raise MetarConfigLoadError("METAR config contains no data source definitions")
 
-        logger.debug(
-            "Loaded METAR config from %s", self._loader.config_dir / "metar_data_sources.json"
-        )
+        logger.debug("Loaded METAR config from %s", self._loader.config_dir / "metar_data_sources.json")
         return data_sources

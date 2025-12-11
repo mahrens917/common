@@ -49,9 +49,7 @@ def _is_year_month_day_format(remainder: str) -> bool:
     return len(remainder) == _CONST_2 and remainder.isdigit()
 
 
-def _parse_expiry_by_remainder(
-    token: str, remainder: str, month: int, day: int, now: Optional[datetime]
-) -> Optional[datetime]:
+def _parse_expiry_by_remainder(token: str, remainder: str, month: int, day: int, now: Optional[datetime]) -> Optional[datetime]:
     """Handle the remainder segment to produce a datetime."""
     reference_time = now or datetime.now(timezone.utc)
 
@@ -110,9 +108,7 @@ def parse_year_month_day_format(token: str, prefix: str, month: int, remainder: 
     return local_dt.astimezone(timezone.utc)
 
 
-def parse_intraday_format(
-    token: str, now: datetime, month: int, day: int, remainder: str
-) -> datetime:
+def parse_intraday_format(token: str, now: datetime, month: int, day: int, remainder: str) -> datetime:
     """Parse DDMMMHHMM format (e.g., 01JAN1530)"""
     hour = int(remainder[:2])
     minute = int(remainder[_CONST_2:])

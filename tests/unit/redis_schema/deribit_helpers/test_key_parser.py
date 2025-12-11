@@ -42,9 +42,7 @@ class TestParseSpotParts:
         """Parses valid spot parts."""
         parts = ["markets", "deribit", "spot", "BTC", "USD"]
 
-        expiry, expiry_iso, strike, quote = DeribitKeyParser.parse_spot_parts(
-            parts, "markets:deribit:spot:BTC:USD"
-        )
+        expiry, expiry_iso, strike, quote = DeribitKeyParser.parse_spot_parts(parts, "markets:deribit:spot:BTC:USD")
 
         assert expiry is None
         assert expiry_iso is None
@@ -75,9 +73,7 @@ class TestParseFutureParts:
         """Parses valid future parts."""
         parts = ["markets", "deribit", "future", "BTC", "25JAN31"]
 
-        expiry, expiry_iso, strike, quote = DeribitKeyParser.parse_future_parts(
-            parts, "markets:deribit:future:BTC:25JAN31"
-        )
+        expiry, expiry_iso, strike, quote = DeribitKeyParser.parse_future_parts(parts, "markets:deribit:future:BTC:25JAN31")
 
         assert expiry == "25JAN31"
         assert expiry_iso == "25JAN31"
@@ -100,9 +96,7 @@ class TestParseOptionParts:
         """Parses valid option parts."""
         parts = ["markets", "deribit", "option", "BTC", "2025-01-31", "100000", "C"]
 
-        expiry, expiry_iso, strike, quote = DeribitKeyParser.parse_option_parts(
-            parts, "markets:deribit:option:BTC:2025-01-31:100000:C"
-        )
+        expiry, expiry_iso, strike, quote = DeribitKeyParser.parse_option_parts(parts, "markets:deribit:option:BTC:2025-01-31:100000:C")
 
         assert expiry == "2025-01-31"
         assert expiry_iso == "2025-01-31"
@@ -125,9 +119,7 @@ class TestParseTypeSpecificParts:
         """Delegates to parse_spot_parts for SPOT type."""
         parts = ["markets", "deribit", "spot", "BTC", "USD"]
 
-        _, _, _, quote = DeribitKeyParser.parse_type_specific_parts(
-            DeribitInstrumentType.SPOT, parts, "test:key"
-        )
+        _, _, _, quote = DeribitKeyParser.parse_type_specific_parts(DeribitInstrumentType.SPOT, parts, "test:key")
 
         assert quote == "USD"
 
@@ -135,9 +127,7 @@ class TestParseTypeSpecificParts:
         """Delegates to parse_future_parts for FUTURE type."""
         parts = ["markets", "deribit", "future", "BTC", "25JAN31"]
 
-        expiry, _, _, _ = DeribitKeyParser.parse_type_specific_parts(
-            DeribitInstrumentType.FUTURE, parts, "test:key"
-        )
+        expiry, _, _, _ = DeribitKeyParser.parse_type_specific_parts(DeribitInstrumentType.FUTURE, parts, "test:key")
 
         assert expiry == "25JAN31"
 
@@ -145,9 +135,7 @@ class TestParseTypeSpecificParts:
         """Delegates to parse_option_parts for OPTION type."""
         parts = ["markets", "deribit", "option", "BTC", "2025-01-31", "100000", "C"]
 
-        _, _, strike, _ = DeribitKeyParser.parse_type_specific_parts(
-            DeribitInstrumentType.OPTION, parts, "test:key"
-        )
+        _, _, strike, _ = DeribitKeyParser.parse_type_specific_parts(DeribitInstrumentType.OPTION, parts, "test:key")
 
         assert strike == "100000"
 

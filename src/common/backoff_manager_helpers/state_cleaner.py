@@ -13,9 +13,7 @@ class StateCleaner:
     """Cleans up old backoff state entries."""
 
     @staticmethod
-    def cleanup_old_state(
-        backoff_state: Dict[str, Dict[BackoffType, Dict[str, Any]]], max_age_seconds: int = 3600
-    ) -> None:
+    def cleanup_old_state(backoff_state: Dict[str, Dict[BackoffType, Dict[str, Any]]], max_age_seconds: int = 3600) -> None:
         """
         Clean up old backoff state entries to prevent memory leaks.
 
@@ -43,7 +41,4 @@ class StateCleaner:
             del backoff_state[service_name]
 
         if services_to_remove:
-            logger.debug(
-                f"[BackoffManager] Cleaned up old backoff state: "
-                f"removed {len(services_to_remove)} services"
-            )
+            logger.debug(f"[BackoffManager] Cleaned up old backoff state: " f"removed {len(services_to_remove)} services")

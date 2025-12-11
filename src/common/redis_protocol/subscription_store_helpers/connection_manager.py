@@ -50,9 +50,7 @@ class SubscriptionStoreConnectionManager:
             RuntimeError: If connection not initialized
         """
         if not self._initialized or self.redis is None:
-            raise RuntimeError(
-                "Redis connection not initialized. Use 'async with SubscriptionStore()' context manager."
-            )
+            raise RuntimeError("Redis connection not initialized. Use 'async with SubscriptionStore()' context manager.")
         assert self.redis is not None, "Redis connection should be established"
         return self.redis
 

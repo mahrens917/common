@@ -73,7 +73,4 @@ class ErrorTypeClassifier:
 
     def _is_service_limit_error(self, error_lower: str) -> bool:
         """Check if error is service limit/rate limiting related."""
-        return any(
-            term in error_lower
-            for term in ["rate limit", "too many requests", "service unavailable"]
-        )
+        return any(term in error_lower for term in ["rate limit", "too many requests", "service unavailable"])

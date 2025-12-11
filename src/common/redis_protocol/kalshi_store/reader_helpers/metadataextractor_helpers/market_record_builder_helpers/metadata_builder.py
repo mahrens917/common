@@ -55,10 +55,7 @@ class MetadataBuilder:
             "status": type_converter.string_or_default(combined.get("status")),
             "expiry": normalized_close,
             "close_time": normalized_close,
-            "strike_type": type_converter.string_or_default(
-                combined.get("strike_type"), strike_type_text
-            )
-            or strike_type_text,
+            "strike_type": type_converter.string_or_default(combined.get("strike_type"), strike_type_text) or strike_type_text,
             "strike": strike_value,
             "floor_strike": type_converter.string_or_default(combined.get("floor_strike")),
             "cap_strike": type_converter.string_or_default(combined.get("cap_strike")),

@@ -38,9 +38,7 @@ class LimitEnforcer:
         self.position_closer = position_closer
         self.risk_limits = risk_limits
 
-    async def monitor_and_enforce_limits(
-        self, monitored_positions: dict
-    ) -> List[PositionRiskAssessment]:
+    async def monitor_and_enforce_limits(self, monitored_positions: dict) -> List[PositionRiskAssessment]:
         """
         Monitor all positions and enforce risk limits.
 
@@ -58,9 +56,7 @@ class LimitEnforcer:
             for position in positions:
                 if position.ticker in monitored_positions:
                     creation_time = monitored_positions[position.ticker]
-                    assessment = await self.risk_assessor.assess_position_risk(
-                        position, creation_time
-                    )
+                    assessment = await self.risk_assessor.assess_position_risk(position, creation_time)
                     assessments.append(assessment)
 
                     if assessment.requires_closure:
@@ -88,10 +84,7 @@ async def _enforce_total_exposure(
     if total_exposure <= enforcer.risk_limits.max_total_exposure_cents:
         return
 
-    logger.warning(
-        f"[LimitEnforcer] Total exposure {total_exposure}¢ "
-        f"exceeds limit {enforcer.risk_limits.max_total_exposure_cents}¢"
-    )
+    logger.warning(f"[LimitEnforcer] Total exposure {total_exposure}¢ " f"exceeds limit {enforcer.risk_limits.max_total_exposure_cents}¢")
 
     high_risk = _sorted_high_risk_assessments(assessments)
     await _close_until_within_limit(enforcer, high_risk, monitored_positions, positions)
@@ -135,9 +128,7 @@ async def _close_until_within_limit(
             break
 
 
-async def _is_total_exposure_within_limit(
-    enforcer: LimitEnforcer, monitored_positions: dict
-) -> bool:
+async def _is_total_exposure_within_limit(enforcer: LimitEnforcer, monitored_positions: dict) -> bool:
     remaining_positions = await enforcer.trading_client.get_portfolio_positions()
     total_exposure = _calculate_total_exposure(remaining_positions, monitored_positions)
     return total_exposure <= enforcer.risk_limits.max_total_exposure_cents

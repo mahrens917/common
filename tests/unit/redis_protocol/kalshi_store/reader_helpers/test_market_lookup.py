@@ -29,9 +29,7 @@ async def test_get_markets_by_currency_invokes_build(monkeypatch):
 
     lookup = market_lookup.MarketLookup("logger", "metadata", DummyFilter(), DummyTickerParser())
     setattr(market_lookup.MarketLookup, "log_market_summary", lambda self, **kwargs: None)
-    result = await market_lookup.MarketLookup.get_markets_by_currency(
-        lookup, "redis", "USD", DummyFilter(), lambda x: x
-    )
+    result = await market_lookup.MarketLookup.get_markets_by_currency(lookup, "redis", "USD", DummyFilter(), lambda x: x)
     assert result == ["market"]
 
 

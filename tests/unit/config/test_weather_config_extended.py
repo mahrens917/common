@@ -25,9 +25,7 @@ def test_load_from_directory_errors(monkeypatch, tmp_path):
     good_path = tmp_path / "good.json"
     good_path.write_text(json.dumps({"ok": True}))
 
-    monkeypatch.setattr(
-        Path, "open", lambda self, *args, **kwargs: (_ for _ in ()).throw(OSError("fail"))
-    )
+    monkeypatch.setattr(Path, "open", lambda self, *args, **kwargs: (_ for _ in ()).throw(OSError("fail")))
     with pytest.raises(WeatherConfigError):
         _load_from_directory(good_path.name, tmp_path)
 

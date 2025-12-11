@@ -15,11 +15,7 @@ class DataSerializer:
 
         aof_flag = "✅" if status["aof_enabled"] else "❌"
         rdb_flag = "✅" if status["rdb_enabled"] else "❌"
-        overall_flag = (
-            "✅ Properly Configured"
-            if status["persistence_properly_configured"]
-            else "❌ Needs Configuration"
-        )
+        overall_flag = "✅ Properly Configured" if status["persistence_properly_configured"] else "❌ Needs Configuration"
 
         info_lines = [
             "=== Redis Persistence Status ===",
@@ -53,9 +49,7 @@ class DataSerializer:
     ) -> Dict[str, Any]:
         config_values = DataSerializer._extract_config_values(config_info)
         persistence_values = DataSerializer._extract_persistence_values(persistence_info)
-        return DataSerializer._assemble_status_dict(
-            config_values, persistence_values, last_save_time
-        )
+        return DataSerializer._assemble_status_dict(config_values, persistence_values, last_save_time)
 
     @staticmethod
     def _extract_config_values(config_info: Dict[str, Any]) -> Dict[str, Any]:
@@ -65,14 +59,10 @@ class DataSerializer:
     @staticmethod
     def _extract_persistence_values(persistence_info: Dict[str, Any]) -> Dict[str, Any]:
         field_names = ["aof_current_size", "aof_last_rewrite_time_sec", "rdb_last_bgsave_status"]
-        return DataSerializer._require_fields(
-            persistence_info, field_names, "Redis persistence info"
-        )
+        return DataSerializer._require_fields(persistence_info, field_names, "Redis persistence info")
 
     @staticmethod
-    def _assemble_status_dict(
-        config_values: Dict[str, Any], persistence_values: Dict[str, Any], last_save_time: int
-    ) -> Dict[str, Any]:
+    def _assemble_status_dict(config_values: Dict[str, Any], persistence_values: Dict[str, Any], last_save_time: int) -> Dict[str, Any]:
         aof_enabled = DataSerializer.normalize_boolean_config(config_values["appendonly"])
         save_config = config_values["save"]
         return {
@@ -111,8 +101,6 @@ def normalize_boolean_config(value: Any) -> bool:
     return DataSerializer.normalize_boolean_config(value)
 
 
-def build_status_dict(
-    config_info: Dict[str, Any], persistence_info: Dict[str, Any], last_save_time: int
-) -> Dict[str, Any]:
+def build_status_dict(config_info: Dict[str, Any], persistence_info: Dict[str, Any], last_save_time: int) -> Dict[str, Any]:
 
     return DataSerializer.build_status_dict(config_info, persistence_info, last_save_time)

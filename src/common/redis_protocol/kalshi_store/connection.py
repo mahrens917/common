@@ -46,12 +46,8 @@ class RedisConnectionManager:
     async def get_redis(self) -> Redis:
         return await self._lifecycle.get_redis()
 
-    async def attach_redis_client(
-        self, redis_client: Redis, *, health_check_timeout: float = 5.0
-    ) -> None:
-        await self._lifecycle.attach_redis_client(
-            redis_client, health_check_timeout=health_check_timeout
-        )
+    async def attach_redis_client(self, redis_client: Redis, *, health_check_timeout: float = 5.0) -> None:
+        await self._lifecycle.attach_redis_client(redis_client, health_check_timeout=health_check_timeout)
 
     def ensure_ready(self) -> None:
         self._lifecycle.ensure_ready()

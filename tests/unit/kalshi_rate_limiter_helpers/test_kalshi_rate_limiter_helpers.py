@@ -57,9 +57,7 @@ def test_token_manager_refill_and_consume(monkeypatch):
 
 
 def test_metrics_collector_reports_status():
-    token_manager = SimpleNamespace(
-        read_tokens=3, write_tokens=4, max_read_tokens=5, max_write_tokens=6
-    )
+    token_manager = SimpleNamespace(read_tokens=3, write_tokens=4, max_read_tokens=5, max_write_tokens=6)
     collector = MetricsCollector(DummyQueue(9, 10), DummyQueue(2, 10), token_manager)
 
     metrics = collector.get_queue_metrics()
@@ -233,9 +231,7 @@ async def test_worker_manager_warns_on_double_start(monkeypatch):
     async def fast_worker():
         manager.shutdown_event.set()
 
-    monkeypatch.setattr(
-        manager, "_process_requests_worker", lambda: fast_worker()  # type: ignore[attr-defined]
-    )
+    monkeypatch.setattr(manager, "_process_requests_worker", lambda: fast_worker())  # type: ignore[attr-defined]
 
     await manager.start_worker()
     first_task = manager.worker_task

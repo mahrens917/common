@@ -373,9 +373,7 @@ class TestApplyDeltaToOrderbook:
 class TestUpdateBestPrices:
     """Tests for update_best_prices function."""
 
-    @patch(
-        "common.redis_protocol.kalshi_store.orderbook_helpers.delta_processor_helpers.extract_best_bid"
-    )
+    @patch("common.redis_protocol.kalshi_store.orderbook_helpers.delta_processor_helpers.extract_best_bid")
     async def test_update_yes_bids_best_prices(self, mock_extract_bid):
         """Test updating best prices for yes_bids."""
         mock_extract_bid.return_value = (95.0, 100)
@@ -395,9 +393,7 @@ class TestUpdateBestPrices:
         store_optional_field_func.assert_any_await(redis, "market:TEST", "yes_bid", 95.0)
         store_optional_field_func.assert_any_await(redis, "market:TEST", "yes_bid_size", 100)
 
-    @patch(
-        "common.redis_protocol.kalshi_store.orderbook_helpers.delta_processor_helpers.extract_best_ask"
-    )
+    @patch("common.redis_protocol.kalshi_store.orderbook_helpers.delta_processor_helpers.extract_best_ask")
     async def test_update_yes_asks_best_prices(self, mock_extract_ask):
         """Test updating best prices for yes_asks."""
         mock_extract_ask.return_value = (98.0, 75)
@@ -417,9 +413,7 @@ class TestUpdateBestPrices:
         store_optional_field_func.assert_any_await(redis, "market:TEST", "yes_ask", 98.0)
         store_optional_field_func.assert_any_await(redis, "market:TEST", "yes_ask_size", 75)
 
-    @patch(
-        "common.redis_protocol.kalshi_store.orderbook_helpers.delta_processor_helpers.extract_best_bid"
-    )
+    @patch("common.redis_protocol.kalshi_store.orderbook_helpers.delta_processor_helpers.extract_best_bid")
     async def test_update_yes_bids_with_none_values(self, mock_extract_bid):
         """Test updating yes_bids when extract returns None."""
         mock_extract_bid.return_value = (None, None)
@@ -439,9 +433,7 @@ class TestUpdateBestPrices:
         store_optional_field_func.assert_any_await(redis, "market:TEST", "yes_bid", None)
         store_optional_field_func.assert_any_await(redis, "market:TEST", "yes_bid_size", None)
 
-    @patch(
-        "common.redis_protocol.kalshi_store.orderbook_helpers.delta_processor_helpers.extract_best_ask"
-    )
+    @patch("common.redis_protocol.kalshi_store.orderbook_helpers.delta_processor_helpers.extract_best_ask")
     async def test_update_yes_asks_with_none_values(self, mock_extract_ask):
         """Test updating yes_asks when extract returns None."""
         mock_extract_ask.return_value = (None, None)

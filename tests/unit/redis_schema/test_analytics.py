@@ -38,9 +38,7 @@ def test_pdf_surface_key_without_grid_point():
 
 
 def test_probability_slice_key_sanitizes_segments():
-    key = ProbabilitySliceKey(
-        currency="BTC Futures", expiry_iso="2025-01-01", slice_name="Bucket_42"
-    ).key()
+    key = ProbabilitySliceKey(currency="BTC Futures", expiry_iso="2025-01-01", slice_name="Bucket_42").key()
 
     assert key == "analytics:probability:btc_futures:2025-01-01:bucket_42"
 

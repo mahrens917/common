@@ -236,10 +236,7 @@ async def test_cleanup_delegator_uses_cleaner(monkeypatch):
     delegator = CleanupDelegator(_FakeCleaner())
     assert await delegator.remove_market_completely("TCKR", category="crypto") is True
     assert await delegator.clear_market_metadata(chunk_size=10, categories=["crypto"]) == 2
-    assert (
-        await delegator.remove_all_kalshi_keys(categories=["crypto"], exclude_analytics=False)
-        is True
-    )
+    assert await delegator.remove_all_kalshi_keys(categories=["crypto"], exclude_analytics=False) is True
 
     assert calls[0] == ("remove", "TCKR", "crypto")
     assert calls[1] == ("clear", "markets:kalshi:*", 10, ["crypto"])

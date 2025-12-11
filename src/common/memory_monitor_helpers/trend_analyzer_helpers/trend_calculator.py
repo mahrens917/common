@@ -28,9 +28,7 @@ class TrendCalculator:
             return []
 
         recent_snapshots = snapshots[-_CONST_10:]
-        memory_trend = (
-            recent_snapshots[-1].process_memory_mb - recent_snapshots[0].process_memory_mb
-        )
+        memory_trend = recent_snapshots[-1].process_memory_mb - recent_snapshots[0].process_memory_mb
         time_span = recent_snapshots[-1].timestamp - recent_snapshots[0].timestamp
 
         if time_span <= 0:
@@ -43,9 +41,7 @@ class TrendCalculator:
                 {
                     "type": "memory_leak_trend",
                     "severity": "critical",
-                    "message": (
-                        f"Sustained memory growth: {memory_rate:.1f}MB/min over {time_span/60:.1f} minutes"
-                    ),
+                    "message": (f"Sustained memory growth: {memory_rate:.1f}MB/min over {time_span/60:.1f} minutes"),
                     "rate_mb_per_min": memory_rate,
                     "total_growth_mb": memory_trend,
                 }

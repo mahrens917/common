@@ -27,9 +27,7 @@ class DataConverter:
         self.max_retries = max_retries
         self.logger = logger
 
-    def convert_market_payload(
-        self, raw_data: Mapping[str, str], store_key: str, attempt_index: int
-    ) -> Dict[str, Any]:
+    def convert_market_payload(self, raw_data: Mapping[str, str], store_key: str, attempt_index: int) -> Dict[str, Any]:
         """
         Convert Redis string data to appropriate types.
 
@@ -53,9 +51,7 @@ class DataConverter:
                 converted[field] = self._coerce_numeric_value(value)
             except (ValueError, TypeError) as exc:
                 message = f"Failed to coerce field {field!r} for key {store_key}"
-                self.logger.warning(
-                    "%s, attempt %s/%s", message, attempt_index + 1, self.max_retries
-                )
+                self.logger.warning("%s, attempt %s/%s", message, attempt_index + 1, self.max_retries)
                 raise RedisDataValidationError(message) from exc
         return converted
 

@@ -69,9 +69,7 @@ def test_init_sets_attributes(mock_metrics_reader, mock_collection_tracker):
     assert collector.snapshots == []
 
 
-def test_take_snapshot_returns_memory_snapshot(
-    snapshot_collector, mock_metrics_reader, mock_collection_tracker
-):
+def test_take_snapshot_returns_memory_snapshot(snapshot_collector, mock_metrics_reader, mock_collection_tracker):
     """Test take_snapshot returns a MemorySnapshot instance."""
     result = snapshot_collector.take_snapshot()
 
@@ -130,9 +128,7 @@ def test_take_snapshot_removes_oldest_when_exceeding_max(snapshot_collector, moc
     assert snapshot_collector.snapshots[-1].process_memory_mb == 6.0
 
 
-def test_take_snapshot_with_overrides_uses_default_task_count(
-    snapshot_collector, mock_metrics_reader
-):
+def test_take_snapshot_with_overrides_uses_default_task_count(snapshot_collector, mock_metrics_reader):
     """Test take_snapshot_with_overrides uses default task count when no supplier provided."""
     result = snapshot_collector.take_snapshot_with_overrides()
 
@@ -140,9 +136,7 @@ def test_take_snapshot_with_overrides_uses_default_task_count(
     mock_metrics_reader.get_current_task_count.assert_called_once()
 
 
-def test_take_snapshot_with_overrides_uses_custom_task_count_supplier(
-    snapshot_collector, mock_metrics_reader
-):
+def test_take_snapshot_with_overrides_uses_custom_task_count_supplier(snapshot_collector, mock_metrics_reader):
     """Test take_snapshot_with_overrides uses custom task count supplier."""
     custom_supplier = MagicMock(return_value=42)
 
@@ -394,9 +388,7 @@ def test_task_count_supplier_with_none_uses_default(snapshot_collector, mock_met
     mock_metrics_reader.get_current_task_count.assert_called_once()
 
 
-def test_snapshot_fields_are_set_from_correct_sources(
-    snapshot_collector, mock_metrics_reader, mock_collection_tracker
-):
+def test_snapshot_fields_are_set_from_correct_sources(snapshot_collector, mock_metrics_reader, mock_collection_tracker):
     """Test that each snapshot field comes from the correct source."""
     mock_metrics_reader.get_current_memory_usage.return_value = 123.45
     mock_metrics_reader.get_system_memory_percent.return_value = 67.89

@@ -252,9 +252,7 @@ def test_derive_expiry_iso_uses_future_timestamp(monkeypatch, store: KalshiStore
 
 
 def test_weather_resolver_direct_match():
-    resolver = WeatherStationResolver(
-        lambda: {"PHIL": {"icao": "KPHL"}}, logger=logging.getLogger("tests.weather")
-    )
+    resolver = WeatherStationResolver(lambda: {"PHIL": {"icao": "KPHL"}}, logger=logging.getLogger("tests.weather"))
     assert resolver.extract_station("KXHIGHPHIL-25AUG31-B80.5") == "KPHL"
 
 
@@ -337,9 +335,7 @@ async def test_acquire_pool_creates_new_client_when_forced(monkeypatch, connecti
     connection_store._connection_settings_logged = True
 
     close_mock = AsyncMock()
-    monkeypatch.setattr(
-        connection_store._connection._pool_manager, "close_redis_client", close_mock, raising=False
-    )
+    monkeypatch.setattr(connection_store._connection._pool_manager, "close_redis_client", close_mock, raising=False)
 
     new_client = SimpleNamespace(name="new")
 
@@ -580,9 +576,7 @@ def _build_market_data(strike_type: str) -> dict:
 
 def test_build_kalshi_metadata_formats_fields(monkeypatch, store: KalshiStore):
     monkeypatch.setattr(kalshi_store_module.time, "time", lambda: 1_700_000_000)
-    store.weather_resolver = WeatherStationResolver(
-        lambda: {"CHI": {"icao": "KORD"}}, logger=store.logger
-    )
+    store.weather_resolver = WeatherStationResolver(lambda: {"CHI": {"icao": "KORD"}}, logger=store.logger)
     market_ticker = "KXHIGHCHI-25AUG31-B80"
     market_data = _build_market_data("less")
     event_data = {
@@ -801,9 +795,7 @@ async def test_process_orderbook_delta_rejects_unknown_side(store: KalshiStore, 
 
 
 @pytest.mark.asyncio
-async def test_update_orderbook_routes_snapshot_and_delta(
-    monkeypatch, store: KalshiStore, fake_redis
-):
+async def test_update_orderbook_routes_snapshot_and_delta(monkeypatch, store: KalshiStore, fake_redis):
     store.redis = fake_redis
     monkeypatch.setattr(store, "_ensure_redis_connection", AsyncMock(return_value=True))  # type: ignore[method-assign]
     monkeypatch.setattr(store, "_get_redis", AsyncMock(return_value=fake_redis))  # type: ignore[method-assign]
@@ -884,9 +876,7 @@ async def test_update_trade_tick_missing_ticker(monkeypatch, store: KalshiStore)
         ("invalid", ""),
     ],
 )
-def test_normalise_trade_timestamp_variants(
-    store: KalshiStore, value: object, expected_suffix: str
-):
+def test_normalise_trade_timestamp_variants(store: KalshiStore, value: object, expected_suffix: str):
     result = store._normalise_trade_timestamp(value)
     if expected_suffix:
         assert result.endswith(expected_suffix)
@@ -1017,9 +1007,7 @@ async def test_store_market_metadata_persists_fields(monkeypatch, store: KalshiS
     import common.redis_protocol.market_metadata_builder as metadata_builder_module
 
     monkeypatch.setattr(metadata_builder_module, "_extract_time_fields", fake_extract_time_fields)
-    monkeypatch.setattr(
-        metadata_builder_module, "_extract_strike_fields", fake_extract_strike_fields
-    )
+    monkeypatch.setattr(metadata_builder_module, "_extract_strike_fields", fake_extract_strike_fields)
     monkeypatch.setattr(metadata_builder_module, "build_market_metadata", fake_build)
 
     result = await store.store_market_metadata("KXTEST-OPEN", {"status": "open"})
@@ -1045,18 +1033,14 @@ async def test_store_market_metadata_requires_connection(monkeypatch, store: Kal
     import common.redis_protocol.market_metadata_builder as metadata_builder_module
 
     monkeypatch.setattr(metadata_builder_module, "_extract_time_fields", fake_extract_time_fields)
-    monkeypatch.setattr(
-        metadata_builder_module, "_extract_strike_fields", fake_extract_strike_fields
-    )
+    monkeypatch.setattr(metadata_builder_module, "_extract_strike_fields", fake_extract_strike_fields)
 
     with pytest.raises(RuntimeError):
         await store.store_market_metadata("KXTEST-FAIL", {"status": "closed"})
 
 
 @pytest.mark.asyncio
-async def test_get_markets_by_currency_filters_records(
-    monkeypatch, fake_redis, schema_config_factory
-):
+async def test_get_markets_by_currency_filters_records(monkeypatch, fake_redis, schema_config_factory):
     schema_config_factory(kalshi_market_prefix="markets:kalshi")
 
     logger_instance = logging.getLogger("tests.kalshi_store")
@@ -1070,9 +1054,7 @@ async def test_get_markets_by_currency_filters_records(
         return True
 
     store._ensure_redis_connection = ensure_connection  # type: ignore[assignment]
-    store._find_currency_market_tickers = AsyncMock(  # type: ignore[assignment]
-        return_value=["KXBTC-OPEN-GREATER", "KXBTC-SETTLED"]
-    )
+    store._find_currency_market_tickers = AsyncMock(return_value=["KXBTC-OPEN-GREATER", "KXBTC-SETTLED"])  # type: ignore[assignment]
     store._market_descriptor = lambda ticker: SimpleNamespace(  # type: ignore[assignment]
         key=build_kalshi_market_key(ticker),
         ticker=ticker,
@@ -1241,9 +1223,7 @@ async def test_get_interpolation_results_filters_currency(monkeypatch, fake_redi
 
 
 @pytest.mark.asyncio
-async def test_get_market_data_for_strike_expiry_returns_match(
-    monkeypatch, store: KalshiStore, fake_redis
-):
+async def test_get_market_data_for_strike_expiry_returns_match(monkeypatch, store: KalshiStore, fake_redis):
     store.redis = fake_redis
     store._initialized = True
     store._ensure_redis_connection = AsyncMock(return_value=True)  # type: ignore[method-assign]

@@ -24,14 +24,10 @@ class TestGetSubscribedMarketsSafe:
         expected_markets = {"KXTEMP-TEST1", "KXTEMP-TEST2"}
         mock_reader.get_subscribed_markets.return_value = expected_markets
 
-        result = await get_subscribed_markets_safe(
-            mock_redis, "ops:subscriptions:kalshi", mock_reader
-        )
+        result = await get_subscribed_markets_safe(mock_redis, "ops:subscriptions:kalshi", mock_reader)
 
         assert result == expected_markets
-        mock_reader.get_subscribed_markets.assert_called_once_with(
-            mock_redis, "ops:subscriptions:kalshi"
-        )
+        mock_reader.get_subscribed_markets.assert_called_once_with(mock_redis, "ops:subscriptions:kalshi")
 
 
 class TestCheckMarketTracked:
@@ -44,9 +40,7 @@ class TestCheckMarketTracked:
         mock_reader = AsyncMock()
         mock_reader.is_market_tracked.return_value = True
 
-        result = await check_market_tracked(
-            mock_redis, "markets:kalshi:temp:KXTEMP-TEST", "KXTEMP-TEST", mock_reader
-        )
+        result = await check_market_tracked(mock_redis, "markets:kalshi:temp:KXTEMP-TEST", "KXTEMP-TEST", mock_reader)
 
         assert result is True
         mock_reader.is_market_tracked.assert_called_once()

@@ -3,9 +3,7 @@
 from typing import Any, Dict, Mapping
 
 from common.exceptions import ValidationError
-from common.validation.required_fields import (
-    validate_required_fields as _validate_required_fields_common,
-)
+from common.validation.required_fields import validate_required_fields as _validate_required_fields_common
 
 from ....data_models.trade_record import is_trade_reason_valid
 

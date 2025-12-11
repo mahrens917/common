@@ -80,9 +80,7 @@ class RedisSchemaConfig:
             deribit_gp_surface_prefix=_require_string(deribit, "gp_surface_prefix", "deribit"),
             deribit_gp_metadata_key=_require_string(deribit, "gp_metadata_key", "deribit"),
             deribit_subscriptions_key=_require_string(deribit, "subscriptions_key", "deribit"),
-            deribit_instrument_lookup_key=_require_string(
-                deribit, "instrument_lookup_key", "deribit"
-            ),
+            deribit_instrument_lookup_key=_require_string(deribit, "instrument_lookup_key", "deribit"),
             kalshi_market_prefix=_require_string(kalshi, "market_prefix", "kalshi"),
             kalshi_weather_prefix=_require_string(kalshi, "weather_prefix", "kalshi"),
             kalshi_subscriptions_key=_require_string(kalshi, "subscriptions_key", "kalshi"),
@@ -90,21 +88,15 @@ class RedisSchemaConfig:
             kalshi_trading_active_key=_require_string(kalshi, "trading_active_key", "kalshi"),
             kalshi_exchange_active_key=_require_string(kalshi, "exchange_active_key", "kalshi"),
             weather_station_prefix=_require_string(weather, "station_prefix", "weather"),
-            weather_station_history_prefix=_require_string(
-                weather, "station_history_prefix", "weather"
-            ),
+            weather_station_history_prefix=_require_string(weather, "station_history_prefix", "weather"),
             weather_station_mapping_key=_require_string(weather, "station_mapping_key", "weather"),
             weather_forecast_prefix=_require_string(weather, "forecast_prefix", "weather"),
             weather_features_prefix=_require_string(weather, "features_prefix", "weather"),
-            weather_rule_4_trigger_suffix=_require_string(
-                weather, "rule_4_trigger_suffix", "weather"
-            ),
+            weather_rule_4_trigger_suffix=_require_string(weather, "rule_4_trigger_suffix", "weather"),
             pdf_phase4_filters_key=_require_string(pdf, "phase4_filters_key", "pdf"),
             monitoring_status_prefix=_require_string(monitoring, "status_prefix", "monitoring"),
             monitoring_history_prefix=_require_string(monitoring, "history_prefix", "monitoring"),
-            monitoring_monitor_jobs_prefix=_require_string(
-                monitoring, "monitor_jobs_prefix", "monitoring"
-            ),
+            monitoring_monitor_jobs_prefix=_require_string(monitoring, "monitor_jobs_prefix", "monitoring"),
             cfb_price_prefix=_require_string(cfb, "price_prefix", "cfb"),
         )
         return cls._instance
@@ -296,9 +288,7 @@ def _require_section(raw: Mapping[str, object], name: str) -> Mapping[str, objec
     except KeyError as exc:
         raise ConfigurationError(f"Redis schema configuration missing '{name}' section") from exc
     if not isinstance(section, Mapping):
-        raise ConfigurationError(
-            f"Redis schema configuration section '{name}' must be an object; received {type(section).__name__}"
-        )
+        raise ConfigurationError(f"Redis schema configuration section '{name}' must be an object; received {type(section).__name__}")
     return section
 
 
@@ -306,11 +296,7 @@ def _require_string(section: Mapping[str, object], key: str, section_name: str) 
     try:
         value = section[key]
     except KeyError as exc:
-        raise ConfigurationError(
-            f"Redis schema configuration missing '{key}' in '{section_name}' section"
-        ) from exc
+        raise ConfigurationError(f"Redis schema configuration missing '{key}' in '{section_name}' section") from exc
     if not isinstance(value, str) or not value:
-        raise ConfigurationError(
-            f"Redis schema configuration value '{section_name}.{key}' must be a non-empty string"
-        )
+        raise ConfigurationError(f"Redis schema configuration value '{section_name}.{key}' must be a non-empty string")
     return value

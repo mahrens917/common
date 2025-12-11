@@ -74,9 +74,7 @@ def test_normalise_strike_value_rejects_invalid_inputs(value):
 
 
 def test_serialize_probability_payload_defaults_missing_event_ticker():
-    mapping, diagnostics = serialize_probability_payload(
-        {"probability": 0.5}, default_missing_event_ticker=True
-    )
+    mapping, diagnostics = serialize_probability_payload({"probability": 0.5}, default_missing_event_ticker=True)
 
     assert mapping["event_ticker"] == "null"
     assert mapping["probability"] == "0.5"

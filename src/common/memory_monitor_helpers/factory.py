@@ -60,14 +60,10 @@ class MemoryMonitorFactory:
         alert_logger = AlertLogger(service_name)
 
         # Create monitoring loop
-        monitoring_loop = MonitoringLoop(
-            snapshot_collector, trend_analyzer, alert_logger, check_interval_seconds
-        )
+        monitoring_loop = MonitoringLoop(snapshot_collector, trend_analyzer, alert_logger, check_interval_seconds)
 
         # Create status formatter
-        status_formatter = StatusFormatter(
-            service_name, snapshot_collector, collection_tracker, monitoring_loop
-        )
+        status_formatter = StatusFormatter(service_name, snapshot_collector, collection_tracker, monitoring_loop)
 
         return (
             metrics_reader,

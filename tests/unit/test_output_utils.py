@@ -14,12 +14,8 @@ def _set_root_handlers(root_logger: logging.Logger, handlers: list[logging.Handl
         root_logger.addHandler(handler)
 
 
-def test_output_console_with_headers(
-    monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
-) -> None:
-    monkeypatch.setattr(
-        "common.time_utils.get_current_utc", lambda: datetime(2024, 1, 2, 3, 4, 5), raising=True
-    )
+def test_output_console_with_headers(monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]) -> None:
+    monkeypatch.setattr("common.time_utils.get_current_utc", lambda: datetime(2024, 1, 2, 3, 4, 5), raising=True)
 
     output_utils.output("test message", level="warning", headers=True, log=False)
 
@@ -30,9 +26,7 @@ def test_output_console_with_headers(
 
 def test_output_log_only_uses_specified_logger(caplog: pytest.LogCaptureFixture) -> None:
     with caplog.at_level(logging.ERROR, logger="custom.logger"):
-        output_utils.output(
-            "log message", level="error", console=False, logger_name="custom.logger"
-        )
+        output_utils.output("log message", level="error", console=False, logger_name="custom.logger")
 
     assert ("custom.logger", logging.ERROR, "log message") in caplog.record_tuples
 
@@ -77,9 +71,7 @@ def test_output_plain_log_writes_without_file_handlers(
     caplog: pytest.LogCaptureFixture,
 ) -> None:
     root_logger = logging.getLogger()
-    file_handlers = [
-        handler for handler in root_logger.handlers if isinstance(handler, logging.FileHandler)
-    ]
+    file_handlers = [handler for handler in root_logger.handlers if isinstance(handler, logging.FileHandler)]
     for handler in file_handlers:
         root_logger.removeHandler(handler)
 
@@ -156,8 +148,6 @@ def test_output_plain_log_handles_write_failure(tmp_path: Path) -> None:
 
 def test_output_with_unknown_level_defaults_to_info(caplog: pytest.LogCaptureFixture) -> None:
     with caplog.at_level(logging.INFO, logger=__name__):
-        output_utils.output(
-            "unknown level", level="not-a-level", console=False, logger_name=__name__
-        )
+        output_utils.output("unknown level", level="not-a-level", console=False, logger_name=__name__)
 
     assert (__name__, logging.INFO, "unknown level") in caplog.record_tuples

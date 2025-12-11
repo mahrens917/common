@@ -47,9 +47,7 @@ def validate_order_timestamps(order_data: Dict[str, Any]) -> None:
         try:
             datetime.fromisoformat(order_data["expiration_time"].replace("Z", "+00:00"))
         except (ValueError, AttributeError) as e:
-            raise ValueError(
-                f"Invalid expiration_time format: {order_data['expiration_time']}"
-            ) from e
+            raise ValueError(f"Invalid expiration_time format: {order_data['expiration_time']}") from e
 
 
 def validate_order_prices(order_data: Dict[str, Any]) -> None:

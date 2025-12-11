@@ -50,7 +50,5 @@ class ErrorAnalysis:
         result = asdict(self)
         result["category"] = self.category.value
         result["severity"] = self.severity.value
-        result["timestamp_iso"] = datetime.fromtimestamp(
-            self.timestamp, tz=timezone.utc
-        ).isoformat()
+        result["timestamp_iso"] = datetime.fromtimestamp(self.timestamp, tz=timezone.utc).isoformat()
         return result

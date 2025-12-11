@@ -25,9 +25,7 @@ class TradeContextResolver:
         return order_service.extract_weather_station_from_ticker(market_ticker)
 
     @staticmethod
-    def resolve_trade_context(
-        order_service: OrderService, market_ticker: str
-    ) -> Tuple[str, Optional[str]]:
+    def resolve_trade_context(order_service: OrderService, market_ticker: str) -> Tuple[str, Optional[str]]:
         """Resolve trade context from market ticker."""
         return order_service.resolve_trade_context(market_ticker)
 

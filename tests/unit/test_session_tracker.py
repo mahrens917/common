@@ -39,9 +39,7 @@ def fresh_tracker() -> SessionTracker:
 def test_track_session_creation_assigns_id(monkeypatch: pytest.MonkeyPatch):
     tracker = fresh_tracker()
     fake_session = FakeSession()
-    session_id = tracker.track_session_creation(
-        cast(aiohttp.ClientSession, fake_session), "service"
-    )
+    session_id = tracker.track_session_creation(cast(aiohttp.ClientSession, fake_session), "service")
 
     assert session_id == "session_0001"
     assert tracker.sessions[session_id].service_name == "service"
@@ -79,9 +77,7 @@ def test_get_active_sessions_filters_closed(monkeypatch: pytest.MonkeyPatch):
     closed_session = FakeSession()
 
     open_id = tracker.track_session_creation(cast(aiohttp.ClientSession, open_session), "open")
-    closed_id = tracker.track_session_creation(
-        cast(aiohttp.ClientSession, closed_session), "closed"
-    )
+    closed_id = tracker.track_session_creation(cast(aiohttp.ClientSession, closed_session), "closed")
 
     tracker.track_session_closure(closed_id)
     active = tracker.get_active_sessions()

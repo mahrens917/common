@@ -11,10 +11,7 @@ def test_describe_kalshi_ticker_known_prefix() -> None:
     assert descriptor.ticker == "KXBTC-DEC25"
     assert descriptor.underlying == "KXBTC"
     assert descriptor.expiry_token == "DEC25"
-    assert (
-        descriptor.key
-        == KalshiMarketKey(category=KalshiMarketCategory.BINARY, ticker="KXBTC-DEC25").key()
-    )
+    assert descriptor.key == KalshiMarketKey(category=KalshiMarketCategory.BINARY, ticker="KXBTC-DEC25").key()
 
 
 def test_describe_kalshi_ticker_custom_category() -> None:

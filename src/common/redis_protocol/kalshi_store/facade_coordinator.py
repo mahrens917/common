@@ -145,9 +145,7 @@ class MetadataDelegator:
 
         weather_resolver = self._resolve_weather_resolver()
 
-        return metadata_writer._build_kalshi_metadata(
-            market_ticker, market_data, event_data, descriptor, weather_resolver
-        )
+        return metadata_writer._build_kalshi_metadata(market_ticker, market_data, event_data, descriptor, weather_resolver)
 
     def _resolve_weather_resolver(self) -> Optional[Any]:
         if self._weather_resolver_getter:
@@ -185,34 +183,26 @@ class SubscriptionDelegator:
     def SUBSCRIPTIONS_KEY(self) -> str:
         subscriptions_key = self._subscription.SUBSCRIPTIONS_KEY
         if subscriptions_key is None:
-            raise RuntimeError(
-                "KalshiSubscriptionTracker has not initialized SUBSCRIPTIONS_KEY yet"
-            )
+            raise RuntimeError("KalshiSubscriptionTracker has not initialized SUBSCRIPTIONS_KEY yet")
         return subscriptions_key
 
     @property
     def SERVICE_STATUS_KEY(self) -> str:
-        key_provider = cast(
-            Optional[KeyProvider], getattr(self._subscription, "_key_provider", None)
-        )
+        key_provider = cast(Optional[KeyProvider], getattr(self._subscription, "_key_provider", None))
         if key_provider is None:
             return "status"
         return key_provider.service_status_key
 
     @property
     def SUBSCRIBED_MARKETS_KEY(self) -> str:
-        key_provider = cast(
-            Optional[KeyProvider], getattr(self._subscription, "_key_provider", None)
-        )
+        key_provider = cast(Optional[KeyProvider], getattr(self._subscription, "_key_provider", None))
         if key_provider is None:
             return "kalshi:subscribed_markets"
         return key_provider.subscribed_markets_key
 
     @property
     def SUBSCRIPTION_IDS_KEY(self) -> str:
-        key_provider = cast(
-            Optional[KeyProvider], getattr(self._subscription, "_key_provider", None)
-        )
+        key_provider = cast(Optional[KeyProvider], getattr(self._subscription, "_key_provider", None))
         if key_provider is None:
             prefix = getattr(self._subscription, "service_prefix", "ws") or "ws"
             return f"kalshi:subscription_ids:{prefix}"
@@ -221,9 +211,7 @@ class SubscriptionDelegator:
     async def get_subscribed_markets(self) -> Set[str]:  # pragma: no cover
         return await self._subscription.get_subscribed_markets()
 
-    async def add_subscribed_market(
-        self, market_ticker: str, *, category: Optional[str] = None
-    ) -> bool:
+    async def add_subscribed_market(self, market_ticker: str, *, category: Optional[str] = None) -> bool:
         return await self._subscription.add_subscribed_market(market_ticker, category=category)
 
     async def remove_subscribed_market(
@@ -290,21 +278,15 @@ class MarketQueryDelegator:
         """Get active strikes and expiries for a currency."""
         return await self._reader.get_active_strikes_and_expiries(currency)
 
-    async def get_market_data_for_strike_expiry(
-        self, currency: str, expiry_date: str, strike: float
-    ) -> Optional[Dict]:
+    async def get_market_data_for_strike_expiry(self, currency: str, expiry_date: str, strike: float) -> Optional[Dict]:
         """Get market data for specific strike and expiry."""
         return await self._reader.get_market_data_for_strike_expiry(currency, expiry_date, strike)
 
-    async def is_market_expired(
-        self, market_ticker: str, *, metadata: Optional[Dict[str, Any]] = None
-    ) -> bool:
+    async def is_market_expired(self, market_ticker: str, *, metadata: Optional[Dict[str, Any]] = None) -> bool:
         """Check if market is expired."""
         return await self._reader.is_market_expired(market_ticker, metadata=metadata)
 
-    async def is_market_settled(
-        self, market_ticker: str, *, metadata: Optional[Dict[str, Any]] = None
-    ) -> bool:
+    async def is_market_settled(self, market_ticker: str, *, metadata: Optional[Dict[str, Any]] = None) -> bool:
         """Check if market is settled."""
         _ = metadata
         return await self._reader.is_market_settled(market_ticker)
@@ -313,13 +295,9 @@ class MarketQueryDelegator:
         """Get market snapshot."""
         return await self._reader.get_market_snapshot(ticker, include_orderbook=include_orderbook)
 
-    async def get_market_snapshot_by_key(
-        self, market_key: str, *, include_orderbook: bool = True
-    ) -> Dict:
+    async def get_market_snapshot_by_key(self, market_key: str, *, include_orderbook: bool = True) -> Dict:
         """Get market snapshot by Redis key."""
-        return await self._reader.get_market_snapshot_by_key(
-            market_key, include_orderbook=include_orderbook
-        )
+        return await self._reader.get_market_snapshot_by_key(market_key, include_orderbook=include_orderbook)
 
     async def get_market_metadata(self, ticker: str) -> Dict:
         """Get market metadata."""
@@ -329,9 +307,7 @@ class MarketQueryDelegator:
         """Get orderbook for market."""
         return await self._reader.get_orderbook(ticker)
 
-    async def get_market_field(
-        self, ticker: str, field: str, *, default: Optional[str] = None
-    ) -> Optional[str]:
+    async def get_market_field(self, ticker: str, field: str, *, default: Optional[str] = None) -> Optional[str]:
         """Get single market field."""
         return await self._reader.get_market_field(ticker, field, default=default)
 
@@ -339,9 +315,7 @@ class MarketQueryDelegator:
         """Get orderbook side (bids or asks)."""
         return await self._reader.get_orderbook_side(ticker, side)
 
-    async def is_market_tracked(
-        self, market_ticker: str, *, category: Optional[str] = None
-    ) -> bool:
+    async def is_market_tracked(self, market_ticker: str, *, category: Optional[str] = None) -> bool:
         """Check if market is tracked."""
         _ = category  # category filtering handled upstream; reader tracks by ticker only
         return await self._reader.is_market_tracked(market_ticker)

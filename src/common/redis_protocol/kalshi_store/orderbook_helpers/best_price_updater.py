@@ -27,12 +27,8 @@ class BestPriceUpdater:
         if side_field == "yes_bids":
             best_price, best_size = extract_best_bid(side_data)
             await BestPriceUpdater.store_optional_field(redis, market_key, "yes_bid", best_price)
-            await BestPriceUpdater.store_optional_field(
-                redis, market_key, "yes_bid_size", best_size
-            )
+            await BestPriceUpdater.store_optional_field(redis, market_key, "yes_bid_size", best_size)
         else:
             best_price, best_size = extract_best_ask(side_data)
             await BestPriceUpdater.store_optional_field(redis, market_key, "yes_ask", best_price)
-            await BestPriceUpdater.store_optional_field(
-                redis, market_key, "yes_ask_size", best_size
-            )
+            await BestPriceUpdater.store_optional_field(redis, market_key, "yes_ask_size", best_size)

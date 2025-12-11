@@ -71,8 +71,4 @@ def extract_expiration_time(market_data: dict) -> Optional[str]:
     if not expiration_time_raw:
         return None
 
-    return (
-        expiration_time_raw.decode()
-        if isinstance(expiration_time_raw, bytes)
-        else str(expiration_time_raw)
-    )
+    return expiration_time_raw.decode() if isinstance(expiration_time_raw, bytes) else str(expiration_time_raw)

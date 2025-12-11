@@ -12,9 +12,7 @@ class ClosureHandler:
     def __init__(self, close_detector: CloseDetector):
         self.close_detector = close_detector
 
-    async def handle_closures(
-        self, updated_markets: Dict[str, Any], results: Dict[str, Any]
-    ) -> None:
+    async def handle_closures(self, updated_markets: Dict[str, Any], results: Dict[str, Any]) -> None:
         """Handle closed markets."""
         for ticker, market_info in updated_markets.items():
             if market_info.state == MarketState.CLOSED:

@@ -387,9 +387,7 @@ class TestUpdateState:
     @pytest.mark.asyncio
     async def test_available_resets_interval_to_base(self) -> None:
         """AVAILABLE status resets interval to base interval."""
-        config = DependencyConfig(
-            name="redis", check_function=lambda: True, check_interval_seconds=30.0
-        )
+        config = DependencyConfig(name="redis", check_function=lambda: True, check_interval_seconds=30.0)
         state = DependencyState(config=config, current_check_interval=120.0)
         executor = MagicMock()
 

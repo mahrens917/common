@@ -55,9 +55,7 @@ class RootCauseIdentifier:
     def _identify_websocket_cause(self, message: str, context: Optional[Dict[str, Any]]) -> str:
         """Identify WebSocket-related error causes."""
         if "code 1006" in message or (context and context.get("close_code") == _CONST_1006):
-            return (
-                "WebSocket code 1006 abnormal closure - server terminated connection unexpectedly"
-            )
+            return "WebSocket code 1006 abnormal closure - server terminated connection unexpectedly"
         if "code 1000" in message:
             return "WebSocket code 1000 normal closure - connection closed gracefully"
         if "code 1001" in message:

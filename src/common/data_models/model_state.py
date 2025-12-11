@@ -62,9 +62,7 @@ class ModelState:
             ModelStateInitializationError: If Redis interaction fails.
             ModelStateUnavailableError: If no probability data exists for the currency.
         """
-        probability_store, currency_upper = await create_model_state_from_redis(
-            redis, currency, probability_store_cls=ProbabilityStore
-        )
+        probability_store, currency_upper = await create_model_state_from_redis(redis, currency, probability_store_cls=ProbabilityStore)
         return cls(probability_store, currency_upper)
 
     async def calculate_probability(self, strike_low: float, strike_high: float) -> Optional[float]:
@@ -98,9 +96,7 @@ class ModelState:
                 f"Failed to acquire Redis client for probability calculation ({self.currency})"
             ) from redis_error
 
-        return await calculate_range_probability(
-            cast(Redis, redis_client), self.currency, strike_low, strike_high
-        )
+        return await calculate_range_probability(cast(Redis, redis_client), self.currency, strike_low, strike_high)
 
 
 __all__ = [

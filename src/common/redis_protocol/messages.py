@@ -135,9 +135,7 @@ class PriceIndexData:
         # Try both 'value' and 'price' fields
         price_value = hash_data.get("value") or hash_data.get("price")
         if price_value is None:
-            raise RuntimeError(
-                "Missing required price field (tried both 'value' and 'price') - no default values allowed"
-            )
+            raise RuntimeError("Missing required price field (tried both 'value' and 'price') - no default values allowed")
         price = float(price_value)
 
         return cls(index_name=index_name, price=price, timestamp=timestamp)

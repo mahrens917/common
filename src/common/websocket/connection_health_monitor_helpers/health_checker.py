@@ -89,9 +89,7 @@ class HealthChecker:
         last_time = self._resolve_last_update_time()
         time_since_last_data = current_time - last_time
         if time_since_last_data > self.max_silent_duration_seconds:
-            error_msg = (
-                f"{self.service_name} no data flow for {time_since_last_data:.1f}s - zombie state"
-            )
+            error_msg = f"{self.service_name} no data flow for {time_since_last_data:.1f}s - zombie state"
             logger.error(error_msg)
             raise ConnectionError(error_msg)
         return time_since_last_data

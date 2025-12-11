@@ -110,9 +110,7 @@ async def _persist_order_metadata(
     operation_name: str,
 ) -> None:
     try:
-        market_category, metadata_station = creator.metadata_resolver.resolve_trade_context(
-            order_request.ticker
-        )
+        market_category, metadata_station = creator.metadata_resolver.resolve_trade_context(order_request.ticker)
         trade_store = await creator.trade_store_getter()
         await trade_store.store_order_metadata(
             order_response.order_id,

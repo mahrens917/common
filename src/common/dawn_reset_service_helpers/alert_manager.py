@@ -33,9 +33,7 @@ class AlertManager:
         self.telegram_handler = telegram_handler
         self._last_reset_status: Dict[str, bool] = {}
 
-    async def send_reset_alert(
-        self, station_id: str, field_name: str, was_reset: bool, previous_value: Any, new_value: Any
-    ) -> None:
+    async def send_reset_alert(self, station_id: str, field_name: str, was_reset: bool, previous_value: Any, new_value: Any) -> None:
         """
         Send Telegram alert about reset status.
 
@@ -70,9 +68,7 @@ class AlertManager:
                         f"Trading day started fresh"
                     )
                 else:
-                    message = (
-                        f"✅ DAWN RESET: {station_id} - {field_name} cleared for new trading day"
-                    )
+                    message = f"✅ DAWN RESET: {station_id} - {field_name} cleared for new trading day"
             else:
                 # Don't send notifications when dawn is skipped
                 return

@@ -21,9 +21,7 @@ class PriceHistoryParser:
     """
 
     @staticmethod
-    def parse_hash_entry(
-        datetime_str: str, price_str: str, start_time: datetime
-    ) -> Tuple[int, float] | None:
+    def parse_hash_entry(datetime_str: str, price_str: str, start_time: datetime) -> Tuple[int, float] | None:
         """
         Parse single hash entry and filter by time range
 

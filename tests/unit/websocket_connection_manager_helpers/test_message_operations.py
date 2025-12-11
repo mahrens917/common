@@ -53,9 +53,7 @@ class TestWebSocketMessageOperations:
         assert result is False
 
     @pytest.mark.asyncio
-    async def test_send_message_websocket_exception(
-        self, operations, connection_provider, mock_websocket
-    ):
+    async def test_send_message_websocket_exception(self, operations, connection_provider, mock_websocket):
         connection_provider.get_connection.return_value = mock_websocket
         mock_websocket.send.side_effect = WebSocketException("WS Error")
 
@@ -64,9 +62,7 @@ class TestWebSocketMessageOperations:
         assert result is False
 
     @pytest.mark.asyncio
-    async def test_send_message_unexpected_error(
-        self, operations, connection_provider, mock_websocket
-    ):
+    async def test_send_message_unexpected_error(self, operations, connection_provider, mock_websocket):
         connection_provider.get_connection.return_value = mock_websocket
         mock_websocket.send.side_effect = RuntimeError("Unexpected")
 
@@ -75,9 +71,7 @@ class TestWebSocketMessageOperations:
         assert result is False
 
     @pytest.mark.asyncio
-    async def test_receive_message_success_str(
-        self, operations, connection_provider, mock_websocket
-    ):
+    async def test_receive_message_success_str(self, operations, connection_provider, mock_websocket):
         connection_provider.get_connection.return_value = mock_websocket
         mock_websocket.recv.return_value = "World"
 
@@ -87,9 +81,7 @@ class TestWebSocketMessageOperations:
         mock_websocket.recv.assert_called_once()
 
     @pytest.mark.asyncio
-    async def test_receive_message_success_bytes(
-        self, operations, connection_provider, mock_websocket
-    ):
+    async def test_receive_message_success_bytes(self, operations, connection_provider, mock_websocket):
         connection_provider.get_connection.return_value = mock_websocket
         mock_websocket.recv.return_value = b"World"
 
@@ -124,9 +116,7 @@ class TestWebSocketMessageOperations:
         assert result is None
 
     @pytest.mark.asyncio
-    async def test_receive_message_websocket_exception(
-        self, operations, connection_provider, mock_websocket
-    ):
+    async def test_receive_message_websocket_exception(self, operations, connection_provider, mock_websocket):
         connection_provider.get_connection.return_value = mock_websocket
         mock_websocket.recv.side_effect = WebSocketException("WS Error")
 
@@ -135,9 +125,7 @@ class TestWebSocketMessageOperations:
         assert result is None
 
     @pytest.mark.asyncio
-    async def test_receive_message_unexpected_error(
-        self, operations, connection_provider, mock_websocket
-    ):
+    async def test_receive_message_unexpected_error(self, operations, connection_provider, mock_websocket):
         connection_provider.get_connection.return_value = mock_websocket
         mock_websocket.recv.side_effect = RuntimeError("Unexpected")
 

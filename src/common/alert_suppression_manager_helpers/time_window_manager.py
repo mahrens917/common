@@ -38,9 +38,7 @@ class TimeWindowManager:
             TimeWindowContext with time-related information
         """
         is_in_reconnection = await state_tracker.is_service_in_reconnection(service_name)
-        is_in_grace_period = await state_tracker.is_service_in_grace_period(
-            service_name, grace_period_seconds
-        )
+        is_in_grace_period = await state_tracker.is_service_in_grace_period(service_name, grace_period_seconds)
         reconnection_duration = await state_tracker.get_reconnection_duration(service_name)
 
         grace_period_remaining = None

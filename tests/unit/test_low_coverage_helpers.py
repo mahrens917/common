@@ -261,12 +261,8 @@ async def test_backoff_and_retry_and_lifecycle_helpers(monkeypatch):
 @pytest.mark.asyncio
 async def test_notification_and_state_helpers(monkeypatch):
     mgr = _DummyManager()
-    mgr.notification_handler = SimpleNamespace(
-        send_connection_notification=lambda *_args, **_kwargs: asyncio.sleep(0)
-    )
-    mgr.state_tracker = SimpleNamespace(
-        store_service_metrics=lambda *_args, **_kwargs: asyncio.sleep(0)
-    )
+    mgr.notification_handler = SimpleNamespace(send_connection_notification=lambda *_args, **_kwargs: asyncio.sleep(0))
+    mgr.state_tracker = SimpleNamespace(store_service_metrics=lambda *_args, **_kwargs: asyncio.sleep(0))
     await bcm_notification_helpers.send_connection_notification(mgr, True, "ok")
 
     # broadcast helper should initialize tracker on demand

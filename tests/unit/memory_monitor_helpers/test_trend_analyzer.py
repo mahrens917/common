@@ -130,27 +130,17 @@ class TestAnalyzeMemoryTrendsInsufficientData:
         result = trend_analyzer.analyze_memory_trends([])
         assert result == {"status": "insufficient_data", "alerts": []}
 
-    def test_analyze_memory_trends_returns_insufficient_data_with_one_snapshot(
-        self, trend_analyzer, sample_snapshot
-    ):
+    def test_analyze_memory_trends_returns_insufficient_data_with_one_snapshot(self, trend_analyzer, sample_snapshot):
         """Test that analyze_memory_trends returns insufficient_data status with one snapshot."""
         result = trend_analyzer.analyze_memory_trends([sample_snapshot])
         assert result == {"status": "insufficient_data", "alerts": []}
 
-    def test_analyze_memory_trends_does_not_call_helpers_with_insufficient_data(
-        self, trend_analyzer, sample_snapshot
-    ):
+    def test_analyze_memory_trends_does_not_call_helpers_with_insufficient_data(self, trend_analyzer, sample_snapshot):
         """Test that helpers are not called when there's insufficient data."""
         with (
-            patch(
-                "common.memory_monitor_helpers.trend_analyzer_helpers.GrowthAnalyzer"
-            ) as mock_growth,
-            patch(
-                "common.memory_monitor_helpers.trend_analyzer_helpers.AlertBuilder"
-            ) as mock_alert,
-            patch(
-                "common.memory_monitor_helpers.trend_analyzer_helpers.TrendCalculator"
-            ) as mock_trend,
+            patch("common.memory_monitor_helpers.trend_analyzer_helpers.GrowthAnalyzer") as mock_growth,
+            patch("common.memory_monitor_helpers.trend_analyzer_helpers.AlertBuilder") as mock_alert,
+            patch("common.memory_monitor_helpers.trend_analyzer_helpers.TrendCalculator") as mock_trend,
         ):
             trend_analyzer.analyze_memory_trends([sample_snapshot])
 
@@ -162,14 +152,10 @@ class TestAnalyzeMemoryTrendsInsufficientData:
 class TestAnalyzeMemoryTrendsWithSufficientData:
     """Tests for analyze_memory_trends with sufficient data."""
 
-    def test_analyze_memory_trends_creates_growth_analyzer_with_correct_params(
-        self, trend_analyzer, sample_snapshot, previous_snapshot
-    ):
+    def test_analyze_memory_trends_creates_growth_analyzer_with_correct_params(self, trend_analyzer, sample_snapshot, previous_snapshot):
         """Test that GrowthAnalyzer is created with correct parameters."""
         with (
-            patch(
-                "common.memory_monitor_helpers.trend_analyzer_helpers.GrowthAnalyzer"
-            ) as mock_growth_class,
+            patch("common.memory_monitor_helpers.trend_analyzer_helpers.GrowthAnalyzer") as mock_growth_class,
             patch("common.memory_monitor_helpers.trend_analyzer_helpers.AlertBuilder"),
             patch("common.memory_monitor_helpers.trend_analyzer_helpers.TrendCalculator"),
         ):
@@ -186,17 +172,11 @@ class TestAnalyzeMemoryTrendsWithSufficientData:
                 trend_analyzer.check_interval_seconds,
             )
 
-    def test_analyze_memory_trends_creates_alert_builder_with_correct_params(
-        self, trend_analyzer, sample_snapshot, previous_snapshot
-    ):
+    def test_analyze_memory_trends_creates_alert_builder_with_correct_params(self, trend_analyzer, sample_snapshot, previous_snapshot):
         """Test that AlertBuilder is created with correct parameters."""
         with (
-            patch(
-                "common.memory_monitor_helpers.trend_analyzer_helpers.GrowthAnalyzer"
-            ) as mock_growth_class,
-            patch(
-                "common.memory_monitor_helpers.trend_analyzer_helpers.AlertBuilder"
-            ) as mock_alert_class,
+            patch("common.memory_monitor_helpers.trend_analyzer_helpers.GrowthAnalyzer") as mock_growth_class,
+            patch("common.memory_monitor_helpers.trend_analyzer_helpers.AlertBuilder") as mock_alert_class,
             patch("common.memory_monitor_helpers.trend_analyzer_helpers.TrendCalculator"),
         ):
             mock_growth_instance = Mock()
@@ -212,17 +192,11 @@ class TestAnalyzeMemoryTrendsWithSufficientData:
 
             mock_alert_class.assert_called_once_with(trend_analyzer.task_count_threshold)
 
-    def test_analyze_memory_trends_calls_analyze_memory_growth(
-        self, trend_analyzer, sample_snapshot, previous_snapshot
-    ):
+    def test_analyze_memory_trends_calls_analyze_memory_growth(self, trend_analyzer, sample_snapshot, previous_snapshot):
         """Test that analyze_memory_growth is called with current and previous snapshots."""
         with (
-            patch(
-                "common.memory_monitor_helpers.trend_analyzer_helpers.GrowthAnalyzer"
-            ) as mock_growth_class,
-            patch(
-                "common.memory_monitor_helpers.trend_analyzer_helpers.AlertBuilder"
-            ) as mock_alert_class,
+            patch("common.memory_monitor_helpers.trend_analyzer_helpers.GrowthAnalyzer") as mock_growth_class,
+            patch("common.memory_monitor_helpers.trend_analyzer_helpers.AlertBuilder") as mock_alert_class,
             patch("common.memory_monitor_helpers.trend_analyzer_helpers.TrendCalculator"),
         ):
             mock_growth_instance = Mock()
@@ -236,21 +210,13 @@ class TestAnalyzeMemoryTrendsWithSufficientData:
 
             trend_analyzer.analyze_memory_trends([previous_snapshot, sample_snapshot])
 
-            mock_growth_instance.analyze_memory_growth.assert_called_once_with(
-                sample_snapshot, previous_snapshot
-            )
+            mock_growth_instance.analyze_memory_growth.assert_called_once_with(sample_snapshot, previous_snapshot)
 
-    def test_analyze_memory_trends_calls_analyze_collection_growth(
-        self, trend_analyzer, sample_snapshot, previous_snapshot
-    ):
+    def test_analyze_memory_trends_calls_analyze_collection_growth(self, trend_analyzer, sample_snapshot, previous_snapshot):
         """Test that analyze_collection_growth is called with current and previous snapshots."""
         with (
-            patch(
-                "common.memory_monitor_helpers.trend_analyzer_helpers.GrowthAnalyzer"
-            ) as mock_growth_class,
-            patch(
-                "common.memory_monitor_helpers.trend_analyzer_helpers.AlertBuilder"
-            ) as mock_alert_class,
+            patch("common.memory_monitor_helpers.trend_analyzer_helpers.GrowthAnalyzer") as mock_growth_class,
+            patch("common.memory_monitor_helpers.trend_analyzer_helpers.AlertBuilder") as mock_alert_class,
             patch("common.memory_monitor_helpers.trend_analyzer_helpers.TrendCalculator"),
         ):
             mock_growth_instance = Mock()
@@ -264,21 +230,13 @@ class TestAnalyzeMemoryTrendsWithSufficientData:
 
             trend_analyzer.analyze_memory_trends([previous_snapshot, sample_snapshot])
 
-            mock_growth_instance.analyze_collection_growth.assert_called_once_with(
-                sample_snapshot, previous_snapshot
-            )
+            mock_growth_instance.analyze_collection_growth.assert_called_once_with(sample_snapshot, previous_snapshot)
 
-    def test_analyze_memory_trends_calls_build_task_count_alert(
-        self, trend_analyzer, sample_snapshot, previous_snapshot
-    ):
+    def test_analyze_memory_trends_calls_build_task_count_alert(self, trend_analyzer, sample_snapshot, previous_snapshot):
         """Test that build_task_count_alert is called with current snapshot."""
         with (
-            patch(
-                "common.memory_monitor_helpers.trend_analyzer_helpers.GrowthAnalyzer"
-            ) as mock_growth_class,
-            patch(
-                "common.memory_monitor_helpers.trend_analyzer_helpers.AlertBuilder"
-            ) as mock_alert_class,
+            patch("common.memory_monitor_helpers.trend_analyzer_helpers.GrowthAnalyzer") as mock_growth_class,
+            patch("common.memory_monitor_helpers.trend_analyzer_helpers.AlertBuilder") as mock_alert_class,
             patch("common.memory_monitor_helpers.trend_analyzer_helpers.TrendCalculator"),
         ):
             mock_growth_instance = Mock()
@@ -294,20 +252,12 @@ class TestAnalyzeMemoryTrendsWithSufficientData:
 
             mock_alert_instance.build_task_count_alert.assert_called_once_with(sample_snapshot)
 
-    def test_analyze_memory_trends_calls_calculate_trends(
-        self, trend_analyzer, sample_snapshot, previous_snapshot
-    ):
+    def test_analyze_memory_trends_calls_calculate_trends(self, trend_analyzer, sample_snapshot, previous_snapshot):
         """Test that TrendCalculator.calculate_trends is called with all snapshots."""
         with (
-            patch(
-                "common.memory_monitor_helpers.trend_analyzer_helpers.GrowthAnalyzer"
-            ) as mock_growth_class,
-            patch(
-                "common.memory_monitor_helpers.trend_analyzer_helpers.AlertBuilder"
-            ) as mock_alert_class,
-            patch(
-                "common.memory_monitor_helpers.trend_analyzer_helpers.TrendCalculator"
-            ) as mock_trend_class,
+            patch("common.memory_monitor_helpers.trend_analyzer_helpers.GrowthAnalyzer") as mock_growth_class,
+            patch("common.memory_monitor_helpers.trend_analyzer_helpers.AlertBuilder") as mock_alert_class,
+            patch("common.memory_monitor_helpers.trend_analyzer_helpers.TrendCalculator") as mock_trend_class,
         ):
             mock_growth_instance = Mock()
             mock_growth_instance.analyze_memory_growth.return_value = []
@@ -350,12 +300,8 @@ class TestAnalyzeMemoryTrendsWithSufficientData:
         )
 
         with (
-            patch(
-                "common.memory_monitor_helpers.trend_analyzer_helpers.GrowthAnalyzer"
-            ) as mock_growth_class,
-            patch(
-                "common.memory_monitor_helpers.trend_analyzer_helpers.AlertBuilder"
-            ) as mock_alert_class,
+            patch("common.memory_monitor_helpers.trend_analyzer_helpers.GrowthAnalyzer") as mock_growth_class,
+            patch("common.memory_monitor_helpers.trend_analyzer_helpers.AlertBuilder") as mock_alert_class,
             patch("common.memory_monitor_helpers.trend_analyzer_helpers.TrendCalculator"),
         ):
             mock_growth_instance = Mock()
@@ -371,18 +317,14 @@ class TestAnalyzeMemoryTrendsWithSufficientData:
 
             # Should use snapshot3 (current) and snapshot2 (previous)
             mock_growth_instance.analyze_memory_growth.assert_called_once_with(snapshot3, snapshot2)
-            mock_growth_instance.analyze_collection_growth.assert_called_once_with(
-                snapshot3, snapshot2
-            )
+            mock_growth_instance.analyze_collection_growth.assert_called_once_with(snapshot3, snapshot2)
             mock_alert_instance.build_task_count_alert.assert_called_once_with(snapshot3)
 
 
 class TestAnalyzeMemoryTrendsAlertAggregation:
     """Tests for alert aggregation in analyze_memory_trends."""
 
-    def test_analyze_memory_trends_aggregates_all_alerts(
-        self, trend_analyzer, sample_snapshot, previous_snapshot
-    ):
+    def test_analyze_memory_trends_aggregates_all_alerts(self, trend_analyzer, sample_snapshot, previous_snapshot):
         """Test that all alerts from different sources are aggregated."""
         memory_alert = {"type": "memory_growth", "severity": "warning"}
         collection_alert = {"type": "collection_growth", "severity": "error"}
@@ -390,15 +332,9 @@ class TestAnalyzeMemoryTrendsAlertAggregation:
         trend_alert = {"type": "memory_leak_trend", "severity": "critical"}
 
         with (
-            patch(
-                "common.memory_monitor_helpers.trend_analyzer_helpers.GrowthAnalyzer"
-            ) as mock_growth_class,
-            patch(
-                "common.memory_monitor_helpers.trend_analyzer_helpers.AlertBuilder"
-            ) as mock_alert_class,
-            patch(
-                "common.memory_monitor_helpers.trend_analyzer_helpers.TrendCalculator"
-            ) as mock_trend_class,
+            patch("common.memory_monitor_helpers.trend_analyzer_helpers.GrowthAnalyzer") as mock_growth_class,
+            patch("common.memory_monitor_helpers.trend_analyzer_helpers.AlertBuilder") as mock_alert_class,
+            patch("common.memory_monitor_helpers.trend_analyzer_helpers.TrendCalculator") as mock_trend_class,
         ):
             mock_growth_instance = Mock()
             mock_growth_instance.analyze_memory_growth.return_value = [memory_alert]
@@ -415,20 +351,12 @@ class TestAnalyzeMemoryTrendsAlertAggregation:
 
             assert result["alerts"] == [memory_alert, collection_alert, task_alert, trend_alert]
 
-    def test_analyze_memory_trends_handles_empty_alerts_from_all_sources(
-        self, trend_analyzer, sample_snapshot, previous_snapshot
-    ):
+    def test_analyze_memory_trends_handles_empty_alerts_from_all_sources(self, trend_analyzer, sample_snapshot, previous_snapshot):
         """Test that empty alert lists are handled correctly."""
         with (
-            patch(
-                "common.memory_monitor_helpers.trend_analyzer_helpers.GrowthAnalyzer"
-            ) as mock_growth_class,
-            patch(
-                "common.memory_monitor_helpers.trend_analyzer_helpers.AlertBuilder"
-            ) as mock_alert_class,
-            patch(
-                "common.memory_monitor_helpers.trend_analyzer_helpers.TrendCalculator"
-            ) as mock_trend_class,
+            patch("common.memory_monitor_helpers.trend_analyzer_helpers.GrowthAnalyzer") as mock_growth_class,
+            patch("common.memory_monitor_helpers.trend_analyzer_helpers.AlertBuilder") as mock_alert_class,
+            patch("common.memory_monitor_helpers.trend_analyzer_helpers.TrendCalculator") as mock_trend_class,
         ):
             mock_growth_instance = Mock()
             mock_growth_instance.analyze_memory_growth.return_value = []
@@ -445,23 +373,15 @@ class TestAnalyzeMemoryTrendsAlertAggregation:
 
             assert result["alerts"] == []
 
-    def test_analyze_memory_trends_handles_multiple_alerts_from_single_source(
-        self, trend_analyzer, sample_snapshot, previous_snapshot
-    ):
+    def test_analyze_memory_trends_handles_multiple_alerts_from_single_source(self, trend_analyzer, sample_snapshot, previous_snapshot):
         """Test that multiple alerts from a single source are all included."""
         collection_alert1 = {"type": "collection_growth", "collection": "cache"}
         collection_alert2 = {"type": "collection_growth", "collection": "queue"}
 
         with (
-            patch(
-                "common.memory_monitor_helpers.trend_analyzer_helpers.GrowthAnalyzer"
-            ) as mock_growth_class,
-            patch(
-                "common.memory_monitor_helpers.trend_analyzer_helpers.AlertBuilder"
-            ) as mock_alert_class,
-            patch(
-                "common.memory_monitor_helpers.trend_analyzer_helpers.TrendCalculator"
-            ) as mock_trend_class,
+            patch("common.memory_monitor_helpers.trend_analyzer_helpers.GrowthAnalyzer") as mock_growth_class,
+            patch("common.memory_monitor_helpers.trend_analyzer_helpers.AlertBuilder") as mock_alert_class,
+            patch("common.memory_monitor_helpers.trend_analyzer_helpers.TrendCalculator") as mock_trend_class,
         ):
             mock_growth_instance = Mock()
             mock_growth_instance.analyze_memory_growth.return_value = []
@@ -485,20 +405,12 @@ class TestAnalyzeMemoryTrendsAlertAggregation:
 class TestAnalyzeMemoryTrendsResultStructure:
     """Tests for the result structure of analyze_memory_trends."""
 
-    def test_analyze_memory_trends_returns_analyzed_status(
-        self, trend_analyzer, sample_snapshot, previous_snapshot
-    ):
+    def test_analyze_memory_trends_returns_analyzed_status(self, trend_analyzer, sample_snapshot, previous_snapshot):
         """Test that status is 'analyzed' when sufficient data is available."""
         with (
-            patch(
-                "common.memory_monitor_helpers.trend_analyzer_helpers.GrowthAnalyzer"
-            ) as mock_growth_class,
-            patch(
-                "common.memory_monitor_helpers.trend_analyzer_helpers.AlertBuilder"
-            ) as mock_alert_class,
-            patch(
-                "common.memory_monitor_helpers.trend_analyzer_helpers.TrendCalculator"
-            ) as mock_trend_class,
+            patch("common.memory_monitor_helpers.trend_analyzer_helpers.GrowthAnalyzer") as mock_growth_class,
+            patch("common.memory_monitor_helpers.trend_analyzer_helpers.AlertBuilder") as mock_alert_class,
+            patch("common.memory_monitor_helpers.trend_analyzer_helpers.TrendCalculator") as mock_trend_class,
         ):
             mock_growth_instance = Mock()
             mock_growth_instance.analyze_memory_growth.return_value = []
@@ -515,20 +427,12 @@ class TestAnalyzeMemoryTrendsResultStructure:
 
             assert result["status"] == "analyzed"
 
-    def test_analyze_memory_trends_includes_current_memory_mb(
-        self, trend_analyzer, sample_snapshot, previous_snapshot
-    ):
+    def test_analyze_memory_trends_includes_current_memory_mb(self, trend_analyzer, sample_snapshot, previous_snapshot):
         """Test that result includes current_memory_mb from current snapshot."""
         with (
-            patch(
-                "common.memory_monitor_helpers.trend_analyzer_helpers.GrowthAnalyzer"
-            ) as mock_growth_class,
-            patch(
-                "common.memory_monitor_helpers.trend_analyzer_helpers.AlertBuilder"
-            ) as mock_alert_class,
-            patch(
-                "common.memory_monitor_helpers.trend_analyzer_helpers.TrendCalculator"
-            ) as mock_trend_class,
+            patch("common.memory_monitor_helpers.trend_analyzer_helpers.GrowthAnalyzer") as mock_growth_class,
+            patch("common.memory_monitor_helpers.trend_analyzer_helpers.AlertBuilder") as mock_alert_class,
+            patch("common.memory_monitor_helpers.trend_analyzer_helpers.TrendCalculator") as mock_trend_class,
         ):
             mock_growth_instance = Mock()
             mock_growth_instance.analyze_memory_growth.return_value = []
@@ -545,20 +449,12 @@ class TestAnalyzeMemoryTrendsResultStructure:
 
             assert result["current_memory_mb"] == sample_snapshot.process_memory_mb
 
-    def test_analyze_memory_trends_includes_system_memory_percent(
-        self, trend_analyzer, sample_snapshot, previous_snapshot
-    ):
+    def test_analyze_memory_trends_includes_system_memory_percent(self, trend_analyzer, sample_snapshot, previous_snapshot):
         """Test that result includes system_memory_percent from current snapshot."""
         with (
-            patch(
-                "common.memory_monitor_helpers.trend_analyzer_helpers.GrowthAnalyzer"
-            ) as mock_growth_class,
-            patch(
-                "common.memory_monitor_helpers.trend_analyzer_helpers.AlertBuilder"
-            ) as mock_alert_class,
-            patch(
-                "common.memory_monitor_helpers.trend_analyzer_helpers.TrendCalculator"
-            ) as mock_trend_class,
+            patch("common.memory_monitor_helpers.trend_analyzer_helpers.GrowthAnalyzer") as mock_growth_class,
+            patch("common.memory_monitor_helpers.trend_analyzer_helpers.AlertBuilder") as mock_alert_class,
+            patch("common.memory_monitor_helpers.trend_analyzer_helpers.TrendCalculator") as mock_trend_class,
         ):
             mock_growth_instance = Mock()
             mock_growth_instance.analyze_memory_growth.return_value = []
@@ -575,20 +471,12 @@ class TestAnalyzeMemoryTrendsResultStructure:
 
             assert result["system_memory_percent"] == sample_snapshot.system_memory_percent
 
-    def test_analyze_memory_trends_includes_task_count(
-        self, trend_analyzer, sample_snapshot, previous_snapshot
-    ):
+    def test_analyze_memory_trends_includes_task_count(self, trend_analyzer, sample_snapshot, previous_snapshot):
         """Test that result includes task_count from current snapshot."""
         with (
-            patch(
-                "common.memory_monitor_helpers.trend_analyzer_helpers.GrowthAnalyzer"
-            ) as mock_growth_class,
-            patch(
-                "common.memory_monitor_helpers.trend_analyzer_helpers.AlertBuilder"
-            ) as mock_alert_class,
-            patch(
-                "common.memory_monitor_helpers.trend_analyzer_helpers.TrendCalculator"
-            ) as mock_trend_class,
+            patch("common.memory_monitor_helpers.trend_analyzer_helpers.GrowthAnalyzer") as mock_growth_class,
+            patch("common.memory_monitor_helpers.trend_analyzer_helpers.AlertBuilder") as mock_alert_class,
+            patch("common.memory_monitor_helpers.trend_analyzer_helpers.TrendCalculator") as mock_trend_class,
         ):
             mock_growth_instance = Mock()
             mock_growth_instance.analyze_memory_growth.return_value = []
@@ -605,20 +493,12 @@ class TestAnalyzeMemoryTrendsResultStructure:
 
             assert result["task_count"] == sample_snapshot.task_count
 
-    def test_analyze_memory_trends_includes_collection_sizes(
-        self, trend_analyzer, sample_snapshot, previous_snapshot
-    ):
+    def test_analyze_memory_trends_includes_collection_sizes(self, trend_analyzer, sample_snapshot, previous_snapshot):
         """Test that result includes collection_sizes from current snapshot."""
         with (
-            patch(
-                "common.memory_monitor_helpers.trend_analyzer_helpers.GrowthAnalyzer"
-            ) as mock_growth_class,
-            patch(
-                "common.memory_monitor_helpers.trend_analyzer_helpers.AlertBuilder"
-            ) as mock_alert_class,
-            patch(
-                "common.memory_monitor_helpers.trend_analyzer_helpers.TrendCalculator"
-            ) as mock_trend_class,
+            patch("common.memory_monitor_helpers.trend_analyzer_helpers.GrowthAnalyzer") as mock_growth_class,
+            patch("common.memory_monitor_helpers.trend_analyzer_helpers.AlertBuilder") as mock_alert_class,
+            patch("common.memory_monitor_helpers.trend_analyzer_helpers.TrendCalculator") as mock_trend_class,
         ):
             mock_growth_instance = Mock()
             mock_growth_instance.analyze_memory_growth.return_value = []
@@ -635,20 +515,12 @@ class TestAnalyzeMemoryTrendsResultStructure:
 
             assert result["collection_sizes"] == sample_snapshot.collection_sizes
 
-    def test_analyze_memory_trends_includes_all_required_fields(
-        self, trend_analyzer, sample_snapshot, previous_snapshot
-    ):
+    def test_analyze_memory_trends_includes_all_required_fields(self, trend_analyzer, sample_snapshot, previous_snapshot):
         """Test that result includes all required fields."""
         with (
-            patch(
-                "common.memory_monitor_helpers.trend_analyzer_helpers.GrowthAnalyzer"
-            ) as mock_growth_class,
-            patch(
-                "common.memory_monitor_helpers.trend_analyzer_helpers.AlertBuilder"
-            ) as mock_alert_class,
-            patch(
-                "common.memory_monitor_helpers.trend_analyzer_helpers.TrendCalculator"
-            ) as mock_trend_class,
+            patch("common.memory_monitor_helpers.trend_analyzer_helpers.GrowthAnalyzer") as mock_growth_class,
+            patch("common.memory_monitor_helpers.trend_analyzer_helpers.AlertBuilder") as mock_alert_class,
+            patch("common.memory_monitor_helpers.trend_analyzer_helpers.TrendCalculator") as mock_trend_class,
         ):
             mock_growth_instance = Mock()
             mock_growth_instance.analyze_memory_growth.return_value = []
@@ -677,20 +549,12 @@ class TestAnalyzeMemoryTrendsResultStructure:
 class TestAnalyzeMemoryTrendsEdgeCases:
     """Tests for edge cases in analyze_memory_trends."""
 
-    def test_analyze_memory_trends_with_exactly_two_snapshots(
-        self, trend_analyzer, sample_snapshot, previous_snapshot
-    ):
+    def test_analyze_memory_trends_with_exactly_two_snapshots(self, trend_analyzer, sample_snapshot, previous_snapshot):
         """Test that analyze_memory_trends works correctly with exactly 2 snapshots."""
         with (
-            patch(
-                "common.memory_monitor_helpers.trend_analyzer_helpers.GrowthAnalyzer"
-            ) as mock_growth_class,
-            patch(
-                "common.memory_monitor_helpers.trend_analyzer_helpers.AlertBuilder"
-            ) as mock_alert_class,
-            patch(
-                "common.memory_monitor_helpers.trend_analyzer_helpers.TrendCalculator"
-            ) as mock_trend_class,
+            patch("common.memory_monitor_helpers.trend_analyzer_helpers.GrowthAnalyzer") as mock_growth_class,
+            patch("common.memory_monitor_helpers.trend_analyzer_helpers.AlertBuilder") as mock_alert_class,
+            patch("common.memory_monitor_helpers.trend_analyzer_helpers.TrendCalculator") as mock_trend_class,
         ):
             mock_growth_instance = Mock()
             mock_growth_instance.analyze_memory_growth.return_value = []
@@ -726,15 +590,9 @@ class TestAnalyzeMemoryTrendsEdgeCases:
         )
 
         with (
-            patch(
-                "common.memory_monitor_helpers.trend_analyzer_helpers.GrowthAnalyzer"
-            ) as mock_growth_class,
-            patch(
-                "common.memory_monitor_helpers.trend_analyzer_helpers.AlertBuilder"
-            ) as mock_alert_class,
-            patch(
-                "common.memory_monitor_helpers.trend_analyzer_helpers.TrendCalculator"
-            ) as mock_trend_class,
+            patch("common.memory_monitor_helpers.trend_analyzer_helpers.GrowthAnalyzer") as mock_growth_class,
+            patch("common.memory_monitor_helpers.trend_analyzer_helpers.AlertBuilder") as mock_alert_class,
+            patch("common.memory_monitor_helpers.trend_analyzer_helpers.TrendCalculator") as mock_trend_class,
         ):
             mock_growth_instance = Mock()
             mock_growth_instance.analyze_memory_growth.return_value = []
@@ -770,15 +628,9 @@ class TestAnalyzeMemoryTrendsEdgeCases:
         )
 
         with (
-            patch(
-                "common.memory_monitor_helpers.trend_analyzer_helpers.GrowthAnalyzer"
-            ) as mock_growth_class,
-            patch(
-                "common.memory_monitor_helpers.trend_analyzer_helpers.AlertBuilder"
-            ) as mock_alert_class,
-            patch(
-                "common.memory_monitor_helpers.trend_analyzer_helpers.TrendCalculator"
-            ) as mock_trend_class,
+            patch("common.memory_monitor_helpers.trend_analyzer_helpers.GrowthAnalyzer") as mock_growth_class,
+            patch("common.memory_monitor_helpers.trend_analyzer_helpers.AlertBuilder") as mock_alert_class,
+            patch("common.memory_monitor_helpers.trend_analyzer_helpers.TrendCalculator") as mock_trend_class,
         ):
             mock_growth_instance = Mock()
             mock_growth_instance.analyze_memory_growth.return_value = []
@@ -814,15 +666,9 @@ class TestAnalyzeMemoryTrendsEdgeCases:
         )
 
         with (
-            patch(
-                "common.memory_monitor_helpers.trend_analyzer_helpers.GrowthAnalyzer"
-            ) as mock_growth_class,
-            patch(
-                "common.memory_monitor_helpers.trend_analyzer_helpers.AlertBuilder"
-            ) as mock_alert_class,
-            patch(
-                "common.memory_monitor_helpers.trend_analyzer_helpers.TrendCalculator"
-            ) as mock_trend_class,
+            patch("common.memory_monitor_helpers.trend_analyzer_helpers.GrowthAnalyzer") as mock_growth_class,
+            patch("common.memory_monitor_helpers.trend_analyzer_helpers.AlertBuilder") as mock_alert_class,
+            patch("common.memory_monitor_helpers.trend_analyzer_helpers.TrendCalculator") as mock_trend_class,
         ):
             mock_growth_instance = Mock()
             mock_growth_instance.analyze_memory_growth.return_value = []
@@ -855,15 +701,9 @@ class TestAnalyzeMemoryTrendsEdgeCases:
         ]
 
         with (
-            patch(
-                "common.memory_monitor_helpers.trend_analyzer_helpers.GrowthAnalyzer"
-            ) as mock_growth_class,
-            patch(
-                "common.memory_monitor_helpers.trend_analyzer_helpers.AlertBuilder"
-            ) as mock_alert_class,
-            patch(
-                "common.memory_monitor_helpers.trend_analyzer_helpers.TrendCalculator"
-            ) as mock_trend_class,
+            patch("common.memory_monitor_helpers.trend_analyzer_helpers.GrowthAnalyzer") as mock_growth_class,
+            patch("common.memory_monitor_helpers.trend_analyzer_helpers.AlertBuilder") as mock_alert_class,
+            patch("common.memory_monitor_helpers.trend_analyzer_helpers.TrendCalculator") as mock_trend_class,
         ):
             mock_growth_instance = Mock()
             mock_growth_instance.analyze_memory_growth.return_value = []
@@ -879,9 +719,7 @@ class TestAnalyzeMemoryTrendsEdgeCases:
             result = trend_analyzer.analyze_memory_trends(snapshots)
 
             # Should use last two snapshots for growth analysis
-            mock_growth_instance.analyze_memory_growth.assert_called_once_with(
-                snapshots[-1], snapshots[-2]
-            )
+            mock_growth_instance.analyze_memory_growth.assert_called_once_with(snapshots[-1], snapshots[-2])
             # But pass all snapshots to TrendCalculator
             mock_trend_class.calculate_trends.assert_called_once_with(snapshots)
             assert result["status"] == "analyzed"
@@ -904,15 +742,9 @@ class TestAnalyzeMemoryTrendsEdgeCases:
         )
 
         with (
-            patch(
-                "common.memory_monitor_helpers.trend_analyzer_helpers.GrowthAnalyzer"
-            ) as mock_growth_class,
-            patch(
-                "common.memory_monitor_helpers.trend_analyzer_helpers.AlertBuilder"
-            ) as mock_alert_class,
-            patch(
-                "common.memory_monitor_helpers.trend_analyzer_helpers.TrendCalculator"
-            ) as mock_trend_class,
+            patch("common.memory_monitor_helpers.trend_analyzer_helpers.GrowthAnalyzer") as mock_growth_class,
+            patch("common.memory_monitor_helpers.trend_analyzer_helpers.AlertBuilder") as mock_alert_class,
+            patch("common.memory_monitor_helpers.trend_analyzer_helpers.TrendCalculator") as mock_trend_class,
         ):
             mock_growth_instance = Mock()
             mock_growth_instance.analyze_memory_growth.return_value = []

@@ -3,9 +3,7 @@
 from ..distributed_lock import DistributedLock
 
 
-async def create_trade_lock(
-    redis_client, ticker: str, timeout_seconds: int = 30
-) -> DistributedLock:
+async def create_trade_lock(redis_client, ticker: str, timeout_seconds: int = 30) -> DistributedLock:
     """
     Create a distributed lock for trading a specific market.
 
@@ -21,9 +19,7 @@ async def create_trade_lock(
     return DistributedLock(redis_client, lock_key, timeout_seconds)
 
 
-async def create_liquidation_lock(
-    redis_client, ticker: str, timeout_seconds: int = 60
-) -> DistributedLock:
+async def create_liquidation_lock(redis_client, ticker: str, timeout_seconds: int = 60) -> DistributedLock:
     """
     Create a distributed lock for liquidating positions in a specific market.
 

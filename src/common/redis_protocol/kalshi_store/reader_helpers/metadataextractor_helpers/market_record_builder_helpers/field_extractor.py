@@ -38,9 +38,7 @@ def extract_and_merge_metadata(raw_hash: Dict[str, Any], market_ticker: str) -> 
     return combined
 
 
-def validate_market_status(
-    combined: Dict[str, Any], market_ticker: str, string_converter: Any
-) -> None:
+def validate_market_status(combined: Dict[str, Any], market_ticker: str, string_converter: Any) -> None:
     """
     Validate market status is not settled or closed.
 
@@ -58,9 +56,7 @@ def validate_market_status(
         raise MarketSkip("settled", f"Market {market_ticker} has status={status_text}")
 
 
-def extract_and_validate_close_time(
-    combined: Dict[str, Any], market_ticker: str, timestamp_normalizer: Any, now: datetime
-) -> str:
+def extract_and_validate_close_time(combined: Dict[str, Any], market_ticker: str, timestamp_normalizer: Any, now: datetime) -> str:
     """
     Extract and validate close time from market data.
 
@@ -76,17 +72,11 @@ def extract_and_validate_close_time(
     Raises:
         MarketSkip: If close time is missing or market is expired
     """
-    close_time_value = (
-        combined.get("close_time")
-        or combined.get("expected_expiration_time")
-        or combined.get("expiration_time")
-    )
+    close_time_value = combined.get("close_time") or combined.get("expected_expiration_time") or combined.get("expiration_time")
     if close_time_value in (None, "", b""):
         raise MarketSkip("missing_close_time", f"Market {market_ticker} missing close_time")
 
-    normalized_close = timestamp_normalizer.normalize_timestamp(close_time_value) or str(
-        close_time_value
-    )
+    normalized_close = timestamp_normalizer.normalize_timestamp(close_time_value) or str(close_time_value)
     try:
         close_dt = datetime.fromisoformat(normalized_close.replace("Z", "+00:00"))
     except ValueError:
@@ -98,9 +88,7 @@ def extract_and_validate_close_time(
     return normalized_close
 
 
-def extract_and_validate_strike(
-    combined: Dict[str, Any], market_ticker: str, strike_resolver: Any, string_converter: Any
-) -> float:
+def extract_and_validate_strike(combined: Dict[str, Any], market_ticker: str, strike_resolver: Any, string_converter: Any) -> float:
     """
     Extract and validate strike from market data.
 
@@ -157,8 +145,7 @@ def build_record_dict(
         "status": status_value,
         "expiry": normalized_close,
         "close_time": normalized_close,
-        "strike_type": string_converter(combined.get("strike_type"), strike_type_text)
-        or strike_type_text,
+        "strike_type": string_converter(combined.get("strike_type"), strike_type_text) or strike_type_text,
         "strike": strike_value,
         "floor_strike": string_converter(combined.get("floor_strike")),
         "cap_strike": string_converter(combined.get("cap_strike")),

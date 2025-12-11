@@ -25,9 +25,7 @@ def determine_underlying(enhanced_option: Any, instrument_name: str) -> str:
         parts = instrument_name.split("-")
         if parts and parts[0] in {"BTC", "ETH"}:
             return parts[0]
-    raise OptionDataConversionError(
-        "Enhanced option data must provide an 'underlying' field or a parseable instrument name"
-    )
+    raise OptionDataConversionError("Enhanced option data must provide an 'underlying' field or a parseable instrument name")
 
 
 def determine_expiry(enhanced_option: Any) -> datetime:
@@ -41,9 +39,7 @@ def determine_expiry(enhanced_option: Any) -> datetime:
             return expiry_candidate.astimezone(timezone.utc)
 
     if expiry_candidate is None:
-        raise OptionDataConversionError(
-            "Enhanced option data must include 'expiry' or 'expiry_timestamp'"
-        )
+        raise OptionDataConversionError("Enhanced option data must include 'expiry' or 'expiry_timestamp'")
 
     try:
         timestamp = int(expiry_candidate)

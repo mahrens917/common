@@ -53,9 +53,7 @@ async def get_probability_data(
     try:
         data = await ensure_awaitable(redis.hgetall(key))
     except REDIS_ERRORS as exc:
-        raise ProbabilityStoreError(
-            f"Failed to get probability data for {key}: Redis error {exc}"
-        ) from exc
+        raise ProbabilityStoreError(f"Failed to get probability data for {key}: Redis error {exc}") from exc
 
     if not data:
         raise ProbabilityDataNotFoundError(currency_upper, context=key)

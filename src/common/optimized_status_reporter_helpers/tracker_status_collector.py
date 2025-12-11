@@ -35,9 +35,7 @@ class TrackerStatusCollector:
         tracker_status = await self._fetch_tracker_status()
 
         # Normalize status flags
-        tracker_enabled, tracker_running, tracker_pid = StatusNormalizer.normalize_tracker_flags(
-            tracker_status
-        )
+        tracker_enabled, tracker_running, tracker_pid = StatusNormalizer.normalize_tracker_flags(tracker_status)
 
         # Get tracker info and resolve running status
         tracker_info = self.process_manager.process_info.get("tracker")

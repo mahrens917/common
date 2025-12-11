@@ -42,34 +42,22 @@ def _validate_contract(
     stats_updates = _empty_stats()
 
     try:
-        parsed = DeribitInstrumentParser.parse_instrument(
-            contract_name, strict_symbol=expected_symbol
-        )
+        parsed = DeribitInstrumentParser.parse_instrument(contract_name, strict_symbol=expected_symbol)
 
-        is_corrupted, error_msg, corruption_stats = CorruptionChecker.check_year_corruption(
-            parsed.expiry_date, contract_name
-        )
+        is_corrupted, error_msg, corruption_stats = CorruptionChecker.check_year_corruption(parsed.expiry_date, contract_name)
         if is_corrupted:
             for key, value in corruption_stats.items():
                 stats_updates[key] += value
             return False, error_msg, stats_updates
 
-        data_expiry = (
-            options_data["expiries"][index] if index < len(options_data["expiries"]) else None
-        )
-        is_valid, error_msg = ExpiryValidator.validate_consistency(
-            parsed.expiry_date, data_expiry, contract_name, index, options_data
-        )
+        data_expiry = options_data["expiries"][index] if index < len(options_data["expiries"]) else None
+        is_valid, error_msg = ExpiryValidator.validate_consistency(parsed.expiry_date, data_expiry, contract_name, index, options_data)
         if not is_valid:
             stats_updates["date_errors"] = 1
             return False, error_msg, stats_updates
 
-        data_strike = (
-            options_data["strikes"][index] if index < len(options_data["strikes"]) else None
-        )
-        is_valid, error_msg = StrikeValidator.validate_consistency(
-            parsed.strike, data_strike, contract_name, index, options_data
-        )
+        data_strike = options_data["strikes"][index] if index < len(options_data["strikes"]) else None
+        is_valid, error_msg = StrikeValidator.validate_consistency(parsed.strike, data_strike, contract_name, index, options_data)
         if not is_valid:
             return False, error_msg, stats_updates
 
@@ -101,9 +89,7 @@ def _handle_parsing_error(
     return False, error_msg, stats_updates
 
 
-def _validate_all_contracts(
-    options_data: Dict[str, Any], expected_symbol: str
-) -> tuple[int, List[str], Dict[str, int]]:
+def _validate_all_contracts(options_data: Dict[str, Any], expected_symbol: str) -> tuple[int, List[str], Dict[str, int]]:
     """
     Validate all contracts in the data.
 
@@ -115,9 +101,7 @@ def _validate_all_contracts(
     valid_count = 0
 
     for i, contract_name in enumerate(options_data["contract_names"]):
-        is_valid, error_msg, updates = _validate_contract(
-            contract_name, expected_symbol, i, options_data
-        )
+        is_valid, error_msg, updates = _validate_contract(contract_name, expected_symbol, i, options_data)
 
         if is_valid:
             valid_count += 1
@@ -143,7 +127,5 @@ class ContractValidator:
         return _validate_contract(contract_name, expected_symbol, index, options_data)
 
     @staticmethod
-    def validate_all_contracts(
-        options_data: Dict[str, Any], expected_symbol: str
-    ) -> tuple[int, List[str], Dict[str, int]]:
+    def validate_all_contracts(options_data: Dict[str, Any], expected_symbol: str) -> tuple[int, List[str], Dict[str, int]]:
         return _validate_all_contracts(options_data, expected_symbol)

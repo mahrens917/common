@@ -27,21 +27,11 @@ class TestInitializationCoordinator:
         mock_weather = Mock()
 
         with (
-            patch(
-                "common.kalshi_trading_client.client_helpers.initialization_coordinator._initialize_core_clients"
-            ) as mock_core,
-            patch(
-                "common.kalshi_trading_client.client_helpers.initialization_coordinator.ClientInitializer"
-            ) as mock_initializer,
-            patch(
-                "common.kalshi_trading_client.client_helpers.initialization_coordinator._create_service_stack"
-            ) as mock_stack,
-            patch(
-                "common.kalshi_trading_client.client_helpers.initialization_coordinator._wire_order_dependencies"
-            ) as mock_wire,
-            patch(
-                "common.kalshi_trading_client.client_helpers.initialization_coordinator._build_initialization_result"
-            ) as mock_build,
+            patch("common.kalshi_trading_client.client_helpers.initialization_coordinator._initialize_core_clients") as mock_core,
+            patch("common.kalshi_trading_client.client_helpers.initialization_coordinator.ClientInitializer") as mock_initializer,
+            patch("common.kalshi_trading_client.client_helpers.initialization_coordinator._create_service_stack") as mock_stack,
+            patch("common.kalshi_trading_client.client_helpers.initialization_coordinator._wire_order_dependencies") as mock_wire,
+            patch("common.kalshi_trading_client.client_helpers.initialization_coordinator._build_initialization_result") as mock_build,
         ):
 
             mock_core.return_value = (mock_kalshi, mock_backoff, Mock(), Mock())
@@ -78,21 +68,11 @@ class TestInitializationCoordinator:
         mock_weather = Mock()
 
         with (
-            patch(
-                "common.kalshi_trading_client.client_helpers.initialization_coordinator._initialize_core_clients"
-            ) as mock_core,
-            patch(
-                "common.kalshi_trading_client.client_helpers.initialization_coordinator.ClientInitializer"
-            ) as mock_initializer,
-            patch(
-                "common.kalshi_trading_client.client_helpers.initialization_coordinator._create_service_stack"
-            ) as mock_stack,
-            patch(
-                "common.kalshi_trading_client.client_helpers.initialization_coordinator._wire_order_dependencies"
-            ),
-            patch(
-                "common.kalshi_trading_client.client_helpers.initialization_coordinator._build_initialization_result"
-            ),
+            patch("common.kalshi_trading_client.client_helpers.initialization_coordinator._initialize_core_clients") as mock_core,
+            patch("common.kalshi_trading_client.client_helpers.initialization_coordinator.ClientInitializer") as mock_initializer,
+            patch("common.kalshi_trading_client.client_helpers.initialization_coordinator._create_service_stack") as mock_stack,
+            patch("common.kalshi_trading_client.client_helpers.initialization_coordinator._wire_order_dependencies"),
+            patch("common.kalshi_trading_client.client_helpers.initialization_coordinator._build_initialization_result"),
         ):
 
             mock_core.return_value = (Mock(), Mock(), Mock(), Mock())
@@ -110,28 +90,16 @@ class TestInitializationCoordinator:
                 mock_weather,
             )
 
-            mock_core.assert_called_once_with(
-                mock_kalshi, mock_trade_store, mock_backoff, mock_network_health
-            )
+            mock_core.assert_called_once_with(mock_kalshi, mock_trade_store, mock_backoff, mock_network_health)
 
     def test_extracts_config_values(self):
         """Should extract config values using ClientInitializer."""
         with (
-            patch(
-                "common.kalshi_trading_client.client_helpers.initialization_coordinator._initialize_core_clients"
-            ) as mock_core,
-            patch(
-                "common.kalshi_trading_client.client_helpers.initialization_coordinator.ClientInitializer"
-            ) as mock_initializer,
-            patch(
-                "common.kalshi_trading_client.client_helpers.initialization_coordinator._create_service_stack"
-            ) as mock_stack,
-            patch(
-                "common.kalshi_trading_client.client_helpers.initialization_coordinator._wire_order_dependencies"
-            ),
-            patch(
-                "common.kalshi_trading_client.client_helpers.initialization_coordinator._build_initialization_result"
-            ),
+            patch("common.kalshi_trading_client.client_helpers.initialization_coordinator._initialize_core_clients") as mock_core,
+            patch("common.kalshi_trading_client.client_helpers.initialization_coordinator.ClientInitializer") as mock_initializer,
+            patch("common.kalshi_trading_client.client_helpers.initialization_coordinator._create_service_stack") as mock_stack,
+            patch("common.kalshi_trading_client.client_helpers.initialization_coordinator._wire_order_dependencies"),
+            patch("common.kalshi_trading_client.client_helpers.initialization_coordinator._build_initialization_result"),
         ):
 
             mock_core.return_value = (Mock(), Mock(), Mock(), Mock())
@@ -141,9 +109,7 @@ class TestInitializationCoordinator:
             mock_initializer.initialize_weather_resolver.return_value = Mock()
             mock_stack.return_value = (Mock(), Mock(), Mock())
 
-            InitializationCoordinator.initialize_all_components(
-                None, None, None, Mock(), None, None
-            )
+            InitializationCoordinator.initialize_all_components(None, None, None, Mock(), None, None)
 
             mock_initializer.load_config.assert_called_once()
             mock_initializer.extract_config_values.assert_called_once_with(mock_config)
@@ -153,21 +119,11 @@ class TestInitializationCoordinator:
         mock_weather = Mock()
 
         with (
-            patch(
-                "common.kalshi_trading_client.client_helpers.initialization_coordinator._initialize_core_clients"
-            ) as mock_core,
-            patch(
-                "common.kalshi_trading_client.client_helpers.initialization_coordinator.ClientInitializer"
-            ) as mock_initializer,
-            patch(
-                "common.kalshi_trading_client.client_helpers.initialization_coordinator._create_service_stack"
-            ) as mock_stack,
-            patch(
-                "common.kalshi_trading_client.client_helpers.initialization_coordinator._wire_order_dependencies"
-            ),
-            patch(
-                "common.kalshi_trading_client.client_helpers.initialization_coordinator._build_initialization_result"
-            ),
+            patch("common.kalshi_trading_client.client_helpers.initialization_coordinator._initialize_core_clients") as mock_core,
+            patch("common.kalshi_trading_client.client_helpers.initialization_coordinator.ClientInitializer") as mock_initializer,
+            patch("common.kalshi_trading_client.client_helpers.initialization_coordinator._create_service_stack") as mock_stack,
+            patch("common.kalshi_trading_client.client_helpers.initialization_coordinator._wire_order_dependencies"),
+            patch("common.kalshi_trading_client.client_helpers.initialization_coordinator._build_initialization_result"),
         ):
 
             mock_core.return_value = (Mock(), Mock(), Mock(), Mock())
@@ -177,9 +133,7 @@ class TestInitializationCoordinator:
             mock_initializer.initialize_weather_resolver.return_value = mock_initialized_weather
             mock_stack.return_value = (Mock(), Mock(), Mock())
 
-            InitializationCoordinator.initialize_all_components(
-                None, None, None, Mock(), None, mock_weather
-            )
+            InitializationCoordinator.initialize_all_components(None, None, None, Mock(), None, mock_weather)
 
             mock_initializer.initialize_weather_resolver.assert_called_once_with(mock_weather)
 
@@ -192,21 +146,11 @@ class TestInitializationCoordinator:
         mock_telegram = Mock()
 
         with (
-            patch(
-                "common.kalshi_trading_client.client_helpers.initialization_coordinator._initialize_core_clients"
-            ) as mock_core,
-            patch(
-                "common.kalshi_trading_client.client_helpers.initialization_coordinator.ClientInitializer"
-            ) as mock_initializer,
-            patch(
-                "common.kalshi_trading_client.client_helpers.initialization_coordinator._create_service_stack"
-            ) as mock_stack,
-            patch(
-                "common.kalshi_trading_client.client_helpers.initialization_coordinator._wire_order_dependencies"
-            ),
-            patch(
-                "common.kalshi_trading_client.client_helpers.initialization_coordinator._build_initialization_result"
-            ),
+            patch("common.kalshi_trading_client.client_helpers.initialization_coordinator._initialize_core_clients") as mock_core,
+            patch("common.kalshi_trading_client.client_helpers.initialization_coordinator.ClientInitializer") as mock_initializer,
+            patch("common.kalshi_trading_client.client_helpers.initialization_coordinator._create_service_stack") as mock_stack,
+            patch("common.kalshi_trading_client.client_helpers.initialization_coordinator._wire_order_dependencies"),
+            patch("common.kalshi_trading_client.client_helpers.initialization_coordinator._build_initialization_result"),
         ):
 
             mock_core.return_value = (
@@ -220,9 +164,7 @@ class TestInitializationCoordinator:
             mock_initializer.initialize_weather_resolver.return_value = mock_weather
             mock_stack.return_value = (Mock(), Mock(), Mock())
 
-            InitializationCoordinator.initialize_all_components(
-                None, None, None, Mock(), mock_telegram, None
-            )
+            InitializationCoordinator.initialize_all_components(None, None, None, Mock(), mock_telegram, None)
 
             # Verify service stack was called with correct arguments
             args = mock_stack.call_args[0]
@@ -239,21 +181,11 @@ class TestInitializationCoordinator:
         mock_telegram = Mock()
 
         with (
-            patch(
-                "common.kalshi_trading_client.client_helpers.initialization_coordinator._initialize_core_clients"
-            ) as mock_core,
-            patch(
-                "common.kalshi_trading_client.client_helpers.initialization_coordinator.ClientInitializer"
-            ) as mock_initializer,
-            patch(
-                "common.kalshi_trading_client.client_helpers.initialization_coordinator._create_service_stack"
-            ) as mock_stack,
-            patch(
-                "common.kalshi_trading_client.client_helpers.initialization_coordinator._wire_order_dependencies"
-            ) as mock_wire,
-            patch(
-                "common.kalshi_trading_client.client_helpers.initialization_coordinator._build_initialization_result"
-            ),
+            patch("common.kalshi_trading_client.client_helpers.initialization_coordinator._initialize_core_clients") as mock_core,
+            patch("common.kalshi_trading_client.client_helpers.initialization_coordinator.ClientInitializer") as mock_initializer,
+            patch("common.kalshi_trading_client.client_helpers.initialization_coordinator._create_service_stack") as mock_stack,
+            patch("common.kalshi_trading_client.client_helpers.initialization_coordinator._wire_order_dependencies") as mock_wire,
+            patch("common.kalshi_trading_client.client_helpers.initialization_coordinator._build_initialization_result"),
         ):
 
             mock_core.return_value = (Mock(), Mock(), Mock(), mock_notifier)
@@ -262,9 +194,7 @@ class TestInitializationCoordinator:
             mock_initializer.initialize_weather_resolver.return_value = Mock()
             mock_stack.return_value = (Mock(), mock_orders, Mock())
 
-            InitializationCoordinator.initialize_all_components(
-                None, None, None, Mock(), mock_telegram, None
-            )
+            InitializationCoordinator.initialize_all_components(None, None, None, Mock(), mock_telegram, None)
 
             mock_wire.assert_called_once_with(mock_orders, mock_notifier, mock_telegram)
 
@@ -273,21 +203,11 @@ class TestInitializationCoordinator:
         import logging
 
         with (
-            patch(
-                "common.kalshi_trading_client.client_helpers.initialization_coordinator._initialize_core_clients"
-            ) as mock_core,
-            patch(
-                "common.kalshi_trading_client.client_helpers.initialization_coordinator.ClientInitializer"
-            ) as mock_initializer,
-            patch(
-                "common.kalshi_trading_client.client_helpers.initialization_coordinator._create_service_stack"
-            ) as mock_stack,
-            patch(
-                "common.kalshi_trading_client.client_helpers.initialization_coordinator._wire_order_dependencies"
-            ),
-            patch(
-                "common.kalshi_trading_client.client_helpers.initialization_coordinator._build_initialization_result"
-            ),
+            patch("common.kalshi_trading_client.client_helpers.initialization_coordinator._initialize_core_clients") as mock_core,
+            patch("common.kalshi_trading_client.client_helpers.initialization_coordinator.ClientInitializer") as mock_initializer,
+            patch("common.kalshi_trading_client.client_helpers.initialization_coordinator._create_service_stack") as mock_stack,
+            patch("common.kalshi_trading_client.client_helpers.initialization_coordinator._wire_order_dependencies"),
+            patch("common.kalshi_trading_client.client_helpers.initialization_coordinator._build_initialization_result"),
         ):
 
             mock_core.return_value = (Mock(), Mock(), Mock(), Mock())
@@ -297,14 +217,9 @@ class TestInitializationCoordinator:
             mock_stack.return_value = (Mock(), Mock(), Mock())
 
             with caplog.at_level(logging.INFO):
-                InitializationCoordinator.initialize_all_components(
-                    None, None, None, Mock(), None, None
-                )
+                InitializationCoordinator.initialize_all_components(None, None, None, Mock(), None, None)
 
-            assert any(
-                "Initialized unified trading client with trade collection" in message
-                for message in caplog.messages
-            )
+            assert any("Initialized unified trading client with trade collection" in message for message in caplog.messages)
 
 
 class TestInitializeCoreClients:
@@ -317,15 +232,9 @@ class TestInitializeCoreClients:
         mock_initialized_kalshi = Mock()
 
         with (
-            patch(
-                "common.kalshi_trading_client.client_helpers.initialization_coordinator.ClientInitializer"
-            ) as mock_initializer,
-            patch(
-                "common.kalshi_trading_client.client_helpers.initialization_coordinator.TradeStoreManager"
-            ),
-            patch(
-                "common.kalshi_trading_client.client_helpers.initialization_coordinator.TradeNotifierAdapter"
-            ),
+            patch("common.kalshi_trading_client.client_helpers.initialization_coordinator.ClientInitializer") as mock_initializer,
+            patch("common.kalshi_trading_client.client_helpers.initialization_coordinator.TradeStoreManager"),
+            patch("common.kalshi_trading_client.client_helpers.initialization_coordinator.TradeNotifierAdapter"),
         ):
 
             mock_initializer.initialize_kalshi_client.return_value = mock_initialized_kalshi
@@ -334,9 +243,7 @@ class TestInitializeCoreClients:
             result = _initialize_core_clients(mock_kalshi, mock_trade_store, None, None)
 
             assert result[0] == mock_initialized_kalshi
-            mock_initializer.initialize_kalshi_client.assert_called_once_with(
-                mock_kalshi, mock_trade_store
-            )
+            mock_initializer.initialize_kalshi_client.assert_called_once_with(mock_kalshi, mock_trade_store)
 
     def test_initializes_backoff_manager(self):
         """Should initialize backoff manager."""
@@ -345,15 +252,9 @@ class TestInitializeCoreClients:
         mock_initialized_backoff = Mock()
 
         with (
-            patch(
-                "common.kalshi_trading_client.client_helpers.initialization_coordinator.ClientInitializer"
-            ) as mock_initializer,
-            patch(
-                "common.kalshi_trading_client.client_helpers.initialization_coordinator.TradeStoreManager"
-            ),
-            patch(
-                "common.kalshi_trading_client.client_helpers.initialization_coordinator.TradeNotifierAdapter"
-            ),
+            patch("common.kalshi_trading_client.client_helpers.initialization_coordinator.ClientInitializer") as mock_initializer,
+            patch("common.kalshi_trading_client.client_helpers.initialization_coordinator.TradeStoreManager"),
+            patch("common.kalshi_trading_client.client_helpers.initialization_coordinator.TradeNotifierAdapter"),
         ):
 
             mock_initializer.initialize_kalshi_client.return_value = Mock()
@@ -362,9 +263,7 @@ class TestInitializeCoreClients:
             result = _initialize_core_clients(None, Mock(), mock_backoff, mock_network_health)
 
             assert result[1] == mock_initialized_backoff
-            mock_initializer.initialize_backoff_manager.assert_called_once_with(
-                mock_backoff, mock_network_health
-            )
+            mock_initializer.initialize_backoff_manager.assert_called_once_with(mock_backoff, mock_network_health)
 
     def test_creates_trade_store_manager(self):
         """Should create TradeStoreManager with correct dependencies."""
@@ -372,15 +271,9 @@ class TestInitializeCoreClients:
         mock_trade_store = Mock()
 
         with (
-            patch(
-                "common.kalshi_trading_client.client_helpers.initialization_coordinator.ClientInitializer"
-            ) as mock_initializer,
-            patch(
-                "common.kalshi_trading_client.client_helpers.initialization_coordinator.TradeStoreManager"
-            ) as mock_tsm_class,
-            patch(
-                "common.kalshi_trading_client.client_helpers.initialization_coordinator.TradeNotifierAdapter"
-            ),
+            patch("common.kalshi_trading_client.client_helpers.initialization_coordinator.ClientInitializer") as mock_initializer,
+            patch("common.kalshi_trading_client.client_helpers.initialization_coordinator.TradeStoreManager") as mock_tsm_class,
+            patch("common.kalshi_trading_client.client_helpers.initialization_coordinator.TradeNotifierAdapter"),
         ):
 
             mock_initializer.initialize_kalshi_client.return_value = mock_kalshi
@@ -401,15 +294,9 @@ class TestInitializeCoreClients:
     def test_creates_notifier(self):
         """Should create TradeNotifierAdapter."""
         with (
-            patch(
-                "common.kalshi_trading_client.client_helpers.initialization_coordinator.ClientInitializer"
-            ) as mock_initializer,
-            patch(
-                "common.kalshi_trading_client.client_helpers.initialization_coordinator.TradeStoreManager"
-            ),
-            patch(
-                "common.kalshi_trading_client.client_helpers.initialization_coordinator.TradeNotifierAdapter"
-            ) as mock_notifier_class,
+            patch("common.kalshi_trading_client.client_helpers.initialization_coordinator.ClientInitializer") as mock_initializer,
+            patch("common.kalshi_trading_client.client_helpers.initialization_coordinator.TradeStoreManager"),
+            patch("common.kalshi_trading_client.client_helpers.initialization_coordinator.TradeNotifierAdapter") as mock_notifier_class,
         ):
 
             mock_initializer.initialize_kalshi_client.return_value = Mock()
@@ -425,15 +312,9 @@ class TestInitializeCoreClients:
     def test_returns_all_four_components(self):
         """Should return tuple of four components."""
         with (
-            patch(
-                "common.kalshi_trading_client.client_helpers.initialization_coordinator.ClientInitializer"
-            ) as mock_initializer,
-            patch(
-                "common.kalshi_trading_client.client_helpers.initialization_coordinator.TradeStoreManager"
-            ),
-            patch(
-                "common.kalshi_trading_client.client_helpers.initialization_coordinator.TradeNotifierAdapter"
-            ),
+            patch("common.kalshi_trading_client.client_helpers.initialization_coordinator.ClientInitializer") as mock_initializer,
+            patch("common.kalshi_trading_client.client_helpers.initialization_coordinator.TradeStoreManager"),
+            patch("common.kalshi_trading_client.client_helpers.initialization_coordinator.TradeNotifierAdapter"),
         ):
 
             mock_initializer.initialize_kalshi_client.return_value = Mock()
@@ -457,9 +338,7 @@ class TestCreateServiceStack:
             patch(
                 "common.kalshi_trading_client.client_helpers.initialization_coordinator.create_service_providers"
             ) as mock_create_providers,
-            patch(
-                "common.kalshi_trading_client.client_helpers.initialization_coordinator.ClientInitializer"
-            ) as mock_initializer,
+            patch("common.kalshi_trading_client.client_helpers.initialization_coordinator.ClientInitializer") as mock_initializer,
         ):
 
             mock_create_providers.return_value = {
@@ -469,9 +348,7 @@ class TestCreateServiceStack:
             }
             mock_initializer.create_services.return_value = (Mock(), Mock(), Mock())
 
-            _create_service_stack(
-                Mock(), mock_trade_store_manager, Mock(), Mock(), services_holder, Mock()
-            )
+            _create_service_stack(Mock(), mock_trade_store_manager, Mock(), Mock(), services_holder, Mock())
 
             mock_create_providers.assert_called_once_with(mock_trade_store_manager, services_holder)
 
@@ -489,9 +366,7 @@ class TestCreateServiceStack:
             patch(
                 "common.kalshi_trading_client.client_helpers.initialization_coordinator.create_service_providers"
             ) as mock_create_providers,
-            patch(
-                "common.kalshi_trading_client.client_helpers.initialization_coordinator.ClientInitializer"
-            ) as mock_initializer,
+            patch("common.kalshi_trading_client.client_helpers.initialization_coordinator.ClientInitializer") as mock_initializer,
         ):
 
             mock_create_providers.return_value = {
@@ -501,9 +376,7 @@ class TestCreateServiceStack:
             }
             mock_initializer.create_services.return_value = (Mock(), Mock(), Mock())
 
-            _create_service_stack(
-                mock_kalshi, Mock(), mock_notifier, mock_weather, {}, mock_telegram
-            )
+            _create_service_stack(mock_kalshi, Mock(), mock_notifier, mock_weather, {}, mock_telegram)
 
             mock_initializer.create_services.assert_called_once_with(
                 mock_kalshi,
@@ -525,9 +398,7 @@ class TestCreateServiceStack:
             patch(
                 "common.kalshi_trading_client.client_helpers.initialization_coordinator.create_service_providers"
             ) as mock_create_providers,
-            patch(
-                "common.kalshi_trading_client.client_helpers.initialization_coordinator.ClientInitializer"
-            ) as mock_initializer,
+            patch("common.kalshi_trading_client.client_helpers.initialization_coordinator.ClientInitializer") as mock_initializer,
         ):
 
             mock_create_providers.return_value = {

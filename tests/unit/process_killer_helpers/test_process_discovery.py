@@ -75,9 +75,7 @@ class TestBuildMatchingProcesses:
 
     def test_returns_empty_for_no_candidates(self) -> None:
         """Returns empty list when no candidates."""
-        result = build_matching_processes(
-            [], "test_service", exclude_pid=None, suppress_output=True
-        )
+        result = build_matching_processes([], "test_service", exclude_pid=None, suppress_output=True)
 
         assert result == []
 
@@ -85,9 +83,7 @@ class TestBuildMatchingProcesses:
         """Skips process matching excluded PID."""
         candidates = [SimpleNamespace(pid=123, name="python", cmdline=["python", "-m", "test"])]
 
-        result = build_matching_processes(
-            candidates, "test_service", exclude_pid=123, suppress_output=True
-        )
+        result = build_matching_processes(candidates, "test_service", exclude_pid=123, suppress_output=True)
 
         assert len(result) == 0
 
@@ -101,9 +97,7 @@ class TestBuildMatchingProcesses:
             "common.process_killer_helpers.process_discovery.create_psutil_process",
             return_value=mock_process,
         ):
-            result = build_matching_processes(
-                candidates, "test_service", exclude_pid=None, suppress_output=True
-            )
+            result = build_matching_processes(candidates, "test_service", exclude_pid=None, suppress_output=True)
 
         assert len(result) == 1
         assert result[0] == mock_process
@@ -155,9 +149,7 @@ class TestBuildMatchingProcesses:
             "common.process_killer_helpers.process_discovery.create_psutil_process",
             return_value=None,
         ):
-            result = build_matching_processes(
-                candidates, "test_service", exclude_pid=None, suppress_output=True
-            )
+            result = build_matching_processes(candidates, "test_service", exclude_pid=None, suppress_output=True)
 
         assert len(result) == 0
 

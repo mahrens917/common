@@ -14,9 +14,7 @@ class TestMessageFormatter:
         assert MessageFormatter.markets_open() == "✅ Markets open for trading"
 
     def test_scanning_markets(self):
-        assert (
-            MessageFormatter.scanning_markets(10) == "🔍 Scanning 10 markets for opportunities..."
-        )
+        assert MessageFormatter.scanning_markets(10) == "🔍 Scanning 10 markets for opportunities..."
 
     def test_initialization_complete(self):
         assert MessageFormatter.initialization_complete() == "🚀 Tracker initialized and ready"

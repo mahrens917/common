@@ -90,9 +90,7 @@ class PollingWorkflow:
                     operation_name=operation_name,
                 )
 
-            self._logger.info(
-                "[%s] Order %s cancelled after polling timeout", operation_name, order.order_id
-            )
+            self._logger.info("[%s] Order %s cancelled after polling timeout", operation_name, order.order_id)
             return PollingResult(order=final_state, outcome=None, was_cancelled=True)
 
         return PollingResult(order=order, outcome=polling_outcome, was_cancelled=False)

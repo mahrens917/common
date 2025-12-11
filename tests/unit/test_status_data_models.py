@@ -13,15 +13,9 @@ _VAL_50_0 = 50.0
 
 
 def test_status_report_data_structure():
-    service = ServiceInfo(
-        "svc", ServiceStatus.RUNNING, process_id=123, memory_mb=64.5, messages_60s=42
-    )
-    metrics = SystemMetrics(
-        cpu_percent=50.0, memory_percent=70.0, disk_percent=80.0, redis_process_id=456
-    )
-    redis = RedisMetrics(
-        deribit_keys=10, kalshi_keys=20, cfb_keys=5, weather_keys=8, connection_healthy=True
-    )
+    service = ServiceInfo("svc", ServiceStatus.RUNNING, process_id=123, memory_mb=64.5, messages_60s=42)
+    metrics = SystemMetrics(cpu_percent=50.0, memory_percent=70.0, disk_percent=80.0, redis_process_id=456)
+    redis = RedisMetrics(deribit_keys=10, kalshi_keys=20, cfb_keys=5, weather_keys=8, connection_healthy=True)
     price = PriceData(btc_price=45000.0, eth_price=3500.0)
     weather = [WeatherInfo("KJFK", 72.0, emoticon="sun")]
 

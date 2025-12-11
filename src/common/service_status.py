@@ -21,9 +21,7 @@ class ServiceStatus(Enum):
     # Core lifecycle states
     INITIALIZING = "initializing"  # Service is starting up, not ready for requests
     READY = "ready"  # Service is fully operational and ready
-    READY_DEGRADED = (
-        "ready_degraded"  # Service is ready but in degraded mode (e.g., no external connection)
-    )
+    READY_DEGRADED = "ready_degraded"  # Service is ready but in degraded mode (e.g., no external connection)
     STOPPED = "stopped"  # Service has been stopped gracefully
 
     # Error states
@@ -115,13 +113,8 @@ async def set_service_status(service_name: str, status: ServiceStatus, **fields:
         name_key = str(service_name)
         await ensure_awaitable(redis.hset("status", name_key, status.value))
         detail_key = f"status:{name_key}"
-        serialized = {
-            key: json.dumps(value) if isinstance(value, (dict, list)) else str(value)
-            for key, value in detail.items()
-        }
+        serialized = {key: json.dumps(value) if isinstance(value, (dict, list)) else str(value) for key, value in detail.items()}
         await ensure_awaitable(redis.hset(detail_key, mapping=serialized))
     except STATUS_UPDATE_ERRORS as exc:
-        logger.exception(
-            "Failed to update status for %s (%s)", name_key, type(exc).__name__, exc_info=True
-        )
+        logger.exception("Failed to update status for %s (%s)", name_key, type(exc).__name__, exc_info=True)
         raise

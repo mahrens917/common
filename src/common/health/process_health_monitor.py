@@ -115,9 +115,7 @@ class ProcessHealthMonitor:
             logger.exception(f"Error checking process status for : ")
             return ProcessHealthInfo(status=ProcessStatus.NOT_FOUND)
 
-    async def get_all_service_process_status(
-        self, service_names: list[str]
-    ) -> Dict[str, ProcessHealthInfo]:
+    async def get_all_service_process_status(self, service_names: list[str]) -> Dict[str, ProcessHealthInfo]:
         """
         Get process status for multiple services efficiently.
 

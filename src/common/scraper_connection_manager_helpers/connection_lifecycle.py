@@ -49,9 +49,7 @@ class ScraperConnectionLifecycle:
             if not health_result.healthy:
                 self.logger.error(f"Initial health check failed for {self.service_name}")
                 await self.cleanup_connection()
-                error = ConnectionError(
-                    f"Scraper health check failed for {self.service_name} during initialization"
-                )
+                error = ConnectionError(f"Scraper health check failed for {self.service_name} during initialization")
                 setattr(error, "_already_cleaned", True)
                 raise error
 
@@ -60,25 +58,19 @@ class ScraperConnectionLifecycle:
         except asyncio.TimeoutError as exc:
             self.logger.exception(f"Timeout establishing scraper connection: ")
             await self.cleanup_connection()
-            raise TimeoutError(
-                f"Scraper connection establishment timed out for {self.service_name}"
-            ) from exc
+            raise TimeoutError(f"Scraper connection establishment timed out for {self.service_name}") from exc
 
         except aiohttp.ClientError as exc:
             self.logger.exception(f"Client error establishing scraper connection: ")
             await self.cleanup_connection()
-            raise ConnectionError(
-                f"Scraper session creation failed for {self.service_name}"
-            ) from exc
+            raise ConnectionError(f"Scraper session creation failed for {self.service_name}") from exc
 
         except (OSError, RuntimeError, ValueError) as exc:
             if getattr(exc, "_already_cleaned", False):
                 raise
             self.logger.exception(f"Failed to establish scraper connection: ")
             await self.cleanup_connection()
-            raise ConnectionError(
-                f"Scraper connection establishment failed for {self.service_name}"
-            ) from exc
+            raise ConnectionError(f"Scraper connection establishment failed for {self.service_name}") from exc
         else:
             return True
 

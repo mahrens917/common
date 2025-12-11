@@ -37,9 +37,7 @@ class StatsCalculator:
             "total_sids": total_sids,
             "total_gaps": total_gaps,
             "max_gap_tolerance": self.max_gap_tolerance,
-            "sids_with_gaps": len(
-                [count for count in self.tracking_state.sid_to_gap_count.values() if count > 0]
-            ),
+            "sids_with_gaps": len([count for count in self.tracking_state.sid_to_gap_count.values() if count > 0]),
         }
 
         if total_sids > 0:

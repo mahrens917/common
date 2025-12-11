@@ -19,9 +19,7 @@ class ConnectionStateManager:
         self.state_tracker: Optional[ConnectionStateTracker] = None
         self.logger = logging.getLogger(f"{__name__}.{service_name}")
 
-    def transition_state(
-        self, new_state: ConnectionState, error_context: Optional[str] = None
-    ) -> None:
+    def transition_state(self, new_state: ConnectionState, error_context: Optional[str] = None) -> None:
         """Transition to a new connection state."""
         if self.state != new_state:
             previous_state = self.state
@@ -37,9 +35,7 @@ class ConnectionStateManager:
             self.state_tracker = await get_connection_state_tracker()
             self.logger.debug("Connection state tracker initialized")
 
-    async def _broadcast_state_change(
-        self, new_state: ConnectionState, error_context: Optional[str] = None
-    ) -> None:
+    async def _broadcast_state_change(self, new_state: ConnectionState, error_context: Optional[str] = None) -> None:
         """Broadcast connection state change."""
         if self.state_tracker is None:
             await self._initialize_state_tracker()

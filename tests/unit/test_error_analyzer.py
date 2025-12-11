@@ -78,9 +78,7 @@ def _install_suppression_stub(monkeypatch, *, should_suppress: bool):
 
     monkeypatch.setitem(sys.modules, "common.alert_suppression_manager", module)
     if "common" in sys.modules:
-        monkeypatch.setattr(
-            sys.modules["common"], "alert_suppression_manager", module, raising=False
-        )
+        monkeypatch.setattr(sys.modules["common"], "alert_suppression_manager", module, raising=False)
 
     return manager
 
@@ -134,9 +132,7 @@ async def test_send_notification_handles_notifier_failure(caplog):
         raise RuntimeError("telegram unavailable")
 
     analyzer = ErrorAnalyzer("service", telegram_notifier=failing_notifier)
-    analysis = analyzer._analyze_error(
-        ValueError("json parse error"), context=None, custom_message=None
-    )
+    analysis = analyzer._analyze_error(ValueError("json parse error"), context=None, custom_message=None)
 
     caplog.set_level("ERROR")
     await analyzer._send_telegram_notification(analysis)
@@ -212,9 +208,7 @@ def test_error_analysis_to_dict_serialises_fields():
         ),
     ],
 )
-def test_analyze_error_categorizes_various_types(
-    error, message, expected_category, expected_severity, root_snippet, suggestion_snippet
-):
+def test_analyze_error_categorizes_various_types(error, message, expected_category, expected_severity, root_snippet, suggestion_snippet):
     analyzer = ErrorAnalyzer("svc")
     analysis = analyzer._analyze_error(error, context=None, custom_message=message)
 

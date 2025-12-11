@@ -31,9 +31,7 @@ class CurrentDayFormatter:
         self.station_formatter = station_formatter
         self.rule_formatter = rule_formatter
 
-    def format_current_day_report(
-        self, report: PnLReport, unrealized_pnl_cents: int, date_str: str
-    ) -> str:
+    def format_current_day_report(self, report: PnLReport, unrealized_pnl_cents: int, date_str: str) -> str:
         """
         Format current day report with unrealized P&L.
 

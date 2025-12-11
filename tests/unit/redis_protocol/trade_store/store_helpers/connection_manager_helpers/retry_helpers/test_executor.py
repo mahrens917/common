@@ -25,9 +25,7 @@ class TestExecutor:
             result = await execute_retry_operation(operation, policy, context, on_retry, logger)
 
             assert result is True
-            mock_execute.assert_called_once_with(
-                operation, policy=policy, logger=logger, context=context, on_retry=on_retry
-            )
+            mock_execute.assert_called_once_with(operation, policy=policy, logger=logger, context=context, on_retry=on_retry)
 
     @pytest.mark.asyncio
     async def test_execute_retry_operation_fatal_error(self):

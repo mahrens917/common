@@ -77,10 +77,7 @@ def classify_request(method: str, path: str) -> RequestType:
         return RequestType.WRITE
 
     # For unknown methods, default to WRITE for safety (more restrictive limit)
-    logger.warning(
-        f"[RequestClassifier] Unknown method {method} for path {path}, "
-        f"defaulting to WRITE classification for safety"
-    )
+    logger.warning(f"[RequestClassifier] Unknown method {method} for path {path}, " f"defaulting to WRITE classification for safety")
     return RequestType.WRITE
 
 

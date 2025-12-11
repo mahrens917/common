@@ -17,21 +17,11 @@ class TestUnifiedSubscriptionManagerFactory:
         api_type_mapper = Mock()
 
         with (
-            patch(
-                "common.websocket.unified_subscription_manager_helpers.factory.LifecycleManager"
-            ) as MockLifecycle,
-            patch(
-                "common.websocket.unified_subscription_manager_helpers.factory.UpdateHandler"
-            ) as MockUpdate,
-            patch(
-                "common.websocket.unified_subscription_manager_helpers.factory.SubscriptionProcessor"
-            ) as MockSubProc,
-            patch(
-                "common.websocket.unified_subscription_manager_helpers.factory.HealthValidator"
-            ) as MockHealth,
-            patch(
-                "common.websocket.unified_subscription_manager_helpers.factory.MonitoringLoop"
-            ) as MockLoop,
+            patch("common.websocket.unified_subscription_manager_helpers.factory.LifecycleManager") as MockLifecycle,
+            patch("common.websocket.unified_subscription_manager_helpers.factory.UpdateHandler") as MockUpdate,
+            patch("common.websocket.unified_subscription_manager_helpers.factory.SubscriptionProcessor") as MockSubProc,
+            patch("common.websocket.unified_subscription_manager_helpers.factory.HealthValidator") as MockHealth,
+            patch("common.websocket.unified_subscription_manager_helpers.factory.MonitoringLoop") as MockLoop,
         ):
 
             lifecycle, loop = UnifiedSubscriptionManagerFactory.create_components(
@@ -54,9 +44,7 @@ class TestUnifiedSubscriptionManagerFactory:
                 pending_subscriptions,
                 api_type_mapper,
             )
-            MockSubProc.assert_called_once_with(
-                service_name, websocket_client, active_instruments, pending_subscriptions
-            )
+            MockSubProc.assert_called_once_with(service_name, websocket_client, active_instruments, pending_subscriptions)
             MockHealth.assert_called_once_with(service_name, websocket_client, active_instruments)
             MockLoop.assert_called_once_with(
                 service_name,

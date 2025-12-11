@@ -67,12 +67,8 @@ class TestReportPrinterCoordinator:
             assert mock_dependencies["emit_func"].call_count == 5
 
             # Assert section_printer calls
-            mock_dependencies["section_printer"].print_exchange_info.assert_called_once_with(
-                "2023-01-01 12:00:00", {"kalshi": "status"}
-            )
-            mock_dependencies["section_printer"].print_price_info.assert_called_once_with(
-                status_data
-            )
+            mock_dependencies["section_printer"].print_exchange_info.assert_called_once_with("2023-01-01 12:00:00", {"kalshi": "status"})
+            mock_dependencies["section_printer"].print_price_info.assert_called_once_with(status_data)
             mock_dependencies["section_printer"].print_weather_info.assert_called_once_with(
                 status_data, mock_dependencies["weather_generator"]
             )
@@ -81,12 +77,8 @@ class TestReportPrinterCoordinator:
             mock_dependencies["service_printer"].print_managed_services.assert_called_once_with(
                 mock_dependencies["process_manager"], {}, {}
             )
-            mock_dependencies["service_printer"].print_monitor_service.assert_called_once_with(
-                mock_dependencies["process_manager"], {}
-            )
+            mock_dependencies["service_printer"].print_monitor_service.assert_called_once_with(mock_dependencies["process_manager"], {})
 
             # Assert metrics_printer calls
-            mock_dependencies["metrics_printer"].print_all_health_sections.assert_called_once_with(
-                status_data
-            )
+            mock_dependencies["metrics_printer"].print_all_health_sections.assert_called_once_with(status_data)
             mock_dependencies["section_printer"].print_tracker_status_section.assert_called_once()

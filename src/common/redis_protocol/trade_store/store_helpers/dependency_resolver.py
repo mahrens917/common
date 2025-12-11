@@ -36,9 +36,7 @@ class DependencyResolver:
     @staticmethod
     def get_timezone_loader() -> Callable[[], object]:
         """Get timezone configuration loader."""
-        return _get_module_attr(
-            "load_configured_timezone", time_utils_module.load_configured_timezone
-        )
+        return _get_module_attr("load_configured_timezone", time_utils_module.load_configured_timezone)
 
     @staticmethod
     def get_timestamp_provider() -> Callable[[], Any]:
@@ -48,16 +46,12 @@ class DependencyResolver:
     @staticmethod
     def get_start_date_loader() -> Callable[[], Any]:
         """Get historical start date loader."""
-        return _get_module_attr(
-            "get_historical_start_date", config_loader_module.get_historical_start_date
-        )
+        return _get_module_attr("get_historical_start_date", config_loader_module.get_historical_start_date)
 
     @staticmethod
     def get_timezone_date_loader() -> Callable[[object], Any]:
         """Get timezone-aware date loader."""
-        return _get_module_attr(
-            "get_timezone_aware_date", time_utils_module.get_timezone_aware_date
-        )
+        return _get_module_attr("get_timezone_aware_date", time_utils_module.get_timezone_aware_date)
 
     @staticmethod
     def get_redis_pool_getter():

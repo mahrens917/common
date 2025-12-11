@@ -37,9 +37,7 @@ class SnapshotManager:
         self.trade_store = trade_store
         self.logger = logger
 
-    async def store_unrealized_pnl_snapshot(
-        self, date_key: date, unrealized_pnl_cents: int
-    ) -> None:
+    async def store_unrealized_pnl_snapshot(self, date_key: date, unrealized_pnl_cents: int) -> None:
         """
         Store unrealized P&L snapshot in Redis for a specific date.
 
@@ -58,9 +56,7 @@ class SnapshotManager:
                 },
             )
 
-            self.logger.debug(
-                f"Stored unrealized P&L snapshot for {date_key}: {unrealized_pnl_cents} cents"
-            )
+            self.logger.debug(f"Stored unrealized P&L snapshot for {date_key}: {unrealized_pnl_cents} cents")
 
         except DATA_ACCESS_ERRORS as exc:
             self.logger.exception(

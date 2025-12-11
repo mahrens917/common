@@ -31,12 +31,8 @@ class SequenceValidator:
 
         # Initialize helpers
         self._tracking_state = TrackingState(service_name)
-        self._sequence_checker = SequenceChecker(
-            service_name, max_gap_tolerance, self._tracking_state
-        )
-        self._stats_calculator = StatsCalculator(
-            service_name, max_gap_tolerance, self._tracking_state
-        )
+        self._sequence_checker = SequenceChecker(service_name, max_gap_tolerance, self._tracking_state)
+        self._stats_calculator = StatsCalculator(service_name, max_gap_tolerance, self._tracking_state)
 
     @property
     def sid_to_last_seq(self) -> Dict[int, int]:

@@ -24,9 +24,7 @@ def _load_trade_analyzer_config() -> Dict[str, Any]:
     required_sections = ["trading_fees", "symbol_mappings"]
     for section in required_sections:
         if section not in config:
-            raise RuntimeError(
-                f"Required configuration section '{section}' not found in {config_path}"
-            )
+            raise RuntimeError(f"Required configuration section '{section}' not found in {config_path}")
 
     trading_fees = config["trading_fees"]
     required_fee_fields = ["general_fee_coefficient", "maker_fee_coefficient", "maker_fee_products"]
@@ -54,9 +52,7 @@ def _is_maker_fee_product(market_ticker: str) -> bool:
     maker_fee_products = config["trading_fees"]["maker_fee_products"]
 
     ticker_upper = market_ticker.upper()
-    return any(
-        ticker_upper.startswith(product_prefix.upper()) for product_prefix in maker_fee_products
-    )
+    return any(ticker_upper.startswith(product_prefix.upper()) for product_prefix in maker_fee_products)
 
 
 def calculate_fees(contracts: int, price_cents: int, market_ticker: str) -> int:

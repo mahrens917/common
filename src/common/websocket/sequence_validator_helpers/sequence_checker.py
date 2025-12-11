@@ -82,8 +82,7 @@ class SequenceChecker:
         else:
             # Duplicate or out-of-order message
             logger.warning(
-                f"{self.service_name} out-of-order message for SID {sid}: "
-                f"expected {expected_seq}, got {seq} (duplicate or reordered)"
+                f"{self.service_name} out-of-order message for SID {sid}: " f"expected {expected_seq}, got {seq} (duplicate or reordered)"
             )
             # Don't update sequence number for duplicates
             return False, None

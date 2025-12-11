@@ -37,9 +37,7 @@ class KalshiMarketReaderDependenciesFactory:
     """Factory for creating KalshiMarketReader dependencies."""
 
     @staticmethod
-    def create(
-        logger: logging.Logger, metadata_adapter: KalshiMetadataAdapter
-    ) -> KalshiMarketReaderDependencies:
+    def create(logger: logging.Logger, metadata_adapter: KalshiMetadataAdapter) -> KalshiMarketReaderDependencies:
         """Create all dependencies for KalshiMarketReader."""
         ticker_parser = TickerParser()
         market_filter = MarketFilter(logger)

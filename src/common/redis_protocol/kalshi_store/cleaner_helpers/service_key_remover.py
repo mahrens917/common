@@ -47,9 +47,7 @@ class ServiceKeyRemover:
 
             total_operations = len(keys) + len(subscription_keys_to_remove)
             if total_operations == 0:
-                logger.info(
-                    f"No Kalshi keys or subscriptions to remove for service_prefix={self.service_prefix}"
-                )
+                logger.info(f"No Kalshi keys or subscriptions to remove for service_prefix={self.service_prefix}")
                 return True
 
             logger.info(

@@ -61,9 +61,7 @@ class PubsubManager(ShutdownRequestMixin):
                 raise
             except REDIS_ERRORS as exc:
                 # Handle Redis errors with retry logic
-                retry_count = await self._handle_redis_error(
-                    exc, retry_count, max_retries, base_delay
-                )
+                retry_count = await self._handle_redis_error(exc, retry_count, max_retries, base_delay)
 
     async def _verify_redis_health(self):
         """Verify Redis is healthy before connecting."""
@@ -86,9 +84,7 @@ class PubsubManager(ShutdownRequestMixin):
         finally:
             await ensure_awaitable(pubsub.close())
 
-    async def _handle_redis_error(
-        self, exc: Exception, retry_count: int, max_retries: int, base_delay: float
-    ) -> int:
+    async def _handle_redis_error(self, exc: Exception, retry_count: int, max_retries: int, base_delay: float) -> int:
         """Handle Redis error with retry logic."""
         retry_count += 1
         logger.error(

@@ -52,9 +52,7 @@ def test_normalize_timestamp_supports_numeric_and_iso():
     assert iso_seconds == datetime.fromtimestamp(1_700_000_000, tz=timezone.utc).isoformat()
 
     iso_millis = normalize_timestamp(1_700_000_000_000)
-    assert (
-        iso_millis == datetime.fromtimestamp(1_700_000_000_000 / 1000, tz=timezone.utc).isoformat()
-    )
+    assert iso_millis == datetime.fromtimestamp(1_700_000_000_000 / 1000, tz=timezone.utc).isoformat()
 
     iso_text = normalize_timestamp("2024-01-01T00:00:00Z")
     assert iso_text == "2024-01-01T00:00:00+00:00"
@@ -73,9 +71,7 @@ def test_select_timestamp_value_returns_first_truthy():
 
 def test_parse_expiry_token_supports_year_day_format():
     result = parse_expiry_token("23MAR15")
-    expected = datetime(2023, 3, 15, 23, 59, tzinfo=ZoneInfo("America/New_York")).astimezone(
-        timezone.utc
-    )
+    expected = datetime(2023, 3, 15, 23, 59, tzinfo=ZoneInfo("America/New_York")).astimezone(timezone.utc)
     assert result == expected
 
 

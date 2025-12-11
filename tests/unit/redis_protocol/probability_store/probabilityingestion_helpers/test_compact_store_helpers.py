@@ -22,9 +22,7 @@ class TestCompactStoreHelpers:
         # results[0] is probably delete or something, results[1:] are sets.
         # successful_sets should be sum of bool(res) for res in results[1:]
 
-        with patch(
-            "common.redis_protocol.probability_store.pipeline.execute_pipeline"
-        ) as mock_exec:
+        with patch("common.redis_protocol.probability_store.pipeline.execute_pipeline") as mock_exec:
             mock_exec.return_value = [True, True, True]
             redis.hlen.return_value = 2
 
@@ -38,9 +36,7 @@ class TestCompactStoreHelpers:
         redis = AsyncMock()
         pipeline = MagicMock()
 
-        with patch(
-            "common.redis_protocol.probability_store.pipeline.execute_pipeline"
-        ) as mock_exec:
+        with patch("common.redis_protocol.probability_store.pipeline.execute_pipeline") as mock_exec:
             mock_exec.return_value = [True]  # Expected 3
 
             with pytest.raises(ProbabilityStoreError, match="Redis pipeline returned"):
@@ -51,9 +47,7 @@ class TestCompactStoreHelpers:
         redis = AsyncMock()
         pipeline = MagicMock()
 
-        with patch(
-            "common.redis_protocol.probability_store.pipeline.execute_pipeline"
-        ) as mock_exec:
+        with patch("common.redis_protocol.probability_store.pipeline.execute_pipeline") as mock_exec:
             # 3 results, but one set returned False/0
             mock_exec.return_value = [True, True, False]
 
@@ -65,9 +59,7 @@ class TestCompactStoreHelpers:
         redis = AsyncMock()
         pipeline = MagicMock()
 
-        with patch(
-            "common.redis_protocol.probability_store.pipeline.execute_pipeline"
-        ) as mock_exec:
+        with patch("common.redis_protocol.probability_store.pipeline.execute_pipeline") as mock_exec:
             mock_exec.return_value = [True, True, True]
             redis.hlen.return_value = 1  # Expected 2
 
@@ -82,9 +74,7 @@ class TestCompactStoreHelpers:
         ]
         data = {}
 
-        with patch(
-            "common.redis_protocol.probability_store.probabilityingestion_helpers.compact_store_helpers.logger"
-        ) as mock_logger:
+        with patch("common.redis_protocol.probability_store.probabilityingestion_helpers.compact_store_helpers.logger") as mock_logger:
             results = list(log_sample_fields(iterator, data))
 
             assert len(results) == 2

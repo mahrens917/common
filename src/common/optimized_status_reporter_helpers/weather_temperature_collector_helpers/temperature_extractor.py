@@ -11,9 +11,7 @@ class TemperatureExtractor:
     """Extracts temperature data from weather station records."""
 
     @staticmethod
-    async def extract_temperatures(
-        redis_client, weather_keys: List[Any], station_codes: List[str]
-    ) -> Dict[str, Dict[str, str]]:
+    async def extract_temperatures(redis_client, weather_keys: List[Any], station_codes: List[str]) -> Dict[str, Dict[str, str]]:
         """Extract temperature data from weather station keys."""
         if not weather_keys:
             return {}

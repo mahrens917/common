@@ -37,15 +37,9 @@ def validate_micro_price_calculations(
 
 def validate_mathematical_relationships(params: MathematicalRelationships) -> None:
     """Validate mathematical relationships between variables."""
-    RelationshipValidator.validate_spread_relationship(
-        params.best_bid, params.best_ask, params.absolute_spread
-    )
-    RelationshipValidator.validate_relative_spread(
-        params.absolute_spread, params.relative_spread, params.p_raw
-    )
-    RelationshipValidator.validate_intensity_calculation(
-        params.best_bid_size, params.best_ask_size, params.i_raw
-    )
+    RelationshipValidator.validate_spread_relationship(params.best_bid, params.best_ask, params.absolute_spread)
+    RelationshipValidator.validate_relative_spread(params.absolute_spread, params.relative_spread, params.p_raw)
+    RelationshipValidator.validate_intensity_calculation(params.best_bid_size, params.best_ask_size, params.i_raw)
     RelationshipValidator.validate_micro_price_calculation(
         params.best_bid, params.best_ask, params.best_bid_size, params.best_ask_size, params.p_raw
     )

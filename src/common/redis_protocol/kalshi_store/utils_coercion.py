@@ -73,9 +73,7 @@ def default_weather_station_loader() -> Dict[str, Dict[str, Any]]:  # pragma: no
         RuntimeError,
         KeyError,
     ) as exc:  # pragma: no cover - configuration guardrail
-        logger.exception(
-            "Unexpected error loading weather station mapping; aborting KalshiStore initialisation"
-        )
+        logger.exception("Unexpected error loading weather station mapping; aborting KalshiStore initialisation")
         raise WeatherConfigError("Weather station mapping loading failed unexpectedly") from exc
 
 
@@ -213,9 +211,7 @@ def float_or_default(
     returns the provided ``default`` for invalid inputs. When True, a ``ValueError`` is
     raised using ``error_message`` if provided.
     """
-    return _float_or_default_impl(
-        value, default, raise_on_error=raise_on_error, error_message=error_message
-    )
+    return _float_or_default_impl(value, default, raise_on_error=raise_on_error, error_message=error_message)
 
 
 def bool_or_default(

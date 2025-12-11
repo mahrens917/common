@@ -49,9 +49,7 @@ class ConfigOrchestrator:
                 return False
 
             # Apply runtime configuration
-            config_applied, config_failed, _immutable_skipped = (
-                await self._coordinator.apply_runtime_config(redis)
-            )
+            config_applied, config_failed, _immutable_skipped = await self._coordinator.apply_runtime_config(redis)
 
             # Configure save points separately (special handling required)
             save_config = "900 1 300 10 60 10000"
@@ -70,10 +68,7 @@ class ConfigOrchestrator:
             await self._snapshot_manager.force_background_save(redis)
 
             success = config_failed == 0
-            logger.info(
-                f"Redis persistence configuration completed: {config_applied} applied, "
-                f"{config_failed} failed"
-            )
+            logger.info(f"Redis persistence configuration completed: {config_applied} applied, " f"{config_failed} failed")
 
         except REDIS_ERRORS as exc:
             logger.error("Error configuring Redis persistence: %s", exc, exc_info=True)

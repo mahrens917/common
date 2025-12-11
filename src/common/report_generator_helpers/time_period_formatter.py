@@ -74,9 +74,7 @@ class TimePeriodFormatter:
         # Total P&L with percentage
         if total_cost_dollars > 0:
             pnl_percentage = (total_with_unrealized / total_cost_dollars) * 100
-            lines.append(
-                f"├── Total P&L (%): ${total_with_unrealized:+,.2f} ({pnl_percentage:+.1f}%)"
-            )
+            lines.append(f"├── Total P&L (%): ${total_with_unrealized:+,.2f} ({pnl_percentage:+.1f}%)")
         else:
             lines.append(f"├── Total P&L (%): ${total_with_unrealized:+,.2f}")
 
@@ -85,9 +83,7 @@ class TimePeriodFormatter:
         # Daily average for 7-day and 30-day periods
         if days_count:
             daily_avg_absolute = total_pnl_dollars / days_count
-            daily_avg_percent = (
-                (daily_avg_absolute / total_cost_dollars) * 100 if total_cost_dollars > 0 else 0
-            )
+            daily_avg_percent = (daily_avg_absolute / total_cost_dollars) * 100 if total_cost_dollars > 0 else 0
             lines.append(f"└── Daily Avg: ${daily_avg_absolute:+,.2f} ({daily_avg_percent:+.1f}%)")
         else:
             # Make last item the end for today/yesterday

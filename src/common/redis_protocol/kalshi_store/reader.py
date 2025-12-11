@@ -41,16 +41,12 @@ async def _is_market_tracked(store: "KalshiMarketReader", market_ticker: str) ->
     return await query_handler.is_tracked(market_ticker)
 
 
-async def _get_markets_by_currency(
-    store: "KalshiMarketReader", currency: str
-) -> List[Dict[str, Any]]:
+async def _get_markets_by_currency(store: "KalshiMarketReader", currency: str) -> List[Dict[str, Any]]:
     query_handler = getattr(store, "_query_handler")
     return await query_handler.get_by_currency(currency)
 
 
-async def _get_active_strikes_and_expiries(
-    store: "KalshiMarketReader", currency: str
-) -> Dict[str, List[Dict[str, Any]]]:
+async def _get_active_strikes_and_expiries(store: "KalshiMarketReader", currency: str) -> Dict[str, List[Dict[str, Any]]]:
     query_handler = getattr(store, "_query_handler")
     return await query_handler.get_strikes_and_expiries(currency)
 
@@ -59,9 +55,7 @@ async def _get_market_data_for_strike_expiry(
     store: "KalshiMarketReader", currency: str, expiry: str, strike: float
 ) -> Optional[Dict[str, Any]]:
     query_handler = getattr(store, "_query_handler")
-    return await query_handler.get_for_strike_expiry(
-        currency, expiry, strike, store.SUBSCRIPTIONS_KEY
-    )
+    return await query_handler.get_for_strike_expiry(currency, expiry, strike, store.SUBSCRIPTIONS_KEY)
 
 
 async def _is_market_expired(
@@ -78,20 +72,14 @@ async def _is_market_settled(store: "KalshiMarketReader", market_ticker: str) ->
     return await status_checker.is_settled(market_ticker)
 
 
-async def _get_market_snapshot(
-    store: "KalshiMarketReader", ticker: str, *, include_orderbook: bool = True
-) -> Dict[str, Any]:
+async def _get_market_snapshot(store: "KalshiMarketReader", ticker: str, *, include_orderbook: bool = True) -> Dict[str, Any]:
     snapshot_retriever = getattr(store, "_snapshot_retriever")
     return await snapshot_retriever.get_snapshot(ticker, include_orderbook=include_orderbook)
 
 
-async def _get_market_snapshot_by_key(
-    store: "KalshiMarketReader", market_key: str, *, include_orderbook: bool = True
-) -> Dict[str, Any]:
+async def _get_market_snapshot_by_key(store: "KalshiMarketReader", market_key: str, *, include_orderbook: bool = True) -> Dict[str, Any]:
     snapshot_retriever = getattr(store, "_snapshot_retriever")
-    return await snapshot_retriever.get_snapshot_by_key(
-        market_key, include_orderbook=include_orderbook
-    )
+    return await snapshot_retriever.get_snapshot_by_key(market_key, include_orderbook=include_orderbook)
 
 
 async def _get_market_metadata(store: "KalshiMarketReader", ticker: str) -> Dict[str, Any]:
@@ -99,9 +87,7 @@ async def _get_market_metadata(store: "KalshiMarketReader", ticker: str) -> Dict
     return await snapshot_retriever.get_metadata(ticker)
 
 
-async def _get_market_field(
-    store: "KalshiMarketReader", ticker: str, field: str, default: Optional[str] = None
-) -> str:
+async def _get_market_field(store: "KalshiMarketReader", ticker: str, field: str, default: Optional[str] = None) -> str:
     snapshot_retriever = getattr(store, "_snapshot_retriever")
     try:
         return await snapshot_retriever.get_field(ticker, field)
@@ -120,22 +106,16 @@ async def _get_orderbook(store: "KalshiMarketReader", ticker: str) -> Dict[str, 
     return await orderbook_reader.get_orderbook(redis, store.get_market_key(ticker), ticker)
 
 
-async def _get_orderbook_side(
-    store: "KalshiMarketReader", ticker: str, side: str
-) -> Dict[str, Any]:
+async def _get_orderbook_side(store: "KalshiMarketReader", ticker: str, side: str) -> Dict[str, Any]:
     conn = getattr(store, "_conn")
     if not await conn.ensure_connection():
         return {}
     redis = await conn.get_redis()
     orderbook_reader = getattr(store, "_orderbook_reader")
-    return await orderbook_reader.get_orderbook_side(
-        redis, store.get_market_key(ticker), ticker, side
-    )
+    return await orderbook_reader.get_orderbook_side(redis, store.get_market_key(ticker), ticker, side)
 
 
-async def _scan_market_keys(
-    store: "KalshiMarketReader", patterns: Optional[List[str]] = None
-) -> List[str]:
+async def _scan_market_keys(store: "KalshiMarketReader", patterns: Optional[List[str]] = None) -> List[str]:
     conn = getattr(store, "_conn")
     if not await conn.ensure_connection():
         raise RuntimeError("Redis connection not established for scan_market_keys")
@@ -178,9 +158,7 @@ class KalshiMarketReader(KalshiMarketReaderAsyncMethodsMixin):
             metadata_adapter,
             service_prefix,
         )
-        deps = dependencies or KalshiMarketReaderDependenciesFactory.create(
-            logger, metadata_adapter
-        )
+        deps = dependencies or KalshiMarketReaderDependenciesFactory.create(logger, metadata_adapter)
         self._ticker_parser = deps.ticker_parser
         self._market_filter = deps.market_filter
         self._metadata_extractor = deps.metadata_extractor
@@ -190,12 +168,8 @@ class KalshiMarketReader(KalshiMarketReaderAsyncMethodsMixin):
         self._snapshot_reader = deps.snapshot_reader
         self._market_lookup = deps.market_lookup
 
-        self._status_checker = MarketStatusChecker(
-            self._conn, self._ticker_parser, self._expiry_checker, self.get_market_key
-        )
-        self._snapshot_retriever = SnapshotRetriever(
-            self._conn, self._snapshot_reader, self.get_market_key
-        )
+        self._status_checker = MarketStatusChecker(self._conn, self._ticker_parser, self._expiry_checker, self.get_market_key)
+        self._snapshot_retriever = SnapshotRetriever(self._conn, self._snapshot_reader, self.get_market_key)
         self._query_handler = MarketQueryHandler(
             self._conn,
             self._market_lookup,
@@ -226,9 +200,7 @@ class KalshiMarketReader(KalshiMarketReaderAsyncMethodsMixin):
     ) -> Dict[str, List[Dict[str, Any]]]:
         return self._market_aggregator.build_strike_summary(grouped, market_by_ticker)
 
-    def ensure_market_metadata_fields(
-        self, ticker: str, snapshot: Dict[str, Any]
-    ) -> Dict[str, Any]:
+    def ensure_market_metadata_fields(self, ticker: str, snapshot: Dict[str, Any]) -> Dict[str, Any]:
         return self._metadata.ensure_market_metadata_fields(ticker, snapshot)
 
 

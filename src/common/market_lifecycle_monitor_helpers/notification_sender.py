@@ -19,14 +19,9 @@ class NotificationSender:
             markets: List of markets closing soon
         """
         for market_info in markets:
-            logger.warning(
-                f"[NotificationSender] Market {market_info.ticker} "
-                f"closing in {market_info.time_to_close_hours:.1f}h"
-            )
+            logger.warning(f"[NotificationSender] Market {market_info.ticker} " f"closing in {market_info.time_to_close_hours:.1f}h")
 
-    def log_state_change(
-        self, ticker: str, previous_state: MarketState, new_state: MarketState
-    ) -> None:
+    def log_state_change(self, ticker: str, previous_state: MarketState, new_state: MarketState) -> None:
         """
         Log market state change.
 
@@ -35,14 +30,9 @@ class NotificationSender:
             previous_state: Previous state
             new_state: New state
         """
-        logger.info(
-            f"[NotificationSender] Market {ticker} state changed: "
-            f"{previous_state.value} -> {new_state.value}"
-        )
+        logger.info(f"[NotificationSender] Market {ticker} state changed: " f"{previous_state.value} -> {new_state.value}")
 
-    def log_market_registered(
-        self, ticker: str, time_to_close_hours: float, state: MarketState
-    ) -> None:
+    def log_market_registered(self, ticker: str, time_to_close_hours: float, state: MarketState) -> None:
         """
         Log market registration.
 
@@ -51,7 +41,4 @@ class NotificationSender:
             time_to_close_hours: Hours until close
             state: Current market state
         """
-        logger.info(
-            f"[NotificationSender] Registered market {ticker}: "
-            f"closes in {time_to_close_hours:.1f}h, state={state.value}"
-        )
+        logger.info(f"[NotificationSender] Registered market {ticker}: " f"closes in {time_to_close_hours:.1f}h, state={state.value}")

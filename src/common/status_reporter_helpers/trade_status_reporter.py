@@ -20,14 +20,10 @@ class TradeStatusReporter(WriterBackedReporter):
         weather_context: Optional[str] = None,
     ) -> None:
         """Report that a trading opportunity was found."""
-        message = OpportunityReporter.format_opportunity(
-            ticker, action, side, price_cents, reason, weather_context
-        )
+        message = OpportunityReporter.format_opportunity(ticker, action, side, price_cents, reason, weather_context)
         self._writer.write(message)
 
-    def trade_executed(
-        self, ticker: str, action: str, side: str, price_cents: int, order_id: str
-    ) -> None:
+    def trade_executed(self, ticker: str, action: str, side: str, price_cents: int, order_id: str) -> None:
         """Report that a trade was successfully executed."""
         message = TradeReporter.format_trade_executed(ticker, action, side, price_cents, order_id)
         self._writer.write(message)

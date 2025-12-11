@@ -221,9 +221,7 @@ def test_json_config_loader_behaviour(monkeypatch, tmp_path):
     monkeypatch.setattr(module, "BaseConfigLoader", lambda path: DummyLoader(FileNotFoundError()))
     assert JsonConfigLoader.load_from_file(existing_path) == {}
 
-    monkeypatch.setattr(
-        module, "BaseConfigLoader", lambda path: DummyLoader(ConfigurationError("boom"))
-    )
+    monkeypatch.setattr(module, "BaseConfigLoader", lambda path: DummyLoader(ConfigurationError("boom")))
     with pytest.raises(ConfigurationError):
         JsonConfigLoader.load_from_file(existing_path)
 
@@ -241,8 +239,6 @@ def test_json_config_loader_behaviour(monkeypatch, tmp_path):
 
 def test_list_normalizer_covers_all_branches():
     assert ListNormalizer.split_and_normalize("a,,b", separator=",", strip_items=True) == ["a", "b"]
-    assert ListNormalizer.split_and_normalize(" spaced ", separator="", strip_items=False) == [
-        " spaced "
-    ]
+    assert ListNormalizer.split_and_normalize(" spaced ", separator="", strip_items=False) == [" spaced "]
     assert ListNormalizer.deduplicate_preserving_order(("x", "x", "y")) == ("x", "y")
     assert ListNormalizer._normalize_items(["", " keep "], strip_items=False) == ["", " keep "]

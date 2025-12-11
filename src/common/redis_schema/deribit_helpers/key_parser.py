@@ -19,14 +19,10 @@ class DeribitKeyParser:
         try:
             return DeribitInstrumentType(type_value)
         except ValueError as exc:
-            raise ValueError(
-                f"Unsupported Deribit instrument type '{type_value}' in {key!r}"
-            ) from exc
+            raise ValueError(f"Unsupported Deribit instrument type '{type_value}' in {key!r}") from exc
 
     @staticmethod
-    def parse_spot_parts(
-        parts: list, key: str
-    ) -> Tuple[Optional[str], Optional[str], Optional[str], Optional[str]]:
+    def parse_spot_parts(parts: list, key: str) -> Tuple[Optional[str], Optional[str], Optional[str], Optional[str]]:
         """Parse SPOT instrument parts."""
         if len(parts) != MIN_KEY_PARTS:
             raise NameError(f"Spot key must include quote currency: {key!r}")
@@ -34,9 +30,7 @@ class DeribitKeyParser:
         return None, None, None, quote_currency
 
     @staticmethod
-    def parse_future_parts(
-        parts: list, key: str
-    ) -> Tuple[Optional[str], Optional[str], Optional[str], Optional[str]]:
+    def parse_future_parts(parts: list, key: str) -> Tuple[Optional[str], Optional[str], Optional[str], Optional[str]]:
         """Parse FUTURE instrument parts."""
         if len(parts) < MIN_KEY_PARTS:
             raise NameError(f"Future key must include expiry segment: {key!r}")
@@ -44,9 +38,7 @@ class DeribitKeyParser:
         return expiry_token, expiry_token, None, None
 
     @staticmethod
-    def parse_option_parts(
-        parts: list, key: str
-    ) -> Tuple[Optional[str], Optional[str], Optional[str], Optional[str]]:
+    def parse_option_parts(parts: list, key: str) -> Tuple[Optional[str], Optional[str], Optional[str], Optional[str]]:
         """Parse OPTION instrument parts."""
         if len(parts) < VALIDATION_CONFIG["time_constants"]["days_per_week"]:
             raise NameError(f"Option key must include expiry, strike, and type: {key!r}")

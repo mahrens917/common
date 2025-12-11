@@ -192,12 +192,7 @@ def _parse_vm_stat_output(lines: list[str]) -> dict[str, int]:
 
 def _calculate_memory_percentage(vm_stats: dict[str, int]) -> float:
     """Calculate memory usage percentage from vm_stat page counts."""
-    total_pages = (
-        vm_stats["pages_free"]
-        + vm_stats["pages_active"]
-        + vm_stats["pages_inactive"]
-        + vm_stats["pages_wired"]
-    )
+    total_pages = vm_stats["pages_free"] + vm_stats["pages_active"] + vm_stats["pages_inactive"] + vm_stats["pages_wired"]
     used_pages = vm_stats["pages_active"] + vm_stats["pages_wired"]
 
     if total_pages > 0:

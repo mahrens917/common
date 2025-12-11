@@ -44,9 +44,7 @@ class TestPidValidator:
         """Test is_running returns False for not running process."""
         mock_process_instance = Mock()
         mock_process_instance.is_running.return_value = False
-        mock_process_instance.status.return_value = (
-            psutil.STATUS_RUNNING
-        )  # Status shouldn't matter if not running
+        mock_process_instance.status.return_value = psutil.STATUS_RUNNING  # Status shouldn't matter if not running
         mock_psutil_process.return_value = mock_process_instance
 
         assert PidValidator.is_running(123) is False

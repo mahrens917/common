@@ -4,9 +4,7 @@ from ...data_models.trading import OrderRequest, OrderResponse
 from ...trading_exceptions import KalshiTradePersistenceError
 
 
-def validate_order_metadata(
-    order_request: OrderRequest, order_response: OrderResponse, operation_name: str
-) -> None:
+def validate_order_metadata(order_request: OrderRequest, order_response: OrderResponse, operation_name: str) -> None:
     """Validate required metadata is present."""
     ticker = order_request.ticker
     order_id = order_response.order_id

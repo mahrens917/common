@@ -86,8 +86,6 @@ class WriteDelegator:
         """Update trade prices for market (callback for orderbook processor)."""
         await self._writer.update_trade_prices_for_market(ticker, bid, ask)
 
-    async def store_optional_field(
-        self, redis: Redis, market_key: str, field: str, value: Optional[Any]
-    ) -> None:
+    async def store_optional_field(self, redis: Redis, market_key: str, field: str, value: Optional[Any]) -> None:
         """Persist a Redis hash field only when a value exists."""
         await self._writer.store_optional_field(redis, market_key, field, value)

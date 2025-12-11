@@ -71,9 +71,7 @@ async def fetch_service_keys(client: RedisClient, pattern: str) -> Set[str]:
     return decoded_keys
 
 
-async def fetch_hash_field(
-    client: RedisClient, key: str, field: str, error_context: str
-) -> Optional[str]:
+async def fetch_hash_field(client: RedisClient, key: str, field: str, error_context: str) -> Optional[str]:
     """
     Fetch a single hash field from Redis
 

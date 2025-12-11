@@ -67,9 +67,7 @@ class ConnectionStateTracker:
         consecutive_failures: int = 0,
     ) -> bool:
         """Update connection state for a service."""
-        return await self._updater_delegator.update_connection_state(
-            service_name, state, error_context, consecutive_failures
-        )
+        return await self._updater_delegator.update_connection_state(service_name, state, error_context, consecutive_failures)
 
     async def get_connection_state(self, service_name: str) -> Optional[ConnectionStateInfo]:
         """Get current connection state for a service."""
@@ -83,13 +81,9 @@ class ConnectionStateTracker:
         """Get list of all services currently in reconnection mode."""
         return await self._state_delegator.get_services_in_reconnection()
 
-    async def is_service_in_grace_period(
-        self, service_name: str, grace_period_seconds: int = 300
-    ) -> bool:
+    async def is_service_in_grace_period(self, service_name: str, grace_period_seconds: int = 300) -> bool:
         """Check if a service is within grace period after reconnection."""
-        return await self._state_delegator.is_service_in_grace_period(
-            service_name, grace_period_seconds
-        )
+        return await self._state_delegator.is_service_in_grace_period(service_name, grace_period_seconds)
 
     async def get_reconnection_duration(self, service_name: str) -> Optional[float]:
         """Get current reconnection duration for a service."""
@@ -99,9 +93,7 @@ class ConnectionStateTracker:
         """Get all current connection states."""
         return await self._state_delegator.get_all_connection_states()
 
-    async def record_connection_event(
-        self, service_name: str, event_type: str, details: str = ""
-    ) -> None:
+    async def record_connection_event(self, service_name: str, event_type: str, details: str = "") -> None:
         """Record a connection-related event for debugging and monitoring."""
         await self._event_delegator.record_connection_event(service_name, event_type, details)
 
@@ -109,9 +101,7 @@ class ConnectionStateTracker:
         """Persist supplemental service metrics alongside connection state."""
         return await self._event_delegator.store_service_metrics(service_name, metrics)
 
-    async def get_recent_connection_events(
-        self, service_name: str, hours_back: int = 1
-    ) -> List[Dict[str, Any]]:
+    async def get_recent_connection_events(self, service_name: str, hours_back: int = 1) -> List[Dict[str, Any]]:
         """Get recent connection events for a service."""
         return await self._event_delegator.get_recent_connection_events(service_name, hours_back)
 

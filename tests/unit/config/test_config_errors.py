@@ -50,9 +50,7 @@ def test_configuration_error_factories(factory, args, expected):
 
 
 def test_specific_configuration_errors():
-    assert str(ConfigurationError.empty_windows()) == (
-        "HistoricalFeatureAugmenter window lengths does not define any window lengths"
-    )
+    assert str(ConfigurationError.empty_windows()) == ("HistoricalFeatureAugmenter window lengths does not define any window lengths")
     assert str(ConfigurationError.empty_feature_windows()) == (
         "Feature windows configuration is missing or empty; cannot compute history days"
     )
@@ -60,12 +58,6 @@ def test_specific_configuration_errors():
         str(ConfigurationError.non_integer_windows([1, "two"]))
         == "HistoricalFeatureAugmenter returned non-integer window lengths: [1, 'two']"
     )
-    assert str(ConfigurationError.station_metadata_load_failed("ABC")) == (
-        "Failed to load station metadata for ABC"
-    )
-    assert str(ConfigurationError.station_timezone_missing("ABC")) == (
-        "Station catalog entry for ABC does not define a timezone"
-    )
-    assert str(ConfigurationError.invalid_timezone("ABC", "Bad/TZ")) == (
-        "Invalid timezone 'Bad/TZ' for station ABC"
-    )
+    assert str(ConfigurationError.station_metadata_load_failed("ABC")) == ("Failed to load station metadata for ABC")
+    assert str(ConfigurationError.station_timezone_missing("ABC")) == ("Station catalog entry for ABC does not define a timezone")
+    assert str(ConfigurationError.invalid_timezone("ABC", "Bad/TZ")) == ("Invalid timezone 'Bad/TZ' for station ABC")

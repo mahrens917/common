@@ -19,9 +19,7 @@ class AttributeHandler:
             orders_service.update_notifier(notifier)
 
     @staticmethod
-    def handle_telegram_handler_update(
-        orders_service: OrderService | None, telegram_handler
-    ) -> None:
+    def handle_telegram_handler_update(orders_service: OrderService | None, telegram_handler) -> None:
         """Update telegram handler in orders service."""
         if orders_service is not None:
             orders_service.update_telegram_handler(telegram_handler)

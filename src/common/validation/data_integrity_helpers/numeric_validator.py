@@ -22,13 +22,9 @@ class NumericValidator:
             try:
                 return float(value)
             except (ValueError, TypeError):
-                raise DataIntegrityError(
-                    f"Cannot convert {variable_name} to numeric value: {value} (type: {type(value)}). Error"
-                )
+                raise DataIntegrityError(f"Cannot convert {variable_name} to numeric value: {value} (type: {type(value)}). Error")
 
-        raise DataIntegrityError(
-            f"Cannot convert {variable_name} to numeric value: {value} (type: {type(value)})"
-        )
+        raise DataIntegrityError(f"Cannot convert {variable_name} to numeric value: {value} (type: {type(value)})")
 
     @staticmethod
     def _validate_finite(numeric_value: float, variable_name: str) -> None:
@@ -36,21 +32,15 @@ class NumericValidator:
         if np.isnan(numeric_value):
             raise DataIntegrityError(f"NaN value not allowed for {variable_name}")
         if np.isinf(numeric_value):
-            raise DataIntegrityError(
-                f"Infinite value not allowed for {variable_name}: {numeric_value}"
-            )
+            raise DataIntegrityError(f"Infinite value not allowed for {variable_name}: {numeric_value}")
 
     @staticmethod
-    def _validate_sign_constraints(
-        numeric_value: float, variable_name: str, allow_zero: bool, allow_negative: bool
-    ) -> None:
+    def _validate_sign_constraints(numeric_value: float, variable_name: str, allow_zero: bool, allow_negative: bool) -> None:
         """Validate zero and negative value constraints."""
         if not allow_zero and numeric_value == 0.0:
             raise DataIntegrityError(f"Zero value not allowed for {variable_name}")
         if not allow_negative and numeric_value < 0.0:
-            raise DataIntegrityError(
-                f"Negative value not allowed for {variable_name}: {numeric_value}"
-            )
+            raise DataIntegrityError(f"Negative value not allowed for {variable_name}: {numeric_value}")
 
     @staticmethod
     def _validate_range(
@@ -61,13 +51,9 @@ class NumericValidator:
     ) -> None:
         """Validate value is within specified min/max range."""
         if min_value is not None and numeric_value < min_value:
-            raise DataIntegrityError(
-                f"{variable_name} below minimum: {numeric_value} < {min_value}"
-            )
+            raise DataIntegrityError(f"{variable_name} below minimum: {numeric_value} < {min_value}")
         if max_value is not None and numeric_value > max_value:
-            raise DataIntegrityError(
-                f"{variable_name} above maximum: {numeric_value} > {max_value}"
-            )
+            raise DataIntegrityError(f"{variable_name} above maximum: {numeric_value} > {max_value}")
 
     @classmethod
     def validate_numeric_value(

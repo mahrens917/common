@@ -17,9 +17,7 @@ class TestNormalizeProcess:
         """Normalizes ProcessInfo object correctly."""
         import time
 
-        info = ProcessInfo(
-            pid=123, name="test", cmdline=["python", "-m", "test"], last_seen=time.time()
-        )
+        info = ProcessInfo(pid=123, name="test", cmdline=["python", "-m", "test"], last_seen=time.time())
 
         result = normalize_process(info, "test_service")
 

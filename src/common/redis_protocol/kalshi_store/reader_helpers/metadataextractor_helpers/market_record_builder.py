@@ -65,9 +65,7 @@ class MarketRecordBuilder:
         _ensure_market_open(status_value, market_ticker)
 
         close_time_value = _extract_close_time(combined, market_ticker)
-        normalized_close, close_dt = _normalize_close_time(
-            close_time_value, self.timestamp_normalizer
-        )
+        normalized_close, close_dt = _normalize_close_time(close_time_value, self.timestamp_normalizer)
         _ensure_not_expired(close_dt, normalized_close, market_ticker, now)
 
         strike_value = _resolve_strike_value(
@@ -77,9 +75,7 @@ class MarketRecordBuilder:
             market_ticker,
         )
 
-        strike_type_text = self.type_converter.string_or_default(
-            combined.get("strike_type")
-        ).lower()
+        strike_type_text = self.type_converter.string_or_default(combined.get("strike_type")).lower()
         market_key = build_kalshi_market_key(market_ticker)
         data = MarketRecordData(
             market_ticker=market_ticker,
@@ -107,9 +103,7 @@ def _decode_metadata_payload(payload: Any, market_ticker: str) -> Dict[str, Any]
         return {}
 
 
-def _merge_snapshot_with_metadata(
-    metadata: Dict[str, Any], snapshot: Dict[str, Any]
-) -> Dict[str, Any]:
+def _merge_snapshot_with_metadata(metadata: Dict[str, Any], snapshot: Dict[str, Any]) -> Dict[str, Any]:
     """Combine metadata JSON with normalized snapshot fields."""
     combined: Dict[str, Any] = {}
     combined.update(metadata)
@@ -126,19 +120,13 @@ def _ensure_market_open(status_value: str, market_ticker: str) -> None:
 
 def _extract_close_time(combined: Dict[str, Any], market_ticker: str) -> Any:
     """Get the first available close time representation."""
-    close_time_value = (
-        combined.get("close_time")
-        or combined.get("expected_expiration_time")
-        or combined.get("expiration_time")
-    )
+    close_time_value = combined.get("close_time") or combined.get("expected_expiration_time") or combined.get("expiration_time")
     if close_time_value in (None, "", b""):
         raise MarketSkip("missing_close_time", f"Market {market_ticker} missing close_time")
     return close_time_value
 
 
-def _normalize_close_time(
-    close_time: Any, timestamp_normalizer: Any
-) -> tuple[str, Optional[datetime]]:
+def _normalize_close_time(close_time: Any, timestamp_normalizer: Any) -> tuple[str, Optional[datetime]]:
     """Normalize close time and convert to datetime when possible."""
     normalized_close = timestamp_normalizer.normalize_timestamp(close_time) or str(close_time)
     try:
@@ -174,12 +162,7 @@ def _resolve_strike_value(
 
 def _build_market_record(data: MarketRecordData) -> Dict[str, Any]:
     """Assemble the final market record dict."""
-    strike_type = (
-        data.type_converter.string_or_default(
-            data.combined.get("strike_type"), data.strike_type_text
-        )
-        or data.strike_type_text
-    )
+    strike_type = data.type_converter.string_or_default(data.combined.get("strike_type"), data.strike_type_text) or data.strike_type_text
     return {
         "ticker": data.market_ticker,
         "market_ticker": data.market_ticker,

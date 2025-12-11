@@ -41,9 +41,7 @@ class ServiceInstanceLock:
         """Attempt to acquire the lock; raises if already held."""
 
         if fcntl is None:  # pragma: no cover - non-POSIX platforms
-            raise SingleInstanceError(
-                "Single instance enforcement requires fcntl on this platform."
-            )
+            raise SingleInstanceError("Single instance enforcement requires fcntl on this platform.")
 
         fd = os.open(self.lock_path, os.O_RDWR | os.O_CREAT, 0o664)
         try:
@@ -68,9 +66,7 @@ class ServiceInstanceLock:
                 suffix = f" (PID {existing_pid})."
             else:
                 suffix = "."
-            raise SingleInstanceError(
-                f"Service '{self.service_name}' appears to be running already" + suffix
-            ) from exc
+            raise SingleInstanceError(f"Service '{self.service_name}' appears to be running already" + suffix) from exc
 
         os.ftruncate(fd, 0)
         os.write(fd, str(os.getpid()).encode("utf-8"))

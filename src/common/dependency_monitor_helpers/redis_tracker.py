@@ -33,18 +33,12 @@ class RedisTracker:
         dependencies_key = f"service_dependencies:{self.service_name}"
         _, delete_error = await _capture_async_result(self.redis.delete(dependencies_key))
         if isinstance(delete_error, BaseException):
-            logger.error(
-                "[%s] Failed to clear dependency list in Redis: %s", self.service_name, delete_error
-            )
+            logger.error("[%s] Failed to clear dependency list in Redis: %s", self.service_name, delete_error)
             return
 
-        _, add_error = await _capture_async_result(
-            cast(Awaitable[int], self.redis.sadd(dependencies_key, *dependency_names))
-        )
+        _, add_error = await _capture_async_result(cast(Awaitable[int], self.redis.sadd(dependencies_key, *dependency_names)))
         if isinstance(add_error, BaseException):
-            logger.error(
-                "[%s] Failed to seed dependency list in Redis: %s", self.service_name, add_error
-            )
+            logger.error("[%s] Failed to seed dependency list in Redis: %s", self.service_name, add_error)
             return
 
         status_key = f"dependency_status:{self.service_name}"
@@ -64,24 +58,16 @@ class RedisTracker:
                 )
                 return
 
-        logger.debug(
-            "[%s] Initialized dependency tracking for: %s", self.service_name, dependency_names
-        )
+        logger.debug("[%s] Initialized dependency tracking for: %s", self.service_name, dependency_names)
 
-    async def update_dependency_status(
-        self, dependency_name: str, status: DependencyStatus
-    ) -> None:
+    async def update_dependency_status(self, dependency_name: str, status: DependencyStatus) -> None:
         if not self.redis:
             return
 
         status_key = f"dependency_status:{self.service_name}"
-        _, error = await _capture_async_result(
-            cast(Awaitable[int], self.redis.hset(status_key, dependency_name, status.value))
-        )
+        _, error = await _capture_async_result(cast(Awaitable[int], self.redis.hset(status_key, dependency_name, status.value)))
         if isinstance(error, BaseException):
-            logger.error(
-                "[%s] Failed to update dependency status in Redis: %s", self.service_name, error
-            )
+            logger.error("[%s] Failed to update dependency status in Redis: %s", self.service_name, error)
             return
 
         logger.debug(

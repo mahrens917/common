@@ -78,9 +78,7 @@ def _merge_deps(
         settlement_fetcher=_merge_field(optional.settlement_fetcher, defaults.settlement_fetcher),
         settlement_checker=_merge_field(optional.settlement_checker, defaults.settlement_checker),
         registrar=_merge_field(optional.registrar, defaults.registrar),
-        settlement_validator=_merge_field(
-            optional.settlement_validator, defaults.settlement_validator
-        ),
+        settlement_validator=_merge_field(optional.settlement_validator, defaults.settlement_validator),
         orchestrator=_merge_field(optional.orchestrator, defaults.orchestrator),
     )
 
@@ -121,9 +119,7 @@ class MarketLifecycleMonitorDependenciesFactory:  # gitleaks:allow
 
         registrar = MarketRegistrar(scanner, state_tracker, notifier)
         settlement_validator = SettlementValidator(state_tracker)
-        orchestrator = LifecycleOrchestrator(
-            state_tracker, close_detector, notifier, settlement_checker
-        )
+        orchestrator = LifecycleOrchestrator(state_tracker, close_detector, notifier, settlement_checker)
 
         return MarketLifecycleMonitorDependencies(  # gitleaks:allow
             scanner=scanner,

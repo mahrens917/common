@@ -17,9 +17,7 @@ from typing import Tuple
 logger = logging.getLogger(__name__)
 
 
-def calculate_usdc_micro_price(
-    bid_price: float, ask_price: float, bid_size: float, ask_size: float
-) -> float:
+def calculate_usdc_micro_price(bid_price: float, ask_price: float, bid_size: float, ask_size: float) -> float:
     """
     Calculate volume-weighted micro price from BTC_USDC/ETH_USDC bid/ask data.
 
@@ -63,8 +61,7 @@ def calculate_usdc_micro_price(
     micro_price = (bid_price * ask_size + ask_price * bid_size) / total_size
 
     logger.debug(
-        f"Calculated micro price: {micro_price:.6f} from bid={bid_price}, ask={ask_price}, "
-        f"bid_size={bid_size}, ask_size={ask_size}"
+        f"Calculated micro price: {micro_price:.6f} from bid={bid_price}, ask={ask_price}, " f"bid_size={bid_size}, ask_size={ask_size}"
     )
 
     return micro_price

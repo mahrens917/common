@@ -12,9 +12,7 @@ from .event_type_filtering import get_probabilities_by_event_type
 from .sorting_helpers import ProbabilityByExpiryGrouped
 
 
-async def get_probabilities_grouped_by_event_type(
-    redis: Redis, currency: str
-) -> Dict[str, ProbabilityByExpiryGrouped]:
+async def get_probabilities_grouped_by_event_type(redis: Redis, currency: str) -> Dict[str, ProbabilityByExpiryGrouped]:
     """Get probabilities grouped by all event types.
 
     This is a convenience method that calls get_all_event_types and then

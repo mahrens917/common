@@ -42,16 +42,10 @@ class UnifiedReportBuilder:
         today_pnl = await self.pnl_calculator.get_today_unified_pnl()
         yesterday_pnl = await self.pnl_calculator.get_yesterday_unified_pnl()
         today_trades = await self.pnl_calculator.trade_store.get_trades_by_date_range(today, today)
-        yesterday_trades = await self.pnl_calculator.trade_store.get_trades_by_date_range(
-            yesterday, yesterday
-        )
+        yesterday_trades = await self.pnl_calculator.trade_store.get_trades_by_date_range(yesterday, yesterday)
 
-        seven_day_trades, seven_day_report = (
-            await self.pnl_calculator.get_date_range_trades_and_report(seven_days_ago, today)
-        )
-        thirty_day_trades, thirty_day_report = (
-            await self.pnl_calculator.get_date_range_trades_and_report(thirty_days_ago, today)
-        )
+        seven_day_trades, seven_day_report = await self.pnl_calculator.get_date_range_trades_and_report(seven_days_ago, today)
+        thirty_day_trades, thirty_day_report = await self.pnl_calculator.get_date_range_trades_and_report(thirty_days_ago, today)
 
         lines = [
             "📊 **Trading Performance Summary**",
@@ -70,9 +64,7 @@ class UnifiedReportBuilder:
                 yesterday_trades,
             ),
             "",
-            self.time_period_formatter.format_time_period_section(
-                seven_day_report, "7-Day Trend", days_count=7, trades=seven_day_trades
-            ),
+            self.time_period_formatter.format_time_period_section(seven_day_report, "7-Day Trend", days_count=7, trades=seven_day_trades),
             "",
             self.time_period_formatter.format_time_period_section(
                 thirty_day_report, "30-Day Overview", days_count=30, trades=thirty_day_trades
@@ -83,31 +75,18 @@ class UnifiedReportBuilder:
     async def generate_unified_pnl_data(self) -> Dict[str, Any]:
         today = get_timezone_aware_date(self.timezone)
         seven_days_ago = today - timedelta(days=7)
-        daily_pnl_with_unrealized = (
-            await self.daily_collector.get_daily_pnl_with_unrealized_percentage(
-                seven_days_ago, today
-            )
-        )
-        _seven_day_trades, seven_day_report = (
-            await self.pnl_calculator.get_date_range_trades_and_report(seven_days_ago, today)
-        )
+        daily_pnl_with_unrealized = await self.daily_collector.get_daily_pnl_with_unrealized_percentage(seven_days_ago, today)
+        _seven_day_trades, seven_day_report = await self.pnl_calculator.get_date_range_trades_and_report(seven_days_ago, today)
 
         station_breakdown = {}
         if seven_day_report.by_weather_station:
-            station_breakdown = {
-                station: breakdown.pnl_cents
-                for station, breakdown in seven_day_report.by_weather_station.items()
-            }
+            station_breakdown = {station: breakdown.pnl_cents for station, breakdown in seven_day_report.by_weather_station.items()}
 
         rule_breakdown = {}
         if seven_day_report.by_rule:
-            rule_breakdown = {
-                rule: breakdown.pnl_cents for rule, breakdown in seven_day_report.by_rule.items()
-            }
+            rule_breakdown = {rule: breakdown.pnl_cents for rule, breakdown in seven_day_report.by_rule.items()}
 
-        daily_pnl_with_unrealized_dollars = (
-            await self.daily_collector.get_daily_pnl_with_unrealized(seven_days_ago, today)
-        )
+        daily_pnl_with_unrealized_dollars = await self.daily_collector.get_daily_pnl_with_unrealized(seven_days_ago, today)
 
         return {
             "daily_pnl": daily_pnl_with_unrealized,

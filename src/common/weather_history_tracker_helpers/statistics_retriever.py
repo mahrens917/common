@@ -62,9 +62,7 @@ class WeatherStatisticsRetriever:
         return ensure_uppercase_icao(station_icao)
 
     @staticmethod
-    async def _fetch_redis_entries(
-        client: RedisClient, station_icao: str
-    ) -> List[Tuple[bytes | str, float]]:
+    async def _fetch_redis_entries(client: RedisClient, station_icao: str) -> List[Tuple[bytes | str, float]]:
         """Fetch all temperature entries from Redis for station."""
         redis_key = WeatherHistoryKey(icao=station_icao).key()
         entries = await ensure_awaitable(client.zrange(redis_key, 0, -1, withscores=True))
@@ -74,9 +72,7 @@ class WeatherStatisticsRetriever:
         return entries
 
     @staticmethod
-    def _filter_and_parse_entries(
-        entries: List[Tuple[bytes | str, float]], cutoff_ts: float
-    ) -> List[Tuple[int, float]]:
+    def _filter_and_parse_entries(entries: List[Tuple[bytes | str, float]], cutoff_ts: float) -> List[Tuple[int, float]]:
         """Filter entries by timestamp and parse temperature data."""
         invalid_count = 0
         temperature_history = []
@@ -90,15 +86,11 @@ class WeatherStatisticsRetriever:
             temperature_history.append(parsed)
         temperature_history.sort(key=lambda x: x[0])
         if invalid_count > 0:
-            logger.warning(
-                "%d invalid temperature entries (missing temp/out of range)", invalid_count
-            )
+            logger.warning("%d invalid temperature entries (missing temp/out of range)", invalid_count)
         return temperature_history
 
     @staticmethod
-    async def get_history(
-        client: RedisClient, station_icao: str, hours: int = 24
-    ) -> List[Tuple[int, float]]:
+    async def get_history(client: RedisClient, station_icao: str, hours: int = 24) -> List[Tuple[int, float]]:
         """
         Get temperature history for a weather station.
 

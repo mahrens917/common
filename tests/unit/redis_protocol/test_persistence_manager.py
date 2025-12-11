@@ -54,9 +54,7 @@ class TestRedisPersistenceManager:
         status = await manager.check_persistence_status()
         assert status == {"status": "ok"}
 
-        mock_deps.dataserializer.build_status_dict.assert_called_with(
-            {"config": 1}, {"persist": 1}, 123
-        )
+        mock_deps.dataserializer.build_status_dict.assert_called_with({"config": 1}, {"persist": 1}, 123)
 
     @pytest.mark.asyncio
     async def test_check_persistence_status_error(self, manager, mock_deps):
@@ -123,9 +121,7 @@ class TestRedisPersistenceManager:
 class TestModuleFunctions:
     @pytest.mark.asyncio
     async def test_ensure_redis_persistence_success(self):
-        with patch(
-            "common.redis_protocol.persistence_manager.RedisPersistenceManager"
-        ) as MockManager:
+        with patch("common.redis_protocol.persistence_manager.RedisPersistenceManager") as MockManager:
             manager = MockManager.return_value
             manager.initialize = AsyncMock()
             manager.close = AsyncMock()
@@ -136,15 +132,11 @@ class TestModuleFunctions:
 
     @pytest.mark.asyncio
     async def test_ensure_redis_persistence_needs_config(self):
-        with patch(
-            "common.redis_protocol.persistence_manager.RedisPersistenceManager"
-        ) as MockManager:
+        with patch("common.redis_protocol.persistence_manager.RedisPersistenceManager") as MockManager:
             manager = MockManager.return_value
             manager.initialize = AsyncMock()
             manager.close = AsyncMock()
-            manager.validate_persistence = AsyncMock(
-                side_effect=[(False, "Not Configured"), (True, "OK")]
-            )
+            manager.validate_persistence = AsyncMock(side_effect=[(False, "Not Configured"), (True, "OK")])
             manager.configure_persistence = AsyncMock(return_value=True)
 
             assert await ensure_redis_persistence() is True
@@ -152,9 +144,7 @@ class TestModuleFunctions:
 
     @pytest.mark.asyncio
     async def test_ensure_redis_persistence_config_fails(self):
-        with patch(
-            "common.redis_protocol.persistence_manager.RedisPersistenceManager"
-        ) as MockManager:
+        with patch("common.redis_protocol.persistence_manager.RedisPersistenceManager") as MockManager:
             manager = MockManager.return_value
             manager.initialize = AsyncMock()
             manager.close = AsyncMock()
@@ -165,9 +155,7 @@ class TestModuleFunctions:
 
     @pytest.mark.asyncio
     async def test_get_redis_persistence_status(self):
-        with patch(
-            "common.redis_protocol.persistence_manager.RedisPersistenceManager"
-        ) as MockManager:
+        with patch("common.redis_protocol.persistence_manager.RedisPersistenceManager") as MockManager:
             manager = MockManager.return_value
             manager.initialize = AsyncMock()
             manager.close = AsyncMock()

@@ -72,17 +72,11 @@ class ParsedInstrument:
 
         # Validate instrument-type-specific fields
         if self.instrument_type == "option":
-            ParsedInstrumentValidator.validate_option_fields(
-                self.strike, self.option_type, self.raw_ticker
-            )
+            ParsedInstrumentValidator.validate_option_fields(self.strike, self.option_type, self.raw_ticker)
         elif self.instrument_type == "future":
-            ParsedInstrumentValidator.validate_future_fields(
-                self.strike, self.option_type, self.raw_ticker
-            )
+            ParsedInstrumentValidator.validate_future_fields(self.strike, self.option_type, self.raw_ticker)
         elif self.instrument_type == "spot":
-            ParsedInstrumentValidator.validate_spot_fields(
-                self.strike, self.option_type, self.raw_ticker
-            )
+            ParsedInstrumentValidator.validate_spot_fields(self.strike, self.option_type, self.raw_ticker)
 
         # Critical validation: Prevent datetime corruption
         ParsedInstrumentValidator.validate_expiry_year(self.expiry_date, self.raw_ticker)
@@ -213,26 +207,22 @@ class MarketDataValidator:
                 return report
             report["stats"]["total_contracts"] = len(options_data["contract_names"])
             # Validate individual contracts
-            valid_count, contract_issues, contract_stats = ContractValidator.validate_all_contracts(
-                options_data, expected_symbol
-            )
+            valid_count, contract_issues, contract_stats = ContractValidator.validate_all_contracts(options_data, expected_symbol)
             report["issues"].extend(contract_issues)
             report["stats"]["valid_contracts"] = valid_count
             for key, value in contract_stats.items():
                 report["stats"][key] += value
             # Set overall validity
-            error_rate = (
-                report["stats"]["total_contracts"] - report["stats"]["valid_contracts"]
-            ) / max(1, report["stats"]["total_contracts"])
+            error_rate = (report["stats"]["total_contracts"] - report["stats"]["valid_contracts"]) / max(
+                1, report["stats"]["total_contracts"]
+            )
             if error_rate > _PRECISION_HIGH:  # More than 10% errors
                 report["valid"] = False
                 report["issues"].append(f"High error rate: {error_rate:.1%}")
             # Critical: Any corrupted years make the data invalid
             if report["stats"]["corrupted_years"] > 0:
                 report["valid"] = False
-                report["issues"].append(
-                    f"CRITICAL: Found {report['stats']['corrupted_years']} contracts with corrupted years"
-                )
+                report["issues"].append(f"CRITICAL: Found {report['stats']['corrupted_years']} contracts with corrupted years")
         except (
             KeyError,
             TypeError,
@@ -258,9 +248,7 @@ class MarketDataValidator:
         validation_report = MarketDataValidator.validate_options_data(raw_data, expected_symbol)
         if not validation_report["valid"]:
             if validation_report["stats"]["corrupted_years"] > 0:
-                raise DateTimeCorruptionError(
-                    f"Datetime corruption detected: {validation_report['issues']}"
-                )
+                raise DateTimeCorruptionError(f"Datetime corruption detected: {validation_report['issues']}")
             else:
                 raise ValidationError(f"Data validation failed: {validation_report['issues']}")
         return DataCleaner.clean_and_parse_market_data(raw_data, expected_symbol)

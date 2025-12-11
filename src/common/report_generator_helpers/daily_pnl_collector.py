@@ -27,9 +27,7 @@ class DailyPnLCollector:
         """
         self.pnl_calculator = pnl_calculator
 
-    async def get_daily_pnl_with_unrealized_percentage(
-        self, start_date: date, end_date: date
-    ) -> List[Tuple[date, float]]:
+    async def get_daily_pnl_with_unrealized_percentage(self, start_date: date, end_date: date) -> List[Tuple[date, float]]:
         """
         Get daily P&L series as percentage of money traded.
 
@@ -49,9 +47,7 @@ class DailyPnLCollector:
                 pnl_cents = await self.pnl_calculator.get_unified_pnl_for_date(current_date)
 
                 # Get trades for cost calculation
-                trades = await self.pnl_calculator.trade_store.get_trades_by_date_range(
-                    current_date, current_date
-                )
+                trades = await self.pnl_calculator.trade_store.get_trades_by_date_range(current_date, current_date)
                 day_cost_cents = sum(trade.cost_cents for trade in trades)
 
                 # Calculate percentage return
@@ -74,9 +70,7 @@ class DailyPnLCollector:
             )
             raise
 
-    async def get_daily_pnl_with_unrealized(
-        self, start_date: date, end_date: date
-    ) -> List[Tuple[date, int]]:
+    async def get_daily_pnl_with_unrealized(self, start_date: date, end_date: date) -> List[Tuple[date, int]]:
         """
         Get daily P&L series in cents.
 
@@ -100,7 +94,5 @@ class DailyPnLCollector:
             else:
                 return daily_pnl
         except DATA_ACCESS_ERRORS as exc:
-            logger.error(
-                "Error getting daily P&L series (%s): %s", type(exc).__name__, exc, exc_info=True
-            )
+            logger.error("Error getting daily P&L series (%s): %s", type(exc).__name__, exc, exc_info=True)
             raise

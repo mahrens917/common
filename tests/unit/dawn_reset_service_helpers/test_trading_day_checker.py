@@ -15,9 +15,7 @@ class TestTradingDayCheckerInit:
         cache_mgr = MagicMock()
         logger = MagicMock()
 
-        checker = TradingDayChecker(
-            dawn_calculator=dawn_calc, cache_manager=cache_mgr, logger=logger
-        )
+        checker = TradingDayChecker(dawn_calculator=dawn_calc, cache_manager=cache_mgr, logger=logger)
 
         assert checker.dawn_calculator is dawn_calc
         assert checker.cache_manager is cache_mgr
@@ -38,9 +36,7 @@ class TestTradingDayCheckerIsNewTradingDay:
         )
         logger = MagicMock()
 
-        checker = TradingDayChecker(
-            dawn_calculator=dawn_calc, cache_manager=cache_mgr, logger=logger
-        )
+        checker = TradingDayChecker(dawn_calculator=dawn_calc, cache_manager=cache_mgr, logger=logger)
         prev = datetime(2025, 1, 14, 12, 0, 0, tzinfo=timezone.utc)
         curr = datetime(2025, 1, 15, 12, 0, 0, tzinfo=timezone.utc)
 
@@ -59,15 +55,11 @@ class TestTradingDayCheckerIsNewTradingDay:
         cache_mgr.get_cached_result.return_value = None
         logger = MagicMock()
 
-        checker = TradingDayChecker(
-            dawn_calculator=dawn_calc, cache_manager=cache_mgr, logger=logger
-        )
+        checker = TradingDayChecker(dawn_calculator=dawn_calc, cache_manager=cache_mgr, logger=logger)
         prev = datetime(2025, 1, 14, 12, 0, 0, tzinfo=timezone.utc)
         curr = datetime(2025, 1, 15, 12, 0, 0, tzinfo=timezone.utc)
 
-        with patch(
-            "common.dawn_reset_service_helpers.trading_day_checker.calculate_dawn_utc"
-        ) as mock_dawn:
+        with patch("common.dawn_reset_service_helpers.trading_day_checker.calculate_dawn_utc") as mock_dawn:
             mock_dawn.return_value = datetime(2025, 1, 15, 11, 0, 0, tzinfo=timezone.utc)
 
             result = checker.is_new_trading_day(40.7128, -74.0060, prev, curr)
@@ -86,17 +78,13 @@ class TestTradingDayCheckerIsNewTradingDay:
         cache_mgr.get_cached_result.return_value = None
         logger = MagicMock()
 
-        checker = TradingDayChecker(
-            dawn_calculator=dawn_calc, cache_manager=cache_mgr, logger=logger
-        )
+        checker = TradingDayChecker(dawn_calculator=dawn_calc, cache_manager=cache_mgr, logger=logger)
         prev = datetime(2025, 1, 14, 12, 0, 0, tzinfo=timezone.utc)
 
         with patch("common.time_utils.get_current_utc") as mock_time:
             mock_time.return_value = datetime(2025, 1, 15, 12, 0, 0, tzinfo=timezone.utc)
 
-            with patch(
-                "common.dawn_reset_service_helpers.trading_day_checker.calculate_dawn_utc"
-            ) as mock_dawn:
+            with patch("common.dawn_reset_service_helpers.trading_day_checker.calculate_dawn_utc") as mock_dawn:
                 mock_dawn.return_value = datetime(2025, 1, 15, 11, 0, 0, tzinfo=timezone.utc)
 
                 result = checker.is_new_trading_day(40.7128, -74.0060, prev)
@@ -113,15 +101,11 @@ class TestTradingDayCheckerIsNewTradingDay:
         cache_mgr.get_cached_result.return_value = None
         logger = MagicMock()
 
-        checker = TradingDayChecker(
-            dawn_calculator=dawn_calc, cache_manager=cache_mgr, logger=logger
-        )
+        checker = TradingDayChecker(dawn_calculator=dawn_calc, cache_manager=cache_mgr, logger=logger)
         prev = datetime(2025, 1, 14, 12, 0, 0, tzinfo=timezone.utc)
         curr = datetime(2025, 1, 15, 12, 0, 0, tzinfo=timezone.utc)
 
-        with patch(
-            "common.dawn_reset_service_helpers.trading_day_checker.calculate_dawn_utc"
-        ) as mock_dawn:
+        with patch("common.dawn_reset_service_helpers.trading_day_checker.calculate_dawn_utc") as mock_dawn:
             mock_dawn.return_value = datetime(2025, 1, 15, 11, 0, 0, tzinfo=timezone.utc)
 
             checker.is_new_trading_day(40.7128, -74.0060, prev, curr)

@@ -31,9 +31,7 @@ async def get_market_metadata(
     Returns:
         Dictionary of metadata fields
     """
-    snapshot = await get_market_snapshot(
-        redis, market_key, ticker, metadata_extractor, include_orderbook=False
-    )
+    snapshot = await get_market_snapshot(redis, market_key, ticker, metadata_extractor, include_orderbook=False)
     if not snapshot:
         return {}
 

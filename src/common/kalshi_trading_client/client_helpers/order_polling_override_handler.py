@@ -41,9 +41,7 @@ class OrderPollingOverrideHandler:
         if original_state["finalizer_factory"] is not None and finalizer_builder is not None:
             self._orders._poller._finalizer_factory = finalizer_builder
 
-    def _restore_original_state(
-        self, original_state: dict[str, Any], override_cancel: Optional[Callable]
-    ) -> None:
+    def _restore_original_state(self, original_state: dict[str, Any], override_cancel: Optional[Callable]) -> None:
         """Restore original service state after execution."""
         self._orders.create_order = original_state["create"]
 
@@ -75,9 +73,7 @@ class OrderPollingOverrideHandler:
         original_state = self._save_original_state()
 
         try:
-            self._apply_overrides(
-                proxy, override_cancel, poller_builder, finalizer_builder, original_state
-            )
+            self._apply_overrides(proxy, override_cancel, poller_builder, finalizer_builder, original_state)
             return await self._api.create_order_with_polling(order_request, timeout_seconds)
         finally:
             self._restore_original_state(original_state, override_cancel)

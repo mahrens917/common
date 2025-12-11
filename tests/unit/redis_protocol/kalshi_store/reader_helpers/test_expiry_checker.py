@@ -56,9 +56,7 @@ async def test_is_market_settled_handles_future(monkeypatch):
 @pytest.mark.asyncio
 async def test_is_market_expired_handles_empty(monkeypatch):
     checker = expiry_checker.ExpiryChecker(logger_instance=logging.getLogger("tests"))
-    result = await expiry_checker.ExpiryChecker.is_market_expired(
-        checker, _DummyRedis({}), "key", "ticker"
-    )
+    result = await expiry_checker.ExpiryChecker.is_market_expired(checker, _DummyRedis({}), "key", "ticker")
     assert result is False
 
 
@@ -69,9 +67,7 @@ async def test_is_market_expired_logs_errors(monkeypatch):
             raise expiry_checker.REDIS_ERRORS[0]("boom")
 
     checker = expiry_checker.ExpiryChecker(logger_instance=logging.getLogger("tests"))
-    result = await expiry_checker.ExpiryChecker.is_market_expired(
-        checker, BrokenRedis({}), "key", "ticker"
-    )
+    result = await expiry_checker.ExpiryChecker.is_market_expired(checker, BrokenRedis({}), "key", "ticker")
     assert result is False
 
 
@@ -82,9 +78,7 @@ async def test_is_market_settled_handles_missing_close(monkeypatch):
         "common.redis_protocol.kalshi_store.reader_helpers.expiry_checker.CloseTimeParser.decode_close_time_string",
         lambda raw: "",
     )
-    result = await expiry_checker.ExpiryChecker.is_market_settled(
-        checker, _DummyRedis({"close_time": None}), "key", "ticker"
-    )
+    result = await expiry_checker.ExpiryChecker.is_market_settled(checker, _DummyRedis({"close_time": None}), "key", "ticker")
     assert result is False
 
 
@@ -115,7 +109,5 @@ async def test_is_market_settled_handles_redis_error(monkeypatch):
             raise expiry_checker.REDIS_ERRORS[0]("boom")
 
     checker = expiry_checker.ExpiryChecker(logger_instance=logging.getLogger("tests"))
-    result = await expiry_checker.ExpiryChecker.is_market_settled(
-        checker, BrokenRedis({"close_time": "now"}), "key", "ticker"
-    )
+    result = await expiry_checker.ExpiryChecker.is_market_settled(checker, BrokenRedis({"close_time": "now"}), "key", "ticker")
     assert result is False

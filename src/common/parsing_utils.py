@@ -80,9 +80,7 @@ def safe_int_parse(value: Any, *, otherwise: int | None = None) -> int:
             raise ValueError(f"Cannot parse int from value: {value!r}") from exc
 
 
-def safe_float_parse(
-    value: Any, *, allow_nan_inf: bool = False, otherwise: float | None = None
-) -> float | None:
+def safe_float_parse(value: Any, *, allow_nan_inf: bool = False, otherwise: float | None = None) -> float | None:
     """
     Convert value to float with strict error handling.
 
@@ -115,9 +113,7 @@ def safe_float_parse(
     result = coerce_float_strict(value)
 
     # Check for NaN and infinity if not allowed
-    if not allow_nan_inf and (
-        math.isnan(result) or result == float("inf") or result == float("-inf")
-    ):
+    if not allow_nan_inf and (math.isnan(result) or result == float("inf") or result == float("-inf")):
         return otherwise
 
     return result

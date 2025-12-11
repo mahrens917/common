@@ -173,165 +173,117 @@ class TestDeriveInstrumentName:
 
     def test_derives_spot_instrument_name_with_quote(self) -> None:
         """Derives spot instrument name with quote currency."""
-        descriptor = _create_descriptor(
-            instrument_type=DeribitInstrumentType.SPOT, quote_currency="USD"
-        )
-        result = InstrumentNameBuilder.derive_instrument_name(
-            descriptor, strike_value=None, option_type=None
-        )
+        descriptor = _create_descriptor(instrument_type=DeribitInstrumentType.SPOT, quote_currency="USD")
+        result = InstrumentNameBuilder.derive_instrument_name(descriptor, strike_value=None, option_type=None)
         assert result == "BTC-USD"
 
     def test_derives_spot_instrument_name_without_quote(self) -> None:
         """Derives spot instrument name without quote currency (uses USD)."""
-        descriptor = _create_descriptor(
-            instrument_type=DeribitInstrumentType.SPOT, quote_currency=None
-        )
-        result = InstrumentNameBuilder.derive_instrument_name(
-            descriptor, strike_value=None, option_type=None
-        )
+        descriptor = _create_descriptor(instrument_type=DeribitInstrumentType.SPOT, quote_currency=None)
+        result = InstrumentNameBuilder.derive_instrument_name(descriptor, strike_value=None, option_type=None)
         assert result == "BTC-USD"
 
     def test_derives_spot_instrument_name_with_empty_quote(self) -> None:
         """Derives spot instrument name with empty quote currency (uses USD)."""
-        descriptor = _create_descriptor(
-            instrument_type=DeribitInstrumentType.SPOT, quote_currency=""
-        )
-        result = InstrumentNameBuilder.derive_instrument_name(
-            descriptor, strike_value=None, option_type=None
-        )
+        descriptor = _create_descriptor(instrument_type=DeribitInstrumentType.SPOT, quote_currency="")
+        result = InstrumentNameBuilder.derive_instrument_name(descriptor, strike_value=None, option_type=None)
         assert result == "BTC-USD"
 
     def test_derives_future_instrument_name(self) -> None:
         """Derives future instrument name with expiry."""
         descriptor = _create_descriptor(instrument_type=DeribitInstrumentType.FUTURE)
-        result = InstrumentNameBuilder.derive_instrument_name(
-            descriptor, strike_value=None, option_type=None
-        )
+        result = InstrumentNameBuilder.derive_instrument_name(descriptor, strike_value=None, option_type=None)
         assert result == "BTC-25AUG24"
 
     def test_derives_call_option_name_from_descriptor(self) -> None:
         """Derives call option name using descriptor option_kind."""
         descriptor = _create_descriptor(option_kind="call", strike="50000")
-        result = InstrumentNameBuilder.derive_instrument_name(
-            descriptor, strike_value=50000.0, option_type=None
-        )
+        result = InstrumentNameBuilder.derive_instrument_name(descriptor, strike_value=50000.0, option_type=None)
         assert result == "BTC-25AUG24-50000-C"
 
     def test_derives_put_option_name_from_descriptor(self) -> None:
         """Derives put option name using descriptor option_kind."""
         descriptor = _create_descriptor(option_kind="put", strike="50000")
-        result = InstrumentNameBuilder.derive_instrument_name(
-            descriptor, strike_value=50000.0, option_type=None
-        )
+        result = InstrumentNameBuilder.derive_instrument_name(descriptor, strike_value=50000.0, option_type=None)
         assert result == "BTC-25AUG24-50000-P"
 
     def test_derives_call_option_name_from_parameter(self) -> None:
         """Derives call option name using option_type parameter."""
         descriptor = _create_descriptor(option_kind=None, strike="50000")
-        result = InstrumentNameBuilder.derive_instrument_name(
-            descriptor, strike_value=50000.0, option_type="call"
-        )
+        result = InstrumentNameBuilder.derive_instrument_name(descriptor, strike_value=50000.0, option_type="call")
         assert result == "BTC-25AUG24-50000-C"
 
     def test_derives_put_option_name_from_parameter(self) -> None:
         """Derives put option name using option_type parameter."""
         descriptor = _create_descriptor(option_kind=None, strike="50000")
-        result = InstrumentNameBuilder.derive_instrument_name(
-            descriptor, strike_value=50000.0, option_type="put"
-        )
+        result = InstrumentNameBuilder.derive_instrument_name(descriptor, strike_value=50000.0, option_type="put")
         assert result == "BTC-25AUG24-50000-P"
 
     def term_prefers_descriptor_option_kind_over_parameter(self) -> None:
         """Prefers descriptor option_kind over option_type parameter."""
         descriptor = _create_descriptor(option_kind="call", strike="50000")
-        result = InstrumentNameBuilder.derive_instrument_name(
-            descriptor, strike_value=50000.0, option_type="put"
-        )
+        result = InstrumentNameBuilder.derive_instrument_name(descriptor, strike_value=50000.0, option_type="put")
         assert result == "BTC-25AUG24-50000-C"
 
     def test_handles_option_kind_with_c_prefix(self) -> None:
         """Handles option_kind starting with 'c' as call."""
         descriptor = _create_descriptor(option_kind="c", strike="50000")
-        result = InstrumentNameBuilder.derive_instrument_name(
-            descriptor, strike_value=50000.0, option_type=None
-        )
+        result = InstrumentNameBuilder.derive_instrument_name(descriptor, strike_value=50000.0, option_type=None)
         assert result == "BTC-25AUG24-50000-C"
 
     def test_handles_option_kind_with_p_prefix(self) -> None:
         """Handles option_kind starting with 'p' as put."""
         descriptor = _create_descriptor(option_kind="p", strike="50000")
-        result = InstrumentNameBuilder.derive_instrument_name(
-            descriptor, strike_value=50000.0, option_type=None
-        )
+        result = InstrumentNameBuilder.derive_instrument_name(descriptor, strike_value=50000.0, option_type=None)
         assert result == "BTC-25AUG24-50000-P"
 
     def test_handles_non_call_option_as_put(self) -> None:
         """Treats non-call options as puts."""
         descriptor = _create_descriptor(option_kind="xyz", strike="50000")
-        result = InstrumentNameBuilder.derive_instrument_name(
-            descriptor, strike_value=50000.0, option_type=None
-        )
+        result = InstrumentNameBuilder.derive_instrument_name(descriptor, strike_value=50000.0, option_type=None)
         assert result == "BTC-25AUG24-50000-P"
 
     def test_handles_empty_option_kind_as_put(self) -> None:
         """Handles empty option_kind as put."""
         descriptor = _create_descriptor(option_kind="", strike="50000")
-        result = InstrumentNameBuilder.derive_instrument_name(
-            descriptor, strike_value=50000.0, option_type=None
-        )
+        result = InstrumentNameBuilder.derive_instrument_name(descriptor, strike_value=50000.0, option_type=None)
         assert result == "BTC-25AUG24-50000-P"
 
     def test_handles_none_strike_value(self) -> None:
         """Handles None strike value in option name."""
         descriptor = _create_descriptor(option_kind="call", strike=None)
-        result = InstrumentNameBuilder.derive_instrument_name(
-            descriptor, strike_value=None, option_type=None
-        )
+        result = InstrumentNameBuilder.derive_instrument_name(descriptor, strike_value=None, option_type=None)
         assert result == "BTC-25AUG24-NA-C"
 
     def test_handles_float_strike_value(self) -> None:
         """Handles float strike value in option name."""
         descriptor = _create_descriptor(option_kind="call", strike="123.456")
-        result = InstrumentNameBuilder.derive_instrument_name(
-            descriptor, strike_value=123.456, option_type=None
-        )
+        result = InstrumentNameBuilder.derive_instrument_name(descriptor, strike_value=123.456, option_type=None)
         assert result == "BTC-25AUG24-123.456-C"
 
     def test_converts_currency_to_uppercase(self) -> None:
         """Converts currency to uppercase in output."""
-        descriptor = _create_descriptor(
-            currency="eth", instrument_type=DeribitInstrumentType.FUTURE
-        )
-        result = InstrumentNameBuilder.derive_instrument_name(
-            descriptor, strike_value=None, option_type=None
-        )
+        descriptor = _create_descriptor(currency="eth", instrument_type=DeribitInstrumentType.FUTURE)
+        result = InstrumentNameBuilder.derive_instrument_name(descriptor, strike_value=None, option_type=None)
         assert result == "ETH-25AUG24"
 
     def test_converts_quote_currency_to_uppercase(self) -> None:
         """Converts quote currency to uppercase for spot."""
-        descriptor = _create_descriptor(
-            instrument_type=DeribitInstrumentType.SPOT, quote_currency="usdt"
-        )
-        result = InstrumentNameBuilder.derive_instrument_name(
-            descriptor, strike_value=None, option_type=None
-        )
+        descriptor = _create_descriptor(instrument_type=DeribitInstrumentType.SPOT, quote_currency="usdt")
+        result = InstrumentNameBuilder.derive_instrument_name(descriptor, strike_value=None, option_type=None)
         assert result == "BTC-USDT"
 
     def test_raises_valueerror_for_none_currency(self) -> None:
         """Raises ValueError when currency is None."""
         descriptor = _create_descriptor(currency=None)
         with pytest.raises(ValueError, match="Descriptor missing base currency"):
-            InstrumentNameBuilder.derive_instrument_name(
-                descriptor, strike_value=None, option_type=None
-            )
+            InstrumentNameBuilder.derive_instrument_name(descriptor, strike_value=None, option_type=None)
 
     def test_raises_valueerror_for_empty_currency(self) -> None:
         """Raises ValueError when currency is empty string."""
         descriptor = _create_descriptor(currency="")
         with pytest.raises(ValueError, match="Descriptor missing base currency"):
-            InstrumentNameBuilder.derive_instrument_name(
-                descriptor, strike_value=None, option_type=None
-            )
+            InstrumentNameBuilder.derive_instrument_name(descriptor, strike_value=None, option_type=None)
 
 
 class TestInstrumentNameBuilderIntegration:
@@ -346,9 +298,7 @@ class TestInstrumentNameBuilderIntegration:
             strike="60000",
             option_kind="call",
         )
-        result = InstrumentNameBuilder.derive_instrument_name(
-            descriptor, strike_value=60000.0, option_type=None
-        )
+        result = InstrumentNameBuilder.derive_instrument_name(descriptor, strike_value=60000.0, option_type=None)
         assert result == "BTC-27DEC24-60000-C"
 
     def test_complete_eth_put_option_workflow(self) -> None:
@@ -360,19 +310,13 @@ class TestInstrumentNameBuilderIntegration:
             strike="3500.5",
             option_kind="put",
         )
-        result = InstrumentNameBuilder.derive_instrument_name(
-            descriptor, strike_value=3500.5, option_type=None
-        )
+        result = InstrumentNameBuilder.derive_instrument_name(descriptor, strike_value=3500.5, option_type=None)
         assert result == "ETH-31JAN25-3500.5-P"
 
     def test_complete_spot_workflow_with_stablecoin(self) -> None:
         """Complete workflow for spot trading pair with stablecoin."""
-        descriptor = _create_descriptor(
-            instrument_type=DeribitInstrumentType.SPOT, currency="btc", quote_currency="usdc"
-        )
-        result = InstrumentNameBuilder.derive_instrument_name(
-            descriptor, strike_value=None, option_type=None
-        )
+        descriptor = _create_descriptor(instrument_type=DeribitInstrumentType.SPOT, currency="btc", quote_currency="usdc")
+        result = InstrumentNameBuilder.derive_instrument_name(descriptor, strike_value=None, option_type=None)
         assert result == "BTC-USDC"
 
     def test_complete_future_workflow_near_expiry(self) -> None:
@@ -383,9 +327,7 @@ class TestInstrumentNameBuilderIntegration:
             expiry_iso="2024-12-31",
             expiry_token="31DEC24",
         )
-        result = InstrumentNameBuilder.derive_instrument_name(
-            descriptor, strike_value=None, option_type=None
-        )
+        result = InstrumentNameBuilder.derive_instrument_name(descriptor, strike_value=None, option_type=None)
         assert result == "BTC-31DEC24"
 
     def test_workflow_with_parsed_iso_date(self) -> None:
@@ -395,43 +337,31 @@ class TestInstrumentNameBuilderIntegration:
             expiry_token=None,
             expiry_iso="2025-03-28",
         )
-        result = InstrumentNameBuilder.derive_instrument_name(
-            descriptor, strike_value=None, option_type=None
-        )
+        result = InstrumentNameBuilder.derive_instrument_name(descriptor, strike_value=None, option_type=None)
         assert result == "BTC-28MAR25"
 
     def test_workflow_with_fractional_strike(self) -> None:
         """Workflow with fractional strike price."""
-        descriptor = _create_descriptor(
-            option_kind="c", strike="2500.125", expiry_token="15JUN24", expiry_iso="2024-06-15"
-        )
-        result = InstrumentNameBuilder.derive_instrument_name(
-            descriptor, strike_value=2500.125, option_type=None
-        )
+        descriptor = _create_descriptor(option_kind="c", strike="2500.125", expiry_token="15JUN24", expiry_iso="2024-06-15")
+        result = InstrumentNameBuilder.derive_instrument_name(descriptor, strike_value=2500.125, option_type=None)
         assert result == "BTC-15JUN24-2500.125-C"
 
     def test_workflow_handles_case_insensitive_option_type(self) -> None:
         """Workflow handles case-insensitive option type parameter."""
         descriptor = _create_descriptor(option_kind=None, strike="50000")
-        result = InstrumentNameBuilder.derive_instrument_name(
-            descriptor, strike_value=50000.0, option_type="CALL"
-        )
+        result = InstrumentNameBuilder.derive_instrument_name(descriptor, strike_value=50000.0, option_type="CALL")
         assert result == "BTC-25AUG24-50000-C"
 
     def test_workflow_with_very_large_strike(self) -> None:
         """Workflow with very large strike value."""
         descriptor = _create_descriptor(option_kind="call", strike="1000000")
-        result = InstrumentNameBuilder.derive_instrument_name(
-            descriptor, strike_value=1000000.0, option_type=None
-        )
+        result = InstrumentNameBuilder.derive_instrument_name(descriptor, strike_value=1000000.0, option_type=None)
         assert result == "BTC-25AUG24-1000000-C"
 
     def test_workflow_with_very_small_strike(self) -> None:
         """Workflow with very small strike value."""
         descriptor = _create_descriptor(option_kind="put", strike="0.001")
-        result = InstrumentNameBuilder.derive_instrument_name(
-            descriptor, strike_value=0.001, option_type=None
-        )
+        result = InstrumentNameBuilder.derive_instrument_name(descriptor, strike_value=0.001, option_type=None)
         assert result == "BTC-25AUG24-0.001-P"
 
 
@@ -441,76 +371,56 @@ class TestEdgeCases:
     def test_handles_whitespace_in_option_kind(self) -> None:
         """Handles whitespace in option_kind field (not stripped, treated as put)."""
         descriptor = _create_descriptor(option_kind="  call  ", strike="50000")
-        result = InstrumentNameBuilder.derive_instrument_name(
-            descriptor, strike_value=50000.0, option_type=None
-        )
+        result = InstrumentNameBuilder.derive_instrument_name(descriptor, strike_value=50000.0, option_type=None)
         # Whitespace prevents startswith('c') check, so treated as put
         assert result == "BTC-25AUG24-50000-P"
 
     def test_handles_mixed_case_currency(self) -> None:
         """Handles mixed case currency codes."""
-        descriptor = _create_descriptor(
-            currency="BtC", instrument_type=DeribitInstrumentType.FUTURE
-        )
-        result = InstrumentNameBuilder.derive_instrument_name(
-            descriptor, strike_value=None, option_type=None
-        )
+        descriptor = _create_descriptor(currency="BtC", instrument_type=DeribitInstrumentType.FUTURE)
+        result = InstrumentNameBuilder.derive_instrument_name(descriptor, strike_value=None, option_type=None)
         assert result == "BTC-25AUG24"
 
     def test_handles_expiry_with_microseconds(self) -> None:
         """Handles expiry dates with microsecond precision."""
         descriptor = _create_descriptor(expiry_token="2024-08-25T16:00:00.123456", expiry_iso=None)
-        result = InstrumentNameBuilder.derive_instrument_name(
-            descriptor, strike_value=50000.0, option_type="call"
-        )
+        result = InstrumentNameBuilder.derive_instrument_name(descriptor, strike_value=50000.0, option_type="call")
         assert result == "BTC-25AUG24-50000-C"
 
     def test_handles_zero_strike_option(self) -> None:
         """Handles option with zero strike."""
         descriptor = _create_descriptor(option_kind="call", strike="0")
-        result = InstrumentNameBuilder.derive_instrument_name(
-            descriptor, strike_value=0.0, option_type=None
-        )
+        result = InstrumentNameBuilder.derive_instrument_name(descriptor, strike_value=0.0, option_type=None)
         assert result == "BTC-25AUG24-0-C"
 
     def test_handles_negative_strike(self) -> None:
         """Handles negative strike values."""
         descriptor = _create_descriptor(option_kind="put", strike="-100")
-        result = InstrumentNameBuilder.derive_instrument_name(
-            descriptor, strike_value=-100.0, option_type=None
-        )
+        result = InstrumentNameBuilder.derive_instrument_name(descriptor, strike_value=-100.0, option_type=None)
         assert result == "BTC-25AUG24--100-P"
 
     def test_handles_option_type_with_full_word_call(self) -> None:
         """Handles option_type with full word 'call'."""
         descriptor = _create_descriptor(option_kind=None, strike="50000")
-        result = InstrumentNameBuilder.derive_instrument_name(
-            descriptor, strike_value=50000.0, option_type="call"
-        )
+        result = InstrumentNameBuilder.derive_instrument_name(descriptor, strike_value=50000.0, option_type="call")
         assert result == "BTC-25AUG24-50000-C"
 
     def test_handles_option_type_with_full_word_put(self) -> None:
         """Handles option_type with full word 'put'."""
         descriptor = _create_descriptor(option_kind=None, strike="50000")
-        result = InstrumentNameBuilder.derive_instrument_name(
-            descriptor, strike_value=50000.0, option_type="put"
-        )
+        result = InstrumentNameBuilder.derive_instrument_name(descriptor, strike_value=50000.0, option_type="put")
         assert result == "BTC-25AUG24-50000-P"
 
     def test_handles_option_type_with_single_letter_c(self) -> None:
         """Handles option_type with single letter 'c'."""
         descriptor = _create_descriptor(option_kind=None, strike="50000")
-        result = InstrumentNameBuilder.derive_instrument_name(
-            descriptor, strike_value=50000.0, option_type="c"
-        )
+        result = InstrumentNameBuilder.derive_instrument_name(descriptor, strike_value=50000.0, option_type="c")
         assert result == "BTC-25AUG24-50000-C"
 
     def test_handles_option_type_with_single_letter_p(self) -> None:
         """Handles option_type with single letter 'p'."""
         descriptor = _create_descriptor(option_kind=None, strike="50000")
-        result = InstrumentNameBuilder.derive_instrument_name(
-            descriptor, strike_value=50000.0, option_type="p"
-        )
+        result = InstrumentNameBuilder.derive_instrument_name(descriptor, strike_value=50000.0, option_type="p")
         assert result == "BTC-25AUG24-50000-P"
 
     def test_handles_unicode_in_unparsable_expiry(self) -> None:

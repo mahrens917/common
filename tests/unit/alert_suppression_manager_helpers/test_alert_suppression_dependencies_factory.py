@@ -24,30 +24,14 @@ class DependencyFactoryMocks:
 def factory_mocks():
     """Fixture providing all dependency factory mocks."""
     with (
-        patch(
-            "common.alert_suppression_manager_helpers.dependencies_factory.DependencyInitializer"
-        ) as mock_dependency_init_class,
-        patch(
-            "common.alert_suppression_manager_helpers.dependencies_factory.SuppressionTracker"
-        ) as mock_tracker_class,
-        patch(
-            "common.alert_suppression_manager_helpers.dependencies_factory.AlertEvaluator"
-        ) as mock_evaluator_class,
-        patch(
-            "common.alert_suppression_manager_helpers.dependencies_factory.TimeWindowManager"
-        ) as mock_time_window_class,
-        patch(
-            "common.alert_suppression_manager_helpers.dependencies_factory.ContextBuilder"
-        ) as mock_context_builder_class,
-        patch(
-            "common.alert_suppression_manager_helpers.dependencies_factory.DecisionCoordinator"
-        ) as mock_decision_coordinator_class,
-        patch(
-            "common.alert_suppression_manager_helpers.dependencies_factory.StateManager"
-        ) as mock_state_manager_class,
-        patch(
-            "common.alert_suppression_manager_helpers.dependencies_factory.ErrorClassifierAdapter"
-        ) as mock_error_adapter_class,
+        patch("common.alert_suppression_manager_helpers.dependencies_factory.DependencyInitializer") as mock_dependency_init_class,
+        patch("common.alert_suppression_manager_helpers.dependencies_factory.SuppressionTracker") as mock_tracker_class,
+        patch("common.alert_suppression_manager_helpers.dependencies_factory.AlertEvaluator") as mock_evaluator_class,
+        patch("common.alert_suppression_manager_helpers.dependencies_factory.TimeWindowManager") as mock_time_window_class,
+        patch("common.alert_suppression_manager_helpers.dependencies_factory.ContextBuilder") as mock_context_builder_class,
+        patch("common.alert_suppression_manager_helpers.dependencies_factory.DecisionCoordinator") as mock_decision_coordinator_class,
+        patch("common.alert_suppression_manager_helpers.dependencies_factory.StateManager") as mock_state_manager_class,
+        patch("common.alert_suppression_manager_helpers.dependencies_factory.ErrorClassifierAdapter") as mock_error_adapter_class,
     ):
         yield DependencyFactoryMocks(
             error_adapter_class=mock_error_adapter_class,
@@ -336,9 +320,7 @@ class TestDependenciesFactoryCreateOrUse:
         with patch.object(AlertSuppressionManagerDependenciesFactory, "create") as mock_create:
             mock_create.return_value = Mock()
 
-            result = AlertSuppressionManagerDependenciesFactory.create_or_use(
-                suppression_rule, optional_deps=None
-            )
+            result = AlertSuppressionManagerDependenciesFactory.create_or_use(suppression_rule, optional_deps=None)
 
             mock_create.assert_called_once_with(suppression_rule)
             assert result is mock_create.return_value
@@ -376,9 +358,7 @@ class TestDependenciesFactoryCreateOrUse:
         )
 
         suppression_rule = SuppressionRule()
-        result = AlertSuppressionManagerDependenciesFactory.create_or_use(
-            suppression_rule, optional_deps=optional_deps
-        )
+        result = AlertSuppressionManagerDependenciesFactory.create_or_use(suppression_rule, optional_deps=optional_deps)
 
         # Verify no constructors were called
         factory_mocks.dependency_init_class.assert_not_called()
@@ -432,9 +412,7 @@ class TestDependenciesFactoryCreateOrUse:
         factory_mocks.error_adapter_class.return_value = mock_error_adapter
 
         suppression_rule = SuppressionRule()
-        result = AlertSuppressionManagerDependenciesFactory.create_or_use(
-            suppression_rule, optional_deps=optional_deps
-        )
+        result = AlertSuppressionManagerDependenciesFactory.create_or_use(suppression_rule, optional_deps=optional_deps)
 
         # Verify result uses provided dependencies where available
         assert isinstance(result, AlertSuppressionManagerDependencies)
@@ -484,9 +462,7 @@ class TestDependenciesFactoryCreateOrUse:
         factory_mocks.error_adapter_class.return_value = mock_error_adapter
 
         suppression_rule = SuppressionRule()
-        result = AlertSuppressionManagerDependenciesFactory.create_or_use(
-            suppression_rule, optional_deps=optional_deps
-        )
+        result = AlertSuppressionManagerDependenciesFactory.create_or_use(suppression_rule, optional_deps=optional_deps)
 
         # Verify result uses all defaults
         assert isinstance(result, AlertSuppressionManagerDependencies)
@@ -532,9 +508,7 @@ class TestDependenciesFactoryCreateOrUse:
         factory_mocks.error_adapter_class.return_value = Mock()
 
         suppression_rule = SuppressionRule()
-        result = AlertSuppressionManagerDependenciesFactory.create_or_use(
-            suppression_rule, optional_deps=optional_deps
-        )
+        result = AlertSuppressionManagerDependenciesFactory.create_or_use(suppression_rule, optional_deps=optional_deps)
 
         # Verify provided dependencies are in result
         assert result.dependency_init is provided_dependency_init

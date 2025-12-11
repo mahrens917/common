@@ -21,9 +21,7 @@ class ProbabilityIngestionDelegator:
             self._helpers = create_ingestion_helpers(self._redis_provider)
         return self._helpers
 
-    async def store_probabilities(
-        self, currency: str, probabilities_data: Dict[str, Dict[str, Dict[str, Any]]]
-    ) -> bool:
+    async def store_probabilities(self, currency: str, probabilities_data: Dict[str, Dict[str, Dict[str, Any]]]) -> bool:
         """
         Store probabilities in compact format.
 
@@ -40,9 +38,7 @@ class ProbabilityIngestionDelegator:
         helpers = self._get_helpers()
         return await helpers.compact_store.store_probabilities(currency, probabilities_data)
 
-    async def store_probabilities_human_readable(
-        self, currency: str, probabilities_data: Dict[str, Dict[str, Dict[str, float]]]
-    ) -> bool:
+    async def store_probabilities_human_readable(self, currency: str, probabilities_data: Dict[str, Dict[str, Dict[str, float]]]) -> bool:
         """
         Store probabilities in human-readable format.
 
@@ -57,9 +53,7 @@ class ProbabilityIngestionDelegator:
             ProbabilityStoreError: If storage fails
         """
         helpers = self._get_helpers()
-        return await helpers.human_readable_store.store_probabilities_human_readable(
-            currency, probabilities_data
-        )
+        return await helpers.human_readable_store.store_probabilities_human_readable(currency, probabilities_data)
 
     async def store_probability(self, data: ProbabilityData) -> None:
         """

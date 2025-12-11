@@ -50,10 +50,7 @@ class FieldValidator:
         if not missing_fields:
             return
 
-        message = (
-            f"Missing required fields {missing_fields} in key {store_key}. "
-            f"Available fields: {list(raw_data.keys())}"
-        )
+        message = f"Missing required fields {missing_fields} in key {store_key}. " f"Available fields: {list(raw_data.keys())}"
         self.logger.warning(
             "🔍 ATOMIC_OPS_DIAGNOSTIC: %s, attempt %s/%s",
             message,

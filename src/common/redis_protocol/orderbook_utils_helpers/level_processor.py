@@ -14,10 +14,7 @@ class LevelProcessor:
     @staticmethod
     def validate_price_level(price_level: Any, market_ticker: str) -> bool:
         """Validate a single price level structure."""
-        if not (
-            isinstance(price_level, (list, tuple))
-            and len(price_level) == VALIDATION_CONFIG["field_counts"]["min_strike_components"]
-        ):
+        if not (isinstance(price_level, (list, tuple)) and len(price_level) == VALIDATION_CONFIG["field_counts"]["min_strike_components"]):
             raise DataError(f"Corrupted order book data detected for market {market_ticker}")
         return True
 
@@ -27,16 +24,12 @@ class LevelProcessor:
         return isinstance(size, (int, float)) and size > 0
 
     @staticmethod
-    def process_yes_level(
-        price: Any, size: Any, orderbook_sides: Dict[str, Dict[str, float]]
-    ) -> None:
+    def process_yes_level(price: Any, size: Any, orderbook_sides: Dict[str, Dict[str, float]]) -> None:
         """Process a YES side price level."""
         orderbook_sides["yes_bids"][str(price)] = size
 
     @staticmethod
-    def process_no_level(
-        price: Any, size: Any, orderbook_sides: Dict[str, Dict[str, float]]
-    ) -> None:
+    def process_no_level(price: Any, size: Any, orderbook_sides: Dict[str, Dict[str, float]]) -> None:
         """Process a NO side price level (convert to YES ask)."""
         converted_price = 100 - float(price)
         orderbook_sides["yes_asks"][str(converted_price)] = size

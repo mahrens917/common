@@ -46,9 +46,7 @@ class DataIntegrityValidator:
     ) -> float:
         from .data_integrity_helpers import NumericValidator
 
-        return NumericValidator.validate_numeric_value(
-            value, variable_name, allow_zero, allow_negative, min_value, max_value
-        )
+        return NumericValidator.validate_numeric_value(value, variable_name, allow_zero, allow_negative, min_value, max_value)
 
     @staticmethod
     def validate_expiry_value(expiry: Any, variable_name: str = "expiry") -> float:
@@ -78,9 +76,7 @@ class DataIntegrityValidator:
     ) -> np.ndarray:
         from .data_integrity_helpers import ArrayValidator
 
-        return ArrayValidator.validate_numpy_array(
-            array, variable_name, expected_shape, min_length, allow_empty
-        )
+        return ArrayValidator.validate_numpy_array(array, variable_name, expected_shape, min_length, allow_empty)
 
     @staticmethod
     def validate_json_data(json_data: Any, variable_name: str = "json_data") -> Union[Dict, List]:
@@ -97,9 +93,7 @@ class DataIntegrityValidator:
         return SurfaceValidator.validate_surface_prediction_result(prediction_result, variable_name)
 
     @staticmethod
-    def validate_bid_ask_prices(
-        bid_price: Any, ask_price: Any, variable_prefix: str = "price"
-    ) -> Tuple[float, float]:
+    def validate_bid_ask_prices(bid_price: Any, ask_price: Any, variable_prefix: str = "price") -> Tuple[float, float]:
         from .data_integrity_helpers import FinancialValidator
 
         return FinancialValidator.validate_bid_ask_prices(bid_price, ask_price, variable_prefix)
@@ -112,9 +106,7 @@ class DataIntegrityValidator:
 
     @staticmethod
     def log_validation_success(variable_name: str, value: Any) -> None:
-        logger.debug(
-            f"[DATA_VALIDATION] ✓ {variable_name} validated successfully: {type(value)} = {value}"
-        )
+        logger.debug(f"[DATA_VALIDATION] ✓ {variable_name} validated successfully: {type(value)} = {value}")
 
     @staticmethod
     def create_validation_summary(validations: List[Tuple[str, Any]]) -> str:

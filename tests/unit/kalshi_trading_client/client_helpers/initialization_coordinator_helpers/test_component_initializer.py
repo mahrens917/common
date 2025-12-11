@@ -46,9 +46,7 @@ def test_initialize_core_components(monkeypatch):
     network_monitor = MagicMock()
     trade_store = MagicMock()
 
-    components = component_initializer.initialize_core_components(
-        kalshi_client, backoff_manager, network_monitor, trade_store
-    )
+    components = component_initializer.initialize_core_components(kalshi_client, backoff_manager, network_monitor, trade_store)
 
     assert components["kalshi_client"] is kalshi_client
     assert components["backoff_manager"] is backoff_manager

@@ -44,38 +44,24 @@ class MessageMetricsCollector:
             self.realtime_collector.get_deribit_sum_last_60_seconds(),
             self.realtime_collector.get_kalshi_sum_last_60_seconds(),
         ]
-        metadata_tasks = [
-            self.metadata_store.get_service_metadata(name) for name in ["cfb", "asos", "metar"]
-        ]
+        metadata_tasks = [self.metadata_store.get_service_metadata(name) for name in ["cfb", "asos", "metar"]]
 
         try:
             deribit_messages_60s, kalshi_messages_60s = await asyncio.gather(*realtime_tasks)
-        except (
-            STATUS_REPORT_ERRORS
-        ) as exc:  # pragma: no cover - escalated to caller; log aggregation failure
+        except STATUS_REPORT_ERRORS as exc:  # pragma: no cover - escalated to caller; log aggregation failure
             raise RuntimeError("Failed to collect realtime message metrics") from exc
 
         try:
             metadata_results = await asyncio.gather(*metadata_tasks)
-        except (
-            STATUS_REPORT_ERRORS
-        ) as exc:  # pragma: no cover - escalated to caller; log aggregation failure
+        except STATUS_REPORT_ERRORS as exc:  # pragma: no cover - escalated to caller; log aggregation failure
             raise DataError("Failed to collect metadata message metrics") from exc
 
         if len(metadata_results) != _CONST_3:
-            raise DataError(
-                f"Expected metadata for ['cfb', 'asos', 'metar'], got {len(metadata_results)} entries"
-            )
+            raise DataError(f"Expected metadata for ['cfb', 'asos', 'metar'], got {len(metadata_results)} entries")
 
-        cfb_messages = self._require_metadata_value(
-            "cfb", metadata_results[0], "messages_last_minute"
-        )
-        asos_messages = self._require_metadata_value(
-            "asos", metadata_results[1], "messages_last_65_minutes"
-        )
-        metar_messages = self._require_metadata_value(
-            "metar", metadata_results[2], "messages_last_65_minutes"
-        )
+        cfb_messages = self._require_metadata_value("cfb", metadata_results[0], "messages_last_minute")
+        asos_messages = self._require_metadata_value("asos", metadata_results[1], "messages_last_65_minutes")
+        metar_messages = self._require_metadata_value("metar", metadata_results[2], "messages_last_65_minutes")
 
         return {
             "deribit_messages_60s": deribit_messages_60s,
@@ -93,14 +79,10 @@ class MessageMetricsCollector:
         try:
             value = getattr(result, attribute)
         except AttributeError as exc:
-            raise DataError(
-                f"Metadata for {name} missing required attribute '{attribute}'"
-            ) from exc
+            raise DataError(f"Metadata for {name} missing required attribute '{attribute}'") from exc
         if value is None:
             raise DataError(f"Metadata for {name} has null value for '{attribute}'")
         try:
             return int(value)
         except (TypeError, ValueError) as exc:
-            raise DataError(
-                f"Metadata for {name} contains non-numeric value for '{attribute}': {value}"
-            ) from exc
+            raise DataError(f"Metadata for {name} contains non-numeric value for '{attribute}': {value}") from exc

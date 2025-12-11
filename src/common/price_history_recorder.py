@@ -40,9 +40,7 @@ class PriceHistoryRecorder:
         if price <= 0:
             raise ValidationError(f"Invalid price: {price}. Must be positive.")
 
-    async def record_price(
-        self, client: RedisClient, currency: str, price: float
-    ) -> tuple[bool, str]:
+    async def record_price(self, client: RedisClient, currency: str, price: float) -> tuple[bool, str]:
         """
         Record price update for BTC or ETH in Redis hash structure
 

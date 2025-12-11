@@ -24,9 +24,7 @@ class OrderbookWriter:
         self.logger = logger_instance
         self._normalizer = TimestampNormalizer()
 
-    async def update_trade_tick(
-        self, msg: Dict, key_func: Any, map_func: Any, str_func: Any
-    ) -> bool:
+    async def update_trade_tick(self, msg: Dict, key_func: Any, map_func: Any, str_func: Any) -> bool:
         try:
             data = map_func(msg.get("msg"))
             ticker = data.get("market_ticker")
@@ -78,9 +76,7 @@ class OrderbookWriter:
             return None
         return val if side == "yes" else (100 - val if side == "no" else None)
 
-    def _build_trade_mapping(
-        self, msg: Dict, side: str, yes_price: Any, no_price: Any, raw_price: Any
-    ) -> Dict[str, str]:
+    def _build_trade_mapping(self, msg: Dict, side: str, yes_price: Any, no_price: Any, raw_price: Any) -> Dict[str, str]:
         ts_value = msg.get("ts") or msg.get("timestamp")
         mapping = _build_trade_base_mapping(
             side,

@@ -81,9 +81,7 @@ async def ensure_single_instance(service_name: str) -> None:
         RuntimeError: If psutil is not available (critical dependency)
     """
     if service_name not in SERVICE_PROCESS_PATTERNS:
-        raise ValueError(
-            f"Unknown service '{service_name}'. Known services: {list(SERVICE_PROCESS_PATTERNS.keys())}"
-        )
+        raise ValueError(f"Unknown service '{service_name}'. Known services: {list(SERVICE_PROCESS_PATTERNS.keys())}")
 
     process_keywords = SERVICE_PROCESS_PATTERNS[service_name]
     await kill_existing_processes(process_keywords, service_name)
@@ -112,16 +110,13 @@ def ensure_single_instance_sync(service_name: str) -> None:
 
     if loop is not None and loop.is_running():
         raise RuntimeError(
-            "ensure_single_instance_sync cannot run inside an active event loop. "
-            "Use the async ensure_single_instance API instead."
+            "ensure_single_instance_sync cannot run inside an active event loop. " "Use the async ensure_single_instance API instead."
         )
 
     asyncio.run(ensure_single_instance(service_name))
 
 
-async def kill_existing_processes(
-    process_keywords: List[str], service_name: str = "service"
-) -> None:
+async def kill_existing_processes(process_keywords: List[str], service_name: str = "service") -> None:
     """
     Kill any existing processes matching the given keywords to prevent duplicates.
 
@@ -167,9 +162,7 @@ async def kill_all_service_processes(service_names: Optional[List[str]] = None) 
             continue
 
 
-async def _kill_processes_without_current_exclusion(
-    process_keywords: List[str], service_name: str
-) -> None:
+async def _kill_processes_without_current_exclusion(process_keywords: List[str], service_name: str) -> None:
     """Kill matching processes without excluding the current PID."""
     await _kill_matching_processes(
         process_keywords,
@@ -195,9 +188,7 @@ async def _kill_matching_processes(
 
     monitor = await _get_process_monitor()
     current_pid = os.getpid()
-    matching = await _collect_target_processes(
-        monitor, psutil, process_keywords, exclude_current_pid, current_pid
-    )
+    matching = await _collect_target_processes(monitor, psutil, process_keywords, exclude_current_pid, current_pid)
 
     if not matching:
         _console(f"No {service_name} processes found")
@@ -282,10 +273,7 @@ def _wait_graceful(proc, psutil, service_name: str) -> bool:
     try:
         proc.wait(timeout=GRACEFUL_SHUTDOWN_TIMEOUT_SECONDS)
     except psutil.TimeoutExpired:
-        _console(
-            f"⏱️ Process {_safe_pid(proc)} did not terminate within "
-            f"{GRACEFUL_SHUTDOWN_TIMEOUT_SECONDS}s; sending SIGKILL"
-        )
+        _console(f"⏱️ Process {_safe_pid(proc)} did not terminate within " f"{GRACEFUL_SHUTDOWN_TIMEOUT_SECONDS}s; sending SIGKILL")
     except (OSError, RuntimeError, ValueError) as exc:
         _console(f"Could not kill process: {exc}")
     else:

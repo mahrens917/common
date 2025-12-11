@@ -42,17 +42,13 @@ class TestReportDelegator(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(result, "Current")
 
     async def test_generate_current_day_report_failure(self):
-        self.mock_coordinator.generate_current_day_report = AsyncMock(
-            side_effect=TypeError("Error")
-        )
+        self.mock_coordinator.generate_current_day_report = AsyncMock(side_effect=TypeError("Error"))
         result = await self.delegator.generate_current_day_report()
         self.assertIn("❌ Error generating current day report", result)
 
     async def test_generate_settlement_notification(self):
         self.mock_summary_builder.generate_settlement_notification = AsyncMock(return_value="Notif")
-        result = await self.delegator.generate_settlement_notification(
-            date(2023, 1, 1), [], "Daily"
-        )
+        result = await self.delegator.generate_settlement_notification(date(2023, 1, 1), [], "Daily")
         self.assertEqual(result, "Notif")
 
     async def test_generate_summary_stats_success(self):
@@ -61,9 +57,7 @@ class TestReportDelegator(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(result, "Stats")
 
     async def test_generate_summary_stats_failure(self):
-        self.mock_summary_builder.generate_summary_stats = AsyncMock(
-            side_effect=ValueError("Error")
-        )
+        self.mock_summary_builder.generate_summary_stats = AsyncMock(side_effect=ValueError("Error"))
         result = await self.delegator.generate_summary_stats(30)
         self.assertIn("❌ Error generating summary statistics", result)
 
@@ -73,9 +67,7 @@ class TestReportDelegator(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(result, "Unified")
 
     async def test_generate_unified_pnl_report_failure(self):
-        self.mock_unified_builder.generate_unified_pnl_report = AsyncMock(
-            side_effect=ValueError("Error")
-        )
+        self.mock_unified_builder.generate_unified_pnl_report = AsyncMock(side_effect=ValueError("Error"))
         result = await self.delegator.generate_unified_pnl_report()
         self.assertIn("❌ Error generating unified P&L report", result)
 
@@ -85,8 +77,6 @@ class TestReportDelegator(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(result, {"data": 1})
 
     async def test_generate_unified_pnl_data_failure(self):
-        self.mock_unified_builder.generate_unified_pnl_data = AsyncMock(
-            side_effect=ValueError("Error")
-        )
+        self.mock_unified_builder.generate_unified_pnl_data = AsyncMock(side_effect=ValueError("Error"))
         with self.assertRaises(ValueError):
             await self.delegator.generate_unified_pnl_data()

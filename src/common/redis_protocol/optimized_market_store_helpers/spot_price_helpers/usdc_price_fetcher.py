@@ -39,13 +39,9 @@ class UsdcPriceFetcher:
             REDIS_ERRORS: On Redis failures
         """
         try:
-            market_data = await self.market_data_retriever.get_usdc_market_data(
-                currency, atomic_ops
-            )
+            market_data = await self.market_data_retriever.get_usdc_market_data(currency, atomic_ops)
 
-            bid_price, ask_price = self.price_calculator.extract_bid_ask_prices(
-                market_data, currency
-            )
+            bid_price, ask_price = self.price_calculator.extract_bid_ask_prices(market_data, currency)
 
             validated_bid, validated_ask = validate_usdc_bid_ask_prices(bid_price, ask_price)
 
@@ -67,9 +63,7 @@ class UsdcPriceFetcher:
             logger.exception("Invalid USDC bid/ask data for %s: %s")
             raise
         except REDIS_ERRORS as exc:
-            logger.error(
-                "Error getting USDC bid/ask prices for %s: %s", currency, exc, exc_info=True
-            )
+            logger.error("Error getting USDC bid/ask prices for %s: %s", currency, exc, exc_info=True)
             raise
         else:
             return validated_bid, validated_ask

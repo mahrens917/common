@@ -55,9 +55,7 @@ class CloseDetector:
             logger.exception(f"[CloseDetector] Error fetching positions for : ")
             return []
 
-    async def close_positions(
-        self, ticker: str, positions: List[PortfolioPosition]
-    ) -> Tuple[bool, str]:
+    async def close_positions(self, ticker: str, positions: List[PortfolioPosition]) -> Tuple[bool, str]:
         """
         Close all positions in a market.
 
@@ -77,9 +75,7 @@ class CloseDetector:
         results = []
         for position in positions:
             try:
-                success, _, message = await self.emergency_manager.emergency_close_position(
-                    position, "Market closure"
-                )
+                success, _, message = await self.emergency_manager.emergency_close_position(position, "Market closure")
                 results.append((success, message))
             except TRADING_ERRORS:
                 logger.exception(f"[CloseDetector] Error closing position in : ")

@@ -29,20 +29,14 @@ class ValidationOperations:
 
     def parse_order_response(self, response_data, operation_name, trade_rule, trade_reason):
         """Strictly parse and validate a raw order response."""
-        return self._parser.parse_order_response(
-            response_data, operation_name, trade_rule, trade_reason
-        )
+        return self._parser.parse_order_response(response_data, operation_name, trade_rule, trade_reason)
 
     @staticmethod
-    def has_sufficient_balance_for_trade_with_fees(
-        cached_balance_cents, trade_cost_cents, fees_cents
-    ) -> bool:
+    def has_sufficient_balance_for_trade_with_fees(cached_balance_cents, trade_cost_cents, fees_cents) -> bool:
         """Determine whether cached balance covers trade cost and fees."""
         from .order_validator import OrderValidator
 
-        return OrderValidator.has_sufficient_balance_for_trade_with_fees(
-            cached_balance_cents, trade_cost_cents, fees_cents
-        )
+        return OrderValidator.has_sufficient_balance_for_trade_with_fees(cached_balance_cents, trade_cost_cents, fees_cents)
 
 
 class FillsOperations:
@@ -90,9 +84,7 @@ class MetadataOperations:
         """Determine market category and optional station for a ticker."""
         return self._metadata_resolver.resolve_trade_context(market_ticker)
 
-    async def calculate_order_fees(
-        self, market_ticker: str, quantity: int, price_cents: int
-    ) -> int:
+    async def calculate_order_fees(self, market_ticker: str, quantity: int, price_cents: int) -> int:
         """Calculate fees for a proposed order."""
         return await self._fee_calculator.calculate_order_fees(market_ticker, quantity, price_cents)
 

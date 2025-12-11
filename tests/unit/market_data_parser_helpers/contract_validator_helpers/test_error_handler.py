@@ -15,9 +15,7 @@ class TestHandleParsingError:
         error = ValueError("Symbol mismatch: expected BTC, got ETH")
         stats = {}
 
-        is_valid, error_msg, updated_stats = ErrorHandler.handle_parsing_error(
-            error, "BTC-25JAN01-100000-C", stats
-        )
+        is_valid, error_msg, updated_stats = ErrorHandler.handle_parsing_error(error, "BTC-25JAN01-100000-C", stats)
 
         assert is_valid is False
         assert error_msg == "Invalid contract BTC-25JAN01-100000-C"
@@ -28,9 +26,7 @@ class TestHandleParsingError:
         error = ValueError("Invalid date format")
         stats = {}
 
-        is_valid, error_msg, updated_stats = ErrorHandler.handle_parsing_error(
-            error, "BTC-INVALID-100000-C", stats
-        )
+        is_valid, error_msg, updated_stats = ErrorHandler.handle_parsing_error(error, "BTC-INVALID-100000-C", stats)
 
         assert is_valid is False
         assert updated_stats["date_errors"] == 1
@@ -40,9 +36,7 @@ class TestHandleParsingError:
         error = ValueError("Corrupted year: 2099")
         stats = {}
 
-        is_valid, error_msg, updated_stats = ErrorHandler.handle_parsing_error(
-            error, "BTC-25JAN99-100000-C", stats
-        )
+        is_valid, error_msg, updated_stats = ErrorHandler.handle_parsing_error(error, "BTC-25JAN99-100000-C", stats)
 
         assert is_valid is False
         assert updated_stats["date_errors"] == 1
@@ -53,9 +47,7 @@ class TestHandleParsingError:
         error = RuntimeError("Unknown error")
         stats = {}
 
-        is_valid, error_msg, updated_stats = ErrorHandler.handle_parsing_error(
-            error, "INVALID", stats
-        )
+        is_valid, error_msg, updated_stats = ErrorHandler.handle_parsing_error(error, "INVALID", stats)
 
         assert is_valid is False
         assert error_msg == "Invalid contract INVALID"
@@ -79,9 +71,7 @@ class TestMergeStats:
         base_stats = {"errors": 5, "symbol_mismatches": 2, "date_errors": 0}
         new_stats = {"errors": 3, "date_errors": 1}
 
-        is_valid, error_msg, merged = ErrorHandler.merge_stats(
-            False, "test error", base_stats, new_stats
-        )
+        is_valid, error_msg, merged = ErrorHandler.merge_stats(False, "test error", base_stats, new_stats)
 
         assert is_valid is False
         assert error_msg == "test error"

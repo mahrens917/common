@@ -30,9 +30,7 @@ def format_surface_quality(r_squared_values: list, expiry_labels: list) -> str:
     return "\n".join(lines)
 
 
-def format_error_confidence_summary(
-    avg_error: Optional[float], avg_confidence: Optional[float]
-) -> str:
+def format_error_confidence_summary(avg_error: Optional[float], avg_confidence: Optional[float]) -> str:
     """Format error and confidence summary."""
     lines = []
 
@@ -49,9 +47,7 @@ def format_error_confidence_summary(
     return "\n".join(lines)
 
 
-def format_timing_summary(
-    phase_timings: Iterable[Tuple[str, float]], sum_seconds: float, total_seconds: float
-) -> str:
+def format_timing_summary(phase_timings: Iterable[Tuple[str, float]], sum_seconds: float, total_seconds: float) -> str:
     """Render a structured execution timing summary with millisecond precision."""
     phase_timings = list(phase_timings)
     if not phase_timings:
@@ -102,8 +98,7 @@ def format_timing_summary(
         status = "FAILED"
         status_icon = "⚠️"
     lines.append(
-        f"{status_icon} Timing verification:                  {status} (gap: {gap_ms:.2f}ms "
-        f"tolerance: {dynamic_tolerance:.2f}ms)"
+        f"{status_icon} Timing verification:                  {status} (gap: {gap_ms:.2f}ms " f"tolerance: {dynamic_tolerance:.2f}ms)"
     )
     lines.append(header_line)
 

@@ -43,9 +43,7 @@ async def test_get_market_positions_handles_trading_errors():
 @pytest.mark.asyncio
 async def test_close_positions_requires_emergency_manager():
     detector = CloseDetector(_StubTradingClient())
-    position = PortfolioPosition(
-        ticker="TST", position_count=1, side=OrderSide.YES, average_price_cents=50
-    )
+    position = PortfolioPosition(ticker="TST", position_count=1, side=OrderSide.YES, average_price_cents=50)
 
     success, message = await detector.close_positions("TST", [position])
 
@@ -56,12 +54,8 @@ async def test_close_positions_requires_emergency_manager():
 @pytest.mark.asyncio
 async def test_close_positions_aggregates_results_and_errors():
     positions = [
-        PortfolioPosition(
-            ticker="TST", position_count=1, side=OrderSide.YES, average_price_cents=50
-        ),
-        PortfolioPosition(
-            ticker="TST", position_count=1, side=OrderSide.NO, average_price_cents=50
-        ),
+        PortfolioPosition(ticker="TST", position_count=1, side=OrderSide.YES, average_price_cents=50),
+        PortfolioPosition(ticker="TST", position_count=1, side=OrderSide.NO, average_price_cents=50),
     ]
     emergency_manager = _StubEmergencyManager(
         results=[

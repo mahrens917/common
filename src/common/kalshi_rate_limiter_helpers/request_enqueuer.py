@@ -48,16 +48,12 @@ class RequestEnqueuer:
         try:
             if request_type == RequestType.READ:
                 if read_queue.full():
-                    raise QueueFullError(
-                        f"Read request queue is full ({read_queue_max_size} requests) - system overloaded"
-                    )
+                    raise QueueFullError(f"Read request queue is full ({read_queue_max_size} requests) - system overloaded")
                 read_queue.put_nowait(request_data)
 
             elif request_type == RequestType.WRITE:
                 if write_queue.full():
-                    raise QueueFullError(
-                        f"Write request queue is full ({write_queue_max_size} requests) - system overloaded"
-                    )
+                    raise QueueFullError(f"Write request queue is full ({write_queue_max_size} requests) - system overloaded")
                 write_queue.put_nowait(request_data)
 
             else:

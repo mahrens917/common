@@ -48,9 +48,7 @@ def _enrich_strike_fields(market_ticker: str, enriched: Dict[str, Any]) -> None:
     _set_type_specific_strike_bounds(enriched, strike_type, floor_strike, cap_strike)
 
 
-def _set_base_strike_fields(
-    enriched: Dict[str, Any], strike_type: str, strike_value: Optional[float]
-) -> None:
+def _set_base_strike_fields(enriched: Dict[str, Any], strike_type: str, strike_value: Optional[float]) -> None:
     """Set strike_type and strike value if missing"""
     if not enriched.get("strike_type"):
         enriched["strike_type"] = strike_type

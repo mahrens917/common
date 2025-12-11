@@ -65,9 +65,7 @@ def test_sync_top_of_book_fields_populates_scalars():
 
 
 @pytest.mark.asyncio
-async def test_write_enhanced_market_data_formats_values(
-    monkeypatch, fake_redis_client_factory, schema_config_factory
-):
+async def test_write_enhanced_market_data_formats_values(monkeypatch, fake_redis_client_factory, schema_config_factory):
     store, fake = _make_store(monkeypatch, fake_redis_client_factory, schema_config_factory)
     ticker = "KXBTC-TEST-MKT"
 
@@ -82,9 +80,7 @@ async def test_write_enhanced_market_data_formats_values(
 
 
 @pytest.mark.asyncio
-async def test_get_market_snapshot_normalises_hash(
-    monkeypatch, fake_redis_client_factory, schema_config_factory
-):
+async def test_get_market_snapshot_normalises_hash(monkeypatch, fake_redis_client_factory, schema_config_factory):
     store, fake = _make_store(monkeypatch, fake_redis_client_factory, schema_config_factory)
     ticker = "KXBTC-TEST-MKT"
     market_key = store.get_market_key(ticker)

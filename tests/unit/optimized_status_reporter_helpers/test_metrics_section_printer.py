@@ -17,14 +17,10 @@ class TestMetricsSectionPrinter:
     def data_coercion(self):
         """Mocked data coercion helpers."""
         mock = Mock()
-        mock.int_or_default.side_effect = lambda value, default=0: (
-            default if value is None else value
-        )
+        mock.int_or_default.side_effect = lambda value, default=0: (default if value is None else value)
         mock.coerce_mapping.side_effect = lambda value: value or {}
         mock.string_or_default.side_effect = lambda value, default="Unknown": value or default
-        mock.bool_or_default.side_effect = lambda value, default=False: (
-            default if value is None else value
-        )
+        mock.bool_or_default.side_effect = lambda value, default=False: (default if value is None else value)
         return mock
 
     @pytest.fixture
@@ -70,13 +66,9 @@ class TestMetricsSectionPrinter:
         assert printer._emitted[-1] == "  🟢 CFB Messages - 9"
 
     @patch("common.optimized_status_reporter_helpers.metrics_section_printer.get_weather_settings")
-    def test_print_weather_metrics_section_disables_asos_when_off(
-        self, mock_get_weather_settings, printer, data_coercion
-    ):
+    def test_print_weather_metrics_section_disables_asos_when_off(self, mock_get_weather_settings, printer, data_coercion):
         """ASOS disabled path surfaces correct line."""
-        mock_get_weather_settings.return_value = SimpleNamespace(
-            sources=SimpleNamespace(asos_source="off")
-        )
+        mock_get_weather_settings.return_value = SimpleNamespace(sources=SimpleNamespace(asos_source="off"))
 
         printer.print_weather_metrics_section({"metar_messages_65m": 4})
 
@@ -85,13 +77,9 @@ class TestMetricsSectionPrinter:
         assert printer._emitted[-1] == "  🟢 METAR Temperature Changes - 4"
 
     @patch("common.optimized_status_reporter_helpers.metrics_section_printer.get_weather_settings")
-    def test_print_weather_metrics_section_prints_asos_and_metar(
-        self, mock_get_weather_settings, printer, data_coercion
-    ):
+    def test_print_weather_metrics_section_prints_asos_and_metar(self, mock_get_weather_settings, printer, data_coercion):
         """ASOS enabled path prints both metrics."""
-        mock_get_weather_settings.return_value = SimpleNamespace(
-            sources=SimpleNamespace(asos_source="on")
-        )
+        mock_get_weather_settings.return_value = SimpleNamespace(sources=SimpleNamespace(asos_source="on"))
         data_coercion.int_or_default.side_effect = [8, 10]
 
         printer.print_weather_metrics_section({"asos_messages_65m": 8, "metar_messages_65m": 10})
@@ -99,9 +87,7 @@ class TestMetricsSectionPrinter:
         assert "ASOS Temperature Changes - 8" in printer._emitted[2]
         assert printer._emitted[-1] == "  🟢 METAR Temperature Changes - 10"
 
-    def test_print_tracker_status_section_handles_missing_and_disabled(
-        self, printer, data_coercion
-    ):
+    def test_print_tracker_status_section_handles_missing_and_disabled(self, printer, data_coercion):
         """Tracker status section covers missing info and disabled override."""
         printer.print_tracker_status_section({})
         assert printer._emitted[-2] == "  🔴 Tracker status unavailable"
@@ -109,9 +95,7 @@ class TestMetricsSectionPrinter:
 
         data_coercion.string_or_default.return_value = "Running"
         data_coercion.bool_or_default.side_effect = [False, False]
-        printer.print_tracker_status_section(
-            {"status_summary": "Running", "running": False, "enabled": False}
-        )
+        printer.print_tracker_status_section({"status_summary": "Running", "running": False, "enabled": False})
 
         assert printer._emitted[-2] == "  🔴 Stopped | Disabled"
 
@@ -120,8 +104,6 @@ class TestMetricsSectionPrinter:
         data_coercion.string_or_default.return_value = "All good"
         data_coercion.bool_or_default.side_effect = [True, True]
 
-        printer.print_tracker_status_section(
-            {"status_summary": "All good", "running": True, "enabled": True}
-        )
+        printer.print_tracker_status_section({"status_summary": "All good", "running": True, "enabled": True})
 
         assert printer._emitted[-2] == "  All good"

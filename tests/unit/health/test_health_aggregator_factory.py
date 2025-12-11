@@ -99,9 +99,7 @@ def test_create_or_use_returns_optional_when_complete(monkeypatch):
         multi_checker=MagicMock(),
     )
 
-    result = ServiceHealthAggregatorFactory.create_or_use(
-        "/tmp/logs", lambda: "ok", optional_deps=optional
-    )
+    result = ServiceHealthAggregatorFactory.create_or_use("/tmp/logs", lambda: "ok", optional_deps=optional)
 
     assert result is sentinel
 
@@ -125,9 +123,7 @@ def test_create_or_use_merges_defaults_with_partial(monkeypatch):
     monkeypatch.setattr(ServiceHealthAggregatorFactory, "create", staticmethod(fake_create))
 
     optional = OptionalDependencies(process_monitor=MagicMock(name="provided-process"))
-    result = ServiceHealthAggregatorFactory.create_or_use(
-        "/tmp/logs", lambda: "ok", optional_deps=optional
-    )
+    result = ServiceHealthAggregatorFactory.create_or_use("/tmp/logs", lambda: "ok", optional_deps=optional)
 
     assert result.process_monitor is optional.process_monitor
     assert result.log_monitor is defaults.log_monitor

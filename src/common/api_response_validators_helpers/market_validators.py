@@ -23,10 +23,7 @@ def validate_market_status(market_data: Dict[str, Any], prefix: str = "") -> Non
     """Validate market status is a known value."""
     valid_statuses = ["open", "closed", "settled", "active"]
     if market_data["status"] not in valid_statuses:
-        raise ValueError(
-            f"{prefix}Invalid status '{market_data['status']}'. "
-            f"Valid statuses: {valid_statuses}"
-        )
+        raise ValueError(f"{prefix}Invalid status '{market_data['status']}'. " f"Valid statuses: {valid_statuses}")
 
 
 def validate_market_timestamps(market_data: Dict[str, Any], prefix: str = "") -> None:
@@ -48,10 +45,6 @@ def validate_market_price_fields(market_data: Dict[str, Any], prefix: str = "") 
     for field in price_fields:
         if field in market_data and market_data[field] is not None:
             if not isinstance(market_data[field], (int, float)):
-                raise TypeError(
-                    f"{prefix}{field} must be numeric or null, got: {type(market_data[field])}"
-                )
+                raise TypeError(f"{prefix}{field} must be numeric or null, got: {type(market_data[field])}")
             if market_data[field] < 0 or market_data[field] > _CONST_100:
-                raise ValueError(
-                    f"{prefix}{field} must be between 0-100 cents, got: {market_data[field]}"
-                )
+                raise ValueError(f"{prefix}{field} must be between 0-100 cents, got: {market_data[field]}")

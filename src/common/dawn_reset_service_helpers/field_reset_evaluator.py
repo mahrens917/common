@@ -64,9 +64,7 @@ class FieldResetEvaluator:
 
         # Handle empty previous data (first run)
         if not previous_data:
-            return self._evaluation_cases.evaluate_first_run(
-                latitude, longitude, current_timestamp, last_dawn_reset, field_name
-            )
+            return self._evaluation_cases.evaluate_first_run(latitude, longitude, current_timestamp, last_dawn_reset, field_name)
 
         # Get the relevant timestamp from previous data
         timestamp_field = self.timestamp_resolver.get_timestamp_field_for_reset_field(field_name)

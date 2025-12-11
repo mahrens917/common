@@ -66,9 +66,7 @@ class _ProcessCacheManager:
             self.service_cache,
             self.redis_processes,
             self.last_full_scan,
-        ) = await self._scan_coordinator.perform_full_scan(
-            self.process_cache, self.service_cache, self.redis_processes
-        )
+        ) = await self._scan_coordinator.perform_full_scan(self.process_cache, self.service_cache, self.redis_processes)
 
     async def perform_incremental_scan(self) -> bool:
         (
@@ -77,9 +75,7 @@ class _ProcessCacheManager:
             self.redis_processes,
             self.last_full_scan,
             full_scan_triggered,
-        ) = await self._scan_coordinator.perform_incremental_scan(
-            self.process_cache, self.service_cache, self.redis_processes
-        )
+        ) = await self._scan_coordinator.perform_incremental_scan(self.process_cache, self.service_cache, self.redis_processes)
         return full_scan_triggered
 
 
@@ -152,15 +148,11 @@ class ProcessMonitor(
 
     async def get_service_processes(self, service_name: str) -> List[ProcessInfo]:
         await self._ensure_cache_fresh()
-        return await self._api.get_service_processes(
-            service_name, self._cache_manager.service_cache
-        )
+        return await self._api.get_service_processes(service_name, self._cache_manager.service_cache)
 
     async def get_redis_processes(self) -> List[ProcessInfo]:
         await self._ensure_cache_fresh()
-        fresh_redis, cache_updated = await self._api.get_redis_processes(
-            self._cache_manager.redis_processes
-        )
+        fresh_redis, cache_updated = await self._api.get_redis_processes(self._cache_manager.redis_processes)
         if cache_updated:
             self._cache_manager.redis_processes = fresh_redis
         return fresh_redis
@@ -171,9 +163,7 @@ class ProcessMonitor(
 
     async def find_processes_by_keywords(self, keywords: Iterable[str]) -> List[ProcessInfo]:
         await self._ensure_cache_fresh()
-        return await self._api.find_processes_by_keywords(
-            keywords, self._cache_manager.process_cache
-        )
+        return await self._api.find_processes_by_keywords(keywords, self._cache_manager.process_cache)
 
     async def update_process_metrics(self, pid: int) -> Optional[ProcessInfo]:
         return await self._api.update_process_metrics(pid, self._cache_manager.process_cache)

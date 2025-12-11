@@ -103,23 +103,15 @@ class ConnectionStore:
         assert self._state_manager is not None
         return await self._state_manager.get_services_in_reconnection()
 
-    async def record_reconnection_event(
-        self, service_name: str, event_type: str, details: str = ""
-    ) -> None:
+    async def record_reconnection_event(self, service_name: str, event_type: str, details: str = "") -> None:
         await self.initialize()
         assert self._reconnection_event_manager is not None
-        return await self._reconnection_event_manager.record_reconnection_event(
-            service_name, event_type, details
-        )
+        return await self._reconnection_event_manager.record_reconnection_event(service_name, event_type, details)
 
-    async def get_recent_reconnection_events(
-        self, service_name: str, hours_back: int = 1
-    ) -> List[Dict[str, Any]]:
+    async def get_recent_reconnection_events(self, service_name: str, hours_back: int = 1) -> List[Dict[str, Any]]:
         await self.initialize()
         assert self._reconnection_event_manager is not None
-        return await self._reconnection_event_manager.get_recent_reconnection_events(
-            service_name, hours_back
-        )
+        return await self._reconnection_event_manager.get_recent_reconnection_events(service_name, hours_back)
 
     async def cleanup_stale_states(self, max_age_hours: int = 24) -> int:
         await self.initialize()

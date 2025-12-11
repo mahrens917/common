@@ -30,9 +30,7 @@ class MarketFilter:
         """
         self.logger = logger_instance
 
-    async def find_currency_market_tickers(
-        self, redis: Redis, currency: str, is_market_for_currency_func
-    ) -> List[str]:
+    async def find_currency_market_tickers(self, redis: Redis, currency: str, is_market_for_currency_func) -> List[str]:
         """
         Scan Redis for Kalshi market tickers matching the requested currency.
 
@@ -101,7 +99,5 @@ class MarketFilter:
             skipped,
         )
         if skip_reasons:
-            top_reasons = ", ".join(
-                f"{reason}={count}" for reason, count in skip_reasons.most_common(5)
-            )
+            top_reasons = ", ".join(f"{reason}={count}" for reason, count in skip_reasons.most_common(5))
             self.logger.debug("Top skip reasons for %s: %s", currency, top_reasons)

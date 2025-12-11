@@ -93,9 +93,7 @@ class TestHealthCoordinatorProcessHealthCycle:
         check_fn = AsyncMock()
         connect_fn = AsyncMock()
 
-        result = await coordinator._process_health_cycle(
-            check_fn, connect_fn, health_checker, reconnection_mgr
-        )
+        result = await coordinator._process_health_cycle(check_fn, connect_fn, health_checker, reconnection_mgr)
 
         assert result is True
         health_checker.check_and_handle_failure.assert_called_once()
@@ -119,9 +117,7 @@ class TestHealthCoordinatorProcessHealthCycle:
         check_fn = AsyncMock()
         connect_fn = AsyncMock()
 
-        result = await coordinator._process_health_cycle(
-            check_fn, connect_fn, health_checker, reconnection_mgr
-        )
+        result = await coordinator._process_health_cycle(check_fn, connect_fn, health_checker, reconnection_mgr)
 
         assert result is True
         reconnection_mgr.handle_disconnected.assert_called_once()
@@ -142,9 +138,7 @@ class TestHealthCoordinatorProcessHealthCycle:
         health_checker = MagicMock()
         reconnection_mgr = MagicMock()
 
-        result = await coordinator._process_health_cycle(
-            AsyncMock(), AsyncMock(), health_checker, reconnection_mgr
-        )
+        result = await coordinator._process_health_cycle(AsyncMock(), AsyncMock(), health_checker, reconnection_mgr)
 
         assert result is True
 

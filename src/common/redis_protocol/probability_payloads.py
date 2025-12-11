@@ -53,9 +53,7 @@ def build_probability_record(
     normalised_strike = normalise_strike_value(strike_value)
     key = f"probabilities:{currency}:{expiry}:{strike_type}:{normalised_strike}"
 
-    fields, diagnostics = serialize_probability_payload(
-        payload, default_missing_event_ticker=default_missing_event_ticker
-    )
+    fields, diagnostics = serialize_probability_payload(payload, default_missing_event_ticker=default_missing_event_ticker)
 
     raw_event_ticker = fields.get("event_ticker")
     event_ticker = raw_event_ticker if raw_event_ticker and raw_event_ticker != "null" else None
@@ -117,9 +115,7 @@ def _serialize_nullable_fields(payload: Dict[str, Any], mapping: Dict[str, str])
             mapping[field_name] = _serialize_nullable(payload.get(field_name))
 
 
-def _serialize_event_ticker(
-    payload: Dict[str, Any], mapping: Dict[str, str], default_missing_event_ticker: bool
-) -> None:
+def _serialize_event_ticker(payload: Dict[str, Any], mapping: Dict[str, str], default_missing_event_ticker: bool) -> None:
     """Serialize event_ticker with optional default handling"""
     event_ticker_value = payload.get("event_ticker")
     if default_missing_event_ticker:
@@ -153,16 +149,10 @@ def _serialize_remaining_fields(
 
 def _should_skip_field(field_name: str) -> bool:
     """Check if field should be skipped during serialization"""
-    return (
-        field_name in EXCLUDED_FIELDS
-        or field_name in NULLABLE_OPTIONAL_FIELDS
-        or field_name == "event_ticker"
-    )
+    return field_name in EXCLUDED_FIELDS or field_name in NULLABLE_OPTIONAL_FIELDS or field_name == "event_ticker"
 
 
-def _update_diagnostics_for_field(
-    field_name: str, diagnostics: ProbabilityFieldDiagnostics
-) -> ProbabilityFieldDiagnostics:
+def _update_diagnostics_for_field(field_name: str, diagnostics: ProbabilityFieldDiagnostics) -> ProbabilityFieldDiagnostics:
     """Update diagnostics when error or confidence fields are stored"""
     if field_name == "error":
         return ProbabilityFieldDiagnostics(

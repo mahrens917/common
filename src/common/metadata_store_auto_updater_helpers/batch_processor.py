@@ -14,9 +14,7 @@ REDIS_ERRORS = (Exception,)  # Catch-all for Redis errors
 class BatchProcessor(ShutdownRequestMixin):
     """Processes batched updates to MetadataStore"""
 
-    def __init__(
-        self, metadata_store, pending_updates: Dict, batch_lock, batch_interval_seconds: float = 1.0
-    ):
+    def __init__(self, metadata_store, pending_updates: Dict, batch_lock, batch_interval_seconds: float = 1.0):
         self.metadata_store = metadata_store
         self.pending_updates = pending_updates
         self.batch_lock = batch_lock

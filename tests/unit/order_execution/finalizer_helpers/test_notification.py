@@ -24,9 +24,7 @@ class TestSendNotification:
         order_response = MagicMock()
 
         # Should not raise
-        await send_notification(
-            None, order_request, order_response, "order-123", MagicMock(), "test_op"
-        )
+        await send_notification(None, order_request, order_response, "order-123", MagicMock(), "test_op")
 
     @pytest.mark.asyncio
     async def test_sends_notification_to_notifier(self) -> None:
@@ -76,9 +74,7 @@ class TestSendNotification:
     async def test_raises_notification_error_on_runtime_error(self) -> None:
         """Raises KalshiTradeNotificationError on RuntimeError."""
         notifier = AsyncMock()
-        notifier.send_order_executed_notification = AsyncMock(
-            side_effect=RuntimeError("Connection failed")
-        )
+        notifier.send_order_executed_notification = AsyncMock(side_effect=RuntimeError("Connection failed"))
 
         order_request = MagicMock()
         order_response = MagicMock()
@@ -140,9 +136,7 @@ class TestSendNotification:
     async def test_raises_notification_error_on_connection_error(self) -> None:
         """Raises KalshiTradeNotificationError on ConnectionError."""
         notifier = AsyncMock()
-        notifier.send_order_executed_notification = AsyncMock(
-            side_effect=ConnectionError("Network error")
-        )
+        notifier.send_order_executed_notification = AsyncMock(side_effect=ConnectionError("Network error"))
 
         order_request = MagicMock()
         order_response = MagicMock()

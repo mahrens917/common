@@ -39,9 +39,7 @@ class ExpiryConverter:
             return f"{day_str}{month_str}{expiry_dt.year % 100:02d}"
         except (ValueError, IndexError) as exc:
             logger.exception("Error converting ISO to Deribit format: %s, error: %s")
-            raise DataError(
-                f"Failed to convert ISO to Deribit format for '{expiry}': {exc}"
-            ) from exc
+            raise DataError(f"Failed to convert ISO to Deribit format for '{expiry}': {exc}") from exc
 
     @staticmethod
     def convert_expiry_to_iso(expiry: str) -> str:
@@ -69,13 +67,9 @@ class ExpiryConverter:
             }
             month = months[month_str]
             expiry_date = datetime(year, month, day, DERIBIT_EXPIRY_HOUR, 0, 0, tzinfo=timezone.utc)
-            if expiry_date < EPOCH_START or not validate_expiry_hour(
-                expiry_date, DERIBIT_EXPIRY_HOUR
-            ):
+            if expiry_date < EPOCH_START or not validate_expiry_hour(expiry_date, DERIBIT_EXPIRY_HOUR):
                 return expiry
             return expiry_date.isoformat()
         except (ValueError, KeyError) as exc:
             logger.exception("Error converting Deribit to ISO format: %s, error: %s")
-            raise DataError(
-                f"Failed to convert Deribit to ISO format for '{expiry}': {exc}"
-            ) from exc
+            raise DataError(f"Failed to convert Deribit to ISO format for '{expiry}': {exc}") from exc

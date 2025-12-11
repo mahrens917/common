@@ -30,9 +30,7 @@ async def scan_market_keys(store, patterns: Optional[List[str]] = None) -> List[
     return results
 
 
-async def scan_single_pattern(
-    redis: Redis, pattern: str, seen: Set[str], results: List[str]
-) -> None:
+async def scan_single_pattern(redis: Redis, pattern: str, seen: Set[str], results: List[str]) -> None:
     """Scan Redis for keys matching a single pattern."""
     cursor = 0
     while True:

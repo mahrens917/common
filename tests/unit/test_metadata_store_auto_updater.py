@@ -107,9 +107,7 @@ class TestMetadataStoreAutoUpdaterInitialize:
         with patch("common.metadata_store_auto_updater.KeyspaceListener") as mock_listener_class:
             await updater.initialize()
 
-        mock_listener_class.assert_called_once_with(
-            mock_pubsub, updater.pending_updates, updater._batch_lock
-        )
+        mock_listener_class.assert_called_once_with(mock_pubsub, updater.pending_updates, updater._batch_lock)
 
     @pytest.mark.asyncio
     async def test_initialize_creates_batch_processor(self) -> None:
@@ -124,9 +122,7 @@ class TestMetadataStoreAutoUpdaterInitialize:
         with patch("common.metadata_store_auto_updater.BatchProcessor") as mock_processor_class:
             await updater.initialize()
 
-        mock_processor_class.assert_called_once_with(
-            mock_store, updater.pending_updates, updater._batch_lock, 1.0
-        )
+        mock_processor_class.assert_called_once_with(mock_store, updater.pending_updates, updater._batch_lock, 1.0)
 
     @pytest.mark.asyncio
     async def test_initialize_creates_time_window_updater(self) -> None:

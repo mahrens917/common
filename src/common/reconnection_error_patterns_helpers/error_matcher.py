@@ -21,9 +21,7 @@ class ErrorMatcher:
         """
         self.compiled_patterns = compiled_patterns
 
-    def matches_pattern(
-        self, service_type: ServiceType, error_message: str
-    ) -> tuple[bool, str | None]:
+    def matches_pattern(self, service_type: ServiceType, error_message: str) -> tuple[bool, str | None]:
         """
         Check if error message matches any reconnection pattern.
 
@@ -48,9 +46,7 @@ class ErrorMatcher:
 
         return False, None
 
-    def check_with_logging(
-        self, service_name: str, service_type: ServiceType, error_message: str
-    ) -> bool:
+    def check_with_logging(self, service_name: str, service_type: ServiceType, error_message: str) -> bool:
         """
         Check pattern match with debug logging.
 
@@ -65,13 +61,8 @@ class ErrorMatcher:
         matches, pattern = self.matches_pattern(service_type, error_message)
 
         if matches:
-            logger.debug(
-                f"Reconnection error detected for {service_name}: "
-                f"{error_message[:100]}... (pattern: {pattern})"
-            )
+            logger.debug(f"Reconnection error detected for {service_name}: " f"{error_message[:100]}... (pattern: {pattern})")
         else:
-            logger.debug(
-                f"No reconnection pattern match for {service_name}: {error_message[:100]}..."
-            )
+            logger.debug(f"No reconnection pattern match for {service_name}: {error_message[:100]}...")
 
         return matches

@@ -21,10 +21,7 @@ def validate_required_field(hash_data: Dict[str, Any], field_name: str, context:
     value = hash_data.get(field_name)
     if value is None:
         context_suffix = f" in {context}" if context else ""
-        raise RuntimeError(
-            f"FAIL-FAST: Missing required {field_name} field{context_suffix}. "
-            f"Cannot proceed with empty {field_name}."
-        )
+        raise RuntimeError(f"FAIL-FAST: Missing required {field_name} field{context_suffix}. " f"Cannot proceed with empty {field_name}.")
     return value
 
 
@@ -47,6 +44,4 @@ def validate_float_field(hash_data: Dict[str, Any], field_name: str, context: st
     try:
         return float(value_str)
     except (TypeError, ValueError) as exc:
-        raise RuntimeError(
-            f"Invalid {field_name} value '{value_str}' - cannot convert to float"
-        ) from exc
+        raise RuntimeError(f"Invalid {field_name} value '{value_str}' - cannot convert to float") from exc

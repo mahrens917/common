@@ -36,9 +36,7 @@ class ExpiryChecker:
 
             if close_datetime and close_datetime < current_time:
                 close_time_str = CloseTimeParser.decode_close_time_string(close_time_raw)
-                self.logger.info(
-                    "Market %s expired: close_time %s < current time", market_ticker, close_time_str
-                )
+                self.logger.info("Market %s expired: close_time %s < current time", market_ticker, close_time_str)
                 return True
         except REDIS_ERRORS as exc:
             self.logger.error(

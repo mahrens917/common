@@ -71,19 +71,11 @@ class KalshiTradingClientDependenciesFactory:
         if trade_store is None:
             raise ValueError("KalshiTradingClient requires a trade store instance")
 
-        initialized_kalshi_client = ClientInitializer.initialize_kalshi_client(
-            kalshi_client, trade_store
-        )
-        initialized_backoff_manager = ClientInitializer.initialize_backoff_manager(
-            backoff_manager, network_health_monitor
-        )
-        trade_store_manager = TradeStoreManager(
-            kalshi_client=initialized_kalshi_client, store_supplier=lambda: trade_store
-        )
+        initialized_kalshi_client = ClientInitializer.initialize_kalshi_client(kalshi_client, trade_store)
+        initialized_backoff_manager = ClientInitializer.initialize_backoff_manager(backoff_manager, network_health_monitor)
+        trade_store_manager = TradeStoreManager(kalshi_client=initialized_kalshi_client, store_supplier=lambda: trade_store)
         notifier = TradeNotifierAdapter()
-        initialized_weather_station_resolver = ClientInitializer.initialize_weather_resolver(
-            weather_station_resolver
-        )
+        initialized_weather_station_resolver = ClientInitializer.initialize_weather_resolver(weather_station_resolver)
 
         return KalshiTradingClientDependencies(
             kalshi_client=initialized_kalshi_client,
@@ -104,9 +96,7 @@ class KalshiTradingClientDependenciesFactory:
             if config.trade_store is None:
                 raise ValueError("KalshiTradingClient requires a trade store instance")
 
-            initialized_kalshi_client = ClientInitializer.initialize_kalshi_client(
-                config.kalshi_client, config.trade_store
-            )
+            initialized_kalshi_client = ClientInitializer.initialize_kalshi_client(config.kalshi_client, config.trade_store)
             initialized_backoff_manager = ClientInitializer.initialize_backoff_manager(
                 config.backoff_manager, config.network_health_monitor
             )

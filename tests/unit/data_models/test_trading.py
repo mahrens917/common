@@ -184,9 +184,7 @@ class TestOrderRequest:
         """Test that all validation functions are called."""
         with patch("common.data_models.trading.validate_order_request_enums") as mock_enum_val:
             with patch("common.data_models.trading.validate_order_request_price") as mock_price_val:
-                with patch(
-                    "common.data_models.trading.validate_order_request_metadata"
-                ) as mock_meta_val:
+                with patch("common.data_models.trading.validate_order_request_metadata") as mock_meta_val:
                     request = OrderRequest(
                         ticker="KMARKT-25JAN01",
                         action=OrderAction.BUY,
@@ -205,9 +203,7 @@ class TestOrderRequest:
                         TimeInForce.IMMEDIATE_OR_CANCEL,
                     )
                     mock_price_val.assert_called_once_with(OrderType.MARKET, 0)
-                    mock_meta_val.assert_called_once_with(
-                        "KMARKT-25JAN01", 10, "order-123", "TEMP_INCREASE", "Temperature rising"
-                    )
+                    mock_meta_val.assert_called_once_with("KMARKT-25JAN01", 10, "order-123", "TEMP_INCREASE", "Temperature rising")
 
 
 class TestOrderFill:
@@ -306,23 +302,13 @@ class TestOrderResponse:
     def test_validation_called_on_init(self):
         """Test that all validation functions are called."""
         now = datetime.now(timezone.utc)
-        fills = [
-            OrderFill(price_cents=DEFAULT_FILL_PRICE, count=DEFAULT_FILLED_COUNT, timestamp=now)
-        ]
+        fills = [OrderFill(price_cents=DEFAULT_FILL_PRICE, count=DEFAULT_FILLED_COUNT, timestamp=now)]
 
         with patch("common.data_models.trading.validate_order_response_enums") as mock_enum_val:
-            with patch(
-                "common.data_models.trading.validate_order_response_counts"
-            ) as mock_count_val:
-                with patch(
-                    "common.data_models.trading.validate_order_response_price"
-                ) as mock_price_val:
-                    with patch(
-                        "common.data_models.trading.validate_order_response_fills"
-                    ) as mock_fill_val:
-                        with patch(
-                            "common.data_models.trading.validate_order_response_metadata"
-                        ) as mock_meta_val:
+            with patch("common.data_models.trading.validate_order_response_counts") as mock_count_val:
+                with patch("common.data_models.trading.validate_order_response_price") as mock_price_val:
+                    with patch("common.data_models.trading.validate_order_response_fills") as mock_fill_val:
+                        with patch("common.data_models.trading.validate_order_response_metadata") as mock_meta_val:
                             OrderResponse(
                                 order_id="exchange-order-456",
                                 client_order_id="order-123",
@@ -395,9 +381,7 @@ class TestTradingError:
                 operation_name="test_operation",
             )
 
-            mock_validate.assert_called_once_with(
-                "TEST_ERROR", "Test message", "test_operation", now
-            )
+            mock_validate.assert_called_once_with("TEST_ERROR", "Test message", "test_operation", now)
 
 
 class TestMarketValidationData:

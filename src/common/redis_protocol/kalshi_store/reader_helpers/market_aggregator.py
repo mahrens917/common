@@ -38,15 +38,12 @@ class MarketAggregator:
             ticker = market.get("market_ticker")
             if expiry is None or strike is None or not strike_type_value or not ticker:
                 raise DataError(
-                    f"Market {ticker} missing strike metadata "
-                    f"(expiry={expiry}, strike={strike}, strike_type={strike_type_value})"
+                    f"Market {ticker} missing strike metadata " f"(expiry={expiry}, strike={strike}, strike_type={strike_type_value})"
                 )
             try:
                 strike_value = float(strike)
             except (TypeError, ValueError) as exc:
-                raise RuntimeError(
-                    f"Market {ticker} has non-numeric strike value: {strike}"
-                ) from exc
+                raise RuntimeError(f"Market {ticker} has non-numeric strike value: {strike}") from exc
             strike_type = str(strike_type_value)
             ticker_str = str(ticker)
             grouped[(str(expiry), strike_value, strike_type)].append(ticker_str)

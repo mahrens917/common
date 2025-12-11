@@ -496,9 +496,7 @@ class ScanningRedis:
 
 @pytest.mark.asyncio
 async def test_get_all_instruments_builds_results(monkeypatch):
-    future_key = DeribitInstrumentKey(
-        instrument_type=DeribitInstrumentType.FUTURE, currency="BTC", expiry_iso="2025-02-28"
-    ).key()
+    future_key = DeribitInstrumentKey(instrument_type=DeribitInstrumentType.FUTURE, currency="BTC", expiry_iso="2025-02-28").key()
     option_key = DeribitInstrumentKey(
         instrument_type=DeribitInstrumentType.OPTION,
         currency="BTC",

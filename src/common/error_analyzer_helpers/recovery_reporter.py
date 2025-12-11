@@ -17,9 +17,7 @@ class RecoveryReporter:
         self.service_name = service_name
         self.telegram_notifier = telegram_notifier
 
-    async def report_recovery(
-        self, recovery_message: str, context: Optional[Dict[str, Any]] = None
-    ) -> None:
+    async def report_recovery(self, recovery_message: str, context: Optional[Dict[str, Any]] = None) -> None:
         """
         Report service recovery.
 
@@ -49,9 +47,7 @@ class RecoveryReporter:
 
         should_suppress_recovery = suppression_decision.should_suppress
         if should_suppress_recovery:
-            logger.debug(
-                f"[{self.service_name}] Recovery notification suppressed: {suppression_decision.reason}"
-            )
+            logger.debug(f"[{self.service_name}] Recovery notification suppressed: {suppression_decision.reason}")
 
         if self.telegram_notifier and not should_suppress_recovery:
             await self.telegram_notifier(message)

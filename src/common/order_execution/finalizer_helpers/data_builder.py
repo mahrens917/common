@@ -5,9 +5,7 @@ from typing import Any, Dict
 from ...data_models.trading import OrderRequest, OrderResponse
 
 
-def build_order_data_payload(
-    order_request: OrderRequest, order_response: OrderResponse
-) -> Dict[str, Any]:
+def build_order_data_payload(order_request: OrderRequest, order_response: OrderResponse) -> Dict[str, Any]:
     """
     Build order data payload for notification.
 

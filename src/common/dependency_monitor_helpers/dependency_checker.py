@@ -59,9 +59,7 @@ class DependencyChecker:
         self.service_name = service_name
         self.callback_executor = callback_executor
 
-    async def check_dependency(
-        self, state: DependencyState, notifier_callback: Optional[Callable] = None
-    ) -> DependencyStatus:
+    async def check_dependency(self, state: DependencyState, notifier_callback: Optional[Callable] = None) -> DependencyStatus:
         """
         Check a single dependency.
 
@@ -75,9 +73,7 @@ class DependencyChecker:
         current_time = time.time()
         state.last_check_time = current_time
 
-        result, error = await self.callback_executor.invoke_check_function(
-            state.config.check_function
-        )
+        result, error = await self.callback_executor.invoke_check_function(state.config.check_function)
 
         if isinstance(error, BaseException):
             logger.error(

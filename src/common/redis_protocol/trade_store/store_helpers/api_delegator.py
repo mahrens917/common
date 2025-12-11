@@ -10,24 +10,16 @@ from .api_delegator_helpers import PnLDelegator, QueryDelegator, TradeDelegator
 class TradeStoreAPIDelegator:
     """Delegate TradeStore public API to internal components."""
 
-    def __init__(
-        self, repository, metadata_store, queries, pnl, price_updater, executor, deps
-    ):  # noqa: PLR0913
-        self._trade_delegator = TradeDelegator(
-            repository, metadata_store, executor, deps, price_updater
-        )
+    def __init__(self, repository, metadata_store, queries, pnl, price_updater, executor, deps):  # noqa: PLR0913
+        self._trade_delegator = TradeDelegator(repository, metadata_store, executor, deps, price_updater)
         self._query_delegator = QueryDelegator(queries, executor)
         self._pnl_delegator = PnLDelegator(pnl, executor)
 
     async def store_trade(self, trade: TradeRecord) -> bool:
         return await self._trade_delegator.store_trade(trade)
 
-    async def mark_trade_settled(
-        self, order_id: str, settlement_price_cents: int, settled_at: Optional[datetime] = None
-    ) -> bool:
-        return await self._trade_delegator.mark_trade_settled(
-            order_id, settlement_price_cents, settled_at
-        )
+    async def mark_trade_settled(self, order_id: str, settlement_price_cents: int, settled_at: Optional[datetime] = None) -> bool:
+        return await self._trade_delegator.mark_trade_settled(order_id, settlement_price_cents, settled_at)
 
     async def get_trade(self, trade_date: date, order_id: str) -> Optional[TradeRecord]:
         return await self._trade_delegator.get_trade(trade_date, order_id)
@@ -86,9 +78,7 @@ class TradeStoreAPIDelegator:
     async def get_unrealized_pnl_data(self, redis_key: str) -> Optional[Dict[str, Any]]:
         return await self._pnl_delegator.get_unrealized_pnl_data(redis_key)
 
-    async def get_unrealized_pnl_history(
-        self, start_date: date, end_date: date
-    ) -> list[Dict[str, Any]]:
+    async def get_unrealized_pnl_history(self, start_date: date, end_date: date) -> list[Dict[str, Any]]:
         return await self._pnl_delegator.get_unrealized_pnl_history(start_date, end_date)
 
     async def update_trade_prices(self, market_ticker: str, yes_bid: float, yes_ask: float) -> int:

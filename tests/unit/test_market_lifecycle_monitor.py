@@ -255,9 +255,7 @@ async def test_monitor_lifecycle_events(monkeypatch):
     monkeypatch.setattr(
         monitor.orchestrator.closure_handler,
         "handle_closures",
-        AsyncMock(
-            side_effect=lambda markets, results: results["actions_taken"].append("Closed KX")
-        ),
+        AsyncMock(side_effect=lambda markets, results: results["actions_taken"].append("Closed KX")),
     )
     monkeypatch.setattr(
         monitor.orchestrator.settlement_checker,

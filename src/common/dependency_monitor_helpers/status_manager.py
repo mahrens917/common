@@ -65,26 +65,20 @@ class StatusManager:
 
         if required_available and not was_available:
             if self._has_been_available:
-                logger.info(
-                    f"[{self.service_name}] Dependencies recovered, triggering recovery callbacks"
-                )
+                logger.info(f"[{self.service_name}] Dependencies recovered, triggering recovery callbacks")
                 await self._run_callbacks(self._recovery_callbacks)
             else:
                 logger.info(f"[{self.service_name}] All required dependencies available on startup")
                 self._has_been_available = True
         elif not required_available and was_available:
-            logger.warning(
-                f"[{self.service_name}] Required dependencies failed, triggering failure callbacks"
-            )
+            logger.warning(f"[{self.service_name}] Required dependencies failed, triggering failure callbacks")
             await self._run_callbacks(self._failure_callbacks)
 
     async def _run_callbacks(self, callbacks: List[Callable]) -> None:
         """Run list of callbacks."""
         await CallbackRunner.run_callbacks(callbacks, self.service_name, self.callback_executor)
 
-    async def notify_status_change(
-        self, dependency_name: str, old_status: DependencyStatus, new_status: DependencyStatus
-    ) -> None:
+    async def notify_status_change(self, dependency_name: str, old_status: DependencyStatus, new_status: DependencyStatus) -> None:
         """Notify about dependency status changes."""
         await NotificationHandler.notify_status_change(
             dependency_name,

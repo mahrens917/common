@@ -32,9 +32,7 @@ class TradeStoreConnectionManager:
         self._state.ensure_connection_manager()
 
     async def get_redis(self, redis_property_getter) -> Redis:
-        return await self._acquisition.get_redis(
-            redis_property_getter, self.ensure_redis_connection, self.ping_connection
-        )
+        return await self._acquisition.get_redis(redis_property_getter, self.ensure_redis_connection, self.ping_connection)
 
     async def ensure_redis_connection(self) -> bool:
         pool_acquirer = self._default_pool_acquirer

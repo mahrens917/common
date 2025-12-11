@@ -62,20 +62,14 @@ class SettlementFetcher:
 
             settlement_info = SettlementInfo(
                 ticker=ticker,
-                settlement_price_cents=(
-                    market_data["result_price"] if "result_price" in market_data else None
-                ),
+                settlement_price_cents=(market_data["result_price"] if "result_price" in market_data else None),
                 settlement_time=None,
                 winning_side=None,
                 is_settled=is_settled,
             )
 
             if is_settled and settlement_info.settlement_price_cents is not None:
-                settlement_info.winning_side = (
-                    "YES"
-                    if settlement_info.settlement_price_cents >= _SETTLEMENT_THRESHOLD_CENTS
-                    else "NO"
-                )
+                settlement_info.winning_side = "YES" if settlement_info.settlement_price_cents >= _SETTLEMENT_THRESHOLD_CENTS else "NO"
         except TRADING_ERRORS + (
             ValueError,
             KeyError,

@@ -85,8 +85,6 @@ class TestUtilsMarket:
         assert _resolve_market_strike(metadata) == 15.0
 
     def test_extract_orderbook_sizes(self):
-        with patch(
-            "common.redis_protocol.kalshi_store.utils_market.extract_orderbook_sizes"
-        ) as mock_extract:
+        with patch("common.redis_protocol.kalshi_store.utils_market.extract_orderbook_sizes") as mock_extract:
             mock_extract.return_value = (10.0, 20.0)
             assert _extract_orderbook_sizes("ticker", {}) == (10.0, 20.0)

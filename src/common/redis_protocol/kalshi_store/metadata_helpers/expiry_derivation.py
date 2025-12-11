@@ -63,15 +63,11 @@ def derive_expiry_iso_impl(
     if now_dt is None:
         now_dt = datetime.now(timezone.utc)
 
-    expiry_from_timestamp = _try_derive_from_timestamp(
-        market_ticker, metadata.get("timestamp"), now_dt
-    )
+    expiry_from_timestamp = _try_derive_from_timestamp(market_ticker, metadata.get("timestamp"), now_dt)
     if expiry_from_timestamp:
         return _normalize_iso(expiry_from_timestamp)
 
-    raise DataError(
-        f"Unable to derive expiry for {market_ticker}; metadata missing close_time and timestamp"
-    )
+    raise DataError(f"Unable to derive expiry for {market_ticker}; metadata missing close_time and timestamp")
 
 
 def _try_get_expiry_from_metadata(metadata: Dict[str, Any]) -> Optional[str]:
@@ -82,9 +78,7 @@ def _try_get_expiry_from_metadata(metadata: Dict[str, Any]) -> Optional[str]:
     return None
 
 
-def _collect_candidate_segments(
-    market_ticker: str, descriptor_expiry_token: Optional[str]
-) -> List[str]:
+def _collect_candidate_segments(market_ticker: str, descriptor_expiry_token: Optional[str]) -> List[str]:
     """Collect candidate segments from ticker and descriptor."""
     candidate_segments: List[str] = []
 
@@ -99,9 +93,7 @@ def _collect_candidate_segments(
     return candidate_segments
 
 
-def _try_parse_candidate_tokens(
-    candidate_segments: List[str], token_parser: Callable[..., Optional[datetime]]
-) -> Optional[str]:
+def _try_parse_candidate_tokens(candidate_segments: List[str], token_parser: Callable[..., Optional[datetime]]) -> Optional[str]:
     """Try to parse expiry from candidate token segments."""
     for token in candidate_segments:
         candidate_dt = token_parser(token)
@@ -110,9 +102,7 @@ def _try_parse_candidate_tokens(
     return None
 
 
-def _try_derive_from_timestamp(
-    market_ticker: str, timestamp_value: Any, now_dt: datetime
-) -> Optional[str]:
+def _try_derive_from_timestamp(market_ticker: str, timestamp_value: Any, now_dt: datetime) -> Optional[str]:
     """Try to derive expiry from timestamp field."""
     if timestamp_value in (None, ""):
         return None
@@ -121,21 +111,15 @@ def _try_derive_from_timestamp(
     try:
         seconds = float(timestamp_value)
     except (TypeError, ValueError) as exc:
-        raise RuntimeError(
-            f"Invalid timestamp value for {market_ticker}: {timestamp_value}"
-        ) from exc
+        raise RuntimeError(f"Invalid timestamp value for {market_ticker}: {timestamp_value}") from exc
 
     # Validate timestamp is positive
     if seconds <= 0:
-        raise RuntimeError(
-            f"Timestamp for {market_ticker} must be positive (received {timestamp_value})"
-        )
+        raise RuntimeError(f"Timestamp for {market_ticker} must be positive (received {timestamp_value})")
 
     # Convert to datetime and validate it's in the future
     dt = datetime.fromtimestamp(seconds, tz=timezone.utc)
     if dt <= now_dt:
-        raise DataError(
-            f"Timestamp-derived expiry for {market_ticker} is not in the future ({dt.isoformat()})"
-        )
+        raise DataError(f"Timestamp-derived expiry for {market_ticker} is not in the future ({dt.isoformat()})")
 
     return dt.isoformat()

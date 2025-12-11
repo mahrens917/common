@@ -30,9 +30,7 @@ class Instrument:
     strike: Optional[float] = None
     option_type: Optional[str] = None  # 'call' or 'put'
     is_future: Optional[bool] = None
-    is_synthetic: Optional[bool] = (
-        None  # True for synthetic calls created from puts via put-call parity
-    )
+    is_synthetic: Optional[bool] = None  # True for synthetic calls created from puts via put-call parity
 
     # Market data fields
     best_bid: Optional[float] = None
@@ -64,9 +62,7 @@ class Instrument:
             raise ValueError("expiry must be provided")
 
         if not isinstance(cast(object, self.expiry), (datetime, str, int, float)):
-            raise TypeError(
-                f"expiry must be datetime, str, int, or float, got {type(self.expiry).__name__}"
-            )
+            raise TypeError(f"expiry must be datetime, str, int, or float, got {type(self.expiry).__name__}")
 
     @property
     def expiry_timestamp(self) -> int:

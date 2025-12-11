@@ -11,9 +11,7 @@ DEFAULT_SCRAPER_CONNECTION_LIMIT_PER_HOST = 5
 
 
 def _build_manager():
-    manager = scraper_module.ScraperConnectionManager.__new__(
-        scraper_module.ScraperConnectionManager
-    )
+    manager = scraper_module.ScraperConnectionManager.__new__(scraper_module.ScraperConnectionManager)
     manager.target_urls = ["https://kalshi.com"]
     manager.user_agent = "test-agent"
 
@@ -54,9 +52,7 @@ async def test_scraper_connection_manager_async_methods():
     manager = _build_manager()
 
     assert await manager.establish_connection()
-    assert (
-        await manager.check_connection_health() == manager.health_monitor.check_health.return_value
-    )
+    assert await manager.check_connection_health() == manager.health_monitor.check_health.return_value
     await manager.cleanup_connection()
     manager.lifecycle_manager.cleanup_connection.assert_awaited_once()
     assert await manager.scrape_url("https://kalshi.com") == "body"

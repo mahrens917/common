@@ -84,9 +84,7 @@ class KalshiStoreDependenciesFactory:
             KalshiStoreDependencies container with all components wired together
         """
         # Create core components
-        core = factory_helpers.create_core_components(
-            logger, redis, service_prefix, weather_resolver, update_trade_prices_callback
-        )
+        core = factory_helpers.create_core_components(logger, redis, service_prefix, weather_resolver, update_trade_prices_callback)
 
         # Create delegators
         delegators = factory_helpers.create_delegators(core, weather_resolver)

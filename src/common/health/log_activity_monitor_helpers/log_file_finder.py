@@ -14,9 +14,7 @@ from typing import Optional
 logger = logging.getLogger(__name__)
 
 
-def find_most_recent_log_file(
-    logs_directory: str, pattern: str, quick_check_seconds: int = 3600
-) -> Optional[str]:
+def find_most_recent_log_file(logs_directory: str, pattern: str, quick_check_seconds: int = 3600) -> Optional[str]:
     """
     Find the most recent log file among rotated versions.
 

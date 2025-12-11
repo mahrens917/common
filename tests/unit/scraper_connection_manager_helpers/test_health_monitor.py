@@ -139,9 +139,7 @@ class TestScraperHealthMonitor:
         assert result.healthy is False
 
     @pytest.mark.asyncio
-    async def test_check_health_content_validation_failure(
-        self, monitor, session_provider, content_validator
-    ):
+    async def test_check_health_content_validation_failure(self, monitor, session_provider, content_validator):
         mock_response = AsyncMock()
         mock_response.status = 200
         mock_response.text.return_value = "invalid content"

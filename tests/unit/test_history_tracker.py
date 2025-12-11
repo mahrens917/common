@@ -27,9 +27,7 @@ async def test_record_service_update_success(monkeypatch):
     redis.zadd = AsyncMock(return_value=1)
     redis.expire = AsyncMock(return_value=True)
 
-    monkeypatch.setattr(
-        "common.history_tracker.get_redis_connection", AsyncMock(return_value=redis)
-    )
+    monkeypatch.setattr("common.history_tracker.get_redis_connection", AsyncMock(return_value=redis))
     monkeypatch.setattr("common.history_tracker.time.time", lambda: 1_700_000_000)
 
     tracker = HistoryTracker()
@@ -45,9 +43,7 @@ async def test_record_service_update_failure(monkeypatch):
     redis = MagicMock()
     redis.zadd = AsyncMock(side_effect=RuntimeError("boom"))
     redis.expire = AsyncMock()
-    monkeypatch.setattr(
-        "common.history_tracker.get_redis_connection", AsyncMock(return_value=redis)
-    )
+    monkeypatch.setattr("common.history_tracker.get_redis_connection", AsyncMock(return_value=redis))
     monkeypatch.setattr("common.history_tracker.time.time", lambda: 1_700_000_000)
 
     tracker = HistoryTracker()
@@ -62,9 +58,7 @@ async def test_get_service_history(monkeypatch):
     redis = MagicMock()
     redis.zrangebyscore = AsyncMock(return_value=[("5.5", 1_700_000_100)])
 
-    monkeypatch.setattr(
-        "common.history_tracker.get_redis_connection", AsyncMock(return_value=redis)
-    )
+    monkeypatch.setattr("common.history_tracker.get_redis_connection", AsyncMock(return_value=redis))
     monkeypatch.setattr("common.history_tracker.time.time", lambda: 1_700_000_200)
 
     tracker = HistoryTracker()
@@ -79,9 +73,7 @@ async def test_get_service_history_handles_error(monkeypatch):
     redis = MagicMock()
     redis.zrangebyscore = AsyncMock(side_effect=RuntimeError("no redis"))
 
-    monkeypatch.setattr(
-        "common.history_tracker.get_redis_connection", AsyncMock(return_value=redis)
-    )
+    monkeypatch.setattr("common.history_tracker.get_redis_connection", AsyncMock(return_value=redis))
     monkeypatch.setattr("common.history_tracker.time.time", lambda: 1_700_000_200)
 
     tracker = HistoryTracker()
@@ -91,9 +83,7 @@ async def test_get_service_history_handles_error(monkeypatch):
 
 
 # PriceHistoryTracker -------------------------------------------------------------
-def _make_price_redis(
-    *, hset_result=1, expire_result=True, hgetall_result: Dict[str, str] | Dict[bytes, bytes] = None
-):
+def _make_price_redis(*, hset_result=1, expire_result=True, hgetall_result: Dict[str, str] | Dict[bytes, bytes] = None):
     redis = MagicMock()
     redis.close = AsyncMock(return_value=None)
     redis.hset = AsyncMock(return_value=hset_result)
@@ -105,9 +95,7 @@ def _make_price_redis(
 @pytest.mark.asyncio
 async def test_record_price_update_success(monkeypatch):
     redis = _make_price_redis()
-    monkeypatch.setattr(
-        "common.history_tracker.get_redis_connection", AsyncMock(return_value=redis)
-    )
+    monkeypatch.setattr("common.history_tracker.get_redis_connection", AsyncMock(return_value=redis))
     fixed_now = datetime(2025, 1, 1, 12, 0, tzinfo=timezone.utc)
     monkeypatch.setattr("common.history_tracker.get_current_utc", lambda: fixed_now)
     monkeypatch.setattr("common.time_utils.get_current_utc", lambda: fixed_now)
@@ -161,9 +149,7 @@ async def test_get_price_history_filters_and_sorts(monkeypatch):
         }
     )
 
-    monkeypatch.setattr(
-        "common.history_tracker.get_redis_connection", AsyncMock(return_value=redis)
-    )
+    monkeypatch.setattr("common.history_tracker.get_redis_connection", AsyncMock(return_value=redis))
     monkeypatch.setattr("common.history_tracker.get_current_utc", lambda: recent_dt)
     monkeypatch.setattr("common.time_utils.get_current_utc", lambda: recent_dt)
 
@@ -185,9 +171,7 @@ async def test_get_price_history_skips_invalid_entries(monkeypatch):
             datetime(2025, 1, 1, tzinfo=timezone.utc).isoformat(): "NaN",
         }
     )
-    monkeypatch.setattr(
-        "common.history_tracker.get_redis_connection", AsyncMock(return_value=redis)
-    )
+    monkeypatch.setattr("common.history_tracker.get_redis_connection", AsyncMock(return_value=redis))
     fixed = datetime(2025, 1, 2, tzinfo=timezone.utc)
     monkeypatch.setattr("common.history_tracker.get_current_utc", lambda: fixed)
     monkeypatch.setattr("common.time_utils.get_current_utc", lambda: fixed)
@@ -200,9 +184,7 @@ async def test_get_price_history_skips_invalid_entries(monkeypatch):
 @pytest.mark.asyncio
 async def test_get_price_history_handles_no_data(monkeypatch):
     redis = _make_price_redis(hgetall_result={})
-    monkeypatch.setattr(
-        "common.history_tracker.get_redis_connection", AsyncMock(return_value=redis)
-    )
+    monkeypatch.setattr("common.history_tracker.get_redis_connection", AsyncMock(return_value=redis))
     fixed = datetime(2025, 1, 2, tzinfo=timezone.utc)
     monkeypatch.setattr("common.history_tracker.get_current_utc", lambda: fixed)
     monkeypatch.setattr("common.time_utils.get_current_utc", lambda: fixed)
@@ -239,9 +221,7 @@ async def test_record_temperature_update_success(monkeypatch):
     redis = _make_weather_redis()
     now = datetime(2025, 1, 1, 18, 0, tzinfo=timezone.utc)
 
-    monkeypatch.setattr(
-        "common.history_tracker.get_redis_connection", AsyncMock(return_value=redis)
-    )
+    monkeypatch.setattr("common.history_tracker.get_redis_connection", AsyncMock(return_value=redis))
     monkeypatch.setattr("common.history_tracker.get_current_utc", lambda: now)
     monkeypatch.setattr("common.time_utils.get_current_utc", lambda: now)
 
@@ -265,9 +245,7 @@ async def test_record_temperature_update_handles_errors(monkeypatch):
     redis = _make_weather_redis()
     redis.zadd = AsyncMock(side_effect=RuntimeError("fail"))
 
-    monkeypatch.setattr(
-        "common.history_tracker.get_redis_connection", AsyncMock(return_value=redis)
-    )
+    monkeypatch.setattr("common.history_tracker.get_redis_connection", AsyncMock(return_value=redis))
     fixed_time = datetime(2025, 1, 1, tzinfo=timezone.utc)
     monkeypatch.setattr("common.history_tracker.get_current_utc", lambda: fixed_time)
     monkeypatch.setattr("common.time_utils.get_current_utc", lambda: fixed_time)
@@ -305,9 +283,7 @@ async def test_get_temperature_history_filters(monkeypatch):
         ]
     )
 
-    monkeypatch.setattr(
-        "common.history_tracker.get_redis_connection", AsyncMock(return_value=redis)
-    )
+    monkeypatch.setattr("common.history_tracker.get_redis_connection", AsyncMock(return_value=redis))
     monkeypatch.setattr("common.history_tracker.get_current_utc", lambda: now)
     monkeypatch.setattr("common.time_utils.get_current_utc", lambda: now)
 
@@ -327,9 +303,7 @@ async def test_get_temperature_history_skips_invalid_entries(monkeypatch):
         ]
     )
 
-    monkeypatch.setattr(
-        "common.history_tracker.get_redis_connection", AsyncMock(return_value=redis)
-    )
+    monkeypatch.setattr("common.history_tracker.get_redis_connection", AsyncMock(return_value=redis))
     monkeypatch.setattr("common.history_tracker.get_current_utc", lambda: now)
     monkeypatch.setattr("common.time_utils.get_current_utc", lambda: now)
 

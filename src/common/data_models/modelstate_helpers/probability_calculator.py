@@ -19,9 +19,7 @@ from .redis_operations import (
 logger = logging.getLogger(__name__)
 
 
-async def calculate_range_probability(
-    redis_client: Redis, currency: str, strike_low: float, strike_high: float
-) -> Optional[float]:
+async def calculate_range_probability(redis_client: Redis, currency: str, strike_low: float, strike_high: float) -> Optional[float]:
     """
     Calculate probability for a strike range.
 

@@ -11,9 +11,7 @@ from .trade_store_ops import TradeStoreOperations
 class PublicAPIDelegator:
     """Delegates all public API methods to helpers."""
 
-    def __init__(
-        self, portfolio, orders, trade_collection, trade_store_manager, private, cancel_order_fn
-    ):
+    def __init__(self, portfolio, orders, trade_collection, trade_store_manager, private, cancel_order_fn):
         self._portfolio = portfolio
         self._orders = orders
         self._trade_collection = trade_collection
@@ -30,9 +28,7 @@ class PublicAPIDelegator:
     async def create_order(self, order_request: OrderRequest) -> OrderResponse:
         return await PublicAPI.create_order(self._orders, order_request)
 
-    async def create_order_with_polling(
-        self, order_request: OrderRequest, timeout_seconds: int = 5
-    ) -> OrderResponse:
+    async def create_order_with_polling(self, order_request: OrderRequest, timeout_seconds: int = 5) -> OrderResponse:
         return await PublicAPI.create_order_with_polling(
             self._orders,
             order_request,

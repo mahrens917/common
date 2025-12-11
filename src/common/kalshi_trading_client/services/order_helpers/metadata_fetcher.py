@@ -14,9 +14,7 @@ logger = logging.getLogger(__name__)
 class MetadataFetcher:
     """Fetch order metadata with comprehensive error handling."""
 
-    def __init__(
-        self, trade_store_getter: Callable[[], Awaitable[TradeStore]], telegram_handler=None
-    ):
+    def __init__(self, trade_store_getter: Callable[[], Awaitable[TradeStore]], telegram_handler=None):
         self._get_trade_store = trade_store_getter
         self._telegram_handler = telegram_handler
 
@@ -35,16 +33,11 @@ class MetadataFetcher:
             KalshiDataIntegrityError: If metadata cannot be retrieved
         """
         try:
-            return await fetch_order_metadata(
-                order_id, self._get_trade_store, self._telegram_handler, logger
-            )
+            return await fetch_order_metadata(order_id, self._get_trade_store, self._telegram_handler, logger)
         except KalshiDataIntegrityError:
             raise
         except (TradeStoreError, ValueError, TypeError, RuntimeError) as exc:
-            error_msg = (
-                f"CRITICAL: Failed to retrieve order metadata for trade rule determination. "
-                f"Order ID: {order_id}, Error"
-            )
+            error_msg = f"CRITICAL: Failed to retrieve order metadata for trade rule determination. " f"Order ID: {order_id}, Error"
             logger.exception(error_msg)
 
             if self._telegram_handler:

@@ -7,9 +7,7 @@ class ErrorHandler:
     """Handles parsing errors and stats updates."""
 
     @staticmethod
-    def handle_parsing_error(
-        error: Exception, contract_name: str, stats_updates: Dict[str, int]
-    ) -> tuple[bool, str, Dict[str, int]]:
+    def handle_parsing_error(error: Exception, contract_name: str, stats_updates: Dict[str, int]) -> tuple[bool, str, Dict[str, int]]:
         """Handle parsing errors and update stats."""
         error_msg = f"Invalid contract {contract_name}"
         error_str = str(error).lower()

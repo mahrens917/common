@@ -49,9 +49,7 @@ def create_core_components(
         subscriptions_key=subscriptions_key,
     )
 
-    writer_dependencies = KalshiMarketWriterDependenciesFactory.create(
-        redis or connection.redis, logger, metadata, connection
-    )
+    writer_dependencies = KalshiMarketWriterDependenciesFactory.create(redis or connection.redis, logger, metadata, connection)
     writer = KalshiMarketWriter(
         redis or connection.redis,
         logger,

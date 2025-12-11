@@ -38,9 +38,7 @@ def validate_order_response_enums(
         raise TypeError(f"Order type must be OrderType enum, got: {type(order_type)}")
 
 
-def validate_order_response_counts(
-    filled_count: int | None, remaining_count: int | None, status: "OrderStatus"
-) -> None:
+def validate_order_response_counts(filled_count: int | None, remaining_count: int | None, status: "OrderStatus") -> None:
     """Validate count fields."""
     from ..trading import OrderStatus
 
@@ -60,9 +58,7 @@ def validate_order_response_counts(
         raise ValueError("Cannot have filled/partially filled status with zero filled count")
 
 
-def validate_order_response_price(
-    filled_count: int | None, average_fill_price_cents: int | None, fees_cents: Optional[int]
-) -> None:
+def validate_order_response_price(filled_count: int | None, average_fill_price_cents: int | None, fees_cents: Optional[int]) -> None:
     """Validate price and fee fields."""
     # CRITICAL FIX: Allow None for average_fill_price_cents when order status API is unreliable
     # The fills API will provide accurate execution prices
@@ -73,26 +69,20 @@ def validate_order_response_price(
 
     if average_fill_price_cents is not None:
         if average_fill_price_cents <= 0 or average_fill_price_cents > _MAX_PRICE:
-            raise ValueError(
-                f"Average fill price must be between 1-99 cents: {average_fill_price_cents}"
-            )
+            raise ValueError(f"Average fill price must be between 1-99 cents: {average_fill_price_cents}")
 
     if fees_cents is not None and fees_cents < 0:
         raise ValueError(f"Fees cannot be negative: {fees_cents}")
 
 
-def validate_order_response_fills(
-    fills: List["OrderFill"] | None, filled_count: int | None
-) -> None:
+def validate_order_response_fills(fills: List["OrderFill"] | None, filled_count: int | None) -> None:
     """Validate fills list consistency."""
     if fills:
         total_fill_count = sum(fill.count for fill in fills)
         if filled_count is None:
             raise ValueError("Filled count must be specified")
         if total_fill_count != filled_count:
-            raise ValueError(
-                f"Sum of fill counts ({total_fill_count}) does not match filled count ({filled_count})"
-            )
+            raise ValueError(f"Sum of fill counts ({total_fill_count}) does not match filled count ({filled_count})")
 
 
 def validate_order_response_metadata(

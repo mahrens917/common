@@ -29,9 +29,7 @@ def parse_deribit_market_key(key: str | bytes) -> DeribitInstrumentDescriptor:
     instrument_type = _parse_instrument_type(parts)
     currency = parts[3].upper()
 
-    expiry_iso, expiry_token, strike, option_kind, quote_currency = _parse_instrument_segments(
-        key, parts, instrument_type
-    )
+    expiry_iso, expiry_token, strike, option_kind, quote_currency = _parse_instrument_segments(key, parts, instrument_type)
 
     descriptor = DeribitInstrumentDescriptor(
         key=key,
@@ -74,9 +72,7 @@ def _parse_instrument_type(parts: list[str]) -> DeribitInstrumentType:
     try:
         return DeribitInstrumentType(instrument_type_value)
     except ValueError as exc:
-        raise ValueError(
-            f"Unsupported Deribit instrument type '{instrument_type_value}' in {':'.join(parts)!r}"
-        ) from exc
+        raise ValueError(f"Unsupported Deribit instrument type '{instrument_type_value}' in {':'.join(parts)!r}") from exc
 
 
 def _parse_instrument_segments(
@@ -112,9 +108,7 @@ def _parse_future_segments(key: str, parts: list[str]) -> tuple[Optional[str], O
     return expiry_token, expiry_token
 
 
-def _parse_option_segments(
-    key: str, parts: list[str]
-) -> tuple[Optional[str], Optional[str], Optional[str], Optional[str]]:
+def _parse_option_segments(key: str, parts: list[str]) -> tuple[Optional[str], Optional[str], Optional[str], Optional[str]]:
     if len(parts) < _CONST_7:
         raise ValueError(f"Option key must include expiry, strike, and type: {key!r}")
     expiry_iso = parts[4]
@@ -123,9 +117,7 @@ def _parse_option_segments(
     return expiry_iso, expiry_iso, strike, option_kind
 
 
-def _validate_normalized_key(
-    descriptor: DeribitInstrumentDescriptor, original_key: str | bytes
-) -> None:
+def _validate_normalized_key(descriptor: DeribitInstrumentDescriptor, original_key: str | bytes) -> None:
     """Ensure the descriptor re-serializes to the same key."""
     if isinstance(original_key, bytes):
         try:
@@ -143,6 +135,4 @@ def _validate_normalized_key(
     ).key()
 
     if expected_key != original_key:
-        raise ValueError(
-            f"Deribit key {original_key!r} does not match normalized form {expected_key!r}"
-        )
+        raise ValueError(f"Deribit key {original_key!r} does not match normalized form {expected_key!r}")

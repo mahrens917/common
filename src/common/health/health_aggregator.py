@@ -32,9 +32,7 @@ class ServiceHealthAggregator:
         *,
         dependencies: Optional[ServiceHealthAggregatorDependencies] = None,
     ):
-        deps = dependencies or ServiceHealthAggregatorFactory.create(
-            logs_directory, self.get_service_status
-        )
+        deps = dependencies or ServiceHealthAggregatorFactory.create(logs_directory, self.get_service_status)
         self.process_monitor = deps.process_monitor
         self.log_monitor = deps.log_monitor
         self.health_checker = deps.health_checker
@@ -59,19 +57,15 @@ class ServiceHealthAggregator:
         log_task = self.log_monitor.get_log_activity(service_name)
         health_task = self.health_checker.check_service_health(service_name)
 
-        process_result, log_result, service_result = await asyncio.gather(
-            process_task, log_task, health_task, return_exceptions=True
-        )
+        process_result, log_result, service_result = await asyncio.gather(process_task, log_task, health_task, return_exceptions=True)
 
         process_info = self.error_handler.ensure_process_info(service_name, process_result)
         log_activity = self.error_handler.ensure_log_activity(service_name, log_result)
         service_health = self.error_handler.ensure_service_health(service_name, service_result)
 
         # Aggregate status using clear decision logic
-        overall_status, status_emoji, status_message, detailed_message = (
-            self.status_aggregator.aggregate_status(
-                service_name, process_info, log_activity, service_health
-            )
+        overall_status, status_emoji, status_message, detailed_message = self.status_aggregator.aggregate_status(
+            service_name, process_info, log_activity, service_health
         )
 
         from .health_aggregator_helpers.result_builder import HealthResultComponents
@@ -88,9 +82,7 @@ class ServiceHealthAggregator:
         )
         return self.result_builder.build_result(components)
 
-    async def get_all_service_status(
-        self, service_names: List[str]
-    ) -> Dict[str, ServiceHealthResult]:
+    async def get_all_service_status(self, service_names: List[str]) -> Dict[str, ServiceHealthResult]:
         """
         Get status for multiple services efficiently.
 

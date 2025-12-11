@@ -21,9 +21,7 @@ class TestTimePeriodFormatter(unittest.TestCase):
         self.mock_dollar_converter.calculate_total_contracts.return_value = 20
         self.mock_emoji_selector.get_fire_or_cold_emoji.return_value = "🔥"
 
-        result = self.formatter.format_time_period_section(
-            mock_report, "Test Period", include_unrealized=True, unrealized_pnl_cents=1000
-        )
+        result = self.formatter.format_time_period_section(mock_report, "Test Period", include_unrealized=True, unrealized_pnl_cents=1000)
 
         self.assertIn("🔥 **Test Period**", result)
         self.assertIn("├── P&L: $+50.00 (10 trades)", result)

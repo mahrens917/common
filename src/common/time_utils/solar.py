@@ -59,9 +59,7 @@ def calculate_solar_noon_utc(latitude: float, longitude: float, date) -> datetim
 
     solar_noon_utc = datetime.combine(
         solar_noon_date,
-        datetime.min.time().replace(
-            hour=solar_noon_hours, minute=solar_noon_mins, second=solar_noon_seconds
-        ),
+        datetime.min.time().replace(hour=solar_noon_hours, minute=solar_noon_mins, second=solar_noon_seconds),
         timezone.utc,
     )
 
@@ -76,9 +74,7 @@ def calculate_solar_noon_utc(latitude: float, longitude: float, date) -> datetim
     return solar_noon_utc
 
 
-def is_after_solar_noon(
-    latitude: float, longitude: float, current_time: Optional[datetime] = None
-) -> bool:
+def is_after_solar_noon(latitude: float, longitude: float, current_time: Optional[datetime] = None) -> bool:
     """Check if the current time is after solar noon for a given location."""
     current_time = current_time or datetime.now(timezone.utc)
     if current_time.tzinfo is None:
@@ -99,8 +95,7 @@ def is_after_solar_noon(
         is_after = current_time >= solar_noon_previous
 
     logger.debug(
-        "Solar noon check: current=%s, solar_noon_current=%s, solar_noon_previous=%s, "
-        "selected_solar_noon=%s, is_after=%s",
+        "Solar noon check: current=%s, solar_noon_current=%s, solar_noon_previous=%s, " "selected_solar_noon=%s, is_after=%s",
         current_time.isoformat(),
         solar_noon_current.isoformat(),
         solar_noon_previous.isoformat(),

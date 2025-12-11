@@ -238,9 +238,7 @@ class TestKalshiStoreDependenciesFactory:
         mock_helpers.create_attribute_resolver.assert_called_once_with(mock_delegators)
 
     @patch("common.redis_protocol.kalshi_store.dependencies_factory.factory_helpers")
-    def test_create_with_none_redis(
-        self, mock_helpers, mock_logger, mock_weather_resolver, mock_update_callback
-    ):
+    def test_create_with_none_redis(self, mock_helpers, mock_logger, mock_weather_resolver, mock_update_callback):
         """Test create with None redis client."""
         mock_core = {
             "connection": Mock(),
@@ -278,14 +276,10 @@ class TestKalshiStoreDependenciesFactory:
         )
 
         assert isinstance(result, KalshiStoreDependencies)
-        mock_helpers.create_core_components.assert_called_once_with(
-            mock_logger, None, None, mock_weather_resolver, mock_update_callback
-        )
+        mock_helpers.create_core_components.assert_called_once_with(mock_logger, None, None, mock_weather_resolver, mock_update_callback)
 
     @patch("common.redis_protocol.kalshi_store.dependencies_factory.factory_helpers")
-    def test_create_with_none_service_prefix(
-        self, mock_helpers, mock_logger, mock_redis, mock_weather_resolver, mock_update_callback
-    ):
+    def test_create_with_none_service_prefix(self, mock_helpers, mock_logger, mock_redis, mock_weather_resolver, mock_update_callback):
         """Test create with None service_prefix."""
         mock_core = {
             "connection": Mock(),
@@ -376,9 +370,7 @@ class TestKalshiStoreDependenciesFactory:
         assert call_args[0][1] is mock_weather_resolver
 
     @patch("common.redis_protocol.kalshi_store.dependencies_factory.factory_helpers")
-    def test_create_static_method(
-        self, mock_helpers, mock_logger, mock_redis, mock_weather_resolver, mock_update_callback
-    ):
+    def test_create_static_method(self, mock_helpers, mock_logger, mock_redis, mock_weather_resolver, mock_update_callback):
         """Test that create is a static method and can be called without instance."""
         mock_core = {
             "connection": Mock(),
@@ -419,9 +411,7 @@ class TestKalshiStoreDependenciesFactory:
         assert isinstance(result, KalshiStoreDependencies)
 
     @patch("common.redis_protocol.kalshi_store.dependencies_factory.factory_helpers")
-    def test_create_with_ws_service_prefix(
-        self, mock_helpers, mock_logger, mock_redis, mock_weather_resolver, mock_update_callback
-    ):
+    def test_create_with_ws_service_prefix(self, mock_helpers, mock_logger, mock_redis, mock_weather_resolver, mock_update_callback):
         """Test create with 'ws' service prefix."""
         mock_core = {
             "connection": Mock(),
@@ -463,9 +453,7 @@ class TestKalshiStoreDependenciesFactory:
         assert call_args[0][2] == "ws"
 
     @patch("common.redis_protocol.kalshi_store.dependencies_factory.factory_helpers")
-    def test_create_with_rest_service_prefix(
-        self, mock_helpers, mock_logger, mock_redis, mock_weather_resolver, mock_update_callback
-    ):
+    def test_create_with_rest_service_prefix(self, mock_helpers, mock_logger, mock_redis, mock_weather_resolver, mock_update_callback):
         """Test create with 'rest' service prefix."""
         mock_core = {
             "connection": Mock(),

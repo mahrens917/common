@@ -11,9 +11,7 @@ class ObservationTracker:
     """Tracks hourly and 6-hour temperature observations."""
 
     @staticmethod
-    def add_hourly_observation(
-        state: Dict[str, Any], temp_c: Optional[float], timestamp: Optional[datetime] = None
-    ) -> None:
+    def add_hourly_observation(state: Dict[str, Any], temp_c: Optional[float], timestamp: Optional[datetime] = None) -> None:
         """
         Add 1-hour temperature observation with 0.1°C precision.
 

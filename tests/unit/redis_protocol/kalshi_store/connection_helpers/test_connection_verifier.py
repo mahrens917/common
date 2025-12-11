@@ -37,9 +37,7 @@ async def test_ping_handles_timeout(monkeypatch):
 
     monkeypatch.setattr(connection_verifier.asyncio, "wait_for", _raise_timeout)
 
-    success, fatal = await connection_verifier.ConnectionVerifier.ping_connection(
-        redis, timeout=1.0
-    )
+    success, fatal = await connection_verifier.ConnectionVerifier.ping_connection(redis, timeout=1.0)
 
     assert success is False
     assert fatal is False

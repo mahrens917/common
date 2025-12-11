@@ -79,17 +79,13 @@ class DawnResetServiceDependenciesFactory:
         if all(value is not None for value in provided.values()):
             return DawnResetServiceDependencies(**provided)
 
-        defaults = DawnResetServiceDependenciesFactory.create(
-            config.telegram_handler, calculate_dawn_fn=config.calculate_dawn_fn
-        )
+        defaults = DawnResetServiceDependenciesFactory.create(config.telegram_handler, calculate_dawn_fn=config.calculate_dawn_fn)
 
         return DawnResetServiceDependencies(
             dawn_calculator=_use_default(config.dawn_calculator, defaults.dawn_calculator),
             cache_manager=_use_default(config.cache_manager, defaults.cache_manager),
             timestamp_resolver=_use_default(config.timestamp_resolver, defaults.timestamp_resolver),
-            field_reset_manager=_use_default(
-                config.field_reset_manager, defaults.field_reset_manager
-            ),
+            field_reset_manager=_use_default(config.field_reset_manager, defaults.field_reset_manager),
             alert_manager=_use_default(config.alert_manager, defaults.alert_manager),
             logger=_use_default(config.logger, defaults.logger),
         )

@@ -53,10 +53,7 @@ async def create_and_test_pool(
 
     await test_pool_connection(pool, host, port, db)
 
-    logger.info(
-        f"Initialized unified Redis connection pool: "
-        f"host={host} port={port} max_connections={max_connections}"
-    )
+    logger.info(f"Initialized unified Redis connection pool: " f"host={host} port={port} max_connections={max_connections}")
 
     pool_loop = weakref.ref(current_loop)
     return pool, pool_loop

@@ -175,9 +175,7 @@ class TestEmergencyPositionManagerEmergencyClosePosition:
         position = MagicMock()
         position.ticker = "TEST-TICKER"
 
-        manager.position_closer.emergency_close_position = AsyncMock(
-            return_value=(True, MagicMock(), "Closed successfully")
-        )
+        manager.position_closer.emergency_close_position = AsyncMock(return_value=(True, MagicMock(), "Closed successfully"))
 
         success, response, message = await manager.emergency_close_position(position)
 
@@ -196,9 +194,7 @@ class TestEmergencyPositionManagerEmergencyClosePosition:
         position = MagicMock()
         position.ticker = "TEST-TICKER"
 
-        manager.position_closer.emergency_close_position = AsyncMock(
-            return_value=(False, None, "Failed to close")
-        )
+        manager.position_closer.emergency_close_position = AsyncMock(return_value=(False, None, "Failed to close"))
 
         success, response, message = await manager.emergency_close_position(position)
 
@@ -239,9 +235,7 @@ class TestEmergencyPositionManagerEmergencyCloseAllPositions:
         manager.monitored_positions["TICKER-2"] = datetime.now(timezone.utc)
 
         trading_client.get_portfolio_positions = AsyncMock(return_value=[position1, position2])
-        manager.position_closer.emergency_close_position = AsyncMock(
-            return_value=(True, MagicMock(), "Closed")
-        )
+        manager.position_closer.emergency_close_position = AsyncMock(return_value=(True, MagicMock(), "Closed"))
 
         results = await manager.emergency_close_all_positions()
 

@@ -26,9 +26,7 @@ class PriceHistoryRetriever:
     def __init__(self):
         self._parser = PriceHistoryParser()
 
-    async def get_history(
-        self, client: RedisClient, currency: str, hours: int = 24
-    ) -> List[Tuple[int, float]]:
+    async def get_history(self, client: RedisClient, currency: str, hours: int = 24) -> List[Tuple[int, float]]:
         """Retrieve history via the helper implementation."""
         return await _get_history(self, client, currency, hours)
 
@@ -47,17 +45,13 @@ def _calculate_time_range(hours: int) -> tuple[datetime, datetime]:
     return start_time, current_time
 
 
-async def _get_history(
-    self, client: RedisClient, currency: str, hours: int = 24
-) -> List[Tuple[int, float]]:
+async def _get_history(self, client: RedisClient, currency: str, hours: int = 24) -> List[Tuple[int, float]]:
     _validate_currency(currency)
     try:
         redis_key = _generate_redis_key(currency)
         hash_data = await ensure_awaitable(client.hgetall(redis_key))
         if not hash_data:
-            logger.warning(
-                "No price history found for %s using Redis key '%s'", currency, redis_key
-            )
+            logger.warning("No price history found for %s using Redis key '%s'", currency, redis_key)
             return []
         start_time, _ = _calculate_time_range(hours)
         price_history = []

@@ -38,9 +38,7 @@ class TransactionWriter:
         self.redis = redis_client
         self.logger = logger
 
-    async def atomic_market_data_write(
-        self, store_key: str, market_data: Mapping[str, Union[str, float, int, None]]
-    ) -> bool:
+    async def atomic_market_data_write(self, store_key: str, market_data: Mapping[str, Union[str, float, int, None]]) -> bool:
         """
         Atomically write market data to Redis using a transaction.
 
@@ -77,9 +75,7 @@ class TransactionWriter:
                     self.logger.debug(f"Atomic write succeeded for key: {store_key}")
                     return True
                 else:
-                    self.logger.error(
-                        f"Atomic write failed for key: {store_key}, results: {results}"
-                    )
+                    self.logger.error(f"Atomic write failed for key: {store_key}, results: {results}")
                     return False
 
         except REDIS_ATOMIC_ERRORS as exc:

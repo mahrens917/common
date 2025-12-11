@@ -17,9 +17,7 @@ class MicroPriceCalculator:
     """
 
     @staticmethod
-    def compute_micro_price_metrics(
-        best_bid: float, best_ask: float, bid_size: float, ask_size: float
-    ):
+    def compute_micro_price_metrics(best_bid: float, best_ask: float, bid_size: float, ask_size: float):
         """
         Compute micro price metrics from bid/ask prices and sizes.
 
@@ -51,9 +49,7 @@ class MicroPriceCalculator:
             return max(0.0, strike - spot_price)
 
     @staticmethod
-    def compute_time_value(
-        option_type: str, strike: float, spot_price: float, micro_price: float
-    ) -> float:
+    def compute_time_value(option_type: str, strike: float, spot_price: float, micro_price: float) -> float:
         """Calculate time value given spot price using micro price."""
         intrinsic = MicroPriceCalculator.compute_intrinsic_value(option_type, strike, spot_price)
         return max(0.0, micro_price - intrinsic)

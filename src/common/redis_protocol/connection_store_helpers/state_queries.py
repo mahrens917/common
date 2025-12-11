@@ -18,8 +18,4 @@ def filter_reconnecting_services(
     all_states: dict[str, ConnectionStateInfo],
 ) -> List[str]:
     """Filter services in reconnection from all states."""
-    return [
-        service_name
-        for service_name, state_info in all_states.items()
-        if is_reconnecting(state_info)
-    ]
+    return [service_name for service_name, state_info in all_states.items() if is_reconnecting(state_info)]

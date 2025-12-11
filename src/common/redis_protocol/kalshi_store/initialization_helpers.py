@@ -14,9 +14,7 @@ if TYPE_CHECKING:
     from typing import Callable
 
 
-def build_weather_resolver(
-    loader: "Callable", logger: logging.Logger
-) -> WeatherStationResolver:  # pragma: no cover
+def build_weather_resolver(loader: "Callable", logger: logging.Logger) -> WeatherStationResolver:  # pragma: no cover
     """Build weather station resolver with error handling."""
     try:
         return WeatherStationResolver(loader, logger=logger)

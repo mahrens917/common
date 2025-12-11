@@ -80,9 +80,7 @@ async def test_temperature_extractor_builds_temperature_map():
     weather_keys = ["wx:a", "wx:b"]
     station_codes = ["A", "B"]
 
-    temperatures = await TemperatureExtractor.extract_temperatures(
-        redis_client, weather_keys, station_codes
-    )
+    temperatures = await TemperatureExtractor.extract_temperatures(redis_client, weather_keys, station_codes)
 
     assert temperatures == {
         "A": {"temp_f": "72", "emoticon": "☀️"},

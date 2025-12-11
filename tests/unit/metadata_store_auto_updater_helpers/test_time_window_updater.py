@@ -46,18 +46,14 @@ class TestTimeWindowUpdater:
 
     @pytest.mark.asyncio
     async def test_run_handles_error(self, updater):
-        updater._service_updater.update_service_time_windows = AsyncMock(
-            side_effect=Exception("Update error")
-        )
+        updater._service_updater.update_service_time_windows = AsyncMock(side_effect=Exception("Update error"))
 
         async def side_effect(*args):
             updater.request_shutdown()
 
         with (
             patch("asyncio.sleep", side_effect=side_effect),
-            patch(
-                "common.metadata_store_auto_updater_helpers.time_window_updater.logger"
-            ) as mock_logger,
+            patch("common.metadata_store_auto_updater_helpers.time_window_updater.logger") as mock_logger,
         ):
             await updater.run()
             mock_logger.error.assert_called()
@@ -100,9 +96,7 @@ class TestServiceUpdater:
             patch(
                 "common.metadata_store_auto_updater_helpers.time_window_updater_helpers.service_updater._calculate_window_counts"
             ) as mock_calc,
-            patch(
-                "common.metadata_store_auto_updater_helpers.time_window_updater_helpers.service_updater._persist_counts"
-            ) as mock_persist,
+            patch("common.metadata_store_auto_updater_helpers.time_window_updater_helpers.service_updater._persist_counts") as mock_persist,
         ):
 
             mock_time.return_value = datetime(2023, 1, 1, 13, 0, 0)

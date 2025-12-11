@@ -33,9 +33,7 @@ class DependencyChecker:
         return [dep.decode("utf-8") if isinstance(dep, bytes) else dep for dep in dependencies]
 
     @staticmethod
-    async def is_dependency_unavailable(
-        redis: Redis, service_name: str, dependency_name: str, redis_key_prefix: str
-    ) -> bool:
+    async def is_dependency_unavailable(redis: Redis, service_name: str, dependency_name: str, redis_key_prefix: str) -> bool:
         """Check if a specific dependency is currently unavailable.
 
         Raises:

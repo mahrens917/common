@@ -22,9 +22,7 @@ class TestGetOrderbookWithConnectionCheck:
         mock_reader = AsyncMock()
         mock_key_fn = MagicMock(return_value="markets:kalshi:temp:KXTEMP-TEST")
 
-        result = await get_orderbook_with_connection_check(
-            mock_conn, mock_reader, "KXTEMP-TEST", mock_key_fn
-        )
+        result = await get_orderbook_with_connection_check(mock_conn, mock_reader, "KXTEMP-TEST", mock_key_fn)
 
         assert result == {}
         mock_reader.get_orderbook.assert_not_called()
@@ -42,9 +40,7 @@ class TestGetOrderbookWithConnectionCheck:
         mock_reader.get_orderbook.return_value = expected_orderbook
         mock_key_fn = MagicMock(return_value="markets:kalshi:temp:KXTEMP-TEST")
 
-        result = await get_orderbook_with_connection_check(
-            mock_conn, mock_reader, "KXTEMP-TEST", mock_key_fn
-        )
+        result = await get_orderbook_with_connection_check(mock_conn, mock_reader, "KXTEMP-TEST", mock_key_fn)
 
         assert result == expected_orderbook
         mock_reader.get_orderbook.assert_called_once()
@@ -62,9 +58,7 @@ class TestGetOrderbookSideWithConnectionCheck:
         mock_reader = AsyncMock()
         mock_key_fn = MagicMock(return_value="markets:kalshi:temp:KXTEMP-TEST")
 
-        result = await get_orderbook_side_with_connection_check(
-            mock_conn, mock_reader, "KXTEMP-TEST", "bids", mock_key_fn
-        )
+        result = await get_orderbook_side_with_connection_check(mock_conn, mock_reader, "KXTEMP-TEST", "bids", mock_key_fn)
 
         assert result == {}
         mock_reader.get_orderbook_side.assert_not_called()
@@ -82,9 +76,7 @@ class TestGetOrderbookSideWithConnectionCheck:
         mock_reader.get_orderbook_side.return_value = expected_side
         mock_key_fn = MagicMock(return_value="markets:kalshi:temp:KXTEMP-TEST")
 
-        result = await get_orderbook_side_with_connection_check(
-            mock_conn, mock_reader, "KXTEMP-TEST", "bids", mock_key_fn
-        )
+        result = await get_orderbook_side_with_connection_check(mock_conn, mock_reader, "KXTEMP-TEST", "bids", mock_key_fn)
 
         assert result == expected_side
         mock_reader.get_orderbook_side.assert_called_once()

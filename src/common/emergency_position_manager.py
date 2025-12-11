@@ -41,18 +41,14 @@ class EmergencyPositionManager:
 
     def __init__(self, trading_client: KalshiTradingClient, risk_limits: RiskLimits):
         if getattr(trading_client, "trade_store", None) is None:
-            raise ValueError(
-                "EmergencyPositionManager requires a trading client with a trade store"
-            )
+            raise ValueError("EmergencyPositionManager requires a trading client with a trade store")
 
         self.trading_client = trading_client
         self.risk_limits = risk_limits
         self.monitored_positions: Dict[str, datetime] = {}
         self.risk_assessor = RiskAssessor(risk_limits)
         self.position_closer = PositionCloser(trading_client)
-        self.limit_enforcer = LimitEnforcer(
-            trading_client, self.risk_assessor, self.position_closer, risk_limits
-        )
+        self.limit_enforcer = LimitEnforcer(trading_client, self.risk_assessor, self.position_closer, risk_limits)
         self.stop_loss_monitor = StopLossMonitor(trading_client, self.position_closer)
         logger.info(
             "[EmergencyPositionManager] Initialized with limits: max_value=%s¢, max_exposure=%s¢, max_loss=%s¢",
@@ -85,9 +81,7 @@ class EmergencyPositionManager:
     async def emergency_close_position(
         self, position: PortfolioPosition, reason: str = "Emergency closure"
     ) -> Tuple[bool, Optional[OrderResponse], str]:
-        success, response, message = await self.position_closer.emergency_close_position(
-            position, reason
-        )
+        success, response, message = await self.position_closer.emergency_close_position(position, reason)
         if success:
             self.unregister_position(position.ticker)
         return success, response, message
@@ -102,9 +96,7 @@ class EmergencyPositionManager:
                 logger.info("[EmergencyPositionManager] No monitored positions to close")
                 return {}
             for position in monitored_positions:
-                success, _, message = await self.emergency_close_position(
-                    position, "Emergency close all"
-                )
+                success, _, message = await self.emergency_close_position(position, "Emergency close all")
                 results[position.ticker] = (success, message)
                 await asyncio.sleep(0.5)
 
@@ -117,9 +109,5 @@ class EmergencyPositionManager:
     async def monitor_and_enforce_limits(self) -> List[PositionRiskAssessment]:
         return await self.limit_enforcer.monitor_and_enforce_limits(self.monitored_positions)
 
-    async def create_stop_loss_monitor(
-        self, ticker: str, stop_loss_cents: int, check_interval_seconds: float = 30.0
-    ) -> None:
-        await self.stop_loss_monitor.create_stop_loss_monitor(
-            ticker, stop_loss_cents, self.monitored_positions, check_interval_seconds
-        )
+    async def create_stop_loss_monitor(self, ticker: str, stop_loss_cents: int, check_interval_seconds: float = 30.0) -> None:
+        await self.stop_loss_monitor.create_stop_loss_monitor(ticker, stop_loss_cents, self.monitored_positions, check_interval_seconds)

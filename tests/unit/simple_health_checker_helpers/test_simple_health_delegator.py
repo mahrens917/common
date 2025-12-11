@@ -25,9 +25,7 @@ class TestSimpleHealthDelegator:
         delegator = SimpleHealthDelegator("/logs", 5, 60, 300, 3600)
         delegator.health_url_provider.get_health_urls = Mock(return_value=["url"])
 
-        delegator.http_health_checker.check_http_health = AsyncMock(
-            return_value=ServiceHealth("test", HealthStatus.HEALTHY)
-        )
+        delegator.http_health_checker.check_http_health = AsyncMock(return_value=ServiceHealth("test", HealthStatus.HEALTHY))
 
         result = await delegator.check_service_health("test")
         assert result.status == HealthStatus.HEALTHY
@@ -37,9 +35,7 @@ class TestSimpleHealthDelegator:
         delegator = SimpleHealthDelegator("/logs", 5, 60, 300, 3600)
         delegator.health_url_provider.get_health_urls = Mock(return_value=["url"])
 
-        delegator.http_health_checker.check_http_health = AsyncMock(
-            return_value=ServiceHealth("test", HealthStatus.UNHEALTHY)
-        )
+        delegator.http_health_checker.check_http_health = AsyncMock(return_value=ServiceHealth("test", HealthStatus.UNHEALTHY))
 
         result = await delegator.check_service_health("test")
         assert result.status == HealthStatus.UNHEALTHY
@@ -60,9 +56,7 @@ class TestSimpleHealthDelegator:
     @pytest.mark.asyncio
     async def test_get_detailed_service_status_success(self):
         delegator = SimpleHealthDelegator("/logs", 5, 60, 300, 3600)
-        delegator.log_health_checker.check_log_health = AsyncMock(
-            return_value=ServiceHealth("test", HealthStatus.HEALTHY)
-        )
+        delegator.log_health_checker.check_log_health = AsyncMock(return_value=ServiceHealth("test", HealthStatus.HEALTHY))
 
         result = await delegator.get_detailed_service_status("test")
         assert result.status == HealthStatus.HEALTHY
@@ -70,9 +64,7 @@ class TestSimpleHealthDelegator:
     @pytest.mark.asyncio
     async def test_get_detailed_service_status_failure(self):
         delegator = SimpleHealthDelegator("/logs", 5, 60, 300, 3600)
-        delegator.log_health_checker.check_log_health = AsyncMock(
-            return_value=ServiceHealth("test", HealthStatus.UNKNOWN)
-        )
+        delegator.log_health_checker.check_log_health = AsyncMock(return_value=ServiceHealth("test", HealthStatus.UNKNOWN))
 
         with pytest.raises(RuntimeError):
             await delegator.get_detailed_service_status("test")

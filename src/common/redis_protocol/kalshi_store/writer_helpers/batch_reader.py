@@ -36,9 +36,7 @@ class BatchReader:
                 logger.warning("No Kalshi markets found in Redis")
                 return {}
 
-            logger.info(
-                "Found %s Kalshi markets, checking for interpolation data", len(market_keys)
-            )
+            logger.info("Found %s Kalshi markets, checking for interpolation data", len(market_keys))
 
             import sys
 
@@ -61,14 +59,10 @@ class BatchReader:
             else:
                 return results
         except REDIS_ERRORS as exc:
-            logger.error(
-                "Redis error getting interpolation results for %s: %s", currency, exc, exc_info=True
-            )
+            logger.error("Redis error getting interpolation results for %s: %s", currency, exc, exc_info=True)
             return {}
 
-    async def _extract_single_interpolation_result(
-        self, key_str: str, curr: str, parser: Any, str_f: Any, int_f: Any, float_f: Any
-    ) -> Any:
+    async def _extract_single_interpolation_result(self, key_str: str, curr: str, parser: Any, str_f: Any, int_f: Any, float_f: Any) -> Any:
         try:
             desc = parser(key_str)
         except ValueError:
@@ -92,9 +86,7 @@ class BatchReader:
                     "t_yes_ask": float(yes_ask) if yes_ask is not None else None,
                     "interpolation_method": str_f(data.get("interpolation_method")),
                     "deribit_points_used": int_f(data.get("deribit_points_used"), None),
-                    "interpolation_quality_score": float_f(
-                        data.get("interpolation_quality_score"), 0.0
-                    ),
+                    "interpolation_quality_score": float_f(data.get("interpolation_quality_score"), 0.0),
                     "interpolation_timestamp": str_f(data.get("interpolation_timestamp")),
                     "interp_error_bid": float_f(data.get("interp_error_bid"), 0.0),
                     "interp_error_ask": float_f(data.get("interp_error_ask"), 0.0),

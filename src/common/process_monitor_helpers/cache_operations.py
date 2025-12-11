@@ -36,9 +36,7 @@ class CacheOperations:
 
         return fresh_processes
 
-    def ensure_redis_cache_fresh(
-        self, redis_processes: List[ProcessInfo]
-    ) -> tuple[List[ProcessInfo], bool]:
+    def ensure_redis_cache_fresh(self, redis_processes: List[ProcessInfo]) -> tuple[List[ProcessInfo], bool]:
         """
         Ensure Redis cache is fresh.
 
@@ -52,9 +50,7 @@ class CacheOperations:
         cache_updated = len(fresh_redis) != len(redis_processes)
         return fresh_redis, cache_updated
 
-    def validate_pid_freshness(
-        self, pid: int, process_cache: Dict[int, ProcessInfo]
-    ) -> Optional[ProcessInfo]:
+    def validate_pid_freshness(self, pid: int, process_cache: Dict[int, ProcessInfo]) -> Optional[ProcessInfo]:
         """
         Validate PID exists in cache and is fresh.
 
@@ -79,9 +75,7 @@ class CacheOperations:
     def _filter_fresh_processes(self, processes: List[ProcessInfo]) -> List[ProcessInfo]:
         """Filter processes to keep only fresh ones."""
         current_time = time.time()
-        return [
-            proc for proc in processes if current_time - proc.last_seen < self.cache_ttl_seconds
-        ]
+        return [proc for proc in processes if current_time - proc.last_seen < self.cache_ttl_seconds]
 
     def _is_process_fresh(self, process_info: ProcessInfo) -> bool:
         """Check if a process is fresh."""

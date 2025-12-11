@@ -30,9 +30,7 @@ class StaticUtilities:
     @staticmethod
     def normalize_timestamp(value: Any) -> str | None:
         """Normalize timestamp format to ISO8601."""
-        from ..metadata_helpers.timestamp_normalization import (
-            normalize_timestamp as _normalize_timestamp,
-        )
+        from ..metadata_helpers.timestamp_normalization import normalize_timestamp as _normalize_timestamp
 
         return _normalize_timestamp(value)
 

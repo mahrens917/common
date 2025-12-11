@@ -149,9 +149,7 @@ class TestDataGathererGatherAllStatusData:
         gatherer = DataGatherer(mock_collectors)
         mock_redis = AsyncMock()
 
-        mock_collectors.service_state_collector.collect_running_services.return_value = {
-            "kalshi": "ready"
-        }
+        mock_collectors.service_state_collector.collect_running_services.return_value = {"kalshi": "ready"}
         mock_collectors.service_state_collector.resolve_redis_pid.return_value = 12345
         mock_collectors.health_snapshot_collector.collect_health_snapshot.return_value = {
             "redis_connection_healthy": True,
@@ -177,19 +175,13 @@ class TestDataGathererGatherAllStatusData:
             "btc_price": 50000.0,
             "eth_price": 3000.0,
         }
-        mock_collectors.weather_temp_collector.collect_weather_temperatures.return_value = {
-            "KORD": 72.5
-        }
-        mock_collectors.kalshi_market_status_collector.get_kalshi_market_status.return_value = {
-            "status": "open"
-        }
+        mock_collectors.weather_temp_collector.collect_weather_temperatures.return_value = {"KORD": 72.5}
+        mock_collectors.kalshi_market_status_collector.get_kalshi_market_status.return_value = {"status": "open"}
         mock_collectors.log_activity_collector.collect_log_activity_map.return_value = (
             {"kalshi": 1234567890.0},
             [],
         )
-        mock_collectors.tracker_status_collector.collect_tracker_status.return_value = {
-            "active": True
-        }
+        mock_collectors.tracker_status_collector.collect_tracker_status.return_value = {"active": True}
         # merge_tracker_service_state is NOT async, so use regular Mock
         mock_collectors.tracker_status_collector.merge_tracker_service_state = MagicMock(
             return_value={
@@ -203,9 +195,7 @@ class TestDataGathererGatherAllStatusData:
         async def mock_get_monitor():
             return mock_process_monitor
 
-        with patch(
-            "common.process_monitor.get_global_process_monitor", side_effect=mock_get_monitor
-        ):
+        with patch("common.process_monitor.get_global_process_monitor", side_effect=mock_get_monitor):
             result = await gatherer.gather_all_status_data(mock_redis)
 
             assert result["redis_process"]["pid"] == 12345
@@ -250,18 +240,14 @@ class TestDataGathererGatherAllStatusData:
         mock_collectors.log_activity_collector.collect_log_activity_map.return_value = ({}, [])
         mock_collectors.tracker_status_collector.collect_tracker_status.return_value = {}
         # merge_tracker_service_state is NOT async, so use regular Mock
-        mock_collectors.tracker_status_collector.merge_tracker_service_state = MagicMock(
-            return_value={}
-        )
+        mock_collectors.tracker_status_collector.merge_tracker_service_state = MagicMock(return_value={})
 
         mock_process_monitor = AsyncMock()
 
         async def mock_get_monitor():
             return mock_process_monitor
 
-        with patch(
-            "common.process_monitor.get_global_process_monitor", side_effect=mock_get_monitor
-        ):
+        with patch("common.process_monitor.get_global_process_monitor", side_effect=mock_get_monitor):
             await gatherer.gather_all_status_data(mock_redis)
 
             mock_collectors.redis_key_counter.collect_key_counts.assert_called_once()
@@ -312,13 +298,9 @@ class TestBuildStatusDict:
 class TestConsolePrinterInitialization:
     """Test ConsolePrinter initialization."""
 
-    def test_initialization_sets_dependencies(
-        self, mock_console_printer, mock_weather_section_generator, mock_data_coercion
-    ):
+    def test_initialization_sets_dependencies(self, mock_console_printer, mock_weather_section_generator, mock_data_coercion):
         """Verify ConsolePrinter initializes with dependencies."""
-        printer = ConsolePrinter(
-            mock_console_printer, mock_weather_section_generator, mock_data_coercion
-        )
+        printer = ConsolePrinter(mock_console_printer, mock_weather_section_generator, mock_data_coercion)
 
         assert printer.console_section_printer is not None
         assert printer.weather_section_generator is not None
@@ -329,13 +311,9 @@ class TestConsolePrinterPrintFullStatus:
     """Test ConsolePrinter.print_full_status method."""
 
     @pytest.mark.asyncio
-    async def test_prints_all_sections(
-        self, mock_console_printer, mock_weather_section_generator, mock_data_coercion
-    ):
+    async def test_prints_all_sections(self, mock_console_printer, mock_weather_section_generator, mock_data_coercion):
         """Test that all status sections are printed."""
-        printer = ConsolePrinter(
-            mock_console_printer, mock_weather_section_generator, mock_data_coercion
-        )
+        printer = ConsolePrinter(mock_console_printer, mock_weather_section_generator, mock_data_coercion)
 
         status_data = {
             "kalshi_market_status": {"status": "open"},
@@ -347,9 +325,7 @@ class TestConsolePrinterPrintFullStatus:
             "system_resources_health": {},
         }
 
-        with patch(
-            "common.optimized_status_reporter_helpers.status_report_coordinator.get_current_utc"
-        ) as mock_time:
+        with patch("common.optimized_status_reporter_helpers.status_report_coordinator.get_current_utc") as mock_time:
             mock_time.return_value.strftime.return_value = "2025-01-01 12:00:00"
             await printer.print_full_status(status_data)
 
@@ -361,13 +337,9 @@ class TestConsolePrinterPrintFullStatus:
             mock_console_printer.print_monitor_service.assert_called_once()
 
     @pytest.mark.asyncio
-    async def test_handles_missing_data_gracefully(
-        self, mock_console_printer, mock_weather_section_generator, mock_data_coercion
-    ):
+    async def test_handles_missing_data_gracefully(self, mock_console_printer, mock_weather_section_generator, mock_data_coercion):
         """Test that missing data fields are handled gracefully."""
-        printer = ConsolePrinter(
-            mock_console_printer, mock_weather_section_generator, mock_data_coercion
-        )
+        printer = ConsolePrinter(mock_console_printer, mock_weather_section_generator, mock_data_coercion)
 
         status_data = {
             "system_resources_health": {},
@@ -375,9 +347,7 @@ class TestConsolePrinterPrintFullStatus:
             "log_activity": {},
         }
 
-        with patch(
-            "common.optimized_status_reporter_helpers.status_report_coordinator.get_current_utc"
-        ) as mock_time:
+        with patch("common.optimized_status_reporter_helpers.status_report_coordinator.get_current_utc") as mock_time:
             mock_time.return_value.strftime.return_value = "2025-01-01 12:00:00"
             await printer.print_full_status(status_data)
 
@@ -385,13 +355,9 @@ class TestConsolePrinterPrintFullStatus:
             mock_console_printer.print_price_info.assert_called_once_with(None, None)
 
     @pytest.mark.asyncio
-    async def test_coerces_data_before_printing(
-        self, mock_console_printer, mock_weather_section_generator, mock_data_coercion
-    ):
+    async def test_coerces_data_before_printing(self, mock_console_printer, mock_weather_section_generator, mock_data_coercion):
         """Test that data is coerced using data_coercion utility."""
-        printer = ConsolePrinter(
-            mock_console_printer, mock_weather_section_generator, mock_data_coercion
-        )
+        printer = ConsolePrinter(mock_console_printer, mock_weather_section_generator, mock_data_coercion)
 
         status_data = {
             "kalshi_market_status": {"status": "open"},
@@ -401,22 +367,16 @@ class TestConsolePrinterPrintFullStatus:
             "system_resources_health": {},
         }
 
-        with patch(
-            "common.optimized_status_reporter_helpers.status_report_coordinator.get_current_utc"
-        ) as mock_time:
+        with patch("common.optimized_status_reporter_helpers.status_report_coordinator.get_current_utc") as mock_time:
             mock_time.return_value.strftime.return_value = "2025-01-01 12:00:00"
             await printer.print_full_status(status_data)
 
             assert mock_data_coercion.coerce_mapping.call_count >= 2
 
     @pytest.mark.asyncio
-    async def test_generates_weather_section(
-        self, mock_console_printer, mock_weather_section_generator, mock_data_coercion
-    ):
+    async def test_generates_weather_section(self, mock_console_printer, mock_weather_section_generator, mock_data_coercion):
         """Test that weather section is generated."""
-        printer = ConsolePrinter(
-            mock_console_printer, mock_weather_section_generator, mock_data_coercion
-        )
+        printer = ConsolePrinter(mock_console_printer, mock_weather_section_generator, mock_data_coercion)
 
         status_data = {
             "weather_temperatures": {"KORD": 72.5},
@@ -425,9 +385,7 @@ class TestConsolePrinterPrintFullStatus:
             "system_resources_health": {},
         }
 
-        with patch(
-            "common.optimized_status_reporter_helpers.status_report_coordinator.get_current_utc"
-        ) as mock_time:
+        with patch("common.optimized_status_reporter_helpers.status_report_coordinator.get_current_utc") as mock_time:
             mock_time.return_value.strftime.return_value = "2025-01-01 12:00:00"
             await printer.print_full_status(status_data)
 
@@ -503,15 +461,11 @@ class TestStatusReportCoordinatorGenerateAndStreamStatusReport:
             "btc_price": 50000.0,
         }
 
-        with patch(
-            "common.redis_protocol.connection_pool_core.get_redis_client"
-        ) as mock_get_client:
+        with patch("common.redis_protocol.connection_pool_core.get_redis_client") as mock_get_client:
             mock_client = AsyncMock()
             mock_get_client.return_value = mock_client
 
-            with patch.object(
-                coordinator.data_gatherer, "gather_all_status_data", return_value=mock_status_data
-            ) as mock_gather:
+            with patch.object(coordinator.data_gatherer, "gather_all_status_data", return_value=mock_status_data) as mock_gather:
                 with patch.object(coordinator.console_printer, "print_full_status") as mock_print:
                     result = await coordinator.generate_and_stream_status_report()
 
@@ -535,9 +489,7 @@ class TestStatusReportCoordinatorGenerateAndStreamStatusReport:
 
         coordinator = StatusReportCoordinator(config)
 
-        with patch(
-            "common.redis_protocol.connection_pool_core.get_redis_client"
-        ) as mock_get_client:
+        with patch("common.redis_protocol.connection_pool_core.get_redis_client") as mock_get_client:
             mock_get_client.side_effect = RedisError("Connection failed")
 
             with pytest.raises(RuntimeError, match="Status report generation failed"):
@@ -559,9 +511,7 @@ class TestStatusReportCoordinatorGenerateAndStreamStatusReport:
 
         coordinator = StatusReportCoordinator(config)
 
-        with patch(
-            "common.redis_protocol.connection_pool_core.get_redis_client"
-        ) as mock_get_client:
+        with patch("common.redis_protocol.connection_pool_core.get_redis_client") as mock_get_client:
             mock_get_client.side_effect = RedisOperationError("Operation failed")
 
             with pytest.raises(RuntimeError, match="Status report generation failed"):
@@ -583,9 +533,7 @@ class TestStatusReportCoordinatorGenerateAndStreamStatusReport:
 
         coordinator = StatusReportCoordinator(config)
 
-        with patch(
-            "common.redis_protocol.connection_pool_core.get_redis_client"
-        ) as mock_get_client:
+        with patch("common.redis_protocol.connection_pool_core.get_redis_client") as mock_get_client:
             mock_get_client.side_effect = ConnectionError("Network error")
 
             with pytest.raises(RuntimeError, match="Status report generation failed"):
@@ -607,9 +555,7 @@ class TestStatusReportCoordinatorGenerateAndStreamStatusReport:
 
         coordinator = StatusReportCoordinator(config)
 
-        with patch(
-            "common.redis_protocol.connection_pool_core.get_redis_client"
-        ) as mock_get_client:
+        with patch("common.redis_protocol.connection_pool_core.get_redis_client") as mock_get_client:
             mock_get_client.side_effect = TimeoutError("Request timeout")
 
             with pytest.raises(RuntimeError, match="Status report generation failed"):
@@ -631,9 +577,7 @@ class TestStatusReportCoordinatorGenerateAndStreamStatusReport:
 
         coordinator = StatusReportCoordinator(config)
 
-        with patch(
-            "common.redis_protocol.connection_pool_core.get_redis_client"
-        ) as mock_get_client:
+        with patch("common.redis_protocol.connection_pool_core.get_redis_client") as mock_get_client:
             mock_get_client.side_effect = asyncio.TimeoutError("Async timeout")
 
             with pytest.raises(RuntimeError, match="Status report generation failed"):
@@ -655,9 +599,7 @@ class TestStatusReportCoordinatorGenerateAndStreamStatusReport:
 
         coordinator = StatusReportCoordinator(config)
 
-        with patch(
-            "common.redis_protocol.connection_pool_core.get_redis_client"
-        ) as mock_get_client:
+        with patch("common.redis_protocol.connection_pool_core.get_redis_client") as mock_get_client:
             mock_get_client.side_effect = RuntimeError("Runtime error")
 
             with pytest.raises(RuntimeError, match="Status report generation failed"):
@@ -679,9 +621,7 @@ class TestStatusReportCoordinatorGenerateAndStreamStatusReport:
 
         coordinator = StatusReportCoordinator(config)
 
-        with patch(
-            "common.redis_protocol.connection_pool_core.get_redis_client"
-        ) as mock_get_client:
+        with patch("common.redis_protocol.connection_pool_core.get_redis_client") as mock_get_client:
             mock_get_client.side_effect = ValueError("Invalid value")
 
             with pytest.raises(RuntimeError, match="Status report generation failed"):
@@ -703,9 +643,7 @@ class TestStatusReportCoordinatorGenerateAndStreamStatusReport:
 
         coordinator = StatusReportCoordinator(config)
 
-        with patch(
-            "common.redis_protocol.connection_pool_core.get_redis_client"
-        ) as mock_get_client:
+        with patch("common.redis_protocol.connection_pool_core.get_redis_client") as mock_get_client:
             mock_get_client.side_effect = ImportError("Module not found")
 
             with pytest.raises(RuntimeError, match="Status report generation failed"):
@@ -727,14 +665,10 @@ class TestStatusReportCoordinatorGenerateAndStreamStatusReport:
 
         coordinator = StatusReportCoordinator(config)
 
-        with patch(
-            "common.redis_protocol.connection_pool_core.get_redis_client"
-        ) as mock_get_client:
+        with patch("common.redis_protocol.connection_pool_core.get_redis_client") as mock_get_client:
             mock_get_client.side_effect = RedisError("Test error")
 
-            with patch(
-                "common.optimized_status_reporter_helpers.status_report_coordinator.logger"
-            ) as mock_logger:
+            with patch("common.optimized_status_reporter_helpers.status_report_coordinator.logger") as mock_logger:
                 with pytest.raises(RuntimeError):
                     await coordinator.generate_and_stream_status_report()
 

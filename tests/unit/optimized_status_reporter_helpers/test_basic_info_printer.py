@@ -260,9 +260,7 @@ class TestPrintMonitorService:
         process_manager = MagicMock()
         service_status_formatter = MagicMock()
         printer = BasicInfoPrinter(process_manager, service_status_formatter)
-        printer.monitor_printer.build_monitor_status_line = MagicMock(
-            return_value="  🟢 monitor - Active"
-        )
+        printer.monitor_printer.build_monitor_status_line = MagicMock(return_value="  🟢 monitor - Active")
         emitted = []
         printer._emit_status_line = lambda x="": emitted.append(x)
 

@@ -36,14 +36,10 @@ class RedisConnectionMixin:
 class MarketDataMixin(RedisConnectionMixin):
     _format_probability: Any
 
-    async def write_enhanced_market_data(
-        self, market_ticker: str, market_key: str, field_updates: Dict[str, Any]
-    ) -> bool:
+    async def write_enhanced_market_data(self, market_ticker: str, market_key: str, field_updates: Dict[str, Any]) -> bool:
         return await self._write_enhanced_market_data(market_ticker, market_key, field_updates)
 
-    async def _write_enhanced_market_data(
-        self, market_ticker: str, market_key: str, field_updates: Dict[str, Any]
-    ) -> bool:
+    async def _write_enhanced_market_data(self, market_ticker: str, market_key: str, field_updates: Dict[str, Any]) -> bool:
         if not market_ticker:
             raise TypeError("market_ticker must be provided for write_enhanced_market_data")
 
@@ -64,9 +60,7 @@ class MarketDataMixin(RedisConnectionMixin):
                 sorted(field_updates.keys()),
             )
         except REDIS_ERRORS as exc:  # pragma: no cover - defensive logging
-            logger.error(
-                "Failed to persist enhanced data for %s: %s", market_ticker, exc, exc_info=True
-            )
+            logger.error("Failed to persist enhanced data for %s: %s", market_ticker, exc, exc_info=True)
             raise
         else:
             return True
@@ -76,14 +70,10 @@ class TradePriceMixin:
     _trade_store_lock: asyncio.Lock
     _trade_store: Any
 
-    async def update_trade_prices_for_market(
-        self, market_ticker: str, yes_bid: Optional[float], yes_ask: Optional[float]
-    ) -> None:
+    async def update_trade_prices_for_market(self, market_ticker: str, yes_bid: Optional[float], yes_ask: Optional[float]) -> None:
         await self._update_trade_prices(market_ticker, yes_bid, yes_ask)
 
-    async def _update_trade_prices(
-        self, market_ticker: str, yes_bid: Optional[float], yes_ask: Optional[float]
-    ) -> None:
+    async def _update_trade_prices(self, market_ticker: str, yes_bid: Optional[float], yes_ask: Optional[float]) -> None:
         if yes_bid is None or yes_ask is None:
             return
         try:

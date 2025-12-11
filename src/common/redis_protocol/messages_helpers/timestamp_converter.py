@@ -26,9 +26,7 @@ def parse_utc_timestamp(value: Union[str, int, float]) -> int:
         assert dt is not None
         return int(dt.timestamp())
     except (ValueError, TypeError) as e:
-        raise DataError(
-            f"FAIL-FAST: Invalid timestamp format '{value}'. Cannot parse timestamp: {e}"
-        ) from e
+        raise DataError(f"FAIL-FAST: Invalid timestamp format '{value}'. Cannot parse timestamp: {e}") from e
 
 
 def format_utc_timestamp(timestamp: Union[int, float]) -> str:

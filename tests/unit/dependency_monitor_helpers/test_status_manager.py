@@ -74,9 +74,7 @@ class TestStatusManagerInit:
         assert status_manager._has_been_available is False
         assert status_manager._is_currently_available is False
 
-    def test_initialization_with_telegram(
-        self, mock_callback_executor, mock_telegram_notifier, dependency_states
-    ):
+    def test_initialization_with_telegram(self, mock_callback_executor, mock_telegram_notifier, dependency_states):
         """Test initialization with Telegram notifier."""
         manager = StatusManager(
             service_name="test_service",
@@ -86,9 +84,7 @@ class TestStatusManagerInit:
         )
         assert manager.telegram_notifier == mock_telegram_notifier
 
-    def test_initialization_with_redis_tracker(
-        self, mock_callback_executor, mock_redis_tracker, dependency_states
-    ):
+    def test_initialization_with_redis_tracker(self, mock_callback_executor, mock_redis_tracker, dependency_states):
         """Test initialization with Redis tracker."""
         manager = StatusManager(
             service_name="test_service",
@@ -186,9 +182,7 @@ class TestHandleStatusChanges:
         assert status_manager.callback_executor.run_callback.call_count == 0
 
     @pytest.mark.asyncio
-    async def test_initial_startup_dependencies_unavailable(
-        self, status_manager, dependency_states
-    ):
+    async def test_initial_startup_dependencies_unavailable(self, status_manager, dependency_states):
         """Test initial startup when dependencies are unavailable."""
         dependency_states["redis"].status = DependencyStatus.UNAVAILABLE
 
@@ -327,9 +321,7 @@ class TestNotifyStatusChange:
     """Tests for notify_status_change method."""
 
     @pytest.mark.asyncio
-    async def test_notify_with_redis_tracker(
-        self, mock_callback_executor, mock_redis_tracker, dependency_states
-    ):
+    async def test_notify_with_redis_tracker(self, mock_callback_executor, mock_redis_tracker, dependency_states):
         """Test notification with Redis tracker."""
         manager = StatusManager(
             service_name="test_service",
@@ -338,27 +330,19 @@ class TestNotifyStatusChange:
             redis_tracker=mock_redis_tracker,
         )
 
-        await manager.notify_status_change(
-            "redis", DependencyStatus.AVAILABLE, DependencyStatus.UNAVAILABLE
-        )
+        await manager.notify_status_change("redis", DependencyStatus.AVAILABLE, DependencyStatus.UNAVAILABLE)
 
-        mock_redis_tracker.update_dependency_status.assert_called_once_with(
-            "redis", DependencyStatus.UNAVAILABLE
-        )
+        mock_redis_tracker.update_dependency_status.assert_called_once_with("redis", DependencyStatus.UNAVAILABLE)
 
     @pytest.mark.asyncio
     async def test_notify_without_redis_tracker(self, status_manager):
         """Test notification without Redis tracker (should not raise)."""
-        await status_manager.notify_status_change(
-            "redis", DependencyStatus.AVAILABLE, DependencyStatus.UNAVAILABLE
-        )
+        await status_manager.notify_status_change("redis", DependencyStatus.AVAILABLE, DependencyStatus.UNAVAILABLE)
 
         # Should complete without error
 
     @pytest.mark.asyncio
-    async def test_notify_unknown_status_skips_telegram(
-        self, mock_callback_executor, mock_telegram_notifier, dependency_states
-    ):
+    async def test_notify_unknown_status_skips_telegram(self, mock_callback_executor, mock_telegram_notifier, dependency_states):
         """Test that UNKNOWN old status doesn't send Telegram notification."""
         manager = StatusManager(
             service_name="test_service",
@@ -367,17 +351,13 @@ class TestNotifyStatusChange:
             telegram_notifier=mock_telegram_notifier,
         )
 
-        await manager.notify_status_change(
-            "redis", DependencyStatus.UNKNOWN, DependencyStatus.AVAILABLE
-        )
+        await manager.notify_status_change("redis", DependencyStatus.UNKNOWN, DependencyStatus.AVAILABLE)
 
         # Should not call telegram notifier
         mock_callback_executor.run_callback.assert_not_called()
 
     @pytest.mark.asyncio
-    async def test_notify_with_telegram_available(
-        self, mock_callback_executor, mock_telegram_notifier, dependency_states
-    ):
+    async def test_notify_with_telegram_available(self, mock_callback_executor, mock_telegram_notifier, dependency_states):
         """Test Telegram notification for dependency becoming available."""
         manager = StatusManager(
             service_name="test_service",
@@ -387,9 +367,7 @@ class TestNotifyStatusChange:
         )
         mock_callback_executor.run_callback.return_value = None
 
-        await manager.notify_status_change(
-            "redis", DependencyStatus.UNAVAILABLE, DependencyStatus.AVAILABLE
-        )
+        await manager.notify_status_change("redis", DependencyStatus.UNAVAILABLE, DependencyStatus.AVAILABLE)
 
         # Should call telegram notifier with partial
         assert mock_callback_executor.run_callback.call_count == 1
@@ -397,9 +375,7 @@ class TestNotifyStatusChange:
         assert isinstance(call_args, partial)
 
     @pytest.mark.asyncio
-    async def test_notify_with_telegram_unavailable(
-        self, mock_callback_executor, mock_telegram_notifier, dependency_states
-    ):
+    async def test_notify_with_telegram_unavailable(self, mock_callback_executor, mock_telegram_notifier, dependency_states):
         """Test Telegram notification for dependency becoming unavailable."""
         manager = StatusManager(
             service_name="test_service",
@@ -409,17 +385,13 @@ class TestNotifyStatusChange:
         )
         mock_callback_executor.run_callback.return_value = None
 
-        await manager.notify_status_change(
-            "redis", DependencyStatus.AVAILABLE, DependencyStatus.UNAVAILABLE
-        )
+        await manager.notify_status_change("redis", DependencyStatus.AVAILABLE, DependencyStatus.UNAVAILABLE)
 
         # Should call telegram notifier
         assert mock_callback_executor.run_callback.call_count == 1
 
     @pytest.mark.asyncio
-    async def test_notify_telegram_error_logged(
-        self, mock_callback_executor, mock_telegram_notifier, dependency_states
-    ):
+    async def test_notify_telegram_error_logged(self, mock_callback_executor, mock_telegram_notifier, dependency_states):
         """Test that Telegram notification errors are logged."""
         manager = StatusManager(
             service_name="test_service",
@@ -432,14 +404,10 @@ class TestNotifyStatusChange:
         mock_callback_executor.run_callback.return_value = error
 
         # Should not raise
-        await manager.notify_status_change(
-            "redis", DependencyStatus.AVAILABLE, DependencyStatus.UNAVAILABLE
-        )
+        await manager.notify_status_change("redis", DependencyStatus.AVAILABLE, DependencyStatus.UNAVAILABLE)
 
     @pytest.mark.asyncio
-    async def test_notify_message_format_available(
-        self, mock_callback_executor, mock_telegram_notifier, dependency_states
-    ):
+    async def test_notify_message_format_available(self, mock_callback_executor, mock_telegram_notifier, dependency_states):
         """Test message format for available status."""
         manager = StatusManager(
             service_name="test_service",
@@ -449,9 +417,7 @@ class TestNotifyStatusChange:
         )
         mock_callback_executor.run_callback.return_value = None
 
-        await manager.notify_status_change(
-            "redis", DependencyStatus.UNAVAILABLE, DependencyStatus.AVAILABLE
-        )
+        await manager.notify_status_change("redis", DependencyStatus.UNAVAILABLE, DependencyStatus.AVAILABLE)
 
         # Check that the message is created correctly
         call_args = mock_callback_executor.run_callback.call_args[0][0]
@@ -460,9 +426,7 @@ class TestNotifyStatusChange:
     @pytest.mark.asyncio
     async def test_notify_without_telegram(self, status_manager):
         """Test notification without Telegram notifier (should not raise)."""
-        await status_manager.notify_status_change(
-            "redis", DependencyStatus.AVAILABLE, DependencyStatus.UNAVAILABLE
-        )
+        await status_manager.notify_status_change("redis", DependencyStatus.AVAILABLE, DependencyStatus.UNAVAILABLE)
 
         # Should complete without error
 
@@ -504,9 +468,7 @@ class TestStatusManagerIntegration:
         assert mock_callback_executor.run_callback.call_count == 2
 
     @pytest.mark.asyncio
-    async def test_optional_dependencies_do_not_trigger_callbacks(
-        self, mock_callback_executor, dependency_states
-    ):
+    async def test_optional_dependencies_do_not_trigger_callbacks(self, mock_callback_executor, dependency_states):
         """Test that optional dependencies don't trigger failure callbacks."""
         failure_callback = Mock()
 

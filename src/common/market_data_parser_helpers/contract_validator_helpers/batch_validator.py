@@ -7,9 +7,7 @@ class BatchValidator:
     """Validates multiple contracts at once."""
 
     @staticmethod
-    def validate_contracts(
-        options_data: Dict[str, Any], expected_symbol: str
-    ) -> tuple[int, List[str], Dict[str, int]]:
+    def validate_contracts(options_data: Dict[str, Any], expected_symbol: str) -> tuple[int, List[str], Dict[str, int]]:
         """Validate all contracts in options data."""
         from ..contract_validator import ContractValidator
 
@@ -18,9 +16,7 @@ class BatchValidator:
         valid_count = 0
 
         for i, contract_name in enumerate(options_data["contract_names"]):
-            is_valid, error_msg, updates = ContractValidator.validate_contract(
-                contract_name, expected_symbol, i, options_data
-            )
+            is_valid, error_msg, updates = ContractValidator.validate_contract(contract_name, expected_symbol, i, options_data)
 
             if is_valid:
                 valid_count += 1

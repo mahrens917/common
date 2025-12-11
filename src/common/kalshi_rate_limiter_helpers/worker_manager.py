@@ -17,9 +17,7 @@ class RateLimiterWorkerError(RuntimeError):
 class WorkerManager:
     """Manages background worker task"""
 
-    def __init__(
-        self, token_manager: TokenManager, read_queue: asyncio.Queue, write_queue: asyncio.Queue
-    ):
+    def __init__(self, token_manager: TokenManager, read_queue: asyncio.Queue, write_queue: asyncio.Queue):
         self.token_manager = token_manager
         self.read_queue = read_queue
         self.write_queue = write_queue
@@ -48,13 +46,9 @@ class WorkerManager:
             try:
                 await self.worker_task
             except asyncio.CancelledError as cancel_exc:
-                logger.debug(
-                    "[KalshiRateLimiter] Worker cancelled after timeout", exc_info=cancel_exc
-                )
+                logger.debug("[KalshiRateLimiter] Worker cancelled after timeout", exc_info=cancel_exc)
                 self.worker_task = None
-                raise RuntimeError(
-                    "KalshiRateLimiter worker cancelled during shutdown"
-                ) from cancel_exc
+                raise RuntimeError("KalshiRateLimiter worker cancelled during shutdown") from cancel_exc
             self.worker_task = None
             raise RuntimeError("KalshiRateLimiter worker shutdown timed out") from exc
         self.worker_task = None
@@ -86,15 +80,11 @@ class WorkerManager:
 
             except WORKER_FAILURE_ERRORS as exc:
                 if ErrorClassifier.is_shutdown_error(exc, self.shutdown_event):
-                    logger.info(
-                        "[KalshiRateLimiter] Worker stopping cleanly: %s", exc, exc_info=True
-                    )
+                    logger.info("[KalshiRateLimiter] Worker stopping cleanly: %s", exc, exc_info=True)
                     break
 
                 self.shutdown_event.set()
-                logger.error(
-                    "[KalshiRateLimiter] Worker failed unexpectedly: %s", exc, exc_info=True
-                )
+                logger.error("[KalshiRateLimiter] Worker failed unexpectedly: %s", exc, exc_info=True)
                 raise RateLimiterWorkerError("KalshiRateLimiter worker aborted") from exc
 
         logger.info("[KalshiRateLimiter] Request processing worker stopped")

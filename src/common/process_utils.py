@@ -5,14 +5,10 @@ from __future__ import annotations
 from typing import Any, Dict, Iterable, List, Tuple
 
 
-def collect_failed_services(
-    process_info: Dict[str, Any], failed_states: Iterable[Any]
-) -> List[str]:
+def collect_failed_services(process_info: Dict[str, Any], failed_states: Iterable[Any]) -> List[str]:
     """Return service names whose status matches one of the failure states."""
     failed_set = set(failed_states)
-    return [
-        name for name, info in process_info.items() if getattr(info, "status", None) in failed_set
-    ]
+    return [name for name, info in process_info.items() if getattr(info, "status", None) in failed_set]
 
 
 class FailedServiceMixin:

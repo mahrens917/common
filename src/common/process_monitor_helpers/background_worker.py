@@ -32,9 +32,7 @@ class BackgroundScanWorker:
 
                 # Wait for next scan or shutdown signal
                 try:
-                    await asyncio.wait_for(
-                        self.shutdown_event.wait(), timeout=self.scan_interval_seconds
-                    )
+                    await asyncio.wait_for(self.shutdown_event.wait(), timeout=self.scan_interval_seconds)
                     break  # Shutdown requested
                 except asyncio.TimeoutError:
                     continue  # Normal timeout, continue scanning

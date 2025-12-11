@@ -15,9 +15,7 @@ async def execute_retry_operation(
 ) -> bool:
     """Execute connection operation with retry logic."""
     try:
-        await execute_with_retry(
-            operation, policy=policy, logger=logger, context=context, on_retry=on_retry
-        )
+        await execute_with_retry(operation, policy=policy, logger=logger, context=context, on_retry=on_retry)
     except RedisFatalError:
         return False
     except RedisRetryError:

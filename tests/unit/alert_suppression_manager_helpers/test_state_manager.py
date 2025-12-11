@@ -69,15 +69,9 @@ def test_get_suppression_statistics_with_decisions(state_manager):
 
 def test_get_suppression_statistics_by_service(state_manager):
     """Test by_service statistics."""
-    state_manager.tracker.record_decision(
-        SuppressionDecision(True, "Test", "kalshi", AlertType.ERROR_LOG)
-    )
-    state_manager.tracker.record_decision(
-        SuppressionDecision(False, "Test", "kalshi", AlertType.ERROR_LOG)
-    )
-    state_manager.tracker.record_decision(
-        SuppressionDecision(True, "Test", "weather", AlertType.STALE_LOG)
-    )
+    state_manager.tracker.record_decision(SuppressionDecision(True, "Test", "kalshi", AlertType.ERROR_LOG))
+    state_manager.tracker.record_decision(SuppressionDecision(False, "Test", "kalshi", AlertType.ERROR_LOG))
+    state_manager.tracker.record_decision(SuppressionDecision(True, "Test", "weather", AlertType.STALE_LOG))
 
     stats = state_manager.get_suppression_statistics(
         enabled=True,
@@ -97,15 +91,9 @@ def test_get_suppression_statistics_by_service(state_manager):
 
 def test_get_suppression_statistics_by_alert_type(state_manager):
     """Test by_alert_type statistics."""
-    state_manager.tracker.record_decision(
-        SuppressionDecision(True, "Test", "kalshi", AlertType.ERROR_LOG)
-    )
-    state_manager.tracker.record_decision(
-        SuppressionDecision(False, "Test", "kalshi", AlertType.ERROR_LOG)
-    )
-    state_manager.tracker.record_decision(
-        SuppressionDecision(True, "Test", "weather", AlertType.STALE_LOG)
-    )
+    state_manager.tracker.record_decision(SuppressionDecision(True, "Test", "kalshi", AlertType.ERROR_LOG))
+    state_manager.tracker.record_decision(SuppressionDecision(False, "Test", "kalshi", AlertType.ERROR_LOG))
+    state_manager.tracker.record_decision(SuppressionDecision(True, "Test", "weather", AlertType.STALE_LOG))
 
     stats = state_manager.get_suppression_statistics(
         enabled=True,
@@ -145,9 +133,7 @@ def test_get_suppression_statistics_includes_rule_config(state_manager):
 def test_get_suppression_statistics_all_suppressed(state_manager):
     """Test statistics when all decisions are suppressed."""
     for i in range(5):
-        state_manager.tracker.record_decision(
-            SuppressionDecision(True, f"Test {i}", "service", AlertType.ERROR_LOG)
-        )
+        state_manager.tracker.record_decision(SuppressionDecision(True, f"Test {i}", "service", AlertType.ERROR_LOG))
 
     stats = state_manager.get_suppression_statistics(
         enabled=True,
@@ -164,9 +150,7 @@ def test_get_suppression_statistics_all_suppressed(state_manager):
 def test_get_suppression_statistics_none_suppressed(state_manager):
     """Test statistics when no decisions are suppressed."""
     for i in range(5):
-        state_manager.tracker.record_decision(
-            SuppressionDecision(False, f"Test {i}", "service", AlertType.ERROR_LOG)
-        )
+        state_manager.tracker.record_decision(SuppressionDecision(False, f"Test {i}", "service", AlertType.ERROR_LOG))
 
     stats = state_manager.get_suppression_statistics(
         enabled=True,

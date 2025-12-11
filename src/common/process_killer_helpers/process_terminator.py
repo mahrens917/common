@@ -49,13 +49,9 @@ async def terminate_matching_processes(
             )
             killed_processes.append(proc.pid)
         except psutil.NoSuchProcess:
-            logger.debug(
-                "%s process %s exited before termination completed", service_name, proc.pid
-            )
+            logger.debug("%s process %s exited before termination completed", service_name, proc.pid)
         except psutil.AccessDenied as access_exc:
-            raise RuntimeError(
-                f"Access denied while terminating {service_name} process {proc.pid}"
-            ) from access_exc
+            raise RuntimeError(f"Access denied while terminating {service_name} process {proc.pid}") from access_exc
 
     return killed_processes
 
@@ -77,9 +73,7 @@ async def _terminate_single_process(
     try:
         proc.wait(timeout=graceful_timeout)
     except psutil_module.TimeoutExpired:
-        console_output_func(
-            f"⏱️ Process {pid} did not terminate within {graceful_timeout}s; sending SIGKILL"
-        )
+        console_output_func(f"⏱️ Process {pid} did not terminate within {graceful_timeout}s; sending SIGKILL")
     else:
         console_output_func(f"✅ Process {pid} terminated gracefully")
         return
@@ -89,15 +83,12 @@ async def _terminate_single_process(
         proc.wait(timeout=force_timeout)
     except psutil_module.TimeoutExpired as kill_exc:
         raise RuntimeError(
-            f"{service_name} process {pid} persisted after SIGKILL for "
-            f"{force_timeout}s; manual intervention required."
+            f"{service_name} process {pid} persisted after SIGKILL for " f"{force_timeout}s; manual intervention required."
         ) from kill_exc
     console_output_func(f"✅ Process {pid} force killed")
 
 
-def validate_process_candidates(
-    candidates: List[SimpleNamespace], *, service_name: str
-) -> List[Any]:
+def validate_process_candidates(candidates: List[SimpleNamespace], *, service_name: str) -> List[Any]:
     """
     Convert process candidates to psutil Process objects and validate them.
 
@@ -132,9 +123,7 @@ def _create_psutil_process_safe(pid: int, *, service_name: str, cmdline: list) -
     try:
         import psutil
     except ImportError as import_exc:
-        raise RuntimeError(
-            f"psutil is required to manage {service_name} processes but is not installed."
-        ) from import_exc
+        raise RuntimeError(f"psutil is required to manage {service_name} processes but is not installed.") from import_exc
 
     try:
         return psutil.Process(pid)
@@ -142,15 +131,10 @@ def _create_psutil_process_safe(pid: int, *, service_name: str, cmdline: list) -
         logger.debug("Process %s vanished before psutil inspection", pid)
         return None
     except psutil.AccessDenied as access_exc:
-        raise RuntimeError(
-            f"Access denied while inspecting {service_name} process {pid} ({' '.join(cmdline)})"
-        ) from access_exc
+        raise RuntimeError(f"Access denied while inspecting {service_name} process {pid} ({' '.join(cmdline)})") from access_exc
 
 
 def _validate_process_executable(process_info: SimpleNamespace, service_name: str) -> None:
     """Validate that process has expected executable name."""
     if process_info.name and "python" not in process_info.name.lower():
-        raise RuntimeError(
-            f"Unexpected executable for {service_name} process {process_info.pid}: "
-            f"{process_info.name}"
-        )
+        raise RuntimeError(f"Unexpected executable for {service_name} process {process_info.pid}: " f"{process_info.name}")

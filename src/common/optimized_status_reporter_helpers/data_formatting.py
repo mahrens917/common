@@ -21,11 +21,7 @@ class DataFormatting:
             return f"{float(value):.1f}%"
         if isinstance(value, (str, bytes, bytearray)):
             try:
-                text = (
-                    value.decode("utf-8", "ignore")
-                    if isinstance(value, (bytes, bytearray))
-                    else value
-                )
+                text = value.decode("utf-8", "ignore") if isinstance(value, (bytes, bytearray)) else value
                 return f"{float(text):.1f}%"
             except (
                 TypeError,

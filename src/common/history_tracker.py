@@ -53,9 +53,7 @@ class HistoryTracker:
         """Record the service update stream."""
         return await _record_service_update(self, service_name, updates_per_second)
 
-    async def get_service_history(
-        self, service_name: str, hours: int = 24
-    ) -> List[Tuple[int, float]]:
+    async def get_service_history(self, service_name: str, hours: int = 24) -> List[Tuple[int, float]]:
         """Retrieve the stored service history data."""
         return await _get_service_history(self, service_name, hours)
 
@@ -94,9 +92,7 @@ async def _get_service_history(self, service_name: str, hours: int = 24) -> List
         redis_key = f"{HISTORY_KEY_PREFIX}{service_name}"
         current_time = int(time.time())
         start_time = current_time - (hours * 3600)
-        data = await ensure_awaitable(
-            client.zrangebyscore(redis_key, start_time, current_time, withscores=True)
-        )
+        data = await ensure_awaitable(client.zrangebyscore(redis_key, start_time, current_time, withscores=True))
         history_data = []
         for member, score in data:
             timestamp = int(score)
@@ -243,14 +239,10 @@ class WeatherHistoryTracker:
 
         await self.initialize()
         client = self._connection_manager.get_client()
-        success, _ = await self._observation_recorder.record_observation(
-            client, station_icao, temp_f
-        )
+        success, _ = await self._observation_recorder.record_observation(client, station_icao, temp_f)
         return success
 
-    async def get_temperature_history(
-        self, station_icao: str, hours: int = 24
-    ) -> List[Tuple[int, float]]:
+    async def get_temperature_history(self, station_icao: str, hours: int = 24) -> List[Tuple[int, float]]:
         """
         Get temperature history for a weather station from the sorted-set history store.
 

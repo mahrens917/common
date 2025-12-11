@@ -28,9 +28,7 @@ def test_expiry_timestamp_accepts_datetime_and_numeric():
 
 def test_expiry_timestamp_parses_iso_strings():
     inst_iso = Instrument(instrument_name="TEST", expiry="2024-08-20T12:00:00Z")
-    assert inst_iso.expiry_timestamp == int(
-        datetime(2024, 8, 20, 12, tzinfo=timezone.utc).timestamp()
-    )
+    assert inst_iso.expiry_timestamp == int(datetime(2024, 8, 20, 12, tzinfo=timezone.utc).timestamp())
 
     with pytest.raises(ValueError):
         _ = Instrument(instrument_name="TEST", expiry="invalid").expiry_timestamp

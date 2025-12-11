@@ -46,9 +46,7 @@ def serialize_probability_payload(data: Dict[str, Any]) -> Tuple[str, bool]:
     return value, has_confidence
 
 
-def decode_probability_hash(
-    raw_data: Dict[Any, Any], *, key_str: str, log_nan: bool, logger_fn
-) -> Dict[str, Union[str, float]]:
+def decode_probability_hash(raw_data: Dict[Any, Any], *, key_str: str, log_nan: bool, logger_fn) -> Dict[str, Union[str, float]]:
     """Convert Redis hash payload into python primitives."""
     processed: Dict[str, Union[str, float]] = {}
     for field, value in raw_data.items():

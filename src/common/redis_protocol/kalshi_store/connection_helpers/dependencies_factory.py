@@ -34,9 +34,7 @@ class RedisConnectionDependenciesFactory:
     """Factory for creating RedisConnectionManager dependencies."""
 
     @staticmethod
-    def create(
-        manager: "RedisConnectionManager", logger: "logging.Logger"
-    ) -> RedisConnectionDependencies:
+    def create(manager: "RedisConnectionManager", logger: "logging.Logger") -> RedisConnectionDependencies:
         """Create dependencies for RedisConnectionManager."""
         property_manager = PropertyManager(manager)
         property_accessor = PropertyAccessor(manager)

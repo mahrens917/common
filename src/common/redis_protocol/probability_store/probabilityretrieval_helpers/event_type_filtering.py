@@ -23,9 +23,7 @@ from .sorting_helpers import (
 logger = logging.getLogger(__name__)
 
 
-async def get_probabilities_by_event_type(
-    redis: Redis, currency: str, event_type: str
-) -> ProbabilityByExpiryGrouped:
+async def get_probabilities_by_event_type(redis: Redis, currency: str, event_type: str) -> ProbabilityByExpiryGrouped:
     """Get probabilities filtered by event type.
 
     Args:
@@ -46,15 +44,11 @@ async def get_probabilities_by_event_type(
     try:
         raw_keys = await ensure_awaitable(redis.keys(f"{prefix}*"))
     except REDIS_ERRORS as exc:
-        raise ProbabilityStoreError(
-            f"Failed to fetch event type {event_type} for {currency_upper}: Redis error {exc}"
-        ) from exc
+        raise ProbabilityStoreError(f"Failed to fetch event type {event_type} for {currency_upper}: Redis error {exc}") from exc
 
     keys = await filter_keys_by_event_type(redis, raw_keys, event_type)
     if not keys:
-        raise ProbabilityStoreError(
-            f"No data found for event type '{event_type}' for {currency_upper}"
-        )
+        raise ProbabilityStoreError(f"No data found for event type '{event_type}' for {currency_upper}")
 
     result: ProbabilityByExpiryGrouped = {}
     for key in keys:
@@ -77,9 +71,7 @@ async def get_probabilities_by_event_type(
     return sorted_result
 
 
-async def filter_keys_by_event_type(
-    redis: Redis, raw_keys: Iterable[Any], event_type: str
-) -> List[str]:
+async def filter_keys_by_event_type(redis: Redis, raw_keys: Iterable[Any], event_type: str) -> List[str]:
     """Filter Redis keys by event_type field.
 
     Args:

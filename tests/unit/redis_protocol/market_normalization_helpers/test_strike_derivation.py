@@ -89,18 +89,14 @@ class TestStrikeDerivationHandleBetweenType:
 
     def test_returns_between_type(self) -> None:
         """Returns 'between' as strike type."""
-        with patch(
-            "common.redis_protocol.market_normalization_helpers.strike_derivation.extract_between_bounds"
-        ) as mock_extract:
+        with patch("common.redis_protocol.market_normalization_helpers.strike_derivation.extract_between_bounds") as mock_extract:
             with patch(
                 "common.redis_protocol.market_normalization_helpers.strike_derivation.compute_representative_strike"
             ) as mock_compute:
                 mock_extract.return_value = (50000.0, 60000.0)
                 mock_compute.return_value = 55000.0
 
-                result = StrikeDerivation.handle_between_type(
-                    ["BETWEEN", "50000", "60000"], None, None, 55000.0
-                )
+                result = StrikeDerivation.handle_between_type(["BETWEEN", "50000", "60000"], None, None, 55000.0)
 
                 assert result[0] == "between"
                 assert result[1] == 50000.0

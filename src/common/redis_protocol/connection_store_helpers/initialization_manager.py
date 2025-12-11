@@ -46,10 +46,6 @@ class InitializationManager:
 
         redis_getter = self._parent.get_client
 
-        self._parent.register_state_manager(
-            StateManager(redis_getter, self._parent.connection_states_key)
-        )
+        self._parent.register_state_manager(StateManager(redis_getter, self._parent.connection_states_key))
         self._parent.register_metrics_manager(MetricsManager(redis_getter))
-        self._parent.register_reconnection_event_manager(
-            ReconnectionEventManager(redis_getter, self._parent.reconnection_events_key)
-        )
+        self._parent.register_reconnection_event_manager(ReconnectionEventManager(redis_getter, self._parent.reconnection_events_key))

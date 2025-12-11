@@ -86,9 +86,7 @@ def _clear_logs_directory(log_dir: Path) -> None:
 
     active_services = _find_running_services()
     if active_services:
-        _MODULE_LOGGER.warning(
-            "Skipping log cleanup; services still running: %s", ", ".join(sorted(active_services))
-        )
+        _MODULE_LOGGER.warning("Skipping log cleanup; services still running: %s", ", ".join(sorted(active_services)))
         _LOGS_CLEARED = True
         return
 
@@ -109,9 +107,7 @@ def _clear_logs_directory(log_dir: Path) -> None:
     _LOGS_CLEARED = True
 
 
-def _should_skip_logging_configuration(
-    root_logger: logging.Logger, managed_by_monitor: bool, service_name: Optional[str]
-) -> bool:
+def _should_skip_logging_configuration(root_logger: logging.Logger, managed_by_monitor: bool, service_name: Optional[str]) -> bool:
     if not root_logger.handlers:
         return False
     if managed_by_monitor and service_name:
@@ -120,8 +116,7 @@ def _should_skip_logging_configuration(
         return False
 
     has_console = any(
-        isinstance(handler, logging.StreamHandler) and not isinstance(handler, logging.FileHandler)
-        for handler in root_logger.handlers
+        isinstance(handler, logging.StreamHandler) and not isinstance(handler, logging.FileHandler) for handler in root_logger.handlers
     )
     if not service_name:
         has_file = True
@@ -155,14 +150,10 @@ def _reset_all_handlers(root_logger: logging.Logger) -> None:
                 logger_name_safe = logger_name
             else:
                 logger_name_safe = "<unknown>"
-            _MODULE_LOGGER.debug(
-                "Failed to reset handlers for logger '%s': %s", logger_name_safe, exc
-            )
+            _MODULE_LOGGER.debug("Failed to reset handlers for logger '%s': %s", logger_name_safe, exc)
 
 
-def _build_console_handler(
-    service_name: Optional[str], user_friendly: bool, managed_by_monitor: bool
-) -> logging.Handler:
+def _build_console_handler(service_name: Optional[str], user_friendly: bool, managed_by_monitor: bool) -> logging.Handler:
     if user_friendly:
         formatter = logging.Formatter("%(message)s")
     else:
@@ -184,9 +175,7 @@ def _build_console_handler(
     return console_handler
 
 
-def _configure_file_handler(
-    service_name: Optional[str], project_root: Path
-) -> Optional[logging.Handler]:
+def _configure_file_handler(service_name: Optional[str], project_root: Path) -> Optional[logging.Handler]:
     if not service_name:
         return None
 

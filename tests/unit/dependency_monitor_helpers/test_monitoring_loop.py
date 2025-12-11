@@ -66,9 +66,7 @@ class TestRunLoop:
     @pytest.mark.asyncio
     async def test_checks_dependencies_when_interval_elapsed(self) -> None:
         """Checks dependencies when check interval has elapsed."""
-        config = DependencyConfig(
-            name="dep1", check_function=lambda: True, check_interval_seconds=0.1
-        )
+        config = DependencyConfig(name="dep1", check_function=lambda: True, check_interval_seconds=0.1)
         state = DependencyState(
             config=config,
             last_check_time=0,  # Very old

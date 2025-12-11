@@ -50,9 +50,7 @@ class ServicePrinter:
 
         return healthy_count, total_count
 
-    def print_monitor_service(
-        self, process_manager, log_activity_map: Dict[str, LogActivity]
-    ) -> None:
+    def print_monitor_service(self, process_manager, log_activity_map: Dict[str, LogActivity]) -> None:
         monitor_info = process_manager.process_info.get("monitor")
         if not monitor_info:
             return
@@ -88,9 +86,7 @@ class ServicePrinter:
         activity: Optional[LogActivity],
     ) -> str:
         emoji = get_status_emoji(running, activity)
-        status_display = resolve_service_status(
-            service_name, info, running, tracker_status, self._bool_or_default
-        )
+        status_display = resolve_service_status(service_name, info, running, tracker_status, self._bool_or_default)
 
         # Get age information to append to status
         age_str = self._log_formatter.format_age_only(activity)

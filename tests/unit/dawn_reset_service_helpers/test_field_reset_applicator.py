@@ -13,9 +13,7 @@ class TestFieldResetApplicatorApplyResetLogic:
         applicator = FieldResetApplicator()
 
         with patch("common.dawn_reset_service_helpers.field_reset_applicator.logger"):
-            result = applicator.apply_reset_logic(
-                "t_yes_bid", 50.0, {"t_yes_bid": 45.0}, was_reset=True
-            )
+            result = applicator.apply_reset_logic("t_yes_bid", 50.0, {"t_yes_bid": 45.0}, was_reset=True)
 
         assert result is None
 
@@ -24,9 +22,7 @@ class TestFieldResetApplicatorApplyResetLogic:
         applicator = FieldResetApplicator()
 
         with patch("common.dawn_reset_service_helpers.field_reset_applicator.logger"):
-            result = applicator.apply_reset_logic(
-                "other_field", 50.0, {"other_field": 45.0}, was_reset=True
-            )
+            result = applicator.apply_reset_logic("other_field", 50.0, {"other_field": 45.0}, was_reset=True)
 
         assert result == 50.0
 
@@ -35,9 +31,7 @@ class TestFieldResetApplicatorApplyResetLogic:
         applicator = FieldResetApplicator()
 
         with patch("common.dawn_reset_service_helpers.field_reset_applicator.logger"):
-            result = applicator.apply_reset_logic(
-                "other_field", None, {"other_field": 45.0}, was_reset=False
-            )
+            result = applicator.apply_reset_logic("other_field", None, {"other_field": 45.0}, was_reset=False)
 
         assert result == 45.0
 

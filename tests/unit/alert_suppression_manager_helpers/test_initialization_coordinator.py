@@ -17,9 +17,7 @@ class TestInitializationCoordinatorInitializeFromConfig:
         mock_rule.grace_period_seconds = 30
         mock_rule.suppressed_alert_types = []
 
-        rule, mapping = InitializationCoordinator.initialize_from_config(
-            "config.json", suppression_rule=mock_rule
-        )
+        rule, mapping = InitializationCoordinator.initialize_from_config("config.json", suppression_rule=mock_rule)
 
         assert rule is mock_rule
         assert mapping == {}
@@ -36,9 +34,7 @@ class TestInitializationCoordinatorInitializeFromConfig:
         mock_rule.grace_period_seconds = 30
         mock_rule.suppressed_alert_types = []
 
-        with patch(
-            "common.alert_suppression_manager_helpers.initialization_coordinator.load_suppression_config"
-        ) as mock_load:
+        with patch("common.alert_suppression_manager_helpers.initialization_coordinator.load_suppression_config") as mock_load:
             with patch(
                 "common.alert_suppression_manager_helpers.initialization_coordinator.build_suppression_rule_from_config"
             ) as mock_build:
@@ -76,9 +72,7 @@ class TestInitializationCoordinatorCreateDependenciesIfNeeded:
         ) as mock_factory:
             mock_factory.create.return_value = mock_factory_result
 
-            result = InitializationCoordinator.create_dependencies_if_needed(
-                mock_rule, provided_deps
-            )
+            result = InitializationCoordinator.create_dependencies_if_needed(mock_rule, provided_deps)
 
             # The function imports the factory inside the method, so it should get called
             assert result is not None or result is None  # Factory gets called internally

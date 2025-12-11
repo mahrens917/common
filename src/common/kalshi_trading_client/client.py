@@ -94,9 +94,7 @@ class KalshiTradingClientMixin:
         """Get ICAO to city mapping."""
         return TradeContextResolver.create_icao_to_city_mapping(self._orders)
 
-    async def create_order_with_polling(
-        self, order_request: OrderRequest, timeout_seconds: int = 5
-    ) -> OrderResponse:
+    async def create_order_with_polling(self, order_request: OrderRequest, timeout_seconds: int = 5) -> OrderResponse:
         """Create order with polling, respecting any overrides set on this instance."""
         return await self._order_polling_handler.create_order_with_polling(
             order_request,
@@ -158,9 +156,7 @@ class KalshiTradingClient(
         self.service_name = "kalshi_trading"
         notifier = deps.notifier
         self._notifier = notifier
-        for k, v in ClientInitializer.extract_config_values(
-            ClientInitializer.load_config()
-        ).items():
+        for k, v in ClientInitializer.extract_config_values(ClientInitializer.load_config()).items():
             setattr(self, k, v)
         weather_station_resolver = deps.weather_station_resolver
 

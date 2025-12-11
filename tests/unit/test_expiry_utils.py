@@ -137,9 +137,7 @@ class TestComputeTimeToExpiryYears:
         expiry = datetime(2025, 6, 1, tzinfo=timezone.utc)
         current = datetime(2025, 1, 1, tzinfo=timezone.utc)
 
-        with patch(
-            "common.time_helpers.expiry_conversions.calculate_time_to_expiry_years"
-        ) as mock_canonical:
+        with patch("common.time_helpers.expiry_conversions.calculate_time_to_expiry_years") as mock_canonical:
             mock_canonical.return_value = 0.416
             result = _compute_time_to_expiry_years(expiry, current)
 

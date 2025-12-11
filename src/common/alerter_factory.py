@@ -58,18 +58,12 @@ def _register_shutdown_hook(alerter) -> None:
             try:
                 loop.run_until_complete(alerter.cleanup())
             except cleanup_errors as exc:  # pragma: no cover - defensive logging
-                logger.warning(
-                    "Alerter cleanup during interpreter shutdown failed: %s", exc, exc_info=True
-                )
-                raise AlerterCleanupError(
-                    "Alerter cleanup failed during interpreter shutdown"
-                ) from exc
+                logger.warning("Alerter cleanup during interpreter shutdown failed: %s", exc, exc_info=True)
+                raise AlerterCleanupError("Alerter cleanup failed during interpreter shutdown") from exc
             finally:
                 loop.close()
         except cleanup_errors as exc:  # pragma: no cover - defensive logging
-            logger.warning(
-                "Alerter cleanup during interpreter shutdown failed: %s", exc, exc_info=True
-            )
+            logger.warning("Alerter cleanup during interpreter shutdown failed: %s", exc, exc_info=True)
             raise AlerterCleanupError("Alerter cleanup failed during interpreter shutdown") from exc
 
     atexit.register(_cleanup)

@@ -22,9 +22,7 @@ class InitializationCoordinator:
         if suppression_rule is None:
             config = load_suppression_config(config_path)
             suppression_rule = build_suppression_rule_from_config(config)
-            service_type_mapping: Dict[str, str] = config["suppression_rules"][
-                "service_type_mapping"
-            ]
+            service_type_mapping: Dict[str, str] = config["suppression_rules"]["service_type_mapping"]
         else:
             service_type_mapping = {}
 
@@ -40,12 +38,8 @@ class InitializationCoordinator:
     def create_dependencies_if_needed(suppression_rule, provided_dependencies):
         """Create dependencies using factory if not all provided."""
         if not all(provided_dependencies):
-            from .dependencies_factory import (
-                AlertSuppressionManagerDependenciesFactory,  # gitleaks:allow
-            )
+            from .dependencies_factory import AlertSuppressionManagerDependenciesFactory  # gitleaks:allow
 
             # Factory invocation annotated to prevent gitleaks false positive
-            return AlertSuppressionManagerDependenciesFactory.create(  # gitleaks:allow
-                suppression_rule
-            )
+            return AlertSuppressionManagerDependenciesFactory.create(suppression_rule)  # gitleaks:allow
         return None

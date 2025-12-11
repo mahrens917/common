@@ -7,9 +7,7 @@ from common.redis_protocol.converters import decode_redis_hash
 DEFAULT_WEATHER_EMOJI = "🌡️"
 
 
-def process_weather_results(
-    station_codes: List[str], weather_results: List
-) -> Dict[str, Dict[str, str]]:
+def process_weather_results(station_codes: List[str], weather_results: List) -> Dict[str, Dict[str, str]]:
     """
     Process weather data results into temperature dict.
 

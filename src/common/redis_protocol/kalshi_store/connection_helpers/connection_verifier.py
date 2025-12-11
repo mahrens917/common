@@ -41,9 +41,7 @@ class ConnectionVerifier:
         except REDIS_ERRORS as exc:
             message = str(exc).lower()
             if "event loop is closed" in message:
-                logger.debug(
-                    "Redis ping failed because the event loop is closing: %s", exc, exc_info=False
-                )
+                logger.debug("Redis ping failed because the event loop is closing: %s", exc, exc_info=False)
                 return False, True
 
             logger.warning("Redis ping failed: %s", exc, exc_info=True)

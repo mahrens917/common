@@ -23,9 +23,7 @@ TRADING_ERRORS = (
 class MarketRegistrar:
     """Handles market registration for monitoring."""
 
-    def __init__(
-        self, scanner: MarketScanner, state_tracker: StateTracker, notifier: NotificationSender
-    ):
+    def __init__(self, scanner: MarketScanner, state_tracker: StateTracker, notifier: NotificationSender):
         """
         Initialize market registrar.
 
@@ -57,9 +55,7 @@ class MarketRegistrar:
             market_info = self.state_tracker.parse_market_info(market_data)
             self.state_tracker.monitored_markets[ticker] = market_info
 
-            self.notifier.log_market_registered(
-                ticker, market_info.time_to_close_hours, market_info.state
-            )
+            self.notifier.log_market_registered(ticker, market_info.time_to_close_hours, market_info.state)
 
         except TRADING_ERRORS + (
             ValueError,

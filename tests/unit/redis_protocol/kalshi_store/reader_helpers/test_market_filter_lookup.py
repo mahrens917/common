@@ -117,8 +117,6 @@ async def test_market_lookup_branches(monkeypatch):
         fake_find_matching_market,
     )
 
-    match = await lookup.get_market_data_for_strike_expiry(
-        redis, "usd", "2024-01-01", 12.5, ["m1"], lambda ticker: f"key:{ticker}"
-    )
+    match = await lookup.get_market_data_for_strike_expiry(redis, "usd", "2024-01-01", 12.5, ["m1"], lambda ticker: f"key:{ticker}")
     assert match == {"match": 12.5}
     assert observed_deps["markets"] == ["m1"]

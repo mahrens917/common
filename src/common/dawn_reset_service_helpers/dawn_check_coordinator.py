@@ -24,9 +24,7 @@ class DawnCheckCoordinator:
     ) -> Tuple[bool, Optional[datetime]]:
         """Check if we've crossed local dawn since the previous timestamp."""
         # Check cache
-        cache_key = self.cache_manager.get_cache_key(
-            latitude, longitude, previous_timestamp, current_timestamp
-        )
+        cache_key = self.cache_manager.get_cache_key(latitude, longitude, previous_timestamp, current_timestamp)
         cached_result = self.cache_manager.get_cached_result(cache_key)
         if cached_result is not None:
             return cached_result
@@ -38,9 +36,7 @@ class DawnCheckCoordinator:
         dawn_previous = calculate_dawn_utc(latitude, longitude, previous_day)
 
         # Determine if new trading day
-        result = self.dawn_calculator.is_new_trading_day(
-            latitude, longitude, previous_timestamp, current_timestamp
-        )
+        result = self.dawn_calculator.is_new_trading_day(latitude, longitude, previous_timestamp, current_timestamp)
 
         # Log the check
         self.logger.log_dawn_check(

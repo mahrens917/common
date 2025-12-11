@@ -76,18 +76,14 @@ class ClientAttributeResolver:
         async def _ts_op(*args, **kwargs):
             return await getattr(
                 TradeStoreOperations,
-                name.replace("_get", "get")
-                .replace("_maybe_get", "maybe_get")
-                .replace("_ensure", "ensure"),
+                name.replace("_get", "get").replace("_maybe_get", "maybe_get").replace("_ensure", "ensure"),
             )(self._client._trade_store_manager, **kwargs)
 
         return _ts_op
 
     def _is_delegator_method(self, name: str) -> bool:
         """Check if name should be resolved via delegator."""
-        return (
-            name.startswith("_") and hasattr(self._client._delegator, name[1:])
-        ) or name == "has_sufficient_balance_for_trade_with_fees"
+        return (name.startswith("_") and hasattr(self._client._delegator, name[1:])) or name == "has_sufficient_balance_for_trade_with_fees"
 
     def _resolve_delegator_method(self, name: str) -> Any:
         """Resolve method by delegating to _delegator."""

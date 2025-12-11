@@ -168,9 +168,7 @@ class TestLoadPnlConfig:
         with pytest.raises(RuntimeError, match="Invalid JSON"):
             load_pnl_config()
 
-    def test_load_pnl_config_raises_on_missing_trade_collection_section(
-        self, monkeypatch, tmp_path
-    ):
+    def test_load_pnl_config_raises_on_missing_trade_collection_section(self, monkeypatch, tmp_path):
         """load_pnl_config raises RuntimeError when trade_collection section missing."""
         config_file = tmp_path / "pnl_config.json"
         config_file.write_text(json.dumps({}))
@@ -262,9 +260,7 @@ class TestGetReportingTimezone:
 
         assert result == "UTC"
 
-    def test_get_reporting_timezone_raises_on_missing_reporting_section(
-        self, monkeypatch, tmp_path
-    ):
+    def test_get_reporting_timezone_raises_on_missing_reporting_section(self, monkeypatch, tmp_path):
         """get_reporting_timezone raises RuntimeError when reporting section missing."""
         config_file = tmp_path / "pnl_config.json"
         test_config = {

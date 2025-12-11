@@ -51,9 +51,7 @@ async def test_get_redis_processes_filters_stale_entries():
 
 def test_matches_service_pattern_and_redis_detection():
     monitor = ProcessMonitor()
-    assert monitor.matches_service_pattern(
-        ["python", "-m", "src.kalshi"], ["python", "-m", "src.kalshi"]
-    )
+    assert monitor.matches_service_pattern(["python", "-m", "src.kalshi"], ["python", "-m", "src.kalshi"])
     assert monitor.matches_service_pattern(["python", "src.kalshi", "-m"], ["python"]) is True
     assert monitor.matches_service_pattern(["python"], ["python", "-m"]) is False
 
@@ -66,9 +64,7 @@ def test_matches_service_pattern_and_redis_detection():
 async def test_get_global_process_monitor_initializes_once(monkeypatch):
     monkeypatch.setattr("common.process_monitor._global_process_monitor", None, raising=False)
     init_mock = AsyncMock()
-    monkeypatch.setattr(
-        "common.process_monitor.ProcessMonitor.initialize", init_mock, raising=False
-    )
+    monkeypatch.setattr("common.process_monitor.ProcessMonitor.initialize", init_mock, raising=False)
 
     monitor_one = await get_global_process_monitor()
     monitor_two = await get_global_process_monitor()
@@ -81,9 +77,7 @@ async def test_get_global_process_monitor_initializes_once(monkeypatch):
 async def test_update_process_metrics_refreshes_timestamp(monkeypatch):
     monitor = ProcessMonitor()
     original_time = time.time() - 50
-    monitor._process_cache[42] = ProcessInfo(
-        pid=42, name="proc", cmdline=["python"], last_seen=original_time
-    )
+    monitor._process_cache[42] = ProcessInfo(pid=42, name="proc", cmdline=["python"], last_seen=original_time)
 
     class FakeProcess:
         def __init__(self, pid):
@@ -114,9 +108,7 @@ async def test_update_process_metrics_removes_missing(monkeypatch):
 @pytest.mark.asyncio
 async def test_get_process_by_pid_returns_none_when_stale():
     monitor = ProcessMonitor(cache_ttl_seconds=1)
-    monitor._process_cache[_TEST_COUNT_7] = ProcessInfo(
-        pid=_TEST_COUNT_7, name="stale", cmdline=[], last_seen=time.time() - 10
-    )
+    monitor._process_cache[_TEST_COUNT_7] = ProcessInfo(pid=_TEST_COUNT_7, name="stale", cmdline=[], last_seen=time.time() - 10)
 
     result = await monitor.get_process_by_pid(_TEST_COUNT_7)
     assert result is None
@@ -146,9 +138,7 @@ async def test_perform_full_scan_populates_caches(monkeypatch):
         DeniedProc(),
     ]
 
-    monkeypatch.setattr(
-        "common.process_monitor_helpers.scanner.psutil.process_iter", lambda _attrs: processes
-    )
+    monkeypatch.setattr("common.process_monitor_helpers.scanner.psutil.process_iter", lambda _attrs: processes)
 
     await monitor._perform_full_scan()
 
@@ -162,9 +152,7 @@ async def test_perform_incremental_scan_triggers_full_scan(monkeypatch):
     monitor = ProcessMonitor()
     # Populate cache with 10 processes
     for pid in range(10):
-        monitor._process_cache[pid] = ProcessInfo(
-            pid=pid, name=f"proc{pid}", cmdline=[], last_seen=time.time()
-        )
+        monitor._process_cache[pid] = ProcessInfo(pid=pid, name=f"proc{pid}", cmdline=[], last_seen=time.time())
 
     dead_pids = {0, 1, 2, 3, 4, 5}
 
@@ -210,13 +198,9 @@ async def test_incremental_scan_updates_timestamp_without_full_scan(monkeypatch)
     monitor = ProcessMonitor()
     # Populate cache with alive processes
     for pid in range(5):
-        monitor._process_cache[pid] = ProcessInfo(
-            pid=pid, name=f"proc{pid}", cmdline=[], last_seen=time.time()
-        )
+        monitor._process_cache[pid] = ProcessInfo(pid=pid, name=f"proc{pid}", cmdline=[], last_seen=time.time())
 
-    monkeypatch.setattr(
-        "common.process_monitor_helpers.scanner.psutil.pid_exists", lambda pid: True
-    )
+    monkeypatch.setattr("common.process_monitor_helpers.scanner.psutil.pid_exists", lambda pid: True)
     full_scan_mock = AsyncMock()
     monkeypatch.setattr(
         "common.process_monitor.ProcessMonitor._perform_full_scan",
@@ -316,13 +300,9 @@ async def test_stop_background_scanning_handles_timeout(monkeypatch):
 async def test_find_processes_by_keywords_filters(monkeypatch):
     monitor = ProcessMonitor()
     monkeypatch.setattr(monitor, "_ensure_cache_fresh", AsyncMock())
-    proc = ProcessInfo(
-        pid=1, name="alpha", cmdline=["/bin/python", "service"], last_seen=time.time()
-    )
+    proc = ProcessInfo(pid=1, name="alpha", cmdline=["/bin/python", "service"], last_seen=time.time())
     monitor._process_cache[1] = proc
-    monitor._process_cache[2] = ProcessInfo(
-        pid=2, name="beta", cmdline=["/bin/bash"], last_seen=time.time()
-    )
+    monitor._process_cache[2] = ProcessInfo(pid=2, name="beta", cmdline=["/bin/bash"], last_seen=time.time())
 
     matches = await monitor.find_processes_by_keywords(["PYTHON", "", "svc"])
 
@@ -357,16 +337,12 @@ async def test_perform_full_scan_recovers_from_errors(monkeypatch):
 async def test_perform_incremental_scan_handles_pid_errors(monkeypatch):
     monitor = ProcessMonitor()
     for pid in range(3):
-        monitor._process_cache[pid] = ProcessInfo(
-            pid=pid, name=f"proc{pid}", cmdline=[], last_seen=time.time()
-        )
+        monitor._process_cache[pid] = ProcessInfo(pid=pid, name=f"proc{pid}", cmdline=[], last_seen=time.time())
 
     def flaky_pid_exists(pid):
         raise RuntimeError("lookup failed")
 
-    monkeypatch.setattr(
-        "common.process_monitor_helpers.scanner.psutil.pid_exists", flaky_pid_exists
-    )
+    monkeypatch.setattr("common.process_monitor_helpers.scanner.psutil.pid_exists", flaky_pid_exists)
     full_scan_mock = AsyncMock()
     monkeypatch.setattr(
         "common.process_monitor.ProcessMonitor._perform_full_scan",
@@ -381,12 +357,8 @@ async def test_perform_incremental_scan_handles_pid_errors(monkeypatch):
 @pytest.mark.asyncio
 async def test_convenience_getters_delegate_to_global_monitor(monkeypatch):
     monitor = AsyncMock()
-    monitor.get_service_processes.return_value = [
-        ProcessInfo(pid=1, name="svc", cmdline=[], last_seen=time.time())
-    ]
-    monitor.get_redis_processes.return_value = [
-        ProcessInfo(pid=2, name="redis", cmdline=[], last_seen=time.time())
-    ]
+    monitor.get_service_processes.return_value = [ProcessInfo(pid=1, name="svc", cmdline=[], last_seen=time.time())]
+    monitor.get_redis_processes.return_value = [ProcessInfo(pid=2, name="redis", cmdline=[], last_seen=time.time())]
 
     global_monitor = AsyncMock(return_value=monitor)
     monkeypatch.setattr(

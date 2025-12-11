@@ -25,11 +25,7 @@ class URLTester:
             health_timeout = aiohttp.ClientTimeout(total=30.0)
 
             async with session.get(url, timeout=health_timeout) as response:
-                if not (
-                    VALIDATION_CONFIG["api_response"]["http_ok"]
-                    <= response.status
-                    < HEALTH_CHECK_TIMEOUT
-                ):
+                if not (VALIDATION_CONFIG["api_response"]["http_ok"] <= response.status < HEALTH_CHECK_TIMEOUT):
                     self.logger.warning(f"URL unhealthy: {url} (HTTP {response.status})")
                     return False
 
@@ -45,9 +41,7 @@ class URLTester:
             self.logger.exception(f"Unexpected health check error:  - ")
             return False
 
-    async def _validate_response_content(
-        self, url: str, response: aiohttp.ClientResponse, content_validator
-    ) -> bool:
+    async def _validate_response_content(self, url: str, response: aiohttp.ClientResponse, content_validator) -> bool:
         """Validate response content if validator is configured."""
         if not content_validator.has_validators():
             return True

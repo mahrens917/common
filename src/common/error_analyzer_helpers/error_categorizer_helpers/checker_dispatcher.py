@@ -3,9 +3,7 @@
 from typing import Callable
 
 
-def dispatch_category_check(
-    checker: Callable, checker_name: str, error: Exception, error_type: str, message_lower: str
-) -> bool:
+def dispatch_category_check(checker: Callable, checker_name: str, error: Exception, error_type: str, message_lower: str) -> bool:
     """
     Dispatch to the appropriate checker based on its signature.
 

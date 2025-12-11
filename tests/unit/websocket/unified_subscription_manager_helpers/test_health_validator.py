@@ -28,9 +28,7 @@ class TestHealthValidator:
         validator.active_instruments = {}
         validator.websocket_client.active_subscriptions = {}
 
-        with patch(
-            "common.websocket.unified_subscription_manager_helpers.health_validator.Alerter"
-        ) as MockAlerter:
+        with patch("common.websocket.unified_subscription_manager_helpers.health_validator.Alerter") as MockAlerter:
             mock_alerter = MockAlerter.return_value
             mock_alerter.send_alert = AsyncMock()
 
@@ -50,9 +48,7 @@ class TestHealthValidator:
 
     @pytest.mark.asyncio
     async def test_send_health_alert_failure(self, validator):
-        with patch(
-            "common.websocket.unified_subscription_manager_helpers.health_validator.Alerter"
-        ) as MockAlerter:
+        with patch("common.websocket.unified_subscription_manager_helpers.health_validator.Alerter") as MockAlerter:
             mock_alerter = MockAlerter.return_value
             mock_alerter.send_alert = AsyncMock(side_effect=ConnectionError("Alert fail"))
 

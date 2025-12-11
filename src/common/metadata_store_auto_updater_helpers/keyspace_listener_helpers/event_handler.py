@@ -36,14 +36,8 @@ class EventHandler:
         if not message:
             return
         try:
-            channel = (
-                message["channel"].decode()
-                if isinstance(message["channel"], bytes)
-                else message["channel"]
-            )
-            operation = (
-                message["data"].decode() if isinstance(message["data"], bytes) else message["data"]
-            )
+            channel = message["channel"].decode() if isinstance(message["channel"], bytes) else message["channel"]
+            operation = message["data"].decode() if isinstance(message["data"], bytes) else message["data"]
 
             key_parts = channel.split(":", 2)
             if len(key_parts) < _CONST_3:

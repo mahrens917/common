@@ -52,9 +52,7 @@ class DummySessionManager:
 @pytest.mark.asyncio
 async def test_rest_health_monitor_success_records_success():
     session = DummySession([DummyResponse(200)])
-    monitor = RESTHealthMonitor(
-        "test", "https://example.com", "/health", DummySessionManager(session), None
-    )
+    monitor = RESTHealthMonitor("test", "https://example.com", "/health", DummySessionManager(session), None)
 
     result = await monitor.check_health()
 
@@ -66,9 +64,7 @@ async def test_rest_health_monitor_success_records_success():
 @pytest.mark.asyncio
 async def test_rest_health_monitor_http_failure_increments_counter():
     session = DummySession([DummyResponse(503)])
-    monitor = RESTHealthMonitor(
-        "test", "https://example.com", "/health", DummySessionManager(session), None
-    )
+    monitor = RESTHealthMonitor("test", "https://example.com", "/health", DummySessionManager(session), None)
 
     result = await monitor.check_health()
 
@@ -81,9 +77,7 @@ async def test_rest_health_monitor_http_failure_increments_counter():
 @pytest.mark.asyncio
 async def test_rest_health_monitor_timeout_records_failure():
     session = DummySession([asyncio.TimeoutError()])
-    monitor = RESTHealthMonitor(
-        "test", "https://example.com", "/health", DummySessionManager(session), None
-    )
+    monitor = RESTHealthMonitor("test", "https://example.com", "/health", DummySessionManager(session), None)
 
     result = await monitor.check_health()
 

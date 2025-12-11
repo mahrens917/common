@@ -59,9 +59,7 @@ class MetadataInitializer:
             for service_name, count in service_counts.items():
                 await self.metadata_store.initialize_service_count(service_name, count)
 
-            logger.info(
-                f"Initialized metadata for {len(service_counts)} services: {dict(service_counts)}"
-            )
+            logger.info(f"Initialized metadata for {len(service_counts)} services: {dict(service_counts)}")
 
         except REDIS_ERRORS as exc:
             logger.error("Error initializing metadata from existing keys: %s", exc, exc_info=True)

@@ -21,9 +21,7 @@ class FieldResetApplicator:
         "minT24",
     }
 
-    def apply_reset_logic(
-        self, field_name: str, current_value: Any, previous_data: Dict[str, Any], was_reset: bool
-    ) -> Any:
+    def apply_reset_logic(self, field_name: str, current_value: Any, previous_data: Dict[str, Any], was_reset: bool) -> Any:
         """
         Apply reset logic to a field value.
 
@@ -47,14 +45,10 @@ class FieldResetApplicator:
             logger.info(f"🔄 DAWN RESET: Clearing field '{field_name}' to None (new trading day)")
             return None
         else:
-            logger.info(
-                f"🔄 DAWN RESET: Resetting field '{field_name}' to current value {current_value} (new trading day)"
-            )
+            logger.info(f"🔄 DAWN RESET: Resetting field '{field_name}' to current value {current_value} (new trading day)")
             return current_value
 
-    def _preserve_existing_value(
-        self, field_name: str, current_value: Any, previous_data: Dict[str, Any]
-    ) -> Any:
+    def _preserve_existing_value(self, field_name: str, current_value: Any, previous_data: Dict[str, Any]) -> Any:
         """Preserve existing value when no reset is needed."""
         if field_name in previous_data and current_value is None:
             previous_value = previous_data[field_name]

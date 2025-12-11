@@ -25,9 +25,7 @@ from .reconnection_error_patterns import ReconnectionErrorClassifier
 logger = logging.getLogger(__name__)
 
 
-def _load_rule_and_mapping(
-    suppression_rule: Optional[SuppressionRule], config_path: str
-) -> Tuple[SuppressionRule, Dict[str, str]]:
+def _load_rule_and_mapping(suppression_rule: Optional[SuppressionRule], config_path: str) -> Tuple[SuppressionRule, Dict[str, str]]:
     if suppression_rule:
         return suppression_rule, {}
     config = load_suppression_config(config_path)
@@ -92,9 +90,7 @@ class AlertSuppressionManager:
         suppression_rule: Optional[SuppressionRule] = None,
         config_path: str = "config/monitor_config.json",
     ):
-        self.suppression_rule, self.service_type_mapping = _load_rule_and_mapping(
-            suppression_rule, config_path
-        )
+        self.suppression_rule, self.service_type_mapping = _load_rule_and_mapping(suppression_rule, config_path)
         components = _build_components(self.suppression_rule)
         self.dependency_init = components.dependency_init
         self.tracker = components.tracker
@@ -140,9 +136,7 @@ class AlertSuppressionManager:
             error_classifier=error_classifier,
         )
 
-    async def get_suppression_reason(
-        self, service_name: str, alert_type: AlertType
-    ) -> Optional[str]:
+    async def get_suppression_reason(self, service_name: str, alert_type: AlertType) -> Optional[str]:
         decision = await self.should_suppress_alert(service_name, alert_type)
         return decision.reason if decision.should_suppress else None
 

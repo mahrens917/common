@@ -25,9 +25,7 @@ class MarketLifecycleMonitor:
         *,
         dependencies: Optional[MarketLifecycleMonitorDependencies] = None,
     ):
-        deps = dependencies or MarketLifecycleMonitorDependenciesFactory.create(
-            trading_client, emergency_manager, closure_warning_hours
-        )
+        deps = dependencies or MarketLifecycleMonitorDependenciesFactory.create(trading_client, emergency_manager, closure_warning_hours)
         self.scanner = deps.scanner
         self.expiry_checker = deps.expiry_checker
         self.state_tracker = deps.state_tracker
@@ -41,13 +39,9 @@ class MarketLifecycleMonitor:
         self.trading_client = trading_client
         self.emergency_manager = emergency_manager
         self._closure_warning_hours = closure_warning_hours
-        self._property_bridge = PropertyBridge(
-            self.state_tracker, self.scanner, self.settlement_fetcher, self.registrar
-        )
+        self._property_bridge = PropertyBridge(self.state_tracker, self.scanner, self.settlement_fetcher, self.registrar)
         _expiry_module.get_current_utc = lambda: get_current_utc()
-        logger.info(
-            f"[MarketLifecycleMonitor] Initialized with {closure_warning_hours}h closure warning"
-        )
+        logger.info(f"[MarketLifecycleMonitor] Initialized with {closure_warning_hours}h closure warning")
 
     @property
     def monitored_markets(self) -> Dict[str, MarketInfo]:
@@ -99,12 +93,8 @@ class MarketLifecycleMonitor:
     async def check_settlements(self) -> Dict[str, SettlementInfo]:
         return await self.settlement_checker.check_settlements()
 
-    async def validate_settlement_pnl(
-        self, ticker: str, position_before_settlement: PortfolioPosition
-    ) -> Tuple[bool, str, Optional[int]]:
-        return await self.settlement_validator.validate_settlement_pnl(
-            ticker, position_before_settlement
-        )
+    async def validate_settlement_pnl(self, ticker: str, position_before_settlement: PortfolioPosition) -> Tuple[bool, str, Optional[int]]:
+        return await self.settlement_validator.validate_settlement_pnl(ticker, position_before_settlement)
 
     async def monitor_lifecycle_events(self) -> Dict[str, Any]:
         return await self.orchestrator.monitor_lifecycle_events()

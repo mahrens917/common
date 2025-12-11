@@ -51,9 +51,7 @@ class TestSummaryReportBuilder(unittest.IsolatedAsyncioTestCase):
         settled_markets = ["MKT1", "MKT2"]
         daily_report = "Daily Report Content"
 
-        result = await self.builder.generate_settlement_notification(
-            trade_date, settled_markets, daily_report
-        )
+        result = await self.builder.generate_settlement_notification(trade_date, settled_markets, daily_report)
 
         self.assertIn(f"🔔 **Settlement Alert - {trade_date.strftime('%B %d, %Y')}**", result)
         self.assertIn("✅ 2 markets have settled", result)

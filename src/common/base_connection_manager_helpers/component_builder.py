@@ -12,9 +12,7 @@ def _build_core_components(service_name: str) -> dict[str, Any]:
     return {"state_manager": state_manager, "metrics_tracker": metrics_tracker}
 
 
-def _build_handlers(
-    service_name: str, config: Any, state_manager: Any, metrics_tracker: Any
-) -> dict[str, Any]:
+def _build_handlers(service_name: str, config: Any, state_manager: Any, metrics_tracker: Any) -> dict[str, Any]:
     from .connection_lifecycle import ConnectionLifecycleManager
     from .health_monitor import ConnectionHealthMonitor
     from .notification_handler import NotificationHandler
@@ -71,9 +69,7 @@ def _build_coordinators(
         config.health_check_interval_seconds,
         config.max_consecutive_failures,
     )
-    startup_coordinator = StartupCoordinator(
-        service_name, state_manager, handlers["lifecycle_manager"]
-    )
+    startup_coordinator = StartupCoordinator(service_name, state_manager, handlers["lifecycle_manager"])
     status_reporter = StatusReporter(service_name, state_manager, metrics_tracker, config)
     return {
         "retry_coordinator": retry_coordinator,
@@ -92,9 +88,7 @@ class ComponentBuilder:
 
     def build_all(self) -> dict[str, Any]:
         core = _build_core_components(self.service_name)
-        handlers = _build_handlers(
-            self.service_name, self.config, core["state_manager"], core["metrics_tracker"]
-        )
+        handlers = _build_handlers(self.service_name, self.config, core["state_manager"], core["metrics_tracker"])
         coordinators = _build_coordinators(
             self.service_name,
             self.config,

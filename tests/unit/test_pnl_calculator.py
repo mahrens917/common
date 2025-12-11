@@ -203,9 +203,7 @@ async def test_store_unrealized_pnl_snapshot_persists(monkeypatch):
     calculator = PnLCalculator(store)
 
     fixed_now = datetime(2024, 1, 5, tzinfo=timezone.utc)
-    monkeypatch.setattr(
-        "common.pnl_calculator_helpers.snapshot_manager.get_current_utc", lambda: fixed_now
-    )
+    monkeypatch.setattr("common.pnl_calculator_helpers.snapshot_manager.get_current_utc", lambda: fixed_now)
 
     await calculator.store_unrealized_pnl_snapshot(date(2024, 1, 4), 250)
 
@@ -242,9 +240,7 @@ async def test_update_daily_unrealized_pnl_persists(monkeypatch):
     store.trades_by_range = [trade]
     calculator = PnLCalculator(store)
 
-    monkeypatch.setattr(
-        "common.pnl_calculator.PnLCalculator.store_unrealized_pnl_snapshot", AsyncMock()
-    )
+    monkeypatch.setattr("common.pnl_calculator.PnLCalculator.store_unrealized_pnl_snapshot", AsyncMock())
 
     result = await calculator.update_daily_unrealized_pnl(date(2024, 1, 1))
     assert result == trade.calculate_current_pnl_cents()
@@ -499,9 +495,7 @@ async def test_get_date_range_trades_and_report(monkeypatch):
     store.trades_by_range = {(date(2024, 1, 1), date(2024, 1, 2)): [trade]}
     calculator = PnLCalculator(store)
 
-    trades, report = await calculator.get_date_range_trades_and_report(
-        date(2024, 1, 1), date(2024, 1, 2)
-    )
+    trades, report = await calculator.get_date_range_trades_and_report(date(2024, 1, 1), date(2024, 1, 2))
     assert trades == [trade]
     assert report.total_trades == 1
 
@@ -638,9 +632,7 @@ async def test_update_daily_unrealized_pnl_handles_no_trades(monkeypatch):
     store.trades_by_range = {(date(2024, 1, 16), date(2024, 1, 16)): []}
     calculator = PnLCalculator(store)
 
-    monkeypatch.setattr(
-        "common.pnl_calculator.PnLCalculator.store_unrealized_pnl_snapshot", AsyncMock()
-    )
+    monkeypatch.setattr("common.pnl_calculator.PnLCalculator.store_unrealized_pnl_snapshot", AsyncMock())
 
     value = await calculator.update_daily_unrealized_pnl(date(2024, 1, 16))
     assert value == 0

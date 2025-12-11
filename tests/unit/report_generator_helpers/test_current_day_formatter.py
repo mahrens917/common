@@ -35,9 +35,7 @@ class TestCurrentDayFormatter(unittest.TestCase):
         self.mock_rule_formatter.format_rule_breakdown.return_value = ["Rule Breakdown"]
 
         # Execute
-        result = self.formatter.format_current_day_report(
-            mock_report, unrealized_pnl_cents, date_str
-        )
+        result = self.formatter.format_current_day_report(mock_report, unrealized_pnl_cents, date_str)
 
         # Verify
         self.assertIn(f"📊 **Today's Report - {date_str}**", result)
@@ -49,7 +47,5 @@ class TestCurrentDayFormatter(unittest.TestCase):
         self.assertIn("Rule Breakdown", result)
 
         self.mock_emoji_selector.get_pnl_emoji.assert_called_with(50.0)
-        self.mock_station_formatter.format_station_breakdown.assert_called_with(
-            mock_report.by_weather_station
-        )
+        self.mock_station_formatter.format_station_breakdown.assert_called_with(mock_report.by_weather_station)
         self.mock_rule_formatter.format_rule_breakdown.assert_called_with(mock_report.by_rule)

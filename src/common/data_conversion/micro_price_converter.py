@@ -30,9 +30,7 @@ class MicroPriceConverter:
     """
 
     @staticmethod
-    def convert_instrument_to_micro_price_option_data(
-        instrument: Instrument, currency: str
-    ) -> MicroPriceOptionData:
+    def convert_instrument_to_micro_price_option_data(instrument: Instrument, currency: str) -> MicroPriceOptionData:
         """
         Convert an Instrument object to MicroPriceOptionData with micro price calculations.
 
@@ -43,9 +41,7 @@ class MicroPriceConverter:
         from .micro_price_helpers import FieldResolver, FieldValidator, MetricsCalculator
 
         FieldValidator.validate_required_fields(instrument)
-        bid_price, ask_price, bid_size, ask_size = FieldValidator.extract_prices_and_sizes(
-            instrument
-        )
+        bid_price, ask_price, bid_size, ask_size = FieldValidator.extract_prices_and_sizes(instrument)
         strike_value = instrument.strike
         if strike_value is None:
             raise ValueError(f"Instrument {instrument.instrument_name} missing strike")
@@ -65,9 +61,7 @@ class MicroPriceConverter:
             g,
             h,
             relative_spread,
-        ) = MetricsCalculator.compute_micro_price_metrics(
-            bid_price, ask_price, bid_size, ask_size, instrument_name
-        )
+        ) = MetricsCalculator.compute_micro_price_metrics(bid_price, ask_price, bid_size, ask_size, instrument_name)
 
         current_timestamp = FieldResolver.resolve_quote_timestamp(instrument)
 
@@ -91,9 +85,7 @@ class MicroPriceConverter:
         )
 
     @staticmethod
-    def convert_instruments_to_micro_price_data(
-        instruments: List[Instrument], currency: str = "BTC"
-    ) -> List[MicroPriceOptionData]:
+    def convert_instruments_to_micro_price_data(instruments: List[Instrument], currency: str = "BTC") -> List[MicroPriceOptionData]:
         """
         Convert a list of Instrument objects to MicroPriceOptionData objects.
 

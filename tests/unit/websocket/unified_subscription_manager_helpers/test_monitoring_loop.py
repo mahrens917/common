@@ -90,9 +90,7 @@ class TestMonitoringLoop:
 
         with (
             patch("asyncio.sleep", side_effect=[None, asyncio.CancelledError()]) as mock_sleep,
-            patch(
-                "common.websocket.unified_subscription_manager_helpers.monitoring_loop.logger"
-            ) as mock_logger,
+            patch("common.websocket.unified_subscription_manager_helpers.monitoring_loop.logger") as mock_logger,
         ):
 
             try:

@@ -71,9 +71,7 @@ class OptimizedStatusReporter(
             process_monitor = await get_global_process_monitor()
             kalshi_client = await self._get_kalshi_client()
 
-            status_data = await self._aggregator.gather_status_data(
-                redis_client, process_monitor, kalshi_client
-            )
+            status_data = await self._aggregator.gather_status_data(redis_client, process_monitor, kalshi_client)
             await self._printer.print_status_report(status_data)
         except (RuntimeError, ValueError, TypeError, AttributeError, KeyError) as exc:
             logger.exception("Status report failed: %s", type(exc).__name__)
@@ -107,9 +105,7 @@ class OptimizedStatusReporter(
         try:
             process_monitor = await get_global_process_monitor()
             kalshi_client = await self._get_kalshi_client()
-            return await self._aggregator.gather_status_data(
-                redis_client, process_monitor, kalshi_client
-            )
+            return await self._aggregator.gather_status_data(redis_client, process_monitor, kalshi_client)
         finally:
             if owns_client:
                 try:

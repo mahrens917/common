@@ -27,9 +27,7 @@ def test_calculate_usdc_micro_price_zero_total_size_errors():
         (100.0, 101.0, 1.0, -1.0, "Invalid ask size"),
     ],
 )
-def test_calculate_usdc_micro_price_validation_errors(
-    bid_price, ask_price, bid_size, ask_size, message
-):
+def test_calculate_usdc_micro_price_validation_errors(bid_price, ask_price, bid_size, ask_size, message):
     with pytest.raises(ValueError) as excinfo:
         pricing.calculate_usdc_micro_price(bid_price, ask_price, bid_size, ask_size)
     assert message in str(excinfo.value)

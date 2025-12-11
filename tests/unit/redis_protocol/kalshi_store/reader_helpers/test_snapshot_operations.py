@@ -22,9 +22,7 @@ class TestFetchMarketSnapshot:
         expected_snapshot = {"ticker": "KXTEMP-TEST", "best_bid": 50}
         mock_reader.get_market_snapshot.return_value = expected_snapshot
 
-        result = await fetch_market_snapshot(
-            mock_redis, "markets:kalshi:temp:KXTEMP-TEST", "KXTEMP-TEST", mock_reader
-        )
+        result = await fetch_market_snapshot(mock_redis, "markets:kalshi:temp:KXTEMP-TEST", "KXTEMP-TEST", mock_reader)
 
         assert result == expected_snapshot
         mock_reader.get_market_snapshot.assert_called_once_with(
@@ -68,14 +66,10 @@ class TestFetchMarketMetadata:
         expected_metadata = {"ticker": "KXTEMP-TEST", "status": "active"}
         mock_reader.get_market_metadata.return_value = expected_metadata
 
-        result = await fetch_market_metadata(
-            mock_redis, "markets:kalshi:temp:KXTEMP-TEST", "KXTEMP-TEST", mock_reader
-        )
+        result = await fetch_market_metadata(mock_redis, "markets:kalshi:temp:KXTEMP-TEST", "KXTEMP-TEST", mock_reader)
 
         assert result == expected_metadata
-        mock_reader.get_market_metadata.assert_called_once_with(
-            mock_redis, "markets:kalshi:temp:KXTEMP-TEST", "KXTEMP-TEST"
-        )
+        mock_reader.get_market_metadata.assert_called_once_with(mock_redis, "markets:kalshi:temp:KXTEMP-TEST", "KXTEMP-TEST")
 
 
 class TestFetchMarketField:
@@ -88,11 +82,7 @@ class TestFetchMarketField:
         mock_reader = AsyncMock()
         mock_reader.get_market_field.return_value = "active"
 
-        result = await fetch_market_field(
-            mock_redis, "markets:kalshi:temp:KXTEMP-TEST", "KXTEMP-TEST", "status", mock_reader
-        )
+        result = await fetch_market_field(mock_redis, "markets:kalshi:temp:KXTEMP-TEST", "KXTEMP-TEST", "status", mock_reader)
 
         assert result == "active"
-        mock_reader.get_market_field.assert_called_once_with(
-            mock_redis, "markets:kalshi:temp:KXTEMP-TEST", "KXTEMP-TEST", "status"
-        )
+        mock_reader.get_market_field.assert_called_once_with(mock_redis, "markets:kalshi:temp:KXTEMP-TEST", "KXTEMP-TEST", "status")

@@ -8,9 +8,7 @@ import orjson
 logger = logging.getLogger(__name__)
 
 
-def parse_orderbook_field(
-    market_data: Dict[str, Any], field_name: str, ticker: str
-) -> Tuple[Optional[Dict[str, int]], Optional[str]]:
+def parse_orderbook_field(market_data: Dict[str, Any], field_name: str, ticker: str) -> Tuple[Optional[Dict[str, int]], Optional[str]]:
     """
     Parse orderbook JSON field from market data.
 
@@ -38,18 +36,14 @@ def parse_orderbook_field(
         logger.exception(f"Failed to parse {field_name} JSON for {ticker}")
         return None, "INVALID_PRICE_DATA"
 
-    if not isinstance(field_dict, dict) or (
-        field_dict == {} and field_json and field_json not in ("{}", "")
-    ):
+    if not isinstance(field_dict, dict) or (field_dict == {} and field_json and field_json not in ("{}", "")):
         logger.error("Invalid orderbook JSON payload for %s %s", ticker, field_name)
         return None, "INVALID_PRICE_DATA"
 
     return field_dict, None
 
 
-def parse_orderbook_levels(
-    order_book_dict: Dict[str, int], is_buy_order: bool
-) -> Optional[List[Tuple[float, int]]]:
+def parse_orderbook_levels(order_book_dict: Dict[str, int], is_buy_order: bool) -> Optional[List[Tuple[float, int]]]:
     """
     Parse and sort orderbook levels.
 
@@ -70,9 +64,7 @@ def parse_orderbook_levels(
         return price_levels
 
 
-def extract_best_price_from_json(
-    order_book_json: str, is_bid: bool
-) -> Tuple[Optional[float], Optional[int]]:
+def extract_best_price_from_json(order_book_json: str, is_bid: bool) -> Tuple[Optional[float], Optional[int]]:
     """
     Extract best price and size from orderbook JSON string.
 
@@ -178,9 +170,7 @@ def extract_best_bid_ask(orderbook: Dict[str, Any]) -> Tuple[Optional[float], Op
     return best_bid, best_ask
 
 
-def parse_and_extract_best_price(
-    raw_order_book: Any, side: str, *, allow_zero: bool = False
-) -> Tuple[Optional[float], Optional[int]]:
+def parse_and_extract_best_price(raw_order_book: Any, side: str, *, allow_zero: bool = False) -> Tuple[Optional[float], Optional[int]]:
     """
     Parse raw orderbook data (dict or JSON string) and extract best price and size.
 

@@ -50,14 +50,10 @@ class _DummyRedis:
 
 @pytest.mark.asyncio
 async def test_redis_instrument_scanner_fetches_data(monkeypatch):
-    dummy_descriptor = SimpleNamespace(
-        currency="btc", expiry_iso="2025-01-01", strike=100, option_kind="c", instrument_type="opt"
-    )
+    dummy_descriptor = SimpleNamespace(currency="btc", expiry_iso="2025-01-01", strike=100, option_kind="c", instrument_type="opt")
 
     async def fake_get_redis():
-        return _DummyRedis(
-            [(0, {"markets:deribit:abc:btc"})], {"markets:deribit:abc:btc": {"k": b"1"}}
-        )
+        return _DummyRedis([(0, {"markets:deribit:abc:btc"})], {"markets:deribit:abc:btc": {"k": b"1"}})
 
     monkeypatch.setattr(
         "common.redis_protocol.optimized_market_store_helpers.instrument_fetcher_helpers.redis_scanner.parse_deribit_market_key",
@@ -155,9 +151,7 @@ class _FailingInitializer:
 
 @pytest.mark.asyncio
 async def test_optimized_market_store_happy_path(monkeypatch):
-    monkeypatch.setattr(
-        "common.redis_protocol.optimized_market_store.RedisInitializer", _StubInitializer
-    )
+    monkeypatch.setattr("common.redis_protocol.optimized_market_store.RedisInitializer", _StubInitializer)
 
     store = OptimizedMarketStore("redis")
     stub = _StubFetcher([SimpleNamespace(is_future=False, option_type="put")])
@@ -179,9 +173,7 @@ async def test_optimized_market_store_happy_path(monkeypatch):
 
 @pytest.mark.asyncio
 async def test_optimized_market_store_handles_errors(monkeypatch):
-    monkeypatch.setattr(
-        "common.redis_protocol.optimized_market_store.RedisInitializer", _StubInitializer
-    )
+    monkeypatch.setattr("common.redis_protocol.optimized_market_store.RedisInitializer", _StubInitializer)
     store = OptimizedMarketStore("redis")
     store.instrument_fetcher = _StubFetcher(Exception("fail"))  # type: ignore[assignment]
     assert await store.get_all_instruments("BTC") == []
@@ -189,9 +181,7 @@ async def test_optimized_market_store_handles_errors(monkeypatch):
     assert await store.get_puts_by_currency("BTC") == []
     assert await store.get_futures_by_currency("BTC") == []
 
-    monkeypatch.setattr(
-        "common.redis_protocol.optimized_market_store.RedisInitializer", _FailingInitializer
-    )
+    monkeypatch.setattr("common.redis_protocol.optimized_market_store.RedisInitializer", _FailingInitializer)
     store2 = OptimizedMarketStore("redis")
     with pytest.raises(RuntimeError):
         await store2._get_redis()

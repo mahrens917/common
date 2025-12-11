@@ -68,9 +68,7 @@ class ResultBuilder:
             overall_status=OverallServiceStatus.ERROR,
             process_info=ProcessHealthInfo(status=ProcessStatus.NOT_FOUND),
             log_activity=LogActivity(status=LogActivityStatus.ERROR, error_message=str(error)),
-            service_health=ServiceHealthInfo(
-                health=ServiceHealth.UNKNOWN, error_message=str(error)
-            ),
+            service_health=ServiceHealthInfo(health=ServiceHealth.UNKNOWN, error_message=str(error)),
             status_emoji="🔴",
             status_message="Error",
             detailed_message=f"Failed to check status",

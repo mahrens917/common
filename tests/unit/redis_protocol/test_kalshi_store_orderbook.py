@@ -161,9 +161,7 @@ async def test_update_orderbook_tolerates_missing_prices(monkeypatch) -> None:
     async def failing_snapshot(**kwargs):
         raise RuntimeError("Missing yes_bid_price for TEST")
 
-    store._orderbook._snapshot_processor.process_orderbook_snapshot = AsyncMock(
-        side_effect=failing_snapshot
-    )
+    store._orderbook._snapshot_processor.process_orderbook_snapshot = AsyncMock(side_effect=failing_snapshot)
 
     assert await store.update_orderbook({"msg": {"market_ticker": "TEST"}}) is True
 
@@ -236,9 +234,7 @@ async def test_update_orderbook_treats_illiquid_market_as_success(monkeypatch) -
     def illiquid(*_, **__):
         raise RuntimeError("Missing yes_bid_price in snapshot")
 
-    store._orderbook._snapshot_processor.process_orderbook_snapshot = AsyncMock(
-        side_effect=illiquid
-    )
+    store._orderbook._snapshot_processor.process_orderbook_snapshot = AsyncMock(side_effect=illiquid)
     monkeypatch.setattr(
         "common.redis_protocol.kalshi_store.merge_orderbook_payload",
         lambda message: ("orderbook_snapshot", {}, "TEST"),

@@ -27,9 +27,7 @@ class LifecycleManager:
 
         self.shutdown_event.clear()
         self._background_task = asyncio.create_task(self.background_worker.run_scan_loop())
-        logger.info(
-            f"Started process monitor background scanning (interval: {scan_interval_seconds}s)"
-        )
+        logger.info(f"Started process monitor background scanning (interval: {scan_interval_seconds}s)")
 
     async def stop_background_scanning(self) -> None:
         """Stop background process scanning."""

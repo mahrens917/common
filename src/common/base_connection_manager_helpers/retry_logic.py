@@ -12,10 +12,7 @@ logger = logging.getLogger(__name__)
 def _should_continue_retrying(manager: Any) -> bool:
     """Check if retry loop should continue."""
     metrics = manager.metrics_tracker.get_metrics()
-    return (
-        metrics.consecutive_failures < manager.config.max_consecutive_failures
-        and not manager.shutdown_requested
-    )
+    return metrics.consecutive_failures < manager.config.max_consecutive_failures and not manager.shutdown_requested
 
 
 async def _apply_backoff_if_needed(manager: Any, send_notification: Callable) -> None:
@@ -68,29 +65,19 @@ async def connect_with_retry(
         await _apply_backoff_if_needed(manager, send_notification)
         attempts += 1
 
-        should_raise, connection_successful = await _attempt_connection(
-            manager, establish_connection, transition_state, attempts
-        )
+        should_raise, connection_successful = await _attempt_connection(manager, establish_connection, transition_state, attempts)
 
         if should_raise:
-            raise ConnectionError(
-                f"Failed to connect {manager.service_name} after "
-                f"{manager.config.max_consecutive_failures} attempts"
-            )
+            raise ConnectionError(f"Failed to connect {manager.service_name} after " f"{manager.config.max_consecutive_failures} attempts")
 
         if connection_successful:
             manager.metrics_tracker.increment_total_connections()
             transition_state(ConnectionState.READY)
-            await send_notification(
-                is_connected=True, details=f"Connection restored after {attempts} attempts"
-            )
+            await send_notification(is_connected=True, details=f"Connection restored after {attempts} attempts")
             return True
 
         if manager.state != ConnectionState.FAILED:
             transition_state(ConnectionState.FAILED, "Connection establishment failed")
 
-    logger.error(
-        f"Failed to connect {manager.service_name} after "
-        f"{manager.config.max_consecutive_failures} attempts"
-    )
+    logger.error(f"Failed to connect {manager.service_name} after " f"{manager.config.max_consecutive_failures} attempts")
     return False

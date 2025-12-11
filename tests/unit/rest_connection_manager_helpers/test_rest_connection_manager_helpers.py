@@ -45,9 +45,7 @@ class StubHealthMonitor:
 async def test_connection_lifecycle_establish_and_cleanup(monkeypatch):
     session_manager = StubSessionManager()
     health_monitor = StubHealthMonitor(healthy=True)
-    lifecycle = RESTConnectionLifecycle(
-        "svc", "http://example.com", session_manager, health_monitor
-    )
+    lifecycle = RESTConnectionLifecycle("svc", "http://example.com", session_manager, health_monitor)
 
     assert await lifecycle.establish_connection() is True
     assert session_manager.created is True
@@ -57,9 +55,7 @@ async def test_connection_lifecycle_establish_and_cleanup(monkeypatch):
     assert session_manager.closed is True
 
     # Health failure should trigger cleanup and raise
-    lifecycle = RESTConnectionLifecycle(
-        "svc", "http://example.com", session_manager, StubHealthMonitor(healthy=False)
-    )
+    lifecycle = RESTConnectionLifecycle("svc", "http://example.com", session_manager, StubHealthMonitor(healthy=False))
     with pytest.raises(ConnectionError):
         await lifecycle.establish_connection()
     assert session_manager.closed is True
@@ -69,9 +65,7 @@ async def test_connection_lifecycle_establish_and_cleanup(monkeypatch):
 async def test_connection_lifecycle_handles_client_error(monkeypatch):
     session_manager = StubSessionManager()
     health_monitor = StubHealthMonitor(healthy=True)
-    lifecycle = RESTConnectionLifecycle(
-        "svc", "http://example.com", session_manager, health_monitor
-    )
+    lifecycle = RESTConnectionLifecycle("svc", "http://example.com", session_manager, health_monitor)
 
     async def failing_create():
         raise aiohttp.ClientError("boom")
@@ -171,14 +165,10 @@ async def test_request_operations_make_request_and_json(monkeypatch):
     assert result.status == 201
     assert health_monitor.successes == 1
 
-    json_result = await operations.make_json_request(
-        "POST", "/data", _response=FakeResponse(payload={"value": 1})
-    )
+    json_result = await operations.make_json_request("POST", "/data", _response=FakeResponse(payload={"value": 1}))
     assert json_result == {"value": 1}
 
-    bad_content = await operations.make_json_request(
-        "GET", "/plain", _response=FakeResponse(content_type="text/plain", status=200)
-    )
+    bad_content = await operations.make_json_request("GET", "/plain", _response=FakeResponse(content_type="text/plain", status=200))
     assert bad_content is None
     assert health_monitor.request_failures == 1
 

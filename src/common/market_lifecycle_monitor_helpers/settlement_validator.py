@@ -23,9 +23,7 @@ class SettlementValidator:
         self.state_tracker = state_tracker
         self.pnl_calculator = PnLCalculator()
 
-    async def validate_settlement_pnl(
-        self, ticker: str, position_before_settlement: PortfolioPosition
-    ) -> Tuple[bool, str, Optional[int]]:
+    async def validate_settlement_pnl(self, ticker: str, position_before_settlement: PortfolioPosition) -> Tuple[bool, str, Optional[int]]:
         """
         Validate P&L calculation after market settlement.
 
@@ -44,9 +42,7 @@ class SettlementValidator:
             if settlement_info.settlement_price_cents is None:
                 return False, "No settlement price available", None
 
-            expected_pnl = self.pnl_calculator.calculate_settlement_pnl(
-                settlement_info, position_before_settlement
-            )
+            expected_pnl = self.pnl_calculator.calculate_settlement_pnl(settlement_info, position_before_settlement)
 
             if expected_pnl is None:
                 return False, "Cannot calculate P&L", None

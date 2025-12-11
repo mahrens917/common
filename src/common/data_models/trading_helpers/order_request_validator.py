@@ -49,16 +49,12 @@ def validate_order_request_price(order_type: "OrderType", yes_price_cents: int |
             raise ValueError(f"Yes price must be between 1-99 cents: {yes_price_cents}")
     elif order_type == OrderType.MARKET:
         if yes_price_cents is None:
-            raise ValueError(
-                "Market orders must specify yes_price_cents (use 0 for exchange default behaviour)"
-            )
+            raise ValueError("Market orders must specify yes_price_cents (use 0 for exchange default behaviour)")
         if yes_price_cents < 0 or yes_price_cents > _MAX_PRICE:
             raise ValueError(f"Market order price must be between 0-99 cents: {yes_price_cents}")
 
 
-def validate_order_request_metadata(
-    ticker: str, count: int, client_order_id: str, trade_rule: str, trade_reason: str
-) -> None:
+def validate_order_request_metadata(ticker: str, count: int, client_order_id: str, trade_rule: str, trade_reason: str) -> None:
     """Validate metadata fields."""
     if not ticker:
         raise ValueError("Ticker must be specified")

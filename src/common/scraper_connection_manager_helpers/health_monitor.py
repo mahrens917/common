@@ -18,9 +18,7 @@ _TEMP_MAX = 200
 class ScraperHealthMonitor(BaseHealthMonitor):
     """Monitors health of target URLs for scraper service."""
 
-    def __init__(
-        self, service_name: str, target_urls: List[str], session_provider, content_validator
-    ):
+    def __init__(self, service_name: str, target_urls: List[str], session_provider, content_validator):
         super().__init__(service_name)
         self.target_urls = target_urls
         self.session_provider = session_provider
@@ -34,9 +32,7 @@ class ScraperHealthMonitor(BaseHealthMonitor):
         if not session or session.closed:
             self.logger.warning("HTTP session is closed")
             self.record_failure()
-            return HealthCheckResult(
-                False, details=self.get_health_details(), error="session_closed"
-            )
+            return HealthCheckResult(False, details=self.get_health_details(), error="session_closed")
 
         loop = asyncio.get_running_loop()
         healthy_urls = await _evaluate_urls(self, session, loop)

@@ -14,8 +14,6 @@ class TimestampNormalizer:
     def normalize_timestamp(timestamp: Any) -> Optional[str]:
         """Normalize timestamp to string format."""
         # Late import to avoid circular dependency
-        from common.redis_protocol.kalshi_store.metadata_helpers.timestamp_normalization import (
-            normalize_timestamp as _normalize_timestamp,
-        )
+        from common.redis_protocol.kalshi_store.metadata_helpers.timestamp_normalization import normalize_timestamp as _normalize_timestamp
 
         return _normalize_timestamp(timestamp)

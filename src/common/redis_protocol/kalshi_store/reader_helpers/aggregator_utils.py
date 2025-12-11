@@ -7,12 +7,8 @@ Utility functions for market aggregator operations.
 from typing import Any, Dict, List, Optional, Tuple
 
 from common.redis_protocol.kalshi_store.utils_coercion import coerce_mapping as _coerce_mapping
-from common.redis_protocol.kalshi_store.utils_coercion import (
-    string_or_default as _string_or_default,
-)
-from common.redis_protocol.kalshi_store.utils_coercion import (
-    to_optional_float as canonical_to_optional_float,
-)
+from common.redis_protocol.kalshi_store.utils_coercion import string_or_default as _string_or_default
+from common.redis_protocol.kalshi_store.utils_coercion import to_optional_float as canonical_to_optional_float
 
 
 def coerce_mapping(candidate: Any) -> Dict[str, Any]:
@@ -42,9 +38,7 @@ def build_strike_summary(
         strike_info = {
             "strike": strike_value,
             "strike_type": strike_type,
-            "floor_strike": to_optional_float(
-                base_market.get("floor_strike"), context="floor_strike"
-            ),
+            "floor_strike": to_optional_float(base_market.get("floor_strike"), context="floor_strike"),
             "cap_strike": to_optional_float(base_market.get("cap_strike"), context="cap_strike"),
             "market_tickers": tickers,
             "primary_market_ticker": primary_ticker,

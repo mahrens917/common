@@ -36,9 +36,7 @@ class TestNotificationHandlerSendConnectionNotification:
         state_mgr = MagicMock()
         state_mgr._broadcast_state_change = AsyncMock()
         metrics = MagicMock()
-        metrics.get_metrics.return_value = MagicMock(
-            total_connections=1, total_reconnection_attempts=0
-        )
+        metrics.get_metrics.return_value = MagicMock(total_connections=1, total_reconnection_attempts=0)
 
         handler = NotificationHandler(
             service_name="test_service",
@@ -65,9 +63,7 @@ class TestNotificationHandlerSendConnectionNotification:
 
         await handler.send_connection_notification(False, "Connection lost")
 
-        state_mgr._broadcast_state_change.assert_called_once_with(
-            ConnectionState.RECONNECTING, "Connection lost"
-        )
+        state_mgr._broadcast_state_change.assert_called_once_with(ConnectionState.RECONNECTING, "Connection lost")
 
     @pytest.mark.asyncio
     async def test_logs_startup_message_on_first_connection(self) -> None:
@@ -75,9 +71,7 @@ class TestNotificationHandlerSendConnectionNotification:
         state_mgr = MagicMock()
         state_mgr._broadcast_state_change = AsyncMock()
         metrics = MagicMock()
-        metrics.get_metrics.return_value = MagicMock(
-            total_connections=1, total_reconnection_attempts=0
-        )
+        metrics.get_metrics.return_value = MagicMock(total_connections=1, total_reconnection_attempts=0)
 
         handler = NotificationHandler(
             service_name="test_service",
@@ -97,9 +91,7 @@ class TestNotificationHandlerSendConnectionNotification:
         state_mgr = MagicMock()
         state_mgr._broadcast_state_change = AsyncMock()
         metrics = MagicMock()
-        metrics.get_metrics.return_value = MagicMock(
-            total_connections=3, total_reconnection_attempts=5, consecutive_failures=2
-        )
+        metrics.get_metrics.return_value = MagicMock(total_connections=3, total_reconnection_attempts=5, consecutive_failures=2)
 
         handler = NotificationHandler(
             service_name="test_service",
@@ -138,9 +130,7 @@ class TestNotificationHandlerSendConnectionNotification:
         state_mgr = MagicMock()
         state_mgr._broadcast_state_change = AsyncMock()
         metrics = MagicMock()
-        metrics.get_metrics.return_value = MagicMock(
-            total_connections=1, total_reconnection_attempts=1, consecutive_failures=0
-        )
+        metrics.get_metrics.return_value = MagicMock(total_connections=1, total_reconnection_attempts=1, consecutive_failures=0)
 
         handler = NotificationHandler(
             service_name="test_service",

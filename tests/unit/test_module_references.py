@@ -276,9 +276,7 @@ def test_module_has_no_exports():
 def test_module_references_all_imports_use_noqa():
     """Test that all import statements in the file use noqa: F401 to suppress warnings."""
     # Read the source file
-    module_path = os.path.join(
-        os.path.dirname(__file__), "../../../src/common/_module_references.py"
-    )
+    module_path = os.path.join(os.path.dirname(__file__), "../../../src/common/_module_references.py")
 
     with open(module_path, "r", encoding="utf-8") as f:
         content = f.read()
@@ -295,9 +293,7 @@ def test_module_references_all_imports_use_noqa():
 def test_module_references_env_check_pattern():
     """Test that the environment variable check uses os.environ.get pattern."""
     # Read the source file to verify the pattern
-    module_path = os.path.join(
-        os.path.dirname(__file__), "../../../src/common/_module_references.py"
-    )
+    module_path = os.path.join(os.path.dirname(__file__), "../../../src/common/_module_references.py")
 
     with open(module_path, "r", encoding="utf-8") as f:
         content = f.read()

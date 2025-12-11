@@ -108,9 +108,7 @@ def test_micro_price_option_properties_and_validation():
     assert option.ask_price == option.best_ask
     assert option.spread == option.absolute_spread
     assert option.p_raw > 0.0
-    assert option.i_raw == pytest.approx(
-        option.best_bid_size / (option.best_bid_size + option.best_ask_size)
-    )
+    assert option.i_raw == pytest.approx(option.best_bid_size / (option.best_bid_size + option.best_ask_size))
     assert option.is_future is False
     assert option.expiry_timestamp == int(option.expiry.timestamp())
     assert option.validate_micro_price_constraints() is True

@@ -15,9 +15,7 @@ class PoolAcquirer:
         self.logger = logger
         self.connection_manager = connection_manager
 
-    async def acquire_pool(
-        self, *, allow_reuse: bool, redis_getter, redis_setter, original_redis_class
-    ) -> Redis:
+    async def acquire_pool(self, *, allow_reuse: bool, redis_getter, redis_setter, original_redis_class) -> Redis:
         """
         Acquire Redis connection pool.
 
@@ -48,19 +46,13 @@ class PoolAcquirer:
         pool = await pool_getter()
 
         if pool is None:
-            raise TradeStoreError(
-                "get_redis_pool() returned None - check Redis configuration in ~/.env"
-            )
+            raise TradeStoreError("get_redis_pool() returned None - check Redis configuration in ~/.env")
 
         redis_async = importlib.import_module("redis.asyncio")
         base_redis_cls = getattr(redis_async, "Redis")
         module_cls = getattr(module, "Redis", None)
 
-        redis_cls = (
-            module_cls
-            if module_cls is not None and module_cls is not original_redis_class
-            else base_redis_cls
-        )
+        redis_cls = module_cls if module_cls is not None and module_cls is not original_redis_class else base_redis_cls
 
         client = redis_cls(connection_pool=pool, decode_responses=True)
         if client is None:

@@ -58,17 +58,13 @@ class ResetEvaluator:
 
         # Handle empty previous data (first run) - always reset
         if not previous_data:
-            logger.info(
-                f"🌅 FIRST RUN: No previous data for field '{field_name}' - treating as new day (reset required)"
-            )
+            logger.info(f"🌅 FIRST RUN: No previous data for field '{field_name}' - treating as new day (reset required)")
             return True
 
         # Get the relevant timestamp from previous data
         timestamp_field = self._timestamp_mapper.get_timestamp_field_for_reset_field(field_name)
         if timestamp_field not in previous_data:
-            logger.info(
-                f"🌅 MISSING TIMESTAMP: No '{timestamp_field}' field for '{field_name}' - treating as new day (reset required)"
-            )
+            logger.info(f"🌅 MISSING TIMESTAMP: No '{timestamp_field}' field for '{field_name}' - treating as new day (reset required)")
             return True
 
         previous_timestamp_raw = previous_data.get(timestamp_field)
@@ -80,13 +76,9 @@ class ResetEvaluator:
                 )
                 return True
 
-            previous_timestamp = datetime.fromisoformat(
-                previous_timestamp_str.replace("Z", "+00:00")
-            )
+            previous_timestamp = datetime.fromisoformat(previous_timestamp_str.replace("Z", "+00:00"))
 
-            return self._daily_checker.is_new_local_day(
-                latitude, longitude, previous_timestamp, current_timestamp
-            )
+            return self._daily_checker.is_new_local_day(latitude, longitude, previous_timestamp, current_timestamp)
 
         except (
             ValueError,

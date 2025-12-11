@@ -33,9 +33,7 @@ class CloseDateOperations(BaseReportOperations):
             trades = await self.trade_store.get_trades_closed_today()
             return await self.report_generator.generate_aggregated_report_by_close_date(trades)
         except DATA_ACCESS_ERRORS as exc:
-            self.logger.exception(
-                "Error generating today close-date report (%s)", type(exc).__name__
-            )
+            self.logger.exception("Error generating today close-date report (%s)", type(exc).__name__)
             raise
 
     async def generate_yesterday_close_date_report(self) -> PnLReport:
@@ -49,9 +47,7 @@ class CloseDateOperations(BaseReportOperations):
             trades = await self.trade_store.get_trades_closed_yesterday()
             return await self.report_generator.generate_aggregated_report_by_close_date(trades)
         except DATA_ACCESS_ERRORS as exc:
-            self.logger.exception(
-                "Error generating yesterday close-date report (%s)", type(exc).__name__
-            )
+            self.logger.exception("Error generating yesterday close-date report (%s)", type(exc).__name__)
             raise
 
     async def get_today_close_date_trades_and_report(

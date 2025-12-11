@@ -57,9 +57,7 @@ class KalshiMarketWriterDependenciesFactory:
         """
         # Create helper instances
         validation = ValidationWriter(redis_connection, logger_instance)
-        metadata_writer = MetadataWriter(
-            redis_connection, logger_instance, metadata_adapter, connection_manager
-        )
+        metadata_writer = MetadataWriter(redis_connection, logger_instance, metadata_adapter, connection_manager)
         market_updater = MarketUpdateWriter(
             redis_connection,
             logger_instance,

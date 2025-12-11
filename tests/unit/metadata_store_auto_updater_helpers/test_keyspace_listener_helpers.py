@@ -212,9 +212,7 @@ class TestKeyspaceListener:
 
     @pytest.mark.asyncio
     async def test_listen_delegates(self, listener):
-        with patch.object(
-            listener._pubsub_manager, "listen_with_retry", new_callable=AsyncMock
-        ) as mock_listen:
+        with patch.object(listener._pubsub_manager, "listen_with_retry", new_callable=AsyncMock) as mock_listen:
             await listener.listen()
             mock_listen.assert_awaited_once()
 

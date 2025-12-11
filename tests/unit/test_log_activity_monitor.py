@@ -44,9 +44,7 @@ async def test_log_activity_reports_not_found_when_missing_log(tmp_path):
 async def test_log_activity_classifies_stale(tmp_path, monkeypatch):
     monkeypatch.setattr(
         "common.health.log_activity_monitor.env_int",
-        lambda key, default=None: {"LOG_RECENT_THRESHOLD": 60, "LOG_STALE_THRESHOLD": 900}.get(
-            key, default
-        ),
+        lambda key, default=None: {"LOG_RECENT_THRESHOLD": 60, "LOG_STALE_THRESHOLD": 900}.get(key, default),
     )
 
     log_path = tmp_path / "service.log"
@@ -73,9 +71,7 @@ async def test_log_activity_classifies_stale(tmp_path, monkeypatch):
 async def test_log_activity_classifies_old(tmp_path, monkeypatch):
     monkeypatch.setattr(
         "common.health.log_activity_monitor.env_int",
-        lambda key, default=None: {"LOG_RECENT_THRESHOLD": 60, "LOG_STALE_THRESHOLD": 600}.get(
-            key, default
-        ),
+        lambda key, default=None: {"LOG_RECENT_THRESHOLD": 60, "LOG_STALE_THRESHOLD": 600}.get(key, default),
     )
 
     log_path = tmp_path / "trade.log"
@@ -117,9 +113,7 @@ async def test_log_activity_returns_error_when_timestamp_missing(tmp_path, monke
 async def test_get_all_service_log_activity(tmp_path, monkeypatch):
     monkeypatch.setattr(
         "common.health.log_activity_monitor.env_int",
-        lambda key, default=None: {"LOG_RECENT_THRESHOLD": 10, "LOG_STALE_THRESHOLD": 60}.get(
-            key, default
-        ),
+        lambda key, default=None: {"LOG_RECENT_THRESHOLD": 10, "LOG_STALE_THRESHOLD": 60}.get(key, default),
     )
 
     base_time = datetime(2024, 1, 1, 12, 0, tzinfo=timezone.utc)

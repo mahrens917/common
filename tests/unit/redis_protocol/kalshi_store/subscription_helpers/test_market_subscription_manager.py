@@ -39,9 +39,7 @@ async def test_get_subscribed_markets_filters_prefix():
             "other:KXHIGH": "1",
         }
     )
-    manager = market_subscription_manager.MarketSubscriptionManager(
-        lambda: AsyncMock(return_value=redis)(), "subs:key", "ws"
-    )
+    manager = market_subscription_manager.MarketSubscriptionManager(lambda: AsyncMock(return_value=redis)(), "subs:key", "ws")
 
     markets = await manager.get_subscribed_markets()
 
@@ -53,9 +51,7 @@ async def test_get_subscribed_markets_logs_and_raises(monkeypatch):
     redis = MagicMock()
     redis.hgetall = AsyncMock(side_effect=DummyRedisError("boom"))
     monkeypatch.setattr(market_subscription_manager, "REDIS_ERRORS", (DummyRedisError,))
-    manager = market_subscription_manager.MarketSubscriptionManager(
-        lambda: AsyncMock(return_value=redis)(), "subs:key", "ws"
-    )
+    manager = market_subscription_manager.MarketSubscriptionManager(lambda: AsyncMock(return_value=redis)(), "subs:key", "ws")
 
     with pytest.raises(DummyRedisError):
         await manager.get_subscribed_markets()
@@ -64,9 +60,7 @@ async def test_get_subscribed_markets_logs_and_raises(monkeypatch):
 @pytest.mark.asyncio
 async def test_add_and_remove_markets(monkeypatch):
     redis = DummyRedisClient()
-    manager = market_subscription_manager.MarketSubscriptionManager(
-        lambda: AsyncMock(return_value=redis)(), "subs:key", "ws"
-    )
+    manager = market_subscription_manager.MarketSubscriptionManager(lambda: AsyncMock(return_value=redis)(), "subs:key", "ws")
 
     assert await manager.add_subscribed_market("KXHIGHTEST")
     assert redis.subscriptions["ws:KXHIGHTEST"] == "1"
@@ -80,9 +74,7 @@ async def test_add_subscribed_market_handles_redis_error(monkeypatch):
     redis = MagicMock()
     redis.hset = AsyncMock(side_effect=DummyRedisError("boom"))
     monkeypatch.setattr(market_subscription_manager, "REDIS_ERRORS", (DummyRedisError,))
-    manager = market_subscription_manager.MarketSubscriptionManager(
-        lambda: AsyncMock(return_value=redis)(), "subs:key", "ws"
-    )
+    manager = market_subscription_manager.MarketSubscriptionManager(lambda: AsyncMock(return_value=redis)(), "subs:key", "ws")
 
     with pytest.raises(DummyRedisError):
         await manager.add_subscribed_market("KXHIGHTEST")
@@ -93,9 +85,7 @@ async def test_remove_subscribed_market_handles_redis_error(monkeypatch):
     redis = MagicMock()
     redis.hdel = AsyncMock(side_effect=DummyRedisError("boom"))
     monkeypatch.setattr(market_subscription_manager, "REDIS_ERRORS", (DummyRedisError,))
-    manager = market_subscription_manager.MarketSubscriptionManager(
-        lambda: AsyncMock(return_value=redis)(), "subs:key", "ws"
-    )
+    manager = market_subscription_manager.MarketSubscriptionManager(lambda: AsyncMock(return_value=redis)(), "subs:key", "ws")
 
     with pytest.raises(DummyRedisError):
         await manager.remove_subscribed_market("KXHIGHTEST")

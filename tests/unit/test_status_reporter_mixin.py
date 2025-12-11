@@ -155,9 +155,7 @@ async def test_register_ready(test_service, mock_redis):
 @pytest.mark.asyncio
 async def test_register_ready_degraded(test_service, mock_redis):
     """Verify register_ready_degraded sets READY_DEGRADED status."""
-    await test_service.register_ready_degraded(
-        reason="Weather API unavailable", cache_age_seconds=300
-    )
+    await test_service.register_ready_degraded(reason="Weather API unavailable", cache_age_seconds=300)
 
     # Find the unified pattern call
     calls = [call for call in mock_redis.hset.call_args_list]

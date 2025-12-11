@@ -51,9 +51,7 @@ class ReportCoordinator:
             Formatted report string for Telegram
         """
         report = await self.pnl_calculator.generate_aggregated_report(trade_date, trade_date)
-        return self.basic_formatter.format_pnl_report(
-            report, f"Daily Report - {trade_date.strftime('%B %d, %Y')}"
-        )
+        return self.basic_formatter.format_pnl_report(report, f"Daily Report - {trade_date.strftime('%B %d, %Y')}")
 
     async def generate_historical_report(self, start_date: date, end_date: date) -> str:
         """
@@ -87,6 +85,4 @@ class ReportCoordinator:
         unrealized_pnl = await self.pnl_calculator.get_current_day_unrealized_pnl()
 
         date_str = get_timezone_aware_date(self.timezone).strftime("%B %d, %Y")
-        return self.current_day_formatter.format_current_day_report(
-            report, unrealized_pnl, date_str
-        )
+        return self.current_day_formatter.format_current_day_report(report, unrealized_pnl, date_str)

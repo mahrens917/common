@@ -54,9 +54,7 @@ class MarketDataFetcher:
         """
         return self._key_builder.format_key(currency, expiry, strike, option_type)
 
-    async def get_market_data(
-        self, instrument: "Instrument", original_key: Optional[str] = None
-    ) -> Dict:
+    async def get_market_data(self, instrument: "Instrument", original_key: Optional[str] = None) -> Dict:
         """
         Fetch market data for an instrument without caching.
 

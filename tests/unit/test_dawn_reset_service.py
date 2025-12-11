@@ -58,9 +58,7 @@ class TestDawnResetServiceIsNewTradingDay:
 
         result = service.is_new_trading_day(40.7128, -74.0060, prev_ts, curr_ts)
 
-        service._trading_day_checker.is_new_trading_day.assert_called_once_with(
-            40.7128, -74.0060, prev_ts, curr_ts
-        )
+        service._trading_day_checker.is_new_trading_day.assert_called_once_with(40.7128, -74.0060, prev_ts, curr_ts)
         assert result[0] is True
 
 

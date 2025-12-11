@@ -28,9 +28,7 @@ class TestReportCoordinator(unittest.IsolatedAsyncioTestCase):
         result = await self.coordinator.generate_daily_report(trade_date)
 
         self.assertEqual(result, "Formatted Report")
-        self.mock_pnl_calculator.generate_aggregated_report.assert_called_with(
-            trade_date, trade_date
-        )
+        self.mock_pnl_calculator.generate_aggregated_report.assert_called_with(trade_date, trade_date)
         self.mock_basic_formatter.format_pnl_report.assert_called()
 
     async def test_generate_historical_report(self):
@@ -61,12 +59,8 @@ class TestReportCoordinator(unittest.IsolatedAsyncioTestCase):
         result = await self.coordinator.generate_current_day_report()
 
         self.assertEqual(result, "Current Report")
-        self.mock_pnl_calculator.generate_aggregated_report.assert_called_with(
-            mock_now.date(), mock_now.date()
-        )
-        self.mock_current_day_formatter.format_current_day_report.assert_called_with(
-            mock_report, 500, "October 27, 2023"
-        )
+        self.mock_pnl_calculator.generate_aggregated_report.assert_called_with(mock_now.date(), mock_now.date())
+        self.mock_current_day_formatter.format_current_day_report.assert_called_with(mock_report, 500, "October 27, 2023")
 
     @patch("common.report_generator_helpers.report_coordinator.get_current_date_in_timezone")
     @patch("common.report_generator_helpers.report_coordinator.get_timezone_aware_date")

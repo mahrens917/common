@@ -53,16 +53,10 @@ class ProbabilityStore:
         except ProbabilityStoreError:
             raise
         except REDIS_ERRORS as exc:
-            raise ProbabilityStoreError(
-                f"Failed to store probabilities for {currency.upper()}: Redis error {exc}"
-            ) from exc
+            raise ProbabilityStoreError(f"Failed to store probabilities for {currency.upper()}: Redis error {exc}") from exc
 
-    async def store_probabilities_human_readable(
-        self, currency: str, probabilities_data: Dict[str, Dict[str, Dict[str, float]]]
-    ) -> bool:
-        return await self._ingestion.store_probabilities_human_readable(
-            currency, probabilities_data
-        )
+    async def store_probabilities_human_readable(self, currency: str, probabilities_data: Dict[str, Dict[str, Dict[str, float]]]) -> bool:
+        return await self._ingestion.store_probabilities_human_readable(currency, probabilities_data)
 
     async def store_probability(self, data: ProbabilityData) -> None:
         """Store a single probability entry.
@@ -72,14 +66,10 @@ class ProbabilityStore:
         """
         await self._ingestion.store_probability(data)
 
-    async def get_probabilities(
-        self, currency: str
-    ) -> Dict[str, Dict[str, Dict[str, Union[str, float]]]]:
+    async def get_probabilities(self, currency: str) -> Dict[str, Dict[str, Dict[str, Union[str, float]]]]:
         return await self._retrieval.get_probabilities(currency)
 
-    async def get_probabilities_human_readable(
-        self, currency: str
-    ) -> Dict[str, Dict[str, ProbabilityByStrikeType]]:
+    async def get_probabilities_human_readable(self, currency: str) -> Dict[str, Dict[str, ProbabilityByStrikeType]]:
         return await self._retrieval.get_probabilities_human_readable(currency)
 
     async def get_probability_data(
@@ -90,21 +80,15 @@ class ProbabilityStore:
         strike_type: str,
         event_title: Optional[str] = None,
     ) -> Dict[str, Any]:
-        return await self._retrieval.get_probability_data(
-            currency, expiry, strike, strike_type, event_title
-        )
+        return await self._retrieval.get_probability_data(currency, expiry, strike, strike_type, event_title)
 
-    async def get_probabilities_grouped_by_event_type(
-        self, currency: str
-    ) -> Dict[str, ProbabilityByExpiryGrouped]:
+    async def get_probabilities_grouped_by_event_type(self, currency: str) -> Dict[str, ProbabilityByExpiryGrouped]:
         return await self._retrieval.get_probabilities_grouped_by_event_type(currency)
 
     async def get_all_event_types(self, currency: str) -> list[str]:
         return await self._retrieval.get_all_event_types(currency)
 
-    async def get_probabilities_by_event_type(
-        self, currency: str, event_type: str
-    ) -> ProbabilityByExpiryGrouped:
+    async def get_probabilities_by_event_type(self, currency: str, event_type: str) -> ProbabilityByExpiryGrouped:
         return await self._retrieval.get_probabilities_by_event_type(currency, event_type)
 
     async def get_event_ticker_for_key(self, pattern: str) -> str:

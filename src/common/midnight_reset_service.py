@@ -41,9 +41,7 @@ class MidnightResetService:
     def __init__(self):
         """Initialize the midnight reset service."""
         self._delegator = create_midnight_reset_service()
-        _daily_checker_module.calculate_local_midnight_utc = (
-            lambda lat, lon, ts: calculate_local_midnight_utc(lat, lon, ts)
-        )
+        _daily_checker_module.calculate_local_midnight_utc = lambda lat, lon, ts: calculate_local_midnight_utc(lat, lon, ts)
 
     def is_new_local_day(
         self,
@@ -53,9 +51,7 @@ class MidnightResetService:
         current_timestamp: Optional[datetime] = None,
     ) -> bool:
         """Check if we've crossed local midnight since the previous timestamp."""
-        return self._delegator.is_new_local_day(
-            latitude, longitude, previous_timestamp, current_timestamp
-        )
+        return self._delegator.is_new_local_day(latitude, longitude, previous_timestamp, current_timestamp)
 
     def should_reset_field(
         self,
@@ -66,9 +62,7 @@ class MidnightResetService:
         current_timestamp: Optional[datetime] = None,
     ) -> bool:
         """Check if a specific field should be reset due to local midnight crossing."""
-        return self._delegator.should_reset_field(
-            field_name, latitude, longitude, previous_data, current_timestamp
-        )
+        return self._delegator.should_reset_field(field_name, latitude, longitude, previous_data, current_timestamp)
 
     def apply_field_resets(
         self,
@@ -80,9 +74,7 @@ class MidnightResetService:
         current_timestamp: Optional[datetime] = None,
     ) -> Tuple[Any, bool]:
         """Apply local midnight reset logic to a specific field."""
-        return self._delegator.apply_field_resets(
-            field_name, current_value, previous_data, latitude, longitude, current_timestamp
-        )
+        return self._delegator.apply_field_resets(field_name, current_value, previous_data, latitude, longitude, current_timestamp)
 
     def apply_confidence_based_max_temp_logic(
         self,
@@ -95,9 +87,7 @@ class MidnightResetService:
         six_hour_max_c: Optional[int] = None,
     ):
         """Apply confidence-based max_temp_f logic using simplified DailyMaxState."""
-        should_reset_override = self.should_reset_field(
-            "max_temp_f", latitude, longitude, previous_data, current_timestamp
-        )
+        should_reset_override = self.should_reset_field("max_temp_f", latitude, longitude, previous_data, current_timestamp)
         config = MaxTempProcessingConfig(
             current_temp_c=current_temp_c,
             previous_data=previous_data,

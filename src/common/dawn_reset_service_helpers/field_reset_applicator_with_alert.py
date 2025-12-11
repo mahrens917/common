@@ -96,15 +96,9 @@ class FieldResetApplicatorWithAlert:
             current_value,
         )
 
-        final_value = self.field_reset_manager.apply_reset_logic(
-            field_name, current_value, previous_data, should_reset
-        )
+        final_value = self.field_reset_manager.apply_reset_logic(field_name, current_value, previous_data, should_reset)
 
         return final_value, should_reset, boundary
 
-    async def _send_reset_alert(
-        self, station_id: str, field_name: str, was_reset: bool, previous_value: Any, new_value: Any
-    ) -> None:
-        await self.alert_manager.send_reset_alert(
-            station_id, field_name, was_reset, previous_value, new_value
-        )
+    async def _send_reset_alert(self, station_id: str, field_name: str, was_reset: bool, previous_value: Any, new_value: Any) -> None:
+        await self.alert_manager.send_reset_alert(station_id, field_name, was_reset, previous_value, new_value)

@@ -18,9 +18,7 @@ async def test_collect_tracker_status_updates_info_when_running(monkeypatch):
     tracker_info = SimpleNamespace(status=None, pid=None)
     process_manager = SimpleNamespace(process_info={"tracker": tracker_info})
     tracker_controller = MagicMock()
-    tracker_controller.get_tracker_status = AsyncMock(
-        return_value={"running": True, "pid": 123, "enabled": True}
-    )
+    tracker_controller.get_tracker_status = AsyncMock(return_value={"running": True, "pid": 123, "enabled": True})
 
     collector = TrackerStatusCollector(process_manager, tracker_controller)
 
@@ -36,9 +34,7 @@ async def test_collect_tracker_status_handles_disabled_and_updates_stopped(monke
     tracker_info = SimpleNamespace(status=None, pid=321)
     process_manager = SimpleNamespace(process_info={"tracker": tracker_info})
     tracker_controller = MagicMock()
-    tracker_controller.get_tracker_status = AsyncMock(
-        return_value={"running": False, "pid": None, "enabled": False}
-    )
+    tracker_controller.get_tracker_status = AsyncMock(return_value={"running": False, "pid": None, "enabled": False})
 
     collector = TrackerStatusCollector(process_manager, tracker_controller)
 
@@ -65,14 +61,10 @@ async def test_collect_tracker_status_returns_error_on_exception(caplog):
 
 
 def test_merge_tracker_service_state_normalizes():
-    collector = TrackerStatusCollector(
-        process_manager=SimpleNamespace(process_info={}), tracker_controller=None
-    )
+    collector = TrackerStatusCollector(process_manager=SimpleNamespace(process_info={}), tracker_controller=None)
     running = [{"name": "deribit"}]
     merged = collector.merge_tracker_service_state(running, {"running": True})
     assert {"name": "tracker"} in merged
 
-    merged = collector.merge_tracker_service_state(
-        running + [{"name": "tracker"}], {"running": False}
-    )
+    merged = collector.merge_tracker_service_state(running + [{"name": "tracker"}], {"running": False})
     assert {"name": "tracker"} not in merged

@@ -28,12 +28,8 @@ class StateUpdater:
         existing_state = await self.store.get_connection_state(service_name)
         current_time = self._time_provider() if self._time_provider else time.time()
         in_reconnection = _is_reconnection_state(state)
-        reconnection_start, last_success = _compute_timings(
-            existing_state, state, in_reconnection, current_time
-        )
-        await _record_transition_events(
-            self.store, service_name, existing_state, state, in_reconnection, current_time
-        )
+        reconnection_start, last_success = _compute_timings(existing_state, state, in_reconnection, current_time)
+        await _record_transition_events(self.store, service_name, existing_state, state, in_reconnection, current_time)
         state_info = ConnectionStateInfo(
             service_name=service_name,
             state=state,

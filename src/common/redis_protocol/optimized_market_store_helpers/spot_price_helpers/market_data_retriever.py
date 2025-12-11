@@ -82,16 +82,12 @@ class MarketDataRetriever:
 
             required_fields = ["best_bid", "best_ask"]
             if atomic_ops:
-                market_data = await atomic_ops.safe_market_data_read(
-                    market_key, required_fields=required_fields
-                )
+                market_data = await atomic_ops.safe_market_data_read(market_key, required_fields=required_fields)
             else:
                 market_data = await redis.hgetall(market_key)
 
             if not market_data:
-                raise DataError(
-                    f"USDC pair market data not available for {currency}; key '{market_key}' missing"
-                )
+                raise DataError(f"USDC pair market data not available for {currency}; key '{market_key}' missing")
 
             else:
                 return market_data

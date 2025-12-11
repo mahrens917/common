@@ -54,9 +54,7 @@ class TestHealthChecker:
     def test_check_subscription_status_failure(self, health_checker):
         health_checker.subscription_manager.active_instruments = {}
         health_checker.websocket_client.active_subscriptions = {}
-        with pytest.raises(
-            ConnectionError, match="test_service has no active subscriptions - zombie state"
-        ):
+        with pytest.raises(ConnectionError, match="test_service has no active subscriptions - zombie state"):
             health_checker.check_subscription_status()
 
     def test_check_data_flow_success(self, health_checker):
@@ -74,9 +72,7 @@ class TestHealthChecker:
             health_checker.check_data_flow(current_time)
 
     def test_log_health_check_passed(self, health_checker):
-        with patch(
-            "common.websocket.connection_health_monitor_helpers.health_checker.logger"
-        ) as mock_logger:
+        with patch("common.websocket.connection_health_monitor_helpers.health_checker.logger") as mock_logger:
             health_checker.log_health_check_passed(5.0)
             mock_logger.debug.assert_called_once()
             assert "test_service health check passed" in mock_logger.debug.call_args[0][0]

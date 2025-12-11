@@ -17,25 +17,13 @@ class TestStatusDataAggregator:
     def mock_collectors(self):
         """Mock all individual collectors."""
         return StatusDataCollectors(
-            service_collector=Mock(
-                collect_running_services=AsyncMock(return_value={"service_A": {"pid": 123}})
-            ),
-            health_collector=Mock(
-                collect_health_snapshot=AsyncMock(return_value={"redis_connection_healthy": True})
-            ),
+            service_collector=Mock(collect_running_services=AsyncMock(return_value={"service_A": {"pid": 123}})),
+            health_collector=Mock(collect_health_snapshot=AsyncMock(return_value={"redis_connection_healthy": True})),
             key_counter=Mock(collect_key_counts=AsyncMock(return_value={"key_count_A": 10})),
-            message_collector=Mock(
-                collect_message_metrics=AsyncMock(return_value={"msg_metric_A": 1})
-            ),
+            message_collector=Mock(collect_message_metrics=AsyncMock(return_value={"msg_metric_A": 1})),
             price_collector=Mock(collect_price_data=AsyncMock(return_value={"price_data_A": 100})),
-            weather_collector=Mock(
-                collect_weather_temperatures=AsyncMock(return_value={"weather_temp_A": "70F"})
-            ),
-            log_collector=Mock(
-                collect_log_activity_map=AsyncMock(
-                    return_value=({"log_A": "activity"}, {"stale_A": True})
-                )
-            ),
+            weather_collector=Mock(collect_weather_temperatures=AsyncMock(return_value={"weather_temp_A": "70F"})),
+            log_collector=Mock(collect_log_activity_map=AsyncMock(return_value=({"log_A": "activity"}, {"stale_A": True}))),
             tracker_collector=Mock(
                 collect_tracker_status=AsyncMock(return_value={"tracker_A": "running"}),
                 merge_tracker_service_state=Mock(
@@ -45,9 +33,7 @@ class TestStatusDataAggregator:
                     }
                 ),
             ),
-            kalshi_collector=Mock(
-                get_kalshi_market_status=AsyncMock(return_value={"kalshi_status_A": "active"})
-            ),
+            kalshi_collector=Mock(get_kalshi_market_status=AsyncMock(return_value={"kalshi_status_A": "active"})),
         )
 
     @pytest.fixture
@@ -66,9 +52,7 @@ class TestStatusDataAggregator:
         aggregator._resolve_redis_pid = AsyncMock(return_value=456)
 
         # Call the method under test
-        result = await aggregator.gather_status_data(
-            mock_redis_client, mock_process_monitor, mock_kalshi_client
-        )
+        result = await aggregator.gather_status_data(mock_redis_client, mock_process_monitor, mock_kalshi_client)
 
         # Assert internal collectors are called
         mock_collectors.service_collector.collect_running_services.assert_awaited_once()
@@ -85,9 +69,7 @@ class TestStatusDataAggregator:
         # Assert redis_client is set on relevant collectors
         assert mock_collectors.key_counter.redis_client == mock_redis_client
         assert mock_collectors.message_collector.redis_client == mock_redis_client
-        assert (
-            mock_collectors.message_collector.realtime_collector.redis_client == mock_redis_client
-        )
+        assert mock_collectors.message_collector.realtime_collector.redis_client == mock_redis_client
         assert mock_collectors.price_collector.redis_client == mock_redis_client
         assert mock_collectors.weather_collector.redis_client == mock_redis_client
         assert mock_collectors.kalshi_collector.redis_client == mock_redis_client

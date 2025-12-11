@@ -47,9 +47,7 @@ class ReportPrinterCoordinator:
 
         tracker_status = self._data_coercion.coerce_mapping(status_data.get("tracker_status"))
         log_activity_map = status_data.get("log_activity") or {}
-        healthy, total = self._service_printer.print_managed_services(
-            self._process_manager, tracker_status, log_activity_map
-        )
+        healthy, total = self._service_printer.print_managed_services(self._process_manager, tracker_status, log_activity_map)
         self._service_printer.print_monitor_service(self._process_manager, log_activity_map)
 
         self._emit(f"📊 Process Summary: {healthy}/{total} running")

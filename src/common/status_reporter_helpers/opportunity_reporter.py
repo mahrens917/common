@@ -56,10 +56,7 @@ class OpportunityReporter:
         action_upper = action.upper()
         if _is_sell_yes_ask_rule(reason, action_upper):
             theoretical_price = _extract_value_in_parentheses(reason)
-            return (
-                f"📋 Rule: Theoretical YES ask ({theoretical_price}¢) < "
-                f"Market YES ask ({price_cents}¢) → SELL YES profitable"
-            )
+            return f"📋 Rule: Theoretical YES ask ({theoretical_price}¢) < " f"Market YES ask ({price_cents}¢) → SELL YES profitable"
 
         if _is_sell_yes_bid_rule(reason, action_upper):
             return "📋 Rule: Theoretical YES bid < Market YES bid → SELL YES profitable"

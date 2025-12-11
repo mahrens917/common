@@ -26,9 +26,7 @@ class TestRootCauseIdentifierNetworkCause:
         identifier = RootCauseIdentifier()
         error = Exception("Connection timeout")
 
-        result = identifier.identify_root_cause(
-            error, "Connection timeout", ErrorCategory.NETWORK, None
-        )
+        result = identifier.identify_root_cause(error, "Connection timeout", ErrorCategory.NETWORK, None)
 
         assert "timeout" in result.lower()
 
@@ -37,9 +35,7 @@ class TestRootCauseIdentifierNetworkCause:
         identifier = RootCauseIdentifier()
         error = Exception("Connection refused")
 
-        result = identifier.identify_root_cause(
-            error, "Connection refused", ErrorCategory.NETWORK, None
-        )
+        result = identifier.identify_root_cause(error, "Connection refused", ErrorCategory.NETWORK, None)
 
         assert "Connection refused" in result
 
@@ -48,9 +44,7 @@ class TestRootCauseIdentifierNetworkCause:
         identifier = RootCauseIdentifier()
         error = Exception("DNS lookup failed")
 
-        result = identifier.identify_root_cause(
-            error, "DNS lookup failed", ErrorCategory.NETWORK, None
-        )
+        result = identifier.identify_root_cause(error, "DNS lookup failed", ErrorCategory.NETWORK, None)
 
         assert "DNS" in result
 
@@ -59,9 +53,7 @@ class TestRootCauseIdentifierNetworkCause:
         identifier = RootCauseIdentifier()
         error = Exception("Name resolution failed")
 
-        result = identifier.identify_root_cause(
-            error, "Name resolution failed", ErrorCategory.NETWORK, None
-        )
+        result = identifier.identify_root_cause(error, "Name resolution failed", ErrorCategory.NETWORK, None)
 
         assert "DNS" in result
 
@@ -70,9 +62,7 @@ class TestRootCauseIdentifierNetworkCause:
         identifier = RootCauseIdentifier()
         error = Exception("Network error")
 
-        result = identifier.identify_root_cause(
-            error, "Something went wrong", ErrorCategory.NETWORK, None
-        )
+        result = identifier.identify_root_cause(error, "Something went wrong", ErrorCategory.NETWORK, None)
 
         assert "Network connectivity" in result
 
@@ -85,9 +75,7 @@ class TestRootCauseIdentifierWebSocketCause:
         identifier = RootCauseIdentifier()
         error = Exception("code 1006 abnormal closure")
 
-        result = identifier.identify_root_cause(
-            error, "code 1006 abnormal closure", ErrorCategory.WEBSOCKET, None
-        )
+        result = identifier.identify_root_cause(error, "code 1006 abnormal closure", ErrorCategory.WEBSOCKET, None)
 
         assert "1006" in result
 
@@ -97,9 +85,7 @@ class TestRootCauseIdentifierWebSocketCause:
         error = Exception("connection closed")
         context = {"close_code": 1006}
 
-        result = identifier.identify_root_cause(
-            error, "connection closed", ErrorCategory.WEBSOCKET, context
-        )
+        result = identifier.identify_root_cause(error, "connection closed", ErrorCategory.WEBSOCKET, context)
 
         assert "1006" in result
 
@@ -128,9 +114,7 @@ class TestRootCauseIdentifierWebSocketCause:
         identifier = RootCauseIdentifier()
         error = Exception("WebSocket error")
 
-        result = identifier.identify_root_cause(
-            error, "connection issue", ErrorCategory.WEBSOCKET, None
-        )
+        result = identifier.identify_root_cause(error, "connection issue", ErrorCategory.WEBSOCKET, None)
 
         assert "WebSocket connection issue" in result
 
@@ -143,9 +127,7 @@ class TestRootCauseIdentifierAuthCause:
         identifier = RootCauseIdentifier()
         error = Exception("401 Unauthorized")
 
-        result = identifier.identify_root_cause(
-            error, "401 Unauthorized", ErrorCategory.AUTHENTICATION, None
-        )
+        result = identifier.identify_root_cause(error, "401 Unauthorized", ErrorCategory.AUTHENTICATION, None)
 
         assert "Authentication failed" in result
 
@@ -154,9 +136,7 @@ class TestRootCauseIdentifierAuthCause:
         identifier = RootCauseIdentifier()
         error = Exception("Unauthorized access")
 
-        result = identifier.identify_root_cause(
-            error, "Unauthorized access", ErrorCategory.AUTHENTICATION, None
-        )
+        result = identifier.identify_root_cause(error, "Unauthorized access", ErrorCategory.AUTHENTICATION, None)
 
         assert "Authentication failed" in result
 
@@ -165,9 +145,7 @@ class TestRootCauseIdentifierAuthCause:
         identifier = RootCauseIdentifier()
         error = Exception("403 Forbidden")
 
-        result = identifier.identify_root_cause(
-            error, "403 Forbidden", ErrorCategory.AUTHENTICATION, None
-        )
+        result = identifier.identify_root_cause(error, "403 Forbidden", ErrorCategory.AUTHENTICATION, None)
 
         assert "Authorization failed" in result
 
@@ -176,9 +154,7 @@ class TestRootCauseIdentifierAuthCause:
         identifier = RootCauseIdentifier()
         error = Exception("Access forbidden")
 
-        result = identifier.identify_root_cause(
-            error, "Access forbidden", ErrorCategory.AUTHENTICATION, None
-        )
+        result = identifier.identify_root_cause(error, "Access forbidden", ErrorCategory.AUTHENTICATION, None)
 
         assert "Authorization failed" in result
 
@@ -187,9 +163,7 @@ class TestRootCauseIdentifierAuthCause:
         identifier = RootCauseIdentifier()
         error = Exception("Auth error")
 
-        result = identifier.identify_root_cause(
-            error, "auth issue", ErrorCategory.AUTHENTICATION, None
-        )
+        result = identifier.identify_root_cause(error, "auth issue", ErrorCategory.AUTHENTICATION, None)
 
         assert "Authentication/authorization issue" in result
 
@@ -211,9 +185,7 @@ class TestRootCauseIdentifierAPICause:
         identifier = RootCauseIdentifier()
         error = Exception("500 Internal Server Error")
 
-        result = identifier.identify_root_cause(
-            error, "500 Internal Server Error", ErrorCategory.API, None
-        )
+        result = identifier.identify_root_cause(error, "500 Internal Server Error", ErrorCategory.API, None)
 
         assert "internal error" in result.lower()
 
@@ -222,9 +194,7 @@ class TestRootCauseIdentifierAPICause:
         identifier = RootCauseIdentifier()
         error = Exception("429 Too Many Requests")
 
-        result = identifier.identify_root_cause(
-            error, "429 Too Many Requests", ErrorCategory.API, None
-        )
+        result = identifier.identify_root_cause(error, "429 Too Many Requests", ErrorCategory.API, None)
 
         assert "Rate limit" in result
 
@@ -277,9 +247,7 @@ class TestRootCauseIdentifierDependencyCause:
         identifier = RootCauseIdentifier()
         error = Exception("Redis connection failed")
 
-        result = identifier.identify_root_cause(
-            error, "Redis connection failed", ErrorCategory.DEPENDENCY, None
-        )
+        result = identifier.identify_root_cause(error, "Redis connection failed", ErrorCategory.DEPENDENCY, None)
 
         assert "Redis" in result
 
@@ -288,9 +256,7 @@ class TestRootCauseIdentifierDependencyCause:
         identifier = RootCauseIdentifier()
         error = Exception("Database connection failed")
 
-        result = identifier.identify_root_cause(
-            error, "Database connection failed", ErrorCategory.DEPENDENCY, None
-        )
+        result = identifier.identify_root_cause(error, "Database connection failed", ErrorCategory.DEPENDENCY, None)
 
         assert "Database" in result
 
@@ -299,9 +265,7 @@ class TestRootCauseIdentifierDependencyCause:
         identifier = RootCauseIdentifier()
         error = Exception("Service error")
 
-        result = identifier.identify_root_cause(
-            error, "service issue", ErrorCategory.DEPENDENCY, None
-        )
+        result = identifier.identify_root_cause(error, "service issue", ErrorCategory.DEPENDENCY, None)
 
         assert "Service dependency unavailable" in result
 
@@ -314,9 +278,7 @@ class TestRootCauseIdentifierConfigCause:
         identifier = RootCauseIdentifier()
         error = Exception("Config error")
 
-        result = identifier.identify_root_cause(
-            error, "config issue", ErrorCategory.CONFIGURATION, None
-        )
+        result = identifier.identify_root_cause(error, "config issue", ErrorCategory.CONFIGURATION, None)
 
         assert "Configuration error" in result
 
@@ -329,8 +291,6 @@ class TestRootCauseIdentifierResourceCause:
         identifier = RootCauseIdentifier()
         error = Exception("Resource error")
 
-        result = identifier.identify_root_cause(
-            error, "resource issue", ErrorCategory.RESOURCE, None
-        )
+        result = identifier.identify_root_cause(error, "resource issue", ErrorCategory.RESOURCE, None)
 
         assert "Resource constraint" in result

@@ -22,9 +22,7 @@ class TestDateFormatParsers:
     def test_parse_intraday_format(self):
         """Test delegation to canonical DDMMMHHMM parser."""
         now = datetime(2025, 1, 15)
-        with patch(
-            "common.redis_protocol.parsing.kalshi_helpers.date_format_parsers._canonical_parse_intraday_format"
-        ) as mock_parser:
+        with patch("common.redis_protocol.parsing.kalshi_helpers.date_format_parsers._canonical_parse_intraday_format") as mock_parser:
             mock_parser.return_value = datetime(2025, 1, 15, 15, 30)
             result = parse_intraday_format("15JAN1530", now, 1, 15, "1530")
             assert result == datetime(2025, 1, 15, 15, 30)

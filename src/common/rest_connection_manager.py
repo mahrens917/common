@@ -47,9 +47,7 @@ class RESTConnectionManager(AioHTTPSessionConnectionMixin, BaseConnectionManager
             self.session_manager,
             authentication_handler,
         )
-        self.lifecycle_manager = RESTConnectionLifecycle(
-            service_name, self.base_url, self.session_manager, self.health_monitor
-        )
+        self.lifecycle_manager = RESTConnectionLifecycle(service_name, self.base_url, self.session_manager, self.health_monitor)
         self.request_ops = RESTRequestOperations(
             service_name,
             self.base_url,
@@ -82,14 +80,10 @@ class RESTConnectionManager(AioHTTPSessionConnectionMixin, BaseConnectionManager
     async def cleanup_connection(self) -> None:
         await self.lifecycle_manager.cleanup_connection()
 
-    async def make_request(
-        self, method: str, endpoint: str, **kwargs
-    ) -> Optional[aiohttp.ClientResponse]:
+    async def make_request(self, method: str, endpoint: str, **kwargs) -> Optional[aiohttp.ClientResponse]:
         return await self.request_ops.make_request(method, endpoint, **kwargs)
 
-    async def make_json_request(
-        self, method: str, endpoint: str, **kwargs
-    ) -> Optional[Dict[str, Any]]:
+    async def make_json_request(self, method: str, endpoint: str, **kwargs) -> Optional[Dict[str, Any]]:
         return await self.request_ops.make_json_request(method, endpoint, **kwargs)
 
     def get_connection_info(self) -> Dict[str, Any]:

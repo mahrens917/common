@@ -59,9 +59,7 @@ class ServiceHealthAggregatorFactory:
     """Factory for creating ServiceHealthAggregator dependencies."""
 
     @staticmethod
-    def create(
-        logs_directory: str, get_service_status_callback
-    ) -> ServiceHealthAggregatorDependencies:
+    def create(logs_directory: str, get_service_status_callback) -> ServiceHealthAggregatorDependencies:
         """Create all dependencies for ServiceHealthAggregator."""
         return ServiceHealthAggregatorDependencies(
             process_monitor=ProcessHealthMonitor(),
@@ -101,9 +99,7 @@ class ServiceHealthAggregatorFactory:
     @staticmethod
     def _all_provided(optional_deps: OptionalDependencies) -> bool:
         """Check if all optional dependencies are provided."""
-        return all(
-            getattr(optional_deps, field) is not None for field in SERVICE_HEALTH_DEPENDENCY_FIELDS
-        )
+        return all(getattr(optional_deps, field) is not None for field in SERVICE_HEALTH_DEPENDENCY_FIELDS)
 
     @staticmethod
     def create_or_use(
@@ -118,7 +114,5 @@ class ServiceHealthAggregatorFactory:
         if ServiceHealthAggregatorFactory._all_provided(optional_deps):
             return ServiceHealthAggregatorFactory._build_from_optional(optional_deps)
 
-        defaults = ServiceHealthAggregatorFactory.create(
-            logs_directory, get_service_status_callback
-        )
+        defaults = ServiceHealthAggregatorFactory.create(logs_directory, get_service_status_callback)
         return ServiceHealthAggregatorFactory._merge_with_defaults(optional_deps, defaults)

@@ -262,9 +262,7 @@ async def test_kill_existing_processes_handles_process_lookup_errors(monkeypatch
     module, _ = psutil_stub
     module.Process = MagicMock(side_effect=module.AccessDenied("denied"))
 
-    monitor = create_monitor_mock(
-        {501: SimpleNamespace(name="python", cmdline=["python", "-m", "src.kalshi"])}
-    )
+    monitor = create_monitor_mock({501: SimpleNamespace(name="python", cmdline=["python", "-m", "src.kalshi"])})
 
     process_monitor_module = importlib.import_module("common.process_monitor")
     monkeypatch.setattr(
@@ -274,9 +272,7 @@ async def test_kill_existing_processes_handles_process_lookup_errors(monkeypatch
     )
     monkeypatch.setattr(process_killer.os, "getpid", lambda: 1)
 
-    await process_killer.kill_existing_processes(
-        process_killer.SERVICE_PROCESS_PATTERNS["kalshi"], "kalshi"
-    )
+    await process_killer.kill_existing_processes(process_killer.SERVICE_PROCESS_PATTERNS["kalshi"], "kalshi")
 
     assert module.Process.call_count == 1
 
@@ -292,9 +288,7 @@ async def test_kill_existing_processes_handles_termination_exception(monkeypatch
     failing = FailingProcess(pid=602)
     processes[602] = failing
 
-    monitor = create_monitor_mock(
-        {602: SimpleNamespace(name="python", cmdline=["python", "-m", "src.kalshi"])}
-    )
+    monitor = create_monitor_mock({602: SimpleNamespace(name="python", cmdline=["python", "-m", "src.kalshi"])})
 
     process_monitor_module = importlib.import_module("common.process_monitor")
     monkeypatch.setattr(
@@ -304,9 +298,7 @@ async def test_kill_existing_processes_handles_termination_exception(monkeypatch
     )
     monkeypatch.setattr(process_killer.os, "getpid", lambda: 0)
 
-    await process_killer.kill_existing_processes(
-        process_killer.SERVICE_PROCESS_PATTERNS["kalshi"], "kalshi"
-    )
+    await process_killer.kill_existing_processes(process_killer.SERVICE_PROCESS_PATTERNS["kalshi"], "kalshi")
 
     assert not failing.kill_called
 
@@ -400,9 +392,7 @@ async def test_kill_existing_processes_reports_force_kill_timeout(monkeypatch, p
     )
     processes[800] = process
 
-    monitor = create_monitor_mock(
-        {800: SimpleNamespace(name="python3", cmdline=["python", "-m", "src.kalshi"])}
-    )
+    monitor = create_monitor_mock({800: SimpleNamespace(name="python3", cmdline=["python", "-m", "src.kalshi"])})
 
     process_monitor_module = importlib.import_module("common.process_monitor")
     monkeypatch.setattr(
@@ -416,9 +406,7 @@ async def test_kill_existing_processes_reports_force_kill_timeout(monkeypatch, p
     sleep_mock = AsyncMock(return_value=None)
     monkeypatch.setattr(process_killer.asyncio, "sleep", sleep_mock)
 
-    await process_killer.kill_existing_processes(
-        process_killer.SERVICE_PROCESS_PATTERNS["kalshi"], "kalshi"
-    )
+    await process_killer.kill_existing_processes(process_killer.SERVICE_PROCESS_PATTERNS["kalshi"], "kalshi")
 
     assert any("still alive after force kill timeout" in message for message in messages)
     sleep_mock.assert_awaited_once_with(process_killer.POST_KILL_WAIT_SECONDS)
@@ -434,9 +422,7 @@ async def test_kill_existing_processes_handles_kill_race(monkeypatch, psutil_stu
 
     process = KillRaceProcess(pid=801, wait_side_effects=[module.TimeoutExpired()])
     processes[801] = process
-    monitor = create_monitor_mock(
-        {801: SimpleNamespace(name="python3", cmdline=["python", "-m", "src.kalshi"])}
-    )
+    monitor = create_monitor_mock({801: SimpleNamespace(name="python3", cmdline=["python", "-m", "src.kalshi"])})
 
     process_monitor_module = importlib.import_module("common.process_monitor")
     monkeypatch.setattr(
@@ -450,9 +436,7 @@ async def test_kill_existing_processes_handles_kill_race(monkeypatch, psutil_stu
     sleep_mock = AsyncMock(return_value=None)
     monkeypatch.setattr(process_killer.asyncio, "sleep", sleep_mock)
 
-    await process_killer.kill_existing_processes(
-        process_killer.SERVICE_PROCESS_PATTERNS["kalshi"], "kalshi"
-    )
+    await process_killer.kill_existing_processes(process_killer.SERVICE_PROCESS_PATTERNS["kalshi"], "kalshi")
 
     assert any("no longer exists" in message for message in messages)
     sleep_mock.assert_awaited_once_with(process_killer.POST_KILL_WAIT_SECONDS)
@@ -468,9 +452,7 @@ async def test_kill_existing_processes_handles_error_without_pid(monkeypatch, ps
             raise module.AccessDenied("forbidden")
 
     processes[900] = BrokenProcess()
-    monitor = create_monitor_mock(
-        {900: SimpleNamespace(name="python3", cmdline=["python", "-m", "src.kalshi"])}
-    )
+    monitor = create_monitor_mock({900: SimpleNamespace(name="python3", cmdline=["python", "-m", "src.kalshi"])})
 
     process_monitor_module = importlib.import_module("common.process_monitor")
     monkeypatch.setattr(
@@ -482,9 +464,7 @@ async def test_kill_existing_processes_handles_error_without_pid(monkeypatch, ps
     monkeypatch.setattr(process_killer, "_console", messages.append, raising=False)
     monkeypatch.setattr(process_killer.os, "getpid", lambda: 0)
 
-    await process_killer.kill_existing_processes(
-        process_killer.SERVICE_PROCESS_PATTERNS["kalshi"], "kalshi"
-    )
+    await process_killer.kill_existing_processes(process_killer.SERVICE_PROCESS_PATTERNS["kalshi"], "kalshi")
 
     assert any("Could not kill process:" in message for message in messages)
 
@@ -507,9 +487,7 @@ async def test_kill_all_service_processes_logs_errors(monkeypatch):
 
 
 @pytest.mark.asyncio
-async def test_kill_processes_without_current_exclusion_skips_process_errors(
-    monkeypatch, psutil_stub
-):
+async def test_kill_processes_without_current_exclusion_skips_process_errors(monkeypatch, psutil_stub):
     module, _ = psutil_stub
     module.Process = MagicMock(side_effect=module.AccessDenied("no access"))
 
@@ -537,9 +515,7 @@ async def test_kill_processes_without_current_exclusion_skips_process_errors(
 
 
 @pytest.mark.asyncio
-async def test_kill_processes_without_current_exclusion_handles_pidless_error(
-    monkeypatch, psutil_stub
-):
+async def test_kill_processes_without_current_exclusion_handles_pidless_error(monkeypatch, psutil_stub):
     module, processes = psutil_stub
 
     class BrokenProcess:
@@ -572,9 +548,7 @@ async def test_kill_processes_without_current_exclusion_handles_pidless_error(
 
 
 @pytest.mark.asyncio
-async def test_kill_processes_without_current_exclusion_handles_terminate_failure(
-    monkeypatch, psutil_stub
-):
+async def test_kill_processes_without_current_exclusion_handles_terminate_failure(monkeypatch, psutil_stub):
     module, processes = psutil_stub
 
     class FailTerminate(FakeProcess):
@@ -608,9 +582,7 @@ async def test_kill_processes_without_current_exclusion_handles_terminate_failur
 
 
 @pytest.mark.asyncio
-async def test_kill_processes_without_current_exclusion_reports_graceful_exit(
-    monkeypatch, psutil_stub
-):
+async def test_kill_processes_without_current_exclusion_reports_graceful_exit(monkeypatch, psutil_stub):
     module, processes = psutil_stub
     process = FakeProcess(pid=1300, wait_side_effects=[None])
     processes[1300] = process

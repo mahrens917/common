@@ -56,9 +56,7 @@ class UnifiedSubscriptionManager:
         self.subscription_channel = subscription_channel
         self.subscription_key = subscription_key
         self.active_instruments: Dict[str, Dict] = {}
-        self.pending_subscriptions: List[Tuple[str, str, str]] = (
-            []
-        )  # [(tracking_key, api_type, channel)]
+        self.pending_subscriptions: List[Tuple[str, str, str]] = []  # [(tracking_key, api_type, channel)]
         self.waiting_for_subscriptions = False
         self._last_health_check = 0.0
 

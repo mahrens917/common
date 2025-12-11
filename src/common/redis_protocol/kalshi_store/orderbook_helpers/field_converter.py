@@ -2,12 +2,8 @@
 
 from typing import Any, Optional
 
-from common.redis_protocol.kalshi_store.utils_coercion import (
-    convert_numeric_field as _convert_numeric_field,
-)
-from common.redis_protocol.kalshi_store.utils_coercion import (
-    string_or_default as _string_or_default,
-)
+from common.redis_protocol.kalshi_store.utils_coercion import convert_numeric_field as _convert_numeric_field
+from common.redis_protocol.kalshi_store.utils_coercion import string_or_default as _string_or_default
 
 
 class FieldConverter:

@@ -164,23 +164,16 @@ def _validate_average_price(
     """Validate average price calculation for BUY orders."""
     if before and before.position_count > 0:
         # Weighted average calculation
-        total_cost = (
-            before.position_count * before.average_price_cents
-            + trade.filled_count * trade.average_fill_price_cents
-        )
+        total_cost = before.position_count * before.average_price_cents + trade.filled_count * trade.average_fill_price_cents
         expected_avg_price = total_cost // after.position_count
 
         # Allow 1 cent tolerance for rounding
         if abs(after.average_price_cents - expected_avg_price) > 1:
-            return False, (
-                f"Average price calculation error: expected≈{expected_avg_price}¢, "
-                f"actual={after.average_price_cents}¢"
-            )
+            return False, (f"Average price calculation error: expected≈{expected_avg_price}¢, " f"actual={after.average_price_cents}¢")
     # First position - average price should equal fill price
     elif after.average_price_cents != trade.average_fill_price_cents:
         return False, (
-            f"First position average price mismatch: expected={trade.average_fill_price_cents}¢, "
-            f"actual={after.average_price_cents}¢"
+            f"First position average price mismatch: expected={trade.average_fill_price_cents}¢, " f"actual={after.average_price_cents}¢"
         )
 
     return True, ""
@@ -222,15 +215,11 @@ def create_balance_snapshot(balance: PortfolioBalance) -> BalanceStateSnapshot:
     return BalanceStateSnapshot(balance_cents=balance.balance_cents, timestamp=balance.timestamp)
 
 
-def create_trade_execution(
-    order_response: OrderResponse, ticker: str, side: OrderSide, action: str
-) -> TradeExecution:
+def create_trade_execution(order_response: OrderResponse, ticker: str, side: OrderSide, action: str) -> TradeExecution:
     """Create a trade execution record from an OrderResponse"""
     avg_price = order_response.average_fill_price_cents
     if avg_price is None:
-        raise ValueError(
-            f"Order response for {order_response.order_id} missing average fill price; cannot create trade execution"
-        )
+        raise ValueError(f"Order response for {order_response.order_id} missing average fill price; cannot create trade execution")
     filled_count = order_response.filled_count
     if filled_count is None:
         raise ValueError("Order response missing filled count; cannot build trade execution")

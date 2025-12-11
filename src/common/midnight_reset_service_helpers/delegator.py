@@ -46,9 +46,7 @@ class MidnightResetDelegator:
         current_timestamp: Optional[datetime] = None,
     ) -> bool:
         """Check if we've crossed local midnight since the previous timestamp."""
-        return self._daily_checker.is_new_local_day(
-            latitude, longitude, previous_timestamp, current_timestamp
-        )
+        return self._daily_checker.is_new_local_day(latitude, longitude, previous_timestamp, current_timestamp)
 
     def should_reset_field(
         self,
@@ -59,9 +57,7 @@ class MidnightResetDelegator:
         current_timestamp: Optional[datetime] = None,
     ) -> bool:
         """Check if a specific field should be reset due to local midnight crossing."""
-        return self._reset_evaluator.should_reset_field(
-            field_name, latitude, longitude, previous_data, current_timestamp
-        )
+        return self._reset_evaluator.should_reset_field(field_name, latitude, longitude, previous_data, current_timestamp)
 
     def apply_field_resets(
         self,

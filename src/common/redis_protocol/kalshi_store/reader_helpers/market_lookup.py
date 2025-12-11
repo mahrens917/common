@@ -37,9 +37,7 @@ class MarketLookup:
         market_filter,
         get_market_key_func,
     ) -> List[Dict]:
-        market_tickers = await market_filter.find_currency_market_tickers(
-            redis, currency, self._ticker_parser.is_market_for_currency
-        )
+        market_tickers = await market_filter.find_currency_market_tickers(redis, currency, self._ticker_parser.is_market_for_currency)
         if not market_tickers:
             self.logger.warning("No Kalshi market data found for %s in Redis", currency)
             return []

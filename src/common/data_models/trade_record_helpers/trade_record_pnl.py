@@ -77,8 +77,6 @@ def calculate_current_pnl_cents(
         trade.last_yes_ask,
     )
     if current_price is None:
-        raise RuntimeError(
-            f"Live market price unavailable for trade {trade.market_ticker}; cannot compute P&L"
-        )
+        raise RuntimeError(f"Live market price unavailable for trade {trade.market_ticker}; cannot compute P&L")
 
     return current_price * trade.quantity - trade.cost_cents

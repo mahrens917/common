@@ -64,9 +64,7 @@ class SnapshotProcessor:
         orderbook_sides = build_snapshot_sides(msg_data, market_ticker)
         normalize_price_formatting(orderbook_sides, msg_data)
         hash_data = build_hash_data(orderbook_sides, timestamp)
-        yes_bid_price, yes_ask_price, yes_bid_size, yes_ask_size = self._extract_best_prices(
-            orderbook_sides
-        )
+        yes_bid_price, yes_ask_price, yes_bid_size, yes_ask_size = self._extract_best_prices(orderbook_sides)
 
         logger.debug(
             "MARKET_UPDATE: Ticker=%s, Fields=%s",
@@ -75,9 +73,7 @@ class SnapshotProcessor:
         )
 
         await store_hash_fields(redis, market_key, hash_data, timestamp)
-        await store_best_prices(
-            redis, market_key, yes_bid_price, yes_ask_price, yes_bid_size, yes_ask_size
-        )
+        await store_best_prices(redis, market_key, yes_bid_price, yes_ask_price, yes_bid_size, yes_ask_size)
 
         callback = self.get_update_callback()
         await callback(market_ticker, yes_bid_price, yes_ask_price)

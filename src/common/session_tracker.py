@@ -80,9 +80,7 @@ class SessionTracker(
         self._initialized = True
         logger.setLevel(SESSION_TRACKING_LOG_LEVEL)
 
-        deps = dependencies or SessionTrackerDependenciesFactory.create(
-            self.sessions, self.session_refs, SESSION_TRACKING_LOG_LEVEL
-        )
+        deps = dependencies or SessionTrackerDependenciesFactory.create(self.sessions, self.session_refs, SESSION_TRACKING_LOG_LEVEL)
         self._id_generator = deps.id_generator
         self._gc_handler = deps.gc_handler
         self._lifecycle = deps.lifecycle
@@ -107,9 +105,7 @@ class SessionTracker(
         """
         session_id = self._id_generator.generate()
         self._lifecycle.track_creation(session, session_id, service_name)
-        self.session_refs[session_id] = weakref.ref(
-            session, self._gc_handler.create_callback(session_id)
-        )
+        self.session_refs[session_id] = weakref.ref(session, self._gc_handler.create_callback(session_id))
         return session_id
 
 

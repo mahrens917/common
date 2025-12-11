@@ -13,9 +13,7 @@ class JsonValidator:
     """Validator for JSON data to prevent decode errors."""
 
     @staticmethod
-    def validate_json_data(
-        json_data: object, variable_name: str = "json_data"
-    ) -> Union[Dict, List]:
+    def validate_json_data(json_data: object, variable_name: str = "json_data") -> Union[Dict, List]:
         """
         Validate JSON data to prevent decode errors.
 
@@ -50,6 +48,4 @@ class JsonValidator:
             return json_data
 
         else:
-            raise DataIntegrityError(
-                f"Invalid JSON data type for {variable_name}: {type(json_data)}"
-            )
+            raise DataIntegrityError(f"Invalid JSON data type for {variable_name}: {type(json_data)}")

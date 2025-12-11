@@ -91,9 +91,7 @@ CATEGORY_CHECKERS = [
 class ErrorCategorizer:
     """Categorizes errors into defined categories based on type and message patterns."""
 
-    def categorize_error(
-        self, error: Exception, message: str, context: Optional[Dict[str, Any]]
-    ) -> ErrorCategory:
+    def categorize_error(self, error: Exception, message: str, context: Optional[Dict[str, Any]]) -> ErrorCategory:
         error_type = type(error).__name__
         message_lower = message.lower()
         for category, checker in CATEGORY_CHECKERS:

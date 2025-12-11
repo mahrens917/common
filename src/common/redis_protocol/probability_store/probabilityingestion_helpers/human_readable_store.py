@@ -29,9 +29,7 @@ class HumanReadableStore:
         self._key_collector = key_collector
         self._record_enqueuer = record_enqueuer
 
-    async def store_probabilities_human_readable(
-        self, currency: str, probabilities_data: Dict[str, Dict[str, Dict[str, float]]]
-    ) -> bool:
+    async def store_probabilities_human_readable(self, currency: str, probabilities_data: Dict[str, Dict[str, Dict[str, float]]]) -> bool:
         currency_upper = currency.upper()
         logger.info("Storing human-readable probabilities for %s", currency_upper)
         logger.info(
@@ -70,15 +68,11 @@ class HumanReadableStore:
             await self._handle_ingestion_failure(redis, currency_upper, probabilities_data, exc)
         else:
             if len(results) != expected_operations:
-                exc = ProbabilityStoreError(
-                    f"Redis pipeline returned {len(results)} results; expected {expected_operations}"
-                )
+                exc = ProbabilityStoreError(f"Redis pipeline returned {len(results)} results; expected {expected_operations}")
                 await self._handle_ingestion_failure(redis, currency_upper, probabilities_data, exc)
             else:
                 await verify_probability_storage(redis, stats.sample_keys, currency_upper)
-                log_event_ticker_summary(
-                    currency_upper, stats.field_count, stats.event_ticker_counts
-                )
+                log_event_ticker_summary(currency_upper, stats.field_count, stats.event_ticker_counts)
                 return True
         return False
 
@@ -94,6 +88,4 @@ class HumanReadableStore:
 
         log_failure_context(probabilities_data)
         await run_direct_connectivity_test(redis, currency)
-        raise ProbabilityStoreError(
-            f"Failed to store human-readable probabilities for {currency}"
-        ) from exc
+        raise ProbabilityStoreError(f"Failed to store human-readable probabilities for {currency}") from exc

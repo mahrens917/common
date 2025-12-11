@@ -42,13 +42,9 @@ class TradeQueryService:
         if end_date < minimum_trade_date:
             if start_date < minimum_trade_date:
                 return []
-            raise TradeStoreError(
-                f"Requested end date {end_date} predates supported history ({minimum_trade_date})"
-            )
+            raise TradeStoreError(f"Requested end date {end_date} predates supported history ({minimum_trade_date})")
         if start_date < minimum_trade_date:
-            raise TradeStoreError(
-                f"Requested start date {start_date} predates supported history ({minimum_trade_date})"
-            )
+            raise TradeStoreError(f"Requested start date {start_date} predates supported history ({minimum_trade_date})")
 
         trades: List[TradeRecord] = []
         current = start_date
@@ -57,9 +53,7 @@ class TradeQueryService:
             for order_id in order_ids:
                 trade = await self._repository.get(current, order_id)
                 if trade is None:
-                    raise TradeStoreError(
-                        f"Trade {order_id} expected for {current} but payload is missing"
-                    )
+                    raise TradeStoreError(f"Trade {order_id} expected for {current} but payload is missing")
                 trades.append(trade)
             current += timedelta(days=1)
         return trades
@@ -78,11 +72,7 @@ class TradeQueryService:
         today_trades = await self.trades_by_date_range(today, today)
         yesterday_trades = await self.trades_by_date_range(yesterday, yesterday)
 
-        closed_today = [
-            trade
-            for trade in today_trades + yesterday_trades
-            if get_trade_close_date(trade) == today
-        ]
+        closed_today = [trade for trade in today_trades + yesterday_trades if get_trade_close_date(trade) == today]
         self._logger.debug("Found %s trades closing on %s", len(closed_today), today)
         return closed_today
 
@@ -99,9 +89,7 @@ class TradeQueryService:
         self._logger.debug("Found %s trades for %s", len(trades), target_date)
         return trades
 
-    async def _collect_trades_by_id(
-        self, order_ids: List[str], *, context: str
-    ) -> List[TradeRecord]:
+    async def _collect_trades_by_id(self, order_ids: List[str], *, context: str) -> List[TradeRecord]:
         trades: List[TradeRecord] = []
         for order_id in order_ids:
             trade = await self._repository.get_by_order_id(order_id)

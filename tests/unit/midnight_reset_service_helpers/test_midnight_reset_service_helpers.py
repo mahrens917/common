@@ -51,10 +51,7 @@ def test_reset_evaluator_timestamp_paths(monkeypatch):
     daily_checker = SimpleNamespace(is_new_local_day=lambda *args, **kwargs: False)
     evaluator = ResetEvaluator(daily_checker, mapper)
 
-    assert (
-        evaluator.should_reset_field("unknown", 0, 0, {"last_updated": "2024-01-01T00:00:00Z"})
-        is False
-    )
+    assert evaluator.should_reset_field("unknown", 0, 0, {"last_updated": "2024-01-01T00:00:00Z"}) is False
     assert evaluator.should_reset_field("max_temp_f", 0, 0, {}) is True
     assert evaluator.should_reset_field("max_temp_f", 0, 0, {"missing": "field"}) is True
     assert evaluator.should_reset_field("max_temp_f", 0, 0, {"max_start_time": None}) is True
@@ -77,15 +74,11 @@ def test_field_reset_applicator_resets_and_reuses_previous(monkeypatch):
             return self._should_reset
 
     applicator = FieldResetApplicator(StubEvaluator(True))
-    value, was_reset = applicator.apply_field_resets(
-        "t_yes_bid", "0.55", {"last_updated": "2024-01-01T00:00:00Z"}, 0, 0
-    )
+    value, was_reset = applicator.apply_field_resets("t_yes_bid", "0.55", {"last_updated": "2024-01-01T00:00:00Z"}, 0, 0)
     assert was_reset is True and value is None
 
     applicator = FieldResetApplicator(StubEvaluator(False))
-    value, was_reset = applicator.apply_field_resets(
-        "t_yes_bid", None, {"t_yes_bid": "0.60", "last_updated": "2024-01-01T00:00:00Z"}, 0, 0
-    )
+    value, was_reset = applicator.apply_field_resets("t_yes_bid", None, {"t_yes_bid": "0.60", "last_updated": "2024-01-01T00:00:00Z"}, 0, 0)
     assert was_reset is False and value == "0.60"
 
     value, was_reset = applicator.apply_field_resets(
@@ -125,9 +118,7 @@ def test_midnight_reset_delegator_routes_calls():
             calls.append(("max_temp", config.current_temp_c))
             return ("temp", "ts", "HIGH", None)
 
-    delegator = MidnightResetDelegator(
-        StubChecker(), StubMapper(), StubEvaluator(), StubApplicator(), StubMaxTemp()
-    )
+    delegator = MidnightResetDelegator(StubChecker(), StubMapper(), StubEvaluator(), StubApplicator(), StubMaxTemp())
 
     assert delegator.is_new_local_day(0, 0, datetime.now(timezone.utc)) is True
     assert delegator.should_reset_field("field", 0, 0, {}) is False
@@ -177,9 +168,7 @@ def test_max_temp_processor_handles_reset_and_restore(monkeypatch):
         should_reset_override=False,
     )
 
-    max_temp_f, start_time, confidence, state = processor.apply_confidence_based_max_temp_logic(
-        config
-    )
+    max_temp_f, start_time, confidence, state = processor.apply_confidence_based_max_temp_logic(config)
     assert start_time == base_time.isoformat()
     assert confidence in {"HIGH", "MEDIUM"}
     assert max_temp_f > DEFAULT_MAX_TEMP_THRESHOLD_F
@@ -228,9 +217,7 @@ def test_max_temp_processor_helpers_initialize_and_extract(monkeypatch):
             self.persistence = StubPersistence()
             self.hourly = []
             self.window = []
-            self.result = SimpleNamespace(
-                max_temp_f=DEFAULT_MAX_TEMP_RESULT_F, confidence="HIGH", source="hourly"
-            )
+            self.result = SimpleNamespace(max_temp_f=DEFAULT_MAX_TEMP_RESULT_F, confidence="HIGH", source="hourly")
 
         def add_hourly_observation(self, temp_c, timestamp):
             self.hourly.append((temp_c, timestamp))

@@ -32,9 +32,7 @@ class OptimizedMarketStore:
         self.redis_pool: Optional[ConnectionPool]
         self._initialized: bool
         self.atomic_ops: Optional[Any]
-        self.redis, self.redis_pool, self._initialized, self.atomic_ops = (
-            RedisInitializer.initialize_from_pool_or_client(redis_or_pool)
-        )
+        self.redis, self.redis_pool, self._initialized, self.atomic_ops = RedisInitializer.initialize_from_pool_or_client(redis_or_pool)
         self.logger = logger
         self.spot_price_fetcher = SpotPriceFetcher(self.get_redis_client, self.atomic_ops)
         self.market_data_fetcher = MarketDataFetcher(self.get_redis_client)
@@ -58,9 +56,7 @@ class OptimizedMarketStore:
     async def _get_redis(self) -> Any:
         """Get Redis connection, ensuring it's properly initialized"""
         if not self._initialized or self.redis is None:
-            raise RuntimeError(
-                "Redis connection not initialized. Pass a Redis instance or ConnectionPool to constructor."
-            )
+            raise RuntimeError("Redis connection not initialized. Pass a Redis instance or ConnectionPool to constructor.")
         assert self.redis is not None
         return self.redis
 
@@ -79,17 +75,13 @@ class OptimizedMarketStore:
         self.spot_price_fetcher.atomic_ops = self.atomic_ops
         return await self.spot_price_fetcher.get_usdc_bid_ask_prices(currency)
 
-    async def get_market_data(
-        self, instrument: "Instrument", original_key: Optional[str] = None
-    ) -> dict:
+    async def get_market_data(self, instrument: "Instrument", original_key: Optional[str] = None) -> dict:
         """Fetch market data for an instrument without caching. Raises: ValueError: When the key cannot be derived or the payload is incomplete."""
         return await self.market_data_fetcher.get_market_data(instrument, original_key)
 
     async def get_all_instruments(self, currency: str) -> List:
         """Return instruments for a currency using the unified Redis schema."""
-        fetcher = getattr(self, "instrument_fetcher", None) or getattr(
-            self, "_instrument_fetcher", None
-        )
+        fetcher = getattr(self, "instrument_fetcher", None) or getattr(self, "_instrument_fetcher", None)
         if fetcher is None:
             log = getattr(self, "logger", logger)
             log.error("No instrument fetcher available for currency %s", currency)
@@ -134,9 +126,7 @@ def _is_put_instrument(inst: Any) -> bool:
     return _is_option_instrument(inst) and getattr(inst, "option_type", "").lower() == "put"
 
 
-async def _filter_instruments(
-    store: OptimizedMarketStore, currency: str, predicate, label: str
-) -> List:
+async def _filter_instruments(store: OptimizedMarketStore, currency: str, predicate, label: str) -> List:
     try:
         instruments = await store.get_all_instruments(currency)
         return [inst for inst in instruments if predicate(inst)]

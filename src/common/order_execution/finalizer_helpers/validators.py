@@ -4,9 +4,7 @@ from ...data_models.trading import OrderRequest, OrderResponse
 from ...trading_exceptions import KalshiTradePersistenceError
 
 
-def validate_order_metadata(
-    order_request: OrderRequest, order_id: str, ticker: str, operation_name: str
-) -> None:
+def validate_order_metadata(order_request: OrderRequest, order_id: str, ticker: str, operation_name: str) -> None:
     """Validate that order request has required metadata."""
     trade_rule = getattr(order_request, "trade_rule", None)
     trade_reason = getattr(order_request, "trade_reason", None)
@@ -27,9 +25,7 @@ def validate_order_metadata(
         )
 
 
-def validate_response_metadata(
-    order_response: OrderResponse, order_id: str, ticker: str, operation_name: str
-) -> None:
+def validate_response_metadata(order_response: OrderResponse, order_id: str, ticker: str, operation_name: str) -> None:
     """Validate that order response has required metadata."""
     if order_response.fees_cents is None:
         raise KalshiTradePersistenceError(

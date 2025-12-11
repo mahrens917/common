@@ -41,9 +41,7 @@ class SubscriptionRetrieval:
             return "volatility_indices"
         return ""
 
-    async def get_active_subscriptions(
-        self, redis: RedisClient, hash_key: str
-    ) -> Dict[str, Dict[str, str]]:
+    async def get_active_subscriptions(self, redis: RedisClient, hash_key: str) -> Dict[str, Dict[str, str]]:
         try:
             all_subscriptions = await ensure_awaitable(redis.hgetall(hash_key))
             grouped: Dict[str, Dict[str, str]] = {

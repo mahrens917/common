@@ -47,12 +47,8 @@ class MetadataStoreAutoUpdater:
         redis_client = self.init_manager.redis_client
         assert redis_client is not None
 
-        self.keyspace_listener = KeyspaceListener(
-            pubsub_client, self.pending_updates, self._batch_lock
-        )
-        self.batch_processor = BatchProcessor(
-            self.metadata_store, self.pending_updates, self._batch_lock, self.batch_interval_seconds
-        )
+        self.keyspace_listener = KeyspaceListener(pubsub_client, self.pending_updates, self._batch_lock)
+        self.batch_processor = BatchProcessor(self.metadata_store, self.pending_updates, self._batch_lock, self.batch_interval_seconds)
         self.time_window_updater = TimeWindowUpdater(self.metadata_store, redis_client)
         self.metadata_initializer = MetadataInitializer(self.metadata_store, redis_client)
 

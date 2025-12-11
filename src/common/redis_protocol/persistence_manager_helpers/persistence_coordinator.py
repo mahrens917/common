@@ -58,9 +58,7 @@ class PersistenceCoordinator:
                 config_failed += 1
                 error_msg = str(exc)
                 if "immutable" in error_msg or "protected" in error_msg:
-                    logger.info(
-                        "Skipped immutable Redis config %s = %s (requires redis.conf)", key, value
-                    )
+                    logger.info("Skipped immutable Redis config %s = %s (requires redis.conf)", key, value)
                     immutable_skipped += 1
                     config_failed -= 1
                 else:

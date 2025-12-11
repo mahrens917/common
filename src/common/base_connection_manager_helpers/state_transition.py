@@ -13,9 +13,7 @@ class StateTransitionHandler:
         self.state_manager = state_manager
         self.metrics_tracker = metrics_tracker
 
-    def transition_state(
-        self, new_state: ConnectionState, error_context: Optional[str] = None
-    ) -> None:
+    def transition_state(self, new_state: ConnectionState, error_context: Optional[str] = None) -> None:
         """Transition to a new connection state."""
         self.state_manager.transition_state(new_state, error_context)
 

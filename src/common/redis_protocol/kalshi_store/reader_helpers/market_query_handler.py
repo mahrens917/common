@@ -1,7 +1,7 @@
 """Market query handling helper for KalshiMarketReader."""
 
 import logging
-from typing import Any, Dict, List, Optional, Set
+from typing import Dict, List, Optional, Set
 
 from .market_aggregator import MarketAggregator
 from .market_filter import MarketFilter
@@ -41,16 +41,12 @@ class MarketQueryHandler:
         if not await self._conn.ensure_connection():
             raise RuntimeError(f"Failed to ensure Redis for is_market_tracked {market_ticker}")
         redis = await self._conn.get_redis()
-        return await self._snapshot_reader.is_market_tracked(
-            redis, self._get_key(market_ticker), market_ticker
-        )
+        return await self._snapshot_reader.is_market_tracked(redis, self._get_key(market_ticker), market_ticker)
 
     async def get_by_currency(self, currency: str) -> List[Dict]:
         """Get markets by currency."""
         redis = await self._conn.ensure_or_raise(f"get_markets_by_currency {currency}")
-        return await self._market_lookup.get_markets_by_currency(
-            redis, currency, self._market_filter, self._get_key
-        )
+        return await self._market_lookup.get_markets_by_currency(redis, currency, self._market_filter, self._get_key)
 
     async def get_strikes_and_expiries(self, currency: str) -> Dict[str, List[Dict]]:
         """Get active strikes and expiries for currency."""
@@ -60,9 +56,7 @@ class MarketQueryHandler:
         grouped, market_by_ticker = self._market_aggregator.aggregate_markets_by_point(markets)
         return self._market_aggregator.build_strike_summary(grouped, market_by_ticker)
 
-    async def get_for_strike_expiry(
-        self, currency: str, expiry: str, strike: float, subscriptions_key: str
-    ) -> Optional[Dict]:
+    async def get_for_strike_expiry(self, currency: str, expiry: str, strike: float, subscriptions_key: str) -> Optional[Dict]:
         """Get market data for strike and expiry."""
         if not await self._conn.ensure_connection():
             self._logger.error("Failed to ensure Redis for get_market_data_for_strike_expiry")

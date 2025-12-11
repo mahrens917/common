@@ -75,9 +75,7 @@ class JsonConfigLoader:
 
         for key, value in payload.items():
             if isinstance(value, (dict, list)):
-                raise ConfigurationError(
-                    f"JSON config {path} must map environment names to scalar values (problematic key: {key})"
-                )
+                raise ConfigurationError(f"JSON config {path} must map environment names to scalar values (problematic key: {key})")
 
             if value is None:
                 normalized[str(key)] = ""

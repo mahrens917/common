@@ -67,14 +67,8 @@ class _BackoffDelayMixin:
     ) -> float:
         context = cast(_BackoffBaseProtocol, self)
         config = context.get_config(backoff_type)
-        current_attempt = (
-            attempt
-            if attempt is not None
-            else context.state_manager.update_failure_state(service_name, backoff_type)
-        )
-        return DelayCalculator.calculate_full_delay(
-            config, current_attempt, context.network_health_monitor, service_name
-        )
+        current_attempt = attempt if attempt is not None else context.state_manager.update_failure_state(service_name, backoff_type)
+        return DelayCalculator.calculate_full_delay(config, current_attempt, context.network_health_monitor, service_name)
 
 
 class _BackoffRetryMixin:
@@ -89,22 +83,16 @@ class _BackoffRetryMixin:
 
 
 class _BackoffStatusMixin:
-    def get_backoff_info(
-        self: _BackoffStatusProtocol, service_name: str, backoff_type: BackoffType
-    ) -> Dict[str, Any]:
+    def get_backoff_info(self: _BackoffStatusProtocol, service_name: str, backoff_type: BackoffType) -> Dict[str, Any]:
         config = self.get_config(backoff_type)
         state = self.state_manager.get_or_initialize_state(service_name, backoff_type)
         next_delay = self.calculate_delay(service_name, backoff_type, state["attempt"] + 1)
-        return BackoffStatusReporter.get_backoff_info(
-            self.state_manager, service_name, backoff_type, config, next_delay
-        )
+        return BackoffStatusReporter.get_backoff_info(self.state_manager, service_name, backoff_type, config, next_delay)
 
     def get_all_backoff_status(
         self: _BackoffStatusProtocol,
     ) -> Dict[str, Dict[str, Any]]:
-        return BackoffStatusReporter.get_all_backoff_status(
-            self.state_manager, self.configs, self.calculate_delay
-        )
+        return BackoffStatusReporter.get_all_backoff_status(self.state_manager, self.configs, self.calculate_delay)
 
     def cleanup_old_state(self: _BackoffBaseProtocol, max_age_seconds: int = 3600) -> None:
         self.state_manager.cleanup_old_state(max_age_seconds)

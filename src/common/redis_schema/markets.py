@@ -139,9 +139,7 @@ class DeribitInstrumentDescriptor:
         quote = quote_currency
 
         if instrument_type == DeribitInstrumentType.SPOT:
-            key = DeribitInstrumentKey(
-                instrument_type, base_currency, quote_currency=quote_currency
-            ).key()
+            key = DeribitInstrumentKey(instrument_type, base_currency, quote_currency=quote_currency).key()
             return cls(key, instrument_type, base_currency, None, None, None, None, quote)
 
         if expiration_timestamp is None:
@@ -153,9 +151,7 @@ class DeribitInstrumentDescriptor:
 
         if instrument_type == DeribitInstrumentType.FUTURE:
             key = DeribitInstrumentKey(instrument_type, base_currency, expiry_iso=expiry_iso).key()
-            return cls(
-                key, instrument_type, base_currency, expiry_iso, expiry_token, None, None, None
-            )
+            return cls(key, instrument_type, base_currency, expiry_iso, expiry_token, None, None, None)
 
         if strike is None:
             raise ValueError("Deribit option missing strike in instrument payload")
@@ -164,9 +160,7 @@ class DeribitInstrumentDescriptor:
 
         strike_token = cls._format_strike(strike)
         option_kind = "c" if option_type.lower().startswith("c") else "p"
-        key = DeribitInstrumentKey(
-            instrument_type, base_currency, expiry_iso, strike_token, option_kind
-        ).key()
+        key = DeribitInstrumentKey(instrument_type, base_currency, expiry_iso, strike_token, option_kind).key()
         return cls(
             key,
             instrument_type,

@@ -28,9 +28,7 @@ class TradingDayChecker:
         if current_timestamp is None:
             current_timestamp = get_current_utc()
 
-        cache_key = self.cache_manager.get_cache_key(
-            latitude, longitude, previous_timestamp, current_timestamp
-        )
+        cache_key = self.cache_manager.get_cache_key(latitude, longitude, previous_timestamp, current_timestamp)
         cached_result = self.cache_manager.get_cached_result(cache_key)
         if cached_result is not None:
             return cached_result
@@ -40,9 +38,7 @@ class TradingDayChecker:
         previous_day = current_timestamp - timedelta(days=1)
         dawn_previous = calculate_dawn_utc(latitude, longitude, previous_day)
 
-        result = self.dawn_calculator.is_new_trading_day(
-            latitude, longitude, previous_timestamp, current_timestamp
-        )
+        result = self.dawn_calculator.is_new_trading_day(latitude, longitude, previous_timestamp, current_timestamp)
 
         log_context = DawnCheckContext(
             latitude=latitude,

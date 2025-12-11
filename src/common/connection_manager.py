@@ -45,9 +45,7 @@ class _ConnectionLifecycleContext(Protocol):
 
     async def connect_with_retry(self) -> bool: ...
 
-    def transition_state(
-        self, new_state: ConnectionState, error_context: Optional[str] = None
-    ) -> None: ...
+    def transition_state(self, new_state: ConnectionState, error_context: Optional[str] = None) -> None: ...
 
 
 class ConnectionLifecycleMixin:
@@ -77,9 +75,7 @@ class ConnectionLifecycleMixin:
     def _shutdown_requested(self: _ConnectionLifecycleContext, value: bool):
         self.shutdown_requested_flag = value
 
-    async def send_connection_notification(
-        self: _ConnectionLifecycleContext, is_connected: bool, details: str = ""
-    ) -> None:
+    async def send_connection_notification(self: _ConnectionLifecycleContext, is_connected: bool, details: str = "") -> None:
         """Update centralized state tracker with notification."""
         await send_connection_notification(self, is_connected, details)
 
@@ -94,9 +90,7 @@ class ConnectionLifecycleMixin:
 
     async def start_health_monitoring(self: _ConnectionLifecycleContext) -> None:
         """Start background health monitoring task."""
-        await self.health_coordinator.start_health_monitoring(
-            self.check_connection_health, self.connect_with_retry
-        )
+        await self.health_coordinator.start_health_monitoring(self.check_connection_health, self.connect_with_retry)
 
     async def start(self: _ConnectionLifecycleContext) -> bool:
         """Start the connection manager."""
@@ -145,7 +139,7 @@ class BaseConnectionManager(ConnectionLifecycleMixin, PropertyAccessorsMixin, AB
         self.service_name = service_name
         self.config = get_connection_config(service_name)
         if alerter is None:
-            from ..monitor.alerter import Alerter
+            from ..monitor.alerter import Alerter  # type: ignore
 
             self.alerter = Alerter()
         else:
@@ -196,9 +190,7 @@ class BaseConnectionManager(ConnectionLifecycleMixin, PropertyAccessorsMixin, AB
         """Clean up connection resources."""
         pass
 
-    def transition_state(
-        self, new_state: ConnectionState, error_context: Optional[str] = None
-    ) -> None:
+    def transition_state(self, new_state: ConnectionState, error_context: Optional[str] = None) -> None:
         """Transition to a new connection state."""
         self.state_transition_handler.transition_state(new_state, error_context)
         self.metrics = self.metrics_tracker.get_metrics()

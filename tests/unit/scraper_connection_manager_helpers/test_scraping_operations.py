@@ -52,9 +52,7 @@ async def test_scrape_url_success_with_validation():
     session = MagicMock()
     session.closed = False
     session.get = MagicMock(return_value=DummyResponse())
-    ops = ScrapingOperations(
-        "svc", ["http://a"], DummySessionProvider(session), DummyValidator(valid=True)
-    )
+    ops = ScrapingOperations("svc", ["http://a"], DummySessionProvider(session), DummyValidator(valid=True))
 
     result = await ops.scrape_url("http://a")
 
@@ -67,9 +65,7 @@ async def test_scrape_url_validation_failure_logs_warning():
     session = MagicMock()
     session.closed = False
     session.get = MagicMock(return_value=DummyResponse())
-    ops = ScrapingOperations(
-        "svc", ["http://a"], DummySessionProvider(session), DummyValidator(valid=False)
-    )
+    ops = ScrapingOperations("svc", ["http://a"], DummySessionProvider(session), DummyValidator(valid=False))
 
     result = await ops.scrape_url("http://a")
 
@@ -81,9 +77,7 @@ async def test_scrape_url_handles_http_error_status():
     session = MagicMock()
     session.closed = False
     session.get = MagicMock(return_value=DummyResponse(status=500))
-    ops = ScrapingOperations(
-        "svc", ["http://a"], DummySessionProvider(session), DummyValidator(valid=True)
-    )
+    ops = ScrapingOperations("svc", ["http://a"], DummySessionProvider(session), DummyValidator(valid=True))
 
     result = await ops.scrape_url("http://a")
 
@@ -95,9 +89,7 @@ async def test_scrape_url_handles_client_error():
     session = MagicMock()
     session.closed = False
     session.get = MagicMock(side_effect=aiohttp.ClientError("boom"))
-    ops = ScrapingOperations(
-        "svc", ["http://a"], DummySessionProvider(session), DummyValidator(valid=True)
-    )
+    ops = ScrapingOperations("svc", ["http://a"], DummySessionProvider(session), DummyValidator(valid=True))
 
     result = await ops.scrape_url("http://a")
 

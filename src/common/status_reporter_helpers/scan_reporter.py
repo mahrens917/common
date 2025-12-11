@@ -13,9 +13,7 @@ class ScanReporter(WriterBackedReporter):
         """Report that we're scanning markets for opportunities."""
         self._writer.write(MessageFormatter.scanning_markets(market_count))
 
-    def opportunities_summary(
-        self, opportunities_found: int, trades_executed: int, markets_closed: int = 0
-    ) -> None:
+    def opportunities_summary(self, opportunities_found: int, trades_executed: int, markets_closed: int = 0) -> None:
         """
         Report a summary of opportunities found and trades executed.
 
@@ -24,9 +22,7 @@ class ScanReporter(WriterBackedReporter):
             trades_executed: Number of trades successfully executed
             markets_closed: Number of markets that were closed/expired
         """
-        message = SummaryBuilder.build_opportunities_summary(
-            opportunities_found, trades_executed, markets_closed
-        )
+        message = SummaryBuilder.build_opportunities_summary(opportunities_found, trades_executed, markets_closed)
         self._writer.write(message)
 
     def waiting_for_next_scan(self, seconds: int) -> None:

@@ -25,14 +25,10 @@ async def fetch_market_snapshot(
     Returns:
         Market snapshot dictionary
     """
-    return await snapshot_reader.get_market_snapshot(
-        redis, market_key, ticker, include_orderbook=include_orderbook
-    )
+    return await snapshot_reader.get_market_snapshot(redis, market_key, ticker, include_orderbook=include_orderbook)
 
 
-async def fetch_market_metadata(
-    redis: Redis, market_key: str, ticker: str, snapshot_reader
-) -> Dict:
+async def fetch_market_metadata(redis: Redis, market_key: str, ticker: str, snapshot_reader) -> Dict:
     """
     Fetch market metadata only
 
@@ -48,9 +44,7 @@ async def fetch_market_metadata(
     return await snapshot_reader.get_market_metadata(redis, market_key, ticker)
 
 
-async def fetch_market_field(
-    redis: Redis, market_key: str, ticker: str, field: str, snapshot_reader
-) -> str:
+async def fetch_market_field(redis: Redis, market_key: str, ticker: str, field: str, snapshot_reader) -> str:
     """
     Fetch specific market field
 

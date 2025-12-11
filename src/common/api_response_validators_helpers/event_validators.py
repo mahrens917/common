@@ -9,10 +9,7 @@ def validate_event_wrapper(response_data: Dict[str, Any]) -> Dict[str, Any]:
         raise ValueError("Empty response from event API")
 
     if "event" not in response_data:
-        raise ValueError(
-            f"Missing 'event' wrapper in response. "
-            f"Available fields: {list(response_data.keys())}"
-        )
+        raise ValueError(f"Missing 'event' wrapper in response. " f"Available fields: {list(response_data.keys())}")
 
     event_data = response_data["event"]
 
@@ -28,10 +25,7 @@ def validate_event_required_fields(event_data: Dict[str, Any]) -> None:
     missing_fields = [field for field in required_fields if field not in event_data]
 
     if missing_fields:
-        raise ValueError(
-            f"Missing required fields in event: {missing_fields}. "
-            f"Available fields: {list(event_data.keys())}"
-        )
+        raise ValueError(f"Missing required fields in event: {missing_fields}. " f"Available fields: {list(event_data.keys())}")
 
 
 def validate_event_string_fields(event_data: Dict[str, Any]) -> None:

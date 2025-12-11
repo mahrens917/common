@@ -34,13 +34,9 @@ def get_timezone_from_coordinates(latitude: float, longitude: float) -> str:
         ValueError: If coordinates are out of valid range
     """
     if not MIN_LATITUDE <= latitude <= MAX_LATITUDE:
-        raise ValueError(
-            f"Latitude must be between {MIN_LATITUDE} and {MAX_LATITUDE}, got {latitude}"
-        )
+        raise ValueError(f"Latitude must be between {MIN_LATITUDE} and {MAX_LATITUDE}, got {latitude}")
     if not MIN_LONGITUDE <= longitude <= MAX_LONGITUDE:
-        raise ValueError(
-            f"Longitude must be between {MIN_LONGITUDE} and {MAX_LONGITUDE}, got {longitude}"
-        )
+        raise ValueError(f"Longitude must be between {MIN_LONGITUDE} and {MAX_LONGITUDE}, got {longitude}")
 
     try:
         from timezonefinder import TimezoneFinder

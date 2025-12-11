@@ -29,9 +29,7 @@ class RESTRequestOperations:
         self.health_monitor = health_monitor
         self.logger = logging.getLogger(f"{__name__}.{service_name}")
 
-    async def make_request(
-        self, method: str, endpoint: str, **kwargs
-    ) -> Optional[aiohttp.ClientResponse]:
+    async def make_request(self, method: str, endpoint: str, **kwargs) -> Optional[aiohttp.ClientResponse]:
         """Make HTTP request."""
         session = self.session_manager.get_session()
         if not session:
@@ -77,9 +75,7 @@ class RESTRequestOperations:
         else:
             self.health_monitor.record_failure()
 
-    async def make_json_request(
-        self, method: str, endpoint: str, **kwargs
-    ) -> Optional[Dict[str, Any]]:
+    async def make_json_request(self, method: str, endpoint: str, **kwargs) -> Optional[Dict[str, Any]]:
         """Make HTTP request and parse JSON response."""
         response = await self.make_request(method, endpoint, **kwargs)
 

@@ -12,9 +12,7 @@ async def get_orderbook_with_connection_check(
     """Get orderbook with connection check."""
     if not await conn_wrapper.ensure_connection():
         return {}
-    return await orderbook_reader.get_orderbook(
-        await conn_wrapper.get_redis(), get_market_key_fn(ticker), ticker
-    )
+    return await orderbook_reader.get_orderbook(await conn_wrapper.get_redis(), get_market_key_fn(ticker), ticker)
 
 
 async def get_orderbook_side_with_connection_check(
@@ -27,6 +25,4 @@ async def get_orderbook_side_with_connection_check(
     """Get orderbook side with connection check."""
     if not await conn_wrapper.ensure_connection():
         return {}
-    return await orderbook_reader.get_orderbook_side(
-        await conn_wrapper.get_redis(), get_market_key_fn(ticker), ticker, side
-    )
+    return await orderbook_reader.get_orderbook_side(await conn_wrapper.get_redis(), get_market_key_fn(ticker), ticker, side)

@@ -66,6 +66,4 @@ def test_resolve_strike_from_combined_delegates_to_market():
         "strike_type": "greater",
         "floor_strike": "99",
     }
-    assert StrikeResolver.resolve_strike_from_combined(
-        metadata, _string_converter
-    ) == pytest.approx(99.0)
+    assert StrikeResolver.resolve_strike_from_combined(metadata, _string_converter) == pytest.approx(99.0)

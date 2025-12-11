@@ -11,9 +11,7 @@ logger = logging.getLogger(__name__)
 class SeverityEvaluator:
     """Evaluates error severity based on category and context."""
 
-    def determine_severity(
-        self, error: Exception, category: ErrorCategory, context: Optional[Dict[str, Any]]
-    ) -> ErrorSeverity:
+    def determine_severity(self, error: Exception, category: ErrorCategory, context: Optional[Dict[str, Any]]) -> ErrorSeverity:
         """Determine error severity."""
         # Critical errors that require immediate attention
         if category in [ErrorCategory.AUTHENTICATION, ErrorCategory.CONFIGURATION]:

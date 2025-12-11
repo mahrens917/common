@@ -43,10 +43,7 @@ def log_human_readable_summary(
     expiry_count = len(result)
     event_title_count = sum(len(event_titles) for event_titles in result.values())
     total_strikes = sum(
-        len(strikes)
-        for event_titles in result.values()
-        for strike_types in event_titles.values()
-        for strikes in strike_types.values()
+        len(strikes) for event_titles in result.values() for strike_types in event_titles.values() for strikes in strike_types.values()
     )
     logger.debug(
         "Processed %s keys into %s expiries with %s event titles and %s total strikes for %s",
@@ -65,9 +62,7 @@ def log_event_type_summary(
     result: Mapping[str, Mapping[str, Mapping[str, Mapping[str, Union[str, float]]]]],
 ) -> None:
     expiry_count = len(result)
-    total_strikes = sum(
-        len(strikes) for strike_types in result.values() for strikes in strike_types.values()
-    )
+    total_strikes = sum(len(strikes) for strike_types in result.values() for strikes in strike_types.values())
     logger.info(
         "Retrieved %s probability keys for event type '%s' for %s",
         key_count,
@@ -77,9 +72,7 @@ def log_event_type_summary(
     logger.info("Processed into %s expiries with %s total strikes", expiry_count, total_strikes)
 
 
-def log_event_ticker_summary(
-    currency: str, field_count: int, event_ticker_counts: Counter[str]
-) -> None:
+def log_event_ticker_summary(currency: str, field_count: int, event_ticker_counts: Counter[str]) -> None:
     event_ticker_count = len(event_ticker_counts)
     logger.info(
         "Stored %s human-readable probability entries for %s across %s event tickers",

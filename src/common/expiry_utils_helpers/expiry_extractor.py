@@ -22,11 +22,7 @@ def extract_expiry_from_market(market_data: Union[Dict[str, Any], Any]) -> Any:
         market_expiry = getattr(market_data, "expiry_time")
     elif isinstance(market_data, dict):
         # Dictionary format (Phase 6 style) - try multiple field names
-        market_expiry = (
-            market_data.get("close_time")
-            or market_data.get("expiry")
-            or market_data.get("expiration_time")
-        )
+        market_expiry = market_data.get("close_time") or market_data.get("expiry") or market_data.get("expiration_time")
 
     if not market_expiry:
         raise DataError("No expiry field found in market data")

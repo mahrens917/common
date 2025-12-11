@@ -60,9 +60,7 @@ def calculate_local_midnight_utc(latitude: float, longitude: float, date: dateti
     return local_midnight_utc
 
 
-def is_after_local_midnight(
-    latitude: float, longitude: float, current_time: Optional[datetime] = None
-) -> bool:
+def is_after_local_midnight(latitude: float, longitude: float, current_time: Optional[datetime] = None) -> bool:
     """Check whether ``current_time`` falls after local midnight."""
     current_time = current_time or datetime.now(timezone.utc)
     if current_time.tzinfo is None:

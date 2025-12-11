@@ -28,27 +28,21 @@ async def register_ready(reporter: "StatusReporterMixin", **metrics: Any) -> Non
     await reporter.report_status(ServiceStatus.READY, **metrics)
 
 
-async def register_ready_degraded(
-    reporter: "StatusReporterMixin", reason: str, **metrics: Any
-) -> None:
+async def register_ready_degraded(reporter: "StatusReporterMixin", reason: str, **metrics: Any) -> None:
     """Report that service is operational but degraded."""
     from common.service_status import ServiceStatus
 
     await reporter.report_status(ServiceStatus.READY_DEGRADED, degraded_reason=reason, **metrics)
 
 
-async def register_error(
-    reporter: "StatusReporterMixin", error_message: str, **context: Any
-) -> None:
+async def register_error(reporter: "StatusReporterMixin", error_message: str, **context: Any) -> None:
     """Report that service encountered an error."""
     from common.service_status import ServiceStatus
 
     await reporter.report_status(ServiceStatus.ERROR, error=error_message, **context)
 
 
-async def register_failed(
-    reporter: "StatusReporterMixin", failure_message: str, **context: Any
-) -> None:
+async def register_failed(reporter: "StatusReporterMixin", failure_message: str, **context: Any) -> None:
     """Report that service has failed and cannot continue."""
     from common.service_status import ServiceStatus
 

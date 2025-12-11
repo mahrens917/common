@@ -49,15 +49,9 @@ class FinancialValidator:
         return validated_price
 
     @staticmethod
-    def validate_bid_ask_prices(
-        bid_price: object, ask_price: object, variable_prefix: str = "price"
-    ) -> Tuple[float, float]:
-        validated_bid = FinancialValidator.validate_option_price(
-            bid_price, f"{variable_prefix}_bid"
-        )
-        validated_ask = FinancialValidator.validate_option_price(
-            ask_price, f"{variable_prefix}_ask"
-        )
+    def validate_bid_ask_prices(bid_price: object, ask_price: object, variable_prefix: str = "price") -> Tuple[float, float]:
+        validated_bid = FinancialValidator.validate_option_price(bid_price, f"{variable_prefix}_bid")
+        validated_ask = FinancialValidator.validate_option_price(ask_price, f"{variable_prefix}_ask")
 
         if validated_bid > validated_ask:
             raise DataIntegrityError(

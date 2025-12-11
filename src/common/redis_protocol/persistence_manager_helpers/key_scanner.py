@@ -47,9 +47,7 @@ class KeyScanner:
             logger.exception(f"Failed to get persistence info: ")
             return {}
 
-    def extract_config_value(
-        self, config_info: Dict[str, Any], key: str, default: Any = None
-    ) -> Any:
+    def extract_config_value(self, config_info: Dict[str, Any], key: str, default: Any = None) -> Any:
         """
         Extract a configuration value.
 

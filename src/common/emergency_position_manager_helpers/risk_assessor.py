@@ -61,9 +61,7 @@ class RiskAssessor:
     def __init__(self, risk_limits: RiskLimits):
         self.risk_limits = risk_limits
 
-    async def assess_position_risk(
-        self, position: PortfolioPosition, creation_time: datetime
-    ) -> PositionRiskAssessment:
+    async def assess_position_risk(self, position: PortfolioPosition, creation_time: datetime) -> PositionRiskAssessment:
         """
         Assess risk level of a position.
 
@@ -80,9 +78,7 @@ class RiskAssessor:
         position_age_hours = position_age.total_seconds() / 3600
 
         market_value = position.market_value_cents if position.market_value_cents is not None else 0
-        unrealized_pnl = (
-            position.unrealized_pnl_cents if position.unrealized_pnl_cents is not None else 0
-        )
+        unrealized_pnl = position.unrealized_pnl_cents if position.unrealized_pnl_cents is not None else 0
 
         exceeds_value_limit = abs(market_value) > self.risk_limits.max_position_value_cents
         exceeds_loss_limit = unrealized_pnl < -self.risk_limits.max_unrealized_loss_cents

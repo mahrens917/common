@@ -16,9 +16,7 @@ class StatusUpdater:
     """Updates dependency status in Redis."""
 
     @staticmethod
-    async def update_service_dependencies(
-        redis: Redis, service_name: str, dependencies: List[str]
-    ) -> None:
+    async def update_service_dependencies(redis: Redis, service_name: str, dependencies: List[str]) -> None:
         """Update the dependency list for a service in Redis.
 
         Raises:
@@ -36,9 +34,7 @@ class StatusUpdater:
             logger.exception("Failed to update dependencies for %s", service_name)
 
     @staticmethod
-    async def update_dependency_status(
-        redis: Redis, service_name: str, dependency_name: str, status: str, redis_key_prefix: str
-    ) -> None:
+    async def update_dependency_status(redis: Redis, service_name: str, dependency_name: str, status: str, redis_key_prefix: str) -> None:
         """Update the status of a specific dependency in Redis.
 
         Raises:
@@ -49,9 +45,7 @@ class StatusUpdater:
         status_key = f"{redis_key_prefix}:{service_name}"
         try:
             await ensure_awaitable(redis.hset(status_key, dependency_name, status))
-            logger.debug(
-                "Updated dependency status: %s:%s = %s", service_name, dependency_name, status
-            )
+            logger.debug("Updated dependency status: %s:%s = %s", service_name, dependency_name, status)
         except (ConnectionError, OSError, RuntimeError):
             logger.exception(
                 "Failed to update dependency status for %s:%s",

@@ -52,9 +52,7 @@ def _metadata_patterns(
 ) -> List[str]:
     if not categories:
         return [default_pattern]
-    normalized = [
-        _normalize_category_name(category) for category in categories if category is not None
-    ]
+    normalized = [_normalize_category_name(category) for category in categories if category is not None]
     if not normalized:
         return [default_pattern]
     return [f"markets:kalshi:{category}:*" for category in normalized]
@@ -64,22 +62,10 @@ def _key_patterns(
     categories: Optional[Sequence[Optional[Union[str, KalshiMarketCategory]]]],
     exclude_analytics: bool,
 ) -> List[str]:
-    normalized = [
-        _normalize_category_name(category)
-        for category in (categories or [])
-        if category is not None
-    ]
+    normalized = [_normalize_category_name(category) for category in (categories or []) if category is not None]
     if normalized:
-        base_patterns = [
-            pattern
-            for category in normalized
-            for pattern in (f"kalshi:{category}:*", f"markets:kalshi:{category}:*")
-        ]
-        analytics_patterns: Iterable[str] = (
-            []
-            if exclude_analytics
-            else [f"analytics:kalshi:{category}:*" for category in normalized]
-        )
+        base_patterns = [pattern for category in normalized for pattern in (f"kalshi:{category}:*", f"markets:kalshi:{category}:*")]
+        analytics_patterns: Iterable[str] = [] if exclude_analytics else [f"analytics:kalshi:{category}:*" for category in normalized]
     else:
         base_patterns = ["kalshi:*", "markets:kalshi:*"]
         analytics_patterns = [] if exclude_analytics else ["analytics:kalshi:*"]
@@ -105,11 +91,7 @@ class KalshiMarketCleaner:
             raise TypeError("service_prefix must be 'rest' or 'ws' when provided")
         self.service_prefix = service_prefix
         self.logger = logger
-        self._connection = (
-            connection_manager
-            if connection_manager is not None
-            else RedisConnectionManager(logger=self.logger, redis=redis)
-        )
+        self._connection = connection_manager if connection_manager is not None else RedisConnectionManager(logger=self.logger, redis=redis)
         if subscriptions_key:
             self.SUBSCRIPTIONS_KEY = subscriptions_key
         self._market_remover = MarketRemover(
@@ -120,9 +102,7 @@ class KalshiMarketCleaner:
             _market_key_from_ticker,
             _snapshot_key_from_ticker,
         )
-        self._service_key_remover = ServiceKeyRemover(
-            self._get_redis, self.SUBSCRIPTIONS_KEY, service_prefix or "ws"
-        )
+        self._service_key_remover = ServiceKeyRemover(self._get_redis, self.SUBSCRIPTIONS_KEY, service_prefix or "ws")
         self._metadata_cleaner = MetadataCleaner(self._get_redis)
 
     async def _ensure_redis_connection(self) -> bool:
@@ -133,9 +113,7 @@ class KalshiMarketCleaner:
             raise RuntimeError("Failed to establish Redis connection")
         return await self._connection.get_redis()
 
-    async def remove_market_completely(
-        self, market_ticker: str, *, category: Optional[str] = None
-    ) -> bool:
+    async def remove_market_completely(self, market_ticker: str, *, category: Optional[str] = None) -> bool:
         if not await self._ensure_redis_connection():
             self.logger.error(
                 "Failed to ensure Redis connection for remove_market_completely %s",
@@ -162,9 +140,7 @@ class KalshiMarketCleaner:
         patterns = _metadata_patterns(categories, pattern)
         total_removed = 0
         for current_pattern in patterns:
-            total_removed += await self._metadata_cleaner.clear_market_metadata(
-                current_pattern, chunk_size
-            )
+            total_removed += await self._metadata_cleaner.clear_market_metadata(current_pattern, chunk_size)
         return total_removed
 
     async def remove_all_kalshi_keys(

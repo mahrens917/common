@@ -142,9 +142,7 @@ class KalshiConfigurationError(KalshiTradingError):
     - Setup validation failures
     """
 
-    def __init__(
-        self, message: str, config_key: Optional[str] = None, operation_name: Optional[str] = None
-    ):
+    def __init__(self, message: str, config_key: Optional[str] = None, operation_name: Optional[str] = None):
         super().__init__(
             message=message,
             error_code="CONFIGURATION_ERROR",

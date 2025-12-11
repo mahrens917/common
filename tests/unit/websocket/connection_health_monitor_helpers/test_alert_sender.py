@@ -16,9 +16,7 @@ class TestHealthAlertSender:
 
     @pytest.mark.asyncio
     async def test_send_health_alert_success(self, sender):
-        with patch(
-            "common.websocket.connection_health_monitor_helpers.alert_sender.Alerter"
-        ) as MockAlerter:
+        with patch("common.websocket.connection_health_monitor_helpers.alert_sender.Alerter") as MockAlerter:
             mock_alerter_instance = MockAlerter.return_value
             mock_alerter_instance.send_alert = AsyncMock()
 
@@ -32,13 +30,9 @@ class TestHealthAlertSender:
 
     @pytest.mark.asyncio
     async def test_send_health_alert_failure(self, sender):
-        with patch(
-            "common.websocket.connection_health_monitor_helpers.alert_sender.Alerter"
-        ) as MockAlerter:
+        with patch("common.websocket.connection_health_monitor_helpers.alert_sender.Alerter") as MockAlerter:
             mock_alerter_instance = MockAlerter.return_value
-            mock_alerter_instance.send_alert = AsyncMock(
-                side_effect=ConnectionError("Alert failed")
-            )
+            mock_alerter_instance.send_alert = AsyncMock(side_effect=ConnectionError("Alert failed"))
 
             # Should catch exception and log it, not raise
             await sender.send_health_alert("Test failure", "test_alert")
@@ -47,9 +41,7 @@ class TestHealthAlertSender:
 
     @pytest.mark.asyncio
     async def test_send_health_alert_failure_timeout(self, sender):
-        with patch(
-            "common.websocket.connection_health_monitor_helpers.alert_sender.Alerter"
-        ) as MockAlerter:
+        with patch("common.websocket.connection_health_monitor_helpers.alert_sender.Alerter") as MockAlerter:
             mock_alerter_instance = MockAlerter.return_value
             mock_alerter_instance.send_alert = AsyncMock(side_effect=TimeoutError("Timeout"))
 

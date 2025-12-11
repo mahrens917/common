@@ -16,9 +16,7 @@ class TestFieldResetEvaluatorInit:
         dawn_calc = MagicMock()
         timestamp_resolver = MagicMock()
 
-        evaluator = FieldResetEvaluator(
-            dawn_calculator=dawn_calc, timestamp_resolver=timestamp_resolver
-        )
+        evaluator = FieldResetEvaluator(dawn_calculator=dawn_calc, timestamp_resolver=timestamp_resolver)
 
         assert evaluator.dawn_calculator is dawn_calc
         assert evaluator.timestamp_resolver is timestamp_resolver
@@ -28,9 +26,7 @@ class TestFieldResetEvaluatorInit:
         dawn_calc = MagicMock()
         timestamp_resolver = MagicMock()
 
-        evaluator = FieldResetEvaluator(
-            dawn_calculator=dawn_calc, timestamp_resolver=timestamp_resolver
-        )
+        evaluator = FieldResetEvaluator(dawn_calculator=dawn_calc, timestamp_resolver=timestamp_resolver)
 
         assert evaluator._evaluation_cases is not None
 
@@ -39,9 +35,7 @@ class TestFieldResetEvaluatorInit:
         dawn_calc = MagicMock()
         timestamp_resolver = MagicMock()
 
-        evaluator = FieldResetEvaluator(
-            dawn_calculator=dawn_calc, timestamp_resolver=timestamp_resolver
-        )
+        evaluator = FieldResetEvaluator(dawn_calculator=dawn_calc, timestamp_resolver=timestamp_resolver)
 
         assert evaluator._boundary_checker is not None
 
@@ -55,9 +49,7 @@ class TestFieldResetEvaluatorShouldResetField:
         timestamp_resolver = MagicMock()
         timestamp_resolver.DAILY_RESET_FIELDS = ["max_temp_f", "min_temp_f"]
 
-        evaluator = FieldResetEvaluator(
-            dawn_calculator=dawn_calc, timestamp_resolver=timestamp_resolver
-        )
+        evaluator = FieldResetEvaluator(dawn_calculator=dawn_calc, timestamp_resolver=timestamp_resolver)
 
         result, boundary = evaluator.should_reset_field(
             field_name="some_other_field",
@@ -76,9 +68,7 @@ class TestFieldResetEvaluatorShouldResetField:
         timestamp_resolver.DAILY_RESET_FIELDS = ["max_temp_f"]
         timestamp_resolver.get_last_dawn_reset_timestamp.return_value = None
 
-        evaluator = FieldResetEvaluator(
-            dawn_calculator=dawn_calc, timestamp_resolver=timestamp_resolver
-        )
+        evaluator = FieldResetEvaluator(dawn_calculator=dawn_calc, timestamp_resolver=timestamp_resolver)
         boundary = datetime(2025, 1, 15, 12, 0, 0, tzinfo=timezone.utc)
         evaluator._evaluation_cases = MagicMock()
         evaluator._evaluation_cases.evaluate_first_run.return_value = (True, boundary)
@@ -103,9 +93,7 @@ class TestFieldResetEvaluatorShouldResetField:
         timestamp_resolver.DAILY_RESET_FIELDS = ["max_temp_f"]
         timestamp_resolver.get_last_dawn_reset_timestamp.return_value = None
 
-        evaluator = FieldResetEvaluator(
-            dawn_calculator=dawn_calc, timestamp_resolver=timestamp_resolver
-        )
+        evaluator = FieldResetEvaluator(dawn_calculator=dawn_calc, timestamp_resolver=timestamp_resolver)
         boundary = datetime(2025, 1, 15, 12, 0, 0, tzinfo=timezone.utc)
         evaluator._evaluation_cases = MagicMock()
         evaluator._evaluation_cases.evaluate_first_run.return_value = (True, boundary)
@@ -131,9 +119,7 @@ class TestFieldResetEvaluatorShouldResetField:
         timestamp_resolver.get_last_dawn_reset_timestamp.return_value = None
         timestamp_resolver.get_timestamp_field_for_reset_field.return_value = "max_temp_f_timestamp"
 
-        evaluator = FieldResetEvaluator(
-            dawn_calculator=dawn_calc, timestamp_resolver=timestamp_resolver
-        )
+        evaluator = FieldResetEvaluator(dawn_calculator=dawn_calc, timestamp_resolver=timestamp_resolver)
         boundary = datetime(2025, 1, 15, 12, 0, 0, tzinfo=timezone.utc)
         evaluator._evaluation_cases = MagicMock()
         evaluator._evaluation_cases.evaluate_missing_timestamp.return_value = (True, boundary)
@@ -159,9 +145,7 @@ class TestFieldResetEvaluatorShouldResetField:
         timestamp_resolver.get_last_dawn_reset_timestamp.return_value = None
         timestamp_resolver.get_timestamp_field_for_reset_field.return_value = "max_temp_f_timestamp"
 
-        evaluator = FieldResetEvaluator(
-            dawn_calculator=dawn_calc, timestamp_resolver=timestamp_resolver
-        )
+        evaluator = FieldResetEvaluator(dawn_calculator=dawn_calc, timestamp_resolver=timestamp_resolver)
         boundary = datetime(2025, 1, 15, 12, 0, 0, tzinfo=timezone.utc)
         evaluator._evaluation_cases = MagicMock()
         evaluator._evaluation_cases.evaluate_timestamp_crossing.return_value = (True, boundary)
@@ -184,14 +168,10 @@ class TestFieldResetEvaluatorShouldResetField:
         dawn_calc = MagicMock()
         timestamp_resolver = MagicMock()
         timestamp_resolver.DAILY_RESET_FIELDS = ["max_temp_f"]
-        timestamp_resolver.get_last_dawn_reset_timestamp.return_value = datetime(
-            2025, 1, 15, 11, 0, 0, tzinfo=timezone.utc
-        )
+        timestamp_resolver.get_last_dawn_reset_timestamp.return_value = datetime(2025, 1, 15, 11, 0, 0, tzinfo=timezone.utc)
         timestamp_resolver.get_timestamp_field_for_reset_field.return_value = "max_temp_f_timestamp"
 
-        evaluator = FieldResetEvaluator(
-            dawn_calculator=dawn_calc, timestamp_resolver=timestamp_resolver
-        )
+        evaluator = FieldResetEvaluator(dawn_calculator=dawn_calc, timestamp_resolver=timestamp_resolver)
         evaluator._evaluation_cases = MagicMock()
         evaluator._evaluation_cases.evaluate_timestamp_crossing.return_value = (False, None)
         current = datetime(2025, 1, 15, 13, 0, 0, tzinfo=timezone.utc)
@@ -216,9 +196,7 @@ class TestFieldResetEvaluatorShouldResetField:
         timestamp_resolver.get_last_dawn_reset_timestamp.return_value = None
         timestamp_resolver.get_timestamp_field_for_reset_field.return_value = "max_temp_f_timestamp"
 
-        evaluator = FieldResetEvaluator(
-            dawn_calculator=dawn_calc, timestamp_resolver=timestamp_resolver
-        )
+        evaluator = FieldResetEvaluator(dawn_calculator=dawn_calc, timestamp_resolver=timestamp_resolver)
         evaluator._evaluation_cases = MagicMock()
         evaluator._evaluation_cases.evaluate_timestamp_crossing.return_value = (False, None)
         current = datetime(2025, 1, 15, 13, 0, 0, tzinfo=timezone.utc)

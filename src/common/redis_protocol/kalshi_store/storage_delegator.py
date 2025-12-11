@@ -17,8 +17,6 @@ class StorageDelegator:
     def __init__(self, writer: KalshiMarketWriter) -> None:
         self._writer = writer
 
-    async def store_optional_field(
-        self, redis: Redis, market_key: str, field: str, value: Optional[Any]
-    ) -> None:
+    async def store_optional_field(self, redis: Redis, market_key: str, field: str, value: Optional[Any]) -> None:
         """Store optional field in Redis if value is not None."""
         await self._writer.store_optional_field(redis, market_key, field, value)

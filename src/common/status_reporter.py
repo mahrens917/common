@@ -31,12 +31,8 @@ class _MarketStatusHelper:
     def scanning_markets(self, market_count: int) -> None:
         self._write(MessageFormatter.scanning_markets(market_count))
 
-    def opportunities_summary(
-        self, opportunities_found: int, trades_executed: int, markets_closed: int = 0
-    ) -> None:
-        message = SummaryBuilder.build_opportunities_summary(
-            opportunities_found, trades_executed, markets_closed
-        )
+    def opportunities_summary(self, opportunities_found: int, trades_executed: int, markets_closed: int = 0) -> None:
+        message = SummaryBuilder.build_opportunities_summary(opportunities_found, trades_executed, markets_closed)
         self._write(message)
 
     def checking_market_hours(self) -> None:
@@ -56,14 +52,10 @@ class _TradeStatusHelper:
         reason: str,
         weather_context: Optional[str] = None,
     ) -> None:
-        message = OpportunityReporter.format_opportunity(
-            ticker, action, side, price_cents, reason, weather_context
-        )
+        message = OpportunityReporter.format_opportunity(ticker, action, side, price_cents, reason, weather_context)
         self._write(message)
 
-    def trade_executed(
-        self, ticker: str, action: str, side: str, price_cents: int, order_id: str
-    ) -> None:
+    def trade_executed(self, ticker: str, action: str, side: str, price_cents: int, order_id: str) -> None:
         message = TradeReporter.format_trade_executed(ticker, action, side, price_cents, order_id)
         self._write(message)
 

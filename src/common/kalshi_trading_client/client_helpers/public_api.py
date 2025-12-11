@@ -35,9 +35,7 @@ class PublicAPI:
         return await PortfolioOperations.get_positions(portfolio_service)
 
     @staticmethod
-    async def create_order(
-        order_service: OrderService, order_request: OrderRequest
-    ) -> OrderResponse:
+    async def create_order(order_service: OrderService, order_request: OrderRequest) -> OrderResponse:
         """Create an order."""
         from .order_operations import OrderOperations
 

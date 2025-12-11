@@ -21,7 +21,7 @@ from .scraper_connection_manager_helpers import (
 )
 
 if TYPE_CHECKING:
-    from ..monitor.alerter import Alerter
+    from ..monitor.alerter import Alerter  # type: ignore
 
 
 class ScraperConnectionManager(AioHTTPSessionConnectionMixin, BaseConnectionManager):
@@ -111,14 +111,10 @@ class ScraperConnectionManager(AioHTTPSessionConnectionMixin, BaseConnectionMana
 
                 connector_info = {
                     "connection_limit": _first_attr(connector, "_limit", "limit"),
-                    "connection_limit_per_host": _first_attr(
-                        connector, "_limit_per_host", "limit_per_host"
-                    ),
+                    "connection_limit_per_host": _first_attr(connector, "_limit_per_host", "limit_per_host"),
                     "closed": _first_attr(connector, "_closed", "closed"),
                 }
-            scraper_info.update(
-                {"session_closed": session.closed, "connector_info": connector_info}
-            )
+            scraper_info.update({"session_closed": session.closed, "connector_info": connector_info})
 
         base_info["scraper_details"] = scraper_info
         return base_info

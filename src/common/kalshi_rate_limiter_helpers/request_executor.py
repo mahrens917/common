@@ -77,9 +77,7 @@ def _handle_success_callback(request_id: str, response: Any, request_data: Dict[
     logger.debug("[KalshiRateLimiter] Request %s completed successfully", request_id)
 
 
-def _handle_request_exception(
-    request_id: str, exc: BaseException, request_data: Dict[str, Any]
-) -> None:
+def _handle_request_exception(request_id: str, exc: BaseException, request_data: Dict[str, Any]) -> None:
     if _is_shutdown_error(exc):
         logger.info(
             "[KalshiRateLimiter] Request %s cancelled due to shutdown: %s",

@@ -53,9 +53,7 @@ class ScrapingOperations:
                         if not content_valid:
                             self.logger.warning("Scraped content validation failed for %s", url)
                             return None
-                    self.logger.debug(
-                        "Successfully scraped %s characters from %s", len(content), url
-                    )
+                    self.logger.debug("Successfully scraped %s characters from %s", len(content), url)
                     return content
                 self.logger.warning("Scraping failed for %s: HTTP %s", url, response.status)
                 return None
@@ -72,9 +70,7 @@ class ScrapingOperations:
             self.logger.error("Cannot scrape - session not connected")
             return {}
 
-        scraping_tasks = [
-            asyncio.create_task(self.scrape_url(url, **kwargs)) for url in self.target_urls
-        ]
+        scraping_tasks = [asyncio.create_task(self.scrape_url(url, **kwargs)) for url in self.target_urls]
         results = await asyncio.gather(*scraping_tasks, return_exceptions=True)
 
         scraped_content: Dict[str, Optional[str]] = {}

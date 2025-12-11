@@ -70,8 +70,4 @@ class LifecycleOrchestrator:
 
     def _collect_closing_soon_markets(self) -> list[MarketInfo]:
         """Get markets that are closing soon."""
-        return [
-            m
-            for m in self.state_tracker.monitored_markets.values()
-            if m.state == MarketState.CLOSING_SOON
-        ]
+        return [m for m in self.state_tracker.monitored_markets.values() if m.state == MarketState.CLOSING_SOON]

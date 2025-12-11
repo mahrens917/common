@@ -21,13 +21,9 @@ class TestInitialization:
         service_cache = {}
         redis_processes = []
 
-        result = await Initialization.perform_initial_scan(
-            scan_coordinator, process_cache, service_cache, redis_processes
-        )
+        result = await Initialization.perform_initial_scan(scan_coordinator, process_cache, service_cache, redis_processes)
 
-        scan_coordinator.perform_full_scan.assert_called_once_with(
-            process_cache, service_cache, redis_processes
-        )
+        scan_coordinator.perform_full_scan.assert_called_once_with(process_cache, service_cache, redis_processes)
         assert len(result) == 4
 
     @pytest.mark.asyncio
@@ -38,9 +34,7 @@ class TestInitialization:
         expected_service = {"service1": MagicMock()}
         expected_redis = [MagicMock()]
         expected_timestamp = 1234567890.0
-        scan_coordinator.perform_full_scan = AsyncMock(
-            return_value=(expected_cache, expected_service, expected_redis, expected_timestamp)
-        )
+        scan_coordinator.perform_full_scan = AsyncMock(return_value=(expected_cache, expected_service, expected_redis, expected_timestamp))
 
         result = await Initialization.perform_initial_scan(scan_coordinator, {}, {}, [])
 

@@ -14,9 +14,7 @@ class TradeStoreOperations:
     """Manages trade store operations."""
 
     @staticmethod
-    async def ensure_trade_store(
-        manager: TradeStoreManager, *, create: bool
-    ) -> Optional[TradeStore]:
+    async def ensure_trade_store(manager: TradeStoreManager, *, create: bool) -> Optional[TradeStore]:
         """Ensure trade store exists, optionally creating it."""
         return await manager.ensure(create=create)
 

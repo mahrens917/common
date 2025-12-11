@@ -55,9 +55,7 @@ def _is_valid_maker_cost(maker_cost: Any) -> TypeGuard[int | float]:
 
 def _log_unreliable_price_warning(order_data: Dict[str, Any]) -> None:
     """Log warning about unreliable price data."""
-    logger.warning(
-        "⚠️ [PRICE DEBUG] No reliable price in order status - setting to None (fills API will provide accurate price)"
-    )
+    logger.warning("⚠️ [PRICE DEBUG] No reliable price in order status - setting to None (fills API will provide accurate price)")
 
     yes_price_log = order_data.get("yes_price")
     no_price_log = order_data.get("no_price")

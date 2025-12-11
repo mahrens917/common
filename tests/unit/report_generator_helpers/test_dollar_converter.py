@@ -32,8 +32,6 @@ class TestDollarConverter(unittest.TestCase):
         mock_trade2 = Mock()
         mock_trade2.cost_cents = 1500
 
-        self.assertEqual(
-            DollarConverter.calculate_total_cost_dollars([mock_trade1, mock_trade2]), 20.0
-        )
+        self.assertEqual(DollarConverter.calculate_total_cost_dollars([mock_trade1, mock_trade2]), 20.0)
         self.assertEqual(DollarConverter.calculate_total_cost_dollars([]), 0.0)
         self.assertEqual(DollarConverter.calculate_total_cost_dollars(None), 0.0)

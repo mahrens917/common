@@ -66,10 +66,7 @@ def test_extract_and_validate_close_time_returns_normalized():
     combined = {"close_time": future}
     normalizer = MagicMock()
     normalizer.normalize_timestamp.return_value = future
-    assert (
-        extract_and_validate_close_time(combined, "T", normalizer, datetime.now(timezone.utc))
-        == future
-    )
+    assert extract_and_validate_close_time(combined, "T", normalizer, datetime.now(timezone.utc)) == future
 
 
 def test_extract_and_validate_strike_raises_when_missing():

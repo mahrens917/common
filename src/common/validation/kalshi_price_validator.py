@@ -40,9 +40,7 @@ def validate_kalshi_price_bounds(price: float, field_name: str = "price") -> Non
     if price < KALSHI_MIN_PRICE_CENTS:
         raise TypeError(f"{field_name} must be non-negative, got {price}")
     if price > KALSHI_MAX_PRICE_CENTS:
-        raise ValueError(
-            f"{field_name} exceeds maximum of {KALSHI_MAX_PRICE_CENTS} cents, got {price}"
-        )
+        raise ValueError(f"{field_name} exceeds maximum of {KALSHI_MAX_PRICE_CENTS} cents, got {price}")
 
 
 def validate_kalshi_price_pair(bid: Optional[float], ask: Optional[float]) -> None:

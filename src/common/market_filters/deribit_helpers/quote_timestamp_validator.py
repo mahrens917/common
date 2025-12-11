@@ -18,9 +18,7 @@ class QuoteTimestampValidator:
         Returns:
             Quote timestamp or None
         """
-        quote_timestamp = getattr(instrument, "quote_timestamp", None) or getattr(
-            instrument, "mark_price_timestamp", None
-        )
+        quote_timestamp = getattr(instrument, "quote_timestamp", None) or getattr(instrument, "mark_price_timestamp", None)
 
         if quote_timestamp is None:
             quote_timestamp = getattr(instrument, "timestamp", None)

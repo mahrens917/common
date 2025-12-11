@@ -27,9 +27,7 @@ class ReconnectionEventManager:
         self._get_client = redis_getter
         self.reconnection_events_key = reconnection_events_key
 
-    async def record_reconnection_event(
-        self, service_name: str, event_type: str, details: str = ""
-    ) -> None:
+    async def record_reconnection_event(self, service_name: str, event_type: str, details: str = "") -> None:
         """
         Record a reconnection event for debugging and monitoring.
 
@@ -56,13 +54,9 @@ class ReconnectionEventManager:
             return
 
         try:
-            await ensure_awaitable(
-                client.zadd(self.reconnection_events_key, {event_json: time.time()})
-            )
+            await ensure_awaitable(client.zadd(self.reconnection_events_key, {event_json: time.time()}))
             cutoff_time = time.time() - 86400
-            await ensure_awaitable(
-                client.zremrangebyscore(self.reconnection_events_key, 0, cutoff_time)
-            )
+            await ensure_awaitable(client.zremrangebyscore(self.reconnection_events_key, 0, cutoff_time))
             logger.debug("Recorded reconnection event for %s: %s", service_name, event_type)
         except REDIS_ERRORS:
             logger.error(
@@ -71,9 +65,7 @@ class ReconnectionEventManager:
                 exc_info=True,
             )
 
-    async def get_recent_reconnection_events(
-        self, service_name: str, hours_back: int = 1
-    ) -> List[Dict[str, Any]]:
+    async def get_recent_reconnection_events(self, service_name: str, hours_back: int = 1) -> List[Dict[str, Any]]:
         """
         Get recent reconnection events for a service.
 
@@ -87,9 +79,7 @@ class ReconnectionEventManager:
         try:
             client = await self._get_client()
             cutoff_time = time.time() - (hours_back * 3600)
-            events = await ensure_awaitable(
-                client.zrangebyscore(self.reconnection_events_key, cutoff_time, "+inf")
-            )
+            events = await ensure_awaitable(client.zrangebyscore(self.reconnection_events_key, cutoff_time, "+inf"))
         except REDIS_ERRORS:
             logger.error(
                 "Failed to get reconnection events for %s",

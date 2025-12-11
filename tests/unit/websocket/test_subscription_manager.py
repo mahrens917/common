@@ -9,9 +9,7 @@ class TestUnifiedSubscriptionManager:
     @pytest.fixture
     def manager(self):
         websocket_client = Mock()
-        return UnifiedSubscriptionManager(
-            "test_service", websocket_client, "test_channel", "test_key"
-        )
+        return UnifiedSubscriptionManager("test_service", websocket_client, "test_channel", "test_key")
 
     @pytest.mark.asyncio
     async def test_start_monitoring(self, manager):

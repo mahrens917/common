@@ -47,9 +47,7 @@ class DeribitFuturesData:
         if self.ask_price < 0:
             raise ValueError(f"Ask price cannot be negative: {self.ask_price}")
         if self.ask_price < self.bid_price:
-            raise ValueError(
-                f"Ask price ({self.ask_price}) must be >= bid price ({self.bid_price})"
-            )
+            raise ValueError(f"Ask price ({self.ask_price}) must be >= bid price ({self.bid_price})")
         if self.best_bid_size < 0:
             raise ValueError(f"Bid size cannot be negative: {self.best_bid_size}")
         if self.best_ask_size < 0:
@@ -101,9 +99,7 @@ class DeribitOptionData:
         if self.ask_price < 0:
             raise ValueError(f"Ask price cannot be negative: {self.ask_price}")
         if self.ask_price < self.bid_price:
-            raise ValueError(
-                f"Ask price ({self.ask_price}) must be >= bid price ({self.bid_price})"
-            )
+            raise ValueError(f"Ask price ({self.ask_price}) must be >= bid price ({self.bid_price})")
 
 
 @dataclass(frozen=True)
@@ -165,14 +161,10 @@ class MicroPriceOptionDataMixin:
         return MicroPriceValidator.get_validation_errors(params)
 
     def intrinsic_value(self, spot_price: float) -> float:
-        return MicroPriceCalculator.compute_intrinsic_value(
-            self.option_type, self.strike, spot_price
-        )
+        return MicroPriceCalculator.compute_intrinsic_value(self.option_type, self.strike, spot_price)
 
     def time_value(self, spot_price: float) -> float:
-        return MicroPriceCalculator.compute_time_value(
-            self.option_type, self.strike, spot_price, self.p_raw
-        )
+        return MicroPriceCalculator.compute_time_value(self.option_type, self.strike, spot_price, self.p_raw)
 
     @classmethod
     def from_enhanced_option_data(cls, enhanced_option):
@@ -256,9 +248,7 @@ class MicroPriceOptionData(MicroPriceOptionDataMixin):
             discount_factor=self.discount_factor,
         )
         MicroPriceValidator.validate_basic_option_data(basic_data)
-        MicroPriceValidator.validate_micro_price_calculations(
-            self.absolute_spread, self.i_raw, self.p_raw
-        )
+        MicroPriceValidator.validate_micro_price_calculations(self.absolute_spread, self.i_raw, self.p_raw)
 
         math_relationships = MathematicalRelationships(
             best_bid=self.best_bid,
@@ -295,11 +285,5 @@ class Instrument:
             raise ValueError(f"Bid price cannot be negative: {self.bid_price}")
         if self.ask_price is not None and self.ask_price < 0:
             raise ValueError(f"Ask price cannot be negative: {self.ask_price}")
-        if (
-            self.bid_price is not None
-            and self.ask_price is not None
-            and self.ask_price < self.bid_price
-        ):
-            raise ValueError(
-                f"Ask price ({self.ask_price}) must be >= bid price ({self.bid_price})"
-            )
+        if self.bid_price is not None and self.ask_price is not None and self.ask_price < self.bid_price:
+            raise ValueError(f"Ask price ({self.ask_price}) must be >= bid price ({self.bid_price})")

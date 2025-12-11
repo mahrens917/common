@@ -54,9 +54,7 @@ class OrderCounts:
     total_count: int
 
 
-def parse_kalshi_order_response(
-    order_data: Dict[str, Any], trade_rule: str, trade_reason: str
-) -> OrderResponse:
+def parse_kalshi_order_response(order_data: Dict[str, Any], trade_rule: str, trade_reason: str) -> OrderResponse:
     """
     Parse Kalshi API order response data into an OrderResponse object.
 
@@ -239,9 +237,7 @@ def _has_reliable_maker_cost(value: Any) -> TypeGuard[int | float]:
 
 def _log_unreliable_price_warning(order_data: Dict[str, Any]) -> None:
     """Emit warnings when maker fill cost is unavailable."""
-    logger.warning(
-        "⚠️ [PRICE DEBUG] No reliable price in order status - setting to None (fills API will provide accurate price)"
-    )
+    logger.warning("⚠️ [PRICE DEBUG] No reliable price in order status - setting to None (fills API will provide accurate price)")
     yes_price = order_data["yes_price"] if "yes_price" in order_data else "missing"
     no_price = order_data["no_price"] if "no_price" in order_data else "missing"
     logger.warning(

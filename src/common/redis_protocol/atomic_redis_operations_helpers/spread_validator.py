@@ -30,9 +30,7 @@ class SpreadValidator:
         self.max_retries = max_retries
         self.logger = logger
 
-    def validate_bid_ask_spread(
-        self, converted_data: Mapping[str, Any], store_key: str, attempt_index: int
-    ) -> None:
+    def validate_bid_ask_spread(self, converted_data: Mapping[str, Any], store_key: str, attempt_index: int) -> None:
         """
         Validate bid/ask spread to detect race conditions.
 
@@ -60,8 +58,7 @@ class SpreadValidator:
         # Check for inverted spread (bid > ask)
         if bid > ask:
             message = (
-                f"Invalid spread detected in key {store_key}: bid={bid} > ask={ask}. "
-                "This indicates race condition or data corruption."
+                f"Invalid spread detected in key {store_key}: bid={bid} > ask={ask}. " "This indicates race condition or data corruption."
             )
             self.logger.warning(
                 "🔍 ATOMIC_OPS_DIAGNOSTIC: %s, attempt %s/%s",
@@ -73,9 +70,6 @@ class SpreadValidator:
 
         # Check for non-positive prices
         if bid <= 0 or ask <= 0:
-            message = (
-                f"Invalid prices in key {store_key}: bid={bid}, ask={ask} "
-                "(prices must be positive)"
-            )
+            message = f"Invalid prices in key {store_key}: bid={bid}, ask={ask} " "(prices must be positive)"
             self.logger.warning("%s, attempt %s/%s", message, attempt_index + 1, self.max_retries)
             raise RedisDataValidationError(message)

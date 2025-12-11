@@ -5,15 +5,10 @@ class TradeReporter:
     """Formats trade execution, failure, and balance update messages."""
 
     @staticmethod
-    def format_trade_executed(
-        ticker: str, action: str, side: str, price_cents: int, order_id: str
-    ) -> str:
+    def format_trade_executed(ticker: str, action: str, side: str, price_cents: int, order_id: str) -> str:
         """Format trade execution success message."""
         price_dollars = price_cents / 100
-        return (
-            f"✅ Trade executed: {action} {side} {ticker} @ "
-            f"${price_dollars:.2f} (Order: {order_id})"
-        )
+        return f"✅ Trade executed: {action} {side} {ticker} @ " f"${price_dollars:.2f} (Order: {order_id})"
 
     @staticmethod
     def format_trade_failed(ticker: str, reason: str) -> str:
@@ -25,10 +20,7 @@ class TradeReporter:
         """Format insufficient balance message."""
         required_dollars = required_cents / 100
         available_dollars = available_cents / 100
-        return (
-            f"💸 Insufficient balance for {ticker}: "
-            f"need ${required_dollars:.2f}, have ${available_dollars:.2f}"
-        )
+        return f"💸 Insufficient balance for {ticker}: " f"need ${required_dollars:.2f}, have ${available_dollars:.2f}"
 
     @staticmethod
     def format_balance_updated(old_balance_cents: int, new_balance_cents: int) -> str:
@@ -39,7 +31,4 @@ class TradeReporter:
 
         change_sign = "+" if change_dollars >= 0 else ""
 
-        return (
-            f"💰 Balance updated: ${old_dollars:.2f} → ${new_dollars:.2f} "
-            f"({change_sign}${change_dollars:.2f})"
-        )
+        return f"💰 Balance updated: ${old_dollars:.2f} → ${new_dollars:.2f} " f"({change_sign}${change_dollars:.2f})"

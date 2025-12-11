@@ -21,9 +21,7 @@ class TestCreateStatusChecker:
         expiry_checker = MagicMock()
         get_market_key_fn = MagicMock()
 
-        result = create_status_checker(
-            conn_wrapper, ticker_parser, expiry_checker, get_market_key_fn
-        )
+        result = create_status_checker(conn_wrapper, ticker_parser, expiry_checker, get_market_key_fn)
 
         assert result is not None
 

@@ -68,9 +68,7 @@ async def test_check_redis_status_reports_healthy(monkeypatch):
     from common import service_status
 
     monkeypatch.setattr(service_status, "is_service_failed", lambda status: status == "failed")
-    monkeypatch.setattr(
-        service_status, "is_service_operational", lambda status: status == "operational"
-    )
+    monkeypatch.setattr(service_status, "is_service_operational", lambda status: status == "operational")
 
     from common.health.service_health_checker_helpers.redis_status_checker import (
         check_redis_status,
@@ -100,9 +98,7 @@ async def test_check_redis_status_handles_stale_operational_status(monkeypatch):
     from common import service_status
 
     monkeypatch.setattr(service_status, "is_service_failed", lambda status: False)
-    monkeypatch.setattr(
-        service_status, "is_service_operational", lambda status: status == "operational"
-    )
+    monkeypatch.setattr(service_status, "is_service_operational", lambda status: status == "operational")
 
     from common.health.service_health_checker_helpers.redis_status_checker import (
         check_redis_status,
@@ -162,9 +158,7 @@ async def test_check_redis_status_handles_missing_data(monkeypatch):
 async def test_check_redis_status_handles_invalid_timestamp(monkeypatch):
     checker = ServiceHealthChecker()
     redis = MagicMock()
-    redis.hgetall = AsyncMock(
-        return_value={"status".encode(): b"operational", "timestamp".encode(): b"not-a-number"}
-    )
+    redis.hgetall = AsyncMock(return_value={"status".encode(): b"operational", "timestamp".encode(): b"not-a-number"})
     monkeypatch.setattr(checker, "_get_redis_client", AsyncMock(return_value=redis))
     monkeypatch.setattr(
         "common.redis_protocol.converters.decode_redis_hash",

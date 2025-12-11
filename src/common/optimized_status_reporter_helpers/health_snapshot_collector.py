@@ -30,9 +30,7 @@ class HealthSnapshotCollector:
             elif check.name == "ldm_listener":
                 ldm_listener_health = check
 
-        redis_connection_healthy = bool(
-            redis_health_check and redis_health_check.status == HealthStatus.HEALTHY
-        )
+        redis_connection_healthy = bool(redis_health_check and redis_health_check.status == HealthStatus.HEALTHY)
 
         return {
             "health_checks": health_checks,

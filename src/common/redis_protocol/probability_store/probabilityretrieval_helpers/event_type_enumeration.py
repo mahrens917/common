@@ -36,9 +36,7 @@ async def get_all_event_types(redis: Redis, currency: str) -> List[str]:
     try:
         raw_keys = await redis.keys(f"{prefix}*")
     except REDIS_ERRORS as exc:
-        raise ProbabilityStoreError(
-            f"Failed to enumerate event types for {currency_upper}: Redis error {exc}"
-        ) from exc
+        raise ProbabilityStoreError(f"Failed to enumerate event types for {currency_upper}: Redis error {exc}") from exc
 
     if not raw_keys:
         raise ProbabilityDataNotFoundError(currency_upper, "event types")

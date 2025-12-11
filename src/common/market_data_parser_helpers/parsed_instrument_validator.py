@@ -14,9 +14,7 @@ class ParsedInstrumentValidator:
     """Validates ParsedInstrument data after initialization."""
 
     @staticmethod
-    def validate_option_fields(
-        strike: float | None, option_type: str | None, raw_ticker: str
-    ) -> None:
+    def validate_option_fields(strike: float | None, option_type: str | None, raw_ticker: str) -> None:
         """
         Validate option-specific fields.
 
@@ -32,9 +30,7 @@ class ParsedInstrumentValidator:
             raise ValidationError(f"Options must have strike and type: {raw_ticker}")
 
     @staticmethod
-    def validate_future_fields(
-        strike: float | None, option_type: str | None, raw_ticker: str
-    ) -> None:
+    def validate_future_fields(strike: float | None, option_type: str | None, raw_ticker: str) -> None:
         """
         Validate future-specific fields.
 
@@ -50,9 +46,7 @@ class ParsedInstrumentValidator:
             raise ValidationError(f"Futures cannot have strike or type: {raw_ticker}")
 
     @staticmethod
-    def validate_spot_fields(
-        strike: float | None, option_type: str | None, raw_ticker: str
-    ) -> None:
+    def validate_spot_fields(strike: float | None, option_type: str | None, raw_ticker: str) -> None:
         """
         Validate spot-specific fields.
 
@@ -82,11 +76,7 @@ class ParsedInstrumentValidator:
         year = expiry_date.year
 
         # Spot pairs use far future date (_CONST_2099) which is acceptable
-        is_corrupted = (
-            year in [2520, 2620]
-            or (year > _CONST_2050 and year != _CONST_2099)
-            or year < _MIN_VALID_YEAR
-        )
+        is_corrupted = year in [2520, 2620] or (year > _CONST_2050 and year != _CONST_2099) or year < _MIN_VALID_YEAR
 
         if is_corrupted:
             raise DateTimeCorruptionError(f"Corrupted year detected: {year} in {raw_ticker}")

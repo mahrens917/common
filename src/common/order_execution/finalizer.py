@@ -174,9 +174,7 @@ async def _send_notification(
         ) from exc
 
 
-def _build_order_data_payload(
-    order_request: OrderRequest, order_response: OrderResponse
-) -> Dict[str, object]:
+def _build_order_data_payload(order_request: OrderRequest, order_response: OrderResponse) -> Dict[str, object]:
     filled_count = order_response.filled_count or 0
     remaining_count = order_response.remaining_count or 0
     total_from_response = filled_count + remaining_count
@@ -220,14 +218,8 @@ def _build_response_data_payload(order_response: OrderResponse) -> Dict[str, obj
             {
                 "count": fill.count,
                 "side": order_response.side.value,
-                "timestamp": fill.timestamp.replace(microsecond=0)
-                .isoformat()
-                .replace("+00:00", "Z"),
-                **(
-                    {"yes_price": fill.price_cents}
-                    if order_response.side == OrderSide.YES
-                    else {"no_price": fill.price_cents}
-                ),
+                "timestamp": fill.timestamp.replace(microsecond=0).isoformat().replace("+00:00", "Z"),
+                **({"yes_price": fill.price_cents} if order_response.side == OrderSide.YES else {"no_price": fill.price_cents}),
             }
             for fill in (order_response.fills or [])
         ],

@@ -56,9 +56,7 @@ async def _fetch_weather_hashes(redis_client, weather_keys: List[Any]) -> List[D
     return await pipeline.execute()
 
 
-def _build_temperature_map(
-    station_codes: List[str], weather_results: List[Dict[str, Any]]
-) -> Dict[str, Dict[str, str]]:
+def _build_temperature_map(station_codes: List[str], weather_results: List[Dict[str, Any]]) -> Dict[str, Dict[str, str]]:
     """Convert Redis hash payloads into a mapping of station temps."""
     weather_temperatures: Dict[str, Dict[str, str]] = {}
     for station_code, weather_data_raw in zip(station_codes, weather_results):

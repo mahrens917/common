@@ -73,9 +73,7 @@ def create_non_redis_collectors(process_manager, health_checker, tracker_control
     )
 
 
-def create_formatters_and_printers(
-    process_manager, data_coercion, data_formatting, time_formatter, day_night_detector
-):
+def create_formatters_and_printers(process_manager, data_coercion, data_formatting, time_formatter, day_night_detector):
     """Create formatters, printers, and generators."""
     resource_tracker = ProcessResourceTracker(process_manager)
     log_activity_formatter = LogActivityFormatter(time_formatter)

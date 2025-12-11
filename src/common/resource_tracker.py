@@ -82,9 +82,7 @@ class ResourceTracker:
         if not await self._ensure_trackers():
             logger.debug("Per-second monitoring unavailable; tracker init failed")
             return
-        await monitoring_control.start_per_second_monitoring(
-            self._monitoring_loop, get_cpu_ram_func
-        )
+        await monitoring_control.start_per_second_monitoring(self._monitoring_loop, get_cpu_ram_func)
 
     async def stop_per_second_monitoring(self):
         await monitoring_control.stop_per_second_monitoring(self._monitoring_loop)

@@ -70,14 +70,10 @@ class ReportGenerator:
         """Generate report for current day including unrealized P&L."""
         return await self.delegator.generate_current_day_report()
 
-    async def generate_settlement_notification(
-        self, trade_date: date, settled_markets: list
-    ) -> str:
+    async def generate_settlement_notification(self, trade_date: date, settled_markets: list) -> str:
         """Generate notification when markets settle."""
         daily_report = await self.generate_daily_report(trade_date)
-        return await self.delegator.generate_settlement_notification(
-            trade_date, settled_markets, daily_report
-        )
+        return await self.delegator.generate_settlement_notification(trade_date, settled_markets, daily_report)
 
     def format_error_message(self, error_msg: str) -> str:
         """Format error message for Telegram display."""

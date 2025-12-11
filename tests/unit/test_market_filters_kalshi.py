@@ -92,9 +92,7 @@ def test_resolve_top_of_book_prefers_orderbook_and_falls_back() -> None:
     metadata = {"yes_bid": "0.3", "yes_bid_size": "4", "yes_ask": "0.7", "yes_ask_size": "6"}
     orderbook = {"yes_bids": {"0.35": "3"}, "yes_asks": {"0.65": "2"}}
 
-    (bid_price, bid_size), (ask_price, ask_size), has_orderbook = kalshi._resolve_top_of_book(
-        metadata, orderbook
-    )
+    (bid_price, bid_size), (ask_price, ask_size), has_orderbook = kalshi._resolve_top_of_book(metadata, orderbook)
 
     assert (bid_price, bid_size) == (0.35, 3)
     assert (ask_price, ask_size) == (0.65, 2)
@@ -104,9 +102,7 @@ def test_resolve_top_of_book_prefers_orderbook_and_falls_back() -> None:
 def test_resolve_top_of_book_uses_metadata_when_orderbook_missing() -> None:
     metadata = {"yes_bid": "0.4", "yes_bid_size": "9", "yes_ask": "0.6", "yes_ask_size": "7"}
 
-    (bid_price, bid_size), (ask_price, ask_size), has_orderbook = kalshi._resolve_top_of_book(
-        metadata, None
-    )
+    (bid_price, bid_size), (ask_price, ask_size), has_orderbook = kalshi._resolve_top_of_book(metadata, None)
 
     assert (bid_price, bid_size) == (0.4, 9)
     assert (ask_price, ask_size) == (0.6, 7)

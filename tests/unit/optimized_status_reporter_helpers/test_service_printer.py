@@ -70,9 +70,7 @@ class TestServicePrinter:
         assert total_count == DEFAULT_SERVICE_PRINTER_TOTAL_COUNT  # service_A, service_B
         assert mock_dependencies["emit_func"].call_count == 2
         mock_dependencies["emit_func"].assert_any_call("  ✅ service_A - Running")
-        mock_dependencies["emit_func"].assert_any_call(
-            "  ✅ service_B - Running"
-        )  # Mocked resolve_service_status
+        mock_dependencies["emit_func"].assert_any_call("  ✅ service_B - Running")  # Mocked resolve_service_status
 
     def test_print_managed_services_no_services(self, printer, mock_process_manager):
         """Test _print_managed_services handles no services."""
@@ -86,9 +84,7 @@ class TestServicePrinter:
         "common.optimized_status_reporter_helpers.service_printer.get_status_emoji",
         return_value="✅",
     )
-    def test_print_monitor_service_no_monitor_info(
-        self, _mock_get_status_emoji, printer, mock_process_manager
-    ):
+    def test_print_monitor_service_no_monitor_info(self, _mock_get_status_emoji, printer, mock_process_manager):
         """Test _print_monitor_service does nothing if no monitor info."""
         mock_process_manager.process_info = {}  # No monitor info
         printer.print_monitor_service(mock_process_manager, {})
@@ -98,29 +94,19 @@ class TestServicePrinter:
         "common.optimized_status_reporter_helpers.service_printer.get_status_emoji",
         return_value="✅",
     )
-    def test_print_monitor_service_running(
-        self, _mock_get_status_emoji, printer, mock_process_manager, mock_dependencies
-    ):
+    def test_print_monitor_service_running(self, _mock_get_status_emoji, printer, mock_process_manager, mock_dependencies):
         """Test _print_monitor_service prints running status."""
         mock_dependencies["resource_tracker"].get_process_resource_usage.return_value = " RAM: 1.5%"
-        mock_dependencies["log_formatter"].format_log_activity_short.return_value = (
-            " (Last log: 10s ago)"
-        )
+        mock_dependencies["log_formatter"].format_log_activity_short.return_value = " (Last log: 10s ago)"
 
-        printer.print_monitor_service(
-            mock_process_manager, {"monitor": LogActivity(LogActivityStatus.RECENT)}
-        )
-        printer._emit.assert_called_once_with(
-            "  ✅ monitor - Running - RAM: 1.5% -  (Last log: 10s ago)"
-        )
+        printer.print_monitor_service(mock_process_manager, {"monitor": LogActivity(LogActivityStatus.RECENT)})
+        printer._emit.assert_called_once_with("  ✅ monitor - Running - RAM: 1.5% -  (Last log: 10s ago)")
 
     @patch(
         "common.optimized_status_reporter_helpers.service_printer.get_status_emoji",
         return_value="❌",
     )
-    def test_print_monitor_service_stopped(
-        self, _mock_get_status_emoji, printer, mock_process_manager, mock_dependencies
-    ):
+    def test_print_monitor_service_stopped(self, _mock_get_status_emoji, printer, mock_process_manager, mock_dependencies):
         """Test _print_monitor_service prints stopped status."""
         mock_process_manager.process_info["monitor"].status = ProcessStatus.STOPPED
         mock_dependencies["resource_tracker"].get_process_resource_usage.return_value = ""
@@ -133,9 +119,7 @@ class TestServicePrinter:
         "common.optimized_status_reporter_helpers.service_printer.get_status_emoji",
         return_value="❓",
     )
-    def test_print_monitor_service_unknown_status(
-        self, _mock_get_status_emoji, printer, mock_process_manager, mock_dependencies
-    ):
+    def test_print_monitor_service_unknown_status(self, _mock_get_status_emoji, printer, mock_process_manager, mock_dependencies):
         """Test _print_monitor_service prints unknown status."""
         mock_process_manager.process_info["monitor"].status = None  # Simulate unknown status
         mock_dependencies["resource_tracker"].get_process_resource_usage.return_value = ""
@@ -156,9 +140,7 @@ class TestServicePrinter:
                 "common.optimized_status_reporter_helpers.service_printer.resolve_service_status",
                 return_value="Service Running",
             ):
-                line = printer._build_service_status_line(
-                    "test_service", Mock(), True, {}, LogActivity(LogActivityStatus.RECENT)
-                )
+                line = printer._build_service_status_line("test_service", Mock(), True, {}, LogActivity(LogActivityStatus.RECENT))
                 assert line == "  🟢 test_service - Service Running (10s ago) RAM: 2.0%"
 
     def test_build_service_status_line_no_age_no_resource(self, printer, mock_dependencies):
@@ -174,7 +156,5 @@ class TestServicePrinter:
                 "common.optimized_status_reporter_helpers.service_printer.resolve_service_status",
                 return_value="Service Running",
             ):
-                line = printer._build_service_status_line(
-                    "test_service", Mock(), True, {}, LogActivity(LogActivityStatus.RECENT)
-                )
+                line = printer._build_service_status_line("test_service", Mock(), True, {}, LogActivity(LogActivityStatus.RECENT))
                 assert line == "  🟢 test_service - Service Running"

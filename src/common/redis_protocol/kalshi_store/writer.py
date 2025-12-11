@@ -42,14 +42,10 @@ def _normalize_timestamp(value: Any) -> Any:
 class ValidationMixin:
     _validation: ValidationWriter
 
-    async def _store_optional_field(
-        self, redis: Redis, key: str, field: str, val: Optional[Any]
-    ) -> None:
+    async def _store_optional_field(self, redis: Redis, key: str, field: str, val: Optional[Any]) -> None:
         await self._validation.store_optional_field(key, field, val)
 
-    async def store_optional_field(
-        self, redis: Redis, key: str, field: str, val: Optional[Any]
-    ) -> None:
+    async def store_optional_field(self, redis: Redis, key: str, field: str, val: Optional[Any]) -> None:
         await self._validation.store_optional_field(key, field, val)
 
     @staticmethod
@@ -63,9 +59,7 @@ class SubscriptionMixin:
     def _extract_weather_station_from_ticker(self, ticker: str) -> Optional[str]:
         return self._subscription.extract_weather_station_from_ticker(ticker)
 
-    def derive_expiry_iso(
-        self, ticker: str, meta: Dict[str, Any], desc: KalshiMarketDescriptor
-    ) -> str:
+    def derive_expiry_iso(self, ticker: str, meta: Dict[str, Any], desc: KalshiMarketDescriptor) -> str:
         return self._subscription.derive_expiry_iso(ticker, meta, desc)
 
     def ensure_market_metadata_fields(self, ticker: str, meta: Dict[str, Any]) -> Dict[str, Any]:
@@ -103,16 +97,12 @@ class MarketUpdaterMixin:
     async def write_enhanced_market_data(self, ticker: str, key: str, updates: Dict[str, Any]):
         return await self._market_updater.write_enhanced_market_data(ticker, key, updates)
 
-    async def _update_trade_prices_for_market(
-        self, ticker: str, bid: Optional[float], ask: Optional[float]
-    ):
+    async def _update_trade_prices_for_market(self, ticker: str, bid: Optional[float], ask: Optional[float]):
         if bid is None or ask is None:
             return None
         await self._market_updater.update_trade_prices_for_market(ticker, bid, ask)
 
-    async def update_trade_prices_for_market(
-        self, ticker: str, bid: Optional[float], ask: Optional[float]
-    ) -> None:
+    async def update_trade_prices_for_market(self, ticker: str, bid: Optional[float], ask: Optional[float]) -> None:
         if bid is None or ask is None:
             return
         await self._market_updater.update_trade_prices_for_market(ticker, bid, ask)
@@ -122,9 +112,7 @@ class BatchMixin:
     _batch: "BatchWriter"
     _batch_reader: "BatchReader"
 
-    async def update_interpolation_results(
-        self, curr: str, results: Dict[str, Dict], key_func: Any
-    ):
+    async def update_interpolation_results(self, curr: str, results: Dict[str, Dict], key_func: Any):
         return await self._batch.update_interpolation_results(curr, results, key_func)
 
     async def get_interpolation_results(
@@ -135,9 +123,7 @@ class BatchMixin:
         int_func: Any,
         float_func: Any,
     ) -> Dict[str, Dict]:
-        return await self._batch_reader.get_interpolation_results(
-            curr, keys, str_func, int_func, float_func
-        )
+        return await self._batch_reader.get_interpolation_results(curr, keys, str_func, int_func, float_func)
 
 
 class OrderbookMixin:

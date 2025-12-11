@@ -57,17 +57,13 @@ async def increment_metadata_counter(
     try:
         await ensure_awaitable(pipe.execute())
     except REDIS_ERRORS as exc:  # pragma: no cover - network/runtime failure path
-        raise DataError(
-            f"Failed to increment metadata counters for service '{service_name}'"
-        ) from exc
+        raise DataError(f"Failed to increment metadata counters for service '{service_name}'") from exc
 
     logger.debug(f"Incremented {service_name} count by {count}")
     return True
 
 
-async def update_hash_fields(
-    client: RedisClient, metadata_key: str, service_name: str, mapping: dict
-) -> bool:
+async def update_hash_fields(client: RedisClient, metadata_key: str, service_name: str, mapping: dict) -> bool:
     """
     Update hash fields with error handling
 

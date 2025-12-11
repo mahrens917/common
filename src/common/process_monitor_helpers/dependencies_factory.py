@@ -59,9 +59,7 @@ class ProcessMonitorDependenciesFactory:
         process_lookup = ProcessLookup()
 
         scan_coordinator = ScanCoordinator(scanner)
-        background_worker = BackgroundScanWorker(
-            scan_interval_seconds, perform_incremental_scan, shutdown_event
-        )
+        background_worker = BackgroundScanWorker(scan_interval_seconds, perform_incremental_scan, shutdown_event)
         lifecycle = LifecycleManager(background_worker, shutdown_event)
         api = PublicAPI(cache_ops, process_lookup, cache_ttl_seconds)
 

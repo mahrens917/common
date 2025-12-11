@@ -134,15 +134,9 @@ def _convert_alert_types(alert_type_strings: list[str]) -> Set[AlertType]:
         AlertSuppressionConfigurationError: If any alert type is invalid
     """
     valid_alert_types = {alert_type.value: alert_type for alert_type in AlertType}
-    invalid_alert_types = [
-        alert_type_str
-        for alert_type_str in alert_type_strings
-        if alert_type_str not in valid_alert_types
-    ]
+    invalid_alert_types = [alert_type_str for alert_type_str in alert_type_strings if alert_type_str not in valid_alert_types]
 
     if invalid_alert_types:
-        raise AlertSuppressionConfigurationError(
-            "Unknown alert types in monitor_config: " + ", ".join(sorted(invalid_alert_types))
-        )
+        raise AlertSuppressionConfigurationError("Unknown alert types in monitor_config: " + ", ".join(sorted(invalid_alert_types)))
 
     return {valid_alert_types[alert_type_str] for alert_type_str in alert_type_strings}

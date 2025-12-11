@@ -35,9 +35,7 @@ class BatchExecutor(Generic[T]):
         self.process_batch = process_batch
         self.name = name
 
-    async def execute(
-        self, batch: List[T], batch_size: int, batch_time: float, reason: str
-    ) -> None:
+    async def execute(self, batch: List[T], batch_size: int, batch_time: float, reason: str) -> None:
         """
         Execute batch processing.
 
@@ -50,14 +48,9 @@ class BatchExecutor(Generic[T]):
         if not batch:
             return
 
-        logger.info(
-            f"{self.name}: Processing batch of {batch_size} items "
-            f"after {batch_time*1000:.1f}ms ({reason})"
-        )
+        logger.info(f"{self.name}: Processing batch of {batch_size} items " f"after {batch_time*1000:.1f}ms ({reason})")
 
-        logger.debug(
-            f"{self.name}: Processing batch contents:\n" + "\n".join(f"- {item}" for item in batch)
-        )
+        logger.debug(f"{self.name}: Processing batch contents:\n" + "\n".join(f"- {item}" for item in batch))
 
         try:
             await self.process_batch(batch)

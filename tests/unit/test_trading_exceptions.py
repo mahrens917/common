@@ -494,9 +494,7 @@ class TestTradingExceptionInheritance:
         ]
 
         for exc_class in exception_classes:
-            assert issubclass(
-                exc_class, KalshiTradingError
-            ), f"{exc_class.__name__} should inherit from KalshiTradingError"
+            assert issubclass(exc_class, KalshiTradingError), f"{exc_class.__name__} should inherit from KalshiTradingError"
 
     def test_all_exceptions_can_be_caught_as_exception(self) -> None:
         """All trading exceptions can be caught as base Exception."""

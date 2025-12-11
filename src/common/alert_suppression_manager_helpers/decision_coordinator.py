@@ -100,8 +100,6 @@ class DecisionCoordinator:
         self.tracker.record_decision(decision)
 
         if decision.should_suppress:
-            logger.debug(
-                f"Suppressing {alert_type.value} alert for {service_name}: {decision.reason}"
-            )
+            logger.debug(f"Suppressing {alert_type.value} alert for {service_name}: {decision.reason}")
 
         return decision

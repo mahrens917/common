@@ -30,9 +30,7 @@ class SystemHealthPrinter:
                 status_icon = "⚠️"
             else:
                 status_icon = "🔴"
-            self._emit_status_line(
-                f"  {status_icon} Overall Status - {health_check.status.value.title()}"
-            )
+            self._emit_status_line(f"  {status_icon} Overall Status - {health_check.status.value.title()}")
             if health_check.details:
                 details = self.data_coercion.coerce_mapping(health_check.details)
                 cpu_usage = self.data_formatting.format_percentage(details.get("cpu_percent"))

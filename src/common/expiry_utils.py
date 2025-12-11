@@ -39,11 +39,7 @@ def _extract_market_expiry_value(market_data: Union[Dict[str, Any], Any]) -> dat
     if hasattr(market_data, "expiry_time"):
         expiry_value = getattr(market_data, "expiry_time")
     elif isinstance(market_data, dict):
-        expiry_value = (
-            market_data.get("close_time")
-            or market_data.get("expiry")
-            or market_data.get("expiration_time")
-        )
+        expiry_value = market_data.get("close_time") or market_data.get("expiry") or market_data.get("expiration_time")
     else:
         expiry_value = None
 
@@ -73,16 +69,12 @@ def _compute_time_to_expiry_years(expiry_time: datetime, current_time: datetime)
     Delegates to canonical implementation in common.time_helpers.expiry_conversions.
     Note: parameter order is reversed compared to canonical (expiry first, current second).
     """
-    from common.time_helpers.expiry_conversions import (
-        calculate_time_to_expiry_years as _calculate_canonical,
-    )
+    from common.time_helpers.expiry_conversions import calculate_time_to_expiry_years as _calculate_canonical
 
     return _calculate_canonical(current_time, expiry_time)
 
 
-def calculate_time_to_expiry_from_market_data(
-    market_data: Union[Dict[str, Any], Any], current_time: datetime
-) -> float:
+def calculate_time_to_expiry_from_market_data(market_data: Union[Dict[str, Any], Any], current_time: datetime) -> float:
     """
     Calculate time to expiry in years from market data using authoritative expiry fields.
 
@@ -108,14 +100,10 @@ def calculate_time_to_expiry_from_market_data(
         return max(0.0, time_to_expiry_years)
     except (ValueError, TypeError, OverflowError) as e:
         ticker = _resolve_market_ticker(market_data)
-        raise InvalidMarketDataError(
-            f"Time to expiry calculation failed for market {ticker}"
-        ) from e
+        raise InvalidMarketDataError(f"Time to expiry calculation failed for market {ticker}") from e
 
 
-def group_markets_by_expiry(
-    markets: List[Any], current_time: datetime, use_time_buckets: bool = False
-) -> Dict[float, List[Any]]:
+def group_markets_by_expiry(markets: List[Any], current_time: datetime, use_time_buckets: bool = False) -> Dict[float, List[Any]]:
     """
     Group markets by their expiry dates using consistent time-to-expiry calculations.
 
@@ -171,13 +159,9 @@ def group_markets_by_expiry(
             continue
 
     if not markets_by_expiry:
-        raise ValueError(
-            f"No valid markets found after expiry grouping. Skipped {skipped_markets} markets."
-        )
+        raise ValueError(f"No valid markets found after expiry grouping. Skipped {skipped_markets} markets.")
 
-    logger.info(
-        f"Grouped {len(markets)} markets into {len(markets_by_expiry)} expiry groups. Skipped {skipped_markets} expired markets."
-    )
+    logger.info(f"Grouped {len(markets)} markets into {len(markets_by_expiry)} expiry groups. Skipped {skipped_markets} expired markets.")
 
     # Log expiry group details for debugging
     for expiry_key, expiry_markets in markets_by_expiry.items():
@@ -186,9 +170,7 @@ def group_markets_by_expiry(
     return markets_by_expiry
 
 
-def validate_expiry_group_strikes(
-    expiry_groups: Dict[float, List[Any]], minimum_strikes: int
-) -> Dict[float, List[Any]]:
+def validate_expiry_group_strikes(expiry_groups: Dict[float, List[Any]], minimum_strikes: int) -> Dict[float, List[Any]]:
     """
     Validate that each expiry group has sufficient strikes for processing.
 
@@ -214,18 +196,12 @@ def validate_expiry_group_strikes(
             valid_expiry_groups[expiry_key] = markets
             logger.debug(f"Expiry group {expiry_key}: {len(unique_strikes)} unique strikes (valid)")
         else:
-            logger.warning(
-                f"Expiry group {expiry_key}: {len(unique_strikes)} unique strikes < {minimum_strikes} (filtered out)"
-            )
+            logger.warning(f"Expiry group {expiry_key}: {len(unique_strikes)} unique strikes < {minimum_strikes} (filtered out)")
 
     if not valid_expiry_groups:
-        raise ValidationError(
-            f"No expiry groups have sufficient strikes (minimum {minimum_strikes} required)"
-        )
+        raise ValidationError(f"No expiry groups have sufficient strikes (minimum {minimum_strikes} required)")
 
-    logger.info(
-        f"Validated expiry groups: {len(valid_expiry_groups)}/{len(expiry_groups)} groups have sufficient strikes"
-    )
+    logger.info(f"Validated expiry groups: {len(valid_expiry_groups)}/{len(expiry_groups)} groups have sufficient strikes")
 
     return valid_expiry_groups
 

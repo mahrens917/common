@@ -16,9 +16,7 @@ class MetadataParser:
     """Parse metadata JSON from market data"""
 
     @staticmethod
-    def parse_market_metadata(
-        market_ticker: str, market_data: Dict[str, Any]
-    ) -> Optional[Dict[str, Any]]:
+    def parse_market_metadata(market_ticker: str, market_data: Dict[str, Any]) -> Optional[Dict[str, Any]]:
         """
         Parse metadata JSON from market data hash
 

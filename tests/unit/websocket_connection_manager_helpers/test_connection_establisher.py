@@ -42,9 +42,7 @@ class TestConnectionEstablisher:
         mock_websocket_connection.close_code = 1000
         factory = AsyncMock(return_value=mock_websocket_connection)
 
-        with pytest.raises(
-            ConnectionError, match="WebSocket connection closed during initialization"
-        ):
+        with pytest.raises(ConnectionError, match="WebSocket connection closed during initialization"):
             await connection_establisher.connect_with_factory(factory, 5, "test_service")
 
     @pytest.mark.asyncio
@@ -78,9 +76,7 @@ class TestConnectionEstablisher:
     def test_handle_connection_error_timeout(self):
         logger_mock = Mock()
         exc = asyncio.TimeoutError()
-        result_exc = connection_establisher.handle_connection_error(
-            exc, "test_service", logger_mock
-        )
+        result_exc = connection_establisher.handle_connection_error(exc, "test_service", logger_mock)
         assert isinstance(result_exc, TimeoutError)
         assert str(result_exc) == "WebSocket connection timeout for test_service"
         logger_mock.error.assert_called_once_with("WebSocket connection timeout")
@@ -88,9 +84,7 @@ class TestConnectionEstablisher:
     def test_handle_connection_error_websocket_exception(self):
         logger_mock = Mock()
         exc = WebSocketException("WS error")
-        result_exc = connection_establisher.handle_connection_error(
-            exc, "test_service", logger_mock
-        )
+        result_exc = connection_establisher.handle_connection_error(exc, "test_service", logger_mock)
         assert isinstance(result_exc, ConnectionError)
         assert str(result_exc) == "WebSocket connection failed"
         logger_mock.error.assert_called_once_with("WebSocket connection error")
@@ -98,9 +92,7 @@ class TestConnectionEstablisher:
     def test_handle_connection_error_os_error(self):
         logger_mock = Mock()
         exc = OSError("OS error")
-        result_exc = connection_establisher.handle_connection_error(
-            exc, "test_service", logger_mock
-        )
+        result_exc = connection_establisher.handle_connection_error(exc, "test_service", logger_mock)
         assert isinstance(result_exc, ConnectionError)
         assert str(result_exc) == "Transport error"
         logger_mock.error.assert_called_once_with("Transport error")
@@ -109,18 +101,14 @@ class TestConnectionEstablisher:
         logger_mock = Mock()
         exc = OSError("OS error")
         setattr(exc, "_already_cleaned", True)
-        result_exc = connection_establisher.handle_connection_error(
-            exc, "test_service", logger_mock
-        )
+        result_exc = connection_establisher.handle_connection_error(exc, "test_service", logger_mock)
         assert result_exc == exc
         logger_mock.error.assert_not_called()
 
     def test_handle_connection_error_runtime_error(self):
         logger_mock = Mock()
         exc = RuntimeError("Runtime error")
-        result_exc = connection_establisher.handle_connection_error(
-            exc, "test_service", logger_mock
-        )
+        result_exc = connection_establisher.handle_connection_error(exc, "test_service", logger_mock)
         assert isinstance(result_exc, ConnectionError)
         assert str(result_exc) == "Unexpected error"
         logger_mock.error.assert_called_once_with("Unexpected error")
@@ -129,9 +117,7 @@ class TestConnectionEstablisher:
         # Use a generic Exception to fall into the final catch-all for unexpected errors
         logger_mock = Mock()
         exc = Exception("Other generic error")
-        result_exc = connection_establisher.handle_connection_error(
-            exc, "test_service", logger_mock
-        )
+        result_exc = connection_establisher.handle_connection_error(exc, "test_service", logger_mock)
         assert isinstance(result_exc, ConnectionError)  # The catch-all converts it
         assert str(result_exc) == "Unexpected error"
         logger_mock.error.assert_called_once_with("Unexpected error")

@@ -23,9 +23,7 @@ class Initialization:
             Tuple of (process_cache, service_cache, redis_processes, timestamp)
         """
         logger.info("Initializing process monitor with initial scan...")
-        result = await scan_coordinator.perform_full_scan(
-            process_cache, service_cache, redis_processes
-        )
+        result = await scan_coordinator.perform_full_scan(process_cache, service_cache, redis_processes)
         process_cache, service_cache, redis_processes, timestamp = result
         logger.info(f"Process monitor initialized with {len(process_cache)} cached processes")
         return process_cache, service_cache, redis_processes, timestamp

@@ -29,15 +29,13 @@ class UnifiedSubscriptionManagerDelegator:
             api_type_mapper: Function to map subscription type to API type
         """
         # Create components via factory
-        self.lifecycle_manager, self.monitoring_loop = (
-            UnifiedSubscriptionManagerFactory.create_components(
-                service_name,
-                websocket_client,
-                subscription_channel,
-                active_instruments,
-                pending_subscriptions,
-                api_type_mapper,
-            )
+        self.lifecycle_manager, self.monitoring_loop = UnifiedSubscriptionManagerFactory.create_components(
+            service_name,
+            websocket_client,
+            subscription_channel,
+            active_instruments,
+            pending_subscriptions,
+            api_type_mapper,
         )
 
     async def start_monitoring(self) -> None:

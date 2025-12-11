@@ -29,37 +29,27 @@ class TestLogActivityCollector:
     def collector(self, mock_process_manager):
         """LogActivityCollector instance with mocked dependencies."""
         # Patch LogActivityMonitor during initialization
-        with patch(
-            "common.optimized_status_reporter_helpers.log_activity_collector.LogActivityMonitor"
-        ) as mock_monitor_class:
+        with patch("common.optimized_status_reporter_helpers.log_activity_collector.LogActivityMonitor") as mock_monitor_class:
             mock_monitor_class.return_value = AsyncMock()  # Make the instance an AsyncMock
             mock_monitor_instance = mock_monitor_class.return_value
-            mock_monitor_instance.get_all_service_log_activity.return_value = (
-                {}
-            )  # Default mock return value
+            mock_monitor_instance.get_all_service_log_activity.return_value = {}  # Default mock return value
             instance = LogActivityCollector(mock_process_manager)
             instance._log_activity_monitor = mock_monitor_instance  # Store the mock instance
             return instance
 
     def test_init_sets_up_monitor(self, mock_process_manager):
         """Test initialization correctly sets up LogActivityMonitor."""
-        with patch(
-            "common.optimized_status_reporter_helpers.log_activity_collector.LogActivityMonitor"
-        ) as mock_monitor_class:
+        with patch("common.optimized_status_reporter_helpers.log_activity_collector.LogActivityMonitor") as mock_monitor_class:
             with patch.object(
                 Path,
                 "resolve",
-                return_value=Path(
-                    "/root/project/src/common/optimized_status_reporter_helpers/log_activity_collector.py"
-                ),
+                return_value=Path("/root/project/src/common/optimized_status_reporter_helpers/log_activity_collector.py"),
             ) as mock_resolve:
                 collector = LogActivityCollector(mock_process_manager)
                 mock_monitor_class.assert_called_once_with(str(Path("/root/project/logs")))
 
     @pytest.mark.asyncio
-    async def test_collect_log_activity_map_success_all_fresh(
-        self, collector, mock_process_manager
-    ):
+    async def test_collect_log_activity_map_success_all_fresh(self, collector, mock_process_manager):
         """Test successful collection with all logs fresh."""
         collector._log_activity_monitor.get_all_service_log_activity.return_value = {
             "service_A": LogActivity(
@@ -87,14 +77,10 @@ class TestLogActivityCollector:
 
         assert len(log_activity) == 3
         assert not stale_logs
-        collector._log_activity_monitor.get_all_service_log_activity.assert_awaited_once_with(
-            ["monitor", "service_A", "service_B"]
-        )
+        collector._log_activity_monitor.get_all_service_log_activity.assert_awaited_once_with(["monitor", "service_A", "service_B"])
 
     @pytest.mark.asyncio
-    async def test_collect_log_activity_map_success_some_stale(
-        self, collector, mock_process_manager
-    ):
+    async def test_collect_log_activity_map_success_some_stale(self, collector, mock_process_manager):
         """Test successful collection with some logs stale."""
         collector._log_activity_monitor.get_all_service_log_activity.return_value = {
             "service_A": LogActivity(
@@ -140,17 +126,13 @@ class TestLogActivityCollector:
 
         assert len(log_activity) == 1
         assert not stale_logs
-        collector._log_activity_monitor.get_all_service_log_activity.assert_awaited_once_with(
-            ["monitor"]
-        )
+        collector._log_activity_monitor.get_all_service_log_activity.assert_awaited_once_with(["monitor"])
 
     @pytest.mark.asyncio
     async def test_collect_log_activity_map_exception_handling(self, collector):
         """Test exception handling during log activity gathering."""
         # Use RedisError as an example of LOG_ACTIVITY_ERRORS
-        collector._log_activity_monitor.get_all_service_log_activity.side_effect = RedisError(
-            "Test error"
-        )
+        collector._log_activity_monitor.get_all_service_log_activity.side_effect = RedisError("Test error")
 
         log_activity, stale_logs = await collector.collect_log_activity_map()
 

@@ -19,9 +19,7 @@ class WebSocketConnectionLifecycle:
     """Manages WebSocket connection lifecycle."""
 
     # Declare dynamically-attached attributes for static type checking
-    websocket_connection: Optional[
-        Union[SyncClientConnection, ClientConnection, AsyncClientConnection]
-    ]
+    websocket_connection: Optional[Union[SyncClientConnection, ClientConnection, AsyncClientConnection]]
 
     def __init__(
         self,
@@ -42,9 +40,7 @@ class WebSocketConnectionLifecycle:
         try:
             self.logger.info("Establishing WebSocket connection to %s", self.websocket_url)
 
-            self.websocket_connection = await _open_websocket(
-                self.connection_factory, self.websocket_url, self.connection_timeout
-            )
+            self.websocket_connection = await _open_websocket(self.connection_factory, self.websocket_url, self.connection_timeout)
 
             _validate_connection(self.websocket_connection, self.service_name)
 
@@ -78,9 +74,7 @@ class WebSocketConnectionLifecycle:
                     close_method = getattr(self.websocket_connection, "close")
                     await asyncio.wait_for(close_method(), timeout=5.0)
                 else:
-                    self.logger.debug(
-                        "WebSocket already closed (code: %s)", self.websocket_connection.close_code
-                    )
+                    self.logger.debug("WebSocket already closed (code: %s)", self.websocket_connection.close_code)
             except (asyncio.TimeoutError, WebSocketException, OSError, RuntimeError):
                 self.logger.warning("Error closing WebSocket")
             finally:
@@ -88,9 +82,7 @@ class WebSocketConnectionLifecycle:
                 self.logger.info("WebSocket connection cleanup completed")
 
     def is_connected(self) -> bool:
-        return (
-            self.websocket_connection is not None and self.websocket_connection.close_code is None
-        )
+        return self.websocket_connection is not None and self.websocket_connection.close_code is None
 
     def get_connection(
         self,
@@ -127,8 +119,6 @@ def _validate_connection(connection, service_name: str) -> None:
         raise error
 
     if connection.close_code is not None:
-        error = ConnectionError(
-            "WebSocket connection closed during initialization " f"(code: {connection.close_code})"
-        )
+        error = ConnectionError("WebSocket connection closed during initialization " f"(code: {connection.close_code})")
         setattr(error, "_already_cleaned", True)
         raise error

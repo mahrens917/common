@@ -27,18 +27,14 @@ class PortfolioService:
 
         try:
             portfolio_balance = await self._client.get_portfolio_balance()
-            logger.info(
-                f"[{operation_name}] Retrieved balance: ${portfolio_balance.balance_cents/100:.2f}"
-            )
+            logger.info(f"[{operation_name}] Retrieved balance: ${portfolio_balance.balance_cents/100:.2f}")
         except CLIENT_API_ERRORS as exc:
             logger.exception(
                 "[%s] Error retrieving portfolio balance (%s)",
                 operation_name,
                 type(exc).__name__,
             )
-            raise KalshiAPIError(
-                f"Failed to retrieve portfolio balance", operation_name=operation_name
-            ) from exc
+            raise KalshiAPIError(f"Failed to retrieve portfolio balance", operation_name=operation_name) from exc
         else:
             return portfolio_balance
 
@@ -55,9 +51,7 @@ class PortfolioService:
                 operation_name,
                 type(exc).__name__,
             )
-            raise KalshiAPIError(
-                f"Failed to retrieve portfolio positions", operation_name=operation_name
-            ) from exc
+            raise KalshiAPIError(f"Failed to retrieve portfolio positions", operation_name=operation_name) from exc
         else:
             return positions
 

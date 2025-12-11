@@ -33,9 +33,7 @@ class OrderbookReader:
             try:
                 results = await pipe.execute()
             except REDIS_ERRORS as exc:
-                self.logger.error(
-                    "Redis error fetching orderbook for %s: %s", ticker, exc, exc_info=True
-                )
+                self.logger.error("Redis error fetching orderbook for %s: %s", ticker, exc, exc_info=True)
                 return {}
 
             orderbook = {}
@@ -46,14 +44,10 @@ class OrderbookReader:
             else:
                 return orderbook
         except REDIS_ERRORS as exc:
-            self.logger.error(
-                "Redis error getting orderbook for %s: %s", ticker, exc, exc_info=True
-            )
+            self.logger.error("Redis error getting orderbook for %s: %s", ticker, exc, exc_info=True)
             return {}
 
-    async def get_orderbook_side(
-        self, redis: Redis, market_key: str, ticker: str, side: str
-    ) -> Dict:
+    async def get_orderbook_side(self, redis: Redis, market_key: str, ticker: str, side: str) -> Dict:
         try:
             side_json = await ensure_awaitable(redis.hget(market_key, side))
             return parse_orderbook_json(side_json, side, ticker)
@@ -62,7 +56,5 @@ class OrderbookReader:
             return {}
 
     @staticmethod
-    def extract_orderbook_sizes(
-        market_ticker: str, market_data: Dict[str, Any]
-    ) -> tuple[float, float]:
+    def extract_orderbook_sizes(market_ticker: str, market_data: Dict[str, Any]) -> tuple[float, float]:
         return extract_orderbook_sizes(market_ticker, market_data)

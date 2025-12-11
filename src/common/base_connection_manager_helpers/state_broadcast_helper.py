@@ -5,9 +5,7 @@ from typing import Any, Optional
 from ..connection_state import ConnectionState
 
 
-async def broadcast_state_change(
-    manager: Any, new_state: ConnectionState, error_context: Optional[str] = None
-) -> None:
+async def broadcast_state_change(manager: Any, new_state: ConnectionState, error_context: Optional[str] = None) -> None:
     """Helper used by tests that patch broadcast behavior directly."""
     if manager.state_tracker is None:
         await manager._initialize_state_tracker()

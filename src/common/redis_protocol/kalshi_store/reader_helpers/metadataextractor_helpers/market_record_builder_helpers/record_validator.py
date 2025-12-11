@@ -16,9 +16,7 @@ class RecordValidator:
             raise MarketSkip("missing_metadata", f"No Redis hash for {market_ticker}")
 
     @staticmethod
-    def validate_market_status(
-        combined: Dict[str, Any], market_ticker: str, type_converter
-    ) -> None:
+    def validate_market_status(combined: Dict[str, Any], market_ticker: str, type_converter) -> None:
         """Validate market is not settled or closed."""
         status_value = type_converter.string_or_default(combined.get("status"))
         status_text = status_value.lower()

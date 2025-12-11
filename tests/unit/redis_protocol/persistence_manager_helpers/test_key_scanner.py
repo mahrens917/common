@@ -69,9 +69,7 @@ class TestGetPersistenceInfo:
         """Returns persistence info from Redis."""
         scanner = KeyScanner()
         redis = AsyncMock()
-        redis.info = AsyncMock(
-            return_value={"aof_enabled": "1", "rdb_last_save_time": "1234567890"}
-        )
+        redis.info = AsyncMock(return_value={"aof_enabled": "1", "rdb_last_save_time": "1234567890"})
 
         result = await scanner.get_persistence_info(redis)
 

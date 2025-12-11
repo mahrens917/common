@@ -52,9 +52,7 @@ async def fetch_probability_keys(redis_client: Redis, currency: str) -> List[Any
     try:
         keys = await ensure_awaitable(redis_client.keys(key_pattern))
     except (*REDIS_ERRORS, ValueError, TypeError, UnicodeDecodeError) as error:
-        raise ModelProbabilityCalculationError(
-            f"Failed to retrieve probability keys for {currency}"
-        ) from error
+        raise ModelProbabilityCalculationError(f"Failed to retrieve probability keys for {currency}") from error
 
     if not keys:
         raise ModelProbabilityDataUnavailable(f"No probability data available for {currency}")
@@ -90,13 +88,7 @@ async def extract_probability_from_key(redis_client: Redis, key_str: str) -> Opt
         return None
 
     try:
-        prob_str = (
-            probability_raw.decode("utf-8")
-            if isinstance(probability_raw, bytes)
-            else str(probability_raw)
-        )
+        prob_str = probability_raw.decode("utf-8") if isinstance(probability_raw, bytes) else str(probability_raw)
         return float(prob_str)
     except (TypeError, ValueError) as conversion_error:
-        raise ModelProbabilityCalculationError(
-            f"Invalid probability value for key {key_str}: {probability_raw!r}"
-        ) from conversion_error
+        raise ModelProbabilityCalculationError(f"Invalid probability value for key {key_str}: {probability_raw!r}") from conversion_error

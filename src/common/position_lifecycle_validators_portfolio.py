@@ -92,12 +92,7 @@ def validate_position_pnl_consistency(position: PortfolioPosition) -> Tuple[bool
         market_value = position.market_value_cents
         unrealized_pnl = position.unrealized_pnl_cents
 
-        if (
-            position_count is None
-            or average_price is None
-            or market_value is None
-            or unrealized_pnl is None
-        ):
+        if position_count is None or average_price is None or market_value is None or unrealized_pnl is None:
             return False, "Incomplete position data for P&L validation"
 
         # Calculate cost basis
@@ -123,9 +118,7 @@ def validate_position_pnl_consistency(position: PortfolioPosition) -> Tuple[bool
         return True, "Position P&L arithmetic consistent"
 
 
-def validate_position_exposure_limits(
-    position: PortfolioPosition, max_exposure_cents: int
-) -> Tuple[bool, str]:
+def validate_position_exposure_limits(position: PortfolioPosition, max_exposure_cents: int) -> Tuple[bool, str]:
     """
     Validate position exposure is within risk limits.
 
@@ -144,10 +137,7 @@ def validate_position_exposure_limits(
         current_exposure = abs(market_value)
 
         if current_exposure > max_exposure_cents:
-            return False, (
-                f"Position exposure exceeds limit: current={current_exposure}¢, "
-                f"limit={max_exposure_cents}¢"
-            )
+            return False, (f"Position exposure exceeds limit: current={current_exposure}¢, " f"limit={max_exposure_cents}¢")
 
         else:
             return True, "Position exposure within limits"
@@ -180,9 +170,7 @@ def validate_trade_execution_consistency(
     """
     try:
         # Validate order metadata
-        is_valid, error = _validate_order_metadata(
-            order_response, expected_ticker, expected_side, expected_action
-        )
+        is_valid, error = _validate_order_metadata(order_response, expected_ticker, expected_side, expected_action)
         if not is_valid:
             return False, error
 
@@ -217,9 +205,7 @@ def _validate_ticker_field(actual_ticker: str | None, expected_ticker: str) -> T
     return True, ""
 
 
-def _validate_side_field(
-    actual_side: OrderSide | None, expected_side: OrderSide
-) -> Tuple[bool, str]:
+def _validate_side_field(actual_side: OrderSide | None, expected_side: OrderSide) -> Tuple[bool, str]:
     """Validate side field matches expectation."""
     if not isinstance(actual_side, OrderSide):
         return False, f"Order response missing valid side attribute (got {actual_side})"
@@ -311,10 +297,7 @@ def _validate_execution_fees(order_response: OrderResponse) -> Tuple[bool, str]:
 
     # Fees shouldn't exceed 10% of trade value
     if fee_percentage > _CONST_10:
-        return False, (
-            f"Excessive fees: {fees_cents}¢ ({fee_percentage:.1f}%) "
-            f"on trade value {trade_value}¢"
-        )
+        return False, (f"Excessive fees: {fees_cents}¢ ({fee_percentage:.1f}%) " f"on trade value {trade_value}¢")
 
     return True, ""
 

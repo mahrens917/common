@@ -42,9 +42,7 @@ def initialize_or_restore_daily_state(should_reset: bool, previous_data: Dict[st
     return daily_state
 
 
-def add_observations_to_state(
-    daily_state, current_temp_c: float, current_timestamp: datetime, six_hour_max_c: Optional[int]
-):
+def add_observations_to_state(daily_state, current_temp_c: float, current_timestamp: datetime, six_hour_max_c: Optional[int]):
     """Add current observations to daily state."""
     daily_state.add_hourly_observation(current_temp_c, current_timestamp)
     if six_hour_max_c is not None:

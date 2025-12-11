@@ -30,9 +30,7 @@ class SnapshotReader:
         self._metadata_extractor = metadata_extractor
         self._metadata_adapter = metadata_adapter
 
-    async def get_subscribed_markets(
-        self, redis: Redis, subscriptions_key: str
-    ) -> Set[str]:  # pragma: no cover - Redis coordination
+    async def get_subscribed_markets(self, redis: Redis, subscriptions_key: str) -> Set[str]:  # pragma: no cover - Redis coordination
         """Return the set of market tickers currently subscribed across all services."""
         return await helpers.get_subscribed_markets(redis, subscriptions_key)
 
@@ -40,19 +38,13 @@ class SnapshotReader:
         """Check if a market is tracked (check if market data exists)"""
         return await helpers.is_market_tracked(redis, market_key, market_ticker)
 
-    async def get_market_snapshot(
-        self, redis: Redis, market_key: str, ticker: str, *, include_orderbook: bool = True
-    ) -> Dict[str, Any]:
+    async def get_market_snapshot(self, redis: Redis, market_key: str, ticker: str, *, include_orderbook: bool = True) -> Dict[str, Any]:
         """Return the canonical Redis hash for a Kalshi market ticker."""
-        return await helpers.get_market_snapshot(
-            redis, market_key, ticker, self._metadata_extractor, include_orderbook=include_orderbook
-        )
+        return await helpers.get_market_snapshot(redis, market_key, ticker, self._metadata_extractor, include_orderbook=include_orderbook)
 
     async def get_market_metadata(self, redis: Redis, market_key: str, ticker: str) -> Dict:
         """Get all metadata fields for a market"""
-        return await helpers.get_market_metadata(
-            redis, market_key, ticker, self._metadata_extractor, self._metadata_adapter
-        )
+        return await helpers.get_market_metadata(redis, market_key, ticker, self._metadata_extractor, self._metadata_adapter)
 
     async def get_market_field(self, redis: Redis, market_key: str, ticker: str, field: str) -> str:
         """Get specific market field"""

@@ -120,9 +120,7 @@ class RedisConnectionManager:
                 )
                 raise ConnectionError(f"Redis connection failed") from exc
 
-        assert (
-            self._connection is not None
-        ), "Redis connection should be initialized after get_connection()"
+        assert self._connection is not None, "Redis connection should be initialized after get_connection()"
         return self._connection
 
     async def close(self):

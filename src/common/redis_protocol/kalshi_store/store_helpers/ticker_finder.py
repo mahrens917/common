@@ -12,6 +12,4 @@ async def find_currency_market_tickers(store, currency: str) -> List[str]:
     ticker_parser = getattr(store._reader, "_ticker_parser", None)
     if market_filter is None or ticker_parser is None:
         raise RuntimeError("KalshiStore reader missing market filter dependencies")
-    return await market_filter.find_currency_market_tickers(
-        redis, currency, ticker_parser.is_market_for_currency
-    )
+    return await market_filter.find_currency_market_tickers(redis, currency, ticker_parser.is_market_for_currency)

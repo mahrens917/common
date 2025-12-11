@@ -37,9 +37,7 @@ class StatusReporterMixin:
         from .status_reporter_helpers.redis_client_manager import get_redis_client_for_reporter
 
         if self._redis_client_cached is None:
-            self._redis_client_cached = await get_redis_client_for_reporter(
-                self._redis_client, self._redis_client_cached
-            )
+            self._redis_client_cached = await get_redis_client_for_reporter(self._redis_client, self._redis_client_cached)
         return self._redis_client_cached if self._redis_client is None else self._redis_client
 
     async def report_status(self, status, **additional_fields: Any) -> None:

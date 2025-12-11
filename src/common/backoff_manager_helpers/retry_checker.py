@@ -34,8 +34,6 @@ class RetryChecker:
 
         should_retry = info["can_retry"]
         if not should_retry:
-            logger.warning(
-                f"[BackoffManager] Max attempts ({config.max_attempts}) reached for {service_name}/{backoff_type.value}"
-            )
+            logger.warning(f"[BackoffManager] Max attempts ({config.max_attempts}) reached for {service_name}/{backoff_type.value}")
 
         return should_retry

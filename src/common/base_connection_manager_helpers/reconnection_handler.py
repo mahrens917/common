@@ -52,10 +52,7 @@ class ReconnectionHandler:
         metrics = self.metrics_tracker.get_metrics()
         if metrics.consecutive_failures > 0:
             backoff_delay = self.calculate_backoff_delay()
-            self.logger.info(
-                f"Waiting {backoff_delay:.1f}s before reconnection attempt "
-                f"(failure #{metrics.consecutive_failures})"
-            )
+            self.logger.info(f"Waiting {backoff_delay:.1f}s before reconnection attempt " f"(failure #{metrics.consecutive_failures})")
             await asyncio.sleep(backoff_delay)
             return True
         return False

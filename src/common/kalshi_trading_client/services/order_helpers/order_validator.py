@@ -32,9 +32,7 @@ class OrderValidator:
             ) from exc
 
     @staticmethod
-    def has_sufficient_balance_for_trade_with_fees(
-        cached_balance_cents: int, trade_cost_cents: int, fees_cents: int
-    ) -> bool:
+    def has_sufficient_balance_for_trade_with_fees(cached_balance_cents: int, trade_cost_cents: int, fees_cents: int) -> bool:
         """Determine whether cached balance covers trade cost and fees."""
         import logging
 

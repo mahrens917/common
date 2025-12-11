@@ -14,18 +14,10 @@ import redis.asyncio
 from redis.exceptions import RedisError
 
 from . import config
-from .connection_pool_helpers.connection_management import (
-    acquire_thread_lock as _acquire_thread_lock,
-)
-from .connection_pool_helpers.connection_management import (
-    create_pool_if_needed as _create_pool_helper,
-)
-from .connection_pool_helpers.connection_management import (
-    initialize_pool as _initialize_pool_helper,
-)
-from .connection_pool_helpers.connection_management import (
-    should_recycle_pool as _should_recycle_pool_helper,
-)
+from .connection_pool_helpers.connection_management import acquire_thread_lock as _acquire_thread_lock
+from .connection_pool_helpers.connection_management import create_pool_if_needed as _create_pool_helper
+from .connection_pool_helpers.connection_management import initialize_pool as _initialize_pool_helper
+from .connection_pool_helpers.connection_management import should_recycle_pool as _should_recycle_pool_helper
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.WARNING)  # Only show WARNING and above
@@ -108,9 +100,7 @@ class RedisConnectionHealthMonitor:
         """Get current metrics"""
         with self._lock:
             total_operations = self.metrics["pool_gets"]
-            reuse_operations = max(
-                0, self.metrics["pool_gets"] - self.metrics["connections_created"]
-            )
+            reuse_operations = max(0, self.metrics["pool_gets"] - self.metrics["connections_created"])
 
             return {
                 **self.metrics,
@@ -186,9 +176,7 @@ async def _initialize_pool(current_loop: asyncio.AbstractEventLoop) -> None:
     """
     global _unified_pool, _pool_loop
 
-    pool, pool_loop = await _initialize_pool_helper(
-        current_loop, UNIFIED_REDIS_CONFIG, _redis_health_monitor
-    )
+    pool, pool_loop = await _initialize_pool_helper(current_loop, UNIFIED_REDIS_CONFIG, _redis_health_monitor)
     _unified_pool = pool
     _pool_loop = pool_loop
 

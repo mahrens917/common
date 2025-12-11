@@ -49,9 +49,7 @@ class PnLCalculator:
     async def generate_aggregated_report(self, start_date: date, end_date: date) -> PnLReport:
         return await self.report_generator.generate_aggregated_report(start_date, end_date)
 
-    async def generate_aggregated_report_by_close_date(
-        self, trades: List[TradeRecord]
-    ) -> PnLReport:
+    async def generate_aggregated_report_by_close_date(self, trades: List[TradeRecord]) -> PnLReport:
         return await self.report_generator.generate_aggregated_report_by_close_date(trades)
 
     async def calculate_daily_summary(self, trade_date: date) -> Optional[Dict]:
@@ -79,14 +77,10 @@ class PnLCalculator:
     ) -> Tuple[List[TradeRecord], PnLReport]:
         return await self.close_date_ops.get_yesterday_close_date_trades_and_report()
 
-    async def get_date_range_trades_and_report(
-        self, start_date: date, end_date: date
-    ) -> Tuple[List[TradeRecord], PnLReport]:
+    async def get_date_range_trades_and_report(self, start_date: date, end_date: date) -> Tuple[List[TradeRecord], PnLReport]:
         return await self.date_range_ops.get_date_range_trades_and_report(start_date, end_date)
 
-    async def store_unrealized_pnl_snapshot(
-        self, date_key: date, unrealized_pnl_cents: int
-    ) -> None:
+    async def store_unrealized_pnl_snapshot(self, date_key: date, unrealized_pnl_cents: int) -> None:
         await self.snapshot_manager.store_unrealized_pnl_snapshot(date_key, unrealized_pnl_cents)
 
     async def get_unrealized_pnl_snapshot(self, date_key: date) -> Optional[int]:

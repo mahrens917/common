@@ -79,9 +79,7 @@ class KalshiTradingClientTradeStoreMixin:
     async def ensure_trade_store(self, *, create: bool = True) -> Optional[TradeStore]:
         from .client_helpers import TradeStoreOperations
 
-        return await TradeStoreOperations.ensure_trade_store(
-            self._trade_store_manager, create=create
-        )
+        return await TradeStoreOperations.ensure_trade_store(self._trade_store_manager, create=create)
 
 
 __all__ = [

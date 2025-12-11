@@ -47,13 +47,9 @@ class TestDayNightDetector:
     @patch("os.path.join")
     @patch("os.path.dirname")
     @patch("json.load")
-    def test_load_weather_station_coordinates_success(
-        self, mock_json_load, mock_dirname, mock_join, detector, mock_weather_config_file
-    ):
+    def test_load_weather_station_coordinates_success(self, mock_json_load, mock_dirname, mock_join, detector, mock_weather_config_file):
         """Test successful loading of coordinates."""
-        mock_dirname.return_value = str(
-            mock_weather_config_file.parent.parent.parent
-        )  # Mimic the path up to the project root
+        mock_dirname.return_value = str(mock_weather_config_file.parent.parent.parent)  # Mimic the path up to the project root
         mock_join.return_value = str(mock_weather_config_file)  # The config file path
 
         mock_json_load.return_value = {
@@ -74,9 +70,7 @@ class TestDayNightDetector:
     @patch("os.path.join")
     @patch("os.path.dirname")
     @patch("builtins.open", side_effect=OSError("File not found"))
-    def test_load_weather_station_coordinates_file_not_found(
-        self, mock_open, mock_dirname, mock_join, detector, mock_weather_config_file
-    ):
+    def test_load_weather_station_coordinates_file_not_found(self, mock_open, mock_dirname, mock_join, detector, mock_weather_config_file):
         """Test handles file not found error."""
         mock_dirname.return_value = str(mock_weather_config_file.parent.parent.parent)
         mock_join.return_value = str(mock_weather_config_file)
@@ -171,9 +165,7 @@ class TestDayNightDetector:
         "common.optimized_status_reporter_helpers.day_night_detector.is_between_dawn_and_dusk",
         return_value=True,
     )
-    def test_get_day_night_icon_daytime(
-        self, mock_is_between_dawn_and_dusk, detector_with_coordinates
-    ):
+    def test_get_day_night_icon_daytime(self, mock_is_between_dawn_and_dusk, detector_with_coordinates):
         """Test returns empty string for daytime."""
         assert detector_with_coordinates.get_day_night_icon("KNYC") == ""
         mock_is_between_dawn_and_dusk.assert_called_once_with(40.71, -74.01)
@@ -182,9 +174,7 @@ class TestDayNightDetector:
         "common.optimized_status_reporter_helpers.day_night_detector.is_between_dawn_and_dusk",
         return_value=False,
     )
-    def test_get_day_night_icon_nighttime(
-        self, mock_is_between_dawn_and_dusk, detector_with_coordinates, mock_moon_phase_calculator
-    ):
+    def test_get_day_night_icon_nighttime(self, mock_is_between_dawn_and_dusk, detector_with_coordinates, mock_moon_phase_calculator):
         """Test returns moon phase emoji for nighttime."""
         assert detector_with_coordinates.get_day_night_icon("KNYC") == "🌕"
         mock_is_between_dawn_and_dusk.assert_called_once_with(40.71, -74.01)
@@ -194,9 +184,7 @@ class TestDayNightDetector:
         "common.optimized_status_reporter_helpers.day_night_detector.is_between_dawn_and_dusk",
         side_effect=ValueError("Test error"),
     )
-    def test_get_day_night_icon_exception_handling(
-        self, mock_is_between_dawn_and_dusk, detector_with_coordinates
-    ):
+    def test_get_day_night_icon_exception_handling(self, mock_is_between_dawn_and_dusk, detector_with_coordinates):
         """Test get_day_night_icon returns empty string on exception."""
         assert detector_with_coordinates.get_day_night_icon("KNYC") == ""
         mock_is_between_dawn_and_dusk.assert_called_once_with(40.71, -74.01)

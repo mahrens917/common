@@ -56,9 +56,7 @@ class SummaryReportBuilder:
         total_cost_dollars = report.total_cost_cents / 100
 
         roi_percent = self.stats_calculator.calculate_roi(total_pnl_dollars, total_cost_dollars)
-        avg_pnl_per_trade = self.stats_calculator.calculate_average_pnl_per_trade(
-            total_pnl_dollars, report.total_trades
-        )
+        avg_pnl_per_trade = self.stats_calculator.calculate_average_pnl_per_trade(total_pnl_dollars, report.total_trades)
 
         lines = [
             f"📈 **{days_back}-Day Summary**",
@@ -75,9 +73,7 @@ class SummaryReportBuilder:
 
         return "\n".join(lines)
 
-    async def generate_settlement_notification(
-        self, trade_date: date, settled_markets: list, daily_report: str
-    ) -> str:
+    async def generate_settlement_notification(self, trade_date: date, settled_markets: list, daily_report: str) -> str:
         """
         Generate notification when markets settle.
 

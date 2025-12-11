@@ -32,9 +32,7 @@ class UnifiedPnLFormatter:
         self.dollar_converter = dollar_converter
         self.stats_calculator = stats_calculator
 
-    def format_unified_pnl_section(
-        self, period_name: str, total_pnl_cents: int, trade_count: int, trades: List
-    ) -> str:
+    def format_unified_pnl_section(self, period_name: str, total_pnl_cents: int, trade_count: int, trades: List) -> str:
         """
         Format a simplified P&L section with unified P&L.
 

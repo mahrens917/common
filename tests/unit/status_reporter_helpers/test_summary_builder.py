@@ -5,10 +5,7 @@ from common.status_reporter_helpers.summary_builder import SummaryBuilder
 
 class TestSummaryBuilder:
     def test_build_opportunities_summary_none(self):
-        assert (
-            SummaryBuilder.build_opportunities_summary(0, 0, 0)
-            == "📊 No trading opportunities found"
-        )
+        assert SummaryBuilder.build_opportunities_summary(0, 0, 0) == "📊 No trading opportunities found"
 
     def test_build_opportunities_summary_found_only(self):
         result = SummaryBuilder.build_opportunities_summary(5, 0, 0)
@@ -48,10 +45,7 @@ class TestSummaryBuilder:
     def test_build_opportunities_summary_empty_components(self):
         # This case shouldn't technically happen given the 0 check at start,
         # but testing _build_message_components directly or if check removed
-        assert (
-            SummaryBuilder.build_opportunities_summary(0, 0, 0)
-            == "📊 No trading opportunities found"
-        )
+        assert SummaryBuilder.build_opportunities_summary(0, 0, 0) == "📊 No trading opportunities found"
 
     def test_build_opportunities_summary_formatting(self):
         # 1 component

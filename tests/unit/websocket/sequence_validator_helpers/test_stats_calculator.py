@@ -68,9 +68,7 @@ class TestStatsCalculator:
         mock_state.sid_to_gap_count = {}
         calculator = StatsCalculator("deribit", 10, mock_state)
 
-        with patch(
-            "common.websocket.sequence_validator_helpers.stats_calculator.logger"
-        ) as mock_logger:
+        with patch("common.websocket.sequence_validator_helpers.stats_calculator.logger") as mock_logger:
             calculator.log_stats()
 
             mock_logger.debug.assert_called_once()
@@ -82,9 +80,7 @@ class TestStatsCalculator:
         mock_state.sid_to_gap_count = {1: 5}
         calculator = StatsCalculator("deribit", 10, mock_state)
 
-        with patch(
-            "common.websocket.sequence_validator_helpers.stats_calculator.logger"
-        ) as mock_logger:
+        with patch("common.websocket.sequence_validator_helpers.stats_calculator.logger") as mock_logger:
             calculator.log_stats()
 
             mock_logger.info.assert_called_once()

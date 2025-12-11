@@ -308,9 +308,7 @@ class TestRiskAssessorAssessPositionRisk:
 
         with patch("common.time_utils.get_current_utc") as mock_time:
             mock_time.return_value = datetime.now(timezone.utc)
-            with patch(
-                "common.emergency_position_manager_helpers.risk_assessor.logger"
-            ) as mock_logger:
+            with patch("common.emergency_position_manager_helpers.risk_assessor.logger") as mock_logger:
                 await assessor.assess_position_risk(position, creation_time)
 
         mock_logger.warning.assert_called_once()

@@ -57,13 +57,9 @@ class KalshiMetadataAdapter:
         now_dt: Optional[datetime] = None,
     ) -> str:
         """Derive an ISO8601 expiry for a market when Kalshi REST metadata is incomplete."""
-        return derive_expiry_iso_impl(
-            market_ticker, metadata, descriptor_expiry_token, now_dt=now_dt
-        )
+        return derive_expiry_iso_impl(market_ticker, metadata, descriptor_expiry_token, now_dt=now_dt)
 
-    def ensure_market_metadata_fields(
-        self, market_ticker: str, metadata: Dict[str, Any]
-    ) -> Dict[str, Any]:
+    def ensure_market_metadata_fields(self, market_ticker: str, metadata: Dict[str, Any]) -> Dict[str, Any]:
         """Populate essential metadata fields when REST ingestion is missing."""
         return enrich_metadata_fields(market_ticker, metadata)
 

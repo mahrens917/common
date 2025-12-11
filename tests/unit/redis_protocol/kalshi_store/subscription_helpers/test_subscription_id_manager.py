@@ -34,9 +34,7 @@ class DummyRedis:
 @pytest.mark.asyncio
 async def test_record_subscription_ids_skips_invalid(monkeypatch):
     redis = DummyRedis()
-    manager = subscription_id_manager.SubscriptionIdManager(
-        lambda: AsyncMock(return_value=redis)(), "subs:key", "ws"
-    )
+    manager = subscription_id_manager.SubscriptionIdManager(lambda: AsyncMock(return_value=redis)(), "subs:key", "ws")
 
     class ValueThatRaises:
         def __str__(self):
@@ -56,9 +54,7 @@ async def test_record_subscription_ids_raises_on_error(monkeypatch):
     redis = MagicMock()
     redis.hset = AsyncMock(side_effect=DummyRedisError("boom"))
     monkeypatch.setattr(subscription_id_manager, "REDIS_ERRORS", (DummyRedisError,))
-    manager = subscription_id_manager.SubscriptionIdManager(
-        lambda: AsyncMock(return_value=redis)(), "subs:key", "ws"
-    )
+    manager = subscription_id_manager.SubscriptionIdManager(lambda: AsyncMock(return_value=redis)(), "subs:key", "ws")
 
     with pytest.raises(DummyRedisError):
         await manager.record_subscription_ids({"first": "1"})
@@ -68,9 +64,7 @@ async def test_record_subscription_ids_raises_on_error(monkeypatch):
 async def test_fetch_subscription_ids_returns_values(monkeypatch):
     redis = DummyRedis()
     redis.storage["ws:first"] = "1"
-    manager = subscription_id_manager.SubscriptionIdManager(
-        lambda: AsyncMock(return_value=redis)(), "subs:key", "ws"
-    )
+    manager = subscription_id_manager.SubscriptionIdManager(lambda: AsyncMock(return_value=redis)(), "subs:key", "ws")
 
     result = await manager.fetch_subscription_ids(["first", "missing"])
 
@@ -82,9 +76,7 @@ async def test_fetch_subscription_ids_handles_errors(monkeypatch):
     redis = MagicMock()
     redis.hmget = AsyncMock(side_effect=DummyRedisError("boom"))
     monkeypatch.setattr(subscription_id_manager, "REDIS_ERRORS", (DummyRedisError,))
-    manager = subscription_id_manager.SubscriptionIdManager(
-        lambda: AsyncMock(return_value=redis)(), "subs:key", "ws"
-    )
+    manager = subscription_id_manager.SubscriptionIdManager(lambda: AsyncMock(return_value=redis)(), "subs:key", "ws")
 
     with pytest.raises(DummyRedisError):
         await manager.fetch_subscription_ids(["first"])
@@ -94,9 +86,7 @@ async def test_fetch_subscription_ids_handles_errors(monkeypatch):
 async def test_clear_subscription_ids(monkeypatch):
     redis = DummyRedis()
     redis.storage["ws:first"] = "1"
-    manager = subscription_id_manager.SubscriptionIdManager(
-        lambda: AsyncMock(return_value=redis)(), "subs:key", "ws"
-    )
+    manager = subscription_id_manager.SubscriptionIdManager(lambda: AsyncMock(return_value=redis)(), "subs:key", "ws")
 
     await manager.clear_subscription_ids(["first"])
     assert "ws:first" not in redis.storage
@@ -107,9 +97,7 @@ async def test_clear_subscription_ids_handles_error(monkeypatch):
     redis = MagicMock()
     redis.hdel = AsyncMock(side_effect=DummyRedisError("boom"))
     monkeypatch.setattr(subscription_id_manager, "REDIS_ERRORS", (DummyRedisError,))
-    manager = subscription_id_manager.SubscriptionIdManager(
-        lambda: AsyncMock(return_value=redis)(), "subs:key", "ws"
-    )
+    manager = subscription_id_manager.SubscriptionIdManager(lambda: AsyncMock(return_value=redis)(), "subs:key", "ws")
 
     with pytest.raises(DummyRedisError):
         await manager.clear_subscription_ids(["first"])

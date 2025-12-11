@@ -30,9 +30,7 @@ class TrackingState:
         """
         self.sid_to_last_seq[sid] = seq
         self.sid_to_gap_count[sid] = 0
-        logger.debug(
-            f"{self.service_name} sequence validator: Initialized SID {sid} with seq {seq}"
-        )
+        logger.debug(f"{self.service_name} sequence validator: Initialized SID {sid} with seq {seq}")
 
     def update_sequence(self, sid: int, seq: int) -> None:
         """

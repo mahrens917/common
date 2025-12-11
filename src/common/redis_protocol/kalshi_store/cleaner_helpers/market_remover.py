@@ -31,15 +31,9 @@ class MarketRemover:
 
     async def remove_market_completely(self, market_ticker: str) -> bool:
         try:
-            market_ticker_str = (
-                market_ticker.decode("utf-8")
-                if isinstance(market_ticker, bytes)
-                else str(market_ticker)
-            )
+            market_ticker_str = market_ticker.decode("utf-8") if isinstance(market_ticker, bytes) else str(market_ticker)
             market_key = self._get_market_key(market_ticker_str)
-            snapshot_key = (
-                self._get_snapshot_key(market_ticker_str) if self._get_snapshot_key else None
-            )
+            snapshot_key = self._get_snapshot_key(market_ticker_str) if self._get_snapshot_key else None
             logger.debug(
                 "Removing Kalshi market %s using key %s (service_prefix=%s)",
                 market_ticker_str,
@@ -54,9 +48,7 @@ class MarketRemover:
             pipe.delete(market_key)
             if snapshot_key:
                 pipe.delete(snapshot_key)
-            success = await PipelineExecutor.execute_pipeline(
-                pipe, f"remove market {market_ticker_str}"
-            )
+            success = await PipelineExecutor.execute_pipeline(pipe, f"remove market {market_ticker_str}")
             if success:
                 logger.info(
                     "Successfully removed market %s completely from Redis",

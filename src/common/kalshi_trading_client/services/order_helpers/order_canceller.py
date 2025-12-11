@@ -50,9 +50,7 @@ class OrderCanceller:
                 logger.info(f"[{operation_name}] Order {order_id} cancelled successfully")
                 cancelled = True
             else:
-                logger.error(
-                    f"[{operation_name}] Order {order_id} not canceled: status={validated_order['status']}"
-                )
+                logger.error(f"[{operation_name}] Order {order_id} not canceled: status={validated_order['status']}")
                 cancelled = False
 
         except CLIENT_API_ERRORS + (ValueError, KeyError) as exc:

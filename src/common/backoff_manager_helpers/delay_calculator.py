@@ -46,10 +46,7 @@ class DelayCalculator:
             Adjusted delay
         """
         if network_health_monitor and not network_health_monitor.is_network_healthy():
-            if (
-                network_health_monitor.is_network_degraded()
-                or network_health_monitor.is_network_offline()
-            ):
+            if network_health_monitor.is_network_degraded() or network_health_monitor.is_network_offline():
                 adjusted_delay = base_delay * config.network_degraded_multiplier
                 logger.debug(
                     f"[BackoffManager] Applied network degraded multiplier ({config.network_degraded_multiplier}x) for {service_name}"
@@ -94,9 +91,7 @@ class DelayCalculator:
             Final delay in seconds
         """
         base_delay = cls.calculate_base_delay(config, attempt)
-        network_adjusted = cls.apply_network_multiplier(
-            base_delay, config, network_health_monitor, service_name
-        )
+        network_adjusted = cls.apply_network_multiplier(base_delay, config, network_health_monitor, service_name)
         final_delay = cls.apply_jitter(network_adjusted, config.jitter_range)
 
         logger.debug(

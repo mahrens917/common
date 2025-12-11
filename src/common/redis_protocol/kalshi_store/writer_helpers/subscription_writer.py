@@ -47,9 +47,7 @@ class SubscriptionWriter:
         """
         return self._metadata.extract_weather_station_from_ticker(market_ticker)
 
-    def derive_expiry_iso(
-        self, market_ticker: str, metadata: Dict[str, Any], descriptor: KalshiMarketDescriptor
-    ) -> str:
+    def derive_expiry_iso(self, market_ticker: str, metadata: Dict[str, Any], descriptor: KalshiMarketDescriptor) -> str:
         """Ensure we have an ISO formatted expiry/close time for downstream consumers."""
         return self._metadata.derive_expiry_iso(
             market_ticker,
@@ -57,9 +55,7 @@ class SubscriptionWriter:
             descriptor.expiry_token,
         )
 
-    def ensure_market_metadata_fields(
-        self, market_ticker: str, metadata: Dict[str, Any]
-    ) -> Dict[str, Any]:
+    def ensure_market_metadata_fields(self, market_ticker: str, metadata: Dict[str, Any]) -> Dict[str, Any]:
         """Populate essential metadata fields when REST ingestion is missing."""
         return self._metadata.ensure_market_metadata_fields(market_ticker, metadata)
 

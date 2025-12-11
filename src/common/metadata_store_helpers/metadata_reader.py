@@ -40,14 +40,10 @@ class MetadataReader:
         self.global_stats_key = global_stats_key
         self.normalizer = DataNormalizer()
 
-    async def get_service_metadata(
-        self, client: RedisClient, service_name: str
-    ) -> Optional[ServiceMetadata]:
+    async def get_service_metadata(self, client: RedisClient, service_name: str) -> Optional[ServiceMetadata]:
         """Get metadata for a specific service with O(1) access"""
         metadata_key = f"{self.metadata_key_prefix}{service_name}"
-        metadata_data = await fetch_hash_data(
-            client, metadata_key, f"metadata for service '{service_name}'"
-        )
+        metadata_data = await fetch_hash_data(client, metadata_key, f"metadata for service '{service_name}'")
 
         if not metadata_data:
             return None
@@ -56,24 +52,14 @@ class MetadataReader:
             normalized = self.normalizer.normalize_hash(metadata_data)
             return ServiceMetadata(
                 service_name=service_name,
-                total_message_count=self.normalizer.int_field(normalized, "total_count", default=0),
-                last_activity_timestamp=self.normalizer.float_field(
-                    normalized, "last_activity", default=0.0
-                ),
-                messages_last_hour=self.normalizer.int_field(
-                    normalized, "messages_last_hour", default=0
-                ),
-                messages_last_minute=self.normalizer.int_field(
-                    normalized, "messages_last_minute", default=0
-                ),
-                messages_last_65_minutes=self.normalizer.int_field(
-                    normalized, "messages_last_65_minutes", default=0
-                ),
+                total_message_count=self.normalizer.int_field(normalized, "total_count", value_on_error=0),
+                last_activity_timestamp=self.normalizer.float_field(normalized, "last_activity", value_on_error=0.0),
+                messages_last_hour=self.normalizer.int_field(normalized, "messages_last_hour", value_on_error=0),
+                messages_last_minute=self.normalizer.int_field(normalized, "messages_last_minute", value_on_error=0),
+                messages_last_65_minutes=self.normalizer.int_field(normalized, "messages_last_65_minutes", value_on_error=0),
             )
         except (TypeError, ValueError) as exc:
-            raise DataError(
-                f"Metadata for service '{service_name}' is corrupt: {metadata_data}"
-            ) from exc
+            raise DataError(f"Metadata for service '{service_name}' is corrupt: {metadata_data}") from exc
 
     async def get_all_services(self, client: RedisClient) -> Set[str]:
         """Get set of all services that have metadata"""
@@ -88,9 +74,7 @@ class MetadataReader:
 
     async def get_total_message_count(self, client: RedisClient) -> int:
         """Get total message count across all services with O(1) access"""
-        total_str = await fetch_hash_field(
-            client, self.global_stats_key, "total_messages", "total message count"
-        )
+        total_str = await fetch_hash_field(client, self.global_stats_key, "total_messages", "total message count")
 
         if total_str is None:
             return 0

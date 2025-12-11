@@ -29,9 +29,7 @@ class StateManager:
             return False
         client = await self._get_client()
         try:
-            await ensure_awaitable(
-                client.hset(self.connection_states_key, state_info.service_name, state_json)
-            )
+            await ensure_awaitable(client.hset(self.connection_states_key, state_info.service_name, state_json))
             await ensure_awaitable(client.expire(self.connection_states_key, 86400))
             logger.debug(
                 "Stored connection state for %s: %s",
@@ -51,9 +49,7 @@ class StateManager:
     async def get_connection_state(self, service_name: str) -> Optional[ConnectionStateInfo]:
         client = await self._get_client()
         try:
-            state_json = await ensure_awaitable(
-                client.hget(self.connection_states_key, service_name)
-            )
+            state_json = await ensure_awaitable(client.hget(self.connection_states_key, service_name))
         except REDIS_ERRORS:
             logger.error("Failed to get connection state for %s", service_name, exc_info=True)
             return None
@@ -82,11 +78,7 @@ class StateManager:
 
     async def get_services_in_reconnection(self) -> List[str]:
         all_states = await self.get_all_connection_states()
-        return [
-            service_name
-            for service_name, state_info in all_states.items()
-            if _is_reconnecting(state_info)
-        ]
+        return [service_name for service_name, state_info in all_states.items() if _is_reconnecting(state_info)]
 
     async def cleanup_stale_states(self, max_age_hours: int = 24) -> int:
         all_states = await self.get_all_connection_states()

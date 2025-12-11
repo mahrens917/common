@@ -32,18 +32,14 @@ class UtilityDelegator:
 
     def extract_weather_station_from_ticker(self, market_ticker: str) -> Optional[str]:
         """Extract weather station ICAO code from market ticker."""
-        return resolve_weather_station_from_ticker(
-            market_ticker, writer=self._writer, weather_resolver=self.weather_resolver
-        )
+        return resolve_weather_station_from_ticker(market_ticker, writer=self._writer, weather_resolver=self.weather_resolver)
 
     def derive_expiry_iso(self, market_ticker: str, metadata: Dict[str, Any]) -> str:
         """Derive ISO expiry date from market ticker and metadata."""
         descriptor = self.market_descriptor(market_ticker)
         return self._writer.derive_expiry_iso(market_ticker, metadata, descriptor)
 
-    def ensure_market_metadata_fields(
-        self, market_ticker: str, metadata: Dict[str, Any]
-    ) -> Dict[str, Any]:
+    def ensure_market_metadata_fields(self, market_ticker: str, metadata: Dict[str, Any]) -> Dict[str, Any]:
         """Ensure all required metadata fields are present."""
         return self._reader.ensure_market_metadata_fields(market_ticker, metadata)
 

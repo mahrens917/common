@@ -47,9 +47,7 @@ class CacheManager:
             current_timestamp.replace(second=0, microsecond=0).isoformat(),
         )
 
-    def get_cached_result(
-        self, cache_key: Tuple[str, str, str]
-    ) -> Optional[Tuple[bool, Optional[datetime]]]:
+    def get_cached_result(self, cache_key: Tuple[str, str, str]) -> Optional[Tuple[bool, Optional[datetime]]]:
         """
         Get cached dawn check result if available.
 
@@ -61,9 +59,7 @@ class CacheManager:
         """
         return self._dawn_check_cache.get(cache_key)
 
-    def cache_result(
-        self, cache_key: Tuple[str, str, str], result: Tuple[bool, Optional[datetime]]
-    ) -> None:
+    def cache_result(self, cache_key: Tuple[str, str, str], result: Tuple[bool, Optional[datetime]]) -> None:
         """
         Cache a dawn check result.
 

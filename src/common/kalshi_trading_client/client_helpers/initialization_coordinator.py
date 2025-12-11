@@ -66,14 +66,10 @@ class InitializationCoordinator:
             initialized_backoff,
             trade_store_manager,
             notifier,
-        ) = _initialize_core_clients(
-            kalshi_client, trade_store, backoff_manager, network_health_monitor
-        )
+        ) = _initialize_core_clients(kalshi_client, trade_store, backoff_manager, network_health_monitor)
 
         config_vals = ClientInitializer.extract_config_values(ClientInitializer.load_config())
-        initialized_weather = ClientInitializer.initialize_weather_resolver(
-            weather_station_resolver
-        )
+        initialized_weather = ClientInitializer.initialize_weather_resolver(weather_station_resolver)
         services_holder = {}
         portfolio, orders, trade_collection = _create_service_stack(
             initialized_kalshi,
@@ -85,9 +81,7 @@ class InitializationCoordinator:
         )
         _wire_order_dependencies(orders, notifier, telegram_handler)
 
-        logger.info(
-            "[InitializationCoordinator] Initialized unified trading client with trade collection"
-        )
+        logger.info("[InitializationCoordinator] Initialized unified trading client with trade collection")
 
         components = _InitializationResultComponents(
             initialized_kalshi=initialized_kalshi,
@@ -113,12 +107,8 @@ def _initialize_core_clients(
     network_health_monitor,
 ):
     initialized_kalshi = ClientInitializer.initialize_kalshi_client(kalshi_client, trade_store)
-    initialized_backoff = ClientInitializer.initialize_backoff_manager(
-        backoff_manager, network_health_monitor
-    )
-    trade_store_manager = TradeStoreManager(
-        kalshi_client=initialized_kalshi, store_supplier=lambda: trade_store
-    )
+    initialized_backoff = ClientInitializer.initialize_backoff_manager(backoff_manager, network_health_monitor)
+    trade_store_manager = TradeStoreManager(kalshi_client=initialized_kalshi, store_supplier=lambda: trade_store)
     notifier = TradeNotifierAdapter()
     return initialized_kalshi, initialized_backoff, trade_store_manager, notifier
 

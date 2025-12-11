@@ -23,9 +23,7 @@ class DateRangeOperations(BaseReportOperations):
     def __init__(self, trade_store: TradeStore, report_generator: ReportGenerator):
         super().__init__(trade_store, report_generator, logger)
 
-    async def get_date_range_trades_and_report(
-        self, start_date: date, end_date: date
-    ) -> Tuple[List[TradeRecord], PnLReport]:
+    async def get_date_range_trades_and_report(self, start_date: date, end_date: date) -> Tuple[List[TradeRecord], PnLReport]:
         """
         Get both trades and P&L report for a date range.
 

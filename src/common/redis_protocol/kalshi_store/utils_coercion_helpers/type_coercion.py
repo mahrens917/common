@@ -56,9 +56,7 @@ def int_or_default(value: Any, default: int = 0) -> int:
         return int(value)
     if isinstance(value, (str, bytes, bytearray)):
         try:
-            text = (
-                value.decode("utf-8", "ignore") if isinstance(value, (bytes, bytearray)) else value
-            )
+            text = value.decode("utf-8", "ignore") if isinstance(value, (bytes, bytearray)) else value
             return int(float(text))
         except (
             TypeError,
@@ -96,11 +94,7 @@ def float_or_default(
     try:
         return coerce_float_strict(value)
     except ValueError as exc:
-        message = (
-            error_message.format(value=value)
-            if error_message
-            else f"Expected numeric value, got {value!r}"
-        )
+        message = error_message.format(value=value) if error_message else f"Expected numeric value, got {value!r}"
         raise ValueError(message) from exc
 
 

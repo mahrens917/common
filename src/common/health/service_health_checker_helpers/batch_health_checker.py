@@ -37,9 +37,7 @@ async def check_all_service_health(
     for service_name, result in zip(service_names, health_results):
         if isinstance(result, Exception):
             logger.error(f"Error checking health for {service_name}: {result}")
-            results[service_name] = ServiceHealthInfo(
-                health=ServiceHealth.UNKNOWN, error_message=str(result)
-            )
+            results[service_name] = ServiceHealthInfo(health=ServiceHealth.UNKNOWN, error_message=str(result))
         else:
             results[service_name] = result
 

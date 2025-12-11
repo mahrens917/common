@@ -131,6 +131,4 @@ class OrderPoller:
             )
 
         average_price = total_cost // total_filled
-        return PollingOutcome(
-            fills=fills, total_filled=total_filled, average_price_cents=average_price
-        )
+        return PollingOutcome(fills=fills, total_filled=total_filled, average_price_cents=average_price)

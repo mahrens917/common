@@ -52,15 +52,11 @@ class TestStateUpdaterDelegator:
 
         delegator = StateUpdaterDelegator(mock_tracker)
 
-        result = await delegator.update_connection_state(
-            "kalshi", ConnectionState.CONNECTED, "error context", 3
-        )
+        result = await delegator.update_connection_state("kalshi", ConnectionState.CONNECTED, "error context", 3)
 
         assert result is True
         mock_tracker.initialize.assert_called_once()
-        mock_state_updater.update_connection_state.assert_called_once_with(
-            "kalshi", ConnectionState.CONNECTED, "error context", 3
-        )
+        mock_state_updater.update_connection_state.assert_called_once_with("kalshi", ConnectionState.CONNECTED, "error context", 3)
 
     @pytest.mark.asyncio
     async def test_update_connection_state_raises_on_redis_error(self) -> None:
@@ -68,9 +64,7 @@ class TestStateUpdaterDelegator:
         mock_tracker = MagicMock()
         mock_tracker.initialize = AsyncMock()
         mock_state_updater = AsyncMock()
-        mock_state_updater.update_connection_state = AsyncMock(
-            side_effect=RedisError("Connection lost")
-        )
+        mock_state_updater.update_connection_state = AsyncMock(side_effect=RedisError("Connection lost"))
         mock_tracker.state_updater = mock_state_updater
 
         delegator = StateUpdaterDelegator(mock_tracker)
@@ -87,9 +81,7 @@ class TestStateUpdaterDelegator:
         mock_tracker = MagicMock()
         mock_tracker.initialize = AsyncMock()
         mock_state_updater = AsyncMock()
-        mock_state_updater.update_connection_state = AsyncMock(
-            side_effect=ConnectionError("Connection refused")
-        )
+        mock_state_updater.update_connection_state = AsyncMock(side_effect=ConnectionError("Connection refused"))
         mock_tracker.state_updater = mock_state_updater
 
         delegator = StateUpdaterDelegator(mock_tracker)
@@ -179,9 +171,7 @@ class TestStateQuerierDelegator:
         mock_tracker = MagicMock()
         mock_tracker.initialize = AsyncMock()
         mock_state_querier = AsyncMock()
-        mock_state_querier.get_services_in_reconnection = AsyncMock(
-            return_value=["kalshi", "deribit"]
-        )
+        mock_state_querier.get_services_in_reconnection = AsyncMock(return_value=["kalshi", "deribit"])
         mock_tracker.state_querier = mock_state_querier
 
         delegator = StateQuerierDelegator(mock_tracker)
@@ -196,9 +186,7 @@ class TestStateQuerierDelegator:
         mock_tracker = MagicMock()
         mock_tracker.initialize = AsyncMock()
         mock_state_querier = AsyncMock()
-        mock_state_querier.get_services_in_reconnection = AsyncMock(
-            side_effect=RuntimeError("Error")
-        )
+        mock_state_querier.get_services_in_reconnection = AsyncMock(side_effect=RuntimeError("Error"))
         mock_tracker.state_querier = mock_state_querier
 
         delegator = StateQuerierDelegator(mock_tracker)
@@ -261,9 +249,7 @@ class TestStateQuerierDelegator:
         mock_tracker = MagicMock()
         mock_tracker.initialize = AsyncMock()
         mock_state_querier = AsyncMock()
-        mock_state_querier.get_all_connection_states = AsyncMock(
-            side_effect=JSONDecodeError("Error", "", 0)
-        )
+        mock_state_querier.get_all_connection_states = AsyncMock(side_effect=JSONDecodeError("Error", "", 0))
         mock_tracker.state_querier = mock_state_querier
 
         delegator = StateQuerierDelegator(mock_tracker)
@@ -298,9 +284,7 @@ class TestEventManagerDelegator:
 
         await delegator.record_connection_event("kalshi", "disconnect", "timeout")
 
-        mock_event_manager.record_connection_event.assert_called_once_with(
-            "kalshi", "disconnect", "timeout"
-        )
+        mock_event_manager.record_connection_event.assert_called_once_with("kalshi", "disconnect", "timeout")
 
     @pytest.mark.asyncio
     async def test_record_connection_event_raises_on_error(self) -> None:
@@ -373,9 +357,7 @@ class TestEventManagerDelegator:
         mock_tracker = MagicMock()
         mock_tracker.initialize = AsyncMock()
         mock_event_manager = AsyncMock()
-        mock_event_manager.get_recent_connection_events = AsyncMock(
-            side_effect=RuntimeError("Error")
-        )
+        mock_event_manager.get_recent_connection_events = AsyncMock(side_effect=RuntimeError("Error"))
         mock_tracker.event_manager = mock_event_manager
 
         delegator = EventManagerDelegator(mock_tracker)

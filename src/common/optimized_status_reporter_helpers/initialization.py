@@ -32,9 +32,7 @@ class StatusReporterInitializer:
     """Initialize all components for OptimizedStatusReporter."""
 
     @staticmethod
-    def initialize_components(
-        process_manager, health_checker, metadata_store, tracker_controller, emit_fn
-    ):
+    def initialize_components(process_manager, health_checker, metadata_store, tracker_controller, emit_fn):
         """Initialize all collectors, formatters, and printers."""
         logs_dir = Path(__file__).resolve().parents[2] / "logs"
         log_activity_monitor = LogActivityMonitor(str(logs_dir))
@@ -61,9 +59,7 @@ class StatusReporterInitializer:
         kalshi_collector = KalshiMarketStatusCollector()
 
         section_printer = SectionPrinter(emit_fn)
-        service_printer = ServicePrinter(
-            emit_fn, resource_tracker, log_formatter, data_coercion.bool_or_default
-        )
+        service_printer = ServicePrinter(emit_fn, resource_tracker, log_formatter, data_coercion.bool_or_default)
         metrics_printer = MetricsSectionPrinter(data_coercion)
 
         return {
@@ -94,9 +90,7 @@ class StatusReporterInitializer:
         return None, asyncio.Lock()
 
     @staticmethod
-    def initialize_instance_attributes(
-        instance, process_manager, health_checker, metadata_store, tracker_controller
-    ):
+    def initialize_instance_attributes(instance, process_manager, health_checker, metadata_store, tracker_controller):
         """Initialize all instance attributes for OptimizedStatusReporter."""
         (
             instance.process_manager,
@@ -104,9 +98,7 @@ class StatusReporterInitializer:
             instance.metadata_store,
             instance.tracker_controller,
         ) = (process_manager, health_checker, metadata_store, tracker_controller)
-        instance._kalshi_client, instance._kalshi_client_lock = (
-            StatusReporterInitializer.initialize_kalshi_state()
-        )
+        instance._kalshi_client, instance._kalshi_client_lock = StatusReporterInitializer.initialize_kalshi_state()
         components = StatusReporterInitializer.initialize_components(
             process_manager,
             health_checker,

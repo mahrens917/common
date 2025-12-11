@@ -16,9 +16,7 @@ class LogActivityFormatter:
     def __init__(self, time_formatter):
         self.time_formatter = time_formatter
 
-    def format_log_activity_short(
-        self, service_name: str, activity: Optional[LogActivity]
-    ) -> Optional[str]:
+    def format_log_activity_short(self, service_name: str, activity: Optional[LogActivity]) -> Optional[str]:
         """Condensed log activity summary for inline status lines."""
         if not activity:
             return None

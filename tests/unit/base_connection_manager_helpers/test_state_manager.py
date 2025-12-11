@@ -33,9 +33,7 @@ class TestConnectionStateManagerTransitionState:
         """Transitions to new state."""
         manager = ConnectionStateManager(service_name="test_service")
 
-        with patch(
-            "common.base_connection_manager_helpers.state_manager.safely_schedule_coroutine"
-        ):
+        with patch("common.base_connection_manager_helpers.state_manager.safely_schedule_coroutine"):
             manager.transition_state(ConnectionState.READY)
 
         assert manager.state == ConnectionState.READY
@@ -45,9 +43,7 @@ class TestConnectionStateManagerTransitionState:
         manager = ConnectionStateManager(service_name="test_service")
         initial_time = manager.state_change_time
 
-        with patch(
-            "common.base_connection_manager_helpers.state_manager.safely_schedule_coroutine"
-        ):
+        with patch("common.base_connection_manager_helpers.state_manager.safely_schedule_coroutine"):
             with patch("time.time", return_value=initial_time + 10):
                 manager.transition_state(ConnectionState.READY)
 
@@ -57,9 +53,7 @@ class TestConnectionStateManagerTransitionState:
         """Creates broadcast task on state change."""
         manager = ConnectionStateManager(service_name="test_service")
 
-        with patch(
-            "common.base_connection_manager_helpers.state_manager.safely_schedule_coroutine"
-        ) as mock_schedule:
+        with patch("common.base_connection_manager_helpers.state_manager.safely_schedule_coroutine") as mock_schedule:
             manager.transition_state(ConnectionState.READY)
 
         mock_schedule.assert_called_once()
@@ -69,9 +63,7 @@ class TestConnectionStateManagerTransitionState:
         manager = ConnectionStateManager(service_name="test_service")
         # Initial state is DISCONNECTED
 
-        with patch(
-            "common.base_connection_manager_helpers.state_manager.safely_schedule_coroutine"
-        ) as mock_schedule:
+        with patch("common.base_connection_manager_helpers.state_manager.safely_schedule_coroutine") as mock_schedule:
             manager.transition_state(ConnectionState.DISCONNECTED)
 
         mock_schedule.assert_not_called()
@@ -80,9 +72,7 @@ class TestConnectionStateManagerTransitionState:
         """Logs state transition."""
         manager = ConnectionStateManager(service_name="test_service")
 
-        with patch(
-            "common.base_connection_manager_helpers.state_manager.safely_schedule_coroutine"
-        ):
+        with patch("common.base_connection_manager_helpers.state_manager.safely_schedule_coroutine"):
             with patch.object(manager.logger, "info") as mock_log:
                 manager.transition_state(ConnectionState.READY)
 
@@ -190,9 +180,7 @@ class TestConnectionStateManagerGetState:
         """Returns updated state after transition."""
         manager = ConnectionStateManager(service_name="test_service")
 
-        with patch(
-            "common.base_connection_manager_helpers.state_manager.safely_schedule_coroutine"
-        ):
+        with patch("common.base_connection_manager_helpers.state_manager.safely_schedule_coroutine"):
             manager.transition_state(ConnectionState.READY)
 
         assert manager.get_state() == ConnectionState.READY

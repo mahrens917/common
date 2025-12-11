@@ -36,9 +36,7 @@ class DeltaProcessor(SnapshotProcessor):
             return False
 
         side_field, price_str, delta = parsed_inputs
-        side_data = await _apply_side_delta(
-            redis, market_key, market_ticker, side_field, price_str, delta
-        )
+        side_data = await _apply_side_delta(redis, market_key, market_ticker, side_field, price_str, delta)
         if side_data is None:
             return False
 
@@ -98,14 +96,10 @@ async def _apply_side_delta(
     try:
         side_json = await ensure_awaitable(redis.hget(market_key, side_field))
     except REDIS_ERRORS as exc:
-        logger.error(
-            "Redis error retrieving %s for %s: %s", side_field, market_key, exc, exc_info=True
-        )
+        logger.error("Redis error retrieving %s for %s: %s", side_field, market_key, exc, exc_info=True)
         raise
 
-    side_data = SideDataUpdater.apply_delta(
-        SideDataUpdater.parse_side_data(side_json), price_str, delta
-    )
+    side_data = SideDataUpdater.apply_delta(SideDataUpdater.parse_side_data(side_json), price_str, delta)
     logger.debug("MARKET_UPDATE: Ticker=%s, Fields=['%s']", market_ticker, side_field)
     await ensure_awaitable(redis.hset(market_key, side_field, orjson.dumps(side_data).decode()))
     return side_data
@@ -133,18 +127,12 @@ async def _update_top_of_book(
     await store_optional(redis, market_key, "yes_ask_size", best_size)
 
 
-async def _update_trade_price_cache(
-    processor: DeltaProcessor, redis: Redis, market_key: str, market_ticker: str
-) -> None:
+async def _update_trade_price_cache(processor: DeltaProcessor, redis: Redis, market_key: str, market_ticker: str) -> None:
     """Update cached trade prices when both bid/ask values are available."""
     yes_bid_raw = await ensure_awaitable(redis.hget(market_key, "yes_bid"))
     yes_ask_raw = await ensure_awaitable(redis.hget(market_key, "yes_ask"))
-    decoded_yes_bid = (
-        yes_bid_raw.decode("utf-8", "ignore") if isinstance(yes_bid_raw, bytes) else yes_bid_raw
-    )
-    decoded_yes_ask = (
-        yes_ask_raw.decode("utf-8", "ignore") if isinstance(yes_ask_raw, bytes) else yes_ask_raw
-    )
+    decoded_yes_bid = yes_bid_raw.decode("utf-8", "ignore") if isinstance(yes_bid_raw, bytes) else yes_bid_raw
+    decoded_yes_ask = yes_ask_raw.decode("utf-8", "ignore") if isinstance(yes_ask_raw, bytes) else yes_ask_raw
     parsed_yes_bid = FieldConverter.convert_numeric_field(decoded_yes_bid)
     parsed_yes_ask = FieldConverter.convert_numeric_field(decoded_yes_ask)
     if parsed_yes_bid is not None and parsed_yes_ask is not None:

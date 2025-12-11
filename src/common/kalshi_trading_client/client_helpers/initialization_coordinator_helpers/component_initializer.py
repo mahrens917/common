@@ -21,12 +21,8 @@ def initialize_core_components(
 ) -> dict:
     """Initialize core clients and managers."""
     initialized_kalshi = ClientInitializer.initialize_kalshi_client(kalshi_client, trade_store)
-    initialized_backoff = ClientInitializer.initialize_backoff_manager(
-        backoff_manager, network_health_monitor
-    )
-    trade_store_manager = TradeStoreManager(
-        kalshi_client=initialized_kalshi, store_supplier=lambda: trade_store
-    )
+    initialized_backoff = ClientInitializer.initialize_backoff_manager(backoff_manager, network_health_monitor)
+    trade_store_manager = TradeStoreManager(kalshi_client=initialized_kalshi, store_supplier=lambda: trade_store)
     notifier = TradeNotifierAdapter()
 
     return {

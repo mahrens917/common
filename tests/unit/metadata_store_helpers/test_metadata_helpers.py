@@ -64,9 +64,7 @@ class TestWriterOperations(unittest.IsolatedAsyncioTestCase):
         # client.pipeline() is synchronous
         mock_client.pipeline = Mock(return_value=mock_pipeline)
 
-        result = await increment_metadata_counter(
-            mock_client, "meta:key", "global:key", "service", 5
-        )
+        result = await increment_metadata_counter(mock_client, "meta:key", "global:key", "service", 5)
         assert result is True
         mock_pipeline.hincrby.assert_any_call("meta:key", "total_count", 5)
         mock_pipeline.hincrby.assert_any_call("global:key", "total_messages", 5)
@@ -146,9 +144,7 @@ class TestMetadataWriter(unittest.IsolatedAsyncioTestCase):
             mock_incr.return_value = True
             result = await self.writer.increment_service_count(self.mock_client, "service1", 5)
             assert result is True
-            mock_incr.assert_awaited_with(
-                self.mock_client, "meta:service1", "global:stats", "service1", 5
-            )
+            mock_incr.assert_awaited_with(self.mock_client, "meta:service1", "global:stats", "service1", 5)
 
     async def test_update_time_window_counts(self):
         with patch(
@@ -156,9 +152,7 @@ class TestMetadataWriter(unittest.IsolatedAsyncioTestCase):
             new_callable=AsyncMock,
         ) as mock_update:
             mock_update.return_value = True
-            result = await self.writer.update_time_window_counts(
-                self.mock_client, "service1", 10, 1
-            )
+            result = await self.writer.update_time_window_counts(self.mock_client, "service1", 10, 1)
             assert result is True
             mock_update.assert_awaited_with(
                 self.mock_client,
@@ -173,9 +167,7 @@ class TestMetadataWriter(unittest.IsolatedAsyncioTestCase):
             new_callable=AsyncMock,
         ) as mock_update:
             mock_update.return_value = True
-            result = await self.writer.update_weather_time_window_counts(
-                self.mock_client, "service1", 10, 1, 15
-            )
+            result = await self.writer.update_weather_time_window_counts(self.mock_client, "service1", 10, 1, 15)
             assert result is True
             mock_update.assert_awaited_with(
                 self.mock_client,
@@ -252,20 +244,14 @@ class TestOperationsFacade(unittest.IsolatedAsyncioTestCase):
 
     async def test_delegation(self):
         # Test one method to ensure delegation works
-        with patch.object(
-            self.facade.reader, "get_service_metadata", new_callable=AsyncMock
-        ) as mock_get:
+        with patch.object(self.facade.reader, "get_service_metadata", new_callable=AsyncMock) as mock_get:
             await self.facade.get_service_metadata(self.mock_client, "s1")
             mock_get.assert_awaited_once()
 
-        with patch.object(
-            self.facade.writer, "increment_service_count", new_callable=AsyncMock
-        ) as mock_incr:
+        with patch.object(self.facade.writer, "increment_service_count", new_callable=AsyncMock) as mock_incr:
             await self.facade.increment_service_count(self.mock_client, "s1")
             mock_incr.assert_awaited_once()
 
-        with patch.object(
-            self.facade.history, "get_service_history", new_callable=AsyncMock
-        ) as mock_hist:
+        with patch.object(self.facade.history, "get_service_history", new_callable=AsyncMock) as mock_hist:
             await self.facade.get_service_history(self.mock_client, "s1")
             mock_hist.assert_awaited_once()

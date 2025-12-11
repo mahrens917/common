@@ -25,9 +25,7 @@ class TestMetadataInitializer:
         return MetadataInitializer(metadata_store, mock_redis)
 
     @pytest.mark.asyncio
-    async def test_initialize_from_existing_keys_success(
-        self, initializer, mock_redis, metadata_store
-    ):
+    async def test_initialize_from_existing_keys_success(self, initializer, mock_redis, metadata_store):
         mock_redis.keys.return_value = [b"history:service1", "history:service2", "history:invalid"]
 
         # Mock extract_service_name to return None for 'invalid'
@@ -36,9 +34,7 @@ class TestMetadataInitializer:
                 return None
             return key.split(":")[1]
 
-        with patch.object(
-            initializer._service_name_extractor, "extract_service_name", side_effect=mock_extractor
-        ):
+        with patch.object(initializer._service_name_extractor, "extract_service_name", side_effect=mock_extractor):
             await initializer.initialize_from_existing_keys()
 
             assert metadata_store.initialize_service_count.call_count == 2
@@ -51,9 +47,7 @@ class TestMetadataInitializer:
         # Should log error but not crash completely?
         # The code raises DataError inside try block, which is caught by REDIS_ERRORS (Exception).
         # So it logs error and finishes.
-        with patch(
-            "common.metadata_store_auto_updater_helpers.metadata_initializer.logger"
-        ) as mock_logger:
+        with patch("common.metadata_store_auto_updater_helpers.metadata_initializer.logger") as mock_logger:
             await initializer.initialize_from_existing_keys()
             mock_logger.error.assert_called()
 
@@ -62,9 +56,7 @@ class TestMetadataInitializer:
         mock_redis.keys.return_value = ["history:service1"]
         mock_redis.type.return_value = b"string"
 
-        with patch.object(
-            initializer._service_name_extractor, "extract_service_name", return_value="service1"
-        ):
+        with patch.object(initializer._service_name_extractor, "extract_service_name", return_value="service1"):
             await initializer.initialize_from_existing_keys()
 
             mock_redis.hlen.assert_not_called()
@@ -74,9 +66,7 @@ class TestMetadataInitializer:
         mock_redis.keys.return_value = ["history:service1"]
         mock_redis.type.return_value = "none"
 
-        with patch.object(
-            initializer._service_name_extractor, "extract_service_name", return_value="service1"
-        ):
+        with patch.object(initializer._service_name_extractor, "extract_service_name", return_value="service1"):
             await initializer.initialize_from_existing_keys()
 
             mock_redis.hlen.assert_called()
@@ -86,9 +76,7 @@ class TestMetadataInitializer:
         mock_redis.keys.return_value = ["history:service1"]
         mock_redis.type.side_effect = Exception("Redis error")
 
-        with patch.object(
-            initializer._service_name_extractor, "extract_service_name", return_value="service1"
-        ):
+        with patch.object(initializer._service_name_extractor, "extract_service_name", return_value="service1"):
             await initializer.initialize_from_existing_keys()
 
             mock_redis.hlen.assert_not_called()
@@ -98,9 +86,7 @@ class TestMetadataInitializer:
         mock_redis.keys.return_value = ["history:service1"]
         mock_redis.hlen.side_effect = Exception("Count error")
 
-        with patch.object(
-            initializer._service_name_extractor, "extract_service_name", return_value="service1"
-        ):
+        with patch.object(initializer._service_name_extractor, "extract_service_name", return_value="service1"):
             await initializer.initialize_from_existing_keys()
 
             # Should continue

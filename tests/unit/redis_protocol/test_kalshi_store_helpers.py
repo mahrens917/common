@@ -24,9 +24,7 @@ _TEST_COUNT_9 = 9
 def _make_store(**overrides) -> KalshiStore:
     logger = overrides.pop("logger", logging.getLogger("kalshi-store-tests"))
     redis = overrides.pop("redis", None)
-    weather_resolver = overrides.pop(
-        "weather_resolver", WeatherStationResolver(lambda: {}, logger=logger)
-    )
+    weather_resolver = overrides.pop("weather_resolver", WeatherStationResolver(lambda: {}, logger=logger))
 
     store = KalshiStore.__new__(KalshiStore)
     initialize_kalshi_store(store, redis, "ws", weather_resolver)

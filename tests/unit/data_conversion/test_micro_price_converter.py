@@ -18,18 +18,10 @@ class TestMicroPriceConverterConvertSingle:
         mock_instrument.expiry = datetime(2025, 1, 1)
 
         # Patch the helper modules at their source location (the package __init__)
-        with patch(
-            "common.data_conversion.micro_price_helpers.FieldValidator"
-        ) as mock_validator_cls:
-            with patch(
-                "common.data_conversion.micro_price_helpers.FieldResolver"
-            ) as mock_resolver_cls:
-                with patch(
-                    "common.data_conversion.micro_price_helpers.MetricsCalculator"
-                ) as mock_calculator_cls:
-                    with patch(
-                        "common.data_conversion.micro_price_converter.MicroPriceOptionData"
-                    ) as mock_data_cls:
+        with patch("common.data_conversion.micro_price_helpers.FieldValidator") as mock_validator_cls:
+            with patch("common.data_conversion.micro_price_helpers.FieldResolver") as mock_resolver_cls:
+                with patch("common.data_conversion.micro_price_helpers.MetricsCalculator") as mock_calculator_cls:
+                    with patch("common.data_conversion.micro_price_converter.MicroPriceOptionData") as mock_data_cls:
                         # Setup mocks
                         mock_validator_cls.extract_prices_and_sizes.return_value = (
                             100.0,
@@ -37,15 +29,9 @@ class TestMicroPriceConverterConvertSingle:
                             10.0,
                             15.0,
                         )
-                        mock_resolver_cls.resolve_expiry_datetime.return_value = datetime(
-                            2025, 1, 1
-                        )
-                        mock_resolver_cls.resolve_instrument_name.return_value = (
-                            "BTC-25JAN01-50000-C"
-                        )
-                        mock_resolver_cls.resolve_quote_timestamp.return_value = datetime(
-                            2024, 12, 1, 12, 0
-                        )
+                        mock_resolver_cls.resolve_expiry_datetime.return_value = datetime(2025, 1, 1)
+                        mock_resolver_cls.resolve_instrument_name.return_value = "BTC-25JAN01-50000-C"
+                        mock_resolver_cls.resolve_quote_timestamp.return_value = datetime(2024, 12, 1, 12, 0)
                         mock_calculator_cls.compute_micro_price_metrics.return_value = (
                             1.0,
                             100.4,
@@ -56,9 +42,7 @@ class TestMicroPriceConverterConvertSingle:
                         )
                         mock_data_cls.return_value = MagicMock()
 
-                        result = MicroPriceConverter.convert_instrument_to_micro_price_option_data(
-                            mock_instrument, "BTC"
-                        )
+                        result = MicroPriceConverter.convert_instrument_to_micro_price_option_data(mock_instrument, "BTC")
 
                         mock_validator_cls.validate_required_fields.assert_called_once()
                         mock_validator_cls.extract_prices_and_sizes.assert_called_once()
@@ -76,9 +60,7 @@ class TestMicroPriceConverterConvertList:
         with patch("common.data_conversion.micro_price_helpers.BatchConverter") as mock_batch_cls:
             mock_batch_cls.convert_instruments_to_micro_price_data.return_value = mock_result
 
-            result = MicroPriceConverter.convert_instruments_to_micro_price_data(
-                mock_instruments, "BTC"
-            )
+            result = MicroPriceConverter.convert_instruments_to_micro_price_data(mock_instruments, "BTC")
 
             mock_batch_cls.convert_instruments_to_micro_price_data.assert_called_once()
             assert result is mock_result

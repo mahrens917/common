@@ -55,12 +55,8 @@ class TestUnifiedReportBuilder(unittest.IsolatedAsyncioTestCase):
         mock_now = datetime(2023, 10, 31)
         mock_get_date.return_value = mock_now
 
-        self.mock_daily_collector.get_daily_pnl_with_unrealized_percentage = AsyncMock(
-            return_value=[(date(2023, 10, 31), 10.0)]
-        )
-        self.mock_daily_collector.get_daily_pnl_with_unrealized = AsyncMock(
-            return_value=[(date(2023, 10, 31), 1000)]
-        )
+        self.mock_daily_collector.get_daily_pnl_with_unrealized_percentage = AsyncMock(return_value=[(date(2023, 10, 31), 10.0)])
+        self.mock_daily_collector.get_daily_pnl_with_unrealized = AsyncMock(return_value=[(date(2023, 10, 31), 1000)])
 
         mock_report = Mock(spec=PnLReport)
         mock_breakdown = Mock(spec=PnLBreakdown)
@@ -68,9 +64,7 @@ class TestUnifiedReportBuilder(unittest.IsolatedAsyncioTestCase):
         mock_report.by_weather_station = {"Station1": mock_breakdown}
         mock_report.by_rule = {"Rule1": mock_breakdown}
 
-        self.mock_pnl_calculator.get_date_range_trades_and_report = AsyncMock(
-            return_value=([], mock_report)
-        )
+        self.mock_pnl_calculator.get_date_range_trades_and_report = AsyncMock(return_value=([], mock_report))
 
         result = await self.builder.generate_unified_pnl_data()
 

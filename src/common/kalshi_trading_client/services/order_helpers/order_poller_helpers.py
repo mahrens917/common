@@ -18,10 +18,7 @@ def is_order_complete(operation_name: str, order_response: OrderResponse) -> boo
     """Check if order is already filled or cancelled."""
     filled_count = order_response.filled_count or 0
     if filled_count > 0:
-        logger.info(
-            f"[{operation_name}] Order {order_response.order_id} filled immediately: "
-            f"filled={order_response.filled_count}"
-        )
+        logger.info(f"[{operation_name}] Order {order_response.order_id} filled immediately: " f"filled={order_response.filled_count}")
         return True
 
     if order_response.status == OrderStatus.CANCELLED:

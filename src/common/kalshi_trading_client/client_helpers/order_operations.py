@@ -67,9 +67,7 @@ def parse_order_response(
     trade_reason: str,
 ) -> OrderResponse:
     """Parse raw API response into OrderResponse."""
-    return order_service.parse_order_response(
-        response_data, operation_name, trade_rule, trade_reason
-    )
+    return order_service.parse_order_response(response_data, operation_name, trade_rule, trade_reason)
 
 
 def has_sufficient_balance_for_trade_with_fees(
@@ -79,9 +77,7 @@ def has_sufficient_balance_for_trade_with_fees(
     fees_cents: int,
 ) -> bool:
     """Check if balance is sufficient for trade including fees."""
-    return order_service.has_sufficient_balance_for_trade_with_fees(
-        cached_balance_cents, trade_cost_cents, fees_cents
-    )
+    return order_service.has_sufficient_balance_for_trade_with_fees(cached_balance_cents, trade_cost_cents, fees_cents)
 
 
 def build_order_poller(order_service: OrderService) -> OrderPoller:
@@ -94,25 +90,19 @@ def build_trade_finalizer(order_service: OrderService) -> TradeFinalizer:
     return order_service.build_trade_finalizer()
 
 
-def apply_polling_outcome(
-    order_service: OrderService, order_response: OrderResponse, outcome: PollingOutcome
-) -> None:
+def apply_polling_outcome(order_service: OrderService, order_response: OrderResponse, outcome: PollingOutcome) -> None:
     """Apply polling outcome to order response."""
     order_service.apply_polling_outcome(order_response, outcome)
 
 
 async def calculate_order_fees(market_ticker: str, quantity: int, price_cents: int) -> int:
     """Calculate fees for an order (delegates to canonical fee calculator)."""
-    from common.kalshi_trading_client.services.order_helpers.fee_calculator import (
-        calculate_order_fees as _calculate_order_fees,
-    )
+    from common.kalshi_trading_client.services.order_helpers.fee_calculator import calculate_order_fees as _calculate_order_fees
 
     return await _calculate_order_fees(market_ticker, quantity, price_cents)
 
 
-async def get_trade_metadata_from_order(
-    order_service: OrderService, order_id: str
-) -> tuple[str, str]:
+async def get_trade_metadata_from_order(order_service: OrderService, order_id: str) -> tuple[str, str]:
     """Get trade metadata from an order."""
     return await order_service.get_trade_metadata_from_order(order_id)
 
@@ -127,9 +117,7 @@ class OrderOperations:
     get_all_fills = staticmethod(get_all_fills)
     validate_order_request = staticmethod(validate_order_request)
     parse_order_response = staticmethod(parse_order_response)
-    has_sufficient_balance_for_trade_with_fees = staticmethod(
-        has_sufficient_balance_for_trade_with_fees
-    )
+    has_sufficient_balance_for_trade_with_fees = staticmethod(has_sufficient_balance_for_trade_with_fees)
     build_order_poller = staticmethod(build_order_poller)
     build_trade_finalizer = staticmethod(build_trade_finalizer)
     apply_polling_outcome = staticmethod(apply_polling_outcome)

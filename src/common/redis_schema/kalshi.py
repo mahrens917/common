@@ -104,9 +104,7 @@ def parse_kalshi_market_key(key: str) -> KalshiMarketDescriptor:
     try:
         category = KalshiMarketCategory(category_segment)
     except ValueError as exc:
-        raise ValueError(
-            f"Unsupported Kalshi market category '{category_segment}' in {key!r}"
-        ) from exc
+        raise ValueError(f"Unsupported Kalshi market category '{category_segment}' in {key!r}") from exc
 
     display = ticker_segment.upper()
     _, underlying, expiry_token = _classify_kalshi_ticker(display)

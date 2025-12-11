@@ -74,18 +74,14 @@ class MetadataWriter:
             market_key = descriptor.key
 
             # Build metadata from Kalshi API data only
-            metadata = self._build_kalshi_metadata(
-                market_ticker, market_data, event_data, descriptor, weather_resolver
-            )
+            metadata = self._build_kalshi_metadata(market_ticker, market_data, event_data, descriptor, weather_resolver)
 
             # Direct update - only touch Kalshi API fields
             await ensure_awaitable(redis_client.hset(market_key, mapping=metadata))
             logger.debug(f"Updated {len(metadata)} Kalshi API fields for {market_ticker}")
 
         except REDIS_ERRORS as exc:
-            logger.error(
-                "Error storing market metadata for %s: %s", market_ticker, exc, exc_info=True
-            )
+            logger.error("Error storing market metadata for %s: %s", market_ticker, exc, exc_info=True)
             raise
         else:
             return True

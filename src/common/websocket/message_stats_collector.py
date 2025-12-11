@@ -81,17 +81,13 @@ class MessageStatsCollector:
         if threshold_exceeded:
             time_since_last_update = current_time - self._last_nonzero_update_time
             await send_silent_failure_alert(self.service_name, time_since_last_update)
-            raise ConnectionError(
-                f"Silent failure detected: No {self.service_name} messages for {time_since_last_update:.1f}s"
-            )
+            raise ConnectionError(f"Silent failure detected: No {self.service_name} messages for {time_since_last_update:.1f}s")
 
     async def _write_to_history_redis(self, message_count: int, current_time: float) -> None:
         if self._redis_client is None:
             self._redis_client = await get_redis_connection()
         assert self._redis_client is not None, "Redis connection could not be established"
-        await write_message_count_to_redis(
-            self._redis_client, self.service_name, message_count, current_time
-        )
+        await write_message_count_to_redis(self._redis_client, self.service_name, message_count, current_time)
 
     def reset(self) -> None:
         self._message_count = 0

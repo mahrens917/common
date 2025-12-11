@@ -39,10 +39,7 @@ class MarketUpdater:
                 updated_markets[ticker] = market_info
 
                 if previous_info and market_info.state != previous_info.state:
-                    logger.info(
-                        f"[MarketUpdater] State change for {ticker}: "
-                        f"{previous_info.state} -> {market_info.state}"
-                    )
+                    logger.info(f"[MarketUpdater] State change for {ticker}: " f"{previous_info.state} -> {market_info.state}")
 
             except TRADING_ERRORS + (
                 ValueError,

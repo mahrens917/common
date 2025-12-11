@@ -48,9 +48,7 @@ class TestMessageProcessor:
     async def test_process_message_parse_error(self, processor):
         message = {"type": "message", "data": "invalid json"}
 
-        with patch(
-            "common.websocket.unified_subscription_manager_helpers.message_processor.logger"
-        ) as mock_logger:
+        with patch("common.websocket.unified_subscription_manager_helpers.message_processor.logger") as mock_logger:
             await processor.process_message(message, None)
             mock_logger.exception.assert_called_once()
 

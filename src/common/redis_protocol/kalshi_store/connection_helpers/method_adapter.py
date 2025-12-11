@@ -47,13 +47,9 @@ class MethodAdapter:
         """Verify Redis connection"""
         return await self._parent._connection_verifier.verify_connection(redis)
 
-    async def connect_with_retry(
-        self, *, allow_reuse: bool, context: str, attempts: int = 3, retry_delay: float = 0.1
-    ) -> bool:
+    async def connect_with_retry(self, *, allow_reuse: bool, context: str, attempts: int = 3, retry_delay: float = 0.1) -> bool:
         """Connect with retry"""
-        return await self._parent._connect_with_retry(
-            allow_reuse=allow_reuse, context=context, attempts=attempts, retry_delay=retry_delay
-        )
+        return await self._parent._connect_with_retry(allow_reuse=allow_reuse, context=context, attempts=attempts, retry_delay=retry_delay)
 
     def reset_connection_state(self) -> None:
         """Reset connection state"""

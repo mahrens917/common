@@ -38,9 +38,7 @@ class TestTestPoolConnection:
         mock_client.ping.return_value = True
         mock_client.info.return_value = {"redis_version": "7.0.0", "redis_mode": "standalone"}
 
-        with patch(
-            "common.redis_protocol.connection_helpers.pool_validator.redis.asyncio.Redis"
-        ) as mock_redis:
+        with patch("common.redis_protocol.connection_helpers.pool_validator.redis.asyncio.Redis") as mock_redis:
             mock_redis.return_value = mock_client
 
             await test_pool_connection(mock_pool, "localhost", 6379, 0)
@@ -54,9 +52,7 @@ class TestTestPoolConnection:
         mock_client = AsyncMock()
         mock_client.ping.side_effect = asyncio.TimeoutError()
 
-        with patch(
-            "common.redis_protocol.connection_helpers.pool_validator.redis.asyncio.Redis"
-        ) as mock_redis:
+        with patch("common.redis_protocol.connection_helpers.pool_validator.redis.asyncio.Redis") as mock_redis:
             mock_redis.return_value = mock_client
 
             with pytest.raises(RuntimeError) as exc_info:
@@ -71,9 +67,7 @@ class TestTestPoolConnection:
         mock_client = AsyncMock()
         mock_client.ping.side_effect = ConnectionError("Connection refused")
 
-        with patch(
-            "common.redis_protocol.connection_helpers.pool_validator.redis.asyncio.Redis"
-        ) as mock_redis:
+        with patch("common.redis_protocol.connection_helpers.pool_validator.redis.asyncio.Redis") as mock_redis:
             with patch("common.redis_protocol.connection_helpers.pool_validator.logger"):
                 mock_redis.return_value = mock_client
 
@@ -89,9 +83,7 @@ class TestTestPoolConnection:
         mock_client = AsyncMock()
         mock_client.ping.side_effect = ConnectionError("Connection refused")
 
-        with patch(
-            "common.redis_protocol.connection_helpers.pool_validator.redis.asyncio.Redis"
-        ) as mock_redis:
+        with patch("common.redis_protocol.connection_helpers.pool_validator.redis.asyncio.Redis") as mock_redis:
             with patch("common.redis_protocol.connection_helpers.pool_validator.logger"):
                 mock_redis.return_value = mock_client
 

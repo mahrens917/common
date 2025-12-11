@@ -21,7 +21,7 @@ from .websocket_connection_manager_helpers import (
 )
 
 if TYPE_CHECKING:
-    from ..monitor.alerter import Alerter
+    from ..monitor.alerter import Alerter  # type: ignore
 
 DEFAULT_WEBSOCKET_PING_INTERVAL_SECONDS = 30
 DEFAULT_WEBSOCKET_PONG_TIMEOUT_SECONDS = 10

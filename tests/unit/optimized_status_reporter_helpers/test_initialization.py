@@ -56,9 +56,7 @@ class TestStatusReporterInitializer:
         mock_objects = {}
         for cls_name in classes_to_mock:
             # Patch each class where it's imported in the initialization module
-            mock_objects[cls_name] = mocker.patch(
-                f"common.optimized_status_reporter_helpers.initialization.{cls_name}"
-            )
+            mock_objects[cls_name] = mocker.patch(f"common.optimized_status_reporter_helpers.initialization.{cls_name}")
         return mock_objects
 
     def test_initialize_components(self, mock_dependencies, mock_internal_modules):
@@ -67,21 +65,15 @@ class TestStatusReporterInitializer:
         with patch.object(
             Path,
             "resolve",
-            return_value=Path(
-                "/root/project/src/common/optimized_status_reporter_helpers/initialization.py"
-            ),
+            return_value=Path("/root/project/src/common/optimized_status_reporter_helpers/initialization.py"),
         ):
             components = StatusReporterInitializer.initialize_components(**mock_dependencies)
 
-        mock_internal_modules["LogActivityMonitor"].assert_called_once_with(
-            "/root/project/src/logs"
-        )
+        mock_internal_modules["LogActivityMonitor"].assert_called_once_with("/root/project/src/logs")
         mock_internal_modules["DataCoercion"].assert_called_once()
         mock_internal_modules["DataFormatter"].assert_called_once()
         assert components["data_formatter"] == mock_internal_modules["DataFormatter"].return_value
-        mock_internal_modules["LogActivityCollector"].assert_called_once_with(
-            mock_dependencies["process_manager"]
-        )
+        mock_internal_modules["LogActivityCollector"].assert_called_once_with(mock_dependencies["process_manager"])
         mock_internal_modules["MessageMetricsCollector"].assert_called_once_with(
             mock_internal_modules["RealtimeMetricsCollector"].return_value,
             mock_dependencies["metadata_store"],
@@ -90,18 +82,14 @@ class TestStatusReporterInitializer:
             mock_internal_modules["DayNightDetector"].return_value,
             mock_internal_modules["DataCoercion"].return_value,
         )
-        mock_internal_modules["LogActivityFormatter"].assert_called_once_with(
-            mock_internal_modules["TimeFormatter"].return_value
-        )
+        mock_internal_modules["LogActivityFormatter"].assert_called_once_with(mock_internal_modules["TimeFormatter"].return_value)
         mock_internal_modules["ServicePrinter"].assert_called_once_with(
             mock_dependencies["emit_fn"],
             mock_internal_modules["ProcessResourceTracker"].return_value,
             mock_internal_modules["LogActivityFormatter"].return_value,
             mock_internal_modules["DataCoercion"].return_value.bool_or_default,
         )
-        mock_internal_modules["MetricsSectionPrinter"].assert_called_once_with(
-            mock_internal_modules["DataCoercion"].return_value
-        )
+        mock_internal_modules["MetricsSectionPrinter"].assert_called_once_with(mock_internal_modules["DataCoercion"].return_value)
         mock_internal_modules["TrackerStatusCollector"].assert_called_once_with(
             mock_dependencies["process_manager"],
             mock_dependencies["tracker_controller"],
@@ -155,17 +143,11 @@ class TestStatusReporterInitializer:
                 "log_activity_monitor": mock_internal_modules["LogActivityMonitor"].return_value,
                 "data_coercion": mock_internal_modules["DataCoercion"].return_value,
                 # Add more mocks for components to fill the return dictionary
-                **{
-                    k.lower(): v.return_value
-                    for k, v in mock_internal_modules.items()
-                    if k not in ["LogActivityMonitor", "DataCoercion"]
-                },
+                **{k.lower(): v.return_value for k, v in mock_internal_modules.items() if k not in ["LogActivityMonitor", "DataCoercion"]},
             }
             # For specific ones like data_formatter, we need to map the alias
             if "data_formatter" in mock_components_return:
-                mock_components_return["data_formatter"] = mock_internal_modules[
-                    "DataFormatter"
-                ].return_value
+                mock_components_return["data_formatter"] = mock_internal_modules["DataFormatter"].return_value
 
             with patch(
                 "common.optimized_status_reporter_helpers.initialization.StatusReporterInitializer.initialize_components",

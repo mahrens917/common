@@ -49,9 +49,7 @@ class MarketSubscriptionManager:
         else:
             return markets
 
-    async def add_subscribed_market(
-        self, market_ticker: str, *, category: Optional[str] = None
-    ) -> bool:
+    async def add_subscribed_market(self, market_ticker: str, *, category: Optional[str] = None) -> bool:
         """
         Add market to subscribed markets
 
@@ -71,9 +69,7 @@ class MarketSubscriptionManager:
         else:
             return True
 
-    async def remove_subscribed_market(
-        self, market_ticker: str, *, category: Optional[str] = None
-    ) -> bool:
+    async def remove_subscribed_market(self, market_ticker: str, *, category: Optional[str] = None) -> bool:
         """
         Remove market from subscribed markets
 
@@ -88,9 +84,7 @@ class MarketSubscriptionManager:
             redis = await self._get_redis()
             await redis.hdel(self.subscriptions_key, subscription_key)
         except REDIS_ERRORS as exc:
-            logger.error(
-                "Error removing subscribed market %s: %s", market_ticker, exc, exc_info=True
-            )
+            logger.error("Error removing subscribed market %s: %s", market_ticker, exc, exc_info=True)
             raise
         else:
             return True

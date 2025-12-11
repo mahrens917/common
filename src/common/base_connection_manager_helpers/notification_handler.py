@@ -27,10 +27,6 @@ class NotificationHandler:
             if is_startup:
                 self.logger.info(f"{self.service_name.upper()} - Started - Connection established")
             else:
-                self.logger.info(
-                    f"{self.service_name.upper()} - Re-connected after {metrics.consecutive_failures} failures"
-                )
+                self.logger.info(f"{self.service_name.upper()} - Re-connected after {metrics.consecutive_failures} failures")
         else:
-            self.logger.warning(
-                f"{self.service_name.upper()} - Connection lost, attempting reconnection"
-            )
+            self.logger.warning(f"{self.service_name.upper()} - Connection lost, attempting reconnection")

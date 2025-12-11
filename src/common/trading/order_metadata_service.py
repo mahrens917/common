@@ -46,17 +46,12 @@ async def fetch_order_metadata(
             return trade_reason, trade_rule
         raise ValueError(f"Trade reason too short: {trade_reason}")
 
-    error_msg = (
-        f"CRITICAL: No order metadata found for order {order_id}. "
-        "Metadata persistence is required for every order."
-    )
+    error_msg = f"CRITICAL: No order metadata found for order {order_id}. " "Metadata persistence is required for every order."
     logger.error(error_msg)
 
     if telegram_handler:
         try:
-            await telegram_handler.send_alert(
-                f"🚨 ORDER METADATA MISSING\n\n{error_msg}\n\nImmediate investigation required."
-            )
+            await telegram_handler.send_alert(f"🚨 ORDER METADATA MISSING\n\n{error_msg}\n\nImmediate investigation required.")
         except ALERT_SEND_ERRORS as alert_exc:
             logger.warning(
                 "Failed to send missing metadata alert for order %s: %s",

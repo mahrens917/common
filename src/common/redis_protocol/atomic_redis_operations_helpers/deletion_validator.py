@@ -44,9 +44,7 @@ class DeletionValidator:
         self.redis = redis_client
         self.logger = logger
 
-    async def atomic_delete_if_invalid(
-        self, store_key: str, validation_data: Dict[str, Any]
-    ) -> bool:
+    async def atomic_delete_if_invalid(self, store_key: str, validation_data: Dict[str, Any]) -> bool:
         """
         Atomically delete a Redis key if the data contains invalid values.
 
@@ -89,6 +87,4 @@ class DeletionValidator:
                 store_key,
                 type(exc).__name__,
             )
-            raise RedisDataValidationError(
-                f"Failed to validate market data for key {store_key}"
-            ) from exc
+            raise RedisDataValidationError(f"Failed to validate market data for key {store_key}") from exc

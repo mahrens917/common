@@ -13,9 +13,7 @@ class StatusBuilder:
     def __init__(self):
         self.formatter = StatusFormatter()
 
-    def build_unresponsive_status(
-        self, log_activity: LogActivity
-    ) -> tuple[OverallServiceStatus, str, str, str]:
+    def build_unresponsive_status(self, log_activity: LogActivity) -> tuple[OverallServiceStatus, str, str, str]:
         """Build status for unresponsive service."""
         log_msg = self.formatter.format_log_age(log_activity)
         return (
@@ -41,9 +39,7 @@ class StatusBuilder:
             f"process: running, logs: {log_msg}, health: {health_msg}",
         )
 
-    def build_degraded_status(
-        self, log_activity: LogActivity
-    ) -> tuple[OverallServiceStatus, str, str, str]:
+    def build_degraded_status(self, log_activity: LogActivity) -> tuple[OverallServiceStatus, str, str, str]:
         """Build status for degraded service."""
         log_msg = self.formatter.format_log_age(log_activity)
         return (
@@ -53,9 +49,7 @@ class StatusBuilder:
             f"process: running, logs: {log_msg}, health: degraded",
         )
 
-    def build_silent_status_from_stale_logs(
-        self, log_activity: LogActivity
-    ) -> tuple[OverallServiceStatus, str, str, str]:
+    def build_silent_status_from_stale_logs(self, log_activity: LogActivity) -> tuple[OverallServiceStatus, str, str, str]:
         """Build silent status from stale logs."""
         log_msg = self.formatter.format_log_age(log_activity)
         return (
@@ -65,9 +59,7 @@ class StatusBuilder:
             f"process: running, logs: {log_msg}, health: responding",
         )
 
-    def build_healthy_status(
-        self, log_activity: LogActivity
-    ) -> tuple[OverallServiceStatus, str, str, str]:
+    def build_healthy_status(self, log_activity: LogActivity) -> tuple[OverallServiceStatus, str, str, str]:
         """Build status for healthy service."""
         log_msg = self.formatter.format_log_age(log_activity)
         return (

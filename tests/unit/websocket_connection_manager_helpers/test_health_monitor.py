@@ -59,9 +59,7 @@ class TestWebSocketHealthMonitor:
         assert error == "connection_closed"
 
     @pytest.mark.asyncio
-    async def test_perform_ping_check_ping_interval_not_elapsed(
-        self, health_monitor, mock_websocket
-    ):
+    async def test_perform_ping_check_ping_interval_not_elapsed(self, health_monitor, mock_websocket):
         # Mock asyncio.get_running_loop().time() to control time
         with patch("asyncio.get_running_loop") as mock_loop:
             # We need to simulate time properly. Use a simple sequence of times.
@@ -73,9 +71,7 @@ class TestWebSocketHealthMonitor:
             health_monitor.last_pong_time = 100.0  # Set last pong to an earlier time
 
             # current_time is just a little bit later, not enough to trigger new ping
-            healthy, error = await health_monitor._perform_ping_check(
-                mock_websocket, current_mock_time
-            )
+            healthy, error = await health_monitor._perform_ping_check(mock_websocket, current_mock_time)
             assert healthy is True
             assert error is None
             mock_websocket.ping.assert_not_called()
@@ -113,9 +109,7 @@ class TestWebSocketHealthMonitor:
             mock_websocket.ping.return_value = mock_pong_waiter
 
             with patch("asyncio.wait_for", side_effect=asyncio.TimeoutError):
-                healthy, error = await health_monitor._perform_ping_check(
-                    mock_websocket, current_time
-                )
+                healthy, error = await health_monitor._perform_ping_check(mock_websocket, current_time)
 
                 assert healthy is False
                 assert error == "pong_timeout"
@@ -124,14 +118,10 @@ class TestWebSocketHealthMonitor:
     async def test_perform_ping_check_pong_stale(self, health_monitor, mock_websocket):
         with patch("asyncio.get_running_loop") as mock_loop:
             mock_loop.return_value.time.return_value = 100.0  # Consistent time for mocking
-            current_time = (
-                100.0 + health_monitor.ping_interval_seconds / 2
-            )  # Current time after ping interval, but not triggered new ping
+            current_time = 100.0 + health_monitor.ping_interval_seconds / 2  # Current time after ping interval, but not triggered new ping
 
             health_monitor.last_ping_time = 100.0  # Pinged recently
-            health_monitor.last_pong_time = 100.0 - (
-                health_monitor.ping_interval_seconds * 2 + 1
-            )  # Pong is stale
+            health_monitor.last_pong_time = 100.0 - (health_monitor.ping_interval_seconds * 2 + 1)  # Pong is stale
 
             healthy, error = await health_monitor._perform_ping_check(mock_websocket, current_time)
 
@@ -160,9 +150,7 @@ class TestWebSocketHealthMonitor:
         health_monitor.record_failure.assert_called_once()
 
     @pytest.mark.asyncio
-    async def test_check_health_ping_check_failure(
-        self, health_monitor, connection_provider, mock_websocket
-    ):
+    async def test_check_health_ping_check_failure(self, health_monitor, connection_provider, mock_websocket):
         connection_provider.get_connection.return_value = mock_websocket
         health_monitor._perform_ping_check = AsyncMock(return_value=(False, "pong_timeout"))
 
@@ -173,9 +161,7 @@ class TestWebSocketHealthMonitor:
         health_monitor.record_failure.assert_called_once()
 
     @pytest.mark.asyncio
-    async def test_check_health_websocket_exception(
-        self, health_monitor, connection_provider, mock_websocket
-    ):
+    async def test_check_health_websocket_exception(self, health_monitor, connection_provider, mock_websocket):
         connection_provider.get_connection.return_value = mock_websocket
         health_monitor._perform_ping_check = AsyncMock(side_effect=WebSocketException("WS Error"))
 
@@ -186,9 +172,7 @@ class TestWebSocketHealthMonitor:
         health_monitor.record_failure.assert_called_once()
 
     @pytest.mark.asyncio
-    async def test_check_health_unexpected_exception(
-        self, health_monitor, connection_provider, mock_websocket
-    ):
+    async def test_check_health_unexpected_exception(self, health_monitor, connection_provider, mock_websocket):
         connection_provider.get_connection.return_value = mock_websocket
         health_monitor._perform_ping_check = AsyncMock(side_effect=RuntimeError("Unexpected"))
 

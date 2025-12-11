@@ -26,9 +26,7 @@ class ProbabilityIngestion:
         self._delegator = ProbabilityIngestionDelegator(redis_provider)
         self._redis_provider = redis_provider
 
-    async def store_probabilities(
-        self, currency: str, probabilities_data: Dict[str, Dict[str, Dict[str, Any]]]
-    ) -> bool:
+    async def store_probabilities(self, currency: str, probabilities_data: Dict[str, Dict[str, Dict[str, Any]]]) -> bool:
         """
         Store probabilities in compact format.
 
@@ -44,9 +42,7 @@ class ProbabilityIngestion:
         """
         return await self._delegator.store_probabilities(currency, probabilities_data)
 
-    async def store_probabilities_human_readable(
-        self, currency: str, probabilities_data: Dict[str, Dict[str, Dict[str, float]]]
-    ) -> bool:
+    async def store_probabilities_human_readable(self, currency: str, probabilities_data: Dict[str, Dict[str, Dict[str, float]]]) -> bool:
         """
         Store probabilities in human-readable format.
 
@@ -60,9 +56,7 @@ class ProbabilityIngestion:
         Raises:
             ProbabilityStoreError: If storage fails
         """
-        return await self._delegator.store_probabilities_human_readable(
-            currency, probabilities_data
-        )
+        return await self._delegator.store_probabilities_human_readable(currency, probabilities_data)
 
     async def store_probability(self, data: ProbabilityData) -> None:
         """
@@ -97,9 +91,7 @@ async def handle_ingestion_failure(
     """
     log_failure_context(probabilities_data)
     await run_direct_connectivity_test(redis, currency)
-    raise ProbabilityStoreError(
-        f"Failed to store human-readable probabilities for {currency}"
-    ) from exc
+    raise ProbabilityStoreError(f"Failed to store human-readable probabilities for {currency}") from exc
 
 
 __all__ = ["ProbabilityIngestion", "HumanReadableIngestionStats", "handle_ingestion_failure"]

@@ -26,9 +26,7 @@ _ERROR_MAPPINGS = (
     _ErrorMapping(
         exc_types=(asyncio.TimeoutError,),
         log_message="WebSocket connection timeout",
-        exception_factory=lambda service: TimeoutError(
-            f"WebSocket connection timeout for {service}"
-        ),
+        exception_factory=lambda service: TimeoutError(f"WebSocket connection timeout for {service}"),
     ),
     _ErrorMapping(
         exc_types=(WebSocketException,),
@@ -53,9 +51,7 @@ _ERROR_MAPPINGS = (
 )
 
 
-async def connect_with_factory(
-    connection_factory: Callable, timeout: float, service_name: str
-) -> Any:
+async def connect_with_factory(connection_factory: Callable, timeout: float, service_name: str) -> Any:
     """
     Connect using provided factory with timeout.
 
@@ -80,14 +76,10 @@ async def connect_with_factory(
         raise handled_exc from exc
 
     if not websocket_connection:
-        raise ConnectionAlreadyCleanedError(
-            f"WebSocket connection factory failed for {service_name}"
-        )
+        raise ConnectionAlreadyCleanedError(f"WebSocket connection factory failed for {service_name}")
 
     if websocket_connection.close_code is not None:
-        raise ConnectionAlreadyCleanedError(
-            f"WebSocket connection closed during initialization (code: {websocket_connection.close_code})"
-        )
+        raise ConnectionAlreadyCleanedError(f"WebSocket connection closed during initialization (code: {websocket_connection.close_code})")
 
     return websocket_connection
 
@@ -115,9 +107,7 @@ async def connect_with_defaults(url: str, timeout: float) -> Any:
     )
 
 
-def handle_connection_error(
-    exc: Exception, service_name: str, logger_instance: logging.Logger
-) -> Exception:
+def handle_connection_error(exc: Exception, service_name: str, logger_instance: logging.Logger) -> Exception:
     """
     Handle connection errors and convert to appropriate exception type.
 

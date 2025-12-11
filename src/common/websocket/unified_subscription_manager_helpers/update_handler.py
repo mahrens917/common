@@ -76,9 +76,7 @@ class UpdateHandler:
                     self.active_instruments.pop(name, None)
                     logger.info(f"Unsubscribed from {self.service_name} channel: {name}")
                 else:
-                    logger.error(
-                        f"Failed to unsubscribe from {self.service_name} channel: {channel}"
-                    )
+                    logger.error(f"Failed to unsubscribe from {self.service_name} channel: {channel}")
 
             except (
                 ConnectionError,

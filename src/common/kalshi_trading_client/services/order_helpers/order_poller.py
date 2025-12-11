@@ -35,9 +35,7 @@ class OrderPollerCoordinator:
         cancel_order: Callable[[str], Awaitable[bool]],
     ) -> OrderResponse:
         """Poll for fills and finalise trade persistence after order placement."""
-        return await _complete_order_with_polling(
-            self, order_request, order_response, timeout_seconds, cancel_order
-        )
+        return await _complete_order_with_polling(self, order_request, order_response, timeout_seconds, cancel_order)
 
     def apply_polling_outcome(self, order_response: OrderResponse, outcome: PollingOutcome) -> None:
         """Apply polling outcome to tracked order response."""
@@ -73,9 +71,7 @@ async def _complete_order_with_polling(
         return short_circuit
 
     workflow = _build_polling_workflow(self, cancel_order, order_response)
-    polling_result = await _execute_polling_workflow(
-        workflow, order_response, timeout_seconds, operation_name
-    )
+    polling_result = await _execute_polling_workflow(workflow, order_response, timeout_seconds, operation_name)
     if polling_result.outcome is None:
         return polling_result.order
 
@@ -145,15 +141,11 @@ async def _execute_polling_workflow(
             operation_name=operation_name,
         )
     except KalshiOrderPollingError:
-        logger.exception(
-            "[%s] Polling failed for order %s", operation_name, order_response.order_id
-        )
+        logger.exception("[%s] Polling failed for order %s", operation_name, order_response.order_id)
         raise
 
 
-def _log_polling_fill(
-    order_after_polling: OrderResponse, outcome: PollingOutcome, operation_name: str
-):
+def _log_polling_fill(order_after_polling: OrderResponse, outcome: PollingOutcome, operation_name: str):
     logger.info(
         "[%s] Order %s filled after polling: filled=%s avg_price=%s¢",
         operation_name,

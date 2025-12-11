@@ -50,17 +50,11 @@ class PrivateMethods:
 
         return OrderOperations
 
-    def parse_order_response(
-        self, response_data: Dict[str, Any], operation_name: str, trade_rule: str, trade_reason: str
-    ) -> OrderResponse:
+    def parse_order_response(self, response_data: Dict[str, Any], operation_name: str, trade_rule: str, trade_reason: str) -> OrderResponse:
         """Parse order response."""
-        return self._get_order_ops().parse_order_response(
-            self._orders, response_data, operation_name, trade_rule, trade_reason
-        )
+        return self._get_order_ops().parse_order_response(self._orders, response_data, operation_name, trade_rule, trade_reason)
 
-    def has_sufficient_balance_for_trade_with_fees(
-        self, cached_balance_cents: int, trade_cost_cents: int, fees_cents: int
-    ) -> bool:
+    def has_sufficient_balance_for_trade_with_fees(self, cached_balance_cents: int, trade_cost_cents: int, fees_cents: int) -> bool:
         """Check sufficient balance."""
         return self._get_order_ops().has_sufficient_balance_for_trade_with_fees(
             self._orders, cached_balance_cents, trade_cost_cents, fees_cents
@@ -72,9 +66,7 @@ class PrivateMethods:
 
     def extract_weather_station_from_ticker(self, market_ticker: str) -> str:
         """Extract weather station."""
-        return self._get_trade_context().extract_weather_station_from_ticker(
-            self._orders, market_ticker
-        )
+        return self._get_trade_context().extract_weather_station_from_ticker(self._orders, market_ticker)
 
     def resolve_trade_context(self, market_ticker: str) -> Tuple[str, Optional[str]]:
         """Resolve trade context."""
@@ -85,9 +77,7 @@ class PrivateMethods:
 
         return TradeContextResolver
 
-    async def calculate_order_fees(
-        self, market_ticker: str, quantity: int, price_cents: int
-    ) -> int:
+    async def calculate_order_fees(self, market_ticker: str, quantity: int, price_cents: int) -> int:
         """Calculate order fees."""
         from common.kalshi_trading_client.services.order_helpers.fee_calculator import (
             calculate_order_fees,

@@ -262,9 +262,7 @@ async def test_ensure_redis_connection_recreates_client(monkeypatch):
     async def fake_get_redis_client():
         return Pingable()
 
-    monkeypatch.setattr(
-        "common.redis_protocol.connection_pool_core.get_redis_client", fake_get_redis_client
-    )
+    monkeypatch.setattr("common.redis_protocol.connection_pool_core.get_redis_client", fake_get_redis_client)
 
     store_obj = KalshiStore()
     assert await store_obj._ensure_redis_connection() is True
@@ -344,9 +342,7 @@ async def test_market_filters_and_queries(store):
     await redis_client.hset(key, "metadata", orjson.dumps(market_payload).decode())
     await redis_client.hset(
         key,
-        mapping={
-            "orderbook": orjson.dumps({"yes_bids": {"45": 2}, "yes_asks": {"55": 1}}).decode()
-        },
+        mapping={"orderbook": orjson.dumps({"yes_bids": {"45": 2}, "yes_asks": {"55": 1}}).decode()},
     )
     await store_obj.add_subscribed_market(ticker)
     await store_obj.record_subscription_ids({ticker: "abc"})
@@ -364,14 +360,10 @@ async def test_market_filters_and_queries(store):
     market_info = await store_obj.get_market_data_for_strike_expiry("btc", expiry, strike_value)
     assert market_info is not None
 
-    await redis_client.hset(
-        key, mapping={"close_time": (datetime.now(timezone.utc) - timedelta(hours=2)).isoformat()}
-    )
+    await redis_client.hset(key, mapping={"close_time": (datetime.now(timezone.utc) - timedelta(hours=2)).isoformat()})
     assert await store_obj.is_market_settled(ticker) is True
 
-    await redis_client.hset(
-        key, mapping={"close_time": (datetime.now(timezone.utc) - timedelta(days=1)).isoformat()}
-    )
+    await redis_client.hset(key, mapping={"close_time": (datetime.now(timezone.utc) - timedelta(days=1)).isoformat()})
     assert await store_obj.is_market_expired(ticker) is True
 
 
@@ -470,9 +462,7 @@ async def test_orderbook_and_trade_updates(store):
     market_data = await redis_client.hgetall(store_obj.get_market_key(ticker))
     assert market_data["last_trade_yes_price"] == "44.5"
 
-    timestamp = kalshi_store_module.KalshiStore._normalise_trade_timestamp(
-        trade_message["msg"]["ts"]
-    )
+    timestamp = kalshi_store_module.KalshiStore._normalise_trade_timestamp(trade_message["msg"]["ts"])
     assert timestamp.endswith("+00:00")
 
 
@@ -498,9 +488,7 @@ async def test_pipeline_trade_price_updates(store, monkeypatch):
         async def update_trade_prices(self, market_ticker, yes_bid, yes_ask):
             calls.append((market_ticker, yes_bid, yes_ask))
 
-    monkeypatch.setattr(
-        "common.redis_protocol.trade_store.TradeStore", FakeTradeStore, raising=False
-    )
+    monkeypatch.setattr("common.redis_protocol.trade_store.TradeStore", FakeTradeStore, raising=False)
 
     await store_obj._update_trade_prices_for_market(ticker, 41, 59)
     assert calls == [(ticker, 41, 59)]
@@ -531,12 +519,8 @@ async def test_initialize_and_close(monkeypatch):
         assert pool is fake_pool
 
     monkeypatch.setattr("common.redis_protocol.kalshi_store.Redis", DummyRedis, raising=False)
-    monkeypatch.setattr(
-        "common.redis_protocol.connection.get_redis_pool", fake_get_pool, raising=False
-    )
-    monkeypatch.setattr(
-        "common.redis_protocol.connection.cleanup_redis_pool", fake_cleanup, raising=False
-    )
+    monkeypatch.setattr("common.redis_protocol.connection.get_redis_pool", fake_get_pool, raising=False)
+    monkeypatch.setattr("common.redis_protocol.connection.cleanup_redis_pool", fake_cleanup, raising=False)
 
     store_obj = KalshiStore()
     assert await store_obj.initialize() is True

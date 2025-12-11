@@ -42,9 +42,7 @@ class TestBoundaryEvaluator:
         last_reset = datetime(2025, 1, 15, 11, 0, 0, tzinfo=timezone.utc)
         current = datetime(2025, 1, 15, 13, 0, 0, tzinfo=timezone.utc)
 
-        result, returned_boundary = evaluator.evaluate_boundary(
-            40.7128, -74.0060, current, last_reset, "Test log", "test_context"
-        )
+        result, returned_boundary = evaluator.evaluate_boundary(40.7128, -74.0060, current, last_reset, "Test log", "test_context")
 
         assert result is False
         assert returned_boundary == boundary
@@ -61,9 +59,7 @@ class TestBoundaryEvaluator:
         evaluator = BoundaryEvaluator(dawn_calculator=dawn_calc, boundary_checker=boundary_check)
         current = datetime(2025, 1, 15, 13, 0, 0, tzinfo=timezone.utc)
 
-        result, returned_boundary = evaluator.evaluate_boundary(
-            40.7128, -74.0060, current, None, "Test log", "test_context"
-        )
+        result, returned_boundary = evaluator.evaluate_boundary(40.7128, -74.0060, current, None, "Test log", "test_context")
 
         assert result is True
         assert returned_boundary == boundary
@@ -77,9 +73,7 @@ class TestTimestampCrossingEvaluator:
         dawn_calc = MagicMock()
         boundary_check = MagicMock()
 
-        evaluator = TimestampCrossingEvaluator(
-            dawn_calculator=dawn_calc, boundary_checker=boundary_check
-        )
+        evaluator = TimestampCrossingEvaluator(dawn_calculator=dawn_calc, boundary_checker=boundary_check)
         current = datetime(2025, 1, 15, 13, 0, 0, tzinfo=timezone.utc)
 
         result, boundary = evaluator.evaluate(40.7128, -74.0060, current, None, "max_temp_f", None)
@@ -93,14 +87,10 @@ class TestTimestampCrossingEvaluator:
         dawn_calc.is_new_trading_day.return_value = (False, None)
         boundary_check = MagicMock()
 
-        evaluator = TimestampCrossingEvaluator(
-            dawn_calculator=dawn_calc, boundary_checker=boundary_check
-        )
+        evaluator = TimestampCrossingEvaluator(dawn_calculator=dawn_calc, boundary_checker=boundary_check)
         current = datetime(2025, 1, 15, 13, 0, 0, tzinfo=timezone.utc)
 
-        result, boundary = evaluator.evaluate(
-            40.7128, -74.0060, current, None, "max_temp_f", "2025-01-15T12:00:00Z"
-        )
+        result, boundary = evaluator.evaluate(40.7128, -74.0060, current, None, "max_temp_f", "2025-01-15T12:00:00Z")
 
         assert result is False
         assert boundary is None
@@ -113,15 +103,11 @@ class TestTimestampCrossingEvaluator:
         boundary_check = MagicMock()
         boundary_check.already_processed.return_value = True
 
-        evaluator = TimestampCrossingEvaluator(
-            dawn_calculator=dawn_calc, boundary_checker=boundary_check
-        )
+        evaluator = TimestampCrossingEvaluator(dawn_calculator=dawn_calc, boundary_checker=boundary_check)
         current = datetime(2025, 1, 15, 13, 0, 0, tzinfo=timezone.utc)
         last_reset = datetime(2025, 1, 15, 11, 0, 0, tzinfo=timezone.utc)
 
-        result, returned_boundary = evaluator.evaluate(
-            40.7128, -74.0060, current, last_reset, "max_temp_f", "2025-01-15T10:00:00Z"
-        )
+        result, returned_boundary = evaluator.evaluate(40.7128, -74.0060, current, last_reset, "max_temp_f", "2025-01-15T10:00:00Z")
 
         assert result is False
         assert returned_boundary == boundary
@@ -134,14 +120,10 @@ class TestTimestampCrossingEvaluator:
         boundary_check = MagicMock()
         boundary_check.already_processed.return_value = False
 
-        evaluator = TimestampCrossingEvaluator(
-            dawn_calculator=dawn_calc, boundary_checker=boundary_check
-        )
+        evaluator = TimestampCrossingEvaluator(dawn_calculator=dawn_calc, boundary_checker=boundary_check)
         current = datetime(2025, 1, 15, 13, 0, 0, tzinfo=timezone.utc)
 
-        result, returned_boundary = evaluator.evaluate(
-            40.7128, -74.0060, current, None, "max_temp_f", "2025-01-14T10:00:00Z"
-        )
+        result, returned_boundary = evaluator.evaluate(40.7128, -74.0060, current, None, "max_temp_f", "2025-01-14T10:00:00Z")
 
         assert result is True
         assert returned_boundary == boundary
@@ -152,14 +134,10 @@ class TestTimestampCrossingEvaluator:
         dawn_calc.is_new_trading_day.side_effect = ValueError("Invalid date")
         boundary_check = MagicMock()
 
-        evaluator = TimestampCrossingEvaluator(
-            dawn_calculator=dawn_calc, boundary_checker=boundary_check
-        )
+        evaluator = TimestampCrossingEvaluator(dawn_calculator=dawn_calc, boundary_checker=boundary_check)
         current = datetime(2025, 1, 15, 13, 0, 0, tzinfo=timezone.utc)
 
         with pytest.raises(DataError) as exc_info:
-            evaluator.evaluate(
-                40.7128, -74.0060, current, None, "max_temp_f", "not-a-valid-timestamp"
-            )
+            evaluator.evaluate(40.7128, -74.0060, current, None, "max_temp_f", "not-a-valid-timestamp")
 
         assert "Failed to parse timestamp" in str(exc_info.value)

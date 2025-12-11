@@ -65,9 +65,7 @@ class ScraperSessionManager:
             ),
         )
 
-        self.session_id = track_existing_session(
-            self.session, f"{self.service_name}_scraper_manager"
-        )
+        self.session_id = track_existing_session(self.session, f"{self.service_name}_scraper_manager")
         self.logger.info("Session created and tracked: %s", self.session_id)
         return self.session
 

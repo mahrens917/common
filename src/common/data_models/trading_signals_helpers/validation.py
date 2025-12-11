@@ -40,9 +40,7 @@ def _validate_trade_signal_fields(signal: "TradingSignal") -> None:
     target_price_cents = signal.target_price_cents
     if target_price_cents <= 0 or target_price_cents > MAX_PRICE_CENTS:
         raise ValidationError(
-            ERR_TARGET_PRICE_OUT_OF_RANGE.format(
-                min=MIN_PRICE_CENTS, max=MAX_PRICE_CENTS, value=signal.target_price_cents
-            )
+            ERR_TARGET_PRICE_OUT_OF_RANGE.format(min=MIN_PRICE_CENTS, max=MAX_PRICE_CENTS, value=signal.target_price_cents)
         )
 
 

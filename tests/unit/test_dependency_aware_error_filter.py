@@ -42,9 +42,7 @@ class FakeRedis:
 
 @pytest.mark.asyncio
 async def test_should_suppress_error_when_dependency_unavailable():
-    config = ErrorSuppressionConfig(
-        dependency_error_patterns={"redis": [r"timeout", r"connection lost"]}
-    )
+    config = ErrorSuppressionConfig(dependency_error_patterns={"redis": [r"timeout", r"connection lost"]})
     filter_ = DependencyAwareErrorFilter(config)
     fake_redis = FakeRedis()
     fake_redis.sets["service_dependencies:worker"] = {"redis"}
@@ -129,10 +127,7 @@ async def test_context_manager_logs_when_exiting_due_to_error(monkeypatch, caplo
             async with filter_:
                 raise RuntimeError("boom")
     assert fake_redis.close_calls == 1
-    assert any(
-        "DependencyAwareErrorFilter closing due to RuntimeError" in r.message
-        for r in caplog.records
-    )
+    assert any("DependencyAwareErrorFilter closing due to RuntimeError" in r.message for r in caplog.records)
 
 
 @pytest.mark.asyncio
@@ -222,7 +217,4 @@ async def test_update_dependency_status_without_redis_logs_warning(caplog):
 
     with caplog.at_level(logging.WARNING):
         await filter_.update_dependency_status("svc", "db", "unavailable")
-    assert any(
-        "No Redis connection available for updating dependency status" in record.message
-        for record in caplog.records
-    )
+    assert any("No Redis connection available for updating dependency status" in record.message for record in caplog.records)

@@ -82,9 +82,7 @@ def create_psutil_process(pid: int, *, service_name: str, cmdline: Sequence[str]
     try:
         import psutil
     except ImportError as import_exc:
-        raise RuntimeError(
-            f"psutil is required to manage {service_name} processes but is not installed."
-        ) from import_exc
+        raise RuntimeError(f"psutil is required to manage {service_name} processes but is not installed.") from import_exc
 
     try:
         return psutil.Process(pid)
@@ -142,15 +140,11 @@ def build_matching_processes(
         f"🔍 Used centralized process monitor (found {len(matching_processes)} processes)",
         suppress_output=suppress_output,
     )
-    logger.debug(
-        "Process killer identified %d matching %s processes", len(matching_processes), service_name
-    )
+    logger.debug("Process killer identified %d matching %s processes", len(matching_processes), service_name)
     return matching_processes
 
 
-def _skip_candidate(
-    process_info: NormalizedProcess, exclude_pid: Optional[int], service_name: str
-) -> bool:
+def _skip_candidate(process_info: NormalizedProcess, exclude_pid: Optional[int], service_name: str) -> bool:
     if exclude_pid is not None and process_info.pid == exclude_pid:
         logger.debug(
             "Skipping %s process %s because it matches current PID",
@@ -161,9 +155,7 @@ def _skip_candidate(
     return False
 
 
-def _create_valid_process(
-    process_info: NormalizedProcess, service_name: str, suppress_output: bool
-) -> Optional[Any]:
+def _create_valid_process(process_info: NormalizedProcess, service_name: str, suppress_output: bool) -> Optional[Any]:
     if process_info.pid is None:
         return None
     return create_psutil_process(
@@ -182,16 +174,11 @@ def _get_process_pid(process: Any, service_name: str, suppress_output: bool) -> 
         return None
 
 
-def _validate_process_name(
-    process_info: NormalizedProcess, service_name: str, strict_python: bool
-) -> bool:
+def _validate_process_name(process_info: NormalizedProcess, service_name: str, strict_python: bool) -> bool:
     if not process_info.name or "python" in process_info.name.lower():
         return True
     if strict_python:
-        raise RuntimeError(
-            f"Unexpected executable for {service_name} process {process_info.pid}: "
-            f"{process_info.name}"
-        )
+        raise RuntimeError(f"Unexpected executable for {service_name} process {process_info.pid}: " f"{process_info.name}")
     logger.debug(
         "Skipping %s process %s with executable %s",
         service_name,

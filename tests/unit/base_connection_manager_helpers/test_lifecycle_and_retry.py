@@ -130,9 +130,7 @@ async def test_connect_with_retry_success_and_failure(monkeypatch):
     async def send_notification(is_connected, details):
         transition_events.append(("notify", is_connected, details))
 
-    result = await connect_with_retry(
-        manager, establish_connection, send_notification, transition_state
-    )
+    result = await connect_with_retry(manager, establish_connection, send_notification, transition_state)
     assert result is True
     assert manager.state == ConnectionState.READY
     assert metrics_tracker.metrics.total_connections == 1

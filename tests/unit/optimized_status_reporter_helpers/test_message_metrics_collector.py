@@ -50,9 +50,7 @@ class TestMessageMetricsCollector:
         return MessageMetricsCollector(mock_realtime_collector, mock_metadata_store)
 
     @pytest.mark.asyncio
-    async def test_collect_message_metrics_success(
-        self, collector, mock_realtime_collector, mock_metadata_store
-    ):
+    async def test_collect_message_metrics_success(self, collector, mock_realtime_collector, mock_metadata_store):
         """Test successful collection of all message metrics."""
         result = await collector.collect_message_metrics()
 
@@ -72,22 +70,16 @@ class TestMessageMetricsCollector:
 
     @pytest.mark.parametrize("exception_class", STATUS_REPORT_ERRORS)
     @pytest.mark.asyncio
-    async def test_collect_message_metrics_realtime_failure(
-        self, collector, mock_realtime_collector, exception_class
-    ):
+    async def test_collect_message_metrics_realtime_failure(self, collector, mock_realtime_collector, exception_class):
         """Test realtime metrics collection failure raises RuntimeError."""
-        mock_realtime_collector.get_deribit_sum_last_60_seconds.side_effect = exception_class(
-            "Test error"
-        )
+        mock_realtime_collector.get_deribit_sum_last_60_seconds.side_effect = exception_class("Test error")
 
         with pytest.raises(RuntimeError, match="Failed to collect realtime message metrics"):
             await collector.collect_message_metrics()
 
     @pytest.mark.parametrize("exception_class", STATUS_REPORT_ERRORS)
     @pytest.mark.asyncio
-    async def test_collect_message_metrics_metadata_failure(
-        self, collector, mock_metadata_store, exception_class
-    ):
+    async def test_collect_message_metrics_metadata_failure(self, collector, mock_metadata_store, exception_class):
         """Test metadata metrics collection failure raises DataError."""
         mock_metadata_store.get_service_metadata.side_effect = exception_class("Test error")
 

@@ -32,9 +32,7 @@ class HistoryEntry(TypedDict):
 class HistoryManager:
     """Manages service history data"""
 
-    async def get_service_history(
-        self, client: RedisClient, service_name: str, hours: int = 24
-    ) -> List[HistoryEntry]:
+    async def get_service_history(self, client: RedisClient, service_name: str, hours: int = 24) -> List[HistoryEntry]:
         """
         Get service history for the specified time period
 
@@ -68,9 +66,7 @@ async def _load_history_hash(client: RedisClient, redis_key: str, service_name: 
         raise RuntimeError(f"Failed to load history for service '{service_name}'") from exc
 
 
-def _parse_history_entries(
-    data: Dict[Any, Any], start_time: int, service_name: str
-) -> List[HistoryEntry]:
+def _parse_history_entries(data: Dict[Any, Any], start_time: int, service_name: str) -> List[HistoryEntry]:
     """Parse hash entries into structured history data."""
     history_data: List[HistoryEntry] = []
     for key, value in data.items():
@@ -93,9 +89,7 @@ def _parse_history_entries(
     return history_data
 
 
-def _parse_history_entry(
-    datetime_raw: Any, value_raw: Any, service_name: str
-) -> Optional[tuple[int, float]]:
+def _parse_history_entry(datetime_raw: Any, value_raw: Any, service_name: str) -> Optional[tuple[int, float]]:
     """Convert redis hash entry into (timestamp, value)."""
     datetime_str = _decode_if_bytes(datetime_raw)
     value_str = _decode_if_bytes(value_raw)

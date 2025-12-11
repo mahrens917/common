@@ -35,9 +35,7 @@ class TradeStore:
         dependencies: Optional[TradeStoreDependencies] = None,
     ) -> None:
         self.logger = logger
-        deps = dependencies or TradeStoreDependenciesFactory.create(
-            self.logger, redis, self._get_redis
-        )
+        deps = dependencies or TradeStoreDependenciesFactory.create(self.logger, redis, self._get_redis)
         self._base_connection = deps.base_connection
         self._connection_mgr = deps.connection_mgr
         self._pool_acquirer = deps.pool_acquirer

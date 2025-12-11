@@ -54,29 +54,19 @@ class TestHasSufficientBalanceForTradeWithFees:
 
     def test_delegates_to_validation_operations(self) -> None:
         """Delegates to ValidationOperations."""
-        with patch(
-            "common.kalshi_trading_client.services.order_helpers.order_service_operations.ValidationOperations"
-        ) as mock_ops:
+        with patch("common.kalshi_trading_client.services.order_helpers.order_service_operations.ValidationOperations") as mock_ops:
             mock_ops.has_sufficient_balance_for_trade_with_fees.return_value = True
 
-            result = has_sufficient_balance_for_trade_with_fees(
-                bal_cents=1000, cost_cents=500, fees_cents=50
-            )
+            result = has_sufficient_balance_for_trade_with_fees(bal_cents=1000, cost_cents=500, fees_cents=50)
 
-            mock_ops.has_sufficient_balance_for_trade_with_fees.assert_called_once_with(
-                1000, 500, 50
-            )
+            mock_ops.has_sufficient_balance_for_trade_with_fees.assert_called_once_with(1000, 500, 50)
             assert result is True
 
     def test_returns_false_when_insufficient(self) -> None:
         """Returns False when balance is insufficient."""
-        with patch(
-            "common.kalshi_trading_client.services.order_helpers.order_service_operations.ValidationOperations"
-        ) as mock_ops:
+        with patch("common.kalshi_trading_client.services.order_helpers.order_service_operations.ValidationOperations") as mock_ops:
             mock_ops.has_sufficient_balance_for_trade_with_fees.return_value = False
 
-            result = has_sufficient_balance_for_trade_with_fees(
-                bal_cents=100, cost_cents=500, fees_cents=50
-            )
+            result = has_sufficient_balance_for_trade_with_fees(bal_cents=100, cost_cents=500, fees_cents=50)
 
             assert result is False

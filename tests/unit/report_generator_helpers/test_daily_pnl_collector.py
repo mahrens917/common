@@ -25,9 +25,7 @@ class TestDailyPnLCollector(unittest.IsolatedAsyncioTestCase):
         mock_trade2 = Mock()
         mock_trade2.cost_cents = 20000
 
-        self.mock_trade_store.get_trades_by_date_range = AsyncMock(
-            side_effect=[[mock_trade1], [mock_trade2]]
-        )
+        self.mock_trade_store.get_trades_by_date_range = AsyncMock(side_effect=[[mock_trade1], [mock_trade2]])
 
         result = await self.collector.get_daily_pnl_with_unrealized_percentage(start_date, end_date)
 
@@ -52,9 +50,7 @@ class TestDailyPnLCollector(unittest.IsolatedAsyncioTestCase):
         start_date = date(2023, 1, 1)
         end_date = date(2023, 1, 1)
 
-        self.mock_pnl_calculator.get_unified_pnl_for_date = AsyncMock(
-            side_effect=ValueError("Error")
-        )
+        self.mock_pnl_calculator.get_unified_pnl_for_date = AsyncMock(side_effect=ValueError("Error"))
 
         with self.assertRaises(ValueError):
             await self.collector.get_daily_pnl_with_unrealized_percentage(start_date, end_date)
@@ -75,9 +71,7 @@ class TestDailyPnLCollector(unittest.IsolatedAsyncioTestCase):
         start_date = date(2023, 1, 1)
         end_date = date(2023, 1, 1)
 
-        self.mock_pnl_calculator.get_unified_pnl_for_date = AsyncMock(
-            side_effect=ValueError("Error")
-        )
+        self.mock_pnl_calculator.get_unified_pnl_for_date = AsyncMock(side_effect=ValueError("Error"))
 
         with self.assertRaises(ValueError):
             await self.collector.get_daily_pnl_with_unrealized(start_date, end_date)

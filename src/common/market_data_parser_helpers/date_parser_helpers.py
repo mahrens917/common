@@ -61,9 +61,7 @@ def validate_year_range(year: int, current_year: int) -> None:
         ParsingError: If year is outside valid range
     """
     if year < current_year or year > current_year + 10:
-        raise ParsingError(
-            f"Year {year} outside reasonable range ({current_year} to {current_year + 10})"
-        )
+        raise ParsingError(f"Year {year} outside reasonable range ({current_year} to {current_year + 10})")
 
 
 def check_corruption(year: int, date_part: str) -> None:
@@ -78,9 +76,7 @@ def check_corruption(year: int, date_part: str) -> None:
         DateTimeCorruptionError: If corrupted year detected
     """
     if year in [2520, 2620]:
-        raise DateTimeCorruptionError(
-            f"Detected corrupted year {year} from date_part '{date_part}'"
-        )
+        raise DateTimeCorruptionError(f"Detected corrupted year {year} from date_part '{date_part}'")
 
 
 def validate_datetime_corruption(parsed_date: datetime) -> None:

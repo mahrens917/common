@@ -110,66 +110,46 @@ class TestValidateMicroPriceCalculations:
 
     def test_accepts_all_valid_parameters(self) -> None:
         """Test that all valid parameters pass validation."""
-        CalculationValidator.validate_micro_price_calculations(
-            absolute_spread=1.0, i_raw=0.5, p_raw=50.0
-        )  # Should not raise
+        CalculationValidator.validate_micro_price_calculations(absolute_spread=1.0, i_raw=0.5, p_raw=50.0)  # Should not raise
 
     def test_accepts_boundary_values(self) -> None:
         """Test that boundary values pass validation."""
         # absolute_spread = 0
-        CalculationValidator.validate_micro_price_calculations(
-            absolute_spread=0.0, i_raw=0.5, p_raw=50.0
-        )  # Should not raise
+        CalculationValidator.validate_micro_price_calculations(absolute_spread=0.0, i_raw=0.5, p_raw=50.0)  # Should not raise
 
         # i_raw = 0
-        CalculationValidator.validate_micro_price_calculations(
-            absolute_spread=1.0, i_raw=0.0, p_raw=50.0
-        )  # Should not raise
+        CalculationValidator.validate_micro_price_calculations(absolute_spread=1.0, i_raw=0.0, p_raw=50.0)  # Should not raise
 
         # i_raw = 1
-        CalculationValidator.validate_micro_price_calculations(
-            absolute_spread=1.0, i_raw=1.0, p_raw=50.0
-        )  # Should not raise
+        CalculationValidator.validate_micro_price_calculations(absolute_spread=1.0, i_raw=1.0, p_raw=50.0)  # Should not raise
 
         # Very small p_raw
-        CalculationValidator.validate_micro_price_calculations(
-            absolute_spread=1.0, i_raw=0.5, p_raw=0.001
-        )  # Should not raise
+        CalculationValidator.validate_micro_price_calculations(absolute_spread=1.0, i_raw=0.5, p_raw=0.001)  # Should not raise
 
     def test_rejects_negative_absolute_spread(self) -> None:
         """Test that negative absolute_spread is rejected."""
         with pytest.raises(TypeError, match="Absolute spread must be non-negative"):
-            CalculationValidator.validate_micro_price_calculations(
-                absolute_spread=-1.0, i_raw=0.5, p_raw=50.0
-            )
+            CalculationValidator.validate_micro_price_calculations(absolute_spread=-1.0, i_raw=0.5, p_raw=50.0)
 
     def test_rejects_intensity_below_zero(self) -> None:
         """Test that i_raw < 0 is rejected."""
         with pytest.raises(TypeError, match="Raw intensity.*must be in"):
-            CalculationValidator.validate_micro_price_calculations(
-                absolute_spread=1.0, i_raw=-0.1, p_raw=50.0
-            )
+            CalculationValidator.validate_micro_price_calculations(absolute_spread=1.0, i_raw=-0.1, p_raw=50.0)
 
     def test_rejects_intensity_above_one(self) -> None:
         """Test that i_raw > 1 is rejected."""
         with pytest.raises(TypeError, match="Raw intensity.*must be in"):
-            CalculationValidator.validate_micro_price_calculations(
-                absolute_spread=1.0, i_raw=1.1, p_raw=50.0
-            )
+            CalculationValidator.validate_micro_price_calculations(absolute_spread=1.0, i_raw=1.1, p_raw=50.0)
 
     def test_rejects_zero_raw_micro_price(self) -> None:
         """Test that p_raw = 0 is rejected."""
         with pytest.raises(TypeError, match="Raw micro price.*must be positive"):
-            CalculationValidator.validate_micro_price_calculations(
-                absolute_spread=1.0, i_raw=0.5, p_raw=0.0
-            )
+            CalculationValidator.validate_micro_price_calculations(absolute_spread=1.0, i_raw=0.5, p_raw=0.0)
 
     def test_rejects_negative_raw_micro_price(self) -> None:
         """Test that p_raw < 0 is rejected."""
         with pytest.raises(TypeError, match="Raw micro price.*must be positive"):
-            CalculationValidator.validate_micro_price_calculations(
-                absolute_spread=1.0, i_raw=0.5, p_raw=-1.0
-            )
+            CalculationValidator.validate_micro_price_calculations(absolute_spread=1.0, i_raw=0.5, p_raw=-1.0)
 
     def test_validates_in_correct_order(self) -> None:
         """Test that validation happens in the expected order."""
@@ -183,6 +163,4 @@ class TestValidateMicroPriceCalculations:
 
     def test_typical_valid_use_case(self) -> None:
         """Test a typical valid use case with realistic values."""
-        CalculationValidator.validate_micro_price_calculations(
-            absolute_spread=2.5, i_raw=0.65, p_raw=48.75
-        )  # Should not raise
+        CalculationValidator.validate_micro_price_calculations(absolute_spread=2.5, i_raw=0.65, p_raw=48.75)  # Should not raise

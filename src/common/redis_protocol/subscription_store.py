@@ -100,16 +100,12 @@ class SubscriptionStore(_SubscriptionConnectionAccessors, _SubscriptionChannelAc
     async def add_subscription(self, update: messages.SubscriptionUpdate) -> bool:
         """Add subscription to Redis using unified key structure"""
         redis = await self._get_redis()
-        return await self._operations.add_subscription(
-            redis, self._get_subscription_hash(), self._get_subscription_channel(), update
-        )
+        return await self._operations.add_subscription(redis, self._get_subscription_hash(), self._get_subscription_channel(), update)
 
     async def remove_subscription(self, update: messages.SubscriptionUpdate) -> bool:
         """Remove subscription from Redis using unified key structure"""
         redis = await self._get_redis()
-        return await self._operations.remove_subscription(
-            redis, self._get_subscription_hash(), self._get_subscription_channel(), update
-        )
+        return await self._operations.remove_subscription(redis, self._get_subscription_hash(), self._get_subscription_channel(), update)
 
     async def get_active_subscriptions(self) -> Dict[str, Dict[str, str]]:
         """Get all active subscriptions from Redis grouped by type"""

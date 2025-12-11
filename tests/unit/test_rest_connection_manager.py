@@ -221,9 +221,7 @@ async def test_make_request_uses_secondary_auth_handler(monkeypatch, patched_env
     manager = RESTConnectionManager(
         service_name="rest-auth-secondary",
         base_url="https://example.com",
-        authentication_handler=lambda *args: (
-            auth_handler_no_args() if len(args) == 0 else auth_handler(*args)
-        ),
+        authentication_handler=lambda *args: (auth_handler_no_args() if len(args) == 0 else auth_handler(*args)),
     )
 
     assert await manager.establish_connection()

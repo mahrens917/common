@@ -6,3 +6,4 @@ psutil
 pytz
 numpy
 python-dateutil
+timezonefinder

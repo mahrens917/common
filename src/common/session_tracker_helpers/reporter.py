@@ -33,8 +33,7 @@ class SessionReporter:
 
         logger.log(
             self._log_level,
-            f"📊 Session summary: {total_sessions} total, {closed_sessions} closed, "
-            f"{len(active_sessions)} active",
+            f"📊 Session summary: {total_sessions} total, {closed_sessions} closed, " f"{len(active_sessions)} active",
         )
 
         if active_sessions:

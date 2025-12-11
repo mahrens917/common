@@ -81,37 +81,18 @@ def _descriptor(**overrides) -> DeribitInstrumentDescriptor:
 
 def test_instrument_name_builder_handles_spot_and_future():
     spot_descriptor = _descriptor(instrument_type=DeribitInstrumentType.SPOT, quote_currency="")
-    assert (
-        InstrumentNameBuilder.derive_instrument_name(
-            spot_descriptor, strike_value=None, option_type=None
-        )
-        == "BTC-USD"
-    )
+    assert InstrumentNameBuilder.derive_instrument_name(spot_descriptor, strike_value=None, option_type=None) == "BTC-USD"
 
     future_descriptor = _descriptor(instrument_type=DeribitInstrumentType.FUTURE)
-    assert (
-        InstrumentNameBuilder.derive_instrument_name(
-            future_descriptor, strike_value=None, option_type=None
-        )
-        == "BTC-25AUG24"
-    )
+    assert InstrumentNameBuilder.derive_instrument_name(future_descriptor, strike_value=None, option_type=None) == "BTC-25AUG24"
 
 
 def test_instrument_name_builder_formats_options_and_strikes():
-    call_descriptor = _descriptor(
-        option_kind="call", strike="20000", expiry_iso="2024-01-01", expiry_token=None
-    )
-    assert (
-        InstrumentNameBuilder.derive_instrument_name(
-            call_descriptor, strike_value=20000, option_type=None
-        )
-        == "BTC-01JAN24-20000-C"
-    )
+    call_descriptor = _descriptor(option_kind="call", strike="20000", expiry_iso="2024-01-01", expiry_token=None)
+    assert InstrumentNameBuilder.derive_instrument_name(call_descriptor, strike_value=20000, option_type=None) == "BTC-01JAN24-20000-C"
 
     put_descriptor = _descriptor(option_kind=None, strike="123.456", expiry_token=None)
-    assert InstrumentNameBuilder.derive_instrument_name(
-        put_descriptor, strike_value=123.456, option_type="put"
-    ).endswith("-123.456-P")
+    assert InstrumentNameBuilder.derive_instrument_name(put_descriptor, strike_value=123.456, option_type="put").endswith("-123.456-P")
 
 
 def test_instrument_name_builder_handles_expiry_formats_and_missing_currency():
@@ -122,6 +103,4 @@ def test_instrument_name_builder_handles_expiry_formats_and_missing_currency():
     assert InstrumentNameBuilder._resolve_expiry_token(descriptor_no_date) == "BAD-DATE"
 
     with pytest.raises(ValueError):
-        InstrumentNameBuilder.derive_instrument_name(
-            _descriptor(currency=""), strike_value=None, option_type=None
-        )
+        InstrumentNameBuilder.derive_instrument_name(_descriptor(currency=""), strike_value=None, option_type=None)

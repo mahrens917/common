@@ -28,9 +28,7 @@ class CompactStore:
         self._redis_provider = redis_provider
         self._field_iterator = field_iterator
 
-    async def store_probabilities(
-        self, currency: str, probabilities_data: Dict[str, Dict[str, Dict[str, Any]]]
-    ) -> bool:
+    async def store_probabilities(self, currency: str, probabilities_data: Dict[str, Dict[str, Dict[str, Any]]]) -> bool:
         """
         Store probabilities in compact format.
 
@@ -63,13 +61,9 @@ class CompactStore:
             await _validate_stored_field_count(redis, key, stats["field_count"], currency_upper)
             _log_store_summary(stats, currency_upper)
         except (ValueError, TypeError, *SERIALIZATION_ERRORS) as exc:
-            raise ProbabilityStoreError(
-                f"Failed to store probabilities for {currency_upper}"
-            ) from exc
+            raise ProbabilityStoreError(f"Failed to store probabilities for {currency_upper}") from exc
         except REDIS_ERRORS as exc:
-            raise ProbabilityStoreError(
-                f"Failed to store probabilities for {currency_upper}: Redis error {exc}"
-            ) from exc
+            raise ProbabilityStoreError(f"Failed to store probabilities for {currency_upper}: Redis error {exc}") from exc
         else:
             return True
 
@@ -94,9 +88,7 @@ def _enqueue_probability_fields(pipeline, key: str, field_iterator):
 def _validate_pipeline_results(results, field_count: int, currency_upper: str) -> None:
     expected_operations = 1 + field_count
     if len(results) != expected_operations:
-        raise ProbabilityStoreError(
-            f"Redis pipeline returned {len(results)} results; expected {expected_operations}"
-        )
+        raise ProbabilityStoreError(f"Redis pipeline returned {len(results)} results; expected {expected_operations}")
     successful_sets = sum(int(bool(res)) for res in results[1:])
     if successful_sets != field_count:
         raise ProbabilityStoreError(

@@ -45,9 +45,7 @@ async def test_get_interpolation_results_skips_invalid_entries():
         def __init__(self, ticker):
             self.ticker = ticker
 
-    fake_module = SimpleNamespace(
-        parse_kalshi_market_key=MagicMock(side_effect=[Desc("USD-TEST"), Desc("USD-FAIL")])
-    )
+    fake_module = SimpleNamespace(parse_kalshi_market_key=MagicMock(side_effect=[Desc("USD-TEST"), Desc("USD-FAIL")]))
     with patch.dict("sys.modules", {"common.redis_protocol.kalshi_store": fake_module}):
         result = await reader.get_interpolation_results("USD", ["k1", "k2"], *make_default_funcs())
 
@@ -65,9 +63,7 @@ async def test_extract_single_interpolation_result_validates_currency():
     class Desc:
         ticker = "EUR-TEST"
 
-    res = await reader._extract_single_interpolation_result(
-        "k", "USD", lambda _k: Desc(), str, int, float
-    )
+    res = await reader._extract_single_interpolation_result("k", "USD", lambda _k: Desc(), str, int, float)
 
     assert res is None
 

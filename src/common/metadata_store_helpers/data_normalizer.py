@@ -23,11 +23,11 @@ class DataNormalizer:
         return normalized
 
     @staticmethod
-    def int_field(mapping: Dict[str, object], field: str, *, default: int = 0) -> int:
+    def int_field(mapping: Dict[str, object], field: str, *, value_on_error: int = 0) -> int:
         """Extract integer field from mapping with type coercion"""
         value = mapping.get(field)
         if value is None:
-            return default
+            return value_on_error
         if isinstance(value, bool):
             return int(value)
         if isinstance(value, (int, float)):
@@ -35,16 +35,16 @@ class DataNormalizer:
         if isinstance(value, str):
             stripped = value.strip()
             if stripped == "":
-                return default
+                return value_on_error
             return int(float(stripped))
         raise ValueError(f"Field '{field}' is not numeric: {value!r}")
 
     @staticmethod
-    def float_field(mapping: Dict[str, object], field: str, *, default: float = 0.0) -> float:
+    def float_field(mapping: Dict[str, object], field: str, *, value_on_error: float = 0.0) -> float:
         """Extract float field from mapping with type coercion"""
         value = mapping.get(field)
         if value is None:
-            return default
+            return value_on_error
         if isinstance(value, bool):
             return float(value)
         if isinstance(value, (int, float)):
@@ -52,6 +52,6 @@ class DataNormalizer:
         if isinstance(value, str):
             stripped = value.strip()
             if stripped == "":
-                return default
+                return value_on_error
             return float(stripped)
         raise ValueError(f"Field '{field}' is not a float: {value!r}")

@@ -68,9 +68,7 @@ def test_extract_and_validate_close_time_and_strike():
         )
 
     with pytest.raises(MarketSkip):
-        field_extractor.extract_and_validate_strike(
-            {}, "MARKET", _StubStrikeResolver(None), _string_converter
-        )
+        field_extractor.extract_and_validate_strike({}, "MARKET", _StubStrikeResolver(None), _string_converter)
 
 
 def test_build_record_dict_uses_provided_values():
@@ -123,14 +121,10 @@ def test_record_validator_checks_fields():
 
     combined = {"status": "settled"}
     with pytest.raises(MarketSkip):
-        record_validator.RecordValidator.validate_market_status(
-            combined, "MARKET", _StubTypeConverter()
-        )
+        record_validator.RecordValidator.validate_market_status(combined, "MARKET", _StubTypeConverter())
 
     with pytest.raises(MarketSkip):
-        record_validator.RecordValidator.validate_not_expired(
-            "2020-01-01T00:00:00Z", "MARKET", datetime(2021, 1, 1, tzinfo=timezone.utc)
-        )
+        record_validator.RecordValidator.validate_not_expired("2020-01-01T00:00:00Z", "MARKET", datetime(2021, 1, 1, tzinfo=timezone.utc))
 
     with pytest.raises(MarketSkip):
         record_validator.RecordValidator.validate_close_time(None, "MARKET")

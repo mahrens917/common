@@ -36,9 +36,7 @@ class OrderService:
         timeout_seconds: int,
         cancel_order: Callable[[str], Awaitable[bool]],
     ) -> OrderResponse:
-        return await self._poller.complete_order_with_polling(
-            order_request, order_response, timeout_seconds, cancel_order
-        )
+        return await self._poller.complete_order_with_polling(order_request, order_response, timeout_seconds, cancel_order)
 
     def build_order_poller(self) -> OrderPoller:
         return self._poller.poller_factory()
@@ -71,20 +69,12 @@ class OrderService:
     def validate_order_request(self, order_request: OrderRequest) -> None:
         self._validator.validate_order_request(order_request)
 
-    def parse_order_response(
-        self, response_data, operation_name, trade_rule, trade_reason
-    ) -> OrderResponse:
-        return self._parser.parse_order_response(
-            response_data, operation_name, trade_rule, trade_reason
-        )
+    def parse_order_response(self, response_data, operation_name, trade_rule, trade_reason) -> OrderResponse:
+        return self._parser.parse_order_response(response_data, operation_name, trade_rule, trade_reason)
 
     @staticmethod
-    def has_sufficient_balance_for_trade_with_fees(
-        cached_balance_cents, trade_cost_cents, fees_cents
-    ) -> bool:
-        return OrderValidator.has_sufficient_balance_for_trade_with_fees(
-            cached_balance_cents, trade_cost_cents, fees_cents
-        )
+    def has_sufficient_balance_for_trade_with_fees(cached_balance_cents, trade_cost_cents, fees_cents) -> bool:
+        return OrderValidator.has_sufficient_balance_for_trade_with_fees(cached_balance_cents, trade_cost_cents, fees_cents)
 
     def create_icao_to_city_mapping(self) -> Dict[str, str]:
         return self._metadata_resolver.create_icao_to_city_mapping()
@@ -95,9 +85,7 @@ class OrderService:
     def resolve_trade_context(self, market_ticker: str):
         return self._metadata_resolver.resolve_trade_context(market_ticker)
 
-    async def calculate_order_fees(
-        self, market_ticker: str, quantity: int, price_cents: int
-    ) -> int:
+    async def calculate_order_fees(self, market_ticker: str, quantity: int, price_cents: int) -> int:
         return await self._fee_calculator.calculate_order_fees(market_ticker, quantity, price_cents)
 
     async def get_trade_metadata_from_order(self, order_id: str):

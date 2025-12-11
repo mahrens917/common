@@ -15,9 +15,7 @@ def create_status_checker(
     return MarketStatusChecker(conn_wrapper, ticker_parser, expiry_checker, get_market_key_fn)
 
 
-def create_snapshot_retriever(
-    conn_wrapper: Any, snapshot_reader: Any, get_market_key_fn: Callable[[str], str]
-) -> Any:
+def create_snapshot_retriever(conn_wrapper: Any, snapshot_reader: Any, get_market_key_fn: Callable[[str], str]) -> Any:
     """Create SnapshotRetriever instance."""
     from ..reader import SnapshotRetriever
 

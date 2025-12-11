@@ -42,9 +42,7 @@ class EvaluationCases:
         message: str,
         context: str,
     ) -> Tuple[bool, Optional[datetime]]:
-        return self._boundary_evaluator.evaluate_boundary(
-            latitude, longitude, current_timestamp, last_dawn_reset, message, context
-        )
+        return self._boundary_evaluator.evaluate_boundary(latitude, longitude, current_timestamp, last_dawn_reset, message, context)
 
     def evaluate_first_run(
         self,

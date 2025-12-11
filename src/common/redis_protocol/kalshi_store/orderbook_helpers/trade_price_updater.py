@@ -18,12 +18,8 @@ class TradePriceUpdater:
         yes_bid_raw = await ensure_awaitable(redis.hget(market_key, "yes_bid"))
         yes_ask_raw = await ensure_awaitable(redis.hget(market_key, "yes_ask"))
 
-        decoded_yes_bid = (
-            yes_bid_raw.decode("utf-8", "ignore") if isinstance(yes_bid_raw, bytes) else yes_bid_raw
-        )
-        decoded_yes_ask = (
-            yes_ask_raw.decode("utf-8", "ignore") if isinstance(yes_ask_raw, bytes) else yes_ask_raw
-        )
+        decoded_yes_bid = yes_bid_raw.decode("utf-8", "ignore") if isinstance(yes_bid_raw, bytes) else yes_bid_raw
+        decoded_yes_ask = yes_ask_raw.decode("utf-8", "ignore") if isinstance(yes_ask_raw, bytes) else yes_ask_raw
 
         parsed_yes_bid = FieldConverter.convert_numeric_field(decoded_yes_bid)
         parsed_yes_ask = FieldConverter.convert_numeric_field(decoded_yes_ask)

@@ -115,9 +115,7 @@ class IOrderService(Protocol):
         """Determine market category and optional station for a ticker."""
         ...
 
-    async def calculate_order_fees(
-        self, market_ticker: str, quantity: int, price_cents: int
-    ) -> int:
+    async def calculate_order_fees(self, market_ticker: str, quantity: int, price_cents: int) -> int:
         """Calculate fees for a proposed order."""
         ...
 
@@ -193,15 +191,11 @@ class IPrivateMethods(Protocol):
         """Validate order request."""
         ...
 
-    def parse_order_response(
-        self, response_data: Dict[str, Any], operation_name: str, trade_rule: str, trade_reason: str
-    ) -> OrderResponse:
+    def parse_order_response(self, response_data: Dict[str, Any], operation_name: str, trade_rule: str, trade_reason: str) -> OrderResponse:
         """Parse order response."""
         ...
 
-    def has_sufficient_balance_for_trade_with_fees(
-        self, cached_balance_cents: int, trade_cost_cents: int, fees_cents: int
-    ) -> bool:
+    def has_sufficient_balance_for_trade_with_fees(self, cached_balance_cents: int, trade_cost_cents: int, fees_cents: int) -> bool:
         """Check sufficient balance."""
         ...
 
@@ -217,9 +211,7 @@ class IPrivateMethods(Protocol):
         """Resolve trade context."""
         ...
 
-    async def calculate_order_fees(
-        self, market_ticker: str, quantity: int, price_cents: int
-    ) -> int:
+    async def calculate_order_fees(self, market_ticker: str, quantity: int, price_cents: int) -> int:
         """Calculate order fees."""
         ...
 
@@ -255,9 +247,7 @@ class IPublicAPI(Protocol):
         """Create a new order."""
         ...
 
-    async def create_order_with_polling(
-        self, order_request: OrderRequest, timeout_seconds: int
-    ) -> OrderResponse:
+    async def create_order_with_polling(self, order_request: OrderRequest, timeout_seconds: int) -> OrderResponse:
         """Create order and poll for completion."""
         ...
 
@@ -299,9 +289,7 @@ class ILifecycleManager(Protocol):
         """Initialize the trading client."""
         ...
 
-    async def close(
-        self, kalshi_client: KalshiClient, trade_store_manager: TradeStoreManager
-    ) -> None:
+    async def close(self, kalshi_client: KalshiClient, trade_store_manager: TradeStoreManager) -> None:
         """Close client connections."""
         ...
 
@@ -317,15 +305,11 @@ class ITradeContextResolver(Protocol):
         """Create ICAO to city mapping."""
         ...
 
-    def extract_weather_station_from_ticker(
-        self, order_service: IOrderService, market_ticker: str
-    ) -> str:
+    def extract_weather_station_from_ticker(self, order_service: IOrderService, market_ticker: str) -> str:
         """Extract weather station from market ticker."""
         ...
 
-    def resolve_trade_context(
-        self, order_service: IOrderService, market_ticker: str
-    ) -> Tuple[str, Optional[str]]:
+    def resolve_trade_context(self, order_service: IOrderService, market_ticker: str) -> Tuple[str, Optional[str]]:
         """Resolve trade context from market ticker."""
         ...
 
@@ -333,9 +317,7 @@ class ITradeContextResolver(Protocol):
         """Get weather station mapping."""
         ...
 
-    def set_weather_mapping(
-        self, resolver: WeatherStationResolver, mapping: Dict[str, Dict[str, Any]]
-    ) -> None:
+    def set_weather_mapping(self, resolver: WeatherStationResolver, mapping: Dict[str, Dict[str, Any]]) -> None:
         """Set weather station mapping."""
         ...
 

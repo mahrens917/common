@@ -28,9 +28,7 @@ class InstanceCreator:
             OptimizedMarketStore instance
         """
         # Create Redis connection
-        redis_client, redis_pool, initialized, atomic_ops = (
-            await RedisInitializer.create_with_pool()
-        )
+        redis_client, redis_pool, initialized, atomic_ops = await RedisInitializer.create_with_pool()
 
         # Create instance without calling __init__
         instance = cast("OptimizedMarketStore", object.__new__(cls_type))

@@ -64,9 +64,7 @@ class NotificationSender:
             message += f"📝 Context: {context_str}\n"
 
         recovery_emoji = "✅" if analysis.recovery_possible else "❌"
-        recovery_status = (
-            "Possible" if analysis.recovery_possible else "Manual intervention required"
-        )
+        recovery_status = "Possible" if analysis.recovery_possible else "Manual intervention required"
         message += f"{recovery_emoji} Auto-recovery: {recovery_status}"
 
         try:

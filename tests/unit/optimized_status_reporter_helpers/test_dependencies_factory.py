@@ -63,9 +63,7 @@ class TestStatusReporterDependenciesFactory:
 
         yield mocks
 
-    def test_create_dependencies_with_explicit_logs_directory(
-        self, mock_dependencies, mock_internal_imports
-    ):
+    def test_create_dependencies_with_explicit_logs_directory(self, mock_dependencies, mock_internal_imports):
         """Test that create properly instantiates and wires all dependencies with an explicit logs directory."""
         factory_deps = StatusReporterDependenciesFactory.create(**mock_dependencies)
 
@@ -74,14 +72,10 @@ class TestStatusReporterDependenciesFactory:
         mock_internal_imports["ReportPrinterCoordinator"].assert_called_once()
 
         # Assert LogActivityMonitor is initialized with the correct path
-        mock_internal_imports["LogActivityMonitor"].assert_called_once_with(
-            str(mock_dependencies["logs_directory"])
-        )
+        mock_internal_imports["LogActivityMonitor"].assert_called_once_with(str(mock_dependencies["logs_directory"]))
 
         # Assert DayNightDetector loads coordinates
-        mock_internal_imports[
-            "DayNightDetector"
-        ].return_value.load_weather_station_coordinates.assert_called_once()
+        mock_internal_imports["DayNightDetector"].return_value.load_weather_station_coordinates.assert_called_once()
 
         # Assert StatusDataCollectors is called with instantiated collectors
         mock_internal_imports["StatusDataCollectors"].assert_called_once_with(
@@ -108,13 +102,9 @@ class TestStatusReporterDependenciesFactory:
         )
 
         assert factory_deps.aggregator == mock_internal_imports["StatusDataAggregator"].return_value
-        assert (
-            factory_deps.printer == mock_internal_imports["ReportPrinterCoordinator"].return_value
-        )
+        assert factory_deps.printer == mock_internal_imports["ReportPrinterCoordinator"].return_value
 
-    def test_create_dependencies_without_explicit_logs_directory(
-        self, mock_dependencies, mock_internal_imports
-    ):
+    def test_create_dependencies_without_explicit_logs_directory(self, mock_dependencies, mock_internal_imports):
         """Test that create properly determines logs directory when not explicit."""
         mock_dependencies["logs_directory"] = None
 
@@ -122,13 +112,9 @@ class TestStatusReporterDependenciesFactory:
         with patch.object(
             Path,
             "resolve",
-            return_value=Path(
-                "/root/project/src/common/optimized_status_reporter_helpers/dependencies_factory.py"
-            ),
+            return_value=Path("/root/project/src/common/optimized_status_reporter_helpers/dependencies_factory.py"),
         ) as mock_resolve:
             StatusReporterDependenciesFactory.create(**mock_dependencies)
 
             expected_logs_dir = Path("/root/project/src/logs")
-            mock_internal_imports["LogActivityMonitor"].assert_called_once_with(
-                str(expected_logs_dir)
-            )
+            mock_internal_imports["LogActivityMonitor"].assert_called_once_with(str(expected_logs_dir))

@@ -43,9 +43,7 @@ class SimpleHealthDelegator:
             log_staleness_threshold_seconds=log_staleness_threshold_seconds,
             activity_classifier=self.activity_classifier,
         )
-        self.multi_service_checker = MultiServiceChecker(
-            check_service_health_fn=self.check_service_health
-        )
+        self.multi_service_checker = MultiServiceChecker(check_service_health_fn=self.check_service_health)
 
     async def check_service_health(self, service_name: str) -> ServiceHealth:
         """

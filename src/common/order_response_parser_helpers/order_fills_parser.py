@@ -89,7 +89,4 @@ def _validate_total_fill_count(fills: List[OrderFill], expected_count: int) -> N
     """Validate total fill count matches expected."""
     total_fill_count = sum(fill.count for fill in fills)
     if total_fill_count != expected_count:
-        raise ValueError(
-            f"Fills count mismatch: sum of fills ({total_fill_count}) "
-            f"doesn't match filled_count ({expected_count})"
-        )
+        raise ValueError(f"Fills count mismatch: sum of fills ({total_fill_count}) " f"doesn't match filled_count ({expected_count})")

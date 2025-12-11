@@ -94,21 +94,15 @@ class IMarketReader(Protocol):
         """Get all markets for a currency."""
         ...
 
-    async def get_active_strikes_and_expiries(
-        self, currency: str
-    ) -> Dict[str, List[Dict[str, Any]]]:
+    async def get_active_strikes_and_expiries(self, currency: str) -> Dict[str, List[Dict[str, Any]]]:
         """Get active strikes and expiries for a currency."""
         ...
 
-    async def get_market_data_for_strike_expiry(
-        self, currency: str, expiry_date: str, strike: float
-    ) -> Optional[Dict[str, Any]]:
+    async def get_market_data_for_strike_expiry(self, currency: str, expiry_date: str, strike: float) -> Optional[Dict[str, Any]]:
         """Get market data for specific strike and expiry."""
         ...
 
-    async def is_market_expired(
-        self, market_ticker: str, *, metadata: Optional[Dict[str, Any]] = None
-    ) -> bool:
+    async def is_market_expired(self, market_ticker: str, *, metadata: Optional[Dict[str, Any]] = None) -> bool:
         """Check if market is expired."""
         ...
 
@@ -116,15 +110,11 @@ class IMarketReader(Protocol):
         """Check if market is settled."""
         ...
 
-    async def get_market_snapshot(
-        self, ticker: str, *, include_orderbook: bool = True
-    ) -> Dict[str, Any]:
+    async def get_market_snapshot(self, ticker: str, *, include_orderbook: bool = True) -> Dict[str, Any]:
         """Get market snapshot."""
         ...
 
-    async def get_market_snapshot_by_key(
-        self, market_key: str, *, include_orderbook: bool = True
-    ) -> Dict[str, Any]:
+    async def get_market_snapshot_by_key(self, market_key: str, *, include_orderbook: bool = True) -> Dict[str, Any]:
         """Get market snapshot by Redis key."""
         ...
 
@@ -136,9 +126,7 @@ class IMarketReader(Protocol):
         """Get orderbook for market."""
         ...
 
-    async def get_market_field(
-        self, ticker: str, field: str, *, default: Optional[str] = None
-    ) -> Optional[str]:
+    async def get_market_field(self, ticker: str, field: str, *, default: Optional[str] = None) -> Optional[str]:
         """Get single market field."""
         ...
 
@@ -146,9 +134,7 @@ class IMarketReader(Protocol):
         """Get orderbook side (bids or asks)."""
         ...
 
-    async def is_market_tracked(
-        self, market_ticker: str, *, category: Optional[str] = None
-    ) -> bool:
+    async def is_market_tracked(self, market_ticker: str, *, category: Optional[str] = None) -> bool:
         """Check if market is tracked."""
         ...
 
@@ -160,9 +146,7 @@ class IMarketReader(Protocol):
         """Scan for market keys matching patterns."""
         ...
 
-    def ensure_market_metadata_fields(
-        self, ticker: str, snapshot: Dict[str, Any]
-    ) -> Dict[str, Any]:
+    def ensure_market_metadata_fields(self, ticker: str, snapshot: Dict[str, Any]) -> Dict[str, Any]:
         """Ensure all required metadata fields are present."""
         ...
 
@@ -198,15 +182,11 @@ class IMarketWriter(Protocol):
         """Derive ISO expiry date from ticker and metadata."""
         ...
 
-    async def write_enhanced_market_data(
-        self, ticker: str, key: str, updates: Dict[str, Any]
-    ) -> None:
+    async def write_enhanced_market_data(self, ticker: str, key: str, updates: Dict[str, Any]) -> None:
         """Write enhanced market data."""
         ...
 
-    async def update_trade_prices_for_market(
-        self, ticker: str, bid: Optional[float], ask: Optional[float]
-    ) -> None:
+    async def update_trade_prices_for_market(self, ticker: str, bid: Optional[float], ask: Optional[float]) -> None:
         """Update trade prices for a market."""
         ...
 
@@ -262,39 +242,27 @@ class IMarketQueryDelegator(Protocol):
         """Get markets by currency."""
         ...
 
-    async def get_active_strikes_and_expiries(
-        self, currency: str
-    ) -> Dict[str, List[Dict[str, Any]]]:
+    async def get_active_strikes_and_expiries(self, currency: str) -> Dict[str, List[Dict[str, Any]]]:
         """Get active strikes and expiries."""
         ...
 
-    async def get_market_data_for_strike_expiry(
-        self, currency: str, expiry_date: str, strike: float
-    ) -> Optional[Dict[str, Any]]:
+    async def get_market_data_for_strike_expiry(self, currency: str, expiry_date: str, strike: float) -> Optional[Dict[str, Any]]:
         """Get market data for strike/expiry."""
         ...
 
-    async def is_market_expired(
-        self, market_ticker: str, *, metadata: Optional[Dict[str, Any]] = None
-    ) -> bool:
+    async def is_market_expired(self, market_ticker: str, *, metadata: Optional[Dict[str, Any]] = None) -> bool:
         """Check if market is expired."""
         ...
 
-    async def is_market_settled(
-        self, market_ticker: str, *, metadata: Optional[Dict[str, Any]] = None
-    ) -> bool:
+    async def is_market_settled(self, market_ticker: str, *, metadata: Optional[Dict[str, Any]] = None) -> bool:
         """Check if market is settled."""
         ...
 
-    async def get_market_snapshot(
-        self, ticker: str, *, include_orderbook: bool = True
-    ) -> Dict[str, Any]:
+    async def get_market_snapshot(self, ticker: str, *, include_orderbook: bool = True) -> Dict[str, Any]:
         """Get market snapshot."""
         ...
 
-    async def get_market_snapshot_by_key(
-        self, market_key: str, *, include_orderbook: bool = True
-    ) -> Dict[str, Any]:
+    async def get_market_snapshot_by_key(self, market_key: str, *, include_orderbook: bool = True) -> Dict[str, Any]:
         """Get market snapshot by key."""
         ...
 
@@ -306,9 +274,7 @@ class IMarketQueryDelegator(Protocol):
         """Get orderbook."""
         ...
 
-    async def get_market_field(
-        self, ticker: str, field: str, *, default: Optional[str] = None
-    ) -> Optional[str]:
+    async def get_market_field(self, ticker: str, field: str, *, default: Optional[str] = None) -> Optional[str]:
         """Get market field."""
         ...
 
@@ -316,9 +282,7 @@ class IMarketQueryDelegator(Protocol):
         """Get orderbook side."""
         ...
 
-    async def is_market_tracked(
-        self, market_ticker: str, *, category: Optional[str] = None
-    ) -> bool:
+    async def is_market_tracked(self, market_ticker: str, *, category: Optional[str] = None) -> bool:
         """Check if market is tracked."""
         ...
 

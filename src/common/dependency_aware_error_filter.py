@@ -58,18 +58,14 @@ class _DependencyFilterContext(Protocol):
 class DependencyAwareErrorFilterMixin:
     """Helper methods shared by the dependency-aware error filter."""
 
-    async def should_suppress_error(
-        self: _DependencyFilterContext, process_name: str, error_message: str
-    ) -> bool:
+    async def should_suppress_error(self: _DependencyFilterContext, process_name: str, error_message: str) -> bool:
         from .dependency_aware_error_filter_helpers import DependencyChecker, PatternMatcher
 
         if not self.config.enabled or self.redis is None:
             return False
 
         try:
-            dependencies = await DependencyChecker.get_service_dependencies(
-                self.redis, process_name
-            )
+            dependencies = await DependencyChecker.get_service_dependencies(self.redis, process_name)
             if not dependencies:
                 return False
 
@@ -79,9 +75,7 @@ class DependencyAwareErrorFilterMixin:
                 )
                 if not unavailable:
                     continue
-                if PatternMatcher.is_dependency_related_error(
-                    error_message, dependency_name, self.dependency_patterns
-                ):
+                if PatternMatcher.is_dependency_related_error(error_message, dependency_name, self.dependency_patterns):
                     logger.debug(
                         "Suppressing error for %s: dependency %s unavailable",
                         process_name,
@@ -95,9 +89,7 @@ class DependencyAwareErrorFilterMixin:
             logger.exception("Error checking dependency status for %s", process_name)
             return False
 
-    async def update_service_dependencies(
-        self: _DependencyFilterContext, service_name: str, dependencies: List[str]
-    ) -> None:
+    async def update_service_dependencies(self: _DependencyFilterContext, service_name: str, dependencies: List[str]) -> None:
         from .dependency_aware_error_filter_helpers import StatusUpdater
 
         if not self.redis:
@@ -105,27 +97,18 @@ class DependencyAwareErrorFilterMixin:
             return
         await StatusUpdater.update_service_dependencies(self.redis, service_name, dependencies)
 
-    async def update_dependency_status(
-        self: _DependencyFilterContext, service_name: str, dependency_name: str, status: str
-    ) -> None:
+    async def update_dependency_status(self: _DependencyFilterContext, service_name: str, dependency_name: str, status: str) -> None:
         from .dependency_aware_error_filter_helpers import StatusUpdater
 
         if not self.redis:
             logger.warning("No Redis connection available for updating dependency status")
             return
-        await StatusUpdater.update_dependency_status(
-            self.redis, service_name, dependency_name, status, self.config.redis_key_prefix
-        )
+        await StatusUpdater.update_dependency_status(self.redis, service_name, dependency_name, status, self.config.redis_key_prefix)
 
     def get_dependency_patterns(self: _DependencyFilterContext) -> Dict[str, List[str]]:
-        return {
-            dep_name: pattern_config.error_patterns
-            for dep_name, pattern_config in self.dependency_patterns.items()
-        }
+        return {dep_name: pattern_config.error_patterns for dep_name, pattern_config in self.dependency_patterns.items()}
 
-    async def get_service_dependencies(
-        self: _DependencyFilterContext, service_name: str
-    ) -> List[str]:
+    async def get_service_dependencies(self: _DependencyFilterContext, service_name: str) -> List[str]:
         from .dependency_aware_error_filter_helpers.dependency_checker import DependencyChecker
 
         if not self.redis:
@@ -150,14 +133,10 @@ class DependencyAwareErrorFilter(DependencyAwareErrorFilterMixin):
             if not patterns:
                 continue
             try:
-                pattern_config = DependencyErrorPattern(
-                    dependency_name=dep_name, error_patterns=patterns
-                )
+                pattern_config = DependencyErrorPattern(dependency_name=dep_name, error_patterns=patterns)
             except PatternCompilationError as exc:
                 logger.warning(str(exc))
-                pattern_config = DependencyErrorPattern(
-                    dependency_name=dep_name, error_patterns=[], compiled_patterns=[]
-                )
+                pattern_config = DependencyErrorPattern(dependency_name=dep_name, error_patterns=[], compiled_patterns=[])
             self.dependency_patterns[dep_name] = pattern_config
         logger.info(
             "Initialized dependency error filter with %s dependency patterns",

@@ -26,9 +26,7 @@ class ClientInitializer:
     """Handles client initialization and dependency setup."""
 
     @staticmethod
-    def initialize_kalshi_client(
-        kalshi_client: Optional[KalshiClient], trade_store: TradeStore
-    ) -> KalshiClient:
+    def initialize_kalshi_client(kalshi_client: Optional[KalshiClient], trade_store: TradeStore) -> KalshiClient:
         """Initialize or create KalshiClient with trade store attachment."""
         if kalshi_client is not None:
             attach = getattr(kalshi_client, "attach_trade_store", None)
@@ -38,9 +36,7 @@ class ClientInitializer:
         return KalshiClient(trade_store=trade_store)
 
     @staticmethod
-    def initialize_backoff_manager(
-        backoff_manager: Optional[BackoffManager], network_health_monitor
-    ) -> BackoffManager:
+    def initialize_backoff_manager(backoff_manager: Optional[BackoffManager], network_health_monitor) -> BackoffManager:
         """Initialize or create BackoffManager."""
         return backoff_manager or BackoffManager(network_health_monitor)
 
@@ -68,9 +64,7 @@ class ClientInitializer:
             "retry_delay": config["trade_collection"]["retry_delay_seconds"],
             "ticker_pattern": config["market_filters"]["ticker_pattern"],
             "supported_rules": config["market_filters"]["supported_rules"],
-            "supported_categories": config["market_filters"].get(
-                "supported_categories", ["weather"]
-            ),
+            "supported_categories": config["market_filters"].get("supported_categories", ["weather"]),
         }
 
     @staticmethod

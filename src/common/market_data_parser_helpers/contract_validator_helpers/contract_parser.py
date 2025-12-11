@@ -9,6 +9,4 @@ class ContractParser:
     @staticmethod
     def parse_instrument(contract_name: str, expected_symbol: str):
         """Parse contract instrument with symbol validation."""
-        return DeribitInstrumentParser.parse_instrument(
-            contract_name, strict_symbol=expected_symbol
-        )
+        return DeribitInstrumentParser.parse_instrument(contract_name, strict_symbol=expected_symbol)

@@ -27,11 +27,7 @@ def count_messages_in_windows(
 
     for datetime_str, message_count_str in hash_data.items():
         datetime_str = datetime_str.decode() if isinstance(datetime_str, bytes) else datetime_str
-        message_count_str = (
-            message_count_str.decode()
-            if isinstance(message_count_str, bytes)
-            else message_count_str
-        )
+        message_count_str = message_count_str.decode() if isinstance(message_count_str, bytes) else message_count_str
 
         try:
             message_count = int(message_count_str)

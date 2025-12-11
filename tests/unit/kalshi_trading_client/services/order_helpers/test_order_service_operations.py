@@ -31,9 +31,7 @@ def test_validation_operations_delegate(monkeypatch):
     )
 
     assert ValidationOperations.has_sufficient_balance_for_trade_with_fees(10, 5, 2) is True
-    order_validator.OrderValidator.has_sufficient_balance_for_trade_with_fees.assert_called_once_with(
-        10, 5, 2
-    )
+    order_validator.OrderValidator.has_sufficient_balance_for_trade_with_fees.assert_called_once_with(10, 5, 2)
 
 
 @pytest.mark.asyncio

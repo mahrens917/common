@@ -32,9 +32,7 @@ class ErrorCollector:
         """Collect errors related to micro price bounds."""
         errors = []
         if not (best_bid <= p_raw <= best_ask):
-            errors.append(
-                f"Micro price constraint violated: p_raw = {p_raw} not in [{best_bid}, {best_ask}]"
-            )
+            errors.append(f"Micro price constraint violated: p_raw = {p_raw} not in [{best_bid}, {best_ask}]")
         return errors
 
     @staticmethod
@@ -51,19 +49,13 @@ class ErrorCollector:
         reconstructed_ask = p_raw + (1 - i_raw) * absolute_spread
 
         if abs(reconstructed_bid - best_bid) > _NUMERICAL_TOLERANCE:
-            errors.append(
-                f"Bid reconstruction constraint violated: {reconstructed_bid} != {best_bid}"
-            )
+            errors.append(f"Bid reconstruction constraint violated: {reconstructed_bid} != {best_bid}")
         if abs(reconstructed_ask - best_ask) > _NUMERICAL_TOLERANCE:
-            errors.append(
-                f"Ask reconstruction constraint violated: {reconstructed_ask} != {best_ask}"
-            )
+            errors.append(f"Ask reconstruction constraint violated: {reconstructed_ask} != {best_ask}")
         return errors
 
     @staticmethod
-    def collect_basic_data_errors(
-        best_bid_size: float, best_ask_size: float, option_type: str
-    ) -> List[str]:
+    def collect_basic_data_errors(best_bid_size: float, best_ask_size: float, option_type: str) -> List[str]:
         """Collect errors related to basic data constraints."""
         errors = []
         if best_bid_size < 0:
@@ -82,11 +74,7 @@ class ErrorCollector:
         try:
             errors.extend(ErrorCollector.collect_spread_errors(params.absolute_spread))
             errors.extend(ErrorCollector.collect_intensity_errors(params.i_raw))
-            errors.extend(
-                ErrorCollector.collect_micro_price_errors(
-                    params.best_bid, params.best_ask, params.p_raw
-                )
-            )
+            errors.extend(ErrorCollector.collect_micro_price_errors(params.best_bid, params.best_ask, params.p_raw))
             errors.extend(
                 ErrorCollector.collect_reconstruction_errors(
                     params.best_bid,
@@ -96,11 +84,7 @@ class ErrorCollector:
                     params.absolute_spread,
                 )
             )
-            errors.extend(
-                ErrorCollector.collect_basic_data_errors(
-                    params.best_bid_size, params.best_ask_size, params.option_type
-                )
-            )
+            errors.extend(ErrorCollector.collect_basic_data_errors(params.best_bid_size, params.best_ask_size, params.option_type))
         except (
             TypeError,
             ValueError,

@@ -13,9 +13,7 @@ class StatusAggregator:
     def __init__(self):
         self.builder = StatusBuilder()
 
-    def _check_process_status(
-        self, process_info: ProcessHealthInfo
-    ) -> tuple[OverallServiceStatus, str, str, str] | None:
+    def _check_process_status(self, process_info: ProcessHealthInfo) -> tuple[OverallServiceStatus, str, str, str] | None:
         """Check process status and return result if applicable."""
         if process_info.status == ProcessStatus.STOPPED:
             return (OverallServiceStatus.STOPPED, "🔴", "Stopped", "process: stopped")

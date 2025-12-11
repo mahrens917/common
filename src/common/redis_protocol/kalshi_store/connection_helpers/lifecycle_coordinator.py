@@ -28,9 +28,7 @@ class LifecycleCoordinator:
         assert self._manager.redis is not None, "Redis connection should be established"
         return self._manager.redis
 
-    async def attach_redis_client(
-        self, redis_client: Redis, *, health_check_timeout: float = 5.0
-    ) -> None:
+    async def attach_redis_client(self, redis_client: Redis, *, health_check_timeout: float = 5.0) -> None:
         from .connection_verifier import ConnectionVerifier
 
         verifier = ConnectionVerifier()
@@ -50,9 +48,7 @@ class LifecycleCoordinator:
 
         property_manager = PropertyManager(self._manager)
         property_manager.settings_resolver.resolve_connection_settings()
-        return await self._connect_with_retry(
-            allow_reuse=False, context="initialize", attempts=3, retry_delay=0.5
-        )
+        return await self._connect_with_retry(allow_reuse=False, context="initialize", attempts=3, retry_delay=0.5)
 
     async def close(self) -> None:
         if not self._manager.pool:
@@ -74,9 +70,7 @@ class LifecycleCoordinator:
             self._manager.initialized = False
 
     async def ensure_redis_connection(self) -> bool:
-        return await self._connect_with_retry(
-            allow_reuse=True, context="_ensure_redis_connection", attempts=3, retry_delay=0.1
-        )
+        return await self._connect_with_retry(allow_reuse=True, context="_ensure_redis_connection", attempts=3, retry_delay=0.1)
 
     async def _connect_with_retry(
         self,

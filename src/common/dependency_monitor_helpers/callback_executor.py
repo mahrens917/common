@@ -20,9 +20,7 @@ class CallbackExecutor:
             return None, result
         return result, None
 
-    async def invoke_check_function(
-        self, check_function: Callable[[], Any]
-    ) -> tuple[Optional[Any], Optional[BaseException]]:
+    async def invoke_check_function(self, check_function: Callable[[], Any]) -> tuple[Optional[Any], Optional[BaseException]]:
         """
         Invoke check function (async or sync).
 

@@ -67,7 +67,5 @@ class MessageProcessor:
         try:
             return SubscriptionUpdate.from_json(data)
         except UPDATE_PARSE_ERRORS as exc:
-            logger.exception(
-                "Failed to parse %s subscription update: %s", self.service_name, data, exc_info=exc
-            )
+            logger.exception("Failed to parse %s subscription update: %s", self.service_name, data, exc_info=exc)
             return None

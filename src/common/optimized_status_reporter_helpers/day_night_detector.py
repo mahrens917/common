@@ -41,11 +41,7 @@ class DayNightDetector:
                     if not isinstance(station_info, dict):
                         continue
                     icao = station_info.get("icao")
-                    if (
-                        isinstance(icao, str)
-                        and "latitude" in station_info
-                        and "longitude" in station_info
-                    ):
+                    if isinstance(icao, str) and "latitude" in station_info and "longitude" in station_info:
                         coordinates[icao] = {
                             "latitude": station_info["latitude"],
                             "longitude": station_info["longitude"],

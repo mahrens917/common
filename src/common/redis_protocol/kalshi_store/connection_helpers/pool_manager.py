@@ -60,9 +60,7 @@ class PoolManager:
         except REDIS_ERRORS:
             logger.debug("Error cleaning up Redis pool", exc_info=True)
 
-    async def acquire_pool(
-        self, *, allow_reuse: bool, redis: Optional[Redis], close_callback
-    ) -> Redis:
+    async def acquire_pool(self, *, allow_reuse: bool, redis: Optional[Redis], close_callback) -> Redis:
         """Acquire a Redis connection pool"""
         if allow_reuse and redis is not None:
             logger.debug("Reusing existing Redis connection")

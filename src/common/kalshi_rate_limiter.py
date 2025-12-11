@@ -66,13 +66,9 @@ class KalshiRateLimiter(StateAccessorsMixin):
         self.write_queue = asyncio.Queue(maxsize=WRITE_QUEUE_MAX_SIZE)
 
         # Initialize helpers
-        self.token_manager = TokenManager(
-            KALSHI_READ_REQUESTS_PER_SECOND, KALSHI_WRITE_REQUESTS_PER_SECOND
-        )
+        self.token_manager = TokenManager(KALSHI_READ_REQUESTS_PER_SECOND, KALSHI_WRITE_REQUESTS_PER_SECOND)
         self.worker_manager = WorkerManager(self.token_manager, self.read_queue, self.write_queue)
-        self.metrics_collector = MetricsCollector(
-            self.read_queue, self.write_queue, self.token_manager
-        )
+        self.metrics_collector = MetricsCollector(self.read_queue, self.write_queue, self.token_manager)
         # Preserve executor implementation for test patches
         self._executor_impl = self.worker_manager.executor.execute_request
 

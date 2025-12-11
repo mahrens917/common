@@ -55,13 +55,9 @@ class FieldResetManager:
         Returns:
             Tuple of (should_reset, dawn_boundary)
         """
-        return self._evaluator.should_reset_field(
-            field_name, latitude, longitude, previous_data, current_timestamp
-        )
+        return self._evaluator.should_reset_field(field_name, latitude, longitude, previous_data, current_timestamp)
 
-    def apply_reset_logic(
-        self, field_name: str, current_value: Any, previous_data: Dict[str, Any], was_reset: bool
-    ) -> Any:
+    def apply_reset_logic(self, field_name: str, current_value: Any, previous_data: Dict[str, Any], was_reset: bool) -> Any:
         """
         Apply reset logic to a field value.
 
@@ -74,6 +70,4 @@ class FieldResetManager:
         Returns:
             Final value after applying reset logic
         """
-        return self._applicator.apply_reset_logic(
-            field_name, current_value, previous_data, was_reset
-        )
+        return self._applicator.apply_reset_logic(field_name, current_value, previous_data, was_reset)

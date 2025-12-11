@@ -45,9 +45,7 @@ async def find_matching_market(deps: MarketMatcherDependencies) -> Optional[Dict
         Market data dict or None if not found
     """
     for market_ticker in deps.ticker_parser.iter_currency_markets(deps.markets, deps.currency):
-        market_data = await ensure_awaitable(
-            deps.redis.hgetall(deps.get_market_key_func(market_ticker))
-        )
+        market_data = await ensure_awaitable(deps.redis.hgetall(deps.get_market_key_func(market_ticker)))
         metadata = deps.metadata_extractor.parse_market_metadata(market_ticker, market_data)
         if metadata is None:
             continue
@@ -65,9 +63,7 @@ async def find_matching_market(deps: MarketMatcherDependencies) -> Optional[Dict
             continue
 
         best_bid, best_ask = deps.metadata_extractor.extract_market_prices(metadata)
-        best_bid_size, best_ask_size = deps.orderbook_reader.extract_orderbook_sizes(
-            market_ticker, market_data
-        )
+        best_bid_size, best_ask_size = deps.orderbook_reader.extract_orderbook_sizes(market_ticker, market_data)
 
         return {
             "market_ticker": market_ticker,

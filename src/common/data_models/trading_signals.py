@@ -16,9 +16,7 @@ from common.validation_guards import require
 from .trading import OrderAction, OrderSide
 
 # Error messages
-ERR_SIGNAL_COUNT_MISMATCH = (
-    "signals_generated ({generated}) must match actual signals count ({actual})"
-)
+ERR_SIGNAL_COUNT_MISMATCH = "signals_generated ({generated}) must match actual signals count ({actual})"
 ERR_UPDATE_TIMESTAMP_NOT_DATETIME = "Update timestamp must be a datetime object"
 ERR_MARKETS_ANALYZED_NEGATIVE = "Total markets analyzed cannot be negative"
 
@@ -82,9 +80,7 @@ class TradingSignal:
         """Ensure trading instructions align with the signal type."""
         if self.signal_type in (TradingSignalType.BUY, TradingSignalType.SELL):
             require(
-                self.action is not None
-                and self.side is not None
-                and self.target_price_cents is not None,
+                self.action is not None and self.side is not None and self.target_price_cents is not None,
                 ValueError("BUY/SELL signals must have action, side, and target_price_cents"),
             )
             self._validate_target_price()
@@ -130,11 +126,7 @@ class TradingSignalBatch:
     def __post_init__(self):
         """Validate batch data integrity"""
         if self.signals_generated != len(self.signals):
-            raise ValueError(
-                ERR_SIGNAL_COUNT_MISMATCH.format(
-                    generated=self.signals_generated, actual=len(self.signals)
-                )
-            )
+            raise ValueError(ERR_SIGNAL_COUNT_MISMATCH.format(generated=self.signals_generated, actual=len(self.signals)))
 
         timestamp_value = cast(object, self.update_timestamp)
         if not isinstance(timestamp_value, datetime):

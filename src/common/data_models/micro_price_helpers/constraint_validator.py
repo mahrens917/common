@@ -23,31 +23,21 @@ class ConstraintValidator:
     def validate_micro_price_bounds(best_bid: float, best_ask: float, p_raw: float) -> None:
         """Validate that micro price is between bid and ask."""
         if not (best_bid <= p_raw <= best_ask):
-            raise ValueError(
-                f"Micro price constraint violated: p_raw = {p_raw} not in [{best_bid}, {best_ask}]"
-            )
+            raise ValueError(f"Micro price constraint violated: p_raw = {p_raw} not in [{best_bid}, {best_ask}]")
 
     @staticmethod
-    def validate_bid_reconstruction(
-        best_bid: float, p_raw: float, i_raw: float, absolute_spread: float
-    ) -> None:
+    def validate_bid_reconstruction(best_bid: float, p_raw: float, i_raw: float, absolute_spread: float) -> None:
         """Validate bid reconstruction from micro price."""
         reconstructed_bid = p_raw - i_raw * absolute_spread
         if abs(reconstructed_bid - best_bid) > _NUMERICAL_TOLERANCE:
-            raise ValueError(
-                f"Bid reconstruction constraint violated: {reconstructed_bid} != {best_bid}"
-            )
+            raise ValueError(f"Bid reconstruction constraint violated: {reconstructed_bid} != {best_bid}")
 
     @staticmethod
-    def validate_ask_reconstruction(
-        best_ask: float, p_raw: float, i_raw: float, absolute_spread: float
-    ) -> None:
+    def validate_ask_reconstruction(best_ask: float, p_raw: float, i_raw: float, absolute_spread: float) -> None:
         """Validate ask reconstruction from micro price."""
         reconstructed_ask = p_raw + (1 - i_raw) * absolute_spread
         if abs(reconstructed_ask - best_ask) > _NUMERICAL_TOLERANCE:
-            raise ValueError(
-                f"Ask reconstruction constraint violated: {reconstructed_ask} != {best_ask}"
-            )
+            raise ValueError(f"Ask reconstruction constraint violated: {reconstructed_ask} != {best_ask}")
 
     @staticmethod
     def validate_micro_price_constraints(

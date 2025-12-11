@@ -53,9 +53,7 @@ def parse_strike_value(strike_str: str) -> Optional[float]:
         return None
 
 
-def parse_strike_bounds(
-    floor_strike: Any, cap_strike: Any
-) -> Tuple[Optional[float], Optional[float]]:
+def parse_strike_bounds(floor_strike: Any, cap_strike: Any) -> Tuple[Optional[float], Optional[float]]:
     """
     Parse floor and cap strike values from any type.
 
@@ -162,9 +160,7 @@ def resolve_strike_from_metadata(metadata: Dict[str, Any]) -> Optional[float]:
             return None
     strike_type = str(strike_type)
 
-    floor_value, cap_value = parse_strike_bounds(
-        metadata.get("floor_strike"), metadata.get("cap_strike")
-    )
+    floor_value, cap_value = parse_strike_bounds(metadata.get("floor_strike"), metadata.get("cap_strike"))
     return calculate_strike_value(strike_type, floor_value, cap_value)
 
 
@@ -216,9 +212,7 @@ def check_strike_in_range(strike_str: str, strike_low: float, strike_high: float
         return strike_low <= strike_value <= strike_high
 
 
-def extract_strike_parameters(
-    market_data: Optional[Dict[str, Any]], strike_type: Optional[str]
-) -> Tuple[str, float, float]:
+def extract_strike_parameters(market_data: Optional[Dict[str, Any]], strike_type: Optional[str]) -> Tuple[str, float, float]:
     """
     Extract strike parameters based on market type and available data.
 
@@ -253,14 +247,10 @@ def extract_strike_parameters(
 
     if strike_type == "between":
         if floor_strike_value is None or cap_strike_value is None:
-            raise ValueError(
-                "Between market missing required floor_strike or cap_strike from Redis"
-            )
+            raise ValueError("Between market missing required floor_strike or cap_strike from Redis")
         return strike_type, float(floor_strike_value), float(cap_strike_value)
 
-    raise ValueError(
-        f"Unknown strike_type '{strike_type}' - must be 'greater', 'less', or 'between'"
-    )
+    raise ValueError(f"Unknown strike_type '{strike_type}' - must be 'greater', 'less', or 'between'")
 
 
 def validate_strike_type(metadata: Mapping[str, Any]) -> Tuple[bool, Optional[str], Optional[str]]:
@@ -307,25 +297,19 @@ def compute_strike_value(
     return is_valid, reason, strike, floor_strike, cap_strike
 
 
-def _handle_between(
-    floor_strike: Optional[float], cap_strike: Optional[float]
-) -> Tuple[Optional[float], Optional[str]]:
+def _handle_between(floor_strike: Optional[float], cap_strike: Optional[float]) -> Tuple[Optional[float], Optional[str]]:
     if floor_strike is None or cap_strike is None:
         return None, "between_missing_bounds"
     return float(np.mean([floor_strike, cap_strike])), None
 
 
-def _handle_greater(
-    floor_strike: Optional[float], _: Optional[float]
-) -> Tuple[Optional[float], Optional[str]]:
+def _handle_greater(floor_strike: Optional[float], _: Optional[float]) -> Tuple[Optional[float], Optional[str]]:
     if floor_strike is None:
         return None, "greater_missing_floor"
     return floor_strike, None
 
 
-def _handle_less(
-    _: Optional[float], cap_strike: Optional[float]
-) -> Tuple[Optional[float], Optional[str]]:
+def _handle_less(_: Optional[float], cap_strike: Optional[float]) -> Tuple[Optional[float], Optional[str]]:
     if cap_strike is None:
         return None, "less_missing_cap"
     return cap_strike, None

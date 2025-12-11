@@ -32,9 +32,7 @@ class MonitoringLoop:
         """
         self.service_name = service_name
         self.subscription_channel = subscription_channel
-        self.message_processor = MessageProcessor(
-            service_name, update_handler, subscription_processor, health_validator
-        )
+        self.message_processor = MessageProcessor(service_name, update_handler, subscription_processor, health_validator)
 
     async def run(self) -> None:
         """Monitor Redis subscription updates."""

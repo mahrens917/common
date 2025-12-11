@@ -52,14 +52,10 @@ class MetadataStore:
         client = await self._connection.get_client()
         return await self._ops.increment_service_count(client, service_name, count)
 
-    async def update_time_window_counts(
-        self, service_name: str, messages_last_hour: int, messages_last_minute: int
-    ) -> bool:
+    async def update_time_window_counts(self, service_name: str, messages_last_hour: int, messages_last_minute: int) -> bool:
         """Update time-windowed message counts for a service"""
         client = await self._connection.get_client()
-        return await self._ops.update_time_window_counts(
-            client, service_name, messages_last_hour, messages_last_minute
-        )
+        return await self._ops.update_time_window_counts(client, service_name, messages_last_hour, messages_last_minute)
 
     async def update_weather_time_window_counts(
         self,

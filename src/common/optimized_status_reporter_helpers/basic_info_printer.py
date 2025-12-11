@@ -34,9 +34,7 @@ class BasicInfoPrinter:
         exchange_active = kalshi_status.get("exchange_active")
         trading_active = kalshi_status.get("trading_active")
 
-        self._emit_status_line(
-            self._format_exchange_status_line("Kalshi Exchange", exchange_active)
-        )
+        self._emit_status_line(self._format_exchange_status_line("Kalshi Exchange", exchange_active))
         self._emit_status_line(self._format_exchange_status_line("Kalshi Trading", trading_active))
 
     @staticmethod
@@ -73,9 +71,7 @@ class BasicInfoPrinter:
         for line in weather_lines:
             self._emit_status_line(line)
 
-    def print_managed_services(
-        self, tracker_status: Dict[str, Any], log_activity_map: Dict[str, LogActivity]
-    ) -> Tuple[int, int]:
+    def print_managed_services(self, tracker_status: Dict[str, Any], log_activity_map: Dict[str, LogActivity]) -> Tuple[int, int]:
         """Print all managed services and return healthy/total counts."""
         healthy_count = 0
         total_count = 0

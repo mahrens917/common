@@ -12,9 +12,7 @@ from common.data_models.modelstate_helpers.redis_operations import (
 class TestRedisOperations(unittest.IsolatedAsyncioTestCase):
     async def test_fetch_probability_keys_success(self):
         redis_client = Mock()
-        redis_client.keys = AsyncMock(
-            return_value=["probabilities:BTC:a:b:1", "probabilities:BTC:c:d:2"]
-        )
+        redis_client.keys = AsyncMock(return_value=["probabilities:BTC:a:b:1", "probabilities:BTC:c:d:2"])
 
         keys = await fetch_probability_keys(redis_client, "BTC")
         assert keys == ["probabilities:BTC:a:b:1", "probabilities:BTC:c:d:2"]

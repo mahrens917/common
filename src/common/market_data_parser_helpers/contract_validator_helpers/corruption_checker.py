@@ -11,9 +11,7 @@ class CorruptionChecker:
     """Checks for datetime corruption issues."""
 
     @staticmethod
-    def check_year_corruption(
-        expiry_date: datetime, contract_name: str
-    ) -> tuple[bool, str, Dict[str, int]]:
+    def check_year_corruption(expiry_date: datetime, contract_name: str) -> tuple[bool, str, Dict[str, int]]:
         """
         Check for corrupted year values.
 

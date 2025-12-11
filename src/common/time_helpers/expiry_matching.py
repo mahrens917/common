@@ -39,9 +39,7 @@ def find_closest_expiry(
 
     closest_idx = min(
         range(len(expiry_objects)),
-        key=lambda idx: abs(
-            (expiry_objects[idx][0].datetime_value - target.datetime_value).total_seconds()
-        ),
+        key=lambda idx: abs((expiry_objects[idx][0].datetime_value - target.datetime_value).total_seconds()),
     )
 
     return expiry_objects[closest_idx][1]

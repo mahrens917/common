@@ -47,16 +47,12 @@ def test_state_manager_tracks_and_cleans_state(monkeypatch):
     attempt = manager.update_failure_state("svc", BackoffType.GENERAL_FAILURE)
     assert attempt == 1
 
-    info = manager.get_backoff_info(
-        "svc", BackoffType.GENERAL_FAILURE, BackoffConfig(max_attempts=2)
-    )
+    info = manager.get_backoff_info("svc", BackoffType.GENERAL_FAILURE, BackoffConfig(max_attempts=2))
     assert info["attempt"] == 1
     assert info["can_retry"]
 
     # Make the entry old enough to be cleaned
-    manager.backoff_state["svc"][BackoffType.GENERAL_FAILURE]["last_failure_time"] = (
-        time.time() - 10_000
-    )
+    manager.backoff_state["svc"][BackoffType.GENERAL_FAILURE]["last_failure_time"] = time.time() - 10_000
     manager.cleanup_old_state(max_age_seconds=1)
     assert "svc" not in manager.backoff_state
 

@@ -52,9 +52,7 @@ def _position_state_snapshot(**overrides):
     }
     data.update(overrides)
     if "market_value_cents" not in overrides:
-        data["market_value_cents"] = (
-            data["position_count"] * data["average_price_cents"] + data["unrealized_pnl_cents"]
-        )
+        data["market_value_cents"] = data["position_count"] * data["average_price_cents"] + data["unrealized_pnl_cents"]
     return PositionStateSnapshot(**data)
 
 
@@ -86,9 +84,7 @@ def _portfolio_position(**overrides):
     if "market_value_cents" in overrides:
         data["market_value_cents"] = overrides["market_value_cents"]
     else:
-        data["market_value_cents"] = (
-            data["position_count"] * data["average_price_cents"] + data["unrealized_pnl_cents"]
-        )
+        data["market_value_cents"] = data["position_count"] * data["average_price_cents"] + data["unrealized_pnl_cents"]
     return PortfolioPosition(**data)
 
 
@@ -99,14 +95,8 @@ def _portfolio_balance(**overrides):
 
 
 def _order_response(**overrides):
-    base_price = (
-        overrides["average_fill_price_cents"]
-        if "average_fill_price_cents" in overrides
-        else DEFAULT_TRADE_ECHO_PRICE
-    )
-    filled_count = (
-        overrides["filled_count"] if "filled_count" in overrides else DEFAULT_TRADE_FILLED_COUNT
-    )
+    base_price = overrides["average_fill_price_cents"] if "average_fill_price_cents" in overrides else DEFAULT_TRADE_ECHO_PRICE
+    filled_count = overrides["filled_count"] if "filled_count" in overrides else DEFAULT_TRADE_FILLED_COUNT
     fills_override = overrides.get("fills")
     fills = fills_override
     if fills_override is None:
@@ -139,9 +129,7 @@ def _order_response(**overrides):
 
 def test_validate_position_state_transition_success():
     before = _position_state_snapshot(position_count=5, average_price_cents=40)
-    trade = _trade_execution(
-        action="BUY", filled_count=DEFAULT_TRADE_FILLED_COUNT, average_fill_price_cents=60
-    )
+    trade = _trade_execution(action="BUY", filled_count=DEFAULT_TRADE_FILLED_COUNT, average_fill_price_cents=60)
     after = _position_state_snapshot(position_count=10, average_price_cents=50)
 
     is_valid, message = validate_position_state_transition(before, after, trade)
@@ -150,9 +138,7 @@ def test_validate_position_state_transition_success():
 
 def test_validate_position_state_transition_average_price_error():
     before = _position_state_snapshot(position_count=5, average_price_cents=40)
-    trade = _trade_execution(
-        action="BUY", filled_count=DEFAULT_TRADE_FILLED_COUNT, average_fill_price_cents=60
-    )
+    trade = _trade_execution(action="BUY", filled_count=DEFAULT_TRADE_FILLED_COUNT, average_fill_price_cents=60)
     after = _position_state_snapshot(position_count=10, average_price_cents=55)
 
     is_valid, message = validate_position_state_transition(before, after, trade)
@@ -164,12 +150,8 @@ def test_validate_portfolio_balance_arithmetic_success():
     before = BalanceStateSnapshot(balance_cents=10_000, timestamp=BASE_TIME)
     after = BalanceStateSnapshot(balance_cents=9_866, timestamp=BASE_TIME)
     trades = [
-        _trade_execution(
-            action="BUY", filled_count=DEFAULT_TRADE_FILLED_COUNT, average_fill_price_cents=50
-        ),
-        _trade_execution(
-            action="SELL", filled_count=SECONDARY_TRADE_FILLED_COUNT, average_fill_price_cents=60
-        ),
+        _trade_execution(action="BUY", filled_count=DEFAULT_TRADE_FILLED_COUNT, average_fill_price_cents=50),
+        _trade_execution(action="SELL", filled_count=SECONDARY_TRADE_FILLED_COUNT, average_fill_price_cents=60),
     ]
 
     is_valid, message = validate_portfolio_balance_arithmetic(before, after, trades)
@@ -179,11 +161,7 @@ def test_validate_portfolio_balance_arithmetic_success():
 def test_validate_portfolio_balance_arithmetic_mismatch():
     before = BalanceStateSnapshot(balance_cents=10_000, timestamp=BASE_TIME)
     after = BalanceStateSnapshot(balance_cents=9_600, timestamp=BASE_TIME)
-    trades = [
-        _trade_execution(
-            action="BUY", filled_count=DEFAULT_TRADE_FILLED_COUNT, average_fill_price_cents=50
-        )
-    ]
+    trades = [_trade_execution(action="BUY", filled_count=DEFAULT_TRADE_FILLED_COUNT, average_fill_price_cents=50)]
 
     is_valid, message = validate_portfolio_balance_arithmetic(before, after, trades)
     assert not is_valid
@@ -267,9 +245,7 @@ def test_validate_position_exposure_limits_exceeds_limit():
 
 
 def test_validate_trade_execution_consistency_success():
-    response = _order_response(
-        filled_count=QUATERNARY_TRADE_FILLED_COUNT, average_fill_price_cents=45, fees_cents=12
-    )
+    response = _order_response(filled_count=QUATERNARY_TRADE_FILLED_COUNT, average_fill_price_cents=45, fees_cents=12)
 
     is_valid, message = validate_trade_execution_consistency(
         response, expected_ticker="TEST", expected_side=OrderSide.YES, expected_action="BUY"
@@ -298,9 +274,7 @@ def test_validate_trade_execution_consistency_missing_price():
 
 
 def test_validate_trade_execution_consistency_excessive_fees():
-    response = _order_response(
-        filled_count=MINIMAL_TRADE_FILLED_COUNT, average_fill_price_cents=10, fees_cents=50
-    )
+    response = _order_response(filled_count=MINIMAL_TRADE_FILLED_COUNT, average_fill_price_cents=10, fees_cents=50)
 
     is_valid, message = validate_trade_execution_consistency(
         response, expected_ticker="TEST", expected_side=OrderSide.YES, expected_action="BUY"
@@ -310,9 +284,7 @@ def test_validate_trade_execution_consistency_excessive_fees():
 
 
 def test_create_position_snapshot_copies_portfolio_attributes():
-    position = _portfolio_position(
-        position_count=3, average_price_cents=35, unrealized_pnl_cents=15, market_value_cents=120
-    )
+    position = _portfolio_position(position_count=3, average_price_cents=35, unrealized_pnl_cents=15, market_value_cents=120)
 
     snapshot = create_position_snapshot(position)
     assert snapshot.ticker == position.ticker

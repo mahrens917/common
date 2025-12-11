@@ -47,17 +47,13 @@ class TestMoonPhaseCalculator:
         now_mock_dt = self.KNOWN_NEW_MOON + days_offset_td
 
         # Patch the `datetime` class as it's imported into `moon_phase_calculator`
-        mock_datetime_class = mocker.patch(
-            "common.optimized_status_reporter_helpers.moon_phase_calculator.datetime"
-        )
+        mock_datetime_class = mocker.patch("common.optimized_status_reporter_helpers.moon_phase_calculator.datetime")
 
         # Configure the `now()` method of the mocked datetime class
         mock_datetime_class.now.return_value = now_mock_dt
 
         # Make the mock callable as if it were the datetime constructor
-        mock_datetime_class.side_effect = lambda *args, **kwargs: real_datetime_class(
-            *args, **kwargs
-        )
+        mock_datetime_class.side_effect = lambda *args, **kwargs: real_datetime_class(*args, **kwargs)
 
         # Patch the `timezone` imported into the module to ensure it's the real one
         mocker.patch(
@@ -71,15 +67,11 @@ class TestMoonPhaseCalculator:
     def test_get_moon_phase_emoji_exception_handling(self, mocker):
         """Test get_moon_phase_emoji returns default emoji on exception."""
         # Patch the `datetime` class directly as it's imported into `moon_phase_calculator`
-        mock_datetime_class = mocker.patch(
-            "common.optimized_status_reporter_helpers.moon_phase_calculator.datetime"
-        )
+        mock_datetime_class = mocker.patch("common.optimized_status_reporter_helpers.moon_phase_calculator.datetime")
 
         # Force an exception during calculation, e.g., in total_seconds, by making now() return a mock that raises
         mock_datetime_class.now.side_effect = ValueError("Test error")
-        mock_datetime_class.side_effect = lambda *args, **kwargs: real_datetime_class(
-            *args, **kwargs
-        )  # Needed to prevent other errors.
+        mock_datetime_class.side_effect = lambda *args, **kwargs: real_datetime_class(*args, **kwargs)  # Needed to prevent other errors.
 
         mocker.patch(
             "common.optimized_status_reporter_helpers.moon_phase_calculator.timezone",

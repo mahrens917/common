@@ -90,9 +90,7 @@ class TestPositionCloserEmergencyClosePosition:
     async def test_creates_market_order_for_position(self) -> None:
         """Creates market order to close position."""
         client = MagicMock()
-        client.create_order_with_polling = AsyncMock(
-            return_value=MagicMock(filled_count=DEFAULT_CLOSE_FILLED_COUNT)
-        )
+        client.create_order_with_polling = AsyncMock(return_value=MagicMock(filled_count=DEFAULT_CLOSE_FILLED_COUNT))
         closer = PositionCloser(trading_client=client)
         position = MagicMock()
         position.ticker = "KXBTC-25JAN01"
@@ -100,9 +98,7 @@ class TestPositionCloserEmergencyClosePosition:
         position.position_count = DEFAULT_TEST_POSITION_COUNT
 
         with patch("common.emergency_position_manager_helpers.position_closer.logger"):
-            success, response, message = await closer.emergency_close_position(
-                position, "Test reason"
-            )
+            success, response, message = await closer.emergency_close_position(position, "Test reason")
 
         assert success is True
         assert "successfully" in message
@@ -112,9 +108,7 @@ class TestPositionCloserEmergencyClosePosition:
     async def test_returns_false_when_order_not_filled(self) -> None:
         """Returns false when order doesn't fill."""
         client = MagicMock()
-        client.create_order_with_polling = AsyncMock(
-            return_value=MagicMock(filled_count=ZERO_FILLED_COUNT)
-        )
+        client.create_order_with_polling = AsyncMock(return_value=MagicMock(filled_count=ZERO_FILLED_COUNT))
         closer = PositionCloser(trading_client=client)
         position = MagicMock()
         position.ticker = "KXBTC-25JAN01"
@@ -122,9 +116,7 @@ class TestPositionCloserEmergencyClosePosition:
         position.position_count = DEFAULT_TEST_POSITION_COUNT
 
         with patch("common.emergency_position_manager_helpers.position_closer.logger"):
-            success, response, message = await closer.emergency_close_position(
-                position, "Test reason"
-            )
+            success, response, message = await closer.emergency_close_position(position, "Test reason")
 
         assert success is False
         assert "did not execute" in message
@@ -143,9 +135,7 @@ class TestPositionCloserEmergencyClosePosition:
         position.position_count = DEFAULT_TEST_POSITION_COUNT
 
         with patch("common.emergency_position_manager_helpers.position_closer.logger"):
-            success, response, message = await closer.emergency_close_position(
-                position, "Test reason"
-            )
+            success, response, message = await closer.emergency_close_position(position, "Test reason")
 
         assert success is False
         assert "failed" in message.lower()
@@ -162,9 +152,7 @@ class TestPositionCloserEmergencyClosePosition:
         position.position_count = DEFAULT_TEST_POSITION_COUNT
 
         with patch("common.emergency_position_manager_helpers.position_closer.logger"):
-            success, response, message = await closer.emergency_close_position(
-                position, "Test reason"
-            )
+            success, response, message = await closer.emergency_close_position(position, "Test reason")
 
         assert success is False
 

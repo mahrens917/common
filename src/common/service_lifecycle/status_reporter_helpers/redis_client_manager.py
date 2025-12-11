@@ -5,9 +5,7 @@ from typing import Optional
 from redis.asyncio import Redis
 
 
-async def get_redis_client_for_reporter(
-    redis_client: Optional[Redis], redis_client_cached: Optional[Redis]
-) -> Redis:
+async def get_redis_client_for_reporter(redis_client: Optional[Redis], redis_client_cached: Optional[Redis]) -> Redis:
     """
     Get Redis client, creating one if necessary.
 

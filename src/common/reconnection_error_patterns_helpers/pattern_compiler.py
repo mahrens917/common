@@ -85,9 +85,7 @@ class PatternCompiler:
     def _compile_all_patterns(self) -> None:
         """Compile all regex patterns for performance."""
         for service_type, patterns in RECONNECTION_ERROR_PATTERNS.items():
-            self.compiled_patterns[service_type] = [
-                re.compile(pattern, re.IGNORECASE) for pattern in patterns
-            ]
+            self.compiled_patterns[service_type] = [re.compile(pattern, re.IGNORECASE) for pattern in patterns]
 
     def get_compiled_patterns(self, service_type: ServiceType) -> List[re.Pattern]:
         """
@@ -121,6 +119,4 @@ class PatternCompiler:
             service_type: Type of service to recompile
         """
         patterns = RECONNECTION_ERROR_PATTERNS.get(service_type) or []
-        self.compiled_patterns[service_type] = [
-            re.compile(pattern, re.IGNORECASE) for pattern in patterns
-        ]
+        self.compiled_patterns[service_type] = [re.compile(pattern, re.IGNORECASE) for pattern in patterns]

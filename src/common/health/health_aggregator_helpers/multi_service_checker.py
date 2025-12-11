@@ -23,9 +23,7 @@ class MultiServiceChecker:
         self.get_single_service_status = get_single_service_status_func
         self.result_builder = ResultBuilder()
 
-    async def get_all_service_status(
-        self, service_names: List[str]
-    ) -> Dict[str, ServiceHealthResult]:
+    async def get_all_service_status(self, service_names: List[str]) -> Dict[str, ServiceHealthResult]:
         """
         Get status for multiple services efficiently.
 
@@ -43,9 +41,7 @@ class MultiServiceChecker:
         for service_name, result in zip(service_names, results):
             if isinstance(result, Exception):
                 logger.error(f"Failed to get status for {service_name}: {result}")
-                status_dict[service_name] = self.result_builder.build_error_result(
-                    service_name, result
-                )
+                status_dict[service_name] = self.result_builder.build_error_result(service_name, result)
             else:
                 status_dict[service_name] = result
 

@@ -9,9 +9,7 @@ from .cleanup_helpers import expiration_checker
 logger = logging.getLogger(__name__)
 
 # Constants
-MIN_DERIBIT_KEY_PARTS = (
-    5  # Minimum parts in deribit option key (markets:deribit:option:CURRENCY:EXPIRY:...)
-)
+MIN_DERIBIT_KEY_PARTS = 5  # Minimum parts in deribit option key (markets:deribit:option:CURRENCY:EXPIRY:...)
 
 
 class ExpiredMarketCleaner:
@@ -40,9 +38,7 @@ class ExpiredMarketCleaner:
 
         cursor = 0
         while True:
-            cursor, keys = await ensure_awaitable(
-                self._redis.scan(cursor, match=pattern, count=100)
-            )
+            cursor, keys = await ensure_awaitable(self._redis.scan(cursor, match=pattern, count=100))
 
             for key in keys:
                 if await self._process_kalshi_market_key(key):
@@ -87,9 +83,7 @@ class ExpiredMarketCleaner:
 
         cursor = 0
         while True:
-            cursor, keys = await ensure_awaitable(
-                self._redis.scan(cursor, match=pattern, count=100)
-            )
+            cursor, keys = await ensure_awaitable(self._redis.scan(cursor, match=pattern, count=100))
 
             for key in keys:
                 key_str = key.decode() if isinstance(key, bytes) else str(key)

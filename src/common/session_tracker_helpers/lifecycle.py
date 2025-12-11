@@ -34,9 +34,7 @@ class SessionLifecycleTracker:
         self.session_refs = session_refs
         self._log_level = log_level
 
-    def track_creation(
-        self, session: aiohttp.ClientSession, session_id: str, service_name: str
-    ) -> SessionInfo:
+    def track_creation(self, session: aiohttp.ClientSession, session_id: str, service_name: str) -> SessionInfo:
         """
         Track creation of a new HTTP session.
 

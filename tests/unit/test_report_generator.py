@@ -39,9 +39,7 @@ def stub_coordinators(monkeypatch):
             MagicMock(),
         )
 
-    monkeypatch.setattr(
-        report_module, "CoordinatorFactory", MagicMock(create_coordinators=fake_create_coordinators)
-    )
+    monkeypatch.setattr(report_module, "CoordinatorFactory", MagicMock(create_coordinators=fake_create_coordinators))
     monkeypatch.setattr(report_module, "ReportDelegator", DummyDelegator)
     monkeypatch.setattr(report_module, "load_configured_timezone", lambda: "UTC")
     yield
@@ -52,14 +50,9 @@ async def test_report_generator_delegates(monkeypatch):
     generator = ReportGenerator(MagicMock())
 
     assert await generator.generate_daily_report(date(2023, 1, 1)) == "daily"
-    assert (
-        await generator.generate_historical_report(date(2023, 1, 1), date(2023, 1, 2)) == "history"
-    )
+    assert await generator.generate_historical_report(date(2023, 1, 1), date(2023, 1, 2)) == "history"
     assert await generator.generate_current_day_report() == "current"
-    assert (
-        await generator.generate_settlement_notification(date(2023, 1, 1), ["settled"])
-        == "settlement"
-    )
+    assert await generator.generate_settlement_notification(date(2023, 1, 1), ["settled"]) == "settlement"
     assert await generator.generate_summary_stats(7) == "summary"
     assert await generator.generate_unified_pnl_report() == "unified"
     assert await generator.generate_unified_pnl_data() == {"data": 1}

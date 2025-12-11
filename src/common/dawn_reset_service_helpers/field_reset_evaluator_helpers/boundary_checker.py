@@ -22,9 +22,7 @@ class BoundaryChecker:
     """Checks if dawn boundaries have been processed."""
 
     @staticmethod
-    def already_processed(
-        last_dawn_reset: Optional[datetime], boundary: Optional[datetime]
-    ) -> bool:
+    def already_processed(last_dawn_reset: Optional[datetime], boundary: Optional[datetime]) -> bool:
         """Check if boundary was already processed."""
         if boundary is None:
             return False
@@ -33,9 +31,7 @@ class BoundaryChecker:
         return last_dawn_reset >= boundary
 
     @staticmethod
-    def log_skip(
-        last_dawn_reset: Optional[datetime], boundary: Optional[datetime], context: str
-    ) -> None:
+    def log_skip(last_dawn_reset: Optional[datetime], boundary: Optional[datetime], context: str) -> None:
         """Log that a boundary was skipped."""
         logger.debug(
             "🌅 %s SKIP: Stored dawn reset at %s covers boundary %s",

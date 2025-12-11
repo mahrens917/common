@@ -35,14 +35,10 @@ class ProbabilityRetrievalComponents(RedisProviderMixin):
         redis = await self._get_redis()
         return await human_readable_retrieval.get_probabilities_human_readable(redis, currency)
 
-    async def get_probability_data(
-        self, currency: str, expiry: str, strike: str, strike_type: str, event_title=None
-    ):
+    async def get_probability_data(self, currency: str, expiry: str, strike: str, strike_type: str, event_title=None):
         """Delegate to single_probability_retrieval.get_probability_data."""
         redis = await self._get_redis()
-        return await single_probability_retrieval.get_probability_data(
-            redis, currency, expiry, strike, strike_type, event_title
-        )
+        return await single_probability_retrieval.get_probability_data(redis, currency, expiry, strike, strike_type, event_title)
 
     async def get_probabilities_grouped_by_event_type(self, currency: str):
         """Delegate to grouped_retrieval.get_probabilities_grouped_by_event_type."""
@@ -57,9 +53,7 @@ class ProbabilityRetrievalComponents(RedisProviderMixin):
     async def get_probabilities_by_event_type(self, currency: str, event_type: str):
         """Delegate to event_type_filtering.get_probabilities_by_event_type."""
         redis = await self._get_redis()
-        return await event_type_filtering.get_probabilities_by_event_type(
-            redis, currency, event_type
-        )
+        return await event_type_filtering.get_probabilities_by_event_type(redis, currency, event_type)
 
     async def get_event_ticker_for_key(self, pattern: str):
         """Delegate to event_ticker_lookup.get_event_ticker_for_key."""

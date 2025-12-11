@@ -35,9 +35,7 @@ class ProcessScanner:
                     name = proc.info.get("name") or ""
                     cmdline = proc.info.get("cmdline") or []
 
-                    process_info = ProcessInfo(
-                        pid=pid, name=name, cmdline=cmdline, last_seen=time.time()
-                    )
+                    process_info = ProcessInfo(pid=pid, name=name, cmdline=cmdline, last_seen=time.time())
 
                     new_process_cache[pid] = process_info
 
@@ -58,9 +56,7 @@ class ProcessScanner:
                     continue
 
             scan_time = time.time() - start_time
-            logger.debug(
-                f"Full process scan completed in {scan_time:.3f}s, cached {len(new_process_cache)} processes"
-            )
+            logger.debug(f"Full process scan completed in {scan_time:.3f}s, cached {len(new_process_cache)} processes")
 
             return new_process_cache, dict(new_service_cache), new_redis_processes
 
@@ -88,9 +84,7 @@ class ProcessScanner:
                 dead_pids.append(pid)
 
         scan_time = time.time() - start_time
-        logger.debug(
-            f"Incremental process scan completed in {scan_time:.3f}s, removed {len(dead_pids)} dead processes"
-        )
+        logger.debug(f"Incremental process scan completed in {scan_time:.3f}s, removed {len(dead_pids)} dead processes")
 
         return dead_pids
 

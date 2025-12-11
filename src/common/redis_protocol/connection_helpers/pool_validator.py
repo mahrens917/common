@@ -25,9 +25,7 @@ REDIS_SETUP_ERRORS = (
 )
 
 
-async def test_pool_connection(
-    pool: redis.asyncio.ConnectionPool, host: str, port: int, db: int
-) -> None:
+async def test_pool_connection(pool: redis.asyncio.ConnectionPool, host: str, port: int, db: int) -> None:
     """
     Test Redis pool by creating a temporary connection and pinging server.
 
@@ -48,9 +46,7 @@ async def test_pool_connection(
     except asyncio.TimeoutError as exc:
         logger.exception(f"Redis connection test timed out after 5 seconds: ")
         logger.exception(f"Attempted connection to: :/{db}")
-        raise RuntimeError(
-            f"Redis connection test timed out - Redis server may not be available at {host}:{port}"
-        ) from exc
+        raise RuntimeError(f"Redis connection test timed out - Redis server may not be available at {host}:{port}") from exc
     except REDIS_SETUP_ERRORS as exc:
         logger.exception("Error testing Redis connection: %s: %s", type(exc).__name__)
         logger.exception(f"Attempted connection to: :/{db}")

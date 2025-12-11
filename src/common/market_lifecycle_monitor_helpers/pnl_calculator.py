@@ -10,9 +10,7 @@ class PnLCalculator:
     """Calculates expected P&L from settlements."""
 
     @staticmethod
-    def calculate_settlement_pnl(
-        settlement_info: SettlementInfo, position: PortfolioPosition
-    ) -> Optional[int]:
+    def calculate_settlement_pnl(settlement_info: SettlementInfo, position: PortfolioPosition) -> Optional[int]:
         """
         Calculate expected P&L from settlement.
 

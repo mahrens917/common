@@ -28,8 +28,6 @@ class ErrorClassifier:
         """
         error_msg = str(error).lower()
 
-        is_shutdown_keyword = any(
-            keyword in error_msg for keyword in ErrorClassifier.SHUTDOWN_KEYWORDS
-        )
+        is_shutdown_keyword = any(keyword in error_msg for keyword in ErrorClassifier.SHUTDOWN_KEYWORDS)
 
         return is_shutdown_keyword and shutdown_event.is_set()

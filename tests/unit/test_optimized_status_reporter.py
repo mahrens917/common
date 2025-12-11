@@ -42,9 +42,7 @@ class TestOptimizedStatusReporter:
         metadata_store = MagicMock()
         tracker_controller = MagicMock()
 
-        with patch(
-            "common.optimized_status_reporter.StatusReporterDependenciesFactory.create"
-        ) as mock_factory:
+        with patch("common.optimized_status_reporter.StatusReporterDependenciesFactory.create") as mock_factory:
             mock_deps = MagicMock()
             mock_factory.return_value = mock_deps
 
@@ -168,9 +166,7 @@ class TestReporterStreamReport:
                 new_callable=AsyncMock,
                 return_value=mock_monitor,
             ):
-                with patch.object(
-                    reporter, "_get_kalshi_client", new_callable=AsyncMock, return_value=mock_kalshi
-                ):
+                with patch.object(reporter, "_get_kalshi_client", new_callable=AsyncMock, return_value=mock_kalshi):
                     result = await reporter.generate_and_stream_status_report()
 
         assert result == expected_status
@@ -335,9 +331,7 @@ class TestOptimizedStatusReporterGenerateWeatherSection:
         mock_deps = MagicMock()
         mock_deps.aggregator = MagicMock()
         mock_weather_gen = MagicMock()
-        mock_weather_gen.generate_weather_section = MagicMock(
-            return_value=["KJFK: 72°F", "KLAX: 65°F"]
-        )
+        mock_weather_gen.generate_weather_section = MagicMock(return_value=["KJFK: 72°F", "KLAX: 65°F"])
         mock_deps.printer._weather_generator = mock_weather_gen
 
         reporter = OptimizedStatusReporter(

@@ -477,9 +477,7 @@ class TestFormatProbabilityValue:
 class TestNormalizeTimestamp:
     """Tests for _normalize_timestamp."""
 
-    @patch(
-        "common.redis_protocol.kalshi_store.metadata_helpers.timestamp_normalization.normalize_timestamp"
-    )
+    @patch("common.redis_protocol.kalshi_store.metadata_helpers.timestamp_normalization.normalize_timestamp")
     def test_delegates_to_canonical_implementation(self, mock_normalize):
         """Test delegation to canonical normalize_timestamp."""
         timestamp = 1700000000
@@ -491,9 +489,7 @@ class TestNormalizeTimestamp:
         assert result == expected_result
         mock_normalize.assert_called_once_with(timestamp)
 
-    @patch(
-        "common.redis_protocol.kalshi_store.metadata_helpers.timestamp_normalization.normalize_timestamp"
-    )
+    @patch("common.redis_protocol.kalshi_store.metadata_helpers.timestamp_normalization.normalize_timestamp")
     def test_handles_none_value(self, mock_normalize):
         """Test handling of None value."""
         mock_normalize.return_value = None
@@ -561,7 +557,5 @@ class TestDefaultWeatherStationLoader:
 
         mock_load.side_effect = OSError("File not found")
 
-        with pytest.raises(
-            WeatherConfigError, match="Weather station mapping loading failed unexpectedly"
-        ):
+        with pytest.raises(WeatherConfigError, match="Weather station mapping loading failed unexpectedly"):
             _default_weather_station_loader()

@@ -61,16 +61,12 @@ __all__ = [
 ]
 
 
-def create_status_report_coordinator(
-    process_manager, health_checker, metadata_store, tracker_controller
-):
+def create_status_report_coordinator(process_manager, health_checker, metadata_store, tracker_controller):
     """
     Factory function to create StatusReportCoordinator with all dependencies.
     """
     utilities = _build_status_report_utilities(process_manager)
-    non_redis_collectors = _build_non_redis_collectors(
-        process_manager, tracker_controller, health_checker
-    )
+    non_redis_collectors = _build_non_redis_collectors(process_manager, tracker_controller, health_checker)
 
     async def _create_with_redis_client(redis_client):
         redis_collectors = _build_redis_collectors(redis_client, metadata_store)

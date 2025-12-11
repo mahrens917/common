@@ -19,9 +19,7 @@ class DummyStore:
         self._redis.hgetall = AsyncMock(return_value={"t_yes_bid": "1", "t_yes_ask": "2"})
         self._string_or_default = lambda value, default=None: value or default
         self._int_or_default = lambda value, default=0: int(value) if value is not None else default
-        self._float_or_default = lambda value, default=0.0: (
-            float(value) if value is not None else default
-        )
+        self._float_or_default = lambda value, default=0.0: (float(value) if value is not None else default)
 
     async def _ensure_redis_connection(self):
         return self._ensure
@@ -36,21 +34,13 @@ class DummyStore:
 @pytest.mark.asyncio
 async def test_validate_market_for_interpolation_filters_currency():
     valid_key = build_kalshi_market_key("KXHIGHUSD")
-    result = store_methods._validate_market_for_interpolation(
-        valid_key, "USD", store_methods.logger
-    )
+    result = store_methods._validate_market_for_interpolation(valid_key, "USD", store_methods.logger)
     assert result is not None
 
-    assert (
-        store_methods._validate_market_for_interpolation("invalid:key", "USD", store_methods.logger)
-        is None
-    )
+    assert store_methods._validate_market_for_interpolation("invalid:key", "USD", store_methods.logger) is None
     # Currency mismatch
     different_key = build_kalshi_market_key("KXHIGHTESTEUR")
-    assert (
-        store_methods._validate_market_for_interpolation(different_key, "USD", store_methods.logger)
-        is None
-    )
+    assert store_methods._validate_market_for_interpolation(different_key, "USD", store_methods.logger) is None
 
 
 def test_parse_bid_ask_prices_handles_invalid():
@@ -81,9 +71,7 @@ async def test_process_market_for_interpolation_success(monkeypatch):
     )
     module_logger = MagicMock()
 
-    result = await store_methods._process_market_for_interpolation(
-        store, build_kalshi_market_key("KXHIGHUSD"), "USD", redis, module_logger
-    )
+    result = await store_methods._process_market_for_interpolation(store, build_kalshi_market_key("KXHIGHUSD"), "USD", redis, module_logger)
 
     assert result is not None
     ticker, data = result
@@ -96,9 +84,7 @@ async def test_process_market_for_interpolation_skips_when_no_data():
     redis = MagicMock()
     redis.hgetall = AsyncMock(return_value={})
 
-    result = await store_methods._process_market_for_interpolation(
-        store, build_kalshi_market_key("KXHIGHUSD"), "USD", redis, MagicMock()
-    )
+    result = await store_methods._process_market_for_interpolation(store, build_kalshi_market_key("KXHIGHUSD"), "USD", redis, MagicMock())
 
     assert result is None
 
@@ -107,15 +93,11 @@ async def test_process_market_for_interpolation_skips_when_no_data():
 async def test_process_market_for_interpolation_handles_extraction_error():
     store = DummyStore()
     redis = MagicMock()
-    redis.hgetall = AsyncMock(
-        return_value={"t_yes_bid": "1", "t_yes_ask": "2", "interpolation_method": "value"}
-    )
+    redis.hgetall = AsyncMock(return_value={"t_yes_bid": "1", "t_yes_ask": "2", "interpolation_method": "value"})
     # make extraction fail
     store._string_or_default = lambda value, default=None: (_ for _ in ()).throw(ValueError("boom"))
 
-    result = await store_methods._process_market_for_interpolation(
-        store, build_kalshi_market_key("KXHIGHUSD"), "USD", redis, MagicMock()
-    )
+    result = await store_methods._process_market_for_interpolation(store, build_kalshi_market_key("KXHIGHUSD"), "USD", redis, MagicMock())
 
     assert result is None
 
@@ -148,9 +130,7 @@ async def test_get_interpolation_results_returns_entries(monkeypatch):
 async def test_get_interpolation_results_handles_redis_error(monkeypatch):
     store = DummyStore()
     store._redis.hgetall = AsyncMock(side_effect=store_methods.REDIS_ERRORS[0])
-    monkeypatch.setattr(
-        store_methods, "_process_market_for_interpolation", AsyncMock(return_value=None)
-    )
+    monkeypatch.setattr(store_methods, "_process_market_for_interpolation", AsyncMock(return_value=None))
     store._scan_keys = [build_kalshi_market_key("KXHIGHUSD")]
 
     result = await store_methods.get_interpolation_results(store, "usd")

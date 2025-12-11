@@ -84,9 +84,7 @@ class TestCleanupKalshiMarkets:
 
         # Make a market that expired 10 days ago
         old_expiration = (datetime.now(timezone.utc) - timedelta(days=10)).isoformat()
-        mock_redis.hgetall = AsyncMock(
-            return_value={b"latest_expiration_time": old_expiration.encode()}
-        )
+        mock_redis.hgetall = AsyncMock(return_value={b"latest_expiration_time": old_expiration.encode()})
         mock_redis.delete = AsyncMock()
 
         cleaner = ExpiredMarketCleaner(mock_redis, grace_period_days=1)
@@ -104,9 +102,7 @@ class TestCleanupKalshiMarkets:
 
         # Make a market that expires in the future
         future_expiration = (datetime.now(timezone.utc) + timedelta(days=10)).isoformat()
-        mock_redis.hgetall = AsyncMock(
-            return_value={b"latest_expiration_time": future_expiration.encode()}
-        )
+        mock_redis.hgetall = AsyncMock(return_value={b"latest_expiration_time": future_expiration.encode()})
         mock_redis.delete = AsyncMock()
 
         cleaner = ExpiredMarketCleaner(mock_redis, grace_period_days=1)
@@ -123,9 +119,7 @@ class TestCleanupKalshiMarkets:
         mock_redis.scan = AsyncMock(return_value=(0, [b"markets:kalshi:test:TICKER1"]))
 
         old_expiration = (datetime.now(timezone.utc) - timedelta(days=10)).isoformat()
-        mock_redis.hgetall = AsyncMock(
-            return_value={b"latest_expiration_time": old_expiration.encode()}
-        )
+        mock_redis.hgetall = AsyncMock(return_value={b"latest_expiration_time": old_expiration.encode()})
         mock_redis.delete = AsyncMock()
 
         cleaner = ExpiredMarketCleaner(mock_redis, grace_period_days=1)
@@ -182,9 +176,7 @@ class TestProcessKalshiMarketKey:
         """Deletes expired market and returns True."""
         mock_redis = AsyncMock()
         old_expiration = (datetime.now(timezone.utc) - timedelta(days=10)).isoformat()
-        mock_redis.hgetall = AsyncMock(
-            return_value={b"latest_expiration_time": old_expiration.encode()}
-        )
+        mock_redis.hgetall = AsyncMock(return_value={b"latest_expiration_time": old_expiration.encode()})
         mock_redis.delete = AsyncMock()
 
         cleaner = ExpiredMarketCleaner(mock_redis, grace_period_days=1)

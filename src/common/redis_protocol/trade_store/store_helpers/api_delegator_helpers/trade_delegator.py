@@ -28,13 +28,9 @@ class TradeDelegator:
 
     async def store_trade(self, trade: TradeRecord) -> bool:
         """Store a trade record"""
-        return await self._executor.run_with_redis_guard(
-            "store_trade", lambda: self._repository.store(trade)
-        )
+        return await self._executor.run_with_redis_guard("store_trade", lambda: self._repository.store(trade))
 
-    async def mark_trade_settled(
-        self, order_id: str, settlement_price_cents: int, settled_at: Optional[datetime] = None
-    ) -> bool:
+    async def mark_trade_settled(self, order_id: str, settlement_price_cents: int, settled_at: Optional[datetime] = None) -> bool:
         """Mark a trade as settled"""
         return await self._executor.run_with_redis_guard(
             "mark_trade_settled",
@@ -48,15 +44,11 @@ class TradeDelegator:
 
     async def get_trade(self, trade_date: date, order_id: str) -> Optional[TradeRecord]:
         """Get a trade by date and order ID"""
-        return await self._executor.run_with_redis_guard(
-            "get_trade", lambda: self._repository.get(trade_date, order_id)
-        )
+        return await self._executor.run_with_redis_guard("get_trade", lambda: self._repository.get(trade_date, order_id))
 
     async def get_trade_by_order_id(self, order_id: str) -> Optional[TradeRecord]:
         """Get a trade by order ID only"""
-        return await self._executor.run_with_redis_guard(
-            "get_trade_by_order_id", lambda: self._repository.get_by_order_id(order_id)
-        )
+        return await self._executor.run_with_redis_guard("get_trade_by_order_id", lambda: self._repository.get_by_order_id(order_id))
 
     async def store_order_metadata(
         self,
@@ -82,15 +74,11 @@ class TradeDelegator:
     async def get_order_metadata(self, order_id: str) -> Optional[Dict[str, str]]:
         """Get order metadata"""
 
-        return await self._executor.run_with_redis_guard(
-            "get_order_metadata", lambda: self._metadata_store.load(order_id)
-        )
+        return await self._executor.run_with_redis_guard("get_order_metadata", lambda: self._metadata_store.load(order_id))
 
     async def update_trade_prices(self, market_ticker: str, yes_bid: float, yes_ask: float) -> int:
         """Update trade prices for a market"""
         return await self._executor.run_with_redis_guard(
             "update_trade_prices",
-            lambda: self._price_updater.update_market_prices(
-                market_ticker, yes_bid=yes_bid, yes_ask=yes_ask
-            ),
+            lambda: self._price_updater.update_market_prices(market_ticker, yes_bid=yes_bid, yes_ask=yes_ask),
         )

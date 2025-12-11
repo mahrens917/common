@@ -39,28 +39,18 @@ class ValidationWorkflow:
 
         parsed = ContractParser.parse_instrument(contract_name, expected_symbol)
 
-        is_corrupted, error_msg, corruption_stats = CorruptionChecker.check_year_corruption(
-            parsed.expiry_date, contract_name
-        )
+        is_corrupted, error_msg, corruption_stats = CorruptionChecker.check_year_corruption(parsed.expiry_date, contract_name)
         if is_corrupted:
             return ErrorHandler.merge_stats(False, error_msg, stats_updates, corruption_stats)
 
-        data_expiry = (
-            options_data["expiries"][index] if index < len(options_data["expiries"]) else None
-        )
-        is_valid, error_msg = ExpiryValidator.validate_consistency(
-            parsed.expiry_date, data_expiry, contract_name, index, options_data
-        )
+        data_expiry = options_data["expiries"][index] if index < len(options_data["expiries"]) else None
+        is_valid, error_msg = ExpiryValidator.validate_consistency(parsed.expiry_date, data_expiry, contract_name, index, options_data)
         if not is_valid:
             stats_updates["date_errors"] = 1
             return False, error_msg, stats_updates
 
-        data_strike = (
-            options_data["strikes"][index] if index < len(options_data["strikes"]) else None
-        )
-        is_valid, error_msg = StrikeValidator.validate_consistency(
-            parsed.strike, data_strike, contract_name, index, options_data
-        )
+        data_strike = options_data["strikes"][index] if index < len(options_data["strikes"]) else None
+        is_valid, error_msg = StrikeValidator.validate_consistency(parsed.strike, data_strike, contract_name, index, options_data)
         if not is_valid:
             return False, error_msg, stats_updates
 

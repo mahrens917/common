@@ -69,9 +69,7 @@ def test_load_metar_config_handles_missing_section(monkeypatch):
     _patch_loader(monkeypatch, section_result={})
 
     loader = ConfigLoader()
-    with pytest.raises(
-        MetarConfigLoadError, match="METAR config contains no data source definitions"
-    ):
+    with pytest.raises(MetarConfigLoadError, match="METAR config contains no data source definitions"):
         loader.load_metar_config()
 
 

@@ -11,9 +11,7 @@ class CallbackRunner:
     """Handles running callbacks with error handling."""
 
     @staticmethod
-    async def run_callbacks(
-        callbacks: List[Callable], service_name: str, callback_executor
-    ) -> None:
+    async def run_callbacks(callbacks: List[Callable], service_name: str, callback_executor) -> None:
         """Run list of callbacks."""
         for callback in callbacks:
             try:

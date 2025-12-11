@@ -13,9 +13,7 @@ def normalize_price_formatting(orderbook_sides: Dict[str, Any], msg_data: Dict[s
         return
 
     yes_bids = orderbook_sides.get("yes_bids") or {}
-    orderbook_sides["yes_bids"] = {
-        _normalize_price_string(price): size for price, size in yes_bids.items()
-    }
+    orderbook_sides["yes_bids"] = {_normalize_price_string(price): size for price, size in yes_bids.items()}
 
 
 def _extract_yes_levels(msg_data: Dict[str, Any]) -> list:
@@ -25,10 +23,7 @@ def _extract_yes_levels(msg_data: Dict[str, Any]) -> list:
 
 def _contains_only_integer_prices(levels: list) -> bool:
     return all(
-        isinstance(level, (list, tuple))
-        and len(level) == ORDERBOOK_LEVEL_EXPECTED_LENGTH
-        and isinstance(level[0], int)
-        for level in levels
+        isinstance(level, (list, tuple)) and len(level) == ORDERBOOK_LEVEL_EXPECTED_LENGTH and isinstance(level[0], int) for level in levels
     )
 
 

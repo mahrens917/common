@@ -107,9 +107,7 @@ def env_int(name: str, or_value: int | None = None, *, required: bool = False) -
     try:
         return int(raw)
     except ValueError as exc:
-        raise ConfigurationError(
-            f"Environment variable {name!r} must be an integer (got {raw!r})"
-        ) from exc
+        raise ConfigurationError(f"Environment variable {name!r} must be an integer (got {raw!r})") from exc
 
 
 def env_float(name: str, or_value: float | None = None, *, required: bool = False) -> float | None:
@@ -123,9 +121,7 @@ def env_float(name: str, or_value: float | None = None, *, required: bool = Fals
     try:
         return float(raw)
     except ValueError as exc:
-        raise ConfigurationError(
-            f"Environment variable {name!r} must be a float (got {raw!r})"
-        ) from exc
+        raise ConfigurationError(f"Environment variable {name!r} must be a float (got {raw!r})") from exc
 
 
 def env_bool(name: str, or_value: bool | None = None, *, required: bool = False) -> bool | None:
@@ -142,9 +138,7 @@ def env_bool(name: str, or_value: bool | None = None, *, required: bool = False)
         return True
     if lowered in _FALSE_VALUES:
         return False
-    raise ConfigurationError(
-        f"Environment variable {name!r} must be a boolean (allowed: {_TRUE_VALUES | _FALSE_VALUES}, got {raw!r})"
-    )
+    raise ConfigurationError(f"Environment variable {name!r} must be a boolean (allowed: {_TRUE_VALUES | _FALSE_VALUES}, got {raw!r})")
 
 
 def env_list(
@@ -186,9 +180,7 @@ def env_seconds(name: str, or_value: int | None = None, *, required: bool = Fals
     if value is None:
         return None
     if value < 0:
-        raise ConfigurationError(
-            f"Environment variable {name!r} must be non-negative (got {value})"
-        )
+        raise ConfigurationError(f"Environment variable {name!r} must be non-negative (got {value})")
     return value
 
 
@@ -210,9 +202,7 @@ def load_json(relative_path: str) -> JsonConfig:
         raise ConfigurationError(f"Failed to parse JSON config {config_path}") from exc
 
     if not isinstance(data, dict):
-        raise ConfigurationError(
-            f"JSON config {config_path} must contain an object at the top level"
-        )
+        raise ConfigurationError(f"JSON config {config_path} must contain an object at the top level")
 
     return JsonConfig(path=config_path, payload=data)
 
@@ -229,8 +219,7 @@ def _resolve_data_config_path(config_path: Optional[Path]) -> Path:
     env_value = os.getenv(_DATA_CONFIG_ENV)
     if not env_value:
         raise ConfigurationError(
-            f"Weather data directory configuration not provided. "
-            f"Set {_DATA_CONFIG_ENV} or pass config_path explicitly."
+            f"Weather data directory configuration not provided. " f"Set {_DATA_CONFIG_ENV} or pass config_path explicitly."
         )
 
     return Path(env_value).expanduser()
@@ -246,14 +235,10 @@ def get_data_dir(*, config_path: Optional[Path] = None) -> str:
     try:
         payload = json.loads(resolved_config.read_text(encoding="utf-8"))
     except json.JSONDecodeError as exc:
-        raise ConfigurationError(
-            f"Failed to parse weather data configuration {resolved_config}"
-        ) from exc
+        raise ConfigurationError(f"Failed to parse weather data configuration {resolved_config}") from exc
 
     if not isinstance(payload, dict):
-        raise ConfigurationError(
-            f"Weather data configuration {resolved_config} must contain an object"
-        )
+        raise ConfigurationError(f"Weather data configuration {resolved_config} must contain an object")
 
     raw_path = payload.get("data_dir")
     if not isinstance(raw_path, str) or not raw_path.strip():

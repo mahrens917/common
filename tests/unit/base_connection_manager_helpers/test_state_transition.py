@@ -43,9 +43,7 @@ class TestStateTransitionHandlerTransitionState:
 
         handler.transition_state(ConnectionState.FAILED, "Connection timeout")
 
-        state_mgr.transition_state.assert_called_once_with(
-            ConnectionState.FAILED, "Connection timeout"
-        )
+        state_mgr.transition_state.assert_called_once_with(ConnectionState.FAILED, "Connection timeout")
 
     def test_records_success_on_connected_state(self) -> None:
         """Records success when transitioning to CONNECTED state."""

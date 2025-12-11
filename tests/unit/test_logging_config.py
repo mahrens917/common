@@ -81,9 +81,7 @@ def test_clear_logs_directory_skips_when_services_running(logging_module, tmp_pa
     assert logging_module._LOGS_CLEARED is True
 
 
-def test_setup_logging_user_friendly_configures_warning_console(
-    logging_module, monkeypatch, tmp_path
-):
+def test_setup_logging_user_friendly_configures_warning_console(logging_module, monkeypatch, tmp_path):
     _set_fake_project_root(logging_module, tmp_path)
     monkeypatch.delenv("MANAGED_BY_MONITOR", raising=False)
 
@@ -105,9 +103,7 @@ def test_setup_logging_user_friendly_configures_warning_console(
     assert console.formatter._fmt == "%(message)s"
 
 
-def test_setup_logging_adds_file_handler_and_resets_child_loggers(
-    logging_module, monkeypatch, tmp_path
-):
+def test_setup_logging_adds_file_handler_and_resets_child_loggers(logging_module, monkeypatch, tmp_path):
     fake_root = _set_fake_project_root(logging_module, tmp_path)
     monkeypatch.delenv("MANAGED_BY_MONITOR", raising=False)
 
@@ -169,9 +165,7 @@ def test_setup_logging_disables_console_when_managed(logging_module, monkeypatch
     assert console.level > logging.CRITICAL
 
 
-def test_setup_logging_monitor_clears_logs_and_appends_when_child(
-    logging_module, monkeypatch, tmp_path
-):
+def test_setup_logging_monitor_clears_logs_and_appends_when_child(logging_module, monkeypatch, tmp_path):
     fake_root = _set_fake_project_root(logging_module, tmp_path)
     monkeypatch.delenv("MANAGED_BY_MONITOR", raising=False)
     monkeypatch.setenv("PDF_PIPELINE_CHILD", "1")
@@ -338,9 +332,7 @@ class TestFindRunningServices:
         """Returns empty set when psutil is not available."""
         import sys
 
-        original_import = (
-            __builtins__.__import__ if hasattr(__builtins__, "__import__") else __import__
-        )
+        original_import = __builtins__.__import__ if hasattr(__builtins__, "__import__") else __import__
 
         def mock_import(name, *args, **kwargs):
             if name == "psutil":

@@ -45,8 +45,7 @@ class ReconnectionErrorClassifier:
         self.pattern_manager = PatternManager(self.pattern_compiler)
 
         logger.debug(
-            f"Initialized reconnection error classifier with "
-            f"{len(self.service_type_manager.service_type_mapping)} service mappings"
+            f"Initialized reconnection error classifier with " f"{len(self.service_type_manager.service_type_mapping)} service mappings"
         )
 
     def get_service_type(self, service_name: str) -> ServiceType:
@@ -60,9 +59,7 @@ class ReconnectionErrorClassifier:
 
         service_type = self.get_service_type(service_name)
         if service_type == ServiceType.UNKNOWN:
-            logger.debug(
-                f"Unknown service type for {service_name}, " "not classifying as reconnection error"
-            )
+            logger.debug(f"Unknown service type for {service_name}, " "not classifying as reconnection error")
             return False
 
         return self.error_matcher.check_with_logging(service_name, service_type, error_message)
@@ -79,9 +76,7 @@ class ReconnectionErrorClassifier:
 
         matches, _ = self.error_matcher.matches_pattern(service_type_enum, error_message)
         if matches:
-            logger.debug(
-                f"Reconnection error detected for {service_type}: {error_message[:100]}..."
-            )
+            logger.debug(f"Reconnection error detected for {service_type}: {error_message[:100]}...")
         return matches
 
     def classify_error_type(self, service_name: str, error_message: str) -> str:

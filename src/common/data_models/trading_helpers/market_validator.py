@@ -89,9 +89,7 @@ def validate_bid_ask_spread(best_bid_cents: Optional[int], best_ask_cents: Optio
         return
 
     if best_bid_cents >= best_ask_cents:
-        raise ValueError(
-            f"Best bid ({best_bid_cents}) must be less than best ask ({best_ask_cents})"
-        )
+        raise ValueError(f"Best bid ({best_bid_cents}) must be less than best ask ({best_ask_cents})")
 
 
 def validate_last_price(last_price_cents: Optional[int]) -> None:

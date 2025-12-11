@@ -11,14 +11,10 @@ from ....trading_exceptions import (
 logger = logging.getLogger(__name__)
 
 
-async def store_order_metadata_safely(
-    order_response, order_request, get_trade_store, metadata_resolver, operation_name: str
-):
+async def store_order_metadata_safely(order_response, order_request, get_trade_store, metadata_resolver, operation_name: str):
     """Store order metadata with error handling."""
     try:
-        market_category, metadata_station = metadata_resolver.resolve_trade_context(
-            order_request.ticker
-        )
+        market_category, metadata_station = metadata_resolver.resolve_trade_context(order_request.ticker)
         trade_store = await get_trade_store()
         await trade_store.store_order_metadata(
             order_response.order_id,

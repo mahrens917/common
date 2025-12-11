@@ -31,9 +31,7 @@ class SuppressionRule:
         }
     )
     require_reconnection_error_pattern: bool = True
-    max_suppression_duration_seconds: int = (
-        DEFAULT_MAX_SUPPRESSION_DURATION_SECONDS  # 30 minutes max
-    )
+    max_suppression_duration_seconds: int = DEFAULT_MAX_SUPPRESSION_DURATION_SECONDS  # 30 minutes max
 
 
 @dataclass(frozen=True)
@@ -74,9 +72,7 @@ class AlertEvaluator:
         elif alert_type == AlertType.RECOVERY:
             should_suppress, reason_parts = _evaluate_recovery_alert(context)
         elif context.is_in_reconnection:
-            should_suppress, reason_parts = _evaluate_during_reconnection(
-                self.suppression_rule, context
-            )
+            should_suppress, reason_parts = _evaluate_during_reconnection(self.suppression_rule, context)
         elif context.is_in_grace_period:
             should_suppress = True
             reason_parts.append("service is in post-reconnection grace period")
@@ -100,24 +96,18 @@ def _log_reconnection_error(service_name: str, error_message: Optional[str]) -> 
 def _evaluate_recovery_alert(context: SuppressionContext) -> tuple[bool, List[str]]:
     reason_parts: List[str] = []
     if context.is_in_reconnection or context.is_in_grace_period:
-        phase = (
-            "reconnection mode" if context.is_in_reconnection else "post-reconnection grace period"
-        )
+        phase = "reconnection mode" if context.is_in_reconnection else "post-reconnection grace period"
         reason_parts.append(f"service is in {phase}")
         reason_parts.append("recovery notification suppressed to avoid redundancy")
         return True, reason_parts
     return False, reason_parts
 
 
-def _evaluate_during_reconnection(
-    rule: SuppressionRule, context: SuppressionContext
-) -> tuple[bool, List[str]]:
+def _evaluate_during_reconnection(rule: SuppressionRule, context: SuppressionContext) -> tuple[bool, List[str]]:
     reason_parts: List[str] = []
     max_duration = rule.max_suppression_duration_seconds
     if context.reconnection_duration and context.reconnection_duration > max_duration:
-        reason_parts.append(
-            f"reconnection duration ({context.reconnection_duration:.1f}s) exceeds max suppression time"
-        )
+        reason_parts.append(f"reconnection duration ({context.reconnection_duration:.1f}s) exceeds max suppression time")
         return False, reason_parts
     reason_parts.append("service is in reconnection mode")
     if context.reconnection_duration is not None:

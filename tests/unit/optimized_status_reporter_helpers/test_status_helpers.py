@@ -140,9 +140,7 @@ def test_weather_section_generator_and_service_status_formatter(monkeypatch):
             return value or default
 
     generator = WeatherSectionGenerator(StubDayNight(), StubCoercion())
-    lines = generator.generate_weather_section(
-        {"ABC": {"temp_f": "70.1", "emoticon": "☀️"}, "BAD": "not-a-dict"}
-    )
+    lines = generator.generate_weather_section({"ABC": {"temp_f": "70.1", "emoticon": "☀️"}, "BAD": "not-a-dict"})
     assert any("ABC" in line for line in lines)
 
     class StubResourceTracker:
@@ -177,9 +175,7 @@ def test_weather_section_generator_and_service_status_formatter(monkeypatch):
 def test_service_printer_and_temperature_collector(monkeypatch):
     emitted: list[str] = []
     resource_tracker = SimpleNamespace(get_process_resource_usage=lambda name: "")
-    log_formatter = SimpleNamespace(
-        format_age_only=lambda activity: "", format_log_activity_short=lambda *_: ""
-    )
+    log_formatter = SimpleNamespace(format_age_only=lambda activity: "", format_log_activity_short=lambda *_: "")
     printer = ServicePrinter(emitted.append, resource_tracker, log_formatter, lambda v, d: bool(v))
 
     class StubProcessManager:
@@ -268,16 +264,12 @@ async def test_subscription_processor_and_update_handler(monkeypatch):
 
     handler = UpdateHandler("svc", ws, active, pending_updates, api_mapper)
 
-    subscribe_update = SubscriptionUpdate(
-        name="new", subscription_type="instrument", action="subscribe"
-    )
+    subscribe_update = SubscriptionUpdate(name="new", subscription_type="instrument", action="subscribe")
     await handler.handle_update(subscribe_update, redis_client=None)
     assert pending_updates == [("new", "api-instrument", "new")]
 
     ws.active_subscriptions.append("inst")
-    unsubscribe_update = SubscriptionUpdate(
-        name="inst", subscription_type="instrument", action="unsubscribe"
-    )
+    unsubscribe_update = SubscriptionUpdate(name="inst", subscription_type="instrument", action="unsubscribe")
     await handler.handle_update(unsubscribe_update, redis_client=None)
     assert "inst" not in active
 
@@ -286,9 +278,7 @@ def test_log_activity_and_time_formatting():
     tf = TimeFormatter()
     log_activity_formatter = LogActivityFormatter(tf)
 
-    ok_activity = SimpleNamespace(
-        status=LogActivityStatus.RECENT, age_seconds=65, log_file_path=None, error_message=None
-    )
+    ok_activity = SimpleNamespace(status=LogActivityStatus.RECENT, age_seconds=65, log_file_path=None, error_message=None)
     assert log_activity_formatter.format_log_activity_short("svc", ok_activity).startswith("Recent")
     assert log_activity_formatter.format_age_only(ok_activity) == "1m 5s old"
 
@@ -311,9 +301,7 @@ def test_log_activity_and_time_formatting():
 
 
 def test_day_night_detector_and_weather_helpers(monkeypatch):
-    detector = DayNightDetector(
-        moon_phase_calculator=SimpleNamespace(get_moon_phase_emoji=lambda: "🌙")
-    )
+    detector = DayNightDetector(moon_phase_calculator=SimpleNamespace(get_moon_phase_emoji=lambda: "🌙"))
     detector._station_coordinates = {"ABC": {"latitude": 0.0, "longitude": 0.0}}
     monkeypatch.setattr(
         "common.optimized_status_reporter_helpers.day_night_detector.is_between_dawn_and_dusk",
@@ -391,9 +379,7 @@ def test_batch_converter_and_order_payloads():
     with pytest.raises(ValueError):
         BatchConverter.convert_instruments_to_micro_price_data([], "USD", converter)
 
-    result = BatchConverter.convert_instruments_to_micro_price_data(
-        ["good", "bad"], "USD", converter
-    )
+    result = BatchConverter.convert_instruments_to_micro_price_data(["good", "bad"], "USD", converter)
     assert len(result) == 1
 
     order = SimpleNamespace(

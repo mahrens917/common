@@ -121,7 +121,5 @@ def test_orderbook_parser_happy_paths_and_errors():
 
     with pytest.raises(DataError):
         extract_best_prices_from_orderbook({"yes_bids": {}, "yes_asks": {}}, "TCKR")
-    bid, ask = extract_best_prices_from_orderbook(
-        {"yes_bids": {"0.1": 1}, "yes_asks": {"0.2": 1}}, "TCKR"
-    )
+    bid, ask = extract_best_prices_from_orderbook({"yes_bids": {"0.1": 1}, "yes_asks": {"0.2": 1}}, "TCKR")
     assert bid == 0.1 and ask == 0.2

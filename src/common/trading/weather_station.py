@@ -11,9 +11,7 @@ from typing import Dict, Iterable, Mapping, Optional
 from common.config.weather import (
     WeatherConfigError,
 )
-from common.config.weather import (
-    load_weather_station_mapping as _load_config_weather_station_mapping,
-)
+from common.config.weather import load_weather_station_mapping as _load_config_weather_station_mapping
 
 MAPPINGS_KEY = "mappings"
 WEATHER_MAPPING_FILENAME = "weather_station_mapping.json"
@@ -131,20 +129,14 @@ class WeatherStationResolver:
 
         station_info = self.mapping.get(canonical_city)
         if station_info is None:
-            raise ValueError(
-                f"Weather station '{canonical_city}' not found in mapping for ticker {market_ticker}"
-            )
+            raise ValueError(f"Weather station '{canonical_city}' not found in mapping for ticker {market_ticker}")
 
         icao_code = station_info.get("icao")
         if not isinstance(icao_code, str) or not icao_code:
-            raise ValueError(
-                f"Weather station mapping for '{canonical_city}' missing ICAO code (ticker {market_ticker})"
-            )
+            raise ValueError(f"Weather station mapping for '{canonical_city}' missing ICAO code (ticker {market_ticker})")
 
         normalized_icao = icao_code.upper()
         if len(normalized_icao) != _CONST_4 or not normalized_icao.startswith("K"):
-            raise ValueError(
-                f"Invalid ICAO code '{normalized_icao}' for station '{canonical_city}' (ticker {market_ticker})"
-            )
+            raise ValueError(f"Invalid ICAO code '{normalized_icao}' for station '{canonical_city}' (ticker {market_ticker})")
 
         return normalized_icao

@@ -26,9 +26,7 @@ async def test_snapshot_reader_methods(monkeypatch):
         "common.redis_protocol.kalshi_store.reader_helpers.snapshot_reader.helpers",
         _DummyHelpers(),
     )
-    reader = snapshot_reader.SnapshotReader(
-        logger_instance=None, metadata_extractor="extractor", metadata_adapter="adapter"
-    )
+    reader = snapshot_reader.SnapshotReader(logger_instance=None, metadata_extractor="extractor", metadata_adapter="adapter")
     assert await reader.get_subscribed_markets("redis", "key") == {"markets"}
     assert await reader.is_market_tracked("redis", "key", "TK") is True
     snapshot = await reader.get_market_snapshot("redis", "key", "TK")

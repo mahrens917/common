@@ -78,26 +78,20 @@ class OrderMetadataCodec:
         required = {"trade_rule", "trade_reason"}
         missing = required - metadata.keys()
         if missing:
-            raise OrderMetadataError(
-                f"Stored metadata for {order_id} is missing required fields: {missing}"
-            )
+            raise OrderMetadataError(f"Stored metadata for {order_id} is missing required fields: {missing}")
 
     @staticmethod
     def _validate_trade_reason(metadata: Dict[str, Any], order_id: str) -> None:
         """Validate trade reason."""
         trade_reason = metadata["trade_reason"]
         if not is_trade_reason_valid(trade_reason):
-            raise OrderMetadataError(
-                f"Stored trade reason too short for order {order_id}: {trade_reason}"
-            )
+            raise OrderMetadataError(f"Stored trade reason too short for order {order_id}: {trade_reason}")
 
     @staticmethod
     def _validate_market_category(metadata: Dict[str, Any], order_id: str) -> None:
         """Validate market category present."""
         if "market_category" not in metadata:
-            raise OrderMetadataError(
-                f"Stored metadata for {order_id} is missing required field 'market_category'"
-            )
+            raise OrderMetadataError(f"Stored metadata for {order_id} is missing required field 'market_category'")
 
     @staticmethod
     def _build_result(metadata: Dict[str, Any]) -> Dict[str, str]:

@@ -58,9 +58,7 @@ class AtomicRedisOperations:
         self.logger = logger
         self._coordinator = AtomicOperationsCoordinator(redis_client)
 
-    async def atomic_market_data_write(
-        self, store_key: str, market_data: Mapping[str, Union[str, float, int, None]]
-    ) -> bool:
+    async def atomic_market_data_write(self, store_key: str, market_data: Mapping[str, Union[str, float, int, None]]) -> bool:
         """
         Atomically write market data to Redis using a transaction.
 
@@ -79,9 +77,7 @@ class AtomicRedisOperations:
         """
         return await self._coordinator.atomic_market_data_write(store_key, market_data)
 
-    async def safe_market_data_read(
-        self, store_key: str, required_fields: Optional[List[str]] = None
-    ) -> Dict[str, Any]:
+    async def safe_market_data_read(self, store_key: str, required_fields: Optional[List[str]] = None) -> Dict[str, Any]:
         """
         Safely read market data with retry logic and validation.
 
@@ -101,9 +97,7 @@ class AtomicRedisOperations:
         """
         return await self._coordinator.safe_market_data_read(store_key, required_fields)
 
-    async def atomic_delete_if_invalid(
-        self, store_key: str, validation_data: Dict[str, Any]
-    ) -> bool:
+    async def atomic_delete_if_invalid(self, store_key: str, validation_data: Dict[str, Any]) -> bool:
         """
         Atomically delete a Redis key if the data contains invalid values.
 

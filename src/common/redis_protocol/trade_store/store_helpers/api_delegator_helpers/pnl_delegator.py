@@ -22,15 +22,11 @@ class PnLDelegator:
 
     async def store_daily_summary(self, summary: PnLReport) -> bool:
         """Store daily P&L summary"""
-        return await self._executor.run_with_redis_guard(
-            "store_daily_summary", lambda: self._pnl.store_daily_summary(summary)
-        )
+        return await self._executor.run_with_redis_guard("store_daily_summary", lambda: self._pnl.store_daily_summary(summary))
 
     async def get_daily_summary(self, trade_date: date) -> Optional[Dict[str, Any]]:
         """Get daily P&L summary"""
-        return await self._executor.run_with_redis_guard(
-            "get_daily_summary", lambda: self._pnl.get_daily_summary(trade_date)
-        )
+        return await self._executor.run_with_redis_guard("get_daily_summary", lambda: self._pnl.get_daily_summary(trade_date))
 
     async def store_unrealized_pnl_data(self, redis_key: str, data: Dict[str, Any]) -> bool:
         """Store unrealized P&L snapshot"""
@@ -41,13 +37,9 @@ class PnLDelegator:
 
     async def get_unrealized_pnl_data(self, redis_key: str) -> Optional[Dict[str, Any]]:
         """Get unrealized P&L snapshot"""
-        return await self._executor.run_with_redis_guard(
-            "get_unrealized_pnl_data", lambda: self._pnl.get_unrealized_snapshot(redis_key)
-        )
+        return await self._executor.run_with_redis_guard("get_unrealized_pnl_data", lambda: self._pnl.get_unrealized_snapshot(redis_key))
 
-    async def get_unrealized_pnl_history(
-        self, start_date: date, end_date: date
-    ) -> list[Dict[str, Any]]:
+    async def get_unrealized_pnl_history(self, start_date: date, end_date: date) -> list[Dict[str, Any]]:
         """Get unrealized P&L history"""
         return await self._executor.run_with_redis_guard(
             "get_unrealized_pnl_history",

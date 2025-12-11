@@ -37,9 +37,7 @@ class LogActivityCollector:
         try:
             service_names = sorted(set(self.process_manager.services.keys()) | {"monitor"})
             if service_names:
-                log_activity = await self._log_activity_monitor.get_all_service_log_activity(
-                    service_names
-                )
+                log_activity = await self._log_activity_monitor.get_all_service_log_activity(service_names)
         except LOG_ACTIVITY_ERRORS + (RedisError,) as exc:
             logger.warning(
                 "Failed to gather log activity (%s): %s",

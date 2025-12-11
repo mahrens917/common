@@ -13,9 +13,7 @@ class OrderParser:
     """Parse and validate order responses."""
 
     @staticmethod
-    def parse_order_response(
-        response_data: Dict[str, Any], operation_name: str, trade_rule: str, trade_reason: str
-    ) -> OrderResponse:
+    def parse_order_response(response_data: Dict[str, Any], operation_name: str, trade_rule: str, trade_reason: str) -> OrderResponse:
         """Strictly parse and validate a raw order response."""
         try:
             logger.info(f"[_parse_order_response] Parsing response: {response_data}")
@@ -32,9 +30,7 @@ class OrderParser:
 
             order_response = parse_kalshi_order_response(order_data, trade_rule, trade_reason)
 
-            logger.info(
-                f"[_parse_order_response] Successfully parsed order response for {order_response.order_id}"
-            )
+            logger.info(f"[_parse_order_response] Successfully parsed order response for {order_response.order_id}")
             logger.info(
                 f"[_parse_order_response] Status: {order_response.status.value}, "
                 f"Filled: {order_response.filled_count}, Remaining: {order_response.remaining_count}"

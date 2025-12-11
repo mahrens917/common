@@ -62,9 +62,7 @@ class TestHealthCheckerCheckAndHandleFailure:
         result, _ = await checker.check_and_handle_failure(mock_check, mock_connect, mock_task)
 
         assert result is True
-        mock_state_manager.transition_state.assert_called_once_with(
-            ConnectionState.DISCONNECTED, "Health check failed"
-        )
+        mock_state_manager.transition_state.assert_called_once_with(ConnectionState.DISCONNECTED, "Health check failed")
 
     @pytest.mark.asyncio
     async def test_starts_reconnection_when_task_done(self) -> None:

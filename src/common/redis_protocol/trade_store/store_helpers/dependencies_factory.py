@@ -70,9 +70,7 @@ class TradeStoreDependenciesFactory:
 
         # Initialize repositories and services
         repository = TradeRecordRepository(get_redis, key_builder=keys, codec=codec, logger=logger)
-        metadata_store = OrderMetadataStore(
-            get_redis, key_builder=keys, codec=metadata_codec, logger=logger
-        )
+        metadata_store = OrderMetadataStore(get_redis, key_builder=keys, codec=metadata_codec, logger=logger)
         queries = TradeQueryService(
             repository,
             key_builder=keys,

@@ -17,15 +17,11 @@ def test_init_stores_service_name():
 def test_log_alerts_critical_severity_uses_error():
     """Test that critical severity alerts use logger.error."""
     logger = AlertLogger("test_service")
-    analysis: Dict[str, Any] = {
-        "alerts": [{"severity": "critical", "message": "Critical memory issue"}]
-    }
+    analysis: Dict[str, Any] = {"alerts": [{"severity": "critical", "message": "Critical memory issue"}]}
 
     with patch("common.memory_monitor_helpers.alert_logger.logger") as mock_logger:
         logger.log_alerts(analysis)
-        mock_logger.error.assert_called_once_with(
-            "MEMORY_MONITOR[test_service]: Critical memory issue"
-        )
+        mock_logger.error.assert_called_once_with("MEMORY_MONITOR[test_service]: Critical memory issue")
         mock_logger.warning.assert_not_called()
         mock_logger.info.assert_not_called()
 
@@ -45,15 +41,11 @@ def test_log_alerts_error_severity_uses_error():
 def test_log_alerts_warning_severity_uses_warning():
     """Test that warning severity alerts use logger.warning."""
     logger = AlertLogger("test_service")
-    analysis: Dict[str, Any] = {
-        "alerts": [{"severity": "warning", "message": "Warning about memory"}]
-    }
+    analysis: Dict[str, Any] = {"alerts": [{"severity": "warning", "message": "Warning about memory"}]}
 
     with patch("common.memory_monitor_helpers.alert_logger.logger") as mock_logger:
         logger.log_alerts(analysis)
-        mock_logger.warning.assert_called_once_with(
-            "MEMORY_MONITOR[test_service]: Warning about memory"
-        )
+        mock_logger.warning.assert_called_once_with("MEMORY_MONITOR[test_service]: Warning about memory")
         mock_logger.error.assert_not_called()
         mock_logger.info.assert_not_called()
 
@@ -65,9 +57,7 @@ def test_log_alerts_info_severity_uses_info():
 
     with patch("common.memory_monitor_helpers.alert_logger.logger") as mock_logger:
         logger.log_alerts(analysis)
-        mock_logger.info.assert_called_once_with(
-            "MEMORY_MONITOR[test_service]: Information message"
-        )
+        mock_logger.info.assert_called_once_with("MEMORY_MONITOR[test_service]: Information message")
         mock_logger.error.assert_not_called()
         mock_logger.warning.assert_not_called()
 

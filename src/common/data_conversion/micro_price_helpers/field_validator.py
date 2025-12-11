@@ -24,11 +24,7 @@ class FieldValidator:
         validator in common.validation.required_fields.
         """
         symbol = FieldResolver.resolve_symbol_for_logging(instrument)
-        missing_fields = [
-            field
-            for field in _REQUIRED_INSTRUMENT_FIELDS
-            if getattr(instrument, field, None) is None
-        ]
+        missing_fields = [field for field in _REQUIRED_INSTRUMENT_FIELDS if getattr(instrument, field, None) is None]
         if missing_fields:
             field_list = ", ".join(missing_fields)
             raise ValueError(f"Instrument {symbol} missing required fields: {field_list}")
@@ -40,9 +36,7 @@ class FieldValidator:
         best_bid = instrument.best_bid
         best_ask = instrument.best_ask
         if best_bid is None or best_ask is None:
-            raise ValueError(
-                f"Instrument {symbol} missing bid/ask prices: best_bid={best_bid}, best_ask={best_ask}"
-            )
+            raise ValueError(f"Instrument {symbol} missing bid/ask prices: best_bid={best_bid}, best_ask={best_ask}")
         bid_price = float(best_bid)
         ask_price = float(best_ask)
 
@@ -51,9 +45,7 @@ class FieldValidator:
                 instrument_name = FieldResolver.resolve_symbol_for_logging(instrument)
                 raise ValueError(
                     "FAIL-FAST: Missing required {label} for instrument {name}. "
-                    "Synthetic values are forbidden - all data must be sourced from the exchange.".format(
-                        label=label, name=instrument_name
-                    )
+                    "Synthetic values are forbidden - all data must be sourced from the exchange.".format(label=label, name=instrument_name)
                 )
             return float(value)
 

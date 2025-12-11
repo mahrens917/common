@@ -18,9 +18,7 @@ class DummyStrikeResolver:
     def __init__(self, strike: float | None):
         self._strike = strike
 
-    def resolve_strike_from_combined(
-        self, combined: Dict[str, Any], converter: Any
-    ) -> float | None:
+    def resolve_strike_from_combined(self, combined: Dict[str, Any], converter: Any) -> float | None:
         return self._strike
 
 
@@ -64,9 +62,7 @@ def test_validate_market_status_raises_on_closed():
 
 def test_extract_and_validate_close_time_requires_value():
     with pytest.raises(MarketSkip):
-        field_extractor.extract_and_validate_close_time(
-            {}, "ticker", DummyNormalizer(), datetime.now(timezone.utc)
-        )
+        field_extractor.extract_and_validate_close_time({}, "ticker", DummyNormalizer(), datetime.now(timezone.utc))
 
 
 def test_extract_and_validate_close_time_detects_expired():
@@ -143,16 +139,12 @@ def test_record_validator_raises_on_missing_hash():
 
 def test_record_validator_detects_terminal_status():
     with pytest.raises(MarketSkip):
-        record_validator.RecordValidator.validate_market_status(
-            {"status": "settled"}, "ticker", DummyTypeConverter()
-        )
+        record_validator.RecordValidator.validate_market_status({"status": "settled"}, "ticker", DummyTypeConverter())
 
 
 def test_record_validator_detects_expired(normalizer=DummyNormalizer()):
     with pytest.raises(MarketSkip):
-        record_validator.RecordValidator.validate_not_expired(
-            "2020-01-01T00:00:00Z", "ticker", datetime(2021, 1, 2, tzinfo=timezone.utc)
-        )
+        record_validator.RecordValidator.validate_not_expired("2020-01-01T00:00:00Z", "ticker", datetime(2021, 1, 2, tzinfo=timezone.utc))
 
 
 def test_record_validator_missing_close_time():

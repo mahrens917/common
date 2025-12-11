@@ -73,9 +73,7 @@ class ServiceHealthChecker:
         else:
             return redis_health
 
-    async def check_all_service_health(
-        self, service_names: List[str]
-    ) -> Dict[str, ServiceHealthInfo]:
+    async def check_all_service_health(self, service_names: List[str]) -> Dict[str, ServiceHealthInfo]:
         """
         Check health for multiple services efficiently.
 

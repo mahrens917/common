@@ -29,9 +29,7 @@ class TestStatePersistence:
         }
         persistence = StatePersistence(state)
 
-        with patch(
-            "common.daily_max_state_helpers.state_manager.StateManager.reset_for_new_day"
-        ) as mock_reset:
+        with patch("common.daily_max_state_helpers.state_manager.StateManager.reset_for_new_day") as mock_reset:
             persistence.reset_for_new_day()
             mock_reset.assert_called_once_with(state)
 
@@ -47,9 +45,7 @@ class TestStatePersistence:
         }
         persistence = StatePersistence(state)
 
-        with patch(
-            "common.daily_max_state_helpers.state_manager.StateManager.get_state_dict"
-        ) as mock_get:
+        with patch("common.daily_max_state_helpers.state_manager.StateManager.get_state_dict") as mock_get:
             mock_get.return_value = {"serialized": True}
             result = persistence.get_state_dict()
             mock_get.assert_called_once_with(state)
@@ -61,9 +57,7 @@ class TestStatePersistence:
         state_dict = {"max_temp_c": 25.5}
         persistence = StatePersistence(state)
 
-        with patch(
-            "common.daily_max_state_helpers.state_manager.StateManager.load_from_state_dict"
-        ) as mock_load:
+        with patch("common.daily_max_state_helpers.state_manager.StateManager.load_from_state_dict") as mock_load:
             persistence.load_from_state_dict(state_dict)
             mock_load.assert_called_once_with(state, state_dict)
 

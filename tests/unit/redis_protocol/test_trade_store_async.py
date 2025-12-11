@@ -131,9 +131,7 @@ async def test_mark_trade_settled_updates_payload(monkeypatch, fake_redis_client
     await store.store_trade(trade)
 
     settled_at = datetime(2024, 1, 3, 9, tzinfo=timezone.utc)
-    result = await store.mark_trade_settled(
-        trade.order_id, settlement_price_cents=75, settled_at=settled_at
-    )
+    result = await store.mark_trade_settled(trade.order_id, settlement_price_cents=75, settled_at=settled_at)
     assert result is True
 
     refreshed = await store.get_trade_by_order_id(trade.order_id)
@@ -175,9 +173,7 @@ async def test_order_metadata_with_optional_fields(monkeypatch, fake_redis_clien
 
 
 @pytest.mark.asyncio
-async def test_get_trade_by_order_id_raises_on_invalid_payload(
-    monkeypatch, fake_redis_client_factory
-):
+async def test_get_trade_by_order_id_raises_on_invalid_payload(monkeypatch, fake_redis_client_factory):
     store, fake = _build_store(monkeypatch, fake_redis_client_factory)
     trade = _make_trade()
     await store.store_trade(trade)
@@ -211,9 +207,7 @@ async def test_store_order_metadata_rejects_empty_reason(monkeypatch, fake_redis
 
 
 @pytest.mark.asyncio
-async def test_mark_trade_settled_returns_false_when_order_missing(
-    monkeypatch, fake_redis_client_factory
-):
+async def test_mark_trade_settled_returns_false_when_order_missing(monkeypatch, fake_redis_client_factory):
     store, _ = _build_store(monkeypatch, fake_redis_client_factory)
 
     with pytest.raises(TradeStoreError, match="not indexed"):
@@ -233,9 +227,7 @@ async def test_get_order_metadata_handles_invalid_json(monkeypatch, fake_redis_c
 @pytest.mark.asyncio
 async def test_mark_trade_settled_handles_exception(monkeypatch, fake_redis_client_factory):
     store, _ = _build_store(monkeypatch, fake_redis_client_factory)
-    store._repository._redis_provider = AsyncMock(  # type: ignore[attr-defined]
-        side_effect=RuntimeError("mark error")
-    )
+    store._repository._redis_provider = AsyncMock(side_effect=RuntimeError("mark error"))  # type: ignore[attr-defined]
 
     with pytest.raises(TradeStoreError, match="mark_trade_settled failed"):
         await store.mark_trade_settled("order", settlement_price_cents=90)
@@ -262,9 +254,7 @@ async def test_get_trade_converts_naive_datetimes(monkeypatch, fake_redis_client
 
 
 @pytest.mark.asyncio
-async def test_get_trade_by_order_id_raises_on_missing_field(
-    monkeypatch, fake_redis_client_factory
-):
+async def test_get_trade_by_order_id_raises_on_missing_field(monkeypatch, fake_redis_client_factory):
     store, fake = _build_store(monkeypatch, fake_redis_client_factory)
     trade = _make_trade(order_id="missing-field")
     await store.store_trade(trade)
@@ -280,9 +270,7 @@ async def test_get_trade_by_order_id_raises_on_missing_field(
 
 
 @pytest.mark.asyncio
-async def test_get_trade_by_order_id_raises_on_empty_trade_rule(
-    monkeypatch, fake_redis_client_factory
-):
+async def test_get_trade_by_order_id_raises_on_empty_trade_rule(monkeypatch, fake_redis_client_factory):
     store, fake = _build_store(monkeypatch, fake_redis_client_factory)
     trade = _make_trade(order_id="empty-rule")
     await store.store_trade(trade)
@@ -298,9 +286,7 @@ async def test_get_trade_by_order_id_raises_on_empty_trade_rule(
 
 
 @pytest.mark.asyncio
-async def test_get_trade_by_order_id_raises_on_empty_trade_reason(
-    monkeypatch, fake_redis_client_factory
-):
+async def test_get_trade_by_order_id_raises_on_empty_trade_reason(monkeypatch, fake_redis_client_factory):
     store, fake = _build_store(monkeypatch, fake_redis_client_factory)
     trade = _make_trade(order_id="empty-reason")
     await store.store_trade(trade)
@@ -350,9 +336,7 @@ async def test_store_trade_detects_pipeline_failure(monkeypatch):
 
 
 @pytest.mark.asyncio
-async def test_mark_trade_settled_returns_false_when_trade_missing(
-    monkeypatch, fake_redis_client_factory
-):
+async def test_mark_trade_settled_returns_false_when_trade_missing(monkeypatch, fake_redis_client_factory):
     store, fake = _build_store(monkeypatch, fake_redis_client_factory)
     order_index_key = KEYS.order_index("missing-order")
     await fake.set(order_index_key, "trades:2024-01-02:missing-order")
@@ -386,9 +370,7 @@ async def test_get_trade_raises_on_missing_field(monkeypatch, fake_redis_client_
 
 
 @pytest.mark.asyncio
-async def test_get_trade_by_order_id_returns_none_when_not_indexed(
-    monkeypatch, fake_redis_client_factory
-):
+async def test_get_trade_by_order_id_returns_none_when_not_indexed(monkeypatch, fake_redis_client_factory):
     store, _ = _build_store(monkeypatch, fake_redis_client_factory)
 
     result = await store.get_trade_by_order_id("unknown")
@@ -396,9 +378,7 @@ async def test_get_trade_by_order_id_returns_none_when_not_indexed(
 
 
 @pytest.mark.asyncio
-async def test_get_trade_by_order_id_returns_none_when_trade_missing(
-    monkeypatch, fake_redis_client_factory
-):
+async def test_get_trade_by_order_id_returns_none_when_trade_missing(monkeypatch, fake_redis_client_factory):
     store, fake = _build_store(monkeypatch, fake_redis_client_factory)
     trade = _make_trade()
     await store.store_trade(trade)
@@ -411,9 +391,7 @@ async def test_get_trade_by_order_id_returns_none_when_trade_missing(
 
 
 @pytest.mark.asyncio
-async def test_get_trade_by_order_id_converts_naive_datetimes(
-    monkeypatch, fake_redis_client_factory
-):
+async def test_get_trade_by_order_id_converts_naive_datetimes(monkeypatch, fake_redis_client_factory):
     store, fake = _build_store(monkeypatch, fake_redis_client_factory)
     trade = _make_trade(order_id="naive-order")
     trade.trade_timestamp = datetime(2024, 1, 2, 15, 30)
@@ -530,9 +508,7 @@ async def test_close_handles_close_errors(monkeypatch):
 
 
 @pytest.mark.asyncio
-async def test_get_trades_by_date_range_respects_historical_start(
-    monkeypatch, fake_redis_client_factory
-):
+async def test_get_trades_by_date_range_respects_historical_start(monkeypatch, fake_redis_client_factory):
     store, _ = _build_store(monkeypatch, fake_redis_client_factory)
     store._queries._start_date_loader = lambda: date(2024, 1, 3)  # type: ignore[attr-defined]
 
@@ -570,9 +546,7 @@ async def test_get_trades_by_date_range_propagates_errors(monkeypatch, fake_redi
 
 
 @pytest.mark.asyncio
-async def test_get_trades_by_date_range_rejects_start_before_history(
-    monkeypatch, fake_redis_client_factory
-):
+async def test_get_trades_by_date_range_rejects_start_before_history(monkeypatch, fake_redis_client_factory):
     store, _ = _build_store(monkeypatch, fake_redis_client_factory)
 
     store._queries._start_date_loader = lambda: date(2024, 1, 5)  # type: ignore[attr-defined]
@@ -582,9 +556,7 @@ async def test_get_trades_by_date_range_rejects_start_before_history(
 
 
 @pytest.mark.asyncio
-async def test_get_trades_by_date_range_rejects_end_before_history(
-    monkeypatch, fake_redis_client_factory
-):
+async def test_get_trades_by_date_range_rejects_end_before_history(monkeypatch, fake_redis_client_factory):
     store, _ = _build_store(monkeypatch, fake_redis_client_factory)
 
     store._queries._start_date_loader = lambda: date(2024, 1, 5)  # type: ignore[attr-defined]
@@ -607,9 +579,7 @@ async def test_get_trades_by_station_returns_results(monkeypatch, fake_redis_cli
 @pytest.mark.asyncio
 async def test_get_trades_by_station_handles_errors(monkeypatch, fake_redis_client_factory):
     store, _ = _build_store(monkeypatch, fake_redis_client_factory)
-    store._repository._redis_provider = AsyncMock(  # type: ignore[attr-defined]
-        side_effect=RuntimeError("station error")
-    )
+    store._repository._redis_provider = AsyncMock(side_effect=RuntimeError("station error"))  # type: ignore[attr-defined]
 
     with pytest.raises(TradeStoreError, match="get_trades_by_station failed"):
         await store.get_trades_by_station("NYC")
@@ -629,9 +599,7 @@ async def test_get_trades_by_rule_returns_results(monkeypatch, fake_redis_client
 @pytest.mark.asyncio
 async def test_get_trades_by_rule_handles_errors(monkeypatch, fake_redis_client_factory):
     store, _ = _build_store(monkeypatch, fake_redis_client_factory)
-    store._repository._redis_provider = AsyncMock(  # type: ignore[attr-defined]
-        side_effect=RuntimeError("rule error")
-    )
+    store._repository._redis_provider = AsyncMock(side_effect=RuntimeError("rule error"))  # type: ignore[attr-defined]
 
     with pytest.raises(TradeStoreError, match="get_trades_by_rule failed"):
         await store.get_trades_by_rule("rule_3")
@@ -662,9 +630,7 @@ async def test_store_and_get_daily_summary(monkeypatch, fake_redis_client_factor
 @pytest.mark.asyncio
 async def test_store_daily_summary_handles_error(monkeypatch, fake_redis_client_factory):
     store, _ = _build_store(monkeypatch, fake_redis_client_factory)
-    store._pnl._redis_provider = AsyncMock(  # type: ignore[attr-defined]
-        side_effect=RuntimeError("summary error")
-    )
+    store._pnl._redis_provider = AsyncMock(side_effect=RuntimeError("summary error"))  # type: ignore[attr-defined]
 
     summary = PnLReport(
         report_date=date(2024, 1, 6),
@@ -693,9 +659,7 @@ async def test_get_daily_summary_returns_none_when_missing(monkeypatch, fake_red
 @pytest.mark.asyncio
 async def test_get_daily_summary_handles_error(monkeypatch, fake_redis_client_factory):
     store, _ = _build_store(monkeypatch, fake_redis_client_factory)
-    store._pnl._redis_provider = AsyncMock(  # type: ignore[attr-defined]
-        side_effect=RuntimeError("summary read error")
-    )
+    store._pnl._redis_provider = AsyncMock(side_effect=RuntimeError("summary read error"))  # type: ignore[attr-defined]
 
     with pytest.raises(TradeStoreError, match="get_daily_summary failed"):
         await store.get_daily_summary(date(2024, 1, 7))
@@ -725,9 +689,7 @@ async def test_get_trades_closed_today_filters(monkeypatch, fake_redis_client_fa
 @pytest.mark.asyncio
 async def test_get_trades_closed_today_raises(monkeypatch, fake_redis_client_factory):
     store, _ = _build_store(monkeypatch, fake_redis_client_factory)
-    store._queries.trades_closed_today = AsyncMock(  # type: ignore[attr-defined]
-        side_effect=TradeStoreError("closed today error")
-    )
+    store._queries.trades_closed_today = AsyncMock(side_effect=TradeStoreError("closed today error"))  # type: ignore[attr-defined]
 
     with pytest.raises(TradeStoreError, match="closed today error"):
         await store.get_trades_closed_today()
@@ -761,9 +723,7 @@ async def test_get_trades_closed_yesterday_filters(monkeypatch, fake_redis_clien
 @pytest.mark.asyncio
 async def test_get_trades_closed_yesterday_raises(monkeypatch, fake_redis_client_factory):
     store, _ = _build_store(monkeypatch, fake_redis_client_factory)
-    store._queries.trades_closed_yesterday = AsyncMock(  # type: ignore[attr-defined]
-        side_effect=TradeStoreError("closed yesterday error")
-    )
+    store._queries.trades_closed_yesterday = AsyncMock(side_effect=TradeStoreError("closed yesterday error"))  # type: ignore[attr-defined]
 
     with pytest.raises(TradeStoreError, match="closed yesterday error"):
         await store.get_trades_closed_yesterday()
@@ -782,9 +742,7 @@ async def test_get_unrealized_trades_for_date(monkeypatch, fake_redis_client_fac
 @pytest.mark.asyncio
 async def test_get_unrealized_trades_for_date_raises(monkeypatch, fake_redis_client_factory):
     store, _ = _build_store(monkeypatch, fake_redis_client_factory)
-    store._queries.trades_by_date_range = AsyncMock(  # type: ignore[attr-defined]
-        side_effect=TradeStoreError("unrealized error")
-    )
+    store._queries.trades_by_date_range = AsyncMock(side_effect=TradeStoreError("unrealized error"))  # type: ignore[attr-defined]
 
     with pytest.raises(TradeStoreError, match="unrealized error"):
         await store.get_unrealized_trades_for_date(date(2024, 1, 11))
@@ -805,18 +763,14 @@ async def test_store_and_get_unrealized_pnl_data(monkeypatch, fake_redis_client_
 @pytest.mark.asyncio
 async def test_store_unrealized_pnl_data_handles_error(monkeypatch, fake_redis_client_factory):
     store, _ = _build_store(monkeypatch, fake_redis_client_factory)
-    store._pnl._redis_provider = AsyncMock(  # type: ignore[attr-defined]
-        side_effect=RuntimeError("unrealized store error")
-    )
+    store._pnl._redis_provider = AsyncMock(side_effect=RuntimeError("unrealized store error"))  # type: ignore[attr-defined]
 
     with pytest.raises(TradeStoreError, match="store_unrealized_pnl_data failed"):
         await store.store_unrealized_pnl_data("pnl:error", {"value": 1})
 
 
 @pytest.mark.asyncio
-async def test_get_unrealized_pnl_data_returns_none_when_missing(
-    monkeypatch, fake_redis_client_factory
-):
+async def test_get_unrealized_pnl_data_returns_none_when_missing(monkeypatch, fake_redis_client_factory):
     store, _ = _build_store(monkeypatch, fake_redis_client_factory)
 
     data = await store.get_unrealized_pnl_data("pnl:missing")
@@ -826,9 +780,7 @@ async def test_get_unrealized_pnl_data_returns_none_when_missing(
 @pytest.mark.asyncio
 async def test_get_unrealized_pnl_data_handles_error(monkeypatch, fake_redis_client_factory):
     store, _ = _build_store(monkeypatch, fake_redis_client_factory)
-    store._pnl._redis_provider = AsyncMock(  # type: ignore[attr-defined]
-        side_effect=RuntimeError("unrealized read error")
-    )
+    store._pnl._redis_provider = AsyncMock(side_effect=RuntimeError("unrealized read error"))  # type: ignore[attr-defined]
 
     with pytest.raises(TradeStoreError, match="get_unrealized_pnl_data failed"):
         await store.get_unrealized_pnl_data("pnl:error")
@@ -837,12 +789,8 @@ async def test_get_unrealized_pnl_data_handles_error(monkeypatch, fake_redis_cli
 @pytest.mark.asyncio
 async def test_get_unrealized_pnl_history(monkeypatch, fake_redis_client_factory):
     store, fake = _build_store(monkeypatch, fake_redis_client_factory)
-    await fake.set(
-        KEYS.unrealized_pnl(date(2024, 1, 12)), orjson.dumps({"value": 1}).decode("utf-8")
-    )
-    await fake.set(
-        KEYS.unrealized_pnl(date(2024, 1, 13)), orjson.dumps({"value": 2}).decode("utf-8")
-    )
+    await fake.set(KEYS.unrealized_pnl(date(2024, 1, 12)), orjson.dumps({"value": 1}).decode("utf-8"))
+    await fake.set(KEYS.unrealized_pnl(date(2024, 1, 13)), orjson.dumps({"value": 2}).decode("utf-8"))
 
     history = await store.get_unrealized_pnl_history(date(2024, 1, 12), date(2024, 1, 13))
     assert len(history) == _TEST_COUNT_2
@@ -851,9 +799,7 @@ async def test_get_unrealized_pnl_history(monkeypatch, fake_redis_client_factory
 @pytest.mark.asyncio
 async def test_get_unrealized_pnl_history_handles_errors(monkeypatch, fake_redis_client_factory):
     store, _ = _build_store(monkeypatch, fake_redis_client_factory)
-    store._pnl._redis_provider = AsyncMock(  # type: ignore[attr-defined]
-        side_effect=RuntimeError("history error")
-    )
+    store._pnl._redis_provider = AsyncMock(side_effect=RuntimeError("history error"))  # type: ignore[attr-defined]
 
     with pytest.raises(TradeStoreError, match="get_unrealized_pnl_history failed"):
         await store.get_unrealized_pnl_history(date(2024, 1, 12), date(2024, 1, 13))
@@ -880,9 +826,7 @@ async def test_update_trade_prices_updates_records(monkeypatch, fake_redis_clien
 @pytest.mark.asyncio
 async def test_update_trade_prices_raises_on_error(monkeypatch, fake_redis_client_factory):
     store, _ = _build_store(monkeypatch, fake_redis_client_factory)
-    store._repository._redis_provider = AsyncMock(  # type: ignore[attr-defined]
-        side_effect=RuntimeError("price error")
-    )
+    store._repository._redis_provider = AsyncMock(side_effect=RuntimeError("price error"))  # type: ignore[attr-defined]
     store._price_updater._timezone_date = lambda tz: date(2024, 1, 14)  # type: ignore[attr-defined]
 
     with pytest.raises(TradeStoreError, match="update_trade_prices failed"):

@@ -39,39 +39,23 @@ class SurfaceValidator:
             raise DataIntegrityError(f"None prediction result not allowed for {variable_name}")
 
         if not isinstance(prediction_result, Iterable):
-            raise DataIntegrityError(
-                f"Cannot iterate {variable_name} for tuple conversion: {type(prediction_result)}"
-            )
+            raise DataIntegrityError(f"Cannot iterate {variable_name} for tuple conversion: {type(prediction_result)}")
 
         result_tuple = tuple(prediction_result)
 
         if len(result_tuple) != _CONST_6:
-            raise DataIntegrityError(
-                f"{variable_name} must have 6 elements, got {len(result_tuple)}"
-            )
+            raise DataIntegrityError(f"{variable_name} must have 6 elements, got {len(result_tuple)}")
 
         # Validate each element
         # g_fit is a log spread value, so negative values are allowed (log of values < 1)
-        g_fit = NumericValidator.validate_numeric_value(
-            result_tuple[0], f"{variable_name}[0] (g_fit)", allow_negative=True
-        )
+        g_fit = NumericValidator.validate_numeric_value(result_tuple[0], f"{variable_name}[0] (g_fit)", allow_negative=True)
         # h_fit is a logit intensity value, so negative values are allowed (logit can be negative)
-        h_fit = NumericValidator.validate_numeric_value(
-            result_tuple[1], f"{variable_name}[1] (h_fit)", allow_negative=True
-        )
+        h_fit = NumericValidator.validate_numeric_value(result_tuple[1], f"{variable_name}[1] (h_fit)", allow_negative=True)
         # p_fit can be negative if it's a log micro price
-        p_fit = NumericValidator.validate_numeric_value(
-            result_tuple[2], f"{variable_name}[2] (p_fit)", allow_negative=True
-        )
-        S_fit = NumericValidator.validate_numeric_value(
-            result_tuple[3], f"{variable_name}[3] (S_fit)", allow_zero=False
-        )
-        I_fit = NumericValidator.validate_numeric_value(
-            result_tuple[4], f"{variable_name}[4] (I_fit)", min_value=0.0, max_value=1.0
-        )
-        p_micro_fit = NumericValidator.validate_numeric_value(
-            result_tuple[5], f"{variable_name}[5] (p_micro_fit)", allow_zero=False
-        )
+        p_fit = NumericValidator.validate_numeric_value(result_tuple[2], f"{variable_name}[2] (p_fit)", allow_negative=True)
+        S_fit = NumericValidator.validate_numeric_value(result_tuple[3], f"{variable_name}[3] (S_fit)", allow_zero=False)
+        I_fit = NumericValidator.validate_numeric_value(result_tuple[4], f"{variable_name}[4] (I_fit)", min_value=0.0, max_value=1.0)
+        p_micro_fit = NumericValidator.validate_numeric_value(result_tuple[5], f"{variable_name}[5] (p_micro_fit)", allow_zero=False)
 
         return g_fit, h_fit, p_fit, S_fit, I_fit, p_micro_fit
 
@@ -105,8 +89,7 @@ class SurfaceValidator:
         if missing_methods:
             available_methods = [method for method in dir(surface) if not method.startswith("_")]
             raise DataIntegrityError(
-                f"{variable_name} missing required methods: {missing_methods}. "
-                f"Available methods: {available_methods}"
+                f"{variable_name} missing required methods: {missing_methods}. " f"Available methods: {available_methods}"
             )
 
         return surface

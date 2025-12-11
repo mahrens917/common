@@ -16,9 +16,7 @@ class RedisInstrumentScanner:
     def __init__(self, redis_getter):
         self._get_redis = redis_getter
 
-    async def scan_and_fetch_instruments(
-        self, currency: str
-    ) -> List[Tuple[str, Any, Dict[str, Any]]]:
+    async def scan_and_fetch_instruments(self, currency: str) -> List[Tuple[str, Any, Dict[str, Any]]]:
         try:
             logger.info("KEY_SCAN_DEBUG: Loading instruments for currency %s", currency)
             redis_client = await self._get_redis()
@@ -48,9 +46,7 @@ class RedisInstrumentScanner:
         keys: Set[str] = set()
         cursor = 0
         while True:
-            cursor, batch = await redis_client.scan(
-                cursor=cursor, match=pattern, count=config.PDF_SCAN_COUNT
-            )
+            cursor, batch = await redis_client.scan(cursor=cursor, match=pattern, count=config.PDF_SCAN_COUNT)
             keys.update(batch)
             if cursor == 0:
                 break
@@ -69,9 +65,7 @@ class RedisInstrumentScanner:
             descriptors.append((key, descriptor))
         return descriptors
 
-    async def _fetch_data(
-        self, redis_client, descriptors: List[Tuple[str, Any]]
-    ) -> List[Dict[str, Any]]:
+    async def _fetch_data(self, redis_client, descriptors: List[Tuple[str, Any]]) -> List[Dict[str, Any]]:
         async with redis_client.pipeline() as pipe:
             for key, _ in descriptors:
                 pipe.hgetall(key)

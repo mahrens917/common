@@ -35,9 +35,7 @@ class TestPriceDataCollector:
         """Test BTC price collection fails."""
         with patch("common.redis_protocol.market_store.DeribitStore") as mock_deribit_store:
             mock_store_instance = mock_deribit_store.return_value
-            mock_store_instance.get_usdc_micro_price = AsyncMock(
-                side_effect=[Exception("BTC error"), 4000.0]
-            )
+            mock_store_instance.get_usdc_micro_price = AsyncMock(side_effect=[Exception("BTC error"), 4000.0])
 
             result = await collector.collect_price_data()
 
@@ -48,9 +46,7 @@ class TestPriceDataCollector:
         """Test ETH price collection fails."""
         with patch("common.redis_protocol.market_store.DeribitStore") as mock_deribit_store:
             mock_store_instance = mock_deribit_store.return_value
-            mock_store_instance.get_usdc_micro_price = AsyncMock(
-                side_effect=[70000.0, Exception("ETH error")]
-            )
+            mock_store_instance.get_usdc_micro_price = AsyncMock(side_effect=[70000.0, Exception("ETH error")])
 
             result = await collector.collect_price_data()
 
@@ -61,9 +57,7 @@ class TestPriceDataCollector:
         """Test both BTC and ETH price collection fail."""
         with patch("common.redis_protocol.market_store.DeribitStore") as mock_deribit_store:
             mock_store_instance = mock_deribit_store.return_value
-            mock_store_instance.get_usdc_micro_price = AsyncMock(
-                side_effect=[Exception("BTC error"), Exception("ETH error")]
-            )
+            mock_store_instance.get_usdc_micro_price = AsyncMock(side_effect=[Exception("BTC error"), Exception("ETH error")])
 
             result = await collector.collect_price_data()
 

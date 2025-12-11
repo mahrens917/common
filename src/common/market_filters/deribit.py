@@ -54,9 +54,7 @@ def validate_deribit_option(
 
     # Validate quote timestamp
     quote_timestamp = QuoteTimestampValidator.extract_timestamp(instrument)
-    timestamp_error = QuoteTimestampValidator.validate_timestamp(
-        quote_timestamp, current_time, MAX_QUOTE_AGE
-    )
+    timestamp_error = QuoteTimestampValidator.validate_timestamp(quote_timestamp, current_time, MAX_QUOTE_AGE)
     if timestamp_error:
         return DeribitOptionValidation(False, reason=timestamp_error)
 

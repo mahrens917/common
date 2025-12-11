@@ -38,11 +38,7 @@ class ProcessMonitorScanMixin:
             await self._perform_incremental_scan()
 
     async def _perform_incremental_scan_impl(self) -> bool:
-        dead_pids = [
-            pid
-            for pid in list(self._cache_manager.process_cache.keys())
-            if not psutil.pid_exists(pid)
-        ]
+        dead_pids = [pid for pid in list(self._cache_manager.process_cache.keys()) if not psutil.pid_exists(pid)]
         for pid in dead_pids:
             self._cache_manager.process_cache.pop(pid, None)
         if dead_pids:

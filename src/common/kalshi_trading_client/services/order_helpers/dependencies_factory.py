@@ -107,9 +107,7 @@ def _create_resolvers_and_calculators(metadata_resolver, fee_calculator, weather
     return resolver, calculator
 
 
-def _create_fetchers(
-    canceller, fills_fetcher, metadata_fetcher, kalshi_client, trade_store_getter, telegram_handler
-):
+def _create_fetchers(canceller, fills_fetcher, metadata_fetcher, kalshi_client, trade_store_getter, telegram_handler):
     """Create canceller, fills fetcher, and metadata fetcher if not provided."""
     cancel = canceller or OrderCanceller(kalshi_client)
     fills = fills_fetcher or FillsFetcher(kalshi_client)
@@ -143,9 +141,7 @@ def _create_coordinators(
         ctx.metadata_resolver,
         ctx.validator,
     )
-    poll_coord = ctx.poller or OrderPollerCoordinator(
-        ctx.kalshi_client, ctx.order_poller_factory, ctx.trade_finalizer_factory
-    )
+    poll_coord = ctx.poller or OrderPollerCoordinator(ctx.kalshi_client, ctx.order_poller_factory, ctx.trade_finalizer_factory)
     return creator, poll_coord
 
 
@@ -236,12 +232,8 @@ class OrderServiceDependenciesFactory:
         canceller = OrderCanceller(kalshi_client)
         fills_fetcher = FillsFetcher(kalshi_client)
         metadata_fetcher = MetadataFetcher(trade_store_getter, telegram_handler)
-        order_creator = OrderCreator(
-            kalshi_client, trade_store_getter, notifier, metadata_resolver, validator
-        )
-        poller = OrderPollerCoordinator(
-            kalshi_client, order_poller_factory, trade_finalizer_factory
-        )
+        order_creator = OrderCreator(kalshi_client, trade_store_getter, notifier, metadata_resolver, validator)
+        poller = OrderPollerCoordinator(kalshi_client, order_poller_factory, trade_finalizer_factory)
         validation_ops, fills_ops, metadata_ops = build_operation_helpers(
             validator,
             parser,

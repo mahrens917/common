@@ -43,9 +43,7 @@ class ServiceTypeManager:
             custom_mapping: Optional custom mapping of service names to types
         """
         self.service_type_mapping = custom_mapping or DEFAULT_SERVICE_TYPE_MAPPING.copy()
-        logger.debug(
-            f"Initialized service type manager with {len(self.service_type_mapping)} mappings"
-        )
+        logger.debug(f"Initialized service type manager with {len(self.service_type_mapping)} mappings")
 
     def get_service_type(self, service_name: str) -> ServiceType:
         """

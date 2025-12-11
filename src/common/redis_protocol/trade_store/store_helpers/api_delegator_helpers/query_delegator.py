@@ -28,27 +28,19 @@ class QueryDelegator:
 
     async def get_trades_by_station(self, station: str) -> list[TradeRecord]:
         """Get trades for a specific weather station"""
-        return await self._executor.run_with_redis_guard(
-            "get_trades_by_station", lambda: self._queries.trades_by_station(station)
-        )
+        return await self._executor.run_with_redis_guard("get_trades_by_station", lambda: self._queries.trades_by_station(station))
 
     async def get_trades_by_rule(self, rule: str) -> list[TradeRecord]:
         """Get trades for a specific trading rule"""
-        return await self._executor.run_with_redis_guard(
-            "get_trades_by_rule", lambda: self._queries.trades_by_rule(rule)
-        )
+        return await self._executor.run_with_redis_guard("get_trades_by_rule", lambda: self._queries.trades_by_rule(rule))
 
     async def get_trades_closed_today(self) -> list[TradeRecord]:
         """Get trades closed today"""
-        return await self._executor.run_with_redis_guard(
-            "get_trades_closed_today", self._queries.trades_closed_today
-        )
+        return await self._executor.run_with_redis_guard("get_trades_closed_today", self._queries.trades_closed_today)
 
     async def get_trades_closed_yesterday(self) -> list[TradeRecord]:
         """Get trades closed yesterday"""
-        return await self._executor.run_with_redis_guard(
-            "get_trades_closed_yesterday", self._queries.trades_closed_yesterday
-        )
+        return await self._executor.run_with_redis_guard("get_trades_closed_yesterday", self._queries.trades_closed_yesterday)
 
     async def get_unrealized_trades_for_date(self, target_date: date) -> list[TradeRecord]:
         """Get unrealized trades for a specific date"""

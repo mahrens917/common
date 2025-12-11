@@ -11,30 +11,20 @@ from common.data_models.trading_helpers.order_request_validator import (
 
 class TestOrderRequestValidator(unittest.TestCase):
     def test_validate_order_request_enums_success(self):
-        validate_order_request_enums(
-            OrderAction.BUY, OrderSide.YES, OrderType.LIMIT, TimeInForce.GOOD_TILL_CANCELLED
-        )
+        validate_order_request_enums(OrderAction.BUY, OrderSide.YES, OrderType.LIMIT, TimeInForce.GOOD_TILL_CANCELLED)
 
     def test_validate_order_request_enums_failure(self):
         with self.assertRaises(TypeError):
-            validate_order_request_enums(
-                "BUY", OrderSide.YES, OrderType.LIMIT, TimeInForce.GOOD_TILL_CANCELLED
-            )
+            validate_order_request_enums("BUY", OrderSide.YES, OrderType.LIMIT, TimeInForce.GOOD_TILL_CANCELLED)
 
         with self.assertRaises(TypeError):
-            validate_order_request_enums(
-                OrderAction.BUY, "YES", OrderType.LIMIT, TimeInForce.GOOD_TILL_CANCELLED
-            )
+            validate_order_request_enums(OrderAction.BUY, "YES", OrderType.LIMIT, TimeInForce.GOOD_TILL_CANCELLED)
 
         with self.assertRaises(TypeError):
-            validate_order_request_enums(
-                OrderAction.BUY, OrderSide.YES, "LIMIT", TimeInForce.GOOD_TILL_CANCELLED
-            )
+            validate_order_request_enums(OrderAction.BUY, OrderSide.YES, "LIMIT", TimeInForce.GOOD_TILL_CANCELLED)
 
         with self.assertRaises(TypeError):
-            validate_order_request_enums(
-                OrderAction.BUY, OrderSide.YES, OrderType.LIMIT, "GOOD_TILL_CANCELLED"
-            )
+            validate_order_request_enums(OrderAction.BUY, OrderSide.YES, OrderType.LIMIT, "GOOD_TILL_CANCELLED")
 
     def test_validate_order_request_price_limit(self):
         validate_order_request_price(OrderType.LIMIT, 50)
@@ -62,9 +52,7 @@ class TestOrderRequestValidator(unittest.TestCase):
             validate_order_request_price(OrderType.MARKET, 100)
 
     def test_validate_order_request_metadata_success(self):
-        validate_order_request_metadata(
-            "TICKER", 10, "client_id", "rule", "reason longer than 10 chars"
-        )
+        validate_order_request_metadata("TICKER", 10, "client_id", "rule", "reason longer than 10 chars")
 
     def test_validate_order_request_metadata_failure(self):
         with self.assertRaises(ValueError):

@@ -44,7 +44,5 @@ class TestBasicPnLFormatter(unittest.TestCase):
         self.assertIn("Rule Breakdown", result)
 
         self.mock_emoji_selector.get_pnl_emoji.assert_called_with(50.0)
-        self.mock_station_formatter.format_station_breakdown.assert_called_with(
-            mock_report.by_weather_station
-        )
+        self.mock_station_formatter.format_station_breakdown.assert_called_with(mock_report.by_weather_station)
         self.mock_rule_formatter.format_rule_breakdown.assert_called_with(mock_report.by_rule)

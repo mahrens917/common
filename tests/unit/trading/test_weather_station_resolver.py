@@ -44,9 +44,7 @@ def test_resolver_refresh_updates_lookup(base_mapping: Dict[str, Dict]) -> None:
         ("KXHIGHCHI-25JAN01", "Weather station 'CHI' not found"),
     ],
 )
-def test_resolver_validation_errors(
-    ticker: str, message: str, base_mapping: Dict[str, Dict]
-) -> None:
+def test_resolver_validation_errors(ticker: str, message: str, base_mapping: Dict[str, Dict]) -> None:
     resolver = WeatherStationResolver(mapping=base_mapping)
     with pytest.raises(ValueError) as exc:
         resolver.resolve_ticker(ticker)
@@ -78,9 +76,7 @@ def test_load_weather_station_mapping_returns_payload(monkeypatch: pytest.Monkey
     assert load_weather_station_mapping(Path("unused")) == payload["mappings"]
 
 
-def test_load_weather_station_mapping_uses_config_loader(
-    monkeypatch: pytest.MonkeyPatch, base_mapping: Dict[str, Dict]
-) -> None:
+def test_load_weather_station_mapping_uses_config_loader(monkeypatch: pytest.MonkeyPatch, base_mapping: Dict[str, Dict]) -> None:
     monkeypatch.setattr(
         "common.trading.weather_station._load_config_weather_station_mapping",
         lambda: base_mapping,

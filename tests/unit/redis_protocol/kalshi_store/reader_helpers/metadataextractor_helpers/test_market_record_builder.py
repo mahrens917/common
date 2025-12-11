@@ -88,9 +88,7 @@ def test_market_record_builder_missing_hash_raises():
         strike_resolver=StubStrikeResolver(1.0),
     )
     with pytest.raises(MarketSkip) as exc:
-        builder.create_market_record(
-            "ABC", {}, currency="usd", now=datetime(2024, 1, 1, tzinfo=timezone.utc)
-        )
+        builder.create_market_record("ABC", {}, currency="usd", now=datetime(2024, 1, 1, tzinfo=timezone.utc))
     assert exc.value.reason == "missing_metadata"
 
 
@@ -103,9 +101,7 @@ def test_market_record_builder_closed_status_raises():
     raw_hash = _build_raw_hash()
     raw_hash["status"] = "closed"
     with pytest.raises(MarketSkip):
-        builder.create_market_record(
-            "ABC", raw_hash, currency="usd", now=datetime(2024, 1, 1, tzinfo=timezone.utc)
-        )
+        builder.create_market_record("ABC", raw_hash, currency="usd", now=datetime(2024, 1, 1, tzinfo=timezone.utc))
 
 
 def test_market_record_builder_missing_close_time_raises():
@@ -117,9 +113,7 @@ def test_market_record_builder_missing_close_time_raises():
     raw_hash = _build_raw_hash()
     raw_hash.pop("close_time", None)
     with pytest.raises(MarketSkip):
-        builder.create_market_record(
-            "ABC", raw_hash, currency="usd", now=datetime(2024, 1, 1, tzinfo=timezone.utc)
-        )
+        builder.create_market_record("ABC", raw_hash, currency="usd", now=datetime(2024, 1, 1, tzinfo=timezone.utc))
 
 
 def test_market_record_builder_expired_close_time_raises():
@@ -129,9 +123,7 @@ def test_market_record_builder_expired_close_time_raises():
         strike_resolver=StubStrikeResolver(1.0),
     )
     with pytest.raises(MarketSkip):
-        builder.create_market_record(
-            "ABC", _build_raw_hash(), currency="usd", now=datetime(2024, 1, 1, tzinfo=timezone.utc)
-        )
+        builder.create_market_record("ABC", _build_raw_hash(), currency="usd", now=datetime(2024, 1, 1, tzinfo=timezone.utc))
 
 
 def test_market_record_builder_missing_strike_raises():
@@ -141,9 +133,7 @@ def test_market_record_builder_missing_strike_raises():
         strike_resolver=StubStrikeResolver(None),
     )
     with pytest.raises(MarketSkip):
-        builder.create_market_record(
-            "ABC", _build_raw_hash(), currency="usd", now=datetime(2024, 1, 1, tzinfo=timezone.utc)
-        )
+        builder.create_market_record("ABC", _build_raw_hash(), currency="usd", now=datetime(2024, 1, 1, tzinfo=timezone.utc))
 
 
 def test_decode_metadata_payload_handles_invalid():

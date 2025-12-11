@@ -38,9 +38,7 @@ class PositionCloser:
     async def emergency_close_position(
         self, position: PortfolioPosition, reason: str = "Emergency closure"
     ) -> Tuple[bool, Optional[OrderResponse], str]:
-        logger.warning(
-            "[PositionCloser] Emergency closing position %s: %s", position.ticker, reason
-        )
+        logger.warning("[PositionCloser] Emergency closing position %s: %s", position.ticker, reason)
         try:
             position_side = position.side
             if position_side is None:
@@ -62,9 +60,7 @@ class PositionCloser:
                 time_in_force=TimeInForce.IMMEDIATE_OR_CANCEL,
                 yes_price_cents=0,
             )
-            final_response = await self.trading_client.create_order_with_polling(
-                close_request, timeout_seconds=10
-            )
+            final_response = await self.trading_client.create_order_with_polling(close_request, timeout_seconds=10)
             filled_count = final_response.filled_count
             if filled_count is not None and filled_count > 0:
                 logger.info(
@@ -81,9 +77,5 @@ class PositionCloser:
             logger.exception("[PositionCloser] Failed to close position %s", position.ticker)
             return False, None, "Closure failed"
 
-    async def _wait_for_order_completion(
-        self, order_id: str, timeout_seconds: float = 30.0
-    ) -> Optional[OrderResponse]:
-        return await OrderCompletionWaiter.wait_for_order_completion(
-            order_id, self.trading_client, timeout_seconds
-        )
+    async def _wait_for_order_completion(self, order_id: str, timeout_seconds: float = 30.0) -> Optional[OrderResponse]:
+        return await OrderCompletionWaiter.wait_for_order_completion(order_id, self.trading_client, timeout_seconds)

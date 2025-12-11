@@ -30,13 +30,9 @@ class TestRecordConnectionEvent:
         mock_store.record_reconnection_event = AsyncMock()
         manager = EventManager(store=mock_store)
 
-        await manager.record_connection_event(
-            service_name="test_service", event_type="connected", details="Connection established"
-        )
+        await manager.record_connection_event(service_name="test_service", event_type="connected", details="Connection established")
 
-        mock_store.record_reconnection_event.assert_awaited_once_with(
-            "test_service", "connected", "Connection established"
-        )
+        mock_store.record_reconnection_event.assert_awaited_once_with("test_service", "connected", "Connection established")
 
     @pytest.mark.asyncio
     async def test_passes_empty_details_by_default(self) -> None:
@@ -57,13 +53,9 @@ class TestRecordConnectionEvent:
         mock_store.record_reconnection_event = AsyncMock()
         manager = EventManager(store=mock_store)
 
-        await manager.record_connection_event(
-            service_name="websocket", event_type="disconnected", details="Connection lost"
-        )
+        await manager.record_connection_event(service_name="websocket", event_type="disconnected", details="Connection lost")
 
-        mock_store.record_reconnection_event.assert_awaited_once_with(
-            "websocket", "disconnected", "Connection lost"
-        )
+        mock_store.record_reconnection_event.assert_awaited_once_with("websocket", "disconnected", "Connection lost")
 
     @pytest.mark.asyncio
     async def test_handles_different_service_names(self) -> None:
@@ -72,9 +64,7 @@ class TestRecordConnectionEvent:
         mock_store.record_reconnection_event = AsyncMock()
         manager = EventManager(store=mock_store)
 
-        await manager.record_connection_event(
-            service_name="kalshi_websocket", event_type="reconnecting"
-        )
+        await manager.record_connection_event(service_name="kalshi_websocket", event_type="reconnecting")
 
         call_args = mock_store.record_reconnection_event.call_args[0]
         assert call_args[0] == "kalshi_websocket"
@@ -103,9 +93,7 @@ class TestStoreServiceMetrics:
         mock_store.store_service_metrics = AsyncMock(return_value=False)
         manager = EventManager(store=mock_store)
 
-        result = await manager.store_service_metrics(
-            service_name="test_service", metrics={"count": 1}
-        )
+        result = await manager.store_service_metrics(service_name="test_service", metrics={"count": 1})
 
         assert result is False
 
@@ -154,9 +142,7 @@ class TestGetRecentConnectionEvents:
         mock_store.get_recent_reconnection_events = AsyncMock(return_value=expected_events)
         manager = EventManager(store=mock_store)
 
-        result = await manager.get_recent_connection_events(
-            service_name="test_service", hours_back=2
-        )
+        result = await manager.get_recent_connection_events(service_name="test_service", hours_back=2)
 
         mock_store.get_recent_reconnection_events.assert_awaited_once_with("test_service", 2)
         assert result == expected_events

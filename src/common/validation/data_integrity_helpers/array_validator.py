@@ -24,40 +24,28 @@ class ArrayValidator:
             raise DataIntegrityError(f"Cannot convert {variable_name} to numpy array") from exc
 
     @staticmethod
-    def _validate_size_constraints(
-        np_array: np.ndarray, variable_name: str, min_length: Optional[int], allow_empty: bool
-    ) -> None:
+    def _validate_size_constraints(np_array: np.ndarray, variable_name: str, min_length: Optional[int], allow_empty: bool) -> None:
         """Validate array size and length constraints."""
         if np_array.size == 0 and not allow_empty:
             raise DataIntegrityError(f"Empty array not allowed for {variable_name}")
         if min_length is not None and len(np_array) < min_length:
-            raise DataIntegrityError(
-                f"{variable_name} length {len(np_array)} below minimum {min_length}"
-            )
+            raise DataIntegrityError(f"{variable_name} length {len(np_array)} below minimum {min_length}")
 
     @staticmethod
-    def _validate_shape(
-        np_array: np.ndarray, variable_name: str, expected_shape: Optional[Tuple[int, ...]]
-    ) -> None:
+    def _validate_shape(np_array: np.ndarray, variable_name: str, expected_shape: Optional[Tuple[int, ...]]) -> None:
         """Validate array shape."""
         if expected_shape is not None and np_array.shape != expected_shape:
-            raise DataIntegrityError(
-                f"{variable_name} shape {np_array.shape} does not match expected {expected_shape}"
-            )
+            raise DataIntegrityError(f"{variable_name} shape {np_array.shape} does not match expected {expected_shape}")
 
     @staticmethod
     def _validate_finite_values(np_array: np.ndarray, variable_name: str) -> None:
         """Validate array contains only finite values (no NaN or infinity)."""
         if np.any(np.isnan(np_array)):
             nan_indices = np.where(np.isnan(np_array))
-            raise DataIntegrityError(
-                f"NaN values found in {variable_name} at indices: {nan_indices}"
-            )
+            raise DataIntegrityError(f"NaN values found in {variable_name} at indices: {nan_indices}")
         if np.any(np.isinf(np_array)):
             inf_indices = np.where(np.isinf(np_array))
-            raise DataIntegrityError(
-                f"Infinite values found in {variable_name} at indices: {inf_indices}"
-            )
+            raise DataIntegrityError(f"Infinite values found in {variable_name} at indices: {inf_indices}")
 
     @classmethod
     def validate_numpy_array(

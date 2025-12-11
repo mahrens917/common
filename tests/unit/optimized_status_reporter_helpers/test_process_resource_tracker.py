@@ -35,9 +35,7 @@ class TestProcessResourceTracker:
         assert tracker.get_process_resource_usage("service_A") == ""
 
     @patch("psutil.Process")
-    def test_get_process_resource_usage_success(
-        self, mock_psutil_process, tracker, mock_process_manager
-    ):
+    def test_get_process_resource_usage_success(self, mock_psutil_process, tracker, mock_process_manager):
         """Test returns formatted RAM usage on success."""
         mock_process_manager.process_info["service_A"] = Mock(pid=123)
 
@@ -62,9 +60,7 @@ class TestProcessResourceTracker:
         ],
     )
     @patch("psutil.Process")
-    def test_get_process_resource_usage_handles_exceptions(
-        self, mock_psutil_process, exception_class, tracker, mock_process_manager
-    ):
+    def test_get_process_resource_usage_handles_exceptions(self, mock_psutil_process, exception_class, tracker, mock_process_manager):
         """Test returns empty string when psutil.Process raises exceptions."""
         mock_process_manager.process_info["service_A"] = Mock(pid=123)
         mock_psutil_process.side_effect = exception_class("Test exception")

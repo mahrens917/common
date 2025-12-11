@@ -28,9 +28,7 @@ class SpotPriceFetcher:
         # Initialize helpers
         self._market_data_retriever = MarketDataRetriever(redis_getter)
         self._price_calculator = PriceCalculator()
-        self._usdc_price_fetcher = UsdcPriceFetcher(
-            self._market_data_retriever, self._price_calculator
-        )
+        self._usdc_price_fetcher = UsdcPriceFetcher(self._market_data_retriever, self._price_calculator)
 
     async def get_spot_price(self, currency: str) -> Optional[float]:
         """

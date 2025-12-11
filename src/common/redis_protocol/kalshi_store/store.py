@@ -104,12 +104,28 @@ async def _store_market_metadata(
 
 
 class KalshiStore:
-    redis: Optional[Redis]; service_prefix: Optional[str]; logger: logging.Logger; weather_resolver: WeatherStationResolver
-    _connection: Optional[Any]; _metadata: Optional[Any]; _subscription: Optional[Any]; _reader: Optional[Any]
-    _writer: Optional[Any]; _cleaner: Optional[Any]; _orderbook: Optional[Any]; _property_mgr: Optional[Any]
-    _conn_delegator: Optional[Any]; _metadata_delegator: Optional[Any]; _subscription_delegator: Optional[Any]
-    _query_delegator: Optional[Any]; _write_delegator: Optional[Any]; _orderbook_delegator: Optional[Any]
-    _cleanup_delegator: Optional[Any]; _utility_delegator: Optional[Any]; _storage_delegator: Optional[Any]; _attr_resolver: Optional[Any]
+    redis: Optional[Redis]
+    service_prefix: Optional[str]
+    logger: logging.Logger
+    weather_resolver: WeatherStationResolver
+    _connection: Optional[Any]
+    _metadata: Optional[Any]
+    _subscription: Optional[Any]
+    _reader: Optional[Any]
+    _writer: Optional[Any]
+    _cleaner: Optional[Any]
+    _orderbook: Optional[Any]
+    _property_mgr: Optional[Any]
+    _conn_delegator: Optional[Any]
+    _metadata_delegator: Optional[Any]
+    _subscription_delegator: Optional[Any]
+    _query_delegator: Optional[Any]
+    _write_delegator: Optional[Any]
+    _orderbook_delegator: Optional[Any]
+    _cleanup_delegator: Optional[Any]
+    _utility_delegator: Optional[Any]
+    _storage_delegator: Optional[Any]
+    _attr_resolver: Optional[Any]
 
     def __init__(
         self,
@@ -139,21 +155,44 @@ class KalshiStore:
             )
         raise AttributeError("_connect_with_retry not supported by connection manager")
 
-    async def _find_currency_market_tickers(self, currency: str) -> List[str]: return await find_currency_market_tickers(self, currency)
-    async def _scan_market_keys(self, patterns: Optional[List[str]] = None) -> List[str]: return await scan_market_keys(self, patterns)
-    async def get_markets_by_currency(self, currency: str) -> List[Dict[str, Any]]: return await get_markets_by_currency(self, currency)
-    async def get_active_strikes_and_expiries(self, currency: str) -> Dict[str, List[Dict]]: return await get_active_strikes_and_expiries(self, currency)
-    async def get_interpolation_results(self, currency: str) -> Dict[str, Dict[str, Any]]: return await get_interpolation_results(self, currency)
-    async def write_enhanced_market_data(self, market_ticker: str, field_updates: Dict[str, Any]) -> bool: return await _write_enhanced_market_data(self, market_ticker, field_updates)
-    async def get_market_data_for_strike_expiry(self, currency: str, expiry_date: str, strike: float) -> Optional[Dict[str, Any]]: return await get_market_data_for_strike_expiry(self, currency, expiry_date, strike)
-    async def is_market_expired(self, market_ticker: str) -> bool: return await is_market_expired(self, market_ticker)
-    async def store_market_metadata(self, market_ticker: str, market_data: Dict[str, Any], *, event_data: Optional[Dict[str, Any]] = None, overwrite: bool = True) -> bool: return await _store_market_metadata(self, market_ticker, market_data, event_data=event_data, overwrite=overwrite)
+    async def _find_currency_market_tickers(self, currency: str) -> List[str]:
+        return await find_currency_market_tickers(self, currency)
+
+    async def _scan_market_keys(self, patterns: Optional[List[str]] = None) -> List[str]:
+        return await scan_market_keys(self, patterns)
+
+    async def get_markets_by_currency(self, currency: str) -> List[Dict[str, Any]]:
+        return await get_markets_by_currency(self, currency)
+
+    async def get_active_strikes_and_expiries(self, currency: str) -> Dict[str, List[Dict]]:
+        return await get_active_strikes_and_expiries(self, currency)
+
+    async def get_interpolation_results(self, currency: str) -> Dict[str, Dict[str, Any]]:
+        return await get_interpolation_results(self, currency)
+
+    async def write_enhanced_market_data(self, market_ticker: str, field_updates: Dict[str, Any]) -> bool:
+        return await _write_enhanced_market_data(self, market_ticker, field_updates)
+
+    async def get_market_data_for_strike_expiry(self, currency: str, expiry_date: str, strike: float) -> Optional[Dict[str, Any]]:
+        return await get_market_data_for_strike_expiry(self, currency, expiry_date, strike)
+
+    async def is_market_expired(self, market_ticker: str) -> bool:
+        return await is_market_expired(self, market_ticker)
+
+    async def store_market_metadata(
+        self, market_ticker: str, market_data: Dict[str, Any], *, event_data: Optional[Dict[str, Any]] = None, overwrite: bool = True
+    ) -> bool:
+        return await _store_market_metadata(self, market_ticker, market_data, event_data=event_data, overwrite=overwrite)
 
     def get_market_key(self, market_ticker: str) -> str:
-        if (reader := getattr(self, "_reader", None)) and hasattr(reader, "get_market_key"): return reader.get_market_key(market_ticker)
-        if (attr_resolver := getattr(self, "_attr_resolver", None)): return attr_resolver.resolve("get_market_key")(market_ticker)
+        if (reader := getattr(self, "_reader", None)) and hasattr(reader, "get_market_key"):
+            return reader.get_market_key(market_ticker)
+        if attr_resolver := getattr(self, "_attr_resolver", None):
+            return attr_resolver.resolve("get_market_key")(market_ticker)
         raise NotImplementedError("KalshiStore helper not bound for get_market_key")
-    def __getattr__(self, name: str) -> Any: raise AttributeError(name)
+
+    def __getattr__(self, name: str) -> Any:
+        raise AttributeError(name)
 
 
 _SETTABLE_ATTRIBUTES = {

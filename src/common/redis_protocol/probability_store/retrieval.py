@@ -24,15 +24,11 @@ class ProbabilityRetrieval:
     def __init__(self, redis_provider: Callable[[], Awaitable[Redis]]) -> None:
         self._components = create_probability_retrieval_components(redis_provider)
 
-    async def get_probabilities(
-        self, currency: str
-    ) -> Dict[str, Dict[str, Dict[str, Union[str, float]]]]:
+    async def get_probabilities(self, currency: str) -> Dict[str, Dict[str, Dict[str, Union[str, float]]]]:
         """Get probabilities from hash: probabilities:{CURRENCY}."""
         return await self._components.get_probabilities(currency)
 
-    async def get_probabilities_human_readable(
-        self, currency: str
-    ) -> Dict[str, Dict[str, ProbabilityByStrikeType]]:
+    async def get_probabilities_human_readable(self, currency: str) -> Dict[str, Dict[str, ProbabilityByStrikeType]]:
         """Get probabilities grouped by event title."""
         return await self._components.get_probabilities_human_readable(currency)
 
@@ -45,13 +41,9 @@ class ProbabilityRetrieval:
         event_title: Optional[str] = None,
     ) -> Dict[str, Union[str, float]]:
         """Get probability data for specific strike."""
-        return await self._components.get_probability_data(
-            currency, expiry, strike, strike_type, event_title
-        )
+        return await self._components.get_probability_data(currency, expiry, strike, strike_type, event_title)
 
-    async def get_probabilities_grouped_by_event_type(
-        self, currency: str
-    ) -> Dict[str, ProbabilityByExpiryGrouped]:
+    async def get_probabilities_grouped_by_event_type(self, currency: str) -> Dict[str, ProbabilityByExpiryGrouped]:
         """Get probabilities grouped by all event types."""
         return await self._components.get_probabilities_grouped_by_event_type(currency)
 
@@ -59,9 +51,7 @@ class ProbabilityRetrieval:
         """Get all unique event types for currency."""
         return await self._components.get_all_event_types(currency)
 
-    async def get_probabilities_by_event_type(
-        self, currency: str, event_type: str
-    ) -> ProbabilityByExpiryGrouped:
+    async def get_probabilities_by_event_type(self, currency: str, event_type: str) -> ProbabilityByExpiryGrouped:
         """Get probabilities filtered by event type."""
         return await self._components.get_probabilities_by_event_type(currency, event_type)
 

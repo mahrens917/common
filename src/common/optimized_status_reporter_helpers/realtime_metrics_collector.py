@@ -51,11 +51,7 @@ class RealtimeMetricsCollector:
                 try:
                     timestamp = (
                         datetime.strptime(
-                            (
-                                timestamp_str.decode()
-                                if isinstance(timestamp_str, bytes)
-                                else timestamp_str
-                            ),
+                            (timestamp_str.decode() if isinstance(timestamp_str, bytes) else timestamp_str),
                             "%Y-%m-%d %H:%M:%S",
                         )
                         .replace(tzinfo=timezone.utc)
@@ -94,11 +90,7 @@ class RealtimeMetricsCollector:
                 try:
                     timestamp = (
                         datetime.strptime(
-                            (
-                                timestamp_str.decode()
-                                if isinstance(timestamp_str, bytes)
-                                else timestamp_str
-                            ),
+                            (timestamp_str.decode() if isinstance(timestamp_str, bytes) else timestamp_str),
                             "%Y-%m-%d %H:%M:%S",
                         )
                         .replace(tzinfo=timezone.utc)

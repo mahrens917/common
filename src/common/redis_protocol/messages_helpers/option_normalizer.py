@@ -3,9 +3,7 @@
 from typing import Optional
 
 
-def normalize_option_type(
-    option_type: Optional[str], option_kind: Optional[str] = None
-) -> Optional[str]:
+def normalize_option_type(option_type: Optional[str], option_kind: Optional[str] = None) -> Optional[str]:
     """
     Normalize option type to standard format (call/put).
 

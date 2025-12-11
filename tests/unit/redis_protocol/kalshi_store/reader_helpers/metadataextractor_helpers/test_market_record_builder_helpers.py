@@ -40,9 +40,7 @@ class DummyStrikeResolver:
     def __init__(self, strike: Optional[float]) -> None:
         self.strike = strike
 
-    def resolve_strike_from_combined(
-        self, _combined: Dict[str, Any], _converter: Any
-    ) -> Optional[float]:
+    def resolve_strike_from_combined(self, _combined: Dict[str, Any], _converter: Any) -> Optional[float]:
         return self.strike
 
 
@@ -171,9 +169,7 @@ def test_metadata_builder_build_record_uses_converter():
     combined = {"status": "settled", "strike_type": "CALL", "floor_strike": "1"}
     converter = DummyTypeConverter()
 
-    record = metadata_builder.MetadataBuilder.build_record(
-        "KXHIGHZ", combined, "time", 1.0, "eur", converter
-    )
+    record = metadata_builder.MetadataBuilder.build_record("KXHIGHZ", combined, "time", 1.0, "eur", converter)
 
     assert record["currency"] == "EUR"
     assert record["status"] == "settled"
@@ -188,9 +184,7 @@ def test_record_validator_captures_terminal_status():
     combined = {"status": "closed"}
 
     with pytest.raises(MarketSkip):
-        record_validator.RecordValidator.validate_market_status(
-            combined, "KXHIGHZ", DummyTypeConverter()
-        )
+        record_validator.RecordValidator.validate_market_status(combined, "KXHIGHZ", DummyTypeConverter())
 
 
 def test_record_validator_detects_expired_date():

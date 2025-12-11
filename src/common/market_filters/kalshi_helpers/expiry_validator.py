@@ -8,9 +8,7 @@ from .data_converters import decode_payload, parse_expiry_datetime
 
 def parse_expiry(metadata: Mapping[str, Any]) -> tuple[Optional[str], Optional[datetime]]:
     """Parse expiry from metadata, returning raw string and parsed datetime."""
-    expiry_raw = decode_payload(metadata.get("close_time")) or decode_payload(
-        metadata.get("expiry")
-    )
+    expiry_raw = decode_payload(metadata.get("close_time")) or decode_payload(metadata.get("expiry"))
     if not expiry_raw:
         return None, None
 
@@ -21,9 +19,7 @@ def parse_expiry(metadata: Mapping[str, Any]) -> tuple[Optional[str], Optional[d
         return str(expiry_raw), None
 
 
-def validate_expiry(
-    expiry_dt: Optional[datetime], current_time: datetime
-) -> tuple[bool, Optional[str]]:
+def validate_expiry(expiry_dt: Optional[datetime], current_time: datetime) -> tuple[bool, Optional[str]]:
     """Validate expiry is in the future."""
     if expiry_dt is None:
         return False, "unparseable_expiry"

@@ -23,9 +23,7 @@ class TokenManager:
             self.read_tokens = self.max_read_tokens
             self.write_tokens = self.max_write_tokens
             self.last_refill_time = current_time
-            logger.debug(
-                f"[KalshiRateLimiter] Refilled tokens: read={self.read_tokens}, write={self.write_tokens}"
-            )
+            logger.debug(f"[KalshiRateLimiter] Refilled tokens: read={self.read_tokens}, write={self.write_tokens}")
             return True
         return False
 

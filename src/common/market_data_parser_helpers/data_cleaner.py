@@ -32,9 +32,7 @@ class DataCleaner:
 
         for i, contract_name in enumerate(raw_data["contract_names"]):
             try:
-                parsed = DeribitInstrumentParser.parse_instrument(
-                    contract_name, strict_symbol=expected_symbol
-                )
+                parsed = DeribitInstrumentParser.parse_instrument(contract_name, strict_symbol=expected_symbol)
 
                 # Store validated data
                 cleaned_data[i] = {

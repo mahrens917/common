@@ -13,9 +13,7 @@ class ErrorHandler:
     """Handle exceptions from component health checks."""
 
     @staticmethod
-    def ensure_process_info(
-        service_name: str, result: ProcessHealthInfo | BaseException
-    ) -> ProcessHealthInfo:
+    def ensure_process_info(service_name: str, result: ProcessHealthInfo | BaseException) -> ProcessHealthInfo:
         """
         Ensure process check result is valid.
 
@@ -49,9 +47,7 @@ class ErrorHandler:
         return LogActivity(status=LogActivityStatus.ERROR, error_message=str(result))
 
     @staticmethod
-    def ensure_service_health(
-        service_name: str, result: ServiceHealthInfo | BaseException
-    ) -> ServiceHealthInfo:
+    def ensure_service_health(service_name: str, result: ServiceHealthInfo | BaseException) -> ServiceHealthInfo:
         """
         Ensure service health result is valid.
 

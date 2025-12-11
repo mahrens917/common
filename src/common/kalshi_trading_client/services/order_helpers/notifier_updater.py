@@ -13,12 +13,8 @@ def update_metadata_telegram_handler(metadata_ops: Any, handler: Any) -> None:
     metadata_ops.update_telegram_handler(handler)
 
 
-def has_sufficient_balance_for_trade_with_fees(
-    bal_cents: int, cost_cents: int, fees_cents: int
-) -> bool:
+def has_sufficient_balance_for_trade_with_fees(bal_cents: int, cost_cents: int, fees_cents: int) -> bool:
     """Check if balance is sufficient for trade with fees."""
     from .order_service_operations import ValidationOperations
 
-    return ValidationOperations.has_sufficient_balance_for_trade_with_fees(
-        bal_cents, cost_cents, fees_cents
-    )
+    return ValidationOperations.has_sufficient_balance_for_trade_with_fees(bal_cents, cost_cents, fees_cents)

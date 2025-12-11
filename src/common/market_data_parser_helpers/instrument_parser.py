@@ -11,9 +11,7 @@ class OptionParser:
     """Parses option instruments."""
 
     @staticmethod
-    def parse(
-        symbol: str, date_part: str, strike_str: str, option_type: str, ticker: str
-    ) -> ParsedInstrument:
+    def parse(symbol: str, date_part: str, strike_str: str, option_type: str, ticker: str) -> ParsedInstrument:
         """
         Parse option instrument.
 

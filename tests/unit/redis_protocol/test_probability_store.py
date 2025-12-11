@@ -108,9 +108,7 @@ async def test_store_probability_partial_update(probability_store: ProbabilitySt
         "range_high": "null",
     }
 
-    fetched = await probability_store.get_probability_data(
-        "eur", "2025-02-01T00:00:00Z", "12346", "greater"
-    )
+    fetched = await probability_store.get_probability_data("eur", "2025-02-01T00:00:00Z", "12346", "greater")
     assert fetched["probability"] == _VAL_0_73
     assert fetched["confidence"] == "NaN"
     assert fetched["range_high"] == "null"
@@ -155,9 +153,7 @@ async def test_get_probabilities_human_readable_requires_data(probability_store)
 
 
 @pytest.mark.asyncio
-async def test_get_probabilities_human_readable_requires_event_title(
-    probability_store: ProbabilityStore, fake_redis
-):
+async def test_get_probabilities_human_readable_requires_event_title(probability_store: ProbabilityStore, fake_redis):
     await fake_redis.hset(
         "probabilities:BTC:2025-04-01T00:00:00Z:call:100",
         mapping={
@@ -177,9 +173,7 @@ async def test_get_probabilities_human_readable_requires_event_title(
 
 
 @pytest.mark.asyncio
-async def test_get_probabilities_human_readable_groups_when_titles_present(
-    probability_store: ProbabilityStore, fake_redis
-):
+async def test_get_probabilities_human_readable_groups_when_titles_present(probability_store: ProbabilityStore, fake_redis):
     await fake_redis.hset(
         "probabilities:BTC:2025-04-01T00:00:00Z:call:100",
         mapping={
@@ -225,9 +219,7 @@ async def test_get_all_event_types_ignores_nulls(probability_store: ProbabilityS
 
 
 @pytest.mark.asyncio
-async def test_get_probabilities_by_event_type_filters_and_sorts(
-    probability_store: ProbabilityStore, fake_redis
-):
+async def test_get_probabilities_by_event_type_filters_and_sorts(probability_store: ProbabilityStore, fake_redis):
     await fake_redis.hset(
         "probabilities:BTC:2025-06-02T00:00:00Z:call:120",
         mapping={"probability": "0.7", "event_type": "rain"},

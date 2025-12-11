@@ -340,12 +340,8 @@ class TestMicroPriceOptionData:
 
         with (
             patch("common.data_models.market_data.MicroPriceValidator.validate_basic_option_data"),
-            patch(
-                "common.data_models.market_data.MicroPriceValidator.validate_micro_price_calculations"
-            ),
-            patch(
-                "common.data_models.market_data.MicroPriceValidator.validate_mathematical_relationships"
-            ),
+            patch("common.data_models.market_data.MicroPriceValidator.validate_micro_price_calculations"),
+            patch("common.data_models.market_data.MicroPriceValidator.validate_mathematical_relationships"),
         ):
             data = MicroPriceOptionData(
                 instrument_name="BTC-29DEC23-45000-C",
@@ -379,15 +375,9 @@ class TestMicroPriceOptionData:
         expiry = datetime(2023, 12, 29, tzinfo=timezone.utc)
 
         with (
-            patch(
-                "common.data_models.market_data.MicroPriceValidator.validate_basic_option_data"
-            ) as mock_validate,
-            patch(
-                "common.data_models.market_data.MicroPriceValidator.validate_micro_price_calculations"
-            ),
-            patch(
-                "common.data_models.market_data.MicroPriceValidator.validate_mathematical_relationships"
-            ),
+            patch("common.data_models.market_data.MicroPriceValidator.validate_basic_option_data") as mock_validate,
+            patch("common.data_models.market_data.MicroPriceValidator.validate_micro_price_calculations"),
+            patch("common.data_models.market_data.MicroPriceValidator.validate_mathematical_relationships"),
         ):
             MicroPriceOptionData(
                 instrument_name="BTC-29DEC23-45000-C",
@@ -421,12 +411,8 @@ class TestMicroPriceOptionDataMethods:
 
         with (
             patch("common.data_models.market_data.MicroPriceValidator.validate_basic_option_data"),
-            patch(
-                "common.data_models.market_data.MicroPriceValidator.validate_micro_price_calculations"
-            ),
-            patch(
-                "common.data_models.market_data.MicroPriceValidator.validate_mathematical_relationships"
-            ),
+            patch("common.data_models.market_data.MicroPriceValidator.validate_micro_price_calculations"),
+            patch("common.data_models.market_data.MicroPriceValidator.validate_mathematical_relationships"),
         ):
             data = MicroPriceOptionData(
                 instrument_name="BTC-29DEC23-45000-C",
@@ -461,12 +447,8 @@ class TestMicroPriceOptionDataMethods:
 
         with (
             patch("common.data_models.market_data.MicroPriceValidator.validate_basic_option_data"),
-            patch(
-                "common.data_models.market_data.MicroPriceValidator.validate_micro_price_calculations"
-            ),
-            patch(
-                "common.data_models.market_data.MicroPriceValidator.validate_mathematical_relationships"
-            ),
+            patch("common.data_models.market_data.MicroPriceValidator.validate_micro_price_calculations"),
+            patch("common.data_models.market_data.MicroPriceValidator.validate_mathematical_relationships"),
         ):
             data = MicroPriceOptionData(
                 instrument_name="BTC-29DEC23-45000-C",
@@ -500,12 +482,8 @@ class TestMicroPriceOptionDataMethods:
 
         with (
             patch("common.data_models.market_data.MicroPriceValidator.validate_basic_option_data"),
-            patch(
-                "common.data_models.market_data.MicroPriceValidator.validate_micro_price_calculations"
-            ),
-            patch(
-                "common.data_models.market_data.MicroPriceValidator.validate_mathematical_relationships"
-            ),
+            patch("common.data_models.market_data.MicroPriceValidator.validate_micro_price_calculations"),
+            patch("common.data_models.market_data.MicroPriceValidator.validate_mathematical_relationships"),
         ):
             data = MicroPriceOptionData(
                 instrument_name="BTC-29DEC23-45000-C",
@@ -540,12 +518,8 @@ class TestMicroPriceOptionDataMethods:
 
         with (
             patch("common.data_models.market_data.MicroPriceValidator.validate_basic_option_data"),
-            patch(
-                "common.data_models.market_data.MicroPriceValidator.validate_micro_price_calculations"
-            ),
-            patch(
-                "common.data_models.market_data.MicroPriceValidator.validate_mathematical_relationships"
-            ),
+            patch("common.data_models.market_data.MicroPriceValidator.validate_micro_price_calculations"),
+            patch("common.data_models.market_data.MicroPriceValidator.validate_mathematical_relationships"),
         ):
             data = MicroPriceOptionData(
                 instrument_name="BTC-29DEC23-45000-C",
@@ -580,12 +554,8 @@ class TestMicroPriceOptionDataMethods:
 
         with (
             patch("common.data_models.market_data.MicroPriceValidator.validate_basic_option_data"),
-            patch(
-                "common.data_models.market_data.MicroPriceValidator.validate_micro_price_calculations"
-            ),
-            patch(
-                "common.data_models.market_data.MicroPriceValidator.validate_mathematical_relationships"
-            ),
+            patch("common.data_models.market_data.MicroPriceValidator.validate_micro_price_calculations"),
+            patch("common.data_models.market_data.MicroPriceValidator.validate_mathematical_relationships"),
         ):
             data = MicroPriceOptionData(
                 instrument_name="BTC-29DEC23-45000-C",
@@ -624,12 +594,8 @@ class TestMicroPriceOptionDataProperties:
 
         with (
             patch("common.data_models.market_data.MicroPriceValidator.validate_basic_option_data"),
-            patch(
-                "common.data_models.market_data.MicroPriceValidator.validate_micro_price_calculations"
-            ),
-            patch(
-                "common.data_models.market_data.MicroPriceValidator.validate_mathematical_relationships"
-            ),
+            patch("common.data_models.market_data.MicroPriceValidator.validate_micro_price_calculations"),
+            patch("common.data_models.market_data.MicroPriceValidator.validate_mathematical_relationships"),
         ):
             data = MicroPriceOptionData(
                 instrument_name="BTC-29DEC23-45000-C",
@@ -663,12 +629,8 @@ class TestMicroPriceOptionDataProperties:
 
         with (
             patch("common.data_models.market_data.MicroPriceValidator.validate_basic_option_data"),
-            patch(
-                "common.data_models.market_data.MicroPriceValidator.validate_micro_price_calculations"
-            ),
-            patch(
-                "common.data_models.market_data.MicroPriceValidator.validate_mathematical_relationships"
-            ),
+            patch("common.data_models.market_data.MicroPriceValidator.validate_micro_price_calculations"),
+            patch("common.data_models.market_data.MicroPriceValidator.validate_mathematical_relationships"),
         ):
             data = MicroPriceOptionData(
                 instrument_name="BTC-29DEC23-45000-C",
@@ -702,12 +664,8 @@ class TestMicroPriceOptionDataProperties:
 
         with (
             patch("common.data_models.market_data.MicroPriceValidator.validate_basic_option_data"),
-            patch(
-                "common.data_models.market_data.MicroPriceValidator.validate_micro_price_calculations"
-            ),
-            patch(
-                "common.data_models.market_data.MicroPriceValidator.validate_mathematical_relationships"
-            ),
+            patch("common.data_models.market_data.MicroPriceValidator.validate_micro_price_calculations"),
+            patch("common.data_models.market_data.MicroPriceValidator.validate_mathematical_relationships"),
         ):
             data = MicroPriceOptionData(
                 instrument_name="BTC-29DEC23-45000-C",
@@ -741,12 +699,8 @@ class TestMicroPriceOptionDataProperties:
 
         with (
             patch("common.data_models.market_data.MicroPriceValidator.validate_basic_option_data"),
-            patch(
-                "common.data_models.market_data.MicroPriceValidator.validate_micro_price_calculations"
-            ),
-            patch(
-                "common.data_models.market_data.MicroPriceValidator.validate_mathematical_relationships"
-            ),
+            patch("common.data_models.market_data.MicroPriceValidator.validate_micro_price_calculations"),
+            patch("common.data_models.market_data.MicroPriceValidator.validate_mathematical_relationships"),
         ):
             data = MicroPriceOptionData(
                 instrument_name="BTC-29DEC23-45000-C",

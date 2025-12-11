@@ -93,16 +93,12 @@ async def get_interpolation_results(store, currency: str) -> Dict[str, Dict[str,
         results: Dict[str, Dict[str, Any]] = {}
 
         for market_key_str in market_keys:
-            market_result = await _process_market_for_interpolation(
-                store, market_key_str, currency_upper, redis, module_logger
-            )
+            market_result = await _process_market_for_interpolation(store, market_key_str, currency_upper, redis, module_logger)
             if market_result is not None:
                 ticker, data = market_result
                 results[ticker] = data
     except REDIS_ERRORS as exc:
-        module_logger = getattr(
-            sys.modules.get("common.redis_protocol.kalshi_store"), "logger", logger
-        )
+        module_logger = getattr(sys.modules.get("common.redis_protocol.kalshi_store"), "logger", logger)
         module_logger.error(
             "Redis error getting interpolation results for %s: %s",
             currency,
@@ -114,9 +110,7 @@ async def get_interpolation_results(store, currency: str) -> Dict[str, Dict[str,
         return results
 
 
-def _validate_market_for_interpolation(
-    market_key_str: str, currency_upper: str, module_logger: Any
-) -> Optional[Tuple[str, str]]:
+def _validate_market_for_interpolation(market_key_str: str, currency_upper: str, module_logger: Any) -> Optional[Tuple[str, str]]:
     """Validate market key and extract ticker."""
     try:
         descriptor = parse_kalshi_market_key(market_key_str)
@@ -154,9 +148,7 @@ async def _process_market_for_interpolation(
     store, market_key_str: str, currency_upper: str, redis: Any, module_logger: Any
 ) -> Optional[Tuple[str, Dict[str, Any]]]:
     """Process a single market for interpolation results."""
-    validation_result = _validate_market_for_interpolation(
-        market_key_str, currency_upper, module_logger
-    )
+    validation_result = _validate_market_for_interpolation(market_key_str, currency_upper, module_logger)
     if validation_result is None:
         return None
     _, market_ticker = validation_result
@@ -190,20 +182,14 @@ def _extract_interpolation_fields(store, market_data: Dict[str, Any]) -> Dict[st
     return {
         "interpolation_method": store._string_or_default(market_data.get("interpolation_method")),
         "deribit_points_used": store._int_or_default(market_data.get("deribit_points_used"), None),
-        "interpolation_quality_score": store._float_or_default(
-            market_data.get("interpolation_quality_score"), 0.0
-        ),
-        "interpolation_timestamp": store._string_or_default(
-            market_data.get("interpolation_timestamp")
-        ),
+        "interpolation_quality_score": store._float_or_default(market_data.get("interpolation_quality_score"), 0.0),
+        "interpolation_timestamp": store._string_or_default(market_data.get("interpolation_timestamp")),
         "interp_error_bid": store._float_or_default(market_data.get("interp_error_bid"), 0.0),
         "interp_error_ask": store._float_or_default(market_data.get("interp_error_ask"), 0.0),
     }
 
 
-async def get_market_data_for_strike_expiry(
-    store, currency: str, expiry_date: str, strike: float
-) -> Optional[Dict[str, Any]]:
+async def get_market_data_for_strike_expiry(store, currency: str, expiry_date: str, strike: float) -> Optional[Dict[str, Any]]:
     """Return best bid/ask data for a strike/expiry pair."""
     setup_result = await _setup_strike_expiry_search(store)
     if setup_result is None:
@@ -214,9 +200,7 @@ async def get_market_data_for_strike_expiry(
     for market_ticker in subscribed:
         if currency_upper not in market_ticker.upper():
             continue
-        market_data = await _get_matching_market_data(
-            store, market_ticker, expiry_date, strike, redis, metadata_extractor
-        )
+        market_data = await _get_matching_market_data(store, market_ticker, expiry_date, strike, redis, metadata_extractor)
         if market_data is not None:
             return market_data
     return None
@@ -277,9 +261,7 @@ def _build_combined_metadata(snapshot: Dict[str, Any], market_ticker: str) -> Di
     return {**metadata, **snapshot}
 
 
-def _matches_strike_expiry(
-    combined: Dict[str, Any], expiry_date: str, strike: float, market_ticker: str
-) -> bool:
+def _matches_strike_expiry(combined: Dict[str, Any], expiry_date: str, strike: float, market_ticker: str) -> bool:
     """Check if market matches the target strike and expiry."""
     market_expiry = combined.get("close_time")
     if not market_expiry:
@@ -291,9 +273,7 @@ def _matches_strike_expiry(
     market_strike = _resolve_market_strike(combined)
     if market_strike is None:
         return False
-    return (
-        market_expiry == expiry_date and abs(float(market_strike) - strike) < STRIKE_MATCH_TOLERANCE
-    )
+    return market_expiry == expiry_date and abs(float(market_strike) - strike) < STRIKE_MATCH_TOLERANCE
 
 
 def _extract_market_quote(
@@ -376,9 +356,7 @@ def _parse_strike_values(floor_strike, cap_strike) -> tuple[Optional[float], Opt
     return parse_strike_bounds(floor_strike, cap_strike)
 
 
-def _calculate_strike_from_type(
-    strike_type: str, floor_value: Optional[float], cap_value: Optional[float]
-) -> Optional[float]:
+def _calculate_strike_from_type(strike_type: str, floor_value: Optional[float], cap_value: Optional[float]) -> Optional[float]:
     """
     Calculate strike based on type and values.
 

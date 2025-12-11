@@ -79,9 +79,7 @@ def _extract_market_ticker(msg_data: Dict[str, Any]) -> str:
     return str(market_ticker)
 
 
-def build_snapshot_sides(
-    msg_data: Dict[str, Any], market_ticker: str
-) -> Dict[str, Dict[str, float]]:
+def build_snapshot_sides(msg_data: Dict[str, Any], market_ticker: str) -> Dict[str, Dict[str, float]]:
     """Convert yes/no level arrays into Redis hash compatible dictionaries."""
 
     orderbook_sides: Dict[str, Dict[str, float]] = {"yes_bids": {}, "yes_asks": {}}
@@ -117,9 +115,7 @@ def _populate_side_levels(
             orderbook_sides["yes_asks"][converted_price] = size
 
 
-def _parse_price_level(
-    price_level: Any, market_ticker: str
-) -> Tuple[Optional[str], Optional[float]]:
+def _parse_price_level(price_level: Any, market_ticker: str) -> Tuple[Optional[str], Optional[float]]:
     """Validate and convert a price level entry."""
     if not (isinstance(price_level, (list, tuple)) and len(price_level) == _CONST_2):
         raise DataError(f"Corrupted order book data detected for market {market_ticker}")

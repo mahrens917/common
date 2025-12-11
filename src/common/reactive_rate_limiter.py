@@ -55,9 +55,7 @@ class ReactiveRateLimiter:
                 self.consecutive_429s,
             )
             if self.error_analyzer and self.consecutive_429s >= _CONST_3:
-                await self.error_analyzer.report_recovery(
-                    "Rate limit recovery", {"previous_failures": self.consecutive_429s}
-                )
+                await self.error_analyzer.report_recovery("Rate limit recovery", {"previous_failures": self.consecutive_429s})
         self.consecutive_429s = 0
 
     def get_metrics(self) -> dict:

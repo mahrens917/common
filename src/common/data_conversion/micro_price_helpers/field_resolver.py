@@ -37,10 +37,7 @@ class FieldResolver:
         if symbol:
             return str(symbol)
 
-        raise ValidationError(
-            "Instrument lacks both instrument_name and symbol attributes required for micro "
-            "price conversion."
-        )
+        raise ValidationError("Instrument lacks both instrument_name and symbol attributes required for micro " "price conversion.")
 
     @staticmethod
     def resolve_expiry_datetime(expiry_value: object) -> datetime:
@@ -56,17 +53,11 @@ class FieldResolver:
         """Resolve quote timestamp from instrument."""
         from ... import time_utils
 
-        raw_timestamp = getattr(instrument, "quote_timestamp", None) or getattr(
-            instrument, "mark_price_timestamp", None
-        )
+        raw_timestamp = getattr(instrument, "quote_timestamp", None) or getattr(instrument, "mark_price_timestamp", None)
         if raw_timestamp is None:
             raw_timestamp = getattr(instrument, "timestamp", None)
 
         if isinstance(raw_timestamp, datetime):
-            return (
-                raw_timestamp.replace(tzinfo=timezone.utc)
-                if raw_timestamp.tzinfo is None
-                else raw_timestamp.astimezone(timezone.utc)
-            )
+            return raw_timestamp.replace(tzinfo=timezone.utc) if raw_timestamp.tzinfo is None else raw_timestamp.astimezone(timezone.utc)
 
         return time_utils.get_current_utc()

@@ -188,12 +188,6 @@ class TestErrorAnalysisBuilder:
         builder.build_analysis(error, context, custom_message)
 
         categorizer.categorize_error.assert_called_once_with(error, custom_message, context)
-        severity_evaluator.determine_severity.assert_called_once_with(
-            error, ErrorCategory.API, context
-        )
-        root_cause_identifier.identify_root_cause.assert_called_once_with(
-            error, custom_message, ErrorCategory.API, context
-        )
-        action_suggester.suggest_action.assert_called_once_with(
-            error, ErrorCategory.API, "API error"
-        )
+        severity_evaluator.determine_severity.assert_called_once_with(error, ErrorCategory.API, context)
+        root_cause_identifier.identify_root_cause.assert_called_once_with(error, custom_message, ErrorCategory.API, context)
+        action_suggester.suggest_action.assert_called_once_with(error, ErrorCategory.API, "API error")

@@ -42,9 +42,7 @@ class GrowthAnalyzer:
                 {
                     "type": "memory_growth",
                     "severity": "warning",
-                    "message": (
-                        f"Memory grew by {memory_growth:.1f}MB in {self.check_interval_seconds}s"
-                    ),
+                    "message": (f"Memory grew by {memory_growth:.1f}MB in {self.check_interval_seconds}s"),
                     "current_mb": current.process_memory_mb,
                     "growth_mb": memory_growth,
                 }

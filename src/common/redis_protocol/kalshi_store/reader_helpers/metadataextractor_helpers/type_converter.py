@@ -6,9 +6,7 @@ Converts values to strings and normalizes Redis hash responses.
 
 from typing import Any, Dict
 
-from common.redis_protocol.kalshi_store.utils_coercion import (
-    string_or_default as _string_or_default,
-)
+from common.redis_protocol.kalshi_store.utils_coercion import string_or_default as _string_or_default
 
 
 class TypeConverter:

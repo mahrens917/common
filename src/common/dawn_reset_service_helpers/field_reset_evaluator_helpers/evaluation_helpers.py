@@ -33,9 +33,7 @@ class BoundaryEvaluator(_BaseEvaluator):
         import logging
 
         logger = logging.getLogger(__name__)
-        boundary = self.dawn_calculator.resolve_latest_dawn_boundary(
-            latitude, longitude, current_timestamp
-        )
+        boundary = self.dawn_calculator.resolve_latest_dawn_boundary(latitude, longitude, current_timestamp)
         if self.boundary_checker.already_processed(last_dawn_reset, boundary):
             self.boundary_checker.log_skip(last_dawn_reset, boundary, context)
             return False, boundary
@@ -64,12 +62,8 @@ class TimestampCrossingEvaluator(_BaseEvaluator):
             return False, None
 
         try:
-            previous_timestamp = datetime.fromisoformat(
-                previous_timestamp_raw.replace("Z", "+00:00")
-            )
-            is_new_day, boundary = self.dawn_calculator.is_new_trading_day(
-                latitude, longitude, previous_timestamp, current_timestamp
-            )
+            previous_timestamp = datetime.fromisoformat(previous_timestamp_raw.replace("Z", "+00:00"))
+            is_new_day, boundary = self.dawn_calculator.is_new_trading_day(latitude, longitude, previous_timestamp, current_timestamp)
             if not is_new_day:
                 return False, None
 
@@ -89,6 +83,4 @@ class TimestampCrossingEvaluator(_BaseEvaluator):
                 f"Failed to parse timestamp '{previous_timestamp_raw}' for field '{field_name}'",
                 exc_info=True,
             )
-            raise DataError(
-                f"Failed to parse timestamp '{previous_timestamp_raw}' for field '{field_name}'"
-            ) from exc
+            raise DataError(f"Failed to parse timestamp '{previous_timestamp_raw}' for field '{field_name}'") from exc

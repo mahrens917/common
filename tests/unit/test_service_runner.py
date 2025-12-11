@@ -93,8 +93,6 @@ def test_run_async_service_handles_missing_sighup(monkeypatch, caplog):
     monkeypatch.setattr(service_runner, "ensure_single_instance_sync", lambda name: None)
 
     with caplog.at_level("DEBUG"):
-        service_runner.run_async_service(
-            factory, service_name="sig_service", ignore_sighup=True, logger_name="test.logger"
-        )
+        service_runner.run_async_service(factory, service_name="sig_service", ignore_sighup=True, logger_name="test.logger")
 
     assert any("SIGHUP not available" in record.message for record in caplog.records)

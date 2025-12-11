@@ -30,17 +30,13 @@ class ReportGenerator:
         self.logger = logger
 
         # Initialize report builders
-        self.date_range_builder = DateRangeReportBuilder(
-            trade_store, self.pnl_engine, self.breakdown_calculator
-        )
+        self.date_range_builder = DateRangeReportBuilder(trade_store, self.pnl_engine, self.breakdown_calculator)
         self.close_date_builder = CloseDateReportBuilder(self.pnl_engine, self.breakdown_calculator)
 
     async def generate_aggregated_report(self, start_date: date, end_date: date) -> PnLReport:
         """Generate comprehensive P&L report for a date range using current market values."""
         return await self.date_range_builder.build_report(start_date, end_date)
 
-    async def generate_aggregated_report_by_close_date(
-        self, trades: List[TradeRecord]
-    ) -> PnLReport:
+    async def generate_aggregated_report_by_close_date(self, trades: List[TradeRecord]) -> PnLReport:
         """Generate comprehensive P&L report for trades filtered by close date."""
         return await self.close_date_builder.build_report(trades)

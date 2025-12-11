@@ -42,9 +42,7 @@ class ErrorAnalyzerDependenciesFactory:
     """Factory for creating ErrorAnalyzer dependencies."""
 
     @staticmethod
-    def create(
-        service_name: str, telegram_notifier: Optional[Callable] = None
-    ) -> ErrorAnalyzerDependencies:
+    def create(service_name: str, telegram_notifier: Optional[Callable] = None) -> ErrorAnalyzerDependencies:
         """
         Create all dependencies for ErrorAnalyzer.
 
@@ -97,20 +95,14 @@ class ErrorAnalyzerDependenciesFactory:
 
         return ErrorAnalyzerDependencies(
             categorizer=_use_default(provided["categorizer"], deps.categorizer),
-            severity_evaluator=_use_default(
-                provided["severity_evaluator"], deps.severity_evaluator
-            ),
-            root_cause_identifier=_use_default(
-                provided["root_cause_identifier"], deps.root_cause_identifier
-            ),
+            severity_evaluator=_use_default(provided["severity_evaluator"], deps.severity_evaluator),
+            root_cause_identifier=_use_default(provided["root_cause_identifier"], deps.root_cause_identifier),
             action_suggester=_use_default(provided["action_suggester"], deps.action_suggester),
-            notification_sender=_use_default(
-                provided["notification_sender"], deps.notification_sender
-            ),
+            notification_sender=_use_default(provided["notification_sender"], deps.notification_sender),
             recovery_reporter=_use_default(provided["recovery_reporter"], deps.recovery_reporter),
         )
 
 
-def _use_default(value: Optional[T], default: T) -> T:
-    """Return `value` if provided, otherwise the supplied default."""
-    return value if value is not None else default
+def _use_default(value: Optional[T], value_on_error: T) -> T:
+    """Return `value` if provided, otherwise the supplied value_on_error."""
+    return value if value is not None else value_on_error

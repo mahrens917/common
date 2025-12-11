@@ -27,9 +27,7 @@ class TestUnifiedPnLFormatter(unittest.TestCase):
         self.mock_stats_calculator.calculate_win_rate.return_value = 0.6
         self.mock_emoji_selector.get_fire_or_cold_emoji.return_value = "🔥"
 
-        result = self.formatter.format_unified_pnl_section(
-            "Test Period", total_pnl_cents, trade_count, trades
-        )
+        result = self.formatter.format_unified_pnl_section("Test Period", total_pnl_cents, trade_count, trades)
 
         self.assertIn("🔥 **Test Period**", result)
         self.assertIn("├── P&L: $+50.00 (2 trades)", result)
@@ -48,9 +46,7 @@ class TestUnifiedPnLFormatter(unittest.TestCase):
         self.mock_stats_calculator.calculate_win_rate.return_value = 0.6
         self.mock_emoji_selector.get_fire_or_cold_emoji.return_value = "🔥"
 
-        result = self.formatter.format_unified_pnl_section(
-            "Test Period", total_pnl_cents, trade_count, trades
-        )
+        result = self.formatter.format_unified_pnl_section("Test Period", total_pnl_cents, trade_count, trades)
 
         self.assertIn("├── Total P&L (%): $+50.00", result)
         self.assertNotIn("(+", result)  # No percentage

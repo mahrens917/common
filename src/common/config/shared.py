@@ -39,9 +39,7 @@ def get_redis_settings() -> RedisSettings:
     if db_value is None:
         db_value = 0
     if db_value != 0:
-        raise ConfigurationError(
-            f"Only Redis database 0 is supported; received REDIS_DB={db_value}"
-        )
+        raise ConfigurationError(f"Only Redis database 0 is supported; received REDIS_DB={db_value}")
 
     db = 0
 

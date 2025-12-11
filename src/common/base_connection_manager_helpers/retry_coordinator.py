@@ -32,9 +32,7 @@ class RetryCoordinator:
         self.max_consecutive_failures = max_consecutive_failures
         self.logger = logging.getLogger(f"{__name__}.{service_name}")
 
-    def _transition_state(
-        self, new_state: ConnectionState, error_context: Optional[str] = None
-    ) -> None:
+    def _transition_state(self, new_state: ConnectionState, error_context: Optional[str] = None) -> None:
         """Transition to a new connection state."""
         self.state_manager.transition_state(new_state, error_context)
 
@@ -51,10 +49,7 @@ class RetryCoordinator:
         """Attempt connection with exponential backoff retry logic."""
         self.logger.info(f"Starting connection attempt for {self.service_name}")
 
-        while (
-            self.reconnection_handler.should_retry()
-            and not self.lifecycle_manager.shutdown_requested
-        ):
+        while self.reconnection_handler.should_retry() and not self.lifecycle_manager.shutdown_requested:
             attempt_number = self.metrics_tracker.get_metrics().total_reconnection_attempts + 1
 
             try:
@@ -82,9 +77,7 @@ class RetryCoordinator:
                     )
                     return True
                 else:
-                    self._transition_state(
-                        ConnectionState.FAILED, "Connection establishment failed"
-                    )
+                    self._transition_state(ConnectionState.FAILED, "Connection establishment failed")
                     self.logger.warning(f"Connection attempt failed for {self.service_name}")
 
             except (
@@ -100,7 +93,5 @@ class RetryCoordinator:
                 if not self.reconnection_handler.should_retry():
                     raise
 
-        self.logger.error(
-            f"Failed to connect {self.service_name} after {self.max_consecutive_failures} attempts"
-        )
+        self.logger.error(f"Failed to connect {self.service_name} after {self.max_consecutive_failures} attempts")
         return False

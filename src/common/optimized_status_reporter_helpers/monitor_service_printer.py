@@ -47,9 +47,7 @@ class MonitorServicePrinter:
         line = f"  {emoji} monitor - {status_display}"
 
         # Add resource info
-        resource_info = self.service_status_formatter.resource_tracker.get_process_resource_usage(
-            "monitor"
-        )
+        resource_info = self.service_status_formatter.resource_tracker.get_process_resource_usage("monitor")
         if resource_info:
             line += f"{resource_info}"
 

@@ -28,9 +28,7 @@ class StateQuerier:
         """Get list of all services currently in reconnection mode."""
         return await self.store.get_services_in_reconnection()
 
-    async def is_service_in_grace_period(
-        self, service_name: str, grace_period_seconds: int = 300
-    ) -> bool:
+    async def is_service_in_grace_period(self, service_name: str, grace_period_seconds: int = 300) -> bool:
         """Check if a service is within grace period after reconnection."""
         state_info = await self.store.get_connection_state(service_name)
 
@@ -50,11 +48,7 @@ class StateQuerier:
         """Get current reconnection duration for a service."""
         state_info = await self.store.get_connection_state(service_name)
 
-        if (
-            not state_info
-            or not state_info.in_reconnection
-            or state_info.reconnection_start_time is None
-        ):
+        if not state_info or not state_info.in_reconnection or state_info.reconnection_start_time is None:
             return None
 
         return self._time_provider() - state_info.reconnection_start_time

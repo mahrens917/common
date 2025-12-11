@@ -40,10 +40,7 @@ def test_validate_numeric_value_respects_zero_and_negative_constraints():
         DataIntegrityValidator.validate_numeric_value(-1, "count", allow_negative=False)
 
     # Negative allowed when explicitly permitted
-    assert (
-        DataIntegrityValidator.validate_numeric_value(-2, "delta", allow_negative=True)
-        == _CONST_NEG_2
-    )
+    assert DataIntegrityValidator.validate_numeric_value(-2, "delta", allow_negative=True) == _CONST_NEG_2
 
 
 def test_validate_numeric_value_checks_bounds():
@@ -95,18 +92,14 @@ def test_validate_json_data_parses_string(monkeypatch):
 
 
 def test_validate_surface_prediction_result_success_and_failures():
-    valid = DataIntegrityValidator.validate_surface_prediction_result(
-        (0.1, -0.2, -0.3, 1.5, 0.7, 2.0)
-    )
+    valid = DataIntegrityValidator.validate_surface_prediction_result((0.1, -0.2, -0.3, 1.5, 0.7, 2.0))
     assert valid == (0.1, -0.2, -0.3, 1.5, 0.7, 2.0)
 
     with pytest.raises(DataIntegrityError):
         DataIntegrityValidator.validate_surface_prediction_result((1, 2, 3))
 
     with pytest.raises(DataIntegrityError):
-        DataIntegrityValidator.validate_surface_prediction_result(
-            (0, 0, 0, 0, 0, -1), variable_name="surface"
-        )
+        DataIntegrityValidator.validate_surface_prediction_result((0, 0, 0, 0, 0, -1), variable_name="surface")
 
 
 def test_validate_bid_ask_prices_detects_crossing():
@@ -142,9 +135,7 @@ def test_create_validation_summary(monkeypatch):
     timestamp = datetime(2024, 1, 1, tzinfo=timezone.utc)
     monkeypatch.setattr("common.time_utils.get_current_utc", lambda: timestamp)
 
-    summary = DataIntegrityValidator.create_validation_summary(
-        [("field", "value"), ("other", "x" * 60)]
-    )
+    summary = DataIntegrityValidator.create_validation_summary([("field", "value"), ("other", "x" * 60)])
 
     assert "Timestamp: 2024-01-01T00:00:00+00:00" in summary
     assert "field" in summary

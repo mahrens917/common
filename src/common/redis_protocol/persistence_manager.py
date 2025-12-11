@@ -10,9 +10,7 @@ import logging
 from typing import Any, Dict, Optional, Tuple
 
 from .error_types import REDIS_ERRORS
-from .persistence_manager_helpers.dependencies_factory import (
-    RedisPersistenceManagerDependenciesFactory,  # gitleaks:allow
-)
+from .persistence_manager_helpers.dependencies_factory import RedisPersistenceManagerDependenciesFactory  # gitleaks:allow
 from .persistence_manager_helpers.dependencies_factory import (
     RedisPersistenceManagerDependencies,
 )
@@ -43,9 +41,7 @@ class RedisPersistenceManager:
         """
         self.logger = logger
 
-        deps = dependencies or RedisPersistenceManagerDependenciesFactory.create(  # gitleaks:allow
-            redis
-        )
+        deps = dependencies or RedisPersistenceManagerDependenciesFactory.create(redis)  # gitleaks:allow
         self._connection_manager = deps.connection
         self._config_orchestrator = deps.configorchestrator
         self._snapshot_manager = deps.snapshot

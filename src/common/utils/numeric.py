@@ -84,19 +84,19 @@ def coerce_float_optional(value: Any) -> Optional[float]:
         return None
 
 
-def coerce_float_default(value: Any, default: float) -> float:
+def coerce_float_default(value: Any, value_on_error: float) -> float:
     """
     Convert value to float with explicit default.
 
-    Returns specified default value if conversion fails. Use this when you need
-    a guaranteed float return value with a known default.
+    Returns specified fallback value if conversion fails. Use this when you need
+    a guaranteed float return value with a known fallback.
 
     Args:
         value: Value to convert (int, float, str, bytes, etc.)
-        default: Default value to return if conversion fails
+        value_on_error: Fallback value to return if conversion fails
 
     Returns:
-        Float value or default if conversion fails
+        Float value or fallback value if conversion fails
 
     Examples:
         >>> coerce_float_default("3.14", 0.0)
@@ -107,7 +107,7 @@ def coerce_float_default(value: Any, default: float) -> float:
         -1.0
     """
     result = coerce_float_optional(value)
-    return result if result is not None else default
+    return result if result is not None else value_on_error
 
 
 def coerce_int_strict(value: Any) -> int:
@@ -182,19 +182,19 @@ def coerce_int_optional(value: Any) -> Optional[int]:
         return None
 
 
-def coerce_int_default(value: Any, default: int) -> int:
+def coerce_int_default(value: Any, value_on_error: int) -> int:
     """
     Convert value to int with explicit default.
 
-    Returns specified default value if conversion fails. Use this when you need
-    a guaranteed int return value with a known default.
+    Returns specified fallback value if conversion fails. Use this when you need
+    a guaranteed int return value with a known fallback.
 
     Args:
         value: Value to convert (int, float, str, bytes, etc.)
-        default: Default value to return if conversion fails
+        value_on_error: Fallback value to return if conversion fails
 
     Returns:
-        Integer value or default if conversion fails
+        Integer value or fallback value if conversion fails
 
     Examples:
         >>> coerce_int_default("42", 0)
@@ -205,4 +205,4 @@ def coerce_int_default(value: Any, default: int) -> int:
         -1
     """
     result = coerce_int_optional(value)
-    return result if result is not None else default
+    return result if result is not None else value_on_error

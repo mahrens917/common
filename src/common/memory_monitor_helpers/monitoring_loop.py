@@ -15,9 +15,7 @@ logger = logging.getLogger(__name__)
 PSUTIL_ERRORS = (psutil.Error, OSError)
 TASK_QUERY_ERRORS = (RuntimeError, ValueError)
 COLLECTION_ERRORS = (RuntimeError, ValueError, KeyError, AttributeError, TypeError)
-MONITOR_LOOP_ERRORS = (
-    PSUTIL_ERRORS + TASK_QUERY_ERRORS + COLLECTION_ERRORS + (asyncio.TimeoutError,)
-)
+MONITOR_LOOP_ERRORS = PSUTIL_ERRORS + TASK_QUERY_ERRORS + COLLECTION_ERRORS + (asyncio.TimeoutError,)
 
 
 class MonitoringLoop:
@@ -103,7 +101,7 @@ class MonitoringLoop:
                 logger.info("Memory monitoring loop cancelled")
                 break
             except MONITOR_LOOP_ERRORS:
-                logger.exception(f"Error in memory monitoring loop: ")
+                # Error in monitoring - continue with next iteration
                 await asyncio.sleep(self.check_interval_seconds)
 
         logger.info("Memory monitoring loop ended")

@@ -65,6 +65,4 @@ class SingleStore(RedisProviderMixin):
             await ensure_awaitable(redis.hset(record.key, mapping=record.fields))
             logger.debug("Stored single probability entry for key: %s", record.key)
         except REDIS_ERRORS as exc:
-            raise ProbabilityStoreError(
-                f"Failed to store single probability for {record.key}"
-            ) from exc
+            raise ProbabilityStoreError(f"Failed to store single probability for {record.key}") from exc

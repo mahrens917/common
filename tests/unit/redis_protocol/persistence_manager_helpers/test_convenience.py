@@ -11,9 +11,7 @@ from common.redis_protocol.persistence_manager_helpers.convenience import (
 class TestConvenience:
     @pytest.fixture
     def mock_manager(self):
-        with patch(
-            "common.redis_protocol.persistence_manager.RedisPersistenceManager"
-        ) as MockManager:
+        with patch("common.redis_protocol.persistence_manager.RedisPersistenceManager") as MockManager:
             manager = AsyncMock()
             MockManager.return_value = manager
             yield manager

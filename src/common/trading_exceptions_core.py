@@ -63,9 +63,7 @@ class KalshiAuthenticationError(KalshiTradingError):
     """
 
     def __init__(self, message: str, operation_name: Optional[str] = None):
-        super().__init__(
-            message=message, error_code="AUTHENTICATION_FAILED", operation_name=operation_name
-        )
+        super().__init__(message=message, error_code="AUTHENTICATION_FAILED", operation_name=operation_name)
 
 
 class KalshiOrderValidationError(KalshiTradingError):
