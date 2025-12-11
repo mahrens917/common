@@ -26,7 +26,7 @@ class SnapshotRetriever:
         """Get market snapshot by key."""
         if not market_key:
             raise TypeError("market_key must be provided")
-        from ...redis_schema.kalshi import parse_kalshi_market_key
+        from ....redis_schema.kalshi import parse_kalshi_market_key
 
         try:
             descriptor = parse_kalshi_market_key(market_key)
