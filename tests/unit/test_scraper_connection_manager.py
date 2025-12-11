@@ -68,3 +68,50 @@ def test_get_connection_info_includes_connector_details():
     assert scraper_details["user_agent"] == "test-agent"
     assert scraper_details["session_closed"] is False
     assert scraper_details["connector_info"]["connection_limit"] == DEFAULT_SCRAPER_CONNECTION_LIMIT
+
+
+def test_init_creates_all_components():
+    """Test that __init__ creates all required components."""
+    manager = scraper_module.ScraperConnectionManager(
+        service_name="test_scraper",
+        target_urls=["https://example.com"],
+        content_validators=[lambda x: True],
+        user_agent="custom-agent",
+    )
+    assert manager.target_urls == ["https://example.com"]
+    assert manager.user_agent == "custom-agent"
+    assert manager.session_manager is not None
+    assert manager.content_validator is not None
+    assert manager.health_monitor is not None
+    assert manager.lifecycle_manager is not None
+    assert manager.scraping_ops is not None
+    assert manager.logger is not None
+
+
+def test_init_uses_default_user_agent():
+    """Test that __init__ uses default user agent when not provided."""
+    manager = scraper_module.ScraperConnectionManager(
+        service_name="test_scraper",
+        target_urls=["https://example.com"],
+    )
+    assert manager.user_agent == "test_scraper-scraper/1.0"
+
+
+def test_get_connection_info_when_connector_missing_attributes():
+    """Test _first_attr returns None when no attributes match."""
+    manager = _build_manager()
+
+    # Create a connector with no matching attributes
+    session = MagicMock()
+    session.closed = True
+    connector = MagicMock(spec=[])  # No attributes
+    session._connector = connector
+    manager.session_manager.get_session.return_value = session
+
+    info = manager.get_connection_info()
+    scraper_details = info["scraper_details"]
+
+    # All connector info should be None
+    assert scraper_details["connector_info"]["connection_limit"] is None
+    assert scraper_details["connector_info"]["connection_limit_per_host"] is None
+    assert scraper_details["connector_info"]["closed"] is None

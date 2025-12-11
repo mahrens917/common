@@ -395,3 +395,154 @@ async def test_kalshi_market_reader_query_paths(monkeypatch):
     assert await reader.get_market_data_for_strike_expiry("USD", "expiry", 5.0) == {"value": 1}
     assert await reader.get_subscribed_markets() == {"KXHIGHTEST"}
     assert await reader.is_market_tracked("KXHIGHTEST")
+
+
+@pytest.mark.asyncio
+async def test_kalshi_market_reader_scan_market_keys():
+    """Test scan_market_keys functionality."""
+    # Create a mock Redis that returns keys
+    redis_mock = MagicMock()
+    redis_mock.scan = AsyncMock()
+    # First call returns some keys and a cursor, second call returns empty (cursor 0)
+    redis_mock.scan.side_effect = [
+        (10, [b"kalshi:market:KXHIGHTEST", b"kalshi:market:BTCUSD"]),
+        (0, [b"kalshi:market:ETHUSD"]),
+    ]
+
+    dependencies = DummyDependencies()
+    reader = KalshiMarketReader(
+        DummyConnectionManager(redis=redis_mock),
+        LOGGER,
+        DummyMetadataAdapter(),
+        dependencies=KalshiMarketReaderDependencies(
+            ticker_parser=dependencies.ticker_parser,
+            market_filter=dependencies.market_filter,
+            metadata_extractor=dependencies.metadata_extractor,
+            orderbook_reader=dependencies.orderbook_reader,
+            market_aggregator=dependencies.market_aggregator,
+            expiry_checker=dependencies.expiry_checker,
+            snapshot_reader=dependencies.snapshot_reader,
+            market_lookup=dependencies.market_lookup,
+        ),
+    )
+
+    result = await reader.scan_market_keys()
+    assert len(result) == 3
+    assert "kalshi:market:KXHIGHTEST" in result
+    assert "kalshi:market:BTCUSD" in result
+    assert "kalshi:market:ETHUSD" in result
+
+
+@pytest.mark.asyncio
+async def test_kalshi_market_reader_scan_market_keys_no_connection():
+    """Test scan_market_keys raises error when connection fails."""
+    dependencies = DummyDependencies()
+    reader = KalshiMarketReader(
+        DummyConnectionManager(ensure=False),
+        LOGGER,
+        DummyMetadataAdapter(),
+        dependencies=KalshiMarketReaderDependencies(
+            ticker_parser=dependencies.ticker_parser,
+            market_filter=dependencies.market_filter,
+            metadata_extractor=dependencies.metadata_extractor,
+            orderbook_reader=dependencies.orderbook_reader,
+            market_aggregator=dependencies.market_aggregator,
+            expiry_checker=dependencies.expiry_checker,
+            snapshot_reader=dependencies.snapshot_reader,
+            market_lookup=dependencies.market_lookup,
+        ),
+    )
+
+    with pytest.raises(RuntimeError, match="Redis connection not established"):
+        await reader.scan_market_keys()
+
+
+@pytest.mark.asyncio
+async def test_kalshi_market_reader_is_market_expired():
+    """Test is_market_expired functionality."""
+    class StatusStub:
+        async def is_expired(self, ticker: str, **kwargs: Any) -> bool:
+            return ticker == "EXPIRED"
+
+    dependencies = DummyDependencies()
+    reader = KalshiMarketReader(
+        DummyConnectionManager(),
+        LOGGER,
+        DummyMetadataAdapter(),
+        dependencies=KalshiMarketReaderDependencies(
+            ticker_parser=dependencies.ticker_parser,
+            market_filter=dependencies.market_filter,
+            metadata_extractor=dependencies.metadata_extractor,
+            orderbook_reader=dependencies.orderbook_reader,
+            market_aggregator=dependencies.market_aggregator,
+            expiry_checker=dependencies.expiry_checker,
+            snapshot_reader=dependencies.snapshot_reader,
+            market_lookup=dependencies.market_lookup,
+        ),
+    )
+
+    reader._status_checker = StatusStub()
+
+    assert await reader.is_market_expired("EXPIRED") is True
+    assert await reader.is_market_expired("ACTIVE") is False
+
+
+@pytest.mark.asyncio
+async def test_kalshi_market_reader_is_market_settled():
+    """Test is_market_settled functionality."""
+    class StatusStub:
+        async def is_settled(self, ticker: str) -> bool:
+            return ticker == "SETTLED"
+
+    dependencies = DummyDependencies()
+    reader = KalshiMarketReader(
+        DummyConnectionManager(),
+        LOGGER,
+        DummyMetadataAdapter(),
+        dependencies=KalshiMarketReaderDependencies(
+            ticker_parser=dependencies.ticker_parser,
+            market_filter=dependencies.market_filter,
+            metadata_extractor=dependencies.metadata_extractor,
+            orderbook_reader=dependencies.orderbook_reader,
+            market_aggregator=dependencies.market_aggregator,
+            expiry_checker=dependencies.expiry_checker,
+            snapshot_reader=dependencies.snapshot_reader,
+            market_lookup=dependencies.market_lookup,
+        ),
+    )
+
+    reader._status_checker = StatusStub()
+
+    assert await reader.is_market_settled("SETTLED") is True
+    assert await reader.is_market_settled("ACTIVE") is False
+
+
+def test_kalshi_market_reader_helper_methods():
+    """Test helper methods on KalshiMarketReader."""
+    dependencies = DummyDependencies()
+    reader = KalshiMarketReader(
+        DummyConnectionManager(),
+        LOGGER,
+        DummyMetadataAdapter(),
+        dependencies=KalshiMarketReaderDependencies(
+            ticker_parser=dependencies.ticker_parser,
+            market_filter=dependencies.market_filter,
+            metadata_extractor=dependencies.metadata_extractor,
+            orderbook_reader=dependencies.orderbook_reader,
+            market_aggregator=dependencies.market_aggregator,
+            expiry_checker=dependencies.expiry_checker,
+            snapshot_reader=dependencies.snapshot_reader,
+            market_lookup=dependencies.market_lookup,
+        ),
+    )
+
+    # Test is_market_for_currency
+    assert reader.is_market_for_currency("BTCUSD", "USD") is True
+    assert reader.is_market_for_currency("BTCUSD", "ETH") is False
+
+    # Test aggregate_markets_by_point
+    markets = [{"ticker": "M1"}, {"ticker": "M2"}]
+    grouped, summary = reader.aggregate_markets_by_point(markets)
+    assert grouped == {"points": ["M1", "M2"]}
+    assert "M1" in summary
+    assert "M2" in summary
