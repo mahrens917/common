@@ -85,6 +85,12 @@ shared-checks:
 	@echo "Running shared CI checks..."
 	@FAILED_CHECKS=0; \
 	\
+	echo "→ Running policy_guard..."; \
+	$(PYTHON) -m ci_tools.scripts.policy_guard || FAILED_CHECKS=$$((FAILED_CHECKS + 1)); \
+	\
+	echo "→ Running structure_guard..."; \
+	$(PYTHON) -m ci_tools.scripts.structure_guard $(STRUCTURE_GUARD_ARGS) || FAILED_CHECKS=$$((FAILED_CHECKS + 1)); \
+	\
 	echo "→ Running isort..."; \
 	isort --profile black $(FORMAT_TARGETS) || FAILED_CHECKS=$$((FAILED_CHECKS + 1)); \
 	\
@@ -148,14 +154,8 @@ shared-checks:
 		$(PYTHON) -m safety scan --json --cache tail || echo "⚠️  safety scan failed or rate limited"; \
 	fi; \
 	\
-	echo "→ Running policy_guard..."; \
-	$(PYTHON) -m ci_tools.scripts.policy_guard || FAILED_CHECKS=$$((FAILED_CHECKS + 1)); \
-	\
 	echo "→ Running data_guard..."; \
 	$(PYTHON) -m ci_tools.scripts.data_guard || FAILED_CHECKS=$$((FAILED_CHECKS + 1)); \
-	\
-	echo "→ Running structure_guard..."; \
-	$(PYTHON) -m ci_tools.scripts.structure_guard $(STRUCTURE_GUARD_ARGS) || FAILED_CHECKS=$$((FAILED_CHECKS + 1)); \
 	\
 	echo "→ Running complexity_guard..."; \
 	$(PYTHON) -m ci_tools.scripts.complexity_guard $(COMPLEXITY_GUARD_ARGS) || FAILED_CHECKS=$$((FAILED_CHECKS + 1)); \
