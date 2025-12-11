@@ -108,8 +108,8 @@ def _stringify_json(value: Any) -> str:
         raise ValueError(f"Unable to serialise value to JSON: {value!r}") from exc
 
 
-def _value_or_default(mapping: Mapping[str, Any], key: str, default: Any) -> Any:
-    return mapping[key] if key in mapping else default
+def _value_or_default(mapping: Mapping[str, Any], key: str, alternate: Any) -> Any:
+    return mapping[key] if key in mapping else alternate
 
 
 def _resolve_weather_station(
@@ -216,15 +216,15 @@ def _build_core_metadata(
 
 def _populate_numeric_fields(metadata: Dict[str, str], market_data: Mapping[str, Any]) -> None:
     """Populate numeric fields with defaults."""
-    for field, default in _NUMERIC_FIELDS.items():
-        value = _value_or_default(market_data, field, default)
+    for field, option_value in _NUMERIC_FIELDS.items():
+        value = _value_or_default(market_data, field, option_value)
         metadata[field] = _stringify(value)
 
 
 def _populate_string_fields(metadata: Dict[str, str], market_data: Mapping[str, Any]) -> None:
     """Populate string fields with defaults."""
-    for field, default in _STRING_FIELDS.items():
-        value = _value_or_default(market_data, field, default)
+    for field, option_value in _STRING_FIELDS.items():
+        value = _value_or_default(market_data, field, option_value)
         metadata[field] = _stringify(value)
 
 

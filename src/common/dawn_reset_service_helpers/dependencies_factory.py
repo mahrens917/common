@@ -91,6 +91,6 @@ class DawnResetServiceDependenciesFactory:
         )
 
 
-def _use_default(value: Optional[T], default: T) -> T:
-    """Return `value` if provided, otherwise the supplied default."""
-    return value if value is not None else default
+def _use_default(value: Optional[T], alternate: T) -> T:
+    """Return `value` if provided, otherwise the supplied alternate."""
+    return value if value is not None else alternate

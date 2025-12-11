@@ -22,12 +22,20 @@ DEFAULT_MAX_SNAPSHOTS = 100
 
 class MemoryMonitor:
     def __init__(self, service_name: str, check_interval_seconds: int = 60):
-        self.service_name, self.check_interval_seconds = service_name, check_interval_seconds
-        self._memory_growth_threshold_mb, self._collection_growth_threshold = (
-            DEFAULT_MEMORY_GROWTH_THRESHOLD_MB,
-            DEFAULT_COLLECTION_GROWTH_THRESHOLD,
+        self.service_name = service_name
+        self.check_interval_seconds = check_interval_seconds
+        self._memory_growth_threshold_mb = DEFAULT_MEMORY_GROWTH_THRESHOLD_MB
+        self._collection_growth_threshold = DEFAULT_COLLECTION_GROWTH_THRESHOLD
+        self._task_count_threshold = DEFAULT_TASK_COUNT_THRESHOLD
+        self.max_snapshots = DEFAULT_MAX_SNAPSHOTS
+        components = MemoryMonitorFactory.create_components(
+            service_name,
+            check_interval_seconds,
+            self._memory_growth_threshold_mb,
+            self._collection_growth_threshold,
+            self._task_count_threshold,
+            self.max_snapshots,
         )
-        self._task_count_threshold, self.max_snapshots = DEFAULT_TASK_COUNT_THRESHOLD, DEFAULT_MAX_SNAPSHOTS
         (
             self._metrics_reader,
             self._collection_tracker,
@@ -36,14 +44,7 @@ class MemoryMonitor:
             self._alert_logger,
             self._loop_manager,
             self._status_formatter,
-        ) = MemoryMonitorFactory.create_components(
-            service_name,
-            check_interval_seconds,
-            self._memory_growth_threshold_mb,
-            self._collection_growth_threshold,
-            self._task_count_threshold,
-            self.max_snapshots,
-        )
+        ) = components
         self._loop_manager.snapshot_collector.take_snapshot = lambda: self.take_snapshot()
 
     def track_collection(self, name: str, size_getter: Callable[[], int]) -> None:

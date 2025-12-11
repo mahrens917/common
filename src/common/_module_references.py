@@ -78,7 +78,6 @@ if os.environ.get("REFERENCE_UNUSED_MODULES") in ("1", "true"):
     import common.redis_protocol.kalshi_store.reader_helpers.expiry_operations  # noqa: F401
     import common.redis_protocol.kalshi_store.reader_helpers.lazy_property_factory  # noqa: F401
     import common.redis_protocol.kalshi_store.reader_helpers.market_operations  # noqa: F401
-    import common.strike_helpers  # noqa: F401
     import common.redis_protocol.kalshi_store.reader_helpers.orderbook_operations  # noqa: F401
     import common.redis_protocol.kalshi_store.reader_helpers.snapshot_operations  # noqa: F401
     import common.redis_protocol.kalshi_store.subscription_factory  # noqa: F401
@@ -105,6 +104,7 @@ if os.environ.get("REFERENCE_UNUSED_MODULES") in ("1", "true"):
     import common.status_reporter_helpers.rule_explainer  # noqa: F401
     import common.status_reporter_helpers.scan_reporter  # noqa: F401
     import common.status_reporter_helpers.trade_status_reporter  # noqa: F401
+    import common.strike_helpers  # noqa: F401
     import common.time_helpers.solar_checks  # noqa: F401
     import common.trading.order_metadata_service  # noqa: F401
     import common.websocket.message_stats_helpers.redis_history_writer  # noqa: F401

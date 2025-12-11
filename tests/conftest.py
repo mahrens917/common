@@ -68,7 +68,9 @@ class FakeRedis:
         """Set expiration on a key."""
         return True
 
-    async def hset(self, key: str, mapping: dict[str, str] | str | None = None, field: str | None = None, value: str | None = None, **kwargs: Any) -> int:
+    async def hset(
+        self, key: str, mapping: dict[str, str] | str | None = None, field: str | None = None, value: str | None = None, **kwargs: Any
+    ) -> int:
         """Set hash fields. Supports both old and new redis-py signatures.
 
         Old API: hset(key, field, value)
@@ -262,7 +264,9 @@ class FakeRedisPipeline:
         self.commands.append(("sadd", (key, members)))
         return self
 
-    def hset(self, key: str, mapping: dict[str, str] | str | None = None, field: str | None = None, value: str | None = None, **kwargs: str) -> "FakeRedisPipeline":
+    def hset(
+        self, key: str, mapping: dict[str, str] | str | None = None, field: str | None = None, value: str | None = None, **kwargs: str
+    ) -> "FakeRedisPipeline":
         """Pipeline hset. Supports both old and new redis-py signatures.
 
         Old API: hset(key, field, value)
