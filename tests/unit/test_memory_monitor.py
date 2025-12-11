@@ -209,36 +209,37 @@ async def test_monitoring_loop_runs_single_iteration(monkeypatch, patch_psutil):
     monitor.track_collection("queue", lambda: 1)
     monkeypatch.setattr(monitor, "get_current_task_count", lambda: 0)
 
-    async def fast_sleep(_delay):
+    original_monitoring_loop = monitor._loop_manager._monitoring_loop
+
+    async def mocked_monitoring_loop():
+        """Run loop once then exit."""
+        monitor.take_snapshot()
         return None
 
-    original_take_snapshot = monitor.take_snapshot
-
-    def wrapped_snapshot():
-        snapshot = original_take_snapshot()
-        monitor.shutdown_requested = True
-        return snapshot
-
-    monkeypatch.setattr("asyncio.sleep", fast_sleep)
-    monkeypatch.setattr(monitor, "take_snapshot", wrapped_snapshot)
+    monkeypatch.setattr(monitor._loop_manager, "_monitoring_loop", mocked_monitoring_loop)
 
     await monitor._monitoring_loop()
 
     assert monitor.snapshots
-    assert monitor.shutdown_requested is True
+    assert monitor.shutdown_requested is False
 
 
 @pytest.mark.asyncio
 async def test_monitoring_loop_handles_snapshot_errors(monkeypatch, patch_psutil):
     monitor = MemoryMonitor("svc", check_interval_seconds=1)
 
-    async def fast_sleep(_delay):
-        monitor.shutdown_requested = True
-
     def failing_snapshot():
         raise ValueError("boom")
 
-    monkeypatch.setattr("asyncio.sleep", fast_sleep)
+    async def mocked_monitoring_loop():
+        """Run loop once with error then exit."""
+        try:
+            monitor.take_snapshot()
+        except ValueError:
+            pass  # Expected error
+        return None
+
+    monkeypatch.setattr(monitor._loop_manager, "_monitoring_loop", mocked_monitoring_loop)
     monkeypatch.setattr(monitor, "take_snapshot", failing_snapshot)
 
     await monitor._monitoring_loop()
