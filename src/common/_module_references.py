@@ -6,7 +6,7 @@ unused_module_guard from complaining about modules that exist but are
 not imported directly in normal operations.
 """
 
-# pyright: ignore[reportUnusedImport]
+# pyright: reportUnusedImport = false
 
 import os
 
@@ -76,8 +76,6 @@ if os.environ.get("REFERENCE_UNUSED_MODULES") in ("1", "true"):
     import common.redis_protocol.connection_store_helpers.state_persistence  # noqa: F401
     import common.redis_protocol.connection_store_helpers.state_queries  # noqa: F401
     import common.redis_protocol.connection_store_helpers.state_serializer  # noqa: F401
-    import common.redis_protocol.kalshi_store.optimized_attribute_resolver  # noqa: F401
-    import common.redis_protocol.kalshi_store.optimized_fallback_methods  # noqa: F401
     import common.redis_protocol.kalshi_store.orderbook_helpers.best_price_updater  # noqa: F401
     import common.redis_protocol.kalshi_store.orderbook_helpers.delta_field_extractor  # noqa: F401
     import common.redis_protocol.kalshi_store.orderbook_helpers.delta_processor_helpers  # noqa: F401
@@ -112,7 +110,6 @@ if os.environ.get("REFERENCE_UNUSED_MODULES") in ("1", "true"):
     import common.resource_tracker_helpers.delegation.history  # noqa: F401
     import common.resource_tracker_helpers.delegation.monitoring_control  # noqa: F401
     import common.resource_tracker_helpers.delegation.recording  # noqa: F401
-    import common.rest_connection_manager_helpers.connection_info  # noqa: F401
     import common.rest_connection_manager_helpers.request_handler  # noqa: F401
     import common.scraper_connection_manager_helpers.connection_establisher  # noqa: F401
     import common.scraper_connection_manager_helpers.health_monitor_helpers.url_checker  # noqa: F401
@@ -125,11 +122,9 @@ if os.environ.get("REFERENCE_UNUSED_MODULES") in ("1", "true"):
     import common.status_reporter_helpers.scan_reporter  # noqa: F401
     import common.status_reporter_helpers.trade_status_reporter  # noqa: F401
     import common.strike_helpers  # noqa: F401
-    import common.time_helpers.solar_checks  # noqa: F401
     import common.trading.order_metadata_service  # noqa: F401
     import common.websocket.message_stats_helpers.redis_history_writer  # noqa: F401
     import common.websocket.message_stats_helpers.silent_failure_alerter  # noqa: F401
-    import common.websocket_connection_manager_helpers.connection_info  # noqa: F401
     import common.websocket_connection_manager_helpers.connection_lifecycle_helpers.connection_establisher  # noqa: F401
     import common.websocket_connection_manager_helpers.ping_pong_manager  # noqa: F401
     import common.websocket_connection_manager_helpers.ws_connection_handler  # noqa: F401

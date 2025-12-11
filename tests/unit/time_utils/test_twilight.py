@@ -1,15 +1,16 @@
 """Tests for twilight calculation functions."""
 
-from datetime import datetime, date, timezone, timedelta
+from datetime import date, datetime, timedelta, timezone
+
 import pytest
 
+from common.time_utils.base import AstronomicalComputationError
 from common.time_utils.twilight import (
     calculate_dawn_utc,
     calculate_dusk_utc,
-    is_between_dawn_and_dusk,
     is_after_midpoint_noon_to_dusk,
+    is_between_dawn_and_dusk,
 )
-from common.time_utils.base import AstronomicalComputationError
 
 
 class TestCalculateDawnUtc:

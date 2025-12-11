@@ -91,6 +91,7 @@ class TestGetCurrentTime:
         """get_current_time() raises ValueError on invalid timezone."""
         with pytest.raises(ValueError, match="Unknown timezone"):
             from common.time_helpers.timezone import get_current_time
+
             get_current_time("Invalid/Timezone")
 
 
