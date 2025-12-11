@@ -75,10 +75,11 @@ class MonitoringLoop:
             except asyncio.CancelledError:
                 logger.info(f"{self.service_name} subscription monitoring cancelled")
                 break
-            except REDIS_ERRORS + (ConnectionError, RuntimeError, ValueError):
+            except REDIS_ERRORS + (ConnectionError, RuntimeError, ValueError) as exc:
                 logger.exception(
-                    "Error monitoring %s subscriptions",
+                    "Error monitoring %s subscriptions: %s",
                     self.service_name,
+                    str(exc),
                 )
                 await asyncio.sleep(5)  # Longer delay for serious errors
                 continue

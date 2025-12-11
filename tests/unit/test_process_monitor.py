@@ -157,7 +157,7 @@ async def test_perform_incremental_scan_triggers_full_scan(monkeypatch):
     dead_pids = {0, 1, 2, 3, 4, 5}
 
     monkeypatch.setattr(
-        "common.process_monitor.psutil.pid_exists",
+        "psutil.pid_exists",
         lambda pid: pid not in dead_pids,
     )
 

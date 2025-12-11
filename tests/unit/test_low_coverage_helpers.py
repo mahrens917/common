@@ -140,10 +140,10 @@ def test_data_normalizer_fields_and_numeric_coercion():
 
     assert DataNormalizer.int_field(normalized, "count") == 5
     assert DataNormalizer.int_field(normalized, "flag") == 1
-    assert DataNormalizer.int_field(normalized, "missing", default=7) == 7
+    assert DataNormalizer.int_field(normalized, "missing", value_on_error=7) == 7
 
     assert DataNormalizer.float_field(normalized, "price") == 10.5
-    assert DataNormalizer.float_field(normalized, "empty", default=2.5) == 2.5
+    assert DataNormalizer.float_field(normalized, "empty", value_on_error=2.5) == 2.5
     with pytest.raises(ValueError):
         DataNormalizer.int_field({"price": object()}, "price")
     with pytest.raises(ValueError):
