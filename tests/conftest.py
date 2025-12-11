@@ -54,6 +54,15 @@ class FakeRedis:
         """Get cardinality of a set."""
         return len(self._sets.get(key, set()))
 
+    async def srem(self, key: str, *members: str) -> int:
+        """Remove members from a set."""
+        if key not in self._sets:
+            return 0
+        removed = sum(1 for m in members if m in self._sets[key])
+        for m in members:
+            self._sets[key].discard(m)
+        return removed
+
     async def expire(self, key: str, seconds: int) -> bool:
         """Set expiration on a key."""
         return True
@@ -93,6 +102,12 @@ class FakeRedis:
     async def hgetall(self, key: str) -> dict[str, str]:
         """Get all fields in a hash."""
         return self._hashes.get(key, {}).copy()
+
+    async def hmget(self, key: str, fields: list[str]) -> list[str | None]:
+        """Get multiple field values from a hash."""
+        if key not in self._hashes:
+            return [None] * len(fields)
+        return [self._hashes[key].get(field) for field in fields]
 
     async def hincrby(self, key: str, field: str, increment: int) -> int:
         """Increment a hash field."""
@@ -206,6 +221,10 @@ class FakeRedis:
         """Ping the Redis server."""
         return "PONG"
 
+    async def publish(self, channel: str, message: str) -> int:
+        """Publish message to channel (no-op in fake Redis)."""
+        return 0
+
     def pipeline(self, transaction: bool = True):
         """Create a pipeline context."""
         return FakeRedisPipeline(self, transaction=transaction)
@@ -293,6 +312,16 @@ class FakeRedisPipeline:
         self.commands.append(("exists", keys))
         return self
 
+    def srem(self, key: str, *members: str) -> "FakeRedisPipeline":
+        """Pipeline srem."""
+        self.commands.append(("srem", (key, members)))
+        return self
+
+    def publish(self, channel: str, message: str) -> "FakeRedisPipeline":
+        """Pipeline publish (no-op)."""
+        self.commands.append(("publish", (channel, message)))
+        return self
+
     async def execute(self) -> list[Any]:
         """Execute all commands."""
         results = []
@@ -332,6 +361,14 @@ class FakeRedisPipeline:
             elif cmd == "exists":
                 keys = args
                 result = await self.fake_redis.exists(*keys)
+                results.append(result)
+            elif cmd == "srem":
+                key, members = args
+                result = await self.fake_redis.srem(key, *members)
+                results.append(result)
+            elif cmd == "publish":
+                channel, message = args
+                result = await self.fake_redis.publish(channel, message)
                 results.append(result)
         self.commands.clear()
         return results
