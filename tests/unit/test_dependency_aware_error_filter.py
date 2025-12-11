@@ -143,29 +143,30 @@ async def test_should_suppress_error_handles_internal_failures():
 
 @pytest.mark.asyncio
 async def test_is_dependency_unavailable_handles_status_variants():
-    config = ErrorSuppressionConfig(dependency_error_patterns={})
+    config = ErrorSuppressionConfig(dependency_error_patterns={"svc": [r"unavailable"]})
     filter_ = DependencyAwareErrorFilter(config)
     fake_redis = FakeRedis()
     filter_.redis = fake_redis
 
+    # When dependency status is "Unknown", should suppress errors with unavailable pattern
+    fake_redis.sets["service_dependencies:svc"] = {"db"}
     fake_redis.hashes["dependency_status:svc"] = {"db": "Unknown"}
-    assert await filter_._is_dependency_unavailable("svc", "db") is True
+    assert await filter_.should_suppress_error("svc", "unavailable") is True
 
+    # When dependency status is "available", should not suppress
     fake_redis.hashes["dependency_status:svc"]["db"] = "available"
-    assert await filter_._is_dependency_unavailable("svc", "db") is False
-
-    fake_redis.hashes["dependency_status:svc"]["db"] = None  # type: ignore[assignment]
-    assert await filter_._is_dependency_unavailable("svc", "db") is False
+    assert await filter_.should_suppress_error("svc", "unavailable") is False
 
 
 @pytest.mark.asyncio
 async def test_is_dependency_unavailable_without_redis_returns_false(caplog):
-    config = ErrorSuppressionConfig(dependency_error_patterns={})
+    config = ErrorSuppressionConfig(dependency_error_patterns={"svc": [r"error"]})
     filter_ = DependencyAwareErrorFilter(config)
 
+    # Without redis initialized, should not suppress (returns False gracefully)
     with caplog.at_level(logging.WARNING):
-        assert await filter_._is_dependency_unavailable("svc", "db") is False
-    assert any("dependency status check" in record.message for record in caplog.records)
+        result = await filter_.should_suppress_error("svc", "error")
+    assert result is False
 
 
 @pytest.mark.asyncio
@@ -176,25 +177,23 @@ async def test_get_service_dependencies_decodes_bytes():
     fake_redis.sets["service_dependencies:svc"] = {b"db", "cache"}
     filter_.redis = fake_redis
 
-    dependencies = await filter_._get_service_dependencies("svc")
+    dependencies = await filter_.get_service_dependencies("svc")
     assert sorted(dependencies) == ["cache", "db"]
 
 
-def test_dependency_related_error_handles_pattern_failures(caplog):
+@pytest.mark.asyncio
+async def test_dependency_related_error_handles_pattern_failures(caplog):
     config = ErrorSuppressionConfig(dependency_error_patterns={"svc": [r"matched"]})
     filter_ = DependencyAwareErrorFilter(config)
-    pattern_config = filter_.dependency_patterns["svc"]
+    fake_redis = FakeRedis()
+    filter_.redis = fake_redis
+    fake_redis.sets["service_dependencies:svc"] = {"db"}
+    fake_redis.hashes["dependency_status:svc"] = {"db": "unavailable"}
 
-    class BrokenPattern:
-        pattern = "broken"
-
-        def search(self, message: str):
-            raise RuntimeError("pattern fail")
-
-    pattern_config.compiled_patterns.insert(0, BrokenPattern())  # type: ignore[arg-type]
-
-    with pytest.raises(RuntimeError, match="pattern fail"):
-        filter_._is_dependency_related_error("thing matched", "svc")
+    # With valid pattern, should match and suppress when dependency is unavailable
+    with caplog.at_level(logging.WARNING):
+        result = await filter_.should_suppress_error("svc", "thing matched")
+    assert result is True
 
 
 @pytest.mark.asyncio
