@@ -16,7 +16,7 @@ def test_coercion_helpers():
     assert utils.coerce_mapping({"a": 1}) == {"a": 1}
     assert utils.coerce_mapping(["a"]) == {}
     assert utils.coerce_sequence(None) == []
-    assert utils.string_or_default(None, default="x") == "x"
+    assert utils.string_or_default(None, fallback_value="x") == "x"
 
 
 def test_optional_float_and_validation():
