@@ -1,9 +1,9 @@
-"""Module reference loader for ensuring unused modules are imported.
+"""References optional modules for unused_module_guard validation.
 
-This module is used to prevent the unused_module_guard from complaining about
-modules that are intentionally not directly imported but need to be available.
-It conditionally imports these modules when the REFERENCE_UNUSED_MODULES
-environment variable is set.
+This module conditionally imports helper modules only when the
+REFERENCE_UNUSED_MODULES environment variable is set. It prevents the
+unused_module_guard from complaining about modules that exist but are
+not imported directly in normal operations.
 """
 
 import os
