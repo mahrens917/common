@@ -46,7 +46,7 @@ def _resolve_all_deps(provided_deps: dict, defaults: _DefaultDependencies) -> di
         "order_creator": defaults.order_creator,
         "poller": defaults.poller,
     }
-    return {key: _resolve_dep(provided_deps, key, fallback) for key, fallback in defaults_dict.items()}
+    return {key: _resolve_dep(provided_deps, key, fallback_value) for key, fallback_value in defaults_dict.items()}
 
 
 def create_or_use_dependencies(
