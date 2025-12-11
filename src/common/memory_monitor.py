@@ -76,15 +76,19 @@ class MemoryMonitor:
 
     def get_status(self) -> Dict[str, Any]:
         return self._status_formatter.get_status()
+
     @property
     def snapshots(self):
         return self._snapshot_collector.get_snapshots()
+
     @property
     def monitoring_task(self):
         return self._loop_manager.monitoring_task
+
     @property
     def tracked_collections(self):
         return self._collection_tracker.tracked_collections
+
     @property
     def memory_growth_threshold_mb(self) -> float:
         return self._memory_growth_threshold_mb
@@ -94,25 +98,31 @@ class MemoryMonitor:
         object.__setattr__(self, "_memory_growth_threshold_mb", value)
         if hasattr(self, "_trend_analyzer"):
             self._trend_analyzer.memory_growth_threshold_mb = value
+
     @property
     def collection_growth_threshold(self) -> int:
         return self._collection_growth_threshold
+
     @collection_growth_threshold.setter
     def collection_growth_threshold(self, value: int) -> None:
         object.__setattr__(self, "_collection_growth_threshold", value)
         if hasattr(self, "_trend_analyzer"):
             self._trend_analyzer.collection_growth_threshold = value
+
     @property
     def task_count_threshold(self) -> int:
         return self._task_count_threshold
+
     @task_count_threshold.setter
     def task_count_threshold(self, value: int) -> None:
         object.__setattr__(self, "_task_count_threshold", value)
         if hasattr(self, "_trend_analyzer"):
             self._trend_analyzer.task_count_threshold = value
+
     @property
     def shutdown_requested(self) -> bool:
         return self._loop_manager.shutdown_requested
+
     async def _monitoring_loop(self):
         return await self._loop_manager._monitoring_loop()
 

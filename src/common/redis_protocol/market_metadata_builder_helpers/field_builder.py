@@ -47,19 +47,19 @@ def _normalise_timestamp_optional(value: Any, normalizer: Any) -> str:
 
 
 def build_numeric_fields(market_data: Mapping[str, Any], numeric_fields: Dict[str, Any], stringify_func: Any) -> Dict[str, str]:
-    """Build numeric fields with defaults."""
+    """Build numeric fields with option values."""
     result = {}
-    for field, default in numeric_fields.items():
-        value = market_data.get(field, default)
+    for field, option_value in numeric_fields.items():
+        value = market_data.get(field, option_value)
         result[field] = stringify_func(value)
     return result
 
 
 def build_string_fields(market_data: Mapping[str, Any], string_fields: Dict[str, str], stringify_func: Any) -> Dict[str, str]:
-    """Build string fields with defaults."""
+    """Build string fields with option values."""
     result = {}
-    for field, default in string_fields.items():
-        value = market_data.get(field, default)
+    for field, option_value in string_fields.items():
+        value = market_data.get(field, option_value)
         result[field] = stringify_func(value)
     return result
 
