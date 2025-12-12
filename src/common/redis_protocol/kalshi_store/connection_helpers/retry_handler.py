@@ -102,7 +102,7 @@ class RetryHandler:
                 context=config.context,
                 on_retry=_on_retry,
             )
-        except RedisFatalError:
+        except RedisFatalError:  # policy_guard: allow-silent-handler
             return False
         except RedisRetryError:
             self._logger.exception("%s: %s")

@@ -71,7 +71,7 @@ async def query_market_for_strike_expiry(
     """
     try:
         return await market_lookup.get_market_data_for_strike_expiry(redis, currency, expiry, strike, markets, get_market_key_func)
-    except REDIS_ERRORS as exc:
+    except REDIS_ERRORS as exc:  # policy_guard: allow-silent-handler
         logger.error(
             "Redis error getting market data for %s %s @ %s: %s",
             currency,

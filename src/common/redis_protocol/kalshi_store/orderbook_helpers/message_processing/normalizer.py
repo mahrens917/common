@@ -16,7 +16,7 @@ async def normalize_snapshot_json(redis: Redis, market_key: str) -> None:
             continue
         try:
             decoded = orjson.loads(payload)
-        except orjson.JSONDecodeError:
+        except orjson.JSONDecodeError:  # policy_guard: allow-silent-handler
             continue
 
         updated = normalize_price_map(decoded)

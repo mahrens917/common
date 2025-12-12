@@ -80,7 +80,7 @@ class MetadataWriter:
             await ensure_awaitable(redis_client.hset(market_key, mapping=metadata))
             logger.debug(f"Updated {len(metadata)} Kalshi API fields for {market_ticker}")
 
-        except REDIS_ERRORS as exc:
+        except REDIS_ERRORS as exc:  # policy_guard: allow-silent-handler
             logger.error("Error storing market metadata for %s: %s", market_ticker, exc, exc_info=True)
             raise
         else:

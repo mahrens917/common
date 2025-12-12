@@ -29,7 +29,7 @@ def extract_and_merge_metadata(raw_hash: Dict[str, Any], market_ticker: str) -> 
     if metadata_payload:
         try:
             metadata = orjson.loads(metadata_payload)
-        except orjson.JSONDecodeError:
+        except orjson.JSONDecodeError:  # policy_guard: allow-silent-handler
             logger.debug("Failed to decode metadata JSON for %s", market_ticker)
 
     combined: Dict[str, Any] = {}

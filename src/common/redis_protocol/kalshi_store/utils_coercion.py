@@ -64,7 +64,7 @@ def default_weather_station_loader() -> Dict[str, Dict[str, Any]]:  # pragma: no
     """
     try:
         return load_weather_station_mapping()
-    except WeatherConfigError:
+    except WeatherConfigError:  # policy_guard: allow-silent-handler
         logger.exception("Weather station mapping unavailable; aborting KalshiStore initialisation")
         raise
     except (

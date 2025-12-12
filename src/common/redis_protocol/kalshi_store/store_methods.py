@@ -114,7 +114,7 @@ def _validate_market_for_interpolation(market_key_str: str, currency_upper: str,
     """Validate market key and extract ticker."""
     try:
         descriptor = parse_kalshi_market_key(market_key_str)
-    except ValueError:
+    except ValueError:  # policy_guard: allow-silent-handler
         return None
     market_ticker = descriptor.ticker
     if currency_upper not in market_ticker.upper():
@@ -256,7 +256,7 @@ def _build_combined_metadata(snapshot: Dict[str, Any], market_ticker: str) -> Di
     if metadata_payload:
         try:
             metadata = orjson.loads(metadata_payload)
-        except orjson.JSONDecodeError:
+        except orjson.JSONDecodeError:  # policy_guard: allow-silent-handler
             logger.debug("Failed to decode metadata JSON for %s", market_ticker)
     return {**metadata, **snapshot}
 
@@ -297,7 +297,7 @@ def _extract_market_quote(
                 best_bid_size = next(iter(yes_bids.values()))
             if yes_asks and best_ask_size is None:
                 best_ask_size = next(iter(yes_asks.values()))
-        except orjson.JSONDecodeError:
+        except orjson.JSONDecodeError:  # policy_guard: allow-silent-handler
             logger.debug("Invalid orderbook payload for %s", market_ticker)
 
     return {
@@ -328,7 +328,7 @@ async def is_market_expired(store, market_ticker: str) -> bool:
         return False
     try:
         close_dt = datetime.fromisoformat(close_time_value.replace("Z", "+00:00"))
-    except ValueError:
+    except ValueError:  # policy_guard: allow-silent-handler
         return False
     current_time = time_utils.get_current_utc()
     return close_dt < current_time

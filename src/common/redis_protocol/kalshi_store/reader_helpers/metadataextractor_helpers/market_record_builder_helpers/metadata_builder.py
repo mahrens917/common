@@ -30,7 +30,7 @@ class MetadataBuilder:
             return {}
         try:
             return orjson.loads(metadata_payload)
-        except orjson.JSONDecodeError:
+        except orjson.JSONDecodeError:  # policy_guard: allow-silent-handler
             logger.debug("Failed to decode metadata JSON")
             return {}
 

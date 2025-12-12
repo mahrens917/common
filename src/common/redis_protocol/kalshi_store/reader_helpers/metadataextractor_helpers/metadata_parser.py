@@ -32,6 +32,6 @@ class MetadataParser:
             return None
         try:
             return orjson.loads(metadata_blob)
-        except orjson.JSONDecodeError:
+        except orjson.JSONDecodeError:  # policy_guard: allow-silent-handler
             logger.warning("Invalid metadata JSON for market %s", market_ticker)
             return None

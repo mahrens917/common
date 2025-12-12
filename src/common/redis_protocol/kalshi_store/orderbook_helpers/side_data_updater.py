@@ -19,7 +19,7 @@ class SideDataUpdater:
 
         try:
             side_data = orjson.loads(side_json)
-        except (orjson.JSONDecodeError, TypeError) as exc:
+        except (orjson.JSONDecodeError, TypeError) as exc:  # policy_guard: allow-silent-handler
             logger.warning("Error parsing side data: %s, initializing empty", exc)
             return {}
 

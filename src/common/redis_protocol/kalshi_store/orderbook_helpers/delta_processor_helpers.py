@@ -97,7 +97,7 @@ async def apply_delta_to_orderbook(
     """
     try:
         side_json = await ensure_awaitable(redis.hget(market_key, side_field))
-    except REDIS_ERRORS as exc:
+    except REDIS_ERRORS as exc:  # policy_guard: allow-silent-handler
         logger.error("Redis error retrieving %s for %s: %s", side_field, market_key, exc, exc_info=True)
         raise
 

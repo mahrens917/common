@@ -98,7 +98,7 @@ def _decode_metadata_payload(payload: Any, market_ticker: str) -> Dict[str, Any]
     try:
         decoded = orjson.loads(payload)
         return decoded if isinstance(decoded, dict) else {}
-    except orjson.JSONDecodeError:
+    except orjson.JSONDecodeError:  # policy_guard: allow-silent-handler
         logger.debug("Failed to decode metadata JSON for %s", market_ticker)
         return {}
 

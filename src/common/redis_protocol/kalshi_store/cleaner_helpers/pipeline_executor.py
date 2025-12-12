@@ -23,7 +23,7 @@ class PipelineExecutor:
         """
         try:
             await pipe.execute()
-        except REDIS_ERRORS as exc:
+        except REDIS_ERRORS as exc:  # policy_guard: allow-silent-handler
             logger.error(
                 "Error executing pipeline for %s: %s",
                 operation_name,

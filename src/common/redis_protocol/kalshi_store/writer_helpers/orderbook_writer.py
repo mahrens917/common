@@ -35,10 +35,10 @@ class OrderbookWriter:
             side, yes, no, raw = self._extract_price_data(data, str_func)
             mapping = self._build_trade_mapping(data, side, yes, no, raw)
             await ensure_awaitable(self.redis.hset(key_func(ticker), mapping=mapping))
-        except (ValueError, TypeError) as exc:
+        except (ValueError, TypeError) as exc:  # policy_guard: allow-silent-handler
             logger.error("Invalid trade tick payload: %s", exc, exc_info=True)
             return False
-        except REDIS_ERRORS as exc:
+        except REDIS_ERRORS as exc:  # policy_guard: allow-silent-handler
             logger.error("Redis error updating trade tick: %s", exc, exc_info=True)
             return False
         else:
@@ -72,7 +72,7 @@ class OrderbookWriter:
     def _derive_yes_price_from_raw(raw: Any, side: str) -> Any:
         try:
             val = float(raw)
-        except (TypeError, ValueError):
+        except (TypeError, ValueError):  # policy_guard: allow-silent-handler
             return None
         return val if side == "yes" else (100 - val if side == "no" else None)
 

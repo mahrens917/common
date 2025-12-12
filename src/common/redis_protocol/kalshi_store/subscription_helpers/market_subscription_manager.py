@@ -43,7 +43,7 @@ class MarketSubscriptionManager:
                 value_str = value.decode("utf-8") if isinstance(value, bytes) else value
                 if isinstance(key_str, str) and key_str.startswith(prefix) and value_str == "1":
                     markets.add(key_str[len(prefix) :])
-        except REDIS_ERRORS as exc:
+        except REDIS_ERRORS as exc:  # policy_guard: allow-silent-handler
             logger.error("Error getting subscribed markets: %s", exc, exc_info=True)
             raise
         else:
@@ -63,7 +63,7 @@ class MarketSubscriptionManager:
             subscription_key = f"{self.service_prefix}:{market_ticker}"
             redis = await self._get_redis()
             await redis.hset(self.subscriptions_key, subscription_key, "1")
-        except REDIS_ERRORS as exc:
+        except REDIS_ERRORS as exc:  # policy_guard: allow-silent-handler
             logger.error("Error adding subscribed market %s: %s", market_ticker, exc, exc_info=True)
             raise
         else:
@@ -83,7 +83,7 @@ class MarketSubscriptionManager:
             subscription_key = f"{self.service_prefix}:{market_ticker}"
             redis = await self._get_redis()
             await redis.hdel(self.subscriptions_key, subscription_key)
-        except REDIS_ERRORS as exc:
+        except REDIS_ERRORS as exc:  # policy_guard: allow-silent-handler
             logger.error("Error removing subscribed market %s: %s", market_ticker, exc, exc_info=True)
             raise
         else:

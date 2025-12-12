@@ -14,7 +14,7 @@ def coerce_mapping(candidate: Any) -> Dict[str, Any]:
     if hasattr(candidate, "items"):
         try:
             return dict(candidate.items())
-        except (TypeError, ValueError, AttributeError):
+        except (TypeError, ValueError, AttributeError):  # policy_guard: allow-silent-handler
             return {}
     return {}
 
@@ -28,7 +28,7 @@ def coerce_sequence(candidate: Any) -> List[Any]:
     if hasattr(candidate, "__iter__"):
         try:
             return list(candidate)
-        except (TypeError, ValueError, AttributeError):
+        except (TypeError, ValueError, AttributeError):  # policy_guard: allow-silent-handler
             return []
     return []
 

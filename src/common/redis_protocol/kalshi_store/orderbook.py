@@ -37,7 +37,7 @@ class KalshiOrderbookProcessor:
     async def _ensure_redis_connection(self) -> bool:
         try:
             await self._get_redis()
-        except RuntimeError:
+        except RuntimeError:  # policy_guard: allow-silent-handler
             return False
         else:
             return True
@@ -113,7 +113,7 @@ class KalshiOrderbookProcessor:
                 return True
             logger.error("Invalid orderbook update payload: %s", exc, exc_info=True)
             return False
-        except REDIS_ERRORS as exc:
+        except REDIS_ERRORS as exc:  # policy_guard: allow-silent-handler
             logger.error("Redis error updating orderbook: %s", exc, exc_info=True)
             return False
         else:

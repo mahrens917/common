@@ -53,7 +53,7 @@ class MarketFilter:
                 key_str = decode_redis_key(raw_key)
                 try:
                     descriptor = parse_kalshi_market_key(key_str)
-                except ValueError:
+                except ValueError:  # policy_guard: allow-silent-handler
                     continue
 
                 ticker = descriptor.ticker

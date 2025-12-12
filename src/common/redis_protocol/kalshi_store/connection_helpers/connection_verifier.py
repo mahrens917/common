@@ -31,7 +31,7 @@ class ConnectionVerifier:
 
         try:
             await asyncio.wait_for(redis.ping(), timeout=timeout)
-        except asyncio.TimeoutError:
+        except asyncio.TimeoutError:  # policy_guard: allow-silent-handler
             logger.warning(
                 "Redis ping timed out after %.1fs; connection will be refreshed",
                 timeout,

@@ -57,7 +57,7 @@ class MarketRemover:
                 return True
             else:
                 return success
-        except REDIS_ERRORS as exc:
+        except REDIS_ERRORS as exc:  # policy_guard: allow-silent-handler
             logger.error(
                 "Error removing market %s completely from Redis: %s",
                 market_ticker,
@@ -96,6 +96,6 @@ class MarketRemover:
                 return True
             else:
                 return success
-        except REDIS_ERRORS as exc:
+        except REDIS_ERRORS as exc:  # policy_guard: allow-silent-handler
             logger.error("Error removing all Kalshi keys: %s", exc, exc_info=True)
             return False

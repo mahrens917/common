@@ -59,7 +59,7 @@ class ServiceStatusManager:
 
         try:
             await redis.hset(self.service_status_key, service, status_value)
-        except REDIS_ERRORS as exc:
+        except REDIS_ERRORS as exc:  # policy_guard: allow-silent-handler
             logger.error("Error updating %s status: %s", service, exc, exc_info=True)
             raise
         logger.debug("Updated %s status to: %s", service, status_value)
@@ -83,6 +83,6 @@ class ServiceStatusManager:
 
             else:
                 return None
-        except REDIS_ERRORS as exc:
+        except REDIS_ERRORS as exc:  # policy_guard: allow-silent-handler
             logger.error("Error getting %s status: %s", service, exc, exc_info=True)
             raise

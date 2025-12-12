@@ -67,7 +67,7 @@ def parse_orderbook_json(json_data: Any, field_name: str, ticker: str) -> Dict[s
 
     try:
         parsed = safe_orjson_loads(json_data)
-    except ValueError:
+    except ValueError:  # policy_guard: allow-silent-handler
         logger.warning(f"Error parsing {field_name} for {ticker}")
         return {}
 

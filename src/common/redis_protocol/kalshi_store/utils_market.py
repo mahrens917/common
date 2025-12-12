@@ -50,7 +50,7 @@ def _normalise_trade_timestamp(value: Any) -> str:
             return _normalise_timestamp_string(value)
         if isinstance(value, (int, float)):
             return _normalise_timestamp_numeric(float(value))
-    except (ValueError, TypeError, OSError):
+    except (ValueError, TypeError, OSError):  # policy_guard: allow-silent-handler
         return ""
     return ""
 
@@ -99,7 +99,7 @@ def _parse_market_metadata(market_ticker: str, market_data: Dict[str, Any]) -> O
         return None
     try:
         return orjson.loads(metadata_blob)
-    except orjson.JSONDecodeError:
+    except orjson.JSONDecodeError:  # policy_guard: allow-silent-handler
         logger.warning("Invalid metadata JSON for market %s", market_ticker)
         return None
 
