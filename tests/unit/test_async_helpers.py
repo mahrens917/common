@@ -96,11 +96,9 @@ class TestSafelyScheduleCoroutine:
 
         with patch("asyncio.get_running_loop", return_value=mock_loop):
             with patch("asyncio.run") as mock_run:
-                coro = tracking_coro()
-                result = safely_schedule_coroutine(coro)
+                result = safely_schedule_coroutine(tracking_coro())
                 assert result is None
                 assert mock_run.called
-                coro.close()
 
     def test_handles_value_error_in_create_task(self):
         """ValueError during create_task falls back to asyncio.run."""
@@ -113,11 +111,9 @@ class TestSafelyScheduleCoroutine:
 
         with patch("asyncio.get_running_loop", return_value=mock_loop):
             with patch("asyncio.run") as mock_run:
-                coro = simple_coro()
-                result = safely_schedule_coroutine(coro)
+                result = safely_schedule_coroutine(simple_coro())
                 assert result is None
                 assert mock_run.called
-                coro.close()
 
     def test_handles_type_error_in_create_task(self):
         """TypeError during create_task falls back to asyncio.run."""
@@ -130,8 +126,6 @@ class TestSafelyScheduleCoroutine:
 
         with patch("asyncio.get_running_loop", return_value=mock_loop):
             with patch("asyncio.run") as mock_run:
-                coro = simple_coro()
-                result = safely_schedule_coroutine(coro)
+                result = safely_schedule_coroutine(simple_coro())
                 assert result is None
                 assert mock_run.called
-                coro.close()
