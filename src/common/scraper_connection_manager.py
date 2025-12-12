@@ -20,6 +20,7 @@ from .scraper_connection_manager_helpers import (
     ScrapingOperations,
 )
 
+
 class ScraperConnectionManager(AioHTTPSessionConnectionMixin, BaseConnectionManager):
     """Scraper-specific connection manager."""
 

@@ -8,6 +8,7 @@ import asyncio
 from typing import Any, Dict, Optional
 
 from redis.asyncio import Redis
+
 from src.kalshi.api.client import KalshiClient
 
 

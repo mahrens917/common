@@ -39,9 +39,9 @@ def _register_shutdown_hook(alerter) -> None:
 
     def _cleanup() -> None:
         from redis.exceptions import RedisError
-        from src.monitor.alerting.models import AlerterError
 
         from common.redis_utils import RedisOperationError
+        from src.monitor.alerting.models import AlerterError
 
         cleanup_errors = (
             AlerterError,

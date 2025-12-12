@@ -1,12 +1,12 @@
 from unittest.mock import AsyncMock, Mock, patch
 
 import pytest
-from src.monitor.alerter import AlertSeverity
 
 from common.websocket.connection_health_monitor_helpers.alert_sender import (
     ALERT_FAILURE_ERRORS,
     HealthAlertSender,
 )
+from src.monitor.alerter import AlertSeverity
 
 
 class TestHealthAlertSender:

@@ -2,9 +2,9 @@ import asyncio
 from unittest.mock import AsyncMock, Mock, patch
 
 import pytest
-from src.monitor.alerter import AlertSeverity
 
 from common.websocket.message_stats_helpers import silent_failure_alerter
+from src.monitor.alerter import AlertSeverity
 
 
 class TestSilentFailureAlerter:
