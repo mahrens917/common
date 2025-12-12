@@ -2,8 +2,6 @@ from __future__ import annotations
 
 """Common time calculation utilities."""
 
-import math
-
 from ..time_helpers.expiry import (
     DERIBIT_EXPIRY_HOUR,
     EPOCH_START,

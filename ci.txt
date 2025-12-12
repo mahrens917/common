@@ -5,11 +5,12 @@ Running shared CI checks...
 → Running isort...
 → Running black...
 All done! ✨ 🍰 ✨
-1806 files left unchanged.
+1824 files left unchanged.
 → Running codespell...
 → Running vulture...
+tests/unit/kalshi_trading_client/client_helpers/test_attribute_handler.py:7: unused import 'attribute_handler' (90% confidence)
 → Running deptry...
-Scanning 1169 files...
+Scanning 1167 files...
 
 [1m[32mSuccess! No dependency issues found.[m
 → Running gitleaks...
@@ -23,7 +24,7 @@ Scanning 1169 files...
 → Running bandit...
 → Running safety...
 Safety 3.6.2 scanning /Users/mahrens917/common
-2025-12-11 20:36:15 UTC
+2025-12-12 02:35:25 UTC
 
 Account: Michael Ahrens, mahrens917@gmail.com 
 Project: common
@@ -481,6 +482,13 @@ src/common/websocket_connection_manager_helpers/message_operations.py:57 -> supp
 src/common/websocket_connection_manager_helpers/message_operations.py:60 -> suppresses exception with literal return
 src/common/websocket_connection_manager_helpers/message_operations.py:63 -> suppresses exception with literal return
 → Running data_guard...
+Data integrity violations detected:
+tests/unit/base_connection_manager_helpers/test_health_coordinator.py:237 -> comparison against literal 2 for loop_count
+tests/unit/base_connection_manager_helpers/test_health_coordinator.py:243 -> comparison against literal 2 for loop_count
+tests/unit/base_connection_manager_helpers/test_health_coordinator.py:272 -> comparison against literal 2 for error_count
+tests/unit/base_connection_manager_helpers/test_health_coordinator.py:279 -> comparison against literal 2 for error_count
+tests/unit/resource_tracker_helpers/test_monitoring_loop.py:150 -> comparison against literal 2 for call_count
+tests/unit/resource_tracker_helpers/test_monitoring_loop.py:157 -> comparison against literal 2 for call_count
 → Running structure_guard...
 → Running complexity_guard...
 ✓ All functions meet complexity limits (cyclomatic ≤10, cognitive ≤15)
@@ -506,6 +514,18 @@ All checks passed!
   /Users/mahrens917/common/src/common/config/weather.py:13:43 - warning: Type "type[weather.config_loader.WeatherConfigLoadError]" is not assignable to declared type "type[common.config.weather.WeatherConfigLoadError]"
     "weather.config_loader.WeatherConfigLoadError" is not assignable to "common.config.weather.WeatherConfigLoadError"
     Type "type[weather.config_loader.WeatherConfigLoadError]" is not assignable to type "type[common.config.weather.WeatherConfigLoadError]" (reportAssignmentType)
+/Users/mahrens917/common/src/common/redis_protocol/atomic_operations.py
+  /Users/mahrens917/common/src/common/redis_protocol/atomic_operations.py:78:40 - warning: Cannot access attribute "atomic_market_data_write" for class "AtomicOperationsCoordinator"
+    Attribute "atomic_market_data_write" is unknown (reportAttributeAccessIssue)
+  /Users/mahrens917/common/src/common/redis_protocol/atomic_operations.py:98:40 - warning: Cannot access attribute "safe_market_data_read" for class "AtomicOperationsCoordinator"
+    Attribute "safe_market_data_read" is unknown (reportAttributeAccessIssue)
+  /Users/mahrens917/common/src/common/redis_protocol/atomic_operations.py:117:40 - warning: Cannot access attribute "atomic_delete_if_invalid" for class "AtomicOperationsCoordinator"
+    Attribute "atomic_delete_if_invalid" is unknown (reportAttributeAccessIssue)
+/Users/mahrens917/common/src/common/redis_protocol/atomic_redis_operations_helpers/coordinator.py
+  /Users/mahrens917/common/src/common/redis_protocol/atomic_redis_operations_helpers/coordinator.py:61:104 - warning: Function with declared return type "Dict[str, Any]" must return value on all code paths
+    "None" is not assignable to "Dict[str, Any]" (reportReturnType)
+/Users/mahrens917/common/src/common/redis_protocol/converters.py
+  /Users/mahrens917/common/src/common/redis_protocol/converters.py:11:8 - error: Import "math" is not accessed (reportUnusedImport)
 /Users/mahrens917/common/src/common/scraper_connection_manager.py
   /Users/mahrens917/common/src/common/scraper_connection_manager.py:40:28 - error: Variable not allowed in type expression (reportInvalidTypeForm)
 /Users/mahrens917/common/src/common/time_utils/__init__.py
@@ -514,7 +534,7 @@ All checks passed!
   /Users/mahrens917/common/src/common/trading/notifier_adapter.py:51:30 - warning: Object of type "None" cannot be called (reportOptionalCall)
 /Users/mahrens917/common/src/common/websocket_connection_manager.py
   /Users/mahrens917/common/src/common/websocket_connection_manager.py:40:28 - error: Variable not allowed in type expression (reportInvalidTypeForm)
-3 errors, 3 warnings, 0 informations
+4 errors, 7 warnings, 0 informations
 → Running pylint...
 ************* Module src
 src/__init__.py:1:0: F0010: error while code parsing: Unable to load file src/__init__.py:
@@ -524,22 +544,23 @@ tests/__init__.py:1:0: F0010: error while code parsing: Unable to load file test
 [Errno 2] No such file or directory: 'tests/__init__.py' (parse-error)
 → Cleaning bytecode...
 → Running pytest...
-...........F.F.......................................................... [  1%]
+........................................................................ [  1%]
 ........................................................................ [  2%]
 ........................................................................ [  3%]
+........................................................................ [  4%]
 ........................................................................ [  5%]
-........................................................................ [  6%]
 ........................................................................ [  7%]
 ........................................................................ [  8%]
+........................................................................ [  9%]
 ........................................................................ [ 10%]
 ........................................................................ [ 11%]
-........................................................................ [ 12%]
 ........................................................................ [ 13%]
+........................................................................ [ 14%]
 ........................................................................ [ 15%]
 ........................................................................ [ 16%]
 ........................................................................ [ 17%]
-........................................................................ [ 18%]
-......................................................F................. [ 20%]
+........................................................................ [ 19%]
+....................................F................................... [ 20%]
 ........................................................................ [ 21%]
 ........................................................................ [ 22%]
 ........................................................................ [ 23%]
@@ -547,63 +568,66 @@ tests/__init__.py:1:0: F0010: error while code parsing: Unable to load file test
 ........................................................................ [ 26%]
 ........................................................................ [ 27%]
 ........................................................................ [ 28%]
-........................................................................ [ 30%]
-............................................................F........... [ 31%]
+........................................................................ [ 29%]
+..............................................F......................... [ 31%]
 ........................................................................ [ 32%]
 ........................................................................ [ 33%]
+........................................................................ [ 34%]
 ........................................................................ [ 35%]
-........................................................................ [ 36%]
 ........................................................................ [ 37%]
 ........................................................................ [ 38%]
+........................................................................ [ 39%]
 ........................................................................ [ 40%]
 ........................................................................ [ 41%]
 ........................................................................ [ 42%]
-........................................................................ [ 43%]
+........................................................................ [ 44%]
 ........................................................................ [ 45%]
-.................................................................F...... [ 46%]
+........................................................................ [ 46%]
 ........................................................................ [ 47%]
-......................................F................................. [ 48%]
-...............................................................F........ [ 50%]
-..............F.F....FF....FF........................................... [ 51%]
+........................................................................ [ 48%]
+......F..F..FFF.....F................................................... [ 50%]
+........................................................................ [ 51%]
 ........................................................................ [ 52%]
 ........................................................................ [ 53%]
-........................................................................ [ 55%]
+........................................................................ [ 54%]
 ........................................................................ [ 56%]
 ........................................................................ [ 57%]
 ........................................................................ [ 58%]
+........................................................................ [ 59%]
 ........................................................................ [ 60%]
-........................................................................ [ 61%]
 ........................................................................ [ 62%]
 ........................................................................ [ 63%]
-......................................F................................. [ 65%]
+............................................F........................... [ 64%]
+........................................................................ [ 65%]
 ........................................................................ [ 66%]
-........................................................................ [ 67%]
 ........................................................................ [ 68%]
+........................................................................ [ 69%]
 ........................................................................ [ 70%]
 ........................................................................ [ 71%]
 ........................................................................ [ 72%]
-........................................................................ [ 73%]
+........................................................................ [ 74%]
 ........................................................................ [ 75%]
 ........................................................................ [ 76%]
 ........................................................................ [ 77%]
 ........................................................................ [ 78%]
 ........................................................................ [ 80%]
-........................F............................................... [ 81%]
+F....................................................................... [ 81%]
 ........................................................................ [ 82%]
 ........................................................................ [ 83%]
+........................................................................ [ 84%]
 ........................................................................ [ 85%]
-........................................................................ [ 86%]
-..........................................F..F.......................... [ 87%]
+.....................................F..F............................... [ 87%]
 ........................................................................ [ 88%]
-.....................................FF................................. [ 90%]
-........................................................................ [ 91%]
-........................................................................ [ 92%]
+...................................FF................................... [ 89%]
+........................................................................ [ 90%]
+.FF..................................................................... [ 91%]
 ........................................................................ [ 93%]
-..................................FFF................................... [ 95%]
+........................................................................ [ 94%]
+.....................FFF................................................ [ 95%]
 ........................................................................ [ 96%]
 ........................................................................ [ 97%]
-........................................................................ [ 98%]
-...................................................................      [100%]
+........................................................................ [ 99%]
+......................................................                   [100%]
 ================================ tests coverage ================================
 ______________ coverage: platform darwin, python 3.12.11-final-0 _______________
 
@@ -621,7 +645,7 @@ src/common/alert_suppression_manager_helpers/initialization_coordinator.py      
 src/common/alert_suppression_manager_helpers/state_manager.py                                                                          37      0   100%
 src/common/alert_suppression_manager_helpers/suppression_tracker.py                                                                    39      0   100%
 src/common/alert_suppression_manager_helpers/time_window_manager.py                                                                    22      0   100%
-src/common/alerter_factory.py                                                                                                          42      9    79%
+src/common/alerter_factory.py                                                                                                          42      5    88%
 src/common/api_response_validators.py                                                                                                  96      3    97%
 src/common/api_response_validators_helpers/event_validators.py                                                                         28      1    96%
 src/common/api_response_validators_helpers/field_validators.py                                                                         24      3    88%
@@ -639,15 +663,15 @@ src/common/backoff_manager_helpers/types.py                                     
 src/common/base_connection_manager_helpers/backoff_calculator.py                                                                       14      1    93%
 src/common/base_connection_manager_helpers/component_builder.py                                                                        38      0   100%
 src/common/base_connection_manager_helpers/connection_lifecycle.py                                                                     36      0   100%
-src/common/base_connection_manager_helpers/health_coordinator.py                                                                       44     12    73%
+src/common/base_connection_manager_helpers/health_coordinator.py                                                                       44      0   100%
 src/common/base_connection_manager_helpers/health_coordinator_helpers/health_checker.py                                                22      0   100%
 src/common/base_connection_manager_helpers/health_coordinator_helpers/reconnection_manager.py                                          16      0   100%
 src/common/base_connection_manager_helpers/health_monitor.py                                                                           14      0   100%
 src/common/base_connection_manager_helpers/lifecycle_helpers.py                                                                        22      1    95%
-src/common/base_connection_manager_helpers/metrics_tracker.py                                                                          32      9    72%
+src/common/base_connection_manager_helpers/metrics_tracker.py                                                                          32      0   100%
 src/common/base_connection_manager_helpers/notification_handler.py                                                                     19      0   100%
 src/common/base_connection_manager_helpers/notification_helpers.py                                                                      8      0   100%
-src/common/base_connection_manager_helpers/property_accessors.py                                                                       41     16    61%
+src/common/base_connection_manager_helpers/property_accessors.py                                                                       41      0   100%
 src/common/base_connection_manager_helpers/proxy_setup.py                                                                              18      2    89%
 src/common/base_connection_manager_helpers/reconnection_handler.py                                                                     36      1    97%
 src/common/base_connection_manager_helpers/retry_coordinator.py                                                                        54      5    91%
@@ -668,7 +692,7 @@ src/common/config/weather.py                                                    
 src/common/config_loader.py                                                                                                            84      0   100%
 src/common/connection_config.py                                                                                                        22      0   100%
 src/common/connection_helpers.py                                                                                                       28      1    96%
-src/common/connection_manager.py                                                                                                      103     23    78%
+src/common/connection_manager.py                                                                                                      103     13    87%
 src/common/connection_manager_helpers/health_monitor.py                                                                                10      1    90%
 src/common/connection_manager_helpers/notification_manager.py                                                                          10      0   100%
 src/common/connection_manager_helpers/reconnection_handler.py                                                                          10      0   100%
@@ -743,11 +767,11 @@ src/common/dawn_reset_service_helpers/dawn_calculator.py                        
 src/common/dawn_reset_service_helpers/dawn_check_coordinator.py                                                                        21      0   100%
 src/common/dawn_reset_service_helpers/dependencies_factory.py                                                                          46      0   100%
 src/common/dawn_reset_service_helpers/field_reset_applicator.py                                                                        22      0   100%
-src/common/dawn_reset_service_helpers/field_reset_applicator_with_alert.py                                                             32     11    66%
+src/common/dawn_reset_service_helpers/field_reset_applicator_with_alert.py                                                             32      0   100%
 src/common/dawn_reset_service_helpers/field_reset_evaluator.py                                                                         28      0   100%
 src/common/dawn_reset_service_helpers/field_reset_evaluator_helpers/boundary_checker.py                                                21      0   100%
 src/common/dawn_reset_service_helpers/field_reset_evaluator_helpers/dawn_calculator.py                                                  3      0   100%
-src/common/dawn_reset_service_helpers/field_reset_evaluator_helpers/evaluation_cases.py                                                35      8    77%
+src/common/dawn_reset_service_helpers/field_reset_evaluator_helpers/evaluation_cases.py                                                35      0   100%
 src/common/dawn_reset_service_helpers/field_reset_evaluator_helpers/evaluation_helpers.py                                              37      0   100%
 src/common/dawn_reset_service_helpers/field_reset_manager.py                                                                           19      2    89%
 src/common/dawn_reset_service_helpers/logger.py                                                                                        32      0   100%
@@ -758,7 +782,7 @@ src/common/dependency_aware_error_filter_helpers/dependency_checker.py          
 src/common/dependency_aware_error_filter_helpers/pattern_matcher.py                                                                    38      2    95%
 src/common/dependency_aware_error_filter_helpers/status_updater.py                                                                     25      0   100%
 src/common/dependency_monitor_helpers/callback_executor.py                                                                             28      0   100%
-src/common/dependency_monitor_helpers/callback_runner.py                                                                               17      4    76%
+src/common/dependency_monitor_helpers/callback_runner.py                                                                               17      0   100%
 src/common/dependency_monitor_helpers/dependency_checker.py                                                                            68      0   100%
 src/common/dependency_monitor_helpers/monitoring_loop.py                                                                               38      3    92%
 src/common/dependency_monitor_helpers/notification_handler.py                                                                          19      0   100%
@@ -816,7 +840,7 @@ src/common/health/service_health_checker_helpers/status_evaluator.py            
 src/common/health/service_health_types.py                                                                                              19      0   100%
 src/common/health/types.py                                                                                                             32      0   100%
 src/common/history_tracker.py                                                                                                         120      6    95%
-src/common/http_utils.py                                                                                                               24      7    71%
+src/common/http_utils.py                                                                                                               24      0   100%
 src/common/kalshi_fees.py                                                                                                              58      0   100%
 src/common/kalshi_rate_limiter.py                                                                                                      53      1    98%
 src/common/kalshi_rate_limiter_helpers/metrics_collector.py                                                                            21      0   100%
@@ -831,7 +855,7 @@ src/common/kalshi_request_classifier.py                                         
 src/common/kalshi_trading_client/client.py                                                                                             85      1    99%
 src/common/kalshi_trading_client/client_api_mixin.py                                                                                   50     10    80%
 src/common/kalshi_trading_client/client_delegator_mixin.py                                                                             27      3    89%
-src/common/kalshi_trading_client/client_helpers/attribute_handler.py                                                                   12      4    67%
+src/common/kalshi_trading_client/client_helpers/attribute_handler.py                                                                   12      0   100%
 src/common/kalshi_trading_client/client_helpers/attribute_resolver.py                                                                  51      9    82%
 src/common/kalshi_trading_client/client_helpers/factory_methods.py                                                                     12      0   100%
 src/common/kalshi_trading_client/client_helpers/initialization.py                                                                      42      1    98%
@@ -1013,7 +1037,7 @@ src/common/optimized_status_reporter_helpers/weather_temperature_collector_helpe
 src/common/optimized_status_reporter_helpers/weather_temperature_collector_helpers/key_scanner.py                                      20      0   100%
 src/common/optimized_status_reporter_helpers/weather_temperature_collector_helpers/station_scanner.py                                  14      2    86%
 src/common/optimized_status_reporter_helpers/weather_temperature_collector_helpers/temperature_extractor.py                            29      1    97%
-src/common/optimized_status_reporter_mixins.py                                                                                         34      9    74%
+src/common/optimized_status_reporter_mixins.py                                                                                         34      0   100%
 src/common/order_execution/finalizer.py                                                                                                78      2    97%
 src/common/order_execution/finalizer_helpers/data_builder.py                                                                           10      0   100%
 src/common/order_execution/finalizer_helpers/notification.py                                                                           16      0   100%
@@ -1091,9 +1115,9 @@ src/common/reconnection_error_patterns_helpers/pattern_manager.py               
 src/common/reconnection_error_patterns_helpers/service_type_manager.py                                                                 23      0   100%
 src/common/redis_connection_manager.py                                                                                                 37      2    95%
 src/common/redis_protocol/atomic_operations.py                                                                                         25      0   100%
-src/common/redis_protocol/atomic_redis_operations_helpers/coordinator.py                                                               95     37    61%
+src/common/redis_protocol/atomic_redis_operations_helpers/coordinator.py                                                               60      0   100%
 src/common/redis_protocol/atomic_redis_operations_helpers/data_converter.py                                                            29      0   100%
-src/common/redis_protocol/atomic_redis_operations_helpers/data_fetcher.py                                                              15      1    93%
+src/common/redis_protocol/atomic_redis_operations_helpers/data_fetcher.py                                                              15      0   100%
 src/common/redis_protocol/atomic_redis_operations_helpers/deletion_validator.py                                                        29      5    83%
 src/common/redis_protocol/atomic_redis_operations_helpers/factory.py                                                                   13      0   100%
 src/common/redis_protocol/atomic_redis_operations_helpers/field_validator.py                                                           15      0   100%
@@ -1110,7 +1134,7 @@ src/common/redis_protocol/connection_helpers/pool_initialization.py             
 src/common/redis_protocol/connection_helpers/pool_lifecycle.py                                                                         19      1    95%
 src/common/redis_protocol/connection_helpers/pool_settings.py                                                                          16      0   100%
 src/common/redis_protocol/connection_helpers/pool_validator.py                                                                         37      4    89%
-src/common/redis_protocol/connection_pool_core.py                                                                                     170     36    79%
+src/common/redis_protocol/connection_pool_core.py                                                                                     170     31    82%
 src/common/redis_protocol/connection_pool_helpers/connection_management.py                                                             50      4    92%
 src/common/redis_protocol/connection_store.py                                                                                          73      4    95%
 src/common/redis_protocol/connection_store_helpers/global_instance.py                                                                   8      0   100%
@@ -1123,7 +1147,7 @@ src/common/redis_protocol/connection_store_helpers/state_processor.py           
 src/common/redis_protocol/connection_store_helpers/state_queries.py                                                                     7      0   100%
 src/common/redis_protocol/connection_store_helpers/state_serializer.py                                                                 29      0   100%
 src/common/redis_protocol/connection_wrappers.py                                                                                       56      0   100%
-src/common/redis_protocol/converters.py                                                                                                64     17    73%
+src/common/redis_protocol/converters.py                                                                                                44      0   100%
 src/common/redis_protocol/error_types.py                                                                                                9      0   100%
 src/common/redis_protocol/kalshi_store/attribute_resolver.py                                                                           56      2    96%
 src/common/redis_protocol/kalshi_store/cleaner.py                                                                                      87      4    95%
@@ -1145,7 +1169,7 @@ src/common/redis_protocol/kalshi_store/connection_helpers/property_manager.py   
 src/common/redis_protocol/kalshi_store/connection_helpers/retry_handler.py                                                             45      2    96%
 src/common/redis_protocol/kalshi_store/dependencies_factory.py                                                                         48      0   100%
 src/common/redis_protocol/kalshi_store/dependencies_factory_helpers.py                                                                 47      0   100%
-src/common/redis_protocol/kalshi_store/facade_coordinator.py                                                                          139     29    79%
+src/common/redis_protocol/kalshi_store/facade_coordinator.py                                                                          139     12    91%
 src/common/redis_protocol/kalshi_store/facade_helpers.py                                                                                2      0   100%
 src/common/redis_protocol/kalshi_store/facade_helpers_modules/property_manager.py                                                      36      2    94%
 src/common/redis_protocol/kalshi_store/facade_helpers_modules/utilities.py                                                             38      2    95%
@@ -1174,8 +1198,8 @@ src/common/redis_protocol/kalshi_store/orderbook_helpers/trade_price_updater.py 
 src/common/redis_protocol/kalshi_store/protocols.py                                                                                    66      0   100%
 src/common/redis_protocol/kalshi_store/protocols_connections.py                                                                        18      0   100%
 src/common/redis_protocol/kalshi_store/protocols_subscriptions.py                                                                      28      0   100%
-src/common/redis_protocol/kalshi_store/reader.py                                                                                      125     26    79%
-src/common/redis_protocol/kalshi_store/reader_async_methods_mixin.py                                                                   30     14    53%
+src/common/redis_protocol/kalshi_store/reader.py                                                                                      125      1    99%
+src/common/redis_protocol/kalshi_store/reader_async_methods_mixin.py                                                                   30      0   100%
 src/common/redis_protocol/kalshi_store/reader_helpers/aggregator_utils.py                                                              20      0   100%
 src/common/redis_protocol/kalshi_store/reader_helpers/close_time_parser.py                                                             27      2    93%
 src/common/redis_protocol/kalshi_store/reader_helpers/connection_wrapper.py                                                            15      0   100%
@@ -1190,7 +1214,7 @@ src/common/redis_protocol/kalshi_store/reader_helpers/market_operations.py      
 src/common/redis_protocol/kalshi_store/reader_helpers/market_query_handler.py                                                          42      1    98%
 src/common/redis_protocol/kalshi_store/reader_helpers/market_record_builder.py                                                         24      0   100%
 src/common/redis_protocol/kalshi_store/reader_helpers/market_status_checker.py                                                         22      1    95%
-src/common/redis_protocol/kalshi_store/reader_helpers/metadata_extractor.py                                                            32      4    88%
+src/common/redis_protocol/kalshi_store/reader_helpers/metadata_extractor.py                                                            32      0   100%
 src/common/redis_protocol/kalshi_store/reader_helpers/metadataextractor_helpers/market_record_builder.py                               81      3    96%
 src/common/redis_protocol/kalshi_store/reader_helpers/metadataextractor_helpers/market_record_builder_helpers/field_extractor.py       46      2    96%
 src/common/redis_protocol/kalshi_store/reader_helpers/metadataextractor_helpers/market_record_builder_helpers/metadata_builder.py      29      0   100%
@@ -1200,7 +1224,7 @@ src/common/redis_protocol/kalshi_store/reader_helpers/metadataextractor_helpers/
 src/common/redis_protocol/kalshi_store/reader_helpers/metadataextractor_helpers/price_extractor.py                                     12      0   100%
 src/common/redis_protocol/kalshi_store/reader_helpers/metadataextractor_helpers/strike_resolver.py                                     18      0   100%
 src/common/redis_protocol/kalshi_store/reader_helpers/metadataextractor_helpers/timestamp_normalizer.py                                 6      0   100%
-src/common/redis_protocol/kalshi_store/reader_helpers/metadataextractor_helpers/type_converter.py                                      16      2    88%
+src/common/redis_protocol/kalshi_store/reader_helpers/metadataextractor_helpers/type_converter.py                                      16      0   100%
 src/common/redis_protocol/kalshi_store/reader_helpers/orderbook_operations.py                                                           9      0   100%
 src/common/redis_protocol/kalshi_store/reader_helpers/orderbook_parser.py                                                              47      5    89%
 src/common/redis_protocol/kalshi_store/reader_helpers/orderbook_reader.py                                                              38      4    89%
@@ -1226,7 +1250,7 @@ src/common/redis_protocol/kalshi_store/store_initializer_helpers/component_facto
 src/common/redis_protocol/kalshi_store/store_initializer_helpers/delegator_factory.py                                                  35      0   100%
 src/common/redis_protocol/kalshi_store/store_methods.py                                                                               211     40    81%
 src/common/redis_protocol/kalshi_store/subscription.py                                                                                 68     10    85%
-src/common/redis_protocol/kalshi_store/subscription_factory.py                                                                         21      6    71%
+src/common/redis_protocol/kalshi_store/subscription_factory.py                                                                         21      0   100%
 src/common/redis_protocol/kalshi_store/subscription_helpers/connection_manager.py                                                      23      0   100%
 src/common/redis_protocol/kalshi_store/subscription_helpers/dependencies_factory.py                                                    22      0   100%
 src/common/redis_protocol/kalshi_store/subscription_helpers/key_provider.py                                                            15      0   100%
@@ -1288,7 +1312,7 @@ src/common/redis_protocol/orderbook_utils.py                                    
 src/common/redis_protocol/orderbook_utils_helpers/level_processor.py                                                                   30      0   100%
 src/common/redis_protocol/orderbook_utils_helpers/side_builder.py                                                                      21      0   100%
 src/common/redis_protocol/parsing/kalshi.py                                                                                           104     12    88%
-src/common/redis_protocol/parsing/kalshi_helpers.py                                                                                     2      2     0%
+src/common/redis_protocol/parsing/kalshi_helpers.py                                                                                     2      0   100%
 src/common/redis_protocol/parsing/kalshi_helpers/date_format_parsers.py                                                                10      0   100%
 src/common/redis_protocol/parsing/kalshi_helpers/token_validator.py                                                                    20      0   100%
 src/common/redis_protocol/persistence_manager.py                                                                                       70      0   100%
@@ -1364,7 +1388,6 @@ src/common/redis_protocol/trade_store/store_helpers/connection_manager.py       
 src/common/redis_protocol/trade_store/store_helpers/connection_manager_helpers/acquisition.py                                          31      5    84%
 src/common/redis_protocol/trade_store/store_helpers/connection_manager_helpers/base.py                                                 10      0   100%
 src/common/redis_protocol/trade_store/store_helpers/connection_manager_helpers/retry.py                                                40      6    85%
-src/common/redis_protocol/trade_store/store_helpers/connection_manager_helpers/retry_helpers.py                                        26     26     0%
 src/common/redis_protocol/trade_store/store_helpers/connection_manager_helpers/retry_helpers/callback_factory.py                        7      1    86%
 src/common/redis_protocol/trade_store/store_helpers/connection_manager_helpers/retry_helpers/executor.py                               12      0   100%
 src/common/redis_protocol/trade_store/store_helpers/connection_manager_helpers/retry_helpers/operation_factory.py                      36      1    97%
@@ -1412,9 +1435,9 @@ src/common/report_generator_helpers/unified_report_builder.py                   
 src/common/resource_tracker.py                                                                                                         78      5    94%
 src/common/resource_tracker_helpers/cpu_tracker.py                                                                                     47      6    87%
 src/common/resource_tracker_helpers/delegation/history.py                                                                               7      0   100%
-src/common/resource_tracker_helpers/delegation/monitoring_control.py                                                                   30      9    70%
+src/common/resource_tracker_helpers/delegation/monitoring_control.py                                                                   30      0   100%
 src/common/resource_tracker_helpers/delegation/recording.py                                                                             7      0   100%
-src/common/resource_tracker_helpers/monitoring_loop.py                                                                                 61     24    61%
+src/common/resource_tracker_helpers/monitoring_loop.py                                                                                 61      0   100%
 src/common/resource_tracker_helpers/ram_tracker.py                                                                                     47      6    87%
 src/common/rest_connection_manager.py                                                                                                  49      1    98%
 src/common/rest_connection_manager_helpers/connection_lifecycle.py                                                                     31      0   100%
@@ -1422,7 +1445,7 @@ src/common/rest_connection_manager_helpers/health_monitor.py                    
 src/common/rest_connection_manager_helpers/request_handler.py                                                                          10      0   100%
 src/common/rest_connection_manager_helpers/request_operations.py                                                                       68      7    90%
 src/common/rest_connection_manager_helpers/session_manager.py                                                                          45      6    87%
-src/common/scraper_connection_manager.py                                                                                               46     10    78%
+src/common/scraper_connection_manager.py                                                                                               46      0   100%
 src/common/scraper_connection_manager_helpers/connection_establisher.py                                                                10      0   100%
 src/common/scraper_connection_manager_helpers/connection_lifecycle.py                                                                  40      3    92%
 src/common/scraper_connection_manager_helpers/content_validation.py                                                                    35      5    86%
@@ -1476,22 +1499,21 @@ src/common/status_reporter_helpers/summary_builder.py                           
 src/common/status_reporter_helpers/time_formatter.py                                                                                   19      0   100%
 src/common/status_reporter_helpers/trade_reporter.py                                                                                   20      0   100%
 src/common/status_reporter_helpers/trade_status_reporter.py                                                                            20      0   100%
-src/common/strike_helpers.py                                                                                                          120     36    70%
-src/common/strike_helpers_utils.py                                                                                                     88     17    81%
+src/common/strike_helpers.py                                                                                                          120      0   100%
+src/common/strike_helpers_utils.py                                                                                                     88     15    83%
 src/common/telegram_utils.py                                                                                                           17      0   100%
 src/common/time_helpers/expiry.py                                                                                                       7      0   100%
 src/common/time_helpers/expiry_conversions.py                                                                                         101     11    89%
 src/common/time_helpers/expiry_matching.py                                                                                             36      1    97%
-src/common/time_helpers/expiry_wrapper.py                                                                                              68     17    75%
+src/common/time_helpers/expiry_wrapper.py                                                                                              68      0   100%
 src/common/time_helpers/location.py                                                                                                    40      4    90%
 src/common/time_helpers/timestamp_parser.py                                                                                            65      7    89%
 src/common/time_helpers/timezone.py                                                                                                    66      2    97%
-src/common/time_utils.py                                                                                                               10     10     0%
 src/common/time_utils/base.py                                                                                                           6      0   100%
 src/common/time_utils/local.py                                                                                                         42      7    83%
 src/common/time_utils/solar.py                                                                                                         56     11    80%
 src/common/time_utils/twilight.py                                                                                                      97      4    96%
-src/common/trading/notifier_adapter.py                                                                                                 42     12    71%
+src/common/trading/notifier_adapter.py                                                                                                 42      0   100%
 src/common/trading/order_metadata_service.py                                                                                           30      6    80%
 src/common/trading/order_payloads.py                                                                                                   24      3    88%
 src/common/trading/polling_workflow.py                                                                                                 38      4    89%
@@ -1557,52 +1579,24 @@ src/common/websocket_connection_manager_helpers/message_operations.py           
 src/common/websocket_connection_manager_helpers/ping_pong_manager.py                                                                   10      0   100%
 src/common/websocket_connection_manager_helpers/ws_connection_handler.py                                                               10      0   100%
 -------------------------------------------------------------------------------------------------------------------------------------------------------
-TOTAL                                                                                                                               33456   1973    94%
-Required test coverage of 80% reached. Total coverage: 94.10%
+TOTAL                                                                                                                               33365   1603    95%
+Required test coverage of 80% reached. Total coverage: 95.20%
 ============================= slowest 10 durations =============================
 5.00s call     tests/unit/dependency_monitor_helpers/test_monitoring_loop.py::TestRunLoop::test_calls_status_manager_handle_changes
 5.00s call     tests/unit/dependency_monitor_helpers/test_monitoring_loop.py::TestRunLoop::test_checks_dependencies_when_interval_elapsed
 2.38s call     tests/unit/time_helpers/test_location_and_local.py::test_local_midnight_and_after_check
 2.00s call     tests/unit/test_process_killer.py::test_kill_existing_processes_handles_termination_exception
-1.42s call     tests/unit/test_time_utils_exports.py::test_time_utils_exports_functions
-1.01s call     tests/unit/test_emergency_position_manager.py::TestEmergencyPositionManagerEmergencyCloseAllPositions::test_closes_all_monitored_positions
-0.30s call     tests/unit/redis_protocol/test_kalshi_store.py::test_ensure_connection_failure
-0.18s call     tests/unit/test_module_references.py::test_module_references_env_variable_case_sensitivity
+2.00s call     tests/unit/resource_tracker_helpers/test_monitoring_loop.py::TestMonitoringLoop::test_stop_cancels_task_on_timeout
+1.72s call     tests/unit/test_time_utils_exports.py::test_time_utils_exports_functions
+1.00s call     tests/unit/test_emergency_position_manager.py::TestEmergencyPositionManagerEmergencyCloseAllPositions::test_closes_all_monitored_positions
+1.00s call     tests/unit/resource_tracker_helpers/test_monitoring_loop.py::TestMonitoringLoop::test_monitoring_loop_waits_for_stop_event
+0.32s call     tests/unit/redis_protocol/test_kalshi_store.py::test_ensure_connection_failure
 0.15s call     tests/unit/websocket/connection_health_monitor_helpers/test_monitor_lifecycle.py::TestMonitorLifecycle::test_start_monitoring_success
-0.14s call     tests/unit/test_session_tracker.py::test_garbage_collected_session_logs
-22 failed, 5733 passed in 41.45s
+19 failed, 6011 passed in 46.84s
 → Running coverage_guard...
-coverage_guard: per-file coverage below threshold (80.00%):
-  src/common/alerter_factory.py: 78.57% (33/42 lines covered)
-  src/common/base_connection_manager_helpers/health_coordinator.py: 72.73% (32/44 lines covered)
-  src/common/base_connection_manager_helpers/metrics_tracker.py: 71.88% (23/32 lines covered)
-  src/common/base_connection_manager_helpers/property_accessors.py: 60.98% (25/41 lines covered)
-  src/common/connection_manager.py: 77.67% (80/103 lines covered)
-  src/common/dawn_reset_service_helpers/field_reset_applicator_with_alert.py: 65.62% (21/32 lines covered)
-  src/common/dawn_reset_service_helpers/field_reset_evaluator_helpers/evaluation_cases.py: 77.14% (27/35 lines covered)
-  src/common/dependency_monitor_helpers/callback_runner.py: 76.47% (13/17 lines covered)
-  src/common/http_utils.py: 70.83% (17/24 lines covered)
-  src/common/kalshi_trading_client/client_helpers/attribute_handler.py: 66.67% (8/12 lines covered)
-  src/common/optimized_status_reporter_mixins.py: 73.53% (25/34 lines covered)
-  src/common/redis_protocol/atomic_redis_operations_helpers/coordinator.py: 61.05% (58/95 lines covered)
-  src/common/redis_protocol/connection_pool_core.py: 78.82% (134/170 lines covered)
-  src/common/redis_protocol/converters.py: 73.44% (47/64 lines covered)
-  src/common/redis_protocol/kalshi_store/facade_coordinator.py: 79.14% (110/139 lines covered)
-  src/common/redis_protocol/kalshi_store/reader.py: 79.20% (99/125 lines covered)
-  src/common/redis_protocol/kalshi_store/reader_async_methods_mixin.py: 53.33% (16/30 lines covered)
-  src/common/redis_protocol/kalshi_store/subscription_factory.py: 71.43% (15/21 lines covered)
-  src/common/redis_protocol/parsing/kalshi_helpers.py: 0.00% (0/2 lines covered)
-  src/common/redis_protocol/trade_store/store_helpers/connection_manager_helpers/retry_helpers.py: 0.00% (0/26 lines covered)
-  src/common/resource_tracker_helpers/delegation/monitoring_control.py: 70.00% (21/30 lines covered)
-  src/common/resource_tracker_helpers/monitoring_loop.py: 60.66% (37/61 lines covered)
-  src/common/scraper_connection_manager.py: 78.26% (36/46 lines covered)
-  src/common/strike_helpers.py: 70.00% (84/120 lines covered)
-  src/common/time_helpers/expiry_wrapper.py: 75.00% (51/68 lines covered)
-  src/common/time_utils.py: 0.00% (0/10 lines covered)
-  src/common/trading/notifier_adapter.py: 71.43% (30/42 lines covered)
 → Running compileall...
 
-❌ 5 check(s) failed
+❌ 6 check(s) failed
 make: *** [shared-checks] Error 1
 make: Target `check' not remade because of errors.
 make check failed; aborting commit and push.

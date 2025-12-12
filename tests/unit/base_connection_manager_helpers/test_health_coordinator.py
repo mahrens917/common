@@ -202,3 +202,79 @@ class TestHealthCoordinatorHandleMonitoringError:
             await coordinator._handle_monitoring_error(RuntimeError("test"))
 
         mock_sleep.assert_called_once_with(0.01)
+
+
+class TestHealthCoordinatorStartHealthMonitoring:
+    """Tests for HealthCoordinator.start_health_monitoring."""
+
+    @pytest.mark.asyncio
+    async def test_runs_monitoring_loop_until_shutdown(self) -> None:
+        """Runs monitoring loop until shutdown requested."""
+        lifecycle_mgr = MagicMock()
+        lifecycle_mgr.shutdown_requested = False
+        state_mgr = MagicMock()
+        state_mgr.get_state.return_value = ConnectionState.READY
+        health_mon = MagicMock()
+        health_mon.should_raise_error.return_value = False
+
+        coordinator = HealthCoordinator(
+            service_name="test_service",
+            state_manager=state_mgr,
+            lifecycle_manager=lifecycle_mgr,
+            health_monitor=health_mon,
+            health_check_interval=0.01,
+            max_consecutive_failures=5,
+        )
+
+        check_fn = AsyncMock()
+        connect_fn = AsyncMock()
+
+        loop_count = 0
+
+        async def track_and_shutdown(*args, **kwargs):
+            nonlocal loop_count
+            loop_count += 1
+            if loop_count >= 2:
+                lifecycle_mgr.shutdown_requested = True
+
+        with patch("asyncio.sleep", new_callable=AsyncMock, side_effect=track_and_shutdown):
+            await coordinator.start_health_monitoring(check_fn, connect_fn)
+
+        assert loop_count >= 2
+        health_mon.reset_failures.assert_called()
+
+    @pytest.mark.asyncio
+    async def test_handles_errors_during_monitoring(self) -> None:
+        """Handles errors during monitoring cycle."""
+        lifecycle_mgr = MagicMock()
+        lifecycle_mgr.shutdown_requested = False
+        state_mgr = MagicMock()
+        health_mon = MagicMock()
+        health_mon.should_raise_error.return_value = False
+
+        coordinator = HealthCoordinator(
+            service_name="test_service",
+            state_manager=state_mgr,
+            lifecycle_manager=lifecycle_mgr,
+            health_monitor=health_mon,
+            health_check_interval=0.01,
+            max_consecutive_failures=5,
+        )
+
+        check_fn = AsyncMock(side_effect=ConnectionError("test"))
+        connect_fn = AsyncMock()
+
+        error_count = 0
+
+        async def track_errors_and_shutdown(*args, **kwargs):
+            nonlocal error_count
+            error_count += 1
+            if error_count >= 2:
+                lifecycle_mgr.shutdown_requested = True
+
+        with patch.object(coordinator, "_process_health_cycle", side_effect=ConnectionError("test")):
+            with patch("asyncio.sleep", new_callable=AsyncMock, side_effect=track_errors_and_shutdown):
+                await coordinator.start_health_monitoring(check_fn, connect_fn)
+
+        assert error_count >= 2
+        health_mon.increment_failures.assert_called()

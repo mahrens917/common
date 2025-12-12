@@ -342,3 +342,24 @@ async def test_cleanup_redis_pool_handles_disconnect_error(monkeypatch, fake_red
     assert connection_pool_core._unified_pool is None
     assert connection_pool_core._pool_loop is None
     assert connection.get_redis_pool_metrics()["connection_errors"] >= 0
+
+
+def test_get_sync_redis_client_returns_client_from_pool(monkeypatch):
+    """Test that get_sync_redis_client returns a client backed by the pool."""
+
+    class FakeSyncPool:
+        def __init__(self, **kwargs):
+            self.kwargs = kwargs
+
+    class FakeSyncRedis:
+        def __init__(self, connection_pool=None):
+            self.connection_pool = connection_pool
+
+    fake_pool = FakeSyncPool()
+    monkeypatch.setattr(connection_pool_core, "_sync_pool", fake_pool)
+    monkeypatch.setattr(connection_pool_core.redis, "Redis", FakeSyncRedis)
+
+    client = connection_pool_core.get_sync_redis_client()
+
+    assert isinstance(client, FakeSyncRedis)
+    assert client.connection_pool is fake_pool

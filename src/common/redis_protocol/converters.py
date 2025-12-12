@@ -8,7 +8,6 @@ helpers keeps schema handling consistent and makes it easier to evolve payload
 formats without hunting for bespoke parsing logic.
 """
 
-import math
 from typing import Any, Iterable, Mapping
 
 from common.exceptions import DataError
@@ -126,40 +125,7 @@ def _handle_none_value(allow_none: bool) -> float | None:
     raise ValueError("Cannot coerce None to float")
 
 
-def _coerce_string_to_float(value: str, allow_none: bool, null_sentinels: Iterable[str], finite_only: bool) -> float | None:
-    """Coerce string value to float."""
-    stripped = value.strip()
-
-    # Check if value is a null sentinel
-    if _is_null_sentinel(stripped, null_sentinels):
-        if allow_none:
-            return None
-        raise ValueError(f"Value '{value}' is considered null")
-
-    # Try to parse as float
-    try:
-        return _handle_numeric(float(stripped), allow_none, finite_only)
-    except ValueError as err:
-        if allow_none:
-            return None
-        raise FloatCoercionError(f"Cannot parse float from '{value}'") from err
-
-
 def _is_null_sentinel(value: str, null_sentinels: Iterable[str]) -> bool:
     """Check if value matches any null sentinel."""
     value_lower = value.lower()
     return value_lower in {sentinel.lower() for sentinel in null_sentinels}
-
-
-def _handle_numeric(value: float, allow_none: bool, finite_only: bool) -> float | None:
-    """Handle numeric conversion with optional finiteness requirement."""
-    if finite_only and not math.isfinite(value):
-        return _handle_none_value(allow_none)
-    return value
-
-
-def _handle_unsupported_type(value: Any, allow_none: bool) -> float | None:
-    """Handle unsupported type based on allow_none flag."""
-    if allow_none:
-        return None
-    raise TypeError(f"Cannot coerce value of type {type(value)} to float")
