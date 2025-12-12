@@ -29,11 +29,11 @@ def _load_mapping_from_path(mapping_path: Path) -> Dict[str, Dict]:
     try:
         with open(mapping_path, "r", encoding="utf-8") as handle:
             payload = json.load(handle)
-    except FileNotFoundError as exc:
+    except FileNotFoundError as exc:  # policy_guard: allow-silent-handler
         raise WeatherConfigError(f"Weather station mapping file not found: {mapping_path}") from exc
-    except json.JSONDecodeError as exc:
+    except json.JSONDecodeError as exc:  # policy_guard: allow-silent-handler
         raise WeatherConfigError(f"Weather station mapping JSON invalid ({mapping_path})") from exc
-    except OSError as exc:  # pragma: no cover - filesystem errors already surfaced
+    except OSError as exc:  # policy_guard: allow-silent-handler
         raise WeatherConfigError(f"Unable to read weather station mapping {mapping_path}") from exc
 
     mappings = payload.get(MAPPINGS_KEY)

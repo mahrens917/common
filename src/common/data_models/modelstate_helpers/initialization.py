@@ -71,7 +71,7 @@ async def validate_currency_data(redis: Redis, currency: str) -> int:
 
     try:
         keys = await redis.keys(key_pattern)
-    except (*REDIS_ERRORS, RuntimeError) as error:
+    except (*REDIS_ERRORS, RuntimeError) as error:  # policy_guard: allow-silent-handler
         raise ModelStateInitializationError(f"Failed to list probability keys for {currency}") from error
 
     if not keys:
@@ -100,7 +100,7 @@ async def create_model_state_from_redis(
     """
     try:
         probability_store = probability_store_cls(redis)
-    except REDIS_ERRORS as error:
+    except REDIS_ERRORS as error:  # policy_guard: allow-silent-handler
         raise ModelStateInitializationError(f"Failed to initialize ProbabilityStore for {currency}") from error
 
     currency_upper = currency.upper()

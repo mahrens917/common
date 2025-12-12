@@ -57,12 +57,12 @@ def _register_shutdown_hook(alerter) -> None:
             loop = asyncio.new_event_loop()
             try:
                 loop.run_until_complete(alerter.cleanup())
-            except cleanup_errors as exc:  # pragma: no cover - defensive logging
+            except cleanup_errors as exc:  # policy_guard: allow-silent-handler
                 logger.warning("Alerter cleanup during interpreter shutdown failed: %s", exc, exc_info=True)
                 raise AlerterCleanupError("Alerter cleanup failed during interpreter shutdown") from exc
             finally:
                 loop.close()
-        except cleanup_errors as exc:  # pragma: no cover - defensive logging
+        except cleanup_errors as exc:  # policy_guard: allow-silent-handler
             logger.warning("Alerter cleanup during interpreter shutdown failed: %s", exc, exc_info=True)
             raise AlerterCleanupError("Alerter cleanup failed during interpreter shutdown") from exc
 

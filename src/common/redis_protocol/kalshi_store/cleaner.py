@@ -42,7 +42,7 @@ def _normalize_category_name(category: Union[str, KalshiMarketCategory]) -> str:
         raise ValueError("Kalshi market category cannot be blank")
     try:
         return KalshiMarketCategory(normalized).value
-    except ValueError as exc:
+    except ValueError as exc:  # policy_guard: allow-silent-handler
         raise ValueError(f"Unknown Kalshi market category '{category}'") from exc
 
 

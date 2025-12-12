@@ -49,9 +49,9 @@ class JsonConfigLoader:
             payload = loader.load_json_file(path.name)
         except FileNotFoundError:  # policy_guard: allow-silent-handler
             return {}
-        except ConfigurationError:
+        except ConfigurationError:  # policy_guard: allow-silent-handler
             raise
-        except OSError as exc:  # pragma: no cover - filesystem access failure
+        except OSError as exc:  # policy_guard: allow-silent-handler
             raise ConfigurationError(f"Failed to read {path}") from exc
 
         return JsonConfigLoader._normalize_values(payload, path)

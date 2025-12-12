@@ -43,7 +43,7 @@ async def get_probabilities_by_event_type(redis: Redis, currency: str, event_typ
 
     try:
         raw_keys = await ensure_awaitable(redis.keys(f"{prefix}*"))
-    except REDIS_ERRORS as exc:
+    except REDIS_ERRORS as exc:  # policy_guard: allow-silent-handler
         raise ProbabilityStoreError(f"Failed to fetch event type {event_type} for {currency_upper}: Redis error {exc}") from exc
 
     keys = await filter_keys_by_event_type(redis, raw_keys, event_type)

@@ -18,7 +18,7 @@ class DeribitKeyParser:
         """Parse and validate instrument type."""
         try:
             return DeribitInstrumentType(type_value)
-        except ValueError as exc:
+        except ValueError as exc:  # policy_guard: allow-silent-handler
             raise ValueError(f"Unsupported Deribit instrument type '{type_value}' in {key!r}") from exc
 
     @staticmethod

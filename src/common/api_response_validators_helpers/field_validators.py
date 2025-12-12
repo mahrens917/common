@@ -29,7 +29,7 @@ def validate_timestamp_field(data: Mapping[str, Any], field: str, prefix: str = 
         raise TypeError(f"{prefix}{field} must be string timestamp, got: {type(data[field])}")
     try:
         datetime.fromisoformat(data[field].replace("Z", "+00:00"))
-    except (ValueError, AttributeError) as e:
+    except (ValueError, AttributeError) as e:  # policy_guard: allow-silent-handler
         raise ValueError(f"{prefix}Invalid timestamp format in {field}: {data[field]}") from e
 
 

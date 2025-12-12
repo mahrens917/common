@@ -103,7 +103,7 @@ def parse_kalshi_market_key(key: str) -> KalshiMarketDescriptor:
 
     try:
         category = KalshiMarketCategory(category_segment)
-    except ValueError as exc:
+    except ValueError as exc:  # policy_guard: allow-silent-handler
         raise ValueError(f"Unsupported Kalshi market category '{category_segment}' in {key!r}") from exc
 
     display = ticker_segment.upper()

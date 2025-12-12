@@ -42,7 +42,7 @@ async def get_probabilities(redis: Redis, currency: str) -> Dict[str, Dict[str, 
 
     try:
         all_data = await ensure_awaitable(redis.hgetall(key))
-    except REDIS_ERRORS as exc:
+    except REDIS_ERRORS as exc:  # policy_guard: allow-silent-handler
         raise ProbabilityStoreError(f"Failed to get probabilities for {currency_upper}: Redis error {exc}") from exc
 
     if not all_data:
@@ -56,7 +56,7 @@ async def get_probabilities(redis: Redis, currency: str) -> Dict[str, Dict[str, 
 
         try:
             payload = orjson.loads(value_text)
-        except orjson.JSONDecodeError as exc:
+        except orjson.JSONDecodeError as exc:  # policy_guard: allow-silent-handler
             raise ProbabilityStoreError(f"Error parsing probability payload for field {field}: {value_text}") from exc
 
         expiry_bucket = result.setdefault(expiry, {})

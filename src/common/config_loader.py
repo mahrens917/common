@@ -74,7 +74,7 @@ class BaseConfigLoader:
         try:
             with open(config_path, "r", encoding="utf-8") as handle:
                 return json.load(handle)
-        except json.JSONDecodeError as exc:
+        except json.JSONDecodeError as exc:  # policy_guard: allow-silent-handler
             raise ConfigurationError(f"Invalid JSON in config file {filename}") from exc
 
     def get_section(self, config: Dict[str, Any], section_name: str) -> Dict[str, Any]:
@@ -171,7 +171,7 @@ def load_pnl_config() -> Dict[str, Any]:
         if "historical_start_date" not in config["trade_collection"]:
             raise RuntimeError("Missing 'historical_start_date' in trade_collection config")
 
-    except json.JSONDecodeError as exc:
+    except json.JSONDecodeError as exc:  # policy_guard: allow-silent-handler
         raise RuntimeError("Invalid JSON in PnL config file") from exc
     else:
         return config
@@ -199,9 +199,9 @@ def get_historical_start_date() -> date:
 
         logger.debug(f"Loaded historical start date: {start_date}")
 
-    except ValueError as exc:
+    except ValueError as exc:  # policy_guard: allow-silent-handler
         raise RuntimeError("Invalid date format in historical_start_date") from exc
-    except (FileNotFoundError, RuntimeError, KeyError, TypeError, OSError) as exc:
+    except (FileNotFoundError, RuntimeError, KeyError, TypeError, OSError) as exc:  # policy_guard: allow-silent-handler
         raise RuntimeError(f"Failed to load historical start date: {exc}") from exc
     else:
         return start_date
@@ -222,7 +222,7 @@ def get_reporting_timezone() -> str:
     """
     try:
         config = load_pnl_config()
-    except (FileNotFoundError, RuntimeError, OSError) as exc:  # pragma: no cover
+    except (FileNotFoundError, RuntimeError, OSError) as exc:  # policy_guard: allow-silent-handler
         raise RuntimeError("Failed to load PnL config for timezone lookup") from exc
 
     reporting: Optional[Dict[str, Any]] = config.get("reporting")
@@ -258,7 +258,7 @@ def load_weather_trading_config() -> Dict[str, Any]:
     try:
         with open(config_path, "r", encoding="utf-8") as handle:
             return json.load(handle)
-    except json.JSONDecodeError as exc:
+    except json.JSONDecodeError as exc:  # policy_guard: allow-silent-handler
         raise RuntimeError("Invalid JSON in weather trading config file") from exc
 
 

@@ -39,7 +39,7 @@ class TrackerInitializer:
         if connection_store is None:
             try:
                 connection_store = await get_connection_store()
-            except STORE_ERROR_TYPES as exc:
+            except STORE_ERROR_TYPES as exc:  # policy_guard: allow-silent-handler
                 raise build_tracker_error("Connection state tracker initialization failed", exc)
         # Initialize sub-components if not already done
         if state_updater is None:

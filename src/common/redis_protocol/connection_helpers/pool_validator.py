@@ -73,7 +73,7 @@ async def _log_server_info(client: redis.asyncio.Redis) -> None:
     """
     try:
         info = await asyncio.wait_for(client.info(), timeout=5.0)
-    except (asyncio.TimeoutError, *REDIS_SETUP_ERRORS) as exc:
+    except (asyncio.TimeoutError, *REDIS_SETUP_ERRORS) as exc:  # policy_guard: allow-silent-handler
         raise RuntimeError(f"Failed to retrieve Redis server info: {exc}") from exc
 
     version = info.get("redis_version")

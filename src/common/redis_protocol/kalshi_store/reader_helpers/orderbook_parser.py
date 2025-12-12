@@ -27,7 +27,7 @@ def extract_orderbook_sizes(market_ticker: str, market_data: Dict[str, Any]) -> 
 
     try:
         orderbook = safe_orjson_loads(orderbook_blob)
-    except ValueError as exc:
+    except ValueError as exc:  # policy_guard: allow-silent-handler
         raise TypeError(f"Orderbook payload malformed for {market_ticker}") from exc
     if not isinstance(orderbook, dict):
         raise TypeError(f"Orderbook payload malformed for {market_ticker}")

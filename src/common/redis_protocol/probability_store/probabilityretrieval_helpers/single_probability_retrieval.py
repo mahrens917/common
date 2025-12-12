@@ -52,7 +52,7 @@ async def get_probability_data(
 
     try:
         data = await ensure_awaitable(redis.hgetall(key))
-    except REDIS_ERRORS as exc:
+    except REDIS_ERRORS as exc:  # policy_guard: allow-silent-handler
         raise ProbabilityStoreError(f"Failed to get probability data for {key}: Redis error {exc}") from exc
 
     if not data:

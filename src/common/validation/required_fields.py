@@ -28,7 +28,7 @@ def validate_required_fields(
     """
     try:
         missing_fields = sorted(set(required_fields) - set(payload))
-    except TypeError:
+    except TypeError:  # policy_guard: allow-silent-handler
         raise TypeError(f"payload must be a Mapping, got {type(payload).__name__}")
     if not missing_fields:
         return

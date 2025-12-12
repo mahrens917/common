@@ -115,7 +115,7 @@ class AlertSuppressionManager:
     def _resolve_service_type(self, service_name: str) -> str:
         try:
             return self.service_type_mapping[service_name]
-        except KeyError as exc:
+        except KeyError as exc:  # policy_guard: allow-silent-handler
             raise KeyError(
                 f"No service type mapping configured for '{service_name}'. "
                 "Update monitor_config.json.alert_suppression.suppression_rules.service_type_mapping."

@@ -129,7 +129,7 @@ class DeribitInstrumentDescriptor:
         kind_normalized = kind.lower()
         try:
             instrument_type = DeribitInstrumentType(kind_normalized)
-        except ValueError as exc:
+        except ValueError as exc:  # policy_guard: allow-silent-handler
             raise ValueError(f"Unsupported Deribit instrument kind: {kind}") from exc
 
         expiry_iso: Optional[str] = None

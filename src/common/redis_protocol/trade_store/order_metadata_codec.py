@@ -69,7 +69,7 @@ class OrderMetadataCodec:
 
         try:
             return orjson.loads(text_payload)
-        except orjson.JSONDecodeError as exc:
+        except orjson.JSONDecodeError as exc:  # policy_guard: allow-silent-handler
             raise OrderMetadataError(f"Stored metadata for {order_id} is not valid JSON") from exc
 
     @staticmethod

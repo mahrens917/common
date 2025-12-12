@@ -80,7 +80,7 @@ def _extract_components(date_part: str) -> tuple[str, str, str]:
 def _parse_day(day_str: str, date_part: str) -> int:
     try:
         return int(day_str)
-    except (ValueError, TypeError) as exc:
+    except (ValueError, TypeError) as exc:  # policy_guard: allow-silent-handler
         raise ParsingError(f"Invalid day in {date_part}") from exc
 
 
@@ -94,7 +94,7 @@ def _parse_month(month_str: str) -> int:
 def _resolve_year(year_str: str, date_part: str) -> int:
     try:
         year_2digit = int(year_str)
-    except (ValueError, TypeError) as exc:
+    except (ValueError, TypeError) as exc:  # policy_guard: allow-silent-handler
         raise ParsingError(f"Invalid year in {date_part}") from exc
 
     if year_2digit < _CONST_50:

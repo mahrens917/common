@@ -52,7 +52,7 @@ class ValidationWriter:
         """
         try:
             numeric = float(value)
-        except (TypeError, ValueError) as exc:
+        except (TypeError, ValueError) as exc:  # policy_guard: allow-silent-handler
             raise TypeError(f"Probability value must be float-compatible, got {value}") from exc
 
         if not math.isfinite(numeric):

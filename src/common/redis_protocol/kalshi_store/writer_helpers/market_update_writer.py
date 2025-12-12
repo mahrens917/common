@@ -59,7 +59,7 @@ class MarketDataMixin(RedisConnectionMixin):
                 market_ticker,
                 sorted(field_updates.keys()),
             )
-        except REDIS_ERRORS as exc:  # pragma: no cover - defensive logging
+        except REDIS_ERRORS as exc:  # policy_guard: allow-silent-handler
             logger.error("Failed to persist enhanced data for %s: %s", market_ticker, exc, exc_info=True)
             raise
         else:

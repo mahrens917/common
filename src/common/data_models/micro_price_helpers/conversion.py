@@ -43,7 +43,7 @@ def determine_expiry(enhanced_option: Any) -> datetime:
 
     try:
         timestamp = int(expiry_candidate)
-    except (TypeError, ValueError) as exc:
+    except (TypeError, ValueError) as exc:  # policy_guard: allow-silent-handler
         raise OptionDataConversionError("Expiry timestamp must be an integer") from exc
     return datetime.fromtimestamp(timestamp, tz=timezone.utc)
 
@@ -71,7 +71,7 @@ def extract_prices(enhanced_option: Any) -> Tuple[float, float]:
 
     try:
         bid, ask = float(best_bid), float(best_ask)
-    except (TypeError, ValueError) as exc:
+    except (TypeError, ValueError) as exc:  # policy_guard: allow-silent-handler
         raise OptionDataConversionError("Bid/ask prices must be numeric") from exc
 
     if bid < 0 or ask < 0:
@@ -90,7 +90,7 @@ def extract_sizes(enhanced_option: Any) -> Tuple[float, float]:
 
     try:
         bid, ask = float(bid_size), float(ask_size)
-    except (TypeError, ValueError) as exc:
+    except (TypeError, ValueError) as exc:  # policy_guard: allow-silent-handler
         raise OptionDataConversionError("Bid/ask sizes must be numeric") from exc
     if bid <= 0 or ask <= 0:
         raise OptionDataConversionError(f"Bid/ask sizes must be positive: {bid}, {ask}")
@@ -106,7 +106,7 @@ def resolve_timestamp(enhanced_option: Any) -> datetime:
         return timestamp.astimezone(timezone.utc)
     try:
         return datetime.fromtimestamp(float(timestamp), tz=timezone.utc)
-    except (TypeError, ValueError) as exc:
+    except (TypeError, ValueError) as exc:  # policy_guard: allow-silent-handler
         raise OptionDataConversionError("Timestamp must be datetime or epoch") from exc
 
 

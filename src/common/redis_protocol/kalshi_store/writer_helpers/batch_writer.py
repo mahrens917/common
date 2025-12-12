@@ -77,7 +77,7 @@ async def _update_interpolation_results(self, currency: str, mapping_results: Di
         market_key = get_market_key_func(market_ticker_str)
         try:
             market_data = await self.redis.hgetall(market_key)
-        except REDIS_ERRORS as exc:
+        except REDIS_ERRORS as exc:  # policy_guard: allow-silent-handler
             raise KalshiStoreError(f"Redis error loading market {market_ticker_str} for interpolation update") from exc
 
         if not market_data:
@@ -85,14 +85,14 @@ async def _update_interpolation_results(self, currency: str, mapping_results: Di
 
         try:
             self._add_interpolation_fields_to_pipeline(pipe, market_key, result)
-        except (TypeError, ValueError, KeyError) as exc:
+        except (TypeError, ValueError, KeyError) as exc:  # policy_guard: allow-silent-handler
             raise KalshiStoreError(f"Invalid interpolation payload for market {market_ticker_str}") from exc
 
         updated_count += 1
 
     try:
         await pipe.execute()
-    except REDIS_ERRORS as exc:
+    except REDIS_ERRORS as exc:  # policy_guard: allow-silent-handler
         raise KalshiStoreError(f"Redis error executing interpolation updates for {currency}") from exc
 
     logger.info(

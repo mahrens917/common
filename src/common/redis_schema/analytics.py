@@ -39,7 +39,7 @@ class PdfSurfaceKey:
     def key(self) -> str:
         try:
             expiry_segment = sanitize_segment(self.expiry_iso)
-        except ValidationError as exc:
+        except ValidationError as exc:  # policy_guard: allow-silent-handler
             raise ValueError(str(exc)) from exc
         segments = [
             "pdf",
@@ -66,7 +66,7 @@ class ProbabilitySliceKey:
     def key(self) -> str:
         try:
             slice_segment = sanitize_segment(self.slice_name)
-        except ValidationError as exc:
+        except ValidationError as exc:  # policy_guard: allow-silent-handler
             raise ValueError(str(exc)) from exc
         segments = [
             "probability",

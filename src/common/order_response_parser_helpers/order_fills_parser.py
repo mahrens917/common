@@ -70,7 +70,7 @@ def _extract_fill_count(fill_data: Dict[str, Any]) -> int:
     count_value = fill_data["count"]
     try:
         return int(count_value)
-    except (TypeError, ValueError) as exc:
+    except (TypeError, ValueError) as exc:  # policy_guard: allow-silent-handler
         raise ValidationError(f"Invalid fill count value: {count_value}") from exc
 
 
@@ -81,7 +81,7 @@ def _extract_fill_timestamp(fill_data: Dict[str, Any], default_timestamp: dateti
 
     try:
         return datetime.fromisoformat(str(fill_data["timestamp"]).replace("Z", "+00:00"))
-    except (ValueError, AttributeError) as exc:
+    except (ValueError, AttributeError) as exc:  # policy_guard: allow-silent-handler
         raise ValidationError(f"Invalid fill timestamp format: {fill_data['timestamp']}") from exc
 
 

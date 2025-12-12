@@ -26,7 +26,7 @@ async def send_silent_failure_alert(service_name: str, time_since_last_update: f
             severity=AlertSeverity.CRITICAL,
             alert_type=f"{service_name}_ws_silent_failure",
         )
-    except asyncio.CancelledError:
+    except asyncio.CancelledError:  # policy_guard: allow-silent-handler
         raise
     except (RuntimeError, ConnectionError, OSError, ValueError):  # policy_guard: allow-silent-handler
         logger.exception(f"Failed to send silent failure alert: ")

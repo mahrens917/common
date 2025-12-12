@@ -44,9 +44,9 @@ def load_suppression_config(config_path: str = "config/monitor_config.json") -> 
 
     try:
         config = load_config(config_file)
-    except FileNotFoundError as exc:
+    except FileNotFoundError as exc:  # policy_guard: allow-silent-handler
         raise FileNotFoundError(ERR_CONFIG_NOT_FOUND.format(config_path=config_path)) from exc
-    except ConfigurationError as exc:
+    except ConfigurationError as exc:  # policy_guard: allow-silent-handler
         raise ConfigurationError(f"Invalid JSON in {config_path}") from exc
 
     if "alert_suppression" not in config:

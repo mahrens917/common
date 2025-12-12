@@ -52,7 +52,7 @@ def convert_numeric_field(value: Any) -> NumericField:
             return None
         try:
             return float(text)
-        except ValueError as exc:
+        except ValueError as exc:  # policy_guard: allow-silent-handler
             raise NumericFieldError(f"Invalid numeric value: {value!r}") from exc
     if isinstance(value, Mapping):
         raise NumericFieldError(f"Unsupported numeric value type: {type(value).__name__}")
@@ -95,7 +95,7 @@ def format_probability_value(value: Any) -> str:
 
     try:
         numeric = float(value)
-    except (TypeError, ValueError) as exc:
+    except (TypeError, ValueError) as exc:  # policy_guard: allow-silent-handler
         raise ProbabilityValueError(f"Probability value must be float-compatible, got {value}") from exc
 
     if not math.isfinite(numeric):

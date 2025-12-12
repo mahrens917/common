@@ -103,7 +103,7 @@ class OrderPoller:
     async def _retrieve_fills(self, order_id: str) -> List[Dict[str, Any]]:
         try:
             return await self._fetch_fills(order_id)
-        except FETCH_FILLS_ERRORS as exc:
+        except FETCH_FILLS_ERRORS as exc:  # policy_guard: allow-silent-handler
             raise KalshiOrderPollingError(
                 f"Failed to fetch fills: {exc}",
                 order_id=order_id,

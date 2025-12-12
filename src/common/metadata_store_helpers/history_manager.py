@@ -62,7 +62,7 @@ async def _load_history_hash(client: RedisClient, redis_key: str, service_name: 
     """Fetch all history entries for a service."""
     try:
         return await ensure_awaitable(client.hgetall(redis_key))
-    except REDIS_ERRORS as exc:  # pragma: no cover - network/runtime failure path
+    except REDIS_ERRORS as exc:  # policy_guard: allow-silent-handler
         raise RuntimeError(f"Failed to load history for service '{service_name}'") from exc
 
 

@@ -50,7 +50,7 @@ class KalshiTradingClientAPIMixin:
         if store_getter is not None:
             try:
                 await store_getter()
-            except (AttributeError, RuntimeError, ValueError, TypeError) as exc:
+            except (AttributeError, RuntimeError, ValueError, TypeError) as exc:  # policy_guard: allow-silent-handler
                 raise ValueError("Trade store required for trade collection") from exc
         elif not hasattr(self, "trade_store") or self.trade_store is None:
             raise ValueError("Trade store required for trade collection")

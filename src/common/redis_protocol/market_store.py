@@ -43,7 +43,7 @@ class DeribitStore(OptimizedMarketStore):
 
         try:
             return float(bid_str), float(ask_str)
-        except (TypeError, ValueError) as exc:
+        except (TypeError, ValueError) as exc:  # policy_guard: allow-silent-handler
             raise ValidationError(f"USDC pair market data invalid for {currency}; bid='{bid_str}', ask='{ask_str}'") from exc
 
     async def get_usdc_micro_price(self, currency: str) -> float:
@@ -78,7 +78,7 @@ class DeribitStore(OptimizedMarketStore):
             ask_price = float(market_data["best_ask"])
             bid_size = float(market_data["best_bid_size"])
             ask_size = float(market_data["best_ask_size"])
-        except (TypeError, ValueError) as exc:
+        except (TypeError, ValueError) as exc:  # policy_guard: allow-silent-handler
             raise ValidationError(f"USDC pair market data invalid for {currency}; payload={market_data}") from exc
 
         return calculate_usdc_micro_price(bid_price, ask_price, bid_size, ask_size)

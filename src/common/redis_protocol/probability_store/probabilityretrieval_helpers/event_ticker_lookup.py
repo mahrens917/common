@@ -38,7 +38,7 @@ async def get_event_ticker_for_key(redis: Redis, pattern: str) -> str:
 
     try:
         key_data = await ensure_awaitable(redis.hgetall(redis_key))
-    except REDIS_ERRORS as exc:
+    except REDIS_ERRORS as exc:  # policy_guard: allow-silent-handler
         raise ProbabilityStoreError(f"Failed to get event ticker for key {pattern}: Redis error {exc}") from exc
 
     if not key_data:

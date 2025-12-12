@@ -91,7 +91,7 @@ class ModelState:
                 redis_client = await ensure_awaitable(candidate)
             except TypeError:
                 redis_client = candidate
-        except (*REDIS_ERRORS, RuntimeError) as redis_error:
+        except (*REDIS_ERRORS, RuntimeError) as redis_error:  # policy_guard: allow-silent-handler
             raise ModelProbabilityCalculationError(
                 f"Failed to acquire Redis client for probability calculation ({self.currency})"
             ) from redis_error

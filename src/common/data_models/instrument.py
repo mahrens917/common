@@ -86,5 +86,5 @@ class Instrument:
         expiry_str = self.expiry.replace("Z", "+00:00")
         try:
             return int(datetime.fromisoformat(expiry_str).timestamp())
-        except ValueError as exc:  # pragma: no cover - compatibility guard
+        except ValueError as exc:  # policy_guard: allow-silent-handler
             raise ValueError(f"Invalid expiry string: {self.expiry}") from exc

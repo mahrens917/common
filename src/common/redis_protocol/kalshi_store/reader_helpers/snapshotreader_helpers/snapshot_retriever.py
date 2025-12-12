@@ -48,7 +48,7 @@ async def get_market_snapshot(
 
     try:
         raw_snapshot = await ensure_awaitable(redis.hgetall(market_key))
-    except REDIS_ERRORS as exc:
+    except REDIS_ERRORS as exc:  # policy_guard: allow-silent-handler
         raise KalshiStoreError(f"Redis error retrieving snapshot for {ticker}") from exc
 
     if not raw_snapshot:

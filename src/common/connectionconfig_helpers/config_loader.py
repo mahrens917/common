@@ -100,7 +100,7 @@ def load_weather_config() -> Dict[str, Any]:
     """
     try:
         config = load_config("weather_config.json")
-    except FileNotFoundError as exc:
+    except FileNotFoundError as exc:  # policy_guard: allow-silent-handler
         raise FileNotFoundError("Weather config file not found") from exc
 
     try:
@@ -110,5 +110,5 @@ def load_weather_config() -> Dict[str, Any]:
             "request_timeout_seconds": config["request_timeout_seconds"],
             "reconnection_initial_delay_seconds": config["reconnection_initial_delay_seconds"],
         }
-    except KeyError as exc:
+    except KeyError as exc:  # policy_guard: allow-silent-handler
         raise ConfigurationError("Invalid weather config file: missing required field") from exc

@@ -34,7 +34,7 @@ class MetadataFetcher:
         """
         try:
             return await fetch_order_metadata(order_id, self._get_trade_store, self._telegram_handler, logger)
-        except KalshiDataIntegrityError:
+        except KalshiDataIntegrityError:  # policy_guard: allow-silent-handler
             raise
         except (TradeStoreError, ValueError, TypeError, RuntimeError) as exc:
             error_msg = f"CRITICAL: Failed to retrieve order metadata for trade rule determination. " f"Order ID: {order_id}, Error"

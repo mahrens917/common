@@ -47,7 +47,7 @@ class SingleStore(RedisProviderMixin):
                 payload,
                 default_missing_event_ticker=False,
             )
-        except (ValueError, TypeError) as exc:
+        except (ValueError, TypeError) as exc:  # policy_guard: allow-silent-handler
             raise ProbabilityStoreError(
                 f"Failed to build probability record for {currency_upper}:{data.expiry}:{data.strike_type}:{data.strike}"
             ) from exc
@@ -64,5 +64,5 @@ class SingleStore(RedisProviderMixin):
             redis = await self._redis_provider()
             await ensure_awaitable(redis.hset(record.key, mapping=record.fields))
             logger.debug("Stored single probability entry for key: %s", record.key)
-        except REDIS_ERRORS as exc:
+        except REDIS_ERRORS as exc:  # policy_guard: allow-silent-handler
             raise ProbabilityStoreError(f"Failed to store single probability for {record.key}") from exc

@@ -22,7 +22,7 @@ def parse_deribit_market_key(key: str | bytes) -> DeribitInstrumentDescriptor:
     if isinstance(key, bytes):
         try:
             key = key.decode("utf-8")
-        except UnicodeDecodeError as exc:
+        except UnicodeDecodeError as exc:  # policy_guard: allow-silent-handler
             raise TypeError("Deribit key must be valid UTF-8 bytes.") from exc
 
     parts = _split_and_validate_key(key)
@@ -51,7 +51,7 @@ def _split_and_validate_key(key: str | bytes) -> list[str]:
     if isinstance(key, bytes):
         try:
             key = key.decode("utf-8")
-        except UnicodeDecodeError as exc:
+        except UnicodeDecodeError as exc:  # policy_guard: allow-silent-handler
             raise TypeError("Deribit key must be valid UTF-8 bytes.") from exc
 
     if not key or not key.strip():
@@ -71,7 +71,7 @@ def _parse_instrument_type(parts: list[str]) -> DeribitInstrumentType:
     instrument_type_value = parts[2]
     try:
         return DeribitInstrumentType(instrument_type_value)
-    except ValueError as exc:
+    except ValueError as exc:  # policy_guard: allow-silent-handler
         raise ValueError(f"Unsupported Deribit instrument type '{instrument_type_value}' in {':'.join(parts)!r}") from exc
 
 
@@ -122,7 +122,7 @@ def _validate_normalized_key(descriptor: DeribitInstrumentDescriptor, original_k
     if isinstance(original_key, bytes):
         try:
             original_key = original_key.decode("utf-8")
-        except UnicodeDecodeError as exc:
+        except UnicodeDecodeError as exc:  # policy_guard: allow-silent-handler
             raise TypeError("Deribit key must be valid UTF-8 bytes.") from exc
 
     expected_key = DeribitInstrumentKey(

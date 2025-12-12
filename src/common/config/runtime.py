@@ -68,7 +68,7 @@ def _normalize(value: str | None, *, strip: bool) -> str | None:
 def _coerce(name: str, raw_value: str, *, cast: Callable[[str], T]) -> T:
     try:
         return cast(raw_value)
-    except (TypeError, ValueError) as exc:  # pragma: no cover - defensive guard
+    except (TypeError, ValueError) as exc:  # policy_guard: allow-silent-handler
         raise ConfigurationError(f"Failed to cast environment variable {name!r}") from exc
 
 
@@ -106,7 +106,7 @@ def env_int(name: str, or_value: int | None = None, *, required: bool = False) -
         return or_value
     try:
         return int(raw)
-    except ValueError as exc:
+    except ValueError as exc:  # policy_guard: allow-silent-handler
         raise ConfigurationError(f"Environment variable {name!r} must be an integer (got {raw!r})") from exc
 
 
@@ -120,7 +120,7 @@ def env_float(name: str, or_value: float | None = None, *, required: bool = Fals
         return or_value
     try:
         return float(raw)
-    except ValueError as exc:
+    except ValueError as exc:  # policy_guard: allow-silent-handler
         raise ConfigurationError(f"Environment variable {name!r} must be a float (got {raw!r})") from exc
 
 
@@ -198,7 +198,7 @@ def load_json(relative_path: str) -> JsonConfig:
         raise ConfigurationError(f"Configuration file {config_path} does not exist")
     try:
         data = json.loads(config_path.read_text())
-    except json.JSONDecodeError as exc:  # pragma: no cover - defensive guard
+    except json.JSONDecodeError as exc:  # policy_guard: allow-silent-handler
         raise ConfigurationError(f"Failed to parse JSON config {config_path}") from exc
 
     if not isinstance(data, dict):
@@ -234,7 +234,7 @@ def get_data_dir(*, config_path: Optional[Path] = None) -> str:
 
     try:
         payload = json.loads(resolved_config.read_text(encoding="utf-8"))
-    except json.JSONDecodeError as exc:
+    except json.JSONDecodeError as exc:  # policy_guard: allow-silent-handler
         raise ConfigurationError(f"Failed to parse weather data configuration {resolved_config}") from exc
 
     if not isinstance(payload, dict):

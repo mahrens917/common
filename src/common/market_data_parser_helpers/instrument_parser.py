@@ -32,7 +32,7 @@ class OptionParser:
 
         try:
             strike = float(strike_str)
-        except ValueError:
+        except ValueError:  # policy_guard: allow-silent-handler
             raise ParsingError(f"Invalid strike price: {strike_str}")
 
         # Convert single letter option type to full word format

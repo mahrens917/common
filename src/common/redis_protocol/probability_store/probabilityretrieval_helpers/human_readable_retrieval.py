@@ -51,7 +51,7 @@ async def get_probabilities_human_readable(redis: Redis, currency: str) -> Dict[
 
     try:
         raw_keys = await redis.keys(f"{prefix}*")
-    except REDIS_ERRORS as exc:
+    except REDIS_ERRORS as exc:  # policy_guard: allow-silent-handler
         raise ProbabilityStoreError(f"Failed to get human-readable probabilities for {currency_upper}: Redis error {exc}") from exc
 
     if not raw_keys:

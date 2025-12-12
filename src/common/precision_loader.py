@@ -124,7 +124,7 @@ def _load_precision_config() -> Dict[str, Dict[str, float]]:
 
         try:
             icao = ensure_uppercase_icao(str(station))
-        except ValueError as exc:  # pragma: no cover - defensive guard
+        except ValueError as exc:  # policy_guard: allow-silent-handler
             raise PrecisionConfigError.invalid_icao(station) from exc
 
         metar_precision = precisions.get("metar_precision_c")

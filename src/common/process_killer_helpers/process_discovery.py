@@ -81,7 +81,7 @@ def create_psutil_process(pid: int, *, service_name: str, cmdline: Sequence[str]
     """Create a psutil.Process instance for the given PID."""
     try:
         import psutil
-    except ImportError as import_exc:
+    except ImportError as import_exc:  # policy_guard: allow-silent-handler
         raise RuntimeError(f"psutil is required to manage {service_name} processes but is not installed.") from import_exc
 
     try:
@@ -193,7 +193,7 @@ def import_psutil(service_name: str) -> Any:
     try:
         import psutil
 
-    except ImportError as import_exc:
+    except ImportError as import_exc:  # policy_guard: allow-silent-handler
         raise RuntimeError(
             f"psutil is required for process management but not available. Cannot ensure single instance of {service_name}"
         ) from import_exc

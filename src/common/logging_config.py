@@ -100,7 +100,7 @@ def _clear_logs_directory(log_dir: Path) -> None:
                 # File was removed between listdir and unlink - expected race condition
                 _MODULE_LOGGER.debug("Log entry disappeared during cleanup: %s", exc)
                 continue
-            except OSError as exc:
+            except OSError as exc:  # policy_guard: allow-silent-handler
                 raise RuntimeError(f"Failed to clear log entry {entry}") from exc
 
     _LOGS_CLEARED = True

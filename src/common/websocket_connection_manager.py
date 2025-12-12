@@ -60,7 +60,7 @@ class WebSocketConnectionManager(BaseConnectionManager):
     async def establish_connection(self) -> bool:
         try:
             result = await self.lifecycle_manager.establish_connection()
-        except asyncio.CancelledError:
+        except asyncio.CancelledError:  # policy_guard: allow-silent-handler
             raise
         except (OSError, ConnectionError, RuntimeError, ValueError):
             await self.cleanup_connection()

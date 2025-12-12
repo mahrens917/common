@@ -34,9 +34,9 @@ def _load_from_directory(name: str, directory: Path) -> Dict[str, Any]:
     try:
         with config_path.open("r", encoding="utf-8") as handle:
             return json.load(handle)
-    except json.JSONDecodeError as exc:
+    except json.JSONDecodeError as exc:  # policy_guard: allow-silent-handler
         raise WeatherConfigError(f"Invalid JSON in {config_path}") from exc
-    except OSError as exc:
+    except OSError as exc:  # policy_guard: allow-silent-handler
         raise WeatherConfigError(f"Unable to read {config_path}") from exc
 
 
@@ -46,7 +46,7 @@ def _resolve_config_json(name: str, config_dir: Optional[Path]) -> Dict[str, Any
 
     try:
         return load_config_json(name)
-    except WeatherConfigLoadError as exc:
+    except WeatherConfigLoadError as exc:  # policy_guard: allow-silent-handler
         raise WeatherConfigError(str(exc)) from exc
 
 

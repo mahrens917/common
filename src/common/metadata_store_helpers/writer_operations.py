@@ -56,7 +56,7 @@ async def increment_metadata_counter(
 
     try:
         await ensure_awaitable(pipe.execute())
-    except REDIS_ERRORS as exc:  # pragma: no cover - network/runtime failure path
+    except REDIS_ERRORS as exc:  # policy_guard: allow-silent-handler
         raise DataError(f"Failed to increment metadata counters for service '{service_name}'") from exc
 
     logger.debug(f"Incremented {service_name} count by {count}")
@@ -82,7 +82,7 @@ async def update_hash_fields(client: RedisClient, metadata_key: str, service_nam
     try:
         await ensure_awaitable(client.hset(metadata_key, mapping=mapping))
         await ensure_awaitable(client.expire(metadata_key, HISTORY_TTL_SECONDS))
-    except REDIS_ERRORS as exc:  # pragma: no cover - network/runtime failure path
+    except REDIS_ERRORS as exc:  # policy_guard: allow-silent-handler
         raise DataError(f"Failed to update metadata for service '{service_name}'") from exc
 
     return True

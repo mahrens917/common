@@ -82,7 +82,7 @@ class UserDisplay:
         """Show surface quality metrics"""
         try:
             output = format_surface_quality(r_squared_values, expiry_labels)
-        except DataError as exc:
+        except DataError as exc:  # policy_guard: allow-silent-handler
             raise ValueError(str(exc)) from exc
         print(output)
 

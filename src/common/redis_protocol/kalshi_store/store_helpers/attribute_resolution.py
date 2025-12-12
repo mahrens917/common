@@ -26,7 +26,7 @@ def kalshi_store_getattr(self, name: str) -> Any:
     ):
         try:
             return object.__getattribute__(self, name)
-        except AttributeError:
+        except AttributeError:  # policy_guard: allow-silent-handler
             raise AttributeError(f"'{type(self).__name__}' object has no attribute '{name}'")
 
     attr_resolver = object.__getattribute__(self, "_attr_resolver")

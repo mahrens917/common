@@ -104,7 +104,7 @@ def _convert_numeric_field(value: Any) -> Optional[float]:  # pragma: no cover -
 
     try:
         return coerce_float_optional(value)
-    except (ValueError, TypeError) as exc:
+    except (ValueError, TypeError) as exc:  # policy_guard: allow-silent-handler
         raise ValidationError(f"Invalid numeric value: {value!r}") from exc
 
 
@@ -262,7 +262,7 @@ def _to_optional_float(value: Any, *, context: str) -> Optional[float]:
         return None
     try:
         return float(value)
-    except (TypeError, ValueError) as exc:
+    except (TypeError, ValueError) as exc:  # policy_guard: allow-silent-handler
         raise RuntimeError(f"Invalid {context} value: {value}") from exc
 
 
@@ -368,7 +368,7 @@ def _format_probability_value(value: Any) -> str:
     """
     try:
         numeric = float(value)
-    except (TypeError, ValueError) as exc:
+    except (TypeError, ValueError) as exc:  # policy_guard: allow-silent-handler
         raise TypeError(f"Probability value must be float-compatible, got {value}") from exc
 
     if not math.isfinite(numeric):

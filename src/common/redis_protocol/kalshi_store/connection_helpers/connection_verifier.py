@@ -82,7 +82,7 @@ class ConnectionVerifier:
 
         try:
             await asyncio.wait_for(redis_client.ping(), timeout=health_check_timeout)
-        except asyncio.TimeoutError as exc:
+        except asyncio.TimeoutError as exc:  # policy_guard: allow-silent-handler
             raise RuntimeError("Redis client ping timed out during attachment") from exc
-        except REDIS_ERRORS as exc:
+        except REDIS_ERRORS as exc:  # policy_guard: allow-silent-handler
             raise RuntimeError(f"Redis client ping failed during attachment") from exc

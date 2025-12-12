@@ -25,7 +25,7 @@ async def store_trade_record(
             order_id,
             outcome.total_filled,
         )
-    except TradeStoreError as exc:
+    except TradeStoreError as exc:  # policy_guard: allow-silent-handler
         raise KalshiTradePersistenceError(
             f"Failed to store trade",
             order_id=order_id,

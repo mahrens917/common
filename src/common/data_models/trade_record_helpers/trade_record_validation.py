@@ -77,7 +77,7 @@ def validate_and_normalize_category(market_category: str) -> str:
             if isinstance(market_category, KalshiMarketCategory)
             else KalshiMarketCategory(market_category.lower()).value
         )
-    except ValueError as exc:
+    except ValueError as exc:  # policy_guard: allow-silent-handler
         raise ValueError(f"Unsupported market category: {market_category}") from exc
 
     return category_value

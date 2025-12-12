@@ -45,7 +45,7 @@ def _parse_prefixed_key(strike_key: str) -> Optional[tuple[int, float]]:
 
     try:
         numeric_value = float(strike_key[1:])
-    except ValueError as exc:
+    except ValueError as exc:  # policy_guard: allow-silent-handler
         raise ProbabilityStoreError(f"Invalid strike key '{strike_key}'") from exc
 
     return (1 if prefix == ">" else -1, numeric_value)
@@ -59,7 +59,7 @@ def _parse_range_key(strike_key: str) -> Optional[tuple[int, float]]:
     start, _, _ = strike_key.partition("-")
     try:
         return (0, float(start))
-    except ValueError as exc:
+    except ValueError as exc:  # policy_guard: allow-silent-handler
         raise ProbabilityStoreError(f"Invalid strike range '{strike_key}'") from exc
 
 

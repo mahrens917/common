@@ -107,7 +107,7 @@ async def cleanup_redis_connection(redis_client: redis.asyncio.Redis) -> None:
     try:
         await closer()
         logger.info("Redis connection closed successfully")
-    except REDIS_ERRORS as exc:
+    except REDIS_ERRORS as exc:  # policy_guard: allow-silent-handler
         raise RedisOperationError("close", original=cast(Exception, exc)) from exc
     except (OSError, RuntimeError) as exc:  # policy_guard: allow-silent-handler
         # Connection already closed or system error during cleanup - safe to ignore

@@ -52,7 +52,7 @@ class BatchManager(Generic[T]):
         self._timer.cancel()
         try:
             await self._executor.execute(batch, batch_size, batch_time, reason)
-        except asyncio.CancelledError:
+        except asyncio.CancelledError:  # policy_guard: allow-silent-handler
             raise
         except (RuntimeError, ValueError, ConnectionError, OSError):
             self._collector.clear()

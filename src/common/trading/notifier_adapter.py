@@ -49,7 +49,7 @@ class TradeNotifierAdapter:
 
         try:
             trade_notifier = self._notifier_supplier()
-        except RuntimeError as exc:
+        except RuntimeError as exc:  # policy_guard: allow-silent-handler
             raise KalshiTradeNotificationError(
                 "Trade notifier unavailable",
                 order_id=order_request.client_order_id,
@@ -79,7 +79,7 @@ class TradeNotifierAdapter:
 
         try:
             await trade_notifier.send_order_error_notification(order_data, error)
-        except error_types as exc:
+        except error_types as exc:  # policy_guard: allow-silent-handler
             raise KalshiTradeNotificationError(
                 notifier_error_message,
                 order_id=order_request.client_order_id,

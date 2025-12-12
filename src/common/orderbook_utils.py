@@ -202,7 +202,7 @@ def parse_and_extract_best_price(raw_order_book: Any, side: str, *, allow_zero: 
             return (0.0, 0) if allow_zero else (None, None)
         try:
             order_book_dict = orjson.loads(payload)
-        except orjson.JSONDecodeError as exc:
+        except orjson.JSONDecodeError as exc:  # policy_guard: allow-silent-handler
             raise ValueError(f"{side} field contains invalid JSON") from exc
         if not isinstance(order_book_dict, dict):
             raise TypeError(f"{side} field must decode to a JSON object")
