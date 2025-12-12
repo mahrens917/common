@@ -89,5 +89,5 @@ class HealthValidator:
                 severity=AlertSeverity.CRITICAL,
                 alert_type=f"{self.service_name}_ws_subscription_health_failure",
             )
-        except ALERT_FAILURE_ERRORS:
+        except ALERT_FAILURE_ERRORS:  # policy_guard: allow-silent-handler
             logger.exception("Failed to send %s subscription health alert", self.service_name)

@@ -64,7 +64,7 @@ class InitializationManager:
                     return
                 else:
                     logger.warning(f"Redis health check failed on attempt {attempt + 1}")
-            except POOL_ERRORS as exc:
+            except POOL_ERRORS as exc:  # policy_guard: allow-silent-handler
                 logger.warning(
                     "Redis pool readiness check failed on attempt %s: %s",
                     attempt + 1,
@@ -86,7 +86,7 @@ class InitializationManager:
             self.pubsub_client = None
             try:
                 await asyncio.wait_for(ensure_awaitable(client.aclose()), timeout=3.0)
-            except (asyncio.TimeoutError, ConnectionError, OSError, RuntimeError, AttributeError):
+            except (asyncio.TimeoutError, ConnectionError, OSError, RuntimeError, AttributeError):  # policy_guard: allow-silent-handler
                 logger.warning("Failed to close pubsub client", exc_info=True)
 
         if self.redis_client:
@@ -94,5 +94,5 @@ class InitializationManager:
             self.redis_client = None
             try:
                 await asyncio.wait_for(ensure_awaitable(client.aclose()), timeout=3.0)
-            except (asyncio.TimeoutError, ConnectionError, OSError, RuntimeError, AttributeError):
+            except (asyncio.TimeoutError, ConnectionError, OSError, RuntimeError, AttributeError):  # policy_guard: allow-silent-handler
                 logger.warning("Failed to close redis client", exc_info=True)

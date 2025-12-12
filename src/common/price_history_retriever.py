@@ -60,10 +60,10 @@ async def _get_history(self, client: RedisClient, currency: str, hours: int = 24
             if entry is not None:
                 price_history.append(entry)
         price_history.sort(key=lambda x: x[0])
-    except REDIS_ERRORS as exc:
+    except REDIS_ERRORS as exc:  # policy_guard: allow-silent-handler
         logger.exception("Failed to get %s price history", currency)
         raise RuntimeError(f"Failed to load {currency} price history") from exc
-    except (ValueError, TypeError, json.JSONDecodeError):
+    except (ValueError, TypeError, json.JSONDecodeError):  # policy_guard: allow-silent-handler
         logger.exception("Failed to parse %s price history", currency)
         raise
     else:

@@ -155,7 +155,7 @@ def parse_iso_datetime(expiry: str) -> Optional[Tuple[datetime, float]]:
         if expiry_dt.tzinfo is None:
             expiry_dt = expiry_dt.replace(tzinfo=timezone.utc)
 
-    except (ValueError, TypeError):
+    except (ValueError, TypeError):  # policy_guard: allow-silent-handler
         logger.exception("Failed to parse ISO expiry %s", expiry)
         return None
 

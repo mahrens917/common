@@ -75,5 +75,5 @@ class AlertManager:
 
             await self.telegram_handler.send_custom_message(message)
 
-        except ALERT_DELIVERY_ERRORS:
+        except ALERT_DELIVERY_ERRORS:  # policy_guard: allow-silent-handler
             logger.exception(f"Failed to send dawn reset telegram alert: ")

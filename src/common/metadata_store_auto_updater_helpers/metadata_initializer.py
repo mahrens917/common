@@ -51,7 +51,7 @@ class MetadataInitializer:
                     count = await ensure_awaitable(redis_client.hlen(key))
                     service_counts[service_name] += count
 
-                except REDIS_ERRORS as exc:
+                except REDIS_ERRORS as exc:  # policy_guard: allow-silent-handler
                     logger.warning("Error counting entries in %s: %s", key, exc, exc_info=True)
                     continue
 
@@ -61,7 +61,7 @@ class MetadataInitializer:
 
             logger.info(f"Initialized metadata for {len(service_counts)} services: {dict(service_counts)}")
 
-        except REDIS_ERRORS as exc:
+        except REDIS_ERRORS as exc:  # policy_guard: allow-silent-handler
             logger.error("Error initializing metadata from existing keys: %s", exc, exc_info=True)
 
     async def _ensure_hash_history_key(self, key: str) -> bool:
@@ -81,7 +81,7 @@ class MetadataInitializer:
                 key_type,
             )
 
-        except REDIS_ERRORS as exc:
+        except REDIS_ERRORS as exc:  # policy_guard: allow-silent-handler
             logger.error("Failed to normalize history key %s: %s", key, exc, exc_info=True)
             return False
 

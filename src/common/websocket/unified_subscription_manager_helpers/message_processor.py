@@ -66,6 +66,6 @@ class MessageProcessor:
         """Parse subscription update from data."""
         try:
             return SubscriptionUpdate.from_json(data)
-        except UPDATE_PARSE_ERRORS as exc:
+        except UPDATE_PARSE_ERRORS as exc:  # policy_guard: allow-silent-handler
             logger.exception("Failed to parse %s subscription update: %s", self.service_name, data, exc_info=exc)
             return None

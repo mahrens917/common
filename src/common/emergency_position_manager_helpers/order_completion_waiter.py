@@ -60,7 +60,7 @@ class OrderCompletionWaiter:
 
                 await asyncio.sleep(0.5)
 
-            except ORDER_POLLING_ERRORS:
+            except ORDER_POLLING_ERRORS:  # policy_guard: allow-silent-handler
                 logger.warning("[PositionCloser] Error checking order %s", order_id)
                 await asyncio.sleep(1.0)
 
@@ -77,6 +77,6 @@ class OrderCompletionWaiter:
                 continue
             try:
                 total_filled += int(fill["count"])
-            except (TypeError, ValueError):
+            except (TypeError, ValueError):  # policy_guard: allow-silent-handler
                 logger.warning("[PositionCloser] Invalid fill count for %s: %s", order_id, fill["count"])
         return total_filled

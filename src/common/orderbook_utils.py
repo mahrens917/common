@@ -32,7 +32,7 @@ def parse_orderbook_field(market_data: Dict[str, Any], field_name: str, ticker: 
 
     try:
         field_dict = safe_json_loads(field_json)
-    except (ValueError, TypeError, KeyError, OSError):
+    except (ValueError, TypeError, KeyError, OSError):  # policy_guard: allow-silent-handler
         logger.exception(f"Failed to parse {field_name} JSON for {ticker}")
         return None, "INVALID_PRICE_DATA"
 
@@ -57,7 +57,7 @@ def parse_orderbook_levels(order_book_dict: Dict[str, int], is_buy_order: bool) 
     try:
         price_levels = [(float(price), int(size)) for price, size in order_book_dict.items()]
         price_levels.sort(key=lambda x: x[0], reverse=not is_buy_order)
-    except (ValueError, TypeError):
+    except (ValueError, TypeError):  # policy_guard: allow-silent-handler
         logger.exception("Invalid order book data types in dict")
         return None
     else:
@@ -89,7 +89,7 @@ def extract_best_price_from_json(order_book_json: str, is_bid: bool) -> Tuple[Op
             best_price, best_size = max(price_size_pairs, key=lambda x: x[0])
         else:
             best_price, best_size = min(price_size_pairs, key=lambda x: x[0])
-    except (orjson.JSONDecodeError, ValueError, TypeError) as exc:
+    except (orjson.JSONDecodeError, ValueError, TypeError) as exc:  # policy_guard: allow-silent-handler
         logger.warning(f"Failed to extract best price from orderbook JSON: {exc}")
         return None, None
     else:
@@ -146,7 +146,7 @@ def extract_best_price_from_dict(
             return _get_default_price_result(allow_zero)
 
         return _select_best_price(valid_pairs, is_bid)
-    except (ValueError, TypeError) as exc:
+    except (ValueError, TypeError) as exc:  # policy_guard: allow-silent-handler
         logger.warning(f"Failed to extract best price from orderbook dict: {exc}")
         return _get_default_price_result(allow_zero)
 

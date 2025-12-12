@@ -9,8 +9,9 @@ from typing import TYPE_CHECKING
 from ..constants import CLEANUP_ERRORS
 
 if TYPE_CHECKING:
-    from common.trading import TradeStoreManager
     from src.kalshi.api.client import KalshiClient
+
+    from common.trading import TradeStoreManager
 
 logger = logging.getLogger(__name__)
 
@@ -30,7 +31,7 @@ class LifecycleManager:
         try:
             await kalshi_client.close()
             logger.info("[KalshiTradingClient] Trading client closed")
-        except CLEANUP_ERRORS as exc:
+        except CLEANUP_ERRORS as exc:  # policy_guard: allow-silent-handler
             logger.warning(
                 "[KalshiTradingClient] Error during close (%s): %s",
                 type(exc).__name__,

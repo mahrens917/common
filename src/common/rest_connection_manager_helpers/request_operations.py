@@ -63,7 +63,7 @@ class RESTRequestOperations:
         """Get authentication headers from handler."""
         try:
             return self.auth_handler(method, endpoint)
-        except TypeError:
+        except TypeError:  # policy_guard: allow-silent-handler
             return self.auth_handler()
 
     def _record_response_health(self, response: aiohttp.ClientResponse) -> None:

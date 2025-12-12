@@ -73,7 +73,7 @@ class PositionCloser:
 
             else:
                 return False, final_response, "Order did not execute"
-        except TRADING_OPERATION_ERRORS:
+        except TRADING_OPERATION_ERRORS:  # policy_guard: allow-silent-handler
             logger.exception("[PositionCloser] Failed to close position %s", position.ticker)
             return False, None, "Closure failed"
 

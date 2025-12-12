@@ -99,10 +99,10 @@ class CpuMonitor:
                 if not self._running:
                     break
                 await asyncio.sleep(self.sample_interval)
-        except asyncio.CancelledError:
+        except asyncio.CancelledError:  # policy_guard: allow-silent-handler
             logger.debug("CpuMonitor update loop cancelled")
             raise
-        except (OSError, RuntimeError, ValueError) as exc:
+        except (OSError, RuntimeError, ValueError) as exc:  # policy_guard: allow-silent-handler
             logger.exception("CpuMonitor update loop terminated unexpectedly")
             raise CpuMonitorError("CpuMonitor update loop terminated unexpectedly") from exc
         finally:

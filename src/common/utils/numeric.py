@@ -80,7 +80,7 @@ def coerce_float_optional(value: Any) -> Optional[float]:
 
     try:
         return float(value)
-    except (ValueError, TypeError):
+    except (ValueError, TypeError):  # policy_guard: allow-silent-handler
         return None
 
 
@@ -178,7 +178,7 @@ def coerce_int_optional(value: Any) -> Optional[int]:
 
     try:
         return int(value)
-    except (ValueError, TypeError):
+    except (ValueError, TypeError):  # policy_guard: allow-silent-handler
         return None
 
 

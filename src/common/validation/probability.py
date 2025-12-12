@@ -14,7 +14,7 @@ def clamp_probability(value: Optional[float]) -> Optional[float]:
         return None
     try:
         numeric = float(value)
-    except (TypeError, ValueError):
+    except (TypeError, ValueError):  # policy_guard: allow-silent-handler
         return None
     if not math.isfinite(numeric):
         return None

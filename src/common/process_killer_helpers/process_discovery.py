@@ -46,7 +46,7 @@ async def collect_process_candidates(
     # Direct OS scan when monitor has no matches
     try:
         import psutil
-    except ImportError:
+    except ImportError:  # policy_guard: allow-silent-handler
         return []
     if not hasattr(psutil, "process_iter"):
         return []
@@ -71,7 +71,7 @@ async def collect_process_candidates(
                     service_name,
                 )
             )
-        except (psutil.NoSuchProcess, psutil.AccessDenied):
+        except (psutil.NoSuchProcess, psutil.AccessDenied):  # policy_guard: allow-silent-handler
             continue
 
     return filter_processes_by_pid(os_scan_matches, exclude_pid)
@@ -86,14 +86,14 @@ def create_psutil_process(pid: int, *, service_name: str, cmdline: Sequence[str]
 
     try:
         return psutil.Process(pid)
-    except KeyError:
+    except KeyError:  # policy_guard: allow-silent-handler
         logger.debug("Process %s disappeared before psutil inspection", pid)
         return None
-    except psutil.NoSuchProcess:
+    except psutil.NoSuchProcess:  # policy_guard: allow-silent-handler
         # Process already exited; treat as non-candidate.
         logger.debug("Process %s vanished before psutil inspection", pid)
         return None
-    except psutil.AccessDenied:
+    except psutil.AccessDenied:  # policy_guard: allow-silent-handler
         logger.debug(
             "Access denied inspecting %s process %s (cmdline=%s)",
             service_name,

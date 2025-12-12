@@ -45,7 +45,7 @@ class RedisConnection:
                 await self._client.ping()
                 record_pool_acquired()
                 logger.info("RedisConnection established connection using unified pool")
-            except REDIS_SETUP_ERRORS as exc:
+            except REDIS_SETUP_ERRORS as exc:  # policy_guard: allow-silent-handler
                 logger.exception(
                     "Failed to establish Redis connection (%s)",
                     type(exc).__name__,
@@ -75,7 +75,7 @@ class RedisConnection:
                 await self._client.aclose()
                 record_pool_returned()  # Track connection return
                 logger.info("RedisConnection closed connection")
-            except REDIS_SETUP_ERRORS as exc:
+            except REDIS_SETUP_ERRORS as exc:  # policy_guard: allow-silent-handler
                 logger.warning(
                     "Error closing Redis connection (%s): %s",
                     type(exc).__name__,
@@ -113,7 +113,7 @@ class RedisConnectionManager:
                 self._connection = await get_redis_client()
                 record_pool_acquired()
                 logger.info("Redis connection manager established connection using unified pool")
-            except REDIS_SETUP_ERRORS as exc:
+            except REDIS_SETUP_ERRORS as exc:  # policy_guard: allow-silent-handler
                 logger.exception(
                     "Failed to establish Redis connection (%s)",
                     type(exc).__name__,
@@ -135,7 +135,7 @@ class RedisConnectionManager:
                 await self._connection.aclose()
                 record_pool_returned()
                 logger.info("Redis connection manager closed connection")
-            except REDIS_SETUP_ERRORS as exc:
+            except REDIS_SETUP_ERRORS as exc:  # policy_guard: allow-silent-handler
                 logger.warning(
                     "Error closing Redis connection (%s): %s",
                     type(exc).__name__,

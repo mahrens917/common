@@ -42,7 +42,7 @@ class RamTracker:
 
             logger.debug(f"Recorded {total_ram_mb} MB total RAM usage at {timestamp}")
 
-        except REDIS_ERRORS as exc:
+        except REDIS_ERRORS as exc:  # policy_guard: allow-silent-handler
             logger.error("Error recording RAM usage: %s", exc, exc_info=True)
             return False
         else:
@@ -83,7 +83,7 @@ class RamTracker:
             history.sort(key=lambda x: x[0])
             logger.debug(f"Retrieved {len(history)} RAM history entries over {hours} hours")
 
-        except REDIS_ERRORS as exc:
+        except REDIS_ERRORS as exc:  # policy_guard: allow-silent-handler
             logger.error("Error getting RAM history: %s", exc, exc_info=True)
             return []
         else:

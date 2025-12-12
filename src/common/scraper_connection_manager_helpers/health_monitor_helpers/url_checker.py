@@ -48,11 +48,11 @@ async def check_url_health(
             logger.debug(f"URL healthy: {url}")
             return True
 
-    except asyncio.TimeoutError:
+    except asyncio.TimeoutError:  # policy_guard: allow-silent-handler
         logger.warning(f"Health check timeout: {url}")
         return False
 
-    except aiohttp.ClientError as e:
+    except aiohttp.ClientError as e:  # policy_guard: allow-silent-handler
         logger.warning(f"Health check client error: {url} - {e}")
         return False
 

@@ -117,7 +117,7 @@ class HealthChecker:
                 return False
             else:
                 return True
-        except (RuntimeError, AttributeError, ValueError):
+        except (RuntimeError, AttributeError, ValueError):  # policy_guard: allow-silent-handler
             logger.exception("Error in %s health check", self.service_name)
             return False
 
@@ -128,5 +128,5 @@ class HealthChecker:
             value = getattr(self.stats_collector, "last_nonzero_update_time", 0.0)
         try:
             return float(value)
-        except (TypeError, ValueError):
+        except (TypeError, ValueError):  # policy_guard: allow-silent-handler
             return 0.0

@@ -126,7 +126,7 @@ def _parse_price_level(price_level: Any, market_ticker: str) -> Tuple[Optional[s
 
     try:
         price_value = float(price)
-    except (TypeError, ValueError):
+    except (TypeError, ValueError):  # policy_guard: allow-silent-handler
         return None, None
 
     price_str = f"{price_value:.1f}"

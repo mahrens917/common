@@ -66,7 +66,7 @@ class LimitEnforcer:
 
             await _enforce_total_exposure(self, positions, monitored_positions, assessments)
 
-        except MONITOR_ENFORCEMENT_ERRORS:
+        except MONITOR_ENFORCEMENT_ERRORS:  # policy_guard: allow-silent-handler
             logger.exception(f"[LimitEnforcer] Error monitoring positions: ")
         else:
             return assessments

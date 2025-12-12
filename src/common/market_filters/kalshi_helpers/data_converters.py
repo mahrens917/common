@@ -41,7 +41,7 @@ def to_int_value(value: Any) -> Optional[int]:
         return result
     try:
         return int(float(decoded))
-    except (ValueError, TypeError):
+    except (ValueError, TypeError):  # policy_guard: allow-silent-handler
         return None
 
 

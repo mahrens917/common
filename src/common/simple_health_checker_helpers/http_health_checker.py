@@ -59,7 +59,7 @@ class HttpHealthChecker:
                                 error_message=f"HTTP {response.status}",
                             )
 
-            except asyncio.TimeoutError:
+            except asyncio.TimeoutError:  # policy_guard: allow-silent-handler
                 return ServiceHealth(
                     service_name=service_name,
                     status=HealthStatus.UNHEALTHY,

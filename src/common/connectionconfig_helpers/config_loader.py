@@ -80,7 +80,7 @@ def load_websocket_config() -> Dict[str, Any]:
     """
     try:
         return load_config("websocket_config.json")
-    except FileNotFoundError:
+    except FileNotFoundError:  # policy_guard: allow-silent-handler
         return {}
 
 

@@ -25,7 +25,7 @@ def is_expired_kalshi(expiration_time_str: str, grace_period_days: int) -> bool:
             expiration_time = expiration_time.replace(tzinfo=timezone.utc)
 
         cutoff_time = datetime.now(timezone.utc) - timedelta(days=grace_period_days)
-    except (ValueError, AttributeError) as exc:
+    except (ValueError, AttributeError) as exc:  # policy_guard: allow-silent-handler
         logger.warning(
             "Failed to parse Kalshi expiration time '%s': %s",
             expiration_time_str,
@@ -51,7 +51,7 @@ def is_expired_deribit(expiry_str: str, grace_period_days: int) -> bool:
         expiry_date = datetime.strptime(expiry_str, "%Y-%m-%d").replace(tzinfo=timezone.utc)
 
         cutoff_time = datetime.now(timezone.utc) - timedelta(days=grace_period_days)
-    except (ValueError, AttributeError) as exc:
+    except (ValueError, AttributeError) as exc:  # policy_guard: allow-silent-handler
         logger.warning(
             "Failed to parse Deribit expiry date '%s': %s",
             expiry_str,

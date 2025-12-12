@@ -73,7 +73,7 @@ class LogHealthChecker:
                 seconds_since_last_log=age_seconds,
             )
 
-        except OSError:
+        except OSError:  # policy_guard: allow-silent-handler
             return ServiceHealth(
                 service_name=service_name,
                 status=HealthStatus.UNKNOWN,

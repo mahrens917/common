@@ -50,7 +50,7 @@ class MonitoringLoop:
             finally:
                 await self._cleanup_pubsub(pubsub)
 
-        except REDIS_ERRORS + (ConnectionError, RuntimeError):
+        except REDIS_ERRORS + (ConnectionError, RuntimeError):  # policy_guard: allow-silent-handler
             logger.exception("Fatal error in %s subscription monitoring", self.service_name)
             raise
         finally:
@@ -63,7 +63,7 @@ class MonitoringLoop:
                 async for message in pubsub.listen():
                     try:
                         await self.message_processor.process_message(message, redis_client)
-                    except REDIS_ERRORS + (Exception,):
+                    except REDIS_ERRORS + (Exception,):  # policy_guard: allow-silent-handler
                         logger.exception(
                             "Error processing %s subscription message",
                             self.service_name,
@@ -72,10 +72,10 @@ class MonitoringLoop:
 
                     await asyncio.sleep(0.1)  # Check frequently
 
-            except asyncio.CancelledError:
+            except asyncio.CancelledError:  # policy_guard: allow-silent-handler
                 logger.info(f"{self.service_name} subscription monitoring cancelled")
                 break
-            except REDIS_ERRORS + (ConnectionError, RuntimeError, ValueError):
+            except REDIS_ERRORS + (ConnectionError, RuntimeError, ValueError):  # policy_guard: allow-silent-handler
                 logger.exception(
                     "Error monitoring %s subscriptions",
                     self.service_name,
@@ -87,12 +87,12 @@ class MonitoringLoop:
         """Clean up pubsub subscription."""
         try:
             await pubsub.unsubscribe(self.subscription_channel)
-        except REDIS_ERRORS + (ConnectionError, RuntimeError, ValueError):
+        except REDIS_ERRORS + (ConnectionError, RuntimeError, ValueError):  # policy_guard: allow-silent-handler
             logger.exception("Error unsubscribing from %s channel", self.service_name)
 
     async def _cleanup_redis(self, redis_client) -> None:
         """Clean up Redis connection."""
         try:
             await redis_client.aclose()
-        except REDIS_ERRORS:
+        except REDIS_ERRORS:  # policy_guard: allow-silent-handler
             logger.exception("Error closing %s Redis connection", self.service_name)

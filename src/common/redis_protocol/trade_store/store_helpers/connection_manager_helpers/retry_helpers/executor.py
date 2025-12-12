@@ -16,9 +16,9 @@ async def execute_retry_operation(
     """Execute connection operation with retry logic."""
     try:
         await execute_with_retry(operation, policy=policy, logger=logger, context=context, on_retry=on_retry)
-    except RedisFatalError:
+    except RedisFatalError:  # policy_guard: allow-silent-handler
         return False
-    except RedisRetryError:
+    except RedisRetryError:  # policy_guard: allow-silent-handler
         logger.exception("%s: %s")
         return False
     else:

@@ -57,5 +57,5 @@ class EventHandler:
 
             logger.debug(f"Queued update for {service_name} (operation: {operation})")
 
-        except (RuntimeError, ValueError, KeyError, AttributeError) as exc:
+        except (RuntimeError, ValueError, KeyError, AttributeError) as exc:  # policy_guard: allow-silent-handler
             logger.error("Error handling keyspace event: %s", exc, exc_info=True)

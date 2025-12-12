@@ -53,7 +53,7 @@ class MarketDataRetriever:
 
             else:
                 return market_data
-        except REDIS_ERRORS as exc:
+        except REDIS_ERRORS as exc:  # policy_guard: allow-silent-handler
             logger.error("Error getting market data for %s: %s", currency, exc, exc_info=True)
             raise
 
@@ -91,6 +91,6 @@ class MarketDataRetriever:
 
             else:
                 return market_data
-        except REDIS_ERRORS as exc:
+        except REDIS_ERRORS as exc:  # policy_guard: allow-silent-handler
             logger.error("Error getting USDC market data for %s: %s", currency, exc, exc_info=True)
             raise

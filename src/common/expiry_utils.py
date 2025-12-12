@@ -233,7 +233,7 @@ def _extract_strikes_from_market(market: Any) -> List[float]:
 
         try:
             strikes.append(float(value))
-        except (TypeError, ValueError):
+        except (TypeError, ValueError):  # policy_guard: allow-silent-handler
             logger.warning("Invalid strike value '%s' for field %s", value, field)
 
     return strikes

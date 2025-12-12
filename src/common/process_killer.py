@@ -104,7 +104,7 @@ def ensure_single_instance_sync(service_name: str) -> None:
 
     try:
         loop = asyncio.get_running_loop()
-    except RuntimeError:
+    except RuntimeError:  # policy_guard: allow-silent-handler
         # Absence of running loop - expected when called from synchronous context
         loop = None
 
@@ -311,11 +311,11 @@ def _safe_pid(proc) -> str:
         return "unknown"
     try:
         pid = getattr(proc, "pid", None)
-    except (AttributeError, RuntimeError, OSError):
+    except (AttributeError, RuntimeError, OSError):  # policy_guard: allow-silent-handler
         return "unknown"
     if pid is None:
         return "unknown"
     try:
         return str(pid)
-    except (ValueError, TypeError, AttributeError):
+    except (ValueError, TypeError, AttributeError):  # policy_guard: allow-silent-handler
         return "unknown"

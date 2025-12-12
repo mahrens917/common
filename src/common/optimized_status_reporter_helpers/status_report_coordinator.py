@@ -234,7 +234,7 @@ class StatusReportCoordinator:
             redis_client = await get_redis_client()
             status_data = await self.data_gatherer.gather_all_status_data(redis_client)
             await self.console_printer.print_full_status(status_data)
-        except STATUS_REPORT_ERRORS as exc:
+        except STATUS_REPORT_ERRORS as exc:  # policy_guard: allow-silent-handler
             logger.exception("Status report failed: %s", type(exc).__name__)
             raise RuntimeError("Status report generation failed") from exc
         else:

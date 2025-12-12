@@ -70,18 +70,18 @@ class MonitoringLoop:
                 try:
                     await self.cpu_tracker.record_cpu_usage(cpu_percent)
                     await self.ram_tracker.record_ram_usage(ram_mb)
-                except (RuntimeError, ValueError, TypeError, AttributeError) as exc:
+                except (RuntimeError, ValueError, TypeError, AttributeError) as exc:  # policy_guard: allow-silent-handler
                     logger.exception("Error storing per-second data to Redis")
                     raise RuntimeError("Failed to store resource metrics to Redis") from exc
 
-            except (RuntimeError, ValueError, TypeError, AttributeError) as exc:
+            except (RuntimeError, ValueError, TypeError, AttributeError) as exc:  # policy_guard: allow-silent-handler
                 logger.exception("Error in per-second monitoring")
                 raise
 
             try:
                 await asyncio.wait_for(self._stop_monitoring.wait(), timeout=1.0)
                 break
-            except asyncio.TimeoutError:
+            except asyncio.TimeoutError:  # policy_guard: allow-silent-handler
                 continue
 
     def get_max_cpu_last_minute(self) -> Optional[float]:

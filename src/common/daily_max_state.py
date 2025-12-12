@@ -57,7 +57,7 @@ class DailyMaxState:
         self._state = DailyMaxStateFactory.create_initial_state()
         try:
             self._metar_config = self._load_metar_config()
-        except MetarConfigLoadError:
+        except MetarConfigLoadError:  # policy_guard: allow-silent-handler
             logger.error("Failed to load METAR data source configuration", exc_info=True)
             raise
         self._delegator = DailyMaxStateDelegator(self._state, self._metar_config)

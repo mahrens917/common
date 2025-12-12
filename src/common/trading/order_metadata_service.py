@@ -52,7 +52,7 @@ async def fetch_order_metadata(
     if telegram_handler:
         try:
             await telegram_handler.send_alert(f"🚨 ORDER METADATA MISSING\n\n{error_msg}\n\nImmediate investigation required.")
-        except ALERT_SEND_ERRORS as alert_exc:
+        except ALERT_SEND_ERRORS as alert_exc:  # policy_guard: allow-silent-handler
             logger.warning(
                 "Failed to send missing metadata alert for order %s: %s",
                 order_id,

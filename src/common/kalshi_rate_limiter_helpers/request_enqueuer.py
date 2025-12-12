@@ -59,7 +59,7 @@ class RequestEnqueuer:
             else:
                 raise ValueError(f"Invalid request type: {request_type}")
 
-        except asyncio.QueueFull:
+        except asyncio.QueueFull:  # policy_guard: allow-silent-handler
             # This should not happen due to full() checks above, but fail-fast if it does
             raise QueueFullError(f"Request queue unexpectedly full for {request_type.value}")
 

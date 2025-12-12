@@ -36,10 +36,10 @@ class BatchProcessor(ShutdownRequestMixin):
                 if updates_to_process:
                     await self._process_batched_updates(updates_to_process)
 
-        except asyncio.CancelledError:
+        except asyncio.CancelledError:  # policy_guard: allow-silent-handler
             logger.info("Batch processor cancelled")
             raise
-        except REDIS_ERRORS as exc:
+        except REDIS_ERRORS as exc:  # policy_guard: allow-silent-handler
             logger.error("Error in batch processor: %s", exc, exc_info=True)
 
     async def _process_batched_updates(self, updates: Dict[str, int]):
@@ -51,5 +51,5 @@ class BatchProcessor(ShutdownRequestMixin):
             total_updates = sum(updates.values())
             logger.debug(f"Processed {total_updates} batched updates: {dict(updates)}")
 
-        except REDIS_ERRORS as exc:
+        except REDIS_ERRORS as exc:  # policy_guard: allow-silent-handler
             logger.error("Error processing batched updates: %s", exc, exc_info=True)

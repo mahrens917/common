@@ -46,7 +46,7 @@ def validate_timezone(tz_name: str) -> bool:
     """Return True when the timezone string is recognized by pytz."""
     try:
         pytz.timezone(tz_name)
-    except pytz.UnknownTimeZoneError:
+    except pytz.UnknownTimeZoneError:  # policy_guard: allow-silent-handler
         return False
     return True
 

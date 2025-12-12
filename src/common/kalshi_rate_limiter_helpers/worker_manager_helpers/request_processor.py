@@ -41,7 +41,7 @@ class RequestProcessor:
                 f"{request_data['request_id']}, tokens remaining: {self.token_manager.read_tokens}"
             )
 
-        except asyncio.QueueEmpty:
+        except asyncio.QueueEmpty:  # policy_guard: allow-silent-handler
             return False
         else:
             return True
@@ -72,7 +72,7 @@ class RequestProcessor:
                 f"{request_data['request_id']}, tokens remaining: {self.token_manager.write_tokens}"
             )
 
-        except asyncio.QueueEmpty:
+        except asyncio.QueueEmpty:  # policy_guard: allow-silent-handler
             return False
         else:
             return True

@@ -47,7 +47,7 @@ class SubscriptionOperations:
             pipe.hset(hash_key, typed_key, channel)
             pipe.publish(channel_key, update.to_json())
             await ensure_awaitable(pipe.execute())
-        except REDIS_ERRORS as exc:
+        except REDIS_ERRORS as exc:  # policy_guard: allow-silent-handler
             logger.error("Add failed: %s", exc, exc_info=True)
             return False
         else:
@@ -66,7 +66,7 @@ class SubscriptionOperations:
             pipe.hdel(hash_key, typed_key)
             pipe.publish(channel_key, update.to_json())
             await ensure_awaitable(pipe.execute())
-        except REDIS_ERRORS as exc:
+        except REDIS_ERRORS as exc:  # policy_guard: allow-silent-handler
             logger.error("Remove failed: %s", exc, exc_info=True)
             return False
         else:

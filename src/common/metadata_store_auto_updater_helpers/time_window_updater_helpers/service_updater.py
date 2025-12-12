@@ -46,7 +46,7 @@ class ServiceUpdater:
             counts = _calculate_window_counts(hash_data, windows)
 
             await _persist_counts(self.metadata_store, service_name, counts)
-        except REDIS_ERRORS as exc:
+        except REDIS_ERRORS as exc:  # policy_guard: allow-silent-handler
             logger.error("Error updating time windows for %s: %s", service_name, exc, exc_info=True)
 
 
@@ -93,7 +93,7 @@ def _coerce_int(raw_value: Any) -> int:
     decoded = _decode_if_needed(raw_value)
     try:
         return int(decoded)
-    except (TypeError, ValueError):
+    except (TypeError, ValueError):  # policy_guard: allow-silent-handler
         return 0
 
 

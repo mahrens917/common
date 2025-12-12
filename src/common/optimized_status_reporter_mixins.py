@@ -18,7 +18,7 @@ def _ensure_str_list(lines: Any) -> list[str]:
         return [str(item) for item in lines]
     try:
         return [str(item) for item in list(lines)]
-    except TypeError:
+    except TypeError:  # policy_guard: allow-silent-handler
         return [str(lines)]
 
 

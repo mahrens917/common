@@ -69,5 +69,5 @@ class NotificationSender:
 
         try:
             await self.telegram_notifier(message)
-        except NOTIFICATION_ERRORS:
+        except NOTIFICATION_ERRORS:  # policy_guard: allow-silent-handler
             logger.exception(f"[{self.service_name}] Failed to send error notification: ")

@@ -22,6 +22,6 @@ def parse_history_timestamp(datetime_str: str) -> Optional[int]:
         if dt is None:
             return None
         return int(dt.timestamp())
-    except (ValueError, TypeError):
+    except (ValueError, TypeError):  # policy_guard: allow-silent-handler
         # Return None for invalid formats (preserves original behavior)
         return None

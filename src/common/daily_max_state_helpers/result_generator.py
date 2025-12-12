@@ -5,8 +5,9 @@ from dataclasses import dataclass
 from datetime import datetime
 from typing import Any, Dict, Optional
 
-from common.exceptions import DataError
 from src.weather.temperature_converter import cli_temp_f
+
+from common.exceptions import DataError
 
 from .confidence_calculator import ConfidenceCalculator
 

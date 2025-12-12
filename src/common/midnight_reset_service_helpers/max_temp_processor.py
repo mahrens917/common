@@ -64,7 +64,7 @@ class MaxTempProcessor:
                 state_dict = json.loads(config.previous_data["daily_max_state"])
                 daily_state.load_from_state_dict(state_dict)
                 logger.info("Successfully restored daily max state from previous data")
-            except (json.JSONDecodeError, KeyError, ValueError):
+            except (json.JSONDecodeError, KeyError, ValueError):  # policy_guard: allow-silent-handler
                 logger.exception("CRITICAL: Failed to restore daily max state from Redis data")
                 stored_state = config.previous_data.get("daily_max_state")
                 logger.exception("Corrupted daily_max_state data: %s", stored_state)

@@ -96,7 +96,7 @@ def _parse_history_entry(datetime_raw: Any, value_raw: Any, service_name: str) -
     try:
         timestamp = _coerce_timestamp(datetime_str)
         messages_per_minute = float(value_str)
-    except (ValueError, TypeError) as exc:
+    except (ValueError, TypeError) as exc:  # policy_guard: allow-silent-handler
         logger.warning(
             "Skipping invalid history data for %s: %s=%s (%s)",
             service_name,

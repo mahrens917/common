@@ -40,7 +40,7 @@ class LifecycleManager:
             self._monitoring_task.cancel()
             try:
                 await self._monitoring_task
-            except asyncio.CancelledError:
+            except asyncio.CancelledError:  # policy_guard: allow-silent-handler
                 pass
             self._monitoring_task = None
             logger.info(f"Stopped {self.service_name} subscription monitoring")

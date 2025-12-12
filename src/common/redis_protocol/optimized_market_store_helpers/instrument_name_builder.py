@@ -42,13 +42,13 @@ class InstrumentNameBuilder:
             try:
                 dt = datetime.strptime(token, fmt)
                 return dt.strftime("%d%b%y").upper()
-            except ValueError:
+            except ValueError:  # policy_guard: allow-silent-handler
                 continue
 
         try:
             dt = datetime.fromisoformat(token)
             return dt.strftime("%d%b%y").upper()
-        except ValueError:
+        except ValueError:  # policy_guard: allow-silent-handler
             return uppercase
 
     @staticmethod

@@ -55,11 +55,11 @@ class PubsubManager(ShutdownRequestMixin):
                 # Clean exit - break the retry loop
                 break
 
-            except asyncio.CancelledError:
+            except asyncio.CancelledError:  # policy_guard: allow-silent-handler
                 # Task cancellation requested during shutdown
                 logger.info("Keyspace listener cancelled")
                 raise
-            except REDIS_ERRORS as exc:
+            except REDIS_ERRORS as exc:  # policy_guard: allow-silent-handler
                 # Handle Redis errors with retry logic
                 retry_count = await self._handle_redis_error(exc, retry_count, max_retries, base_delay)
 

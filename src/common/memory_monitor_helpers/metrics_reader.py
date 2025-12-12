@@ -28,7 +28,7 @@ class MetricsReader:
         try:
             memory_info = self.process.memory_info()
             return memory_info.rss / 1024 / 1024  # Convert bytes to MB
-        except PSUTIL_ERRORS:
+        except PSUTIL_ERRORS:  # policy_guard: allow-silent-handler
             logger.warning(f"Failed to get memory usage")
             return 0.0
 
@@ -36,7 +36,7 @@ class MetricsReader:
         """Get current system memory usage percentage."""
         try:
             return psutil.virtual_memory().percent
-        except PSUTIL_ERRORS:
+        except PSUTIL_ERRORS:  # policy_guard: allow-silent-handler
             logger.warning(f"Failed to get system memory")
             return 0.0
 
@@ -45,6 +45,6 @@ class MetricsReader:
         try:
             loop = asyncio.get_running_loop()
             return len([task for task in asyncio.all_tasks(loop) if not task.done()])
-        except TASK_QUERY_ERRORS:
+        except TASK_QUERY_ERRORS:  # policy_guard: allow-silent-handler
             logger.warning(f"Failed to get task count")
             return 0

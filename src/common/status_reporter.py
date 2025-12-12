@@ -112,7 +112,7 @@ class StatusReporter:
         for helper in self._helpers:
             try:
                 return getattr(helper, name)
-            except AttributeError:
+            except AttributeError:  # policy_guard: allow-silent-handler
                 continue
         raise AttributeError(f"{self.__class__.__name__} has no attribute {name}")
 

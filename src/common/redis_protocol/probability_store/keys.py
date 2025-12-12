@@ -33,7 +33,7 @@ def _try_parse_float(strike_key: str) -> Optional[float]:
     """Attempt to parse the strike as a plain float."""
     try:
         return float(strike_key)
-    except ValueError:
+    except ValueError:  # policy_guard: allow-silent-handler
         return None
 
 

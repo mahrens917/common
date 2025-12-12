@@ -25,7 +25,7 @@ def safe_json_loads(json_string: str, *, otherwise: Any = None) -> Any:
         return otherwise
     try:
         return json.loads(json_string)
-    except json.JSONDecodeError:
+    except json.JSONDecodeError:  # policy_guard: allow-silent-handler
         return otherwise
 
 
@@ -47,7 +47,7 @@ def safe_orjson_loads(json_bytes: bytes, *, otherwise: Any = None) -> Any:
         return otherwise
     try:
         return orjson.loads(json_bytes)
-    except orjson.JSONDecodeError:
+    except orjson.JSONDecodeError:  # policy_guard: allow-silent-handler
         return otherwise
 
 

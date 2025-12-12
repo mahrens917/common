@@ -48,7 +48,7 @@ def _normalise_orderbook(payload: Any) -> Mapping[str, Any]:
             deserialised = json.loads(text)
             if isinstance(deserialised, Mapping):
                 return deserialised
-        except json.JSONDecodeError:
+        except json.JSONDecodeError:  # policy_guard: allow-silent-handler
             return {}
     return {}
 

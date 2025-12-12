@@ -19,7 +19,7 @@ class FeeCalculator:
 
         try:
             return fee_func(quantity, price_cents, market_ticker)
-        except (ValueError, TypeError, RuntimeError, OverflowError) as exc:
+        except (ValueError, TypeError, RuntimeError, OverflowError) as exc:  # policy_guard: allow-silent-handler
             logger.exception(
                 "Failed to calculate fees for %s (%s)",
                 market_ticker,

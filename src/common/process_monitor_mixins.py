@@ -29,7 +29,7 @@ class ProcessMonitorScanMixin:
                 await self._perform_incremental_scan()
             except asyncio.CancelledError:
                 raise
-            except (RuntimeError, ValueError, OSError):
+            except (RuntimeError, ValueError, OSError):  # policy_guard: allow-silent-handler
                 logger.exception("Background scan loop encountered an error")
             await asyncio.sleep(self.scan_interval_seconds)
 

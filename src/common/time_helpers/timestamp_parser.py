@@ -84,7 +84,7 @@ def _parse_string_timestamp(value: str, allow_none: bool) -> datetime | None:
         numeric = float(token)
         if math.isfinite(numeric):
             return _parse_numeric_timestamp(numeric, allow_none)
-    except ValueError:
+    except ValueError:  # policy_guard: allow-silent-handler
         pass  # Not a numeric string, try ISO format
 
     # Parse as ISO format

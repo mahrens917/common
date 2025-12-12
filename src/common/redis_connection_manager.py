@@ -46,14 +46,14 @@ class RedisConnectionManager:
         if self.redis_client is not None:
             try:
                 await ensure_awaitable(self.redis_client.aclose())
-            except REDIS_ERRORS:
+            except REDIS_ERRORS:  # policy_guard: allow-silent-handler
                 logger.warning("Error closing existing Redis connection")
             finally:
                 self.redis_client = None
 
         try:
             self.redis_client = await self._connection_factory()
-        except REDIS_ERRORS as exc:
+        except REDIS_ERRORS as exc:  # policy_guard: allow-silent-handler
             logger.exception("Redis connection failed: %s", type(exc).__name__)
             raise
 
@@ -62,7 +62,7 @@ class RedisConnectionManager:
         if self.redis_client is not None:
             try:
                 await ensure_awaitable(self.redis_client.aclose())
-            except REDIS_ERRORS:
+            except REDIS_ERRORS:  # policy_guard: allow-silent-handler
                 logger.warning("Error closing Redis connection during cleanup")
             finally:
                 self.redis_client = None

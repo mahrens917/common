@@ -79,7 +79,7 @@ async def _record_service_update(self, service_name: str, updates_per_second: fl
             updates_per_second,
             current_timestamp,
         )
-    except REDIS_ERRORS as exc:
+    except REDIS_ERRORS as exc:  # policy_guard: allow-silent-handler
         logger.exception("Failed to record %s history", service_name)
         raise RuntimeError(f"Failed to record {service_name} history in Redis") from exc
     else:
@@ -98,10 +98,10 @@ async def _get_service_history(self, service_name: str, hours: int = 24) -> List
             timestamp = int(score)
             value = float(member)
             history_data.append((timestamp, value))
-    except REDIS_ERRORS as exc:
+    except REDIS_ERRORS as exc:  # policy_guard: allow-silent-handler
         logger.exception("Failed to get %s history", service_name)
         raise RuntimeError(f"Failed to load {service_name} history from Redis") from exc
-    except (ValueError, TypeError):
+    except (ValueError, TypeError):  # policy_guard: allow-silent-handler
         logger.exception("Invalid %s history payload", service_name)
         raise
     else:

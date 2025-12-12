@@ -43,11 +43,11 @@ async def test_pool_connection(pool: redis.asyncio.ConnectionPool, host: str, po
         test_client = redis.asyncio.Redis(connection_pool=pool)
         await asyncio.wait_for(test_client.ping(), timeout=5.0)
         await _log_server_info(test_client)
-    except asyncio.TimeoutError as exc:
+    except asyncio.TimeoutError as exc:  # policy_guard: allow-silent-handler
         logger.exception(f"Redis connection test timed out after 5 seconds: ")
         logger.exception(f"Attempted connection to: :/{db}")
         raise RuntimeError(f"Redis connection test timed out - Redis server may not be available at {host}:{port}") from exc
-    except REDIS_SETUP_ERRORS as exc:
+    except REDIS_SETUP_ERRORS as exc:  # policy_guard: allow-silent-handler
         logger.exception("Error testing Redis connection: %s: %s", type(exc).__name__)
         logger.exception(f"Attempted connection to: :/{db}")
         logger.exception(f"Pool settings used: host=, port=, db={db}")

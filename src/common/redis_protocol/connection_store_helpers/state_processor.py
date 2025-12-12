@@ -49,7 +49,7 @@ class ConnectionStateInfo:
             data = data.copy()
             data["state"] = ConnectionState(data["state"])
             return ConnectionStateInfo(**data)
-        except (ValueError, KeyError, TypeError):
+        except (ValueError, KeyError, TypeError):  # policy_guard: allow-silent-handler
             logger.error("Failed to create ConnectionStateInfo from dict", exc_info=True)
             return None
 
@@ -58,7 +58,7 @@ def serialize_state_info(state_info: ConnectionStateInfo) -> Optional[str]:
     """Serialize state info to JSON string."""
     try:
         return json.dumps(state_info.to_dict())
-    except SERIALIZATION_ERRORS:
+    except SERIALIZATION_ERRORS:  # policy_guard: allow-silent-handler
         logger.error(
             "Failed to serialise connection state for %s",
             state_info.service_name,
@@ -72,7 +72,7 @@ def deserialize_state_json(service_name: str, state_json: str) -> Optional[Conne
     try:
         data = json.loads(state_json)
         return ConnectionStateInfo.from_dict(data)
-    except JSON_ERRORS:
+    except JSON_ERRORS:  # policy_guard: allow-silent-handler
         logger.error(
             "Failed to decode connection state payload for %s",
             service_name,

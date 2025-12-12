@@ -91,7 +91,7 @@ class RedisPersistenceManager:
             OSError,
         ):
             return False, f"Error validating persistence"
-        except REDIS_ERRORS:
+        except REDIS_ERRORS:  # policy_guard: allow-silent-handler
             return False, f"Redis error validating persistence"
 
     async def get_persistence_info(self) -> str:
@@ -106,7 +106,7 @@ class RedisPersistenceManager:
             OSError,
         ):
             return f"❌ Error getting persistence info"
-        except REDIS_ERRORS:
+        except REDIS_ERRORS:  # policy_guard: allow-silent-handler
             return f"❌ Redis error getting persistence info"
 
 

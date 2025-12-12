@@ -27,7 +27,7 @@ class KeyScanner:
         """
         try:
             return await ensure_awaitable(redis.config_get("*"))
-        except REDIS_ERRORS:
+        except REDIS_ERRORS:  # policy_guard: allow-silent-handler
             logger.exception(f"Failed to get Redis config: ")
             return {}
 
@@ -43,7 +43,7 @@ class KeyScanner:
         """
         try:
             return await ensure_awaitable(redis.info("persistence"))
-        except REDIS_ERRORS:
+        except REDIS_ERRORS:  # policy_guard: allow-silent-handler
             logger.exception(f"Failed to get persistence info: ")
             return {}
 

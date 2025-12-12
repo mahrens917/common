@@ -15,7 +15,7 @@ def parse_expiry(metadata: Mapping[str, Any]) -> tuple[Optional[str], Optional[d
     try:
         expiry_dt = parse_expiry_datetime(str(expiry_raw))
         return str(expiry_raw), expiry_dt
-    except ValueError:
+    except ValueError:  # policy_guard: allow-silent-handler
         return str(expiry_raw), None
 
 

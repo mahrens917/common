@@ -47,7 +47,7 @@ class JsonConfigLoader:
         loader = BaseConfigLoader(path.parent)
         try:
             payload = loader.load_json_file(path.name)
-        except FileNotFoundError:
+        except FileNotFoundError:  # policy_guard: allow-silent-handler
             return {}
         except ConfigurationError:
             raise

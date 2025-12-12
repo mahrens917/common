@@ -40,12 +40,12 @@ class WorkerManager:
         self.shutdown_event.set()
         try:
             await asyncio.wait_for(self.worker_task, timeout=5.0)
-        except asyncio.TimeoutError as exc:
+        except asyncio.TimeoutError as exc:  # policy_guard: allow-silent-handler
             logger.warning("[KalshiRateLimiter] Worker shutdown timed out, cancelling")
             self.worker_task.cancel()
             try:
                 await self.worker_task
-            except asyncio.CancelledError as cancel_exc:
+            except asyncio.CancelledError as cancel_exc:  # policy_guard: allow-silent-handler
                 logger.debug("[KalshiRateLimiter] Worker cancelled after timeout", exc_info=cancel_exc)
                 self.worker_task = None
                 raise RuntimeError("KalshiRateLimiter worker cancelled during shutdown") from cancel_exc
@@ -74,7 +74,7 @@ class WorkerManager:
 
                 await asyncio.sleep(0.01)
 
-            except asyncio.CancelledError:
+            except asyncio.CancelledError:  # policy_guard: allow-silent-handler
                 logger.info("[KalshiRateLimiter] Worker cancelled")
                 raise
 

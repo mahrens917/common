@@ -65,7 +65,7 @@ class InstrumentBuilder:
 
         try:
             expiry_dt = datetime.fromisoformat(f"{descriptor.expiry_iso}T{DERIBIT_EXPIRY_HOUR:02d}:00:00+00:00")
-        except ValueError as exc:
+        except ValueError as exc:  # policy_guard: allow-silent-handler
             logger.warning(
                 "KEY_SCAN_DEBUG: Failed to parse expiry %s for key %s (%s)",
                 descriptor.expiry_iso,

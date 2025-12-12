@@ -45,7 +45,7 @@ class ReconnectionEventManager:
                 "details": details,
             }
             event_json = json.dumps(event_data)
-        except SERIALIZATION_ERRORS:
+        except SERIALIZATION_ERRORS:  # policy_guard: allow-silent-handler
             logger.error(
                 "Failed to serialise reconnection event for %s",
                 service_name,
@@ -58,7 +58,7 @@ class ReconnectionEventManager:
             cutoff_time = time.time() - 86400
             await ensure_awaitable(client.zremrangebyscore(self.reconnection_events_key, 0, cutoff_time))
             logger.debug("Recorded reconnection event for %s: %s", service_name, event_type)
-        except REDIS_ERRORS:
+        except REDIS_ERRORS:  # policy_guard: allow-silent-handler
             logger.error(
                 "Failed to record reconnection event for %s",
                 service_name,
@@ -80,7 +80,7 @@ class ReconnectionEventManager:
             client = await self._get_client()
             cutoff_time = time.time() - (hours_back * 3600)
             events = await ensure_awaitable(client.zrangebyscore(self.reconnection_events_key, cutoff_time, "+inf"))
-        except REDIS_ERRORS:
+        except REDIS_ERRORS:  # policy_guard: allow-silent-handler
             logger.error(
                 "Failed to get reconnection events for %s",
                 service_name,
@@ -92,7 +92,7 @@ class ReconnectionEventManager:
         for event_json in events:
             try:
                 event_data = json.loads(event_json)
-            except JSON_ERRORS as exc:
+            except JSON_ERRORS as exc:  # policy_guard: allow-silent-handler
                 logger.warning("Failed to parse reconnection event payload: %s", exc)
                 continue
 

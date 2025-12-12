@@ -48,7 +48,7 @@ async def terminate_matching_processes(
                 console_output_func=console_output_func,
             )
             killed_processes.append(proc.pid)
-        except psutil.NoSuchProcess:
+        except psutil.NoSuchProcess:  # policy_guard: allow-silent-handler
             logger.debug("%s process %s exited before termination completed", service_name, proc.pid)
         except psutil.AccessDenied as access_exc:
             raise RuntimeError(f"Access denied while terminating {service_name} process {proc.pid}") from access_exc
@@ -127,7 +127,7 @@ def _create_psutil_process_safe(pid: int, *, service_name: str, cmdline: list) -
 
     try:
         return psutil.Process(pid)
-    except psutil.NoSuchProcess:
+    except psutil.NoSuchProcess:  # policy_guard: allow-silent-handler
         logger.debug("Process %s vanished before psutil inspection", pid)
         return None
     except psutil.AccessDenied as access_exc:

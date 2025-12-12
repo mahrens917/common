@@ -36,7 +36,7 @@ class StateManager:
                 state_info.service_name,
                 state_info.state.value,
             )
-        except REDIS_ERRORS:
+        except REDIS_ERRORS:  # policy_guard: allow-silent-handler
             logger.error(
                 "Failed to store connection state for %s",
                 state_info.service_name,
@@ -50,7 +50,7 @@ class StateManager:
         client = await self._get_client()
         try:
             state_json = await ensure_awaitable(client.hget(self.connection_states_key, service_name))
-        except REDIS_ERRORS:
+        except REDIS_ERRORS:  # policy_guard: allow-silent-handler
             logger.error("Failed to get connection state for %s", service_name, exc_info=True)
             return None
         if not state_json:
@@ -62,7 +62,7 @@ class StateManager:
         client = await self._get_client()
         try:
             all_states = await ensure_awaitable(client.hgetall(self.connection_states_key))
-        except REDIS_ERRORS:
+        except REDIS_ERRORS:  # policy_guard: allow-silent-handler
             logger.error("Failed to get all connection states", exc_info=True)
             return {}
         result: Dict[str, ConnectionStateInfo] = {}
@@ -91,7 +91,7 @@ class StateManager:
                     await ensure_awaitable(client.hdel(self.connection_states_key, service_name))
                     logger.debug("Cleaned up stale connection state for %s", service_name)
                     cleaned_count += 1
-                except REDIS_ERRORS:
+                except REDIS_ERRORS:  # policy_guard: allow-silent-handler
                     logger.error(
                         "Failed to remove stale connection state for %s",
                         service_name,

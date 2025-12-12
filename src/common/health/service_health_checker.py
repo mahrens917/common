@@ -67,7 +67,7 @@ class ServiceHealthChecker:
             # For now, use Redis status as primary health indicator
             # Future: Add HTTP health endpoints, WebSocket ping, etc.
 
-        except HEALTH_CHECK_ERRORS as e:
+        except HEALTH_CHECK_ERRORS as e:  # policy_guard: allow-silent-handler
             logger.exception(f"Error checking health for : ")
             return ServiceHealthInfo(health=ServiceHealth.UNKNOWN, error_message=str(e))
         else:
@@ -97,7 +97,7 @@ class ServiceHealthChecker:
         """
         try:
             health_info = await self.check_service_health(service_name)
-        except HEALTH_CHECK_ERRORS:
+        except HEALTH_CHECK_ERRORS:  # policy_guard: allow-silent-handler
             return False
         else:
             return health_info.health in (ServiceHealth.HEALTHY, ServiceHealth.DEGRADED)

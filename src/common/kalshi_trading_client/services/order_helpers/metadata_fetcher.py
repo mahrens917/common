@@ -45,7 +45,7 @@ class MetadataFetcher:
                     await self._telegram_handler.send_alert(
                         f"🚨 ORDER METADATA LOOKUP FAILURE\n\n{error_msg}\n\nThis requires immediate investigation."
                     )
-                except TELEGRAM_ALERT_ERRORS as telegram_error:
+                except TELEGRAM_ALERT_ERRORS as telegram_error:  # policy_guard: allow-silent-handler
                     logger.exception(
                         "Failed to send telegram alert (%s)",
                         type(telegram_error).__name__,

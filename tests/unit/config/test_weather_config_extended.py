@@ -2,6 +2,7 @@ import json
 from pathlib import Path
 
 import pytest
+from src.weather.config_loader import WeatherConfigLoadError
 
 from common.config.weather import (
     WeatherConfigError,
@@ -10,7 +11,6 @@ from common.config.weather import (
     load_weather_station_mapping,
     load_weather_trading_config,
 )
-from src.weather.config_loader import WeatherConfigLoadError
 
 
 def test_load_from_directory_errors(monkeypatch, tmp_path):

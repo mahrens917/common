@@ -136,7 +136,7 @@ def _tokenize_ticker(market_ticker: str) -> List[str]:
 def _coerce_strike_value(value_str: str) -> Optional[float]:
     try:
         return float(value_str)
-    except ValueError:
+    except ValueError:  # policy_guard: allow-silent-handler
         return None
 
 

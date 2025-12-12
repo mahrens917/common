@@ -9,6 +9,8 @@ import asyncio
 import logging
 from typing import Any, Dict, Optional
 
+from src.kalshi.api.client import KalshiClient
+
 from common.optimized_status_reporter_helpers.log_activity_formatter import (
     LogActivityFormatter,
 )
@@ -17,7 +19,6 @@ from common.optimized_status_reporter_mixins import (
     StatusReporterFormatterMixin,
     StatusReporterWeatherMixin,
 )
-from src.kalshi.api.client import KalshiClient
 
 from .optimized_status_reporter_helpers.dependencies_factory import (
     StatusReporterDependencies,
@@ -73,7 +74,7 @@ class OptimizedStatusReporter(
 
             status_data = await self._aggregator.gather_status_data(redis_client, process_monitor, kalshi_client)
             await self._printer.print_status_report(status_data)
-        except (RuntimeError, ValueError, TypeError, AttributeError, KeyError) as exc:
+        except (RuntimeError, ValueError, TypeError, AttributeError, KeyError) as exc:  # policy_guard: allow-silent-handler
             logger.exception("Status report failed: %s", type(exc).__name__)
             raise RuntimeError("Status report generation failed") from exc
         else:

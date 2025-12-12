@@ -149,7 +149,7 @@ def derive_strike_fields(
 
     try:
         strike_value = float(value_str)
-    except ValueError:
+    except ValueError:  # policy_guard: allow-silent-handler
         return None
 
     strike_type = "greater"

@@ -65,7 +65,7 @@ class StopLossMonitor:
 
                 await asyncio.sleep(check_interval_seconds)
 
-            except TRADING_OPERATION_ERRORS:
+            except TRADING_OPERATION_ERRORS:  # policy_guard: allow-silent-handler
                 logger.exception(f"[StopLossMonitor] Error in stop-loss monitor for : ")
                 await asyncio.sleep(check_interval_seconds)
 

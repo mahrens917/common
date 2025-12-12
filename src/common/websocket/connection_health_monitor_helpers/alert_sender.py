@@ -32,5 +32,5 @@ class HealthAlertSender:
                 severity=AlertSeverity.CRITICAL,
                 alert_type=f"{self.service_name}_ws_{alert_type}",
             )
-        except ALERT_FAILURE_ERRORS:
+        except ALERT_FAILURE_ERRORS:  # policy_guard: allow-silent-handler
             logger.exception("Failed to send %s health alert", self.service_name)

@@ -19,7 +19,7 @@ class OutputWriter:
         """Write a status message to the output stream."""
         try:
             print(message, file=self.output_stream, flush=True)
-        except (BrokenPipeError, OSError):
+        except (BrokenPipeError, OSError):  # policy_guard: allow-silent-handler
             # Suppress broken pipe errors when stdout is closed (e.g., in subprocess)
             # Status messages are informational; service should continue running
             pass

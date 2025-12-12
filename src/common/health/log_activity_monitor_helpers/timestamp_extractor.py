@@ -30,6 +30,6 @@ def extract_last_log_timestamp(log_file_path: str) -> Optional[datetime]:
     try:
         stat = os.stat(log_file_path)
         return datetime.fromtimestamp(stat.st_mtime, timezone.utc)
-    except OSError:
+    except OSError:  # policy_guard: allow-silent-handler
         logger.debug(f"Could not read log modification time from {log_file_path}")
         return None
