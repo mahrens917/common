@@ -449,7 +449,7 @@ async def test_kill_existing_processes_handles_error_without_pid(monkeypatch, ps
     class BrokenProcess:
         @property
         def pid(self):
-            raise module.AccessDenied("forbidden")
+            raise RuntimeError("forbidden")
 
     processes[900] = BrokenProcess()
     monitor = create_monitor_mock({900: SimpleNamespace(name="python3", cmdline=["python", "-m", "src.kalshi"])})
@@ -521,7 +521,7 @@ async def test_kill_processes_without_current_exclusion_handles_pidless_error(mo
     class BrokenProcess:
         @property
         def pid(self):
-            raise module.AccessDenied("no pid")
+            raise RuntimeError("no pid")
 
     processes[1100] = BrokenProcess()
     monitor = create_monitor_mock(

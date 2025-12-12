@@ -33,7 +33,6 @@ def _get_process_cmdline(proc: Any) -> str:
         cmdline = proc.info.get("cmdline") or []
         name = proc.info.get("name") or ""
     except (AttributeError, OSError, KeyError, TypeError):
-        # Process may have terminated or be inaccessible (NoSuchProcess, AccessDenied)
         return ""
 
     cmdline_str = " ".join(cmdline) if isinstance(cmdline, list) else str(cmdline)

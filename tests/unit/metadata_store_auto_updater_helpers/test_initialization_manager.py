@@ -135,7 +135,7 @@ class TestInitializationManager:
     @pytest.mark.asyncio
     async def test_cleanup_error(self, manager, mock_redis):
         manager.redis_client = mock_redis
-        mock_redis.aclose.side_effect = Exception("Close error")
+        mock_redis.aclose.side_effect = RuntimeError("Close error")
 
         await manager.cleanup()
 

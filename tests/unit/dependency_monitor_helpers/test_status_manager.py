@@ -301,7 +301,7 @@ class TestRunCallbacks:
         callback3 = Mock()
 
         # Make second callback fail
-        error = Exception("Callback error")
+        error = RuntimeError("Callback error")
         status_manager.callback_executor.run_callback.side_effect = [None, error, None]
 
         # Should not raise

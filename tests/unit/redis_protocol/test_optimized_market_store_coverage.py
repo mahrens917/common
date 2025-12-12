@@ -175,7 +175,7 @@ async def test_optimized_market_store_happy_path(monkeypatch):
 async def test_optimized_market_store_handles_errors(monkeypatch):
     monkeypatch.setattr("common.redis_protocol.optimized_market_store.RedisInitializer", _StubInitializer)
     store = OptimizedMarketStore("redis")
-    store.instrument_fetcher = _StubFetcher(Exception("fail"))  # type: ignore[assignment]
+    store.instrument_fetcher = _StubFetcher(RuntimeError("fail"))  # type: ignore[assignment]
     assert await store.get_all_instruments("BTC") == []
     assert await store.get_options_by_currency("BTC") == []
     assert await store.get_puts_by_currency("BTC") == []

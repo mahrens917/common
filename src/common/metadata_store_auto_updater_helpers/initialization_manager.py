@@ -94,5 +94,5 @@ class InitializationManager:
             self.redis_client = None
             try:
                 await asyncio.wait_for(ensure_awaitable(client.aclose()), timeout=3.0)
-            except Exception:  # Client close can raise any exception type
+            except (asyncio.TimeoutError, ConnectionError, OSError, RuntimeError, AttributeError):
                 logger.warning("Failed to close redis client", exc_info=True)

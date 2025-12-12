@@ -246,7 +246,7 @@ class TestGetProcessCmdline:
         from unittest.mock import MagicMock
 
         proc = MagicMock()
-        proc.info.get.side_effect = Exception("Process error")
+        proc.info.get.side_effect = AttributeError("Process error")
 
         result = logging_module._get_process_cmdline(proc)
 
