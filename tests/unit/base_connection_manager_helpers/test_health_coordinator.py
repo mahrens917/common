@@ -7,6 +7,9 @@ import pytest
 from common.base_connection_manager_helpers.health_coordinator import HealthCoordinator
 from common.connection_state import ConnectionState
 
+# Test threshold for minimum monitoring cycles
+MIN_MONITORING_CYCLES = 2
+
 
 class TestHealthCoordinatorInit:
     """Tests for HealthCoordinator initialization."""
@@ -234,13 +237,13 @@ class TestHealthCoordinatorStartHealthMonitoring:
         async def track_and_shutdown(*args, **kwargs):
             nonlocal loop_count
             loop_count += 1
-            if loop_count >= 2:
+            if loop_count >= MIN_MONITORING_CYCLES:
                 lifecycle_mgr.shutdown_requested = True
 
         with patch("asyncio.sleep", new_callable=AsyncMock, side_effect=track_and_shutdown):
             await coordinator.start_health_monitoring(check_fn, connect_fn)
 
-        assert loop_count >= 2
+        assert loop_count >= MIN_MONITORING_CYCLES
         health_mon.reset_failures.assert_called()
 
     @pytest.mark.asyncio
@@ -269,12 +272,12 @@ class TestHealthCoordinatorStartHealthMonitoring:
         async def track_errors_and_shutdown(*args, **kwargs):
             nonlocal error_count
             error_count += 1
-            if error_count >= 2:
+            if error_count >= MIN_MONITORING_CYCLES:
                 lifecycle_mgr.shutdown_requested = True
 
         with patch.object(coordinator, "_process_health_cycle", side_effect=ConnectionError("test")):
             with patch("asyncio.sleep", new_callable=AsyncMock, side_effect=track_errors_and_shutdown):
                 await coordinator.start_health_monitoring(check_fn, connect_fn)
 
-        assert error_count >= 2
+        assert error_count >= MIN_MONITORING_CYCLES
         health_mon.increment_failures.assert_called()

@@ -7,6 +7,9 @@ import pytest
 
 from common.resource_tracker_helpers.monitoring_loop import MonitoringLoop
 
+# Test threshold for minimum monitoring iterations
+MIN_MONITORING_ITERATIONS = 2
+
 
 class TestMonitoringLoop:
     """Test the monitoring loop."""
@@ -147,14 +150,14 @@ class TestMonitoringLoop:
         async def get_cpu_ram():
             nonlocal call_count
             call_count += 1
-            if call_count >= 2:
+            if call_count >= MIN_MONITORING_ITERATIONS:
                 monitoring_loop._stop_monitoring.set()
             return (50.0, 1024.0)
 
         await monitoring_loop._monitoring_loop(get_cpu_ram)
 
         # Should have been called at least twice
-        assert call_count >= 2
+        assert call_count >= MIN_MONITORING_ITERATIONS
 
     def test_get_max_cpu_last_minute_with_data(self, monitoring_loop):
         """Test getting max CPU usage when data exists."""
