@@ -143,7 +143,7 @@ class BaseConnectionManager(ConnectionLifecycleMixin, PropertyAccessorsMixin, AB
                 from monitor.alerter import Alerter
 
                 self.alerter = Alerter()
-            except ImportError:
+            except ImportError:  # policy_guard: allow-silent-handler
                 # monitor.alerter is optional - use null object pattern if unavailable
                 self.alerter = None
         else:
