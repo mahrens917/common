@@ -8,7 +8,7 @@ establishment, and cleanup procedures.
 
 import asyncio
 import logging
-from typing import TYPE_CHECKING, Any, Callable, Dict, Optional
+from typing import Any, Callable, Dict, Optional
 
 import websockets
 
@@ -20,13 +20,6 @@ from .websocket_connection_manager_helpers import (
     WebSocketMessageOperations,
 )
 
-if TYPE_CHECKING:
-    # monitor.alerter is optional external dependency
-    try:
-        from monitor.alerter import Alerter
-    except ImportError:
-        Alerter = Any  # type: ignore[misc,assignment]
-
 DEFAULT_WEBSOCKET_PING_INTERVAL_SECONDS = 30
 DEFAULT_WEBSOCKET_PONG_TIMEOUT_SECONDS = 10
 
@@ -37,7 +30,7 @@ class WebSocketConnectionManager(BaseConnectionManager):
         service_name: str,
         websocket_url: str,
         connection_factory: Optional[Callable] = None,
-        alerter: Optional["Alerter"] = None,
+        alerter: Optional[Any] = None,  # Optional monitor.alerter.Alerter
     ):
         super().__init__(service_name, alerter)
 
