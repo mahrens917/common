@@ -1,19 +1,11 @@
 """Tests for time_utils.py file (not the package)."""
 
-import importlib.util
-import sys
-from pathlib import Path
+from common import time_utils
 
 
 def test_time_utils_py_file_all_exports():
     """Test that time_utils.py __all__ contains all expected exports."""
-    module_path = Path("/Users/mahrens917/common/src/common/time_utils.py")
-    spec = importlib.util.spec_from_file_location("time_utils_py_file", module_path)
-    assert spec is not None
-    assert spec.loader is not None
-    time_utils_module = importlib.util.module_from_spec(spec)
-    sys.modules["time_utils_py_file"] = time_utils_module
-    spec.loader.exec_module(time_utils_module)
+    time_utils_module = time_utils
 
     assert hasattr(time_utils_module, "__all__")
     expected = [
@@ -58,13 +50,7 @@ def test_time_utils_py_file_all_exports():
 
 def test_time_utils_py_file_has_exports():
     """Test that time_utils.py exports all expected items."""
-    module_path = Path("/Users/mahrens917/common/src/common/time_utils.py")
-    spec = importlib.util.spec_from_file_location("time_utils_py_file2", module_path)
-    assert spec is not None
-    assert spec.loader is not None
-    time_utils_module = importlib.util.module_from_spec(spec)
-    sys.modules["time_utils_py_file2"] = time_utils_module
-    spec.loader.exec_module(time_utils_module)
+    time_utils_module = time_utils
 
     # Test a few key exports to ensure imports work
     assert hasattr(time_utils_module, "DERIBIT_EXPIRY_HOUR")

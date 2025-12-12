@@ -67,10 +67,11 @@ def subscription_tracker():
     s.SERVICE_STATUS_KEY = "status"
     s.SUBSCRIBED_MARKETS_KEY = "markets"
     s.SUBSCRIPTION_IDS_KEY = "ids"
+    s._key_provider = None
     s.add_subscribed_market = AsyncMock(return_value=True)
     s.remove_subscribed_market = AsyncMock(return_value=True)
     s.record_subscription_ids = AsyncMock()
-    s.fetch_subscription_ids = AsyncMock(return_value=[])
+    s.fetch_subscription_ids = AsyncMock(return_value={})
     s.clear_subscription_ids = AsyncMock()
     s.update_service_status = AsyncMock(return_value=True)
     s.get_service_status = AsyncMock(return_value="active")
@@ -182,6 +183,7 @@ def test_metadata_delegator_extract_weather_station_no_resolver(writer, reader):
     """Test MetadataDelegator.extract_weather_station_from_ticker without resolver."""
     writer._metadata = MagicMock()
     writer._metadata.weather_resolver = None
+    writer._extract_weather_station_from_ticker = MagicMock(return_value=None)
     delegator = MetadataDelegator(writer, reader, None)
     result = delegator.extract_weather_station_from_ticker("WEATHER-TICKER")
     assert result is None
@@ -210,8 +212,8 @@ def test_subscription_delegator_properties(subscription_tracker):
     delegator = SubscriptionDelegator(subscription_tracker)
     assert delegator.SUBSCRIPTIONS_KEY == "subscriptions"
     assert delegator.SERVICE_STATUS_KEY == "status"
-    assert delegator.SUBSCRIBED_MARKETS_KEY == "markets"
-    assert delegator.SUBSCRIPTION_IDS_KEY == "ids"
+    assert delegator.SUBSCRIBED_MARKETS_KEY == "kalshi:subscribed_markets"
+    assert delegator.SUBSCRIPTION_IDS_KEY.startswith("kalshi:subscription_ids:")
 
 
 @pytest.mark.asyncio
@@ -236,7 +238,7 @@ async def test_subscription_delegator_remove_subscribed_market(subscription_trac
 async def test_subscription_delegator_record_subscription_ids(subscription_tracker):
     """Test SubscriptionDelegator.record_subscription_ids."""
     delegator = SubscriptionDelegator(subscription_tracker)
-    await delegator.record_subscription_ids("service", ["id1", "id2"], expiry=3600)
+    await delegator.record_subscription_ids({"id1": "sub1", "id2": "sub2"})
     subscription_tracker.record_subscription_ids.assert_awaited_once()
 
 
@@ -244,8 +246,8 @@ async def test_subscription_delegator_record_subscription_ids(subscription_track
 async def test_subscription_delegator_fetch_subscription_ids(subscription_tracker):
     """Test SubscriptionDelegator.fetch_subscription_ids."""
     delegator = SubscriptionDelegator(subscription_tracker)
-    result = await delegator.fetch_subscription_ids("service", expiry=3600)
-    assert result == []
+    result = await delegator.fetch_subscription_ids()
+    assert result == {}
     subscription_tracker.fetch_subscription_ids.assert_awaited_once()
 
 
@@ -253,7 +255,7 @@ async def test_subscription_delegator_fetch_subscription_ids(subscription_tracke
 async def test_subscription_delegator_clear_subscription_ids(subscription_tracker):
     """Test SubscriptionDelegator.clear_subscription_ids."""
     delegator = SubscriptionDelegator(subscription_tracker)
-    await delegator.clear_subscription_ids("service")
+    await delegator.clear_subscription_ids()
     subscription_tracker.clear_subscription_ids.assert_awaited_once()
 
 
@@ -303,12 +305,13 @@ async def test_market_query_delegator_get_market_data_for_strike_expiry(reader):
 
 
 @pytest.mark.asyncio
-async def test_market_query_delegator_get_subscribed_markets(reader):
-    """Test MarketQueryDelegator.get_subscribed_markets."""
-    delegator = MarketQueryDelegator(reader)
+async def test_subscription_delegator_get_subscribed_markets(subscription_tracker):
+    """Test SubscriptionDelegator.get_subscribed_markets."""
+    subscription_tracker.get_subscribed_markets = AsyncMock(return_value={"TEST"})
+    delegator = SubscriptionDelegator(subscription_tracker)
     result = await delegator.get_subscribed_markets()
     assert result == {"TEST"}
-    reader.get_subscribed_markets.assert_awaited_once()
+    subscription_tracker.get_subscribed_markets.assert_awaited_once()
 
 
 @pytest.mark.asyncio

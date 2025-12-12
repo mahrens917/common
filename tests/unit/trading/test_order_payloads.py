@@ -58,46 +58,43 @@ class TestBuildOrderPayload:
         assert result["expiration_ts"] == 1234567890
 
     def test_raises_on_price_too_high(self):
-        """Raise TypeError when price exceeds maximum."""
-        order = OrderRequest(
-            ticker="TEST-24DEC",
-            action=OrderAction.BUY,
-            side=OrderSide.YES,
-            yes_price_cents=100,
-            count=10,
-            client_order_id="test_fail",
-            order_type=OrderType.LIMIT,
-            time_in_force=TimeInForce.GOOD_TILL_CANCELLED,
-        )
-        with pytest.raises(TypeError, match="Order price must be between 0-99"):
-            build_order_payload(order)
+        """Raise ValueError when price exceeds maximum."""
+        with pytest.raises(ValueError, match="Yes price must be between 1-99 cents"):
+            OrderRequest(
+                ticker="TEST-24DEC",
+                action=OrderAction.BUY,
+                side=OrderSide.YES,
+                yes_price_cents=100,
+                count=10,
+                client_order_id="test_fail",
+                order_type=OrderType.LIMIT,
+                time_in_force=TimeInForce.GOOD_TILL_CANCELLED,
+            )
 
     def test_raises_on_negative_price(self):
-        """Raise TypeError when price is negative."""
-        order = OrderRequest(
-            ticker="TEST-24DEC",
-            action=OrderAction.BUY,
-            side=OrderSide.YES,
-            yes_price_cents=-1,
-            count=10,
-            client_order_id="test_negative",
-            order_type=OrderType.LIMIT,
-            time_in_force=TimeInForce.GOOD_TILL_CANCELLED,
-        )
-        with pytest.raises(TypeError, match="Order price must be non-negative"):
-            build_order_payload(order)
+        """Raise ValueError when price is negative."""
+        with pytest.raises(ValueError, match="Yes price must be between 1-99 cents"):
+            OrderRequest(
+                ticker="TEST-24DEC",
+                action=OrderAction.BUY,
+                side=OrderSide.YES,
+                yes_price_cents=-1,
+                count=10,
+                client_order_id="test_negative",
+                order_type=OrderType.LIMIT,
+                time_in_force=TimeInForce.GOOD_TILL_CANCELLED,
+            )
 
     def test_raises_on_zero_price_for_limit_order(self):
         """Raise ValueError when zero price is used for non-market order."""
-        order = OrderRequest(
-            ticker="TEST-24DEC",
-            action=OrderAction.BUY,
-            side=OrderSide.YES,
-            yes_price_cents=0,
-            count=10,
-            client_order_id="test_zero",
-            order_type=OrderType.LIMIT,
-            time_in_force=TimeInForce.GOOD_TILL_CANCELLED,
-        )
-        with pytest.raises(ValueError, match="Only market orders may specify a zero"):
-            build_order_payload(order)
+        with pytest.raises(ValueError, match="Yes price must be between 1-99 cents"):
+            OrderRequest(
+                ticker="TEST-24DEC",
+                action=OrderAction.BUY,
+                side=OrderSide.YES,
+                yes_price_cents=0,
+                count=10,
+                client_order_id="test_zero",
+                order_type=OrderType.LIMIT,
+                time_in_force=TimeInForce.GOOD_TILL_CANCELLED,
+            )
