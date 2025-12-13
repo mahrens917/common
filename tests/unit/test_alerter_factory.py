@@ -127,3 +127,15 @@ def test_create_alerter_for_service(monkeypatch):
 
     assert isinstance(alerter, DummyAlerter)
     assert len(callbacks) == 1
+
+
+def test_register_shutdown_hook_is_idempotent(monkeypatch):
+    callbacks = []
+    monkeypatch.setattr(alerter_factory, "_shutdown_registry", weakref.WeakSet())
+    monkeypatch.setattr(alerter_factory.atexit, "register", lambda fn: callbacks.append(fn))
+
+    alerter = DummyAlerter()
+    alerter_factory._register_shutdown_hook(alerter)
+    alerter_factory._register_shutdown_hook(alerter)
+
+    assert len(callbacks) == 1

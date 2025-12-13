@@ -27,110 +27,43 @@ class RedisSettings:
 
 @lru_cache(maxsize=1)
 def get_redis_settings() -> RedisSettings:
-    file_settings = _load_redis_settings_from_json()
+    host = env_str("REDIS_HOST", or_value=None)
+    if host is None:
+        raise ConfigurationError("REDIS_HOST must be set")
 
-    host = env_str("REDIS_HOST", or_value=file_settings.host)
-    port_value = env_int("REDIS_PORT", or_value=file_settings.port)
-    db_value = env_int("REDIS_DB", or_value=file_settings.db)
+    port_value = env_int("REDIS_PORT", None)
+    if port_value is None:
+        raise ConfigurationError("REDIS_PORT must be set")
+
+    ssl_flag = env_bool("REDIS_SSL", or_value=None)
+    if ssl_flag is None:
+        raise ConfigurationError("REDIS_SSL must be set")
+
+    retry_on_timeout_flag = env_bool("REDIS_RETRY_ON_TIMEOUT", or_value=None)
+    if retry_on_timeout_flag is None:
+        raise ConfigurationError("REDIS_RETRY_ON_TIMEOUT must be set")
+
+    db_value = env_int("REDIS_DB", 0)
+    if db_value is None:
+        db_value = 0
     if db_value != 0:
         raise ConfigurationError(f"Only Redis database 0 is supported; received REDIS_DB={db_value}")
 
-    password = env_str("REDIS_PASSWORD", or_value=file_settings.password, allow_blank=True)
-    ssl_flag = env_bool("REDIS_SSL", or_value=file_settings.ssl)
-    socket_timeout = env_float("REDIS_SOCKET_TIMEOUT", or_value=file_settings.socket_timeout)
-    socket_connect_timeout = env_float(
-        "REDIS_SOCKET_CONNECT_TIMEOUT", or_value=file_settings.socket_connect_timeout
-    )
-    retry_on_timeout_flag = env_bool("REDIS_RETRY_ON_TIMEOUT", or_value=file_settings.retry_on_timeout)
-    health_check_interval = env_float(
-        "REDIS_HEALTH_CHECK_INTERVAL", or_value=file_settings.health_check_interval
-    )
+    password = env_str("REDIS_PASSWORD", or_value=None, allow_blank=True)
+    socket_timeout = env_float("REDIS_SOCKET_TIMEOUT", or_value=None)
+    socket_connect_timeout = env_float("REDIS_SOCKET_CONNECT_TIMEOUT", or_value=None)
+    health_check_interval = env_float("REDIS_HEALTH_CHECK_INTERVAL", or_value=None)
 
     return RedisSettings(
         host=host,
-        port=int(port_value),
+        port=port_value,
         db=0,
         password=password,
-        ssl=bool(ssl_flag),
+        ssl=ssl_flag,
         socket_timeout=socket_timeout,
         socket_connect_timeout=socket_connect_timeout,
-        retry_on_timeout=bool(retry_on_timeout_flag),
+        retry_on_timeout=retry_on_timeout_flag,
         health_check_interval=health_check_interval,
-    )
-
-
-def _load_redis_settings_from_json() -> RedisSettings:
-    import json
-    from pathlib import Path
-
-    config_path = Path.cwd() / "config" / "redis_config.json"
-    if not config_path.exists():
-        raise ConfigurationError(
-            "Redis configuration is missing. Provide env vars (REDIS_HOST/REDIS_PORT/REDIS_SSL/etc.) "
-            f"or create {config_path}."
-        )
-
-    try:
-        payload = json.loads(config_path.read_text(encoding="utf-8"))
-    except (OSError, json.JSONDecodeError) as exc:
-        raise ConfigurationError(f"Failed to read Redis config at {config_path}: {exc}") from exc
-
-    if not isinstance(payload, dict) or "redis" not in payload:
-        raise ConfigurationError(f"Redis config at {config_path} must be a JSON object with key 'redis'")
-
-    raw = payload["redis"]
-    if not isinstance(raw, dict):
-        raise ConfigurationError(f"Redis config at {config_path}['redis'] must be a JSON object")
-
-    host = raw.get("host")
-    port = raw.get("port")
-    db = raw.get("db", 0)
-    password = raw.get("password", None)
-    ssl = raw.get("ssl", False)
-    socket_timeout = raw.get("socket_timeout", None)
-    socket_connect_timeout = raw.get("socket_connect_timeout", None)
-    retry_on_timeout = raw.get("retry_on_timeout", False)
-    health_check_interval = raw.get("health_check_interval", None)
-
-    if not isinstance(host, str) or not host:
-        raise ConfigurationError(f"Redis config at {config_path}: 'host' must be a non-empty string")
-    if not isinstance(port, int):
-        raise ConfigurationError(f"Redis config at {config_path}: 'port' must be an integer")
-    if not isinstance(db, int):
-        raise ConfigurationError(f"Redis config at {config_path}: 'db' must be an integer")
-    if db != 0:
-        raise ConfigurationError(f"Only Redis database 0 is supported; received db={db}")
-    if password is not None and not isinstance(password, str):
-        raise ConfigurationError(f"Redis config at {config_path}: 'password' must be a string or null")
-    if not isinstance(ssl, bool):
-        raise ConfigurationError(f"Redis config at {config_path}: 'ssl' must be a boolean")
-    if socket_timeout is not None and not isinstance(socket_timeout, (int, float)):
-        raise ConfigurationError(f"Redis config at {config_path}: 'socket_timeout' must be a number or null")
-    if socket_connect_timeout is not None and not isinstance(socket_connect_timeout, (int, float)):
-        raise ConfigurationError(
-            f"Redis config at {config_path}: 'socket_connect_timeout' must be a number or null"
-        )
-    if not isinstance(retry_on_timeout, bool):
-        raise ConfigurationError(f"Redis config at {config_path}: 'retry_on_timeout' must be a boolean")
-    if health_check_interval is not None and not isinstance(health_check_interval, (int, float)):
-        raise ConfigurationError(
-            f"Redis config at {config_path}: 'health_check_interval' must be a number or null"
-        )
-
-    password_value = password if password not in ("", None) else None
-
-    return RedisSettings(
-        host=host,
-        port=port,
-        db=0,
-        password=password_value,
-        ssl=ssl,
-        socket_timeout=float(socket_timeout) if socket_timeout is not None else None,
-        socket_connect_timeout=float(socket_connect_timeout) if socket_connect_timeout is not None else None,
-        retry_on_timeout=retry_on_timeout,
-        health_check_interval=float(health_check_interval)
-        if health_check_interval is not None
-        else None,
     )
 
 

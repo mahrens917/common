@@ -30,6 +30,9 @@ def _resolve_config_dir() -> Path:
     return Path(__file__).parent.parent.parent / "config"
 
 
+_CONFIG_DIR = _resolve_config_dir()
+
+
 class BaseConfigLoader:
     """
     Base configuration loader providing standard JSON loading patterns.
@@ -145,7 +148,7 @@ def load_config(filename: str) -> Dict[str, Any]:
         FileNotFoundError: If config file doesn't exist
         ConfigurationError: If config file is invalid JSON
     """
-    loader = BaseConfigLoader(_resolve_config_dir())
+    loader = BaseConfigLoader(_CONFIG_DIR)
     return loader.load_json_file(filename)
 
 
@@ -161,14 +164,14 @@ def load_pnl_config() -> Dict[str, Any]:
         json.JSONDecodeError: If config file is invalid JSON
         RuntimeError: If config is missing required fields
     """
-    config_path = _resolve_config_dir() / "pnl_config.json"
+    config_path = _CONFIG_DIR / "pnl_config.json"
 
     if not config_path.exists():
         raise FileNotFoundError(f"PnL config file not found: {config_path}")
 
     try:
-        with open(config_path, "r") as f:
-            config = json.load(f)
+        with open(config_path, "r", encoding="utf-8") as handle:
+            config = json.load(handle)
 
         # Validate required sections exist
         if "trade_collection" not in config:

@@ -50,10 +50,9 @@ def _resolve_config_json(name: str, config_dir: Optional[Path]) -> Dict[str, Any
 
     local_config_dir = Path.cwd() / "config"
     if local_config_dir.exists():
-        try:
+        config_path = local_config_dir / name
+        if config_path.exists():
             return _load_from_directory(name, local_config_dir)
-        except WeatherConfigError:
-            pass
 
     try:
         return load_config_json(name)

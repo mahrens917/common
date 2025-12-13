@@ -52,6 +52,7 @@ def _register_shutdown_hook(alerter) -> None:
         from redis.exceptions import RedisError
 
         from common.redis_utils import RedisOperationError
+
         try:
             from src.monitor.alerting.models import AlerterError  # type: ignore
         except ImportError:  # policy_guard: allow-silent-handler

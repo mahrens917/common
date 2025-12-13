@@ -26,7 +26,7 @@ def build_kalshi_config(ws_config: Dict[str, Any]) -> Dict[str, Any]:
         "reconnection_max_delay_seconds": kalshi_conn["reconnection_max_delay_seconds"],
         "reconnection_backoff_multiplier": kalshi_conn["reconnection_backoff_multiplier"],
         "max_consecutive_failures": kalshi_conn["max_consecutive_failures"],
-        "health_check_interval_seconds": kalshi_conn["health_check_interval_seconds"],
+        "health_check_interval_seconds": kalshi_conn["heartbeat_interval_seconds"],
     }
 
 
@@ -44,7 +44,7 @@ def build_deribit_config(ws_config: Dict[str, Any]) -> Dict[str, Any]:
         "reconnection_max_delay_seconds": deribit_conn["reconnection_max_delay_seconds"],
         "reconnection_backoff_multiplier": deribit_conn["reconnection_backoff_multiplier"],
         "max_consecutive_failures": deribit_conn["max_consecutive_failures"],
-        "health_check_interval_seconds": deribit_conn["health_check_interval_seconds"],
+        "health_check_interval_seconds": deribit_conn["heartbeat_interval_seconds"],
     }
 
 
