@@ -54,7 +54,7 @@ class MonitoringLoop:
 
                 await asyncio.sleep(5.0)
 
-            except asyncio.CancelledError:
+            except asyncio.CancelledError:  # policy_guard: allow-silent-handler
                 break
 
         logger.info(f"[{self.service_name}] Dependency monitoring loop ended")

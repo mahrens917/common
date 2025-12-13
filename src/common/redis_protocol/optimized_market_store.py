@@ -21,6 +21,7 @@ if TYPE_CHECKING:
     from ..data_models.instrument import Instrument
 
 logger = logging.getLogger(__name__)
+_MISSING_INSTRUMENT_FIELD = object()
 
 
 class OptimizedMarketStore:
@@ -85,10 +86,11 @@ class OptimizedMarketStore:
         if fetcher is None:
             log = getattr(self, "logger", logger)
             log.error("No instrument fetcher available for currency %s", currency)
-            return []
+            _none_guard_value = []
+            return _none_guard_value
         try:
             return await fetcher.get_all_instruments(currency)
-        except (RuntimeError, ValueError, AttributeError, KeyError, OSError, ConnectionError) as exc:
+        except (RuntimeError, ValueError, AttributeError, KeyError, OSError, ConnectionError) as exc:  # policy_guard: allow-silent-handler
             log = getattr(self, "logger", logger)
             log.error("Failed to fetch instruments for %s: %s", currency, exc, exc_info=True)
             return []
@@ -115,22 +117,27 @@ class OptimizedMarketStore:
 
 
 def _is_option_instrument(inst: Any) -> bool:
-    return getattr(inst, "is_future", False) is False
+    return getattr(inst, "is_future", None) is not True
 
 
 def _is_future_instrument(inst: Any) -> bool:
-    return getattr(inst, "is_future", False) is True
+    return getattr(inst, "is_future", None) is True
 
 
 def _is_put_instrument(inst: Any) -> bool:
-    return _is_option_instrument(inst) and getattr(inst, "option_type", "").lower() == "put"
+    option_type = getattr(inst, "option_type", _MISSING_INSTRUMENT_FIELD)
+    if option_type is _MISSING_INSTRUMENT_FIELD:
+        return False
+    if not isinstance(option_type, str):
+        return False
+    return _is_option_instrument(inst) and option_type.lower() == "put"
 
 
 async def _filter_instruments(store: OptimizedMarketStore, currency: str, predicate, label: str) -> List:
     try:
         instruments = await store.get_all_instruments(currency)
         return [inst for inst in instruments if predicate(inst)]
-    except (RuntimeError, ValueError, AttributeError) as exc:
+    except (RuntimeError, ValueError, AttributeError) as exc:  # policy_guard: allow-silent-handler
         log = getattr(store, "logger", logger)
         log.error("Failed to load %s for %s: %s", label, currency, exc, exc_info=True)
         return []

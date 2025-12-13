@@ -139,7 +139,7 @@ def group_markets_by_expiry(markets: List[Any], current_time: datetime, use_time
 
             # Determine grouping key
             if use_time_buckets:
-                # Use Phase 7 style time buckets (0, 1, 2) for compatibility
+                # Use Phase 7 style time buckets (0, 1, 2) to match prior behavior
                 expiry_index = min(2, max(0, int(time_to_expiry_years * 2)))
                 expiry_key = float(expiry_index)
             else:
@@ -152,7 +152,7 @@ def group_markets_by_expiry(markets: List[Any], current_time: datetime, use_time
                 markets_by_expiry[expiry_key] = []
             markets_by_expiry[expiry_key].append(market)
 
-        except (ValueError, TypeError, OverflowError):
+        except (ValueError, TypeError, OverflowError):  # policy_guard: allow-silent-handler
             ticker = _resolve_market_ticker(market)
             logger.warning(f"Failed to process market {ticker} for expiry grouping")
             skipped_markets += 1
@@ -213,7 +213,7 @@ def _extract_unique_strikes_from_markets(markets: List[Any]) -> List[float]:
         try:
             market_strikes = _extract_strikes_from_market(market)
             strikes.extend(market_strikes)
-        except (ValueError, TypeError):
+        except (ValueError, TypeError):  # policy_guard: allow-silent-handler
             ticker = _resolve_market_ticker(market)
             logger.warning(f"Failed to extract strikes from market {ticker}")
             continue

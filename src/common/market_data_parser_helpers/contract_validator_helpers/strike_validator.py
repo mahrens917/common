@@ -34,7 +34,8 @@ class StrikeValidator:
             return True, None
 
         if parsed_strike is None:
-            return True, None
+            _none_guard_value = True, None
+            return _none_guard_value
 
         if abs(parsed_strike - data_strike) > _CONST_0_01:
             error_msg = f"Strike mismatch for {contract_name}"

@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from common.truthy import pick_if
+
 """Dawn/dusk calculations for Kalshi weather utilities."""
 
 import math
@@ -62,7 +64,7 @@ def _compute_hour_angle(latitude: float, declination: float, date_utc: datetime,
         cos_hour_angle = (math.sin(twilight_rad) - math.sin(lat_rad) * math.sin(decl_rad)) / (math.cos(lat_rad) * math.cos(decl_rad))
         if not -1 <= cos_hour_angle <= 1:
             # Generate appropriate message based on event type (dawn/dusk)
-            event_name = "dawn" if is_dawn else "dusk"
+            event_name = pick_if(is_dawn, lambda: "dawn", lambda: "dusk")
             message = f"Polar day prevents {event_name} calculation for lat={latitude}, lon={longitude}, date={date_utc.date()}"
             raise AstronomicalComputationError(message)
         return math.degrees(math.acos(cos_hour_angle))
@@ -103,7 +105,7 @@ def _build_twilight_datetime(date_utc: datetime, minutes: float) -> datetime:
 
 
 def _log_twilight(latitude: float, longitude: float, date_utc: datetime, result: datetime, is_dawn: bool) -> None:
-    label = "dawn" if is_dawn else "dusk"
+    label = pick_if(is_dawn, lambda: "dawn", lambda: "dusk")
     logger.debug(
         "%s calculation: lat=%s, lon=%s, date=%s, %s=%s",
         label.capitalize(),

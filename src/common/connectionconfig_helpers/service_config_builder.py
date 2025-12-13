@@ -7,6 +7,7 @@ from common.connectionconfig_helpers.config_loader import (
     load_websocket_config,
     resolve_cfb_setting,
 )
+from common.truthy import pick_truthy
 
 
 def build_kalshi_config(ws_config: Dict[str, Any]) -> Dict[str, Any]:
@@ -25,6 +26,7 @@ def build_kalshi_config(ws_config: Dict[str, Any]) -> Dict[str, Any]:
         "reconnection_max_delay_seconds": kalshi_conn["reconnection_max_delay_seconds"],
         "reconnection_backoff_multiplier": kalshi_conn["reconnection_backoff_multiplier"],
         "max_consecutive_failures": kalshi_conn["max_consecutive_failures"],
+        "health_check_interval_seconds": kalshi_conn["health_check_interval_seconds"],
     }
 
 
@@ -42,6 +44,7 @@ def build_deribit_config(ws_config: Dict[str, Any]) -> Dict[str, Any]:
         "reconnection_max_delay_seconds": deribit_conn["reconnection_max_delay_seconds"],
         "reconnection_backoff_multiplier": deribit_conn["reconnection_backoff_multiplier"],
         "max_consecutive_failures": deribit_conn["max_consecutive_failures"],
+        "health_check_interval_seconds": deribit_conn["health_check_interval_seconds"],
     }
 
 
@@ -78,4 +81,7 @@ def get_service_specific_config(service_name: str) -> Dict[str, Any]:
 
         return load_weather_config()
 
-    return service_configs.get(service_name) or {}
+    resolved = service_configs.get(service_name)
+    if resolved is None:
+        return dict()
+    return resolved

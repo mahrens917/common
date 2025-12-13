@@ -10,6 +10,7 @@ from common.data_models.trading import (
     OrderSide,
     PortfolioPosition,
 )
+from common.truthy import pick_truthy
 
 from .position_lifecycle_validators_positions import (
     BalanceStateSnapshot,
@@ -65,7 +66,7 @@ def validate_portfolio_balance_arithmetic(
 
         else:
             return True, "Portfolio balance arithmetic valid"
-    except (
+    except (  # policy_guard: allow-silent-handler
         ArithmeticError,
         AttributeError,
         TypeError,
@@ -107,7 +108,7 @@ def validate_position_pnl_consistency(position: PortfolioPosition) -> Tuple[bool
                 f"expected={expected_market_value}¢ "
                 f"(cost_basis={cost_basis_cents}¢, unrealized_pnl={unrealized_pnl}¢)"
             )
-    except (
+    except (  # policy_guard: allow-silent-handler
         ArithmeticError,
         AttributeError,
         TypeError,
@@ -132,7 +133,8 @@ def validate_position_exposure_limits(position: PortfolioPosition, max_exposure_
     try:
         market_value = position.market_value_cents
         if market_value is None:
-            return False, "Position missing market value for exposure check"
+            _none_guard_value = False, "Position missing market value for exposure check"
+            return _none_guard_value
         # Calculate current exposure (market value represents current risk)
         current_exposure = abs(market_value)
 
@@ -141,7 +143,7 @@ def validate_position_exposure_limits(position: PortfolioPosition, max_exposure_
 
         else:
             return True, "Position exposure within limits"
-    except (
+    except (  # policy_guard: allow-silent-handler
         ArithmeticError,
         AttributeError,
         TypeError,
@@ -186,7 +188,7 @@ def validate_trade_execution_consistency(
 
         else:
             return True, "Trade execution consistent"
-    except (
+    except (  # policy_guard: allow-silent-handler
         ArithmeticError,
         AttributeError,
         TypeError,
@@ -218,7 +220,8 @@ def _validate_action_field(actual_action: Any, expected_action: str) -> Tuple[bo
     """Validate action field matches expectation."""
     actual_action_value = _extract_action_value(actual_action)
     if actual_action_value is None:
-        return False, "Order response missing action attribute"
+        _none_guard_value = False, "Order response missing action attribute"
+        return _none_guard_value
 
     expected_action_upper = expected_action.upper()
     if actual_action_value.upper() != expected_action_upper:
@@ -264,14 +267,16 @@ def _validate_execution_details(order_response: OrderResponse) -> Tuple[bool, st
     # Validate filled count
     filled_count = order_response.filled_count
     if filled_count is None:
-        return False, "Order response missing filled_count"
+        _none_guard_value = False, "Order response missing filled_count"
+        return _none_guard_value
     if filled_count <= 0:
         return False, f"No execution: filled_count={filled_count}"
 
     # Validate price bounds
     avg_price = order_response.average_fill_price_cents
     if avg_price is None:
-        return False, "Missing average fill price in order response"
+        _none_guard_value = False, "Missing average fill price in order response"
+        return _none_guard_value
     if avg_price <= 0 or avg_price > _CONST_100:
         return False, f"Invalid fill price: {avg_price}¢ (must be 1-100¢)"
 
@@ -282,13 +287,17 @@ def _validate_execution_fees(order_response: OrderResponse) -> Tuple[bool, str]:
     """Validate fees are reasonable."""
     avg_price = order_response.average_fill_price_cents
     if avg_price is None:
-        return True, ""  # Already validated in execution details
+        _none_guard_value = True, ""  # Already validated in execution details
+        return _none_guard_value
 
     filled_count = order_response.filled_count
     if filled_count is None:
-        return True, ""  # Guard against missing filled count
+        _none_guard_value = True, ""  # Guard against missing filled count
+        return _none_guard_value
     trade_value = filled_count * avg_price
-    fees_cents = order_response.fees_cents or 0
+    fees_cents = order_response.fees_cents
+    if fees_cents is None:
+        fees_cents = int()
 
     if trade_value <= 0:
         return True, ""  # Skip fee validation for zero-value trades

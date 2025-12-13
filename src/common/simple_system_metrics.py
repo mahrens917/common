@@ -144,16 +144,17 @@ def _get_memory_percent_macos() -> float:
     import subprocess
 
     try:
-        result = subprocess.run(
+        proc = subprocess.Popen(
             ["vm_stat"],
-            capture_output=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
             text=True,
-            timeout=1,
         )
-        if result.returncode != 0:
+        stdout, _stderr = proc.communicate(timeout=1)
+        if proc.returncode != 0:
             return 0.0
 
-        lines = result.stdout.strip().split("\n")
+        lines = stdout.strip().split("\n")
         vm_stats = _parse_vm_stat_output(lines)
         return _calculate_memory_percentage(vm_stats)
 
@@ -205,16 +206,17 @@ def _get_cpu_percent_macos() -> float:
     import subprocess
 
     try:
-        result = subprocess.run(
+        proc = subprocess.Popen(
             ["iostat", "-c", "2", "-w", "1"],
-            capture_output=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
             text=True,
-            timeout=3,
         )
-        if result.returncode != 0:
+        stdout, _stderr = proc.communicate(timeout=3)
+        if proc.returncode != 0:
             return 0.0
 
-        lines = result.stdout.strip().split("\n")
+        lines = stdout.strip().split("\n")
         us_col_idx = _find_cpu_column_index(lines)
         if us_col_idx == -1:
             return 0.0

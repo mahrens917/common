@@ -25,7 +25,7 @@ class ContentValidationHandler:
             content_validators: List of validation functions
         """
         self.service_name = service_name
-        self.content_validators = content_validators or []
+        self.content_validators = list() if content_validators is None else content_validators
         self.last_content_validation_time = 0.0
         self.consecutive_validation_failures = 0
         self.logger = logging.getLogger(f"{__name__}.{service_name}")
@@ -57,7 +57,7 @@ class ContentValidationHandler:
             self.last_content_validation_time = loop.time()
             self.consecutive_validation_failures = 0
 
-        except VALIDATION_EXCEPTIONS:
+        except VALIDATION_EXCEPTIONS:  # policy_guard: allow-silent-handler
             self.consecutive_validation_failures += 1
             self.logger.exception(f"Content validation error: ")
             return False

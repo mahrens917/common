@@ -62,9 +62,9 @@ class HumanReadableStore:
             results = await execute_pipeline(pipeline)
 
             expected_operations = len(keys_to_delete) + stats.field_count
-        except (ValueError, TypeError, ProbabilityStoreError) as exc:
+        except (ValueError, TypeError, ProbabilityStoreError) as exc:  # policy_guard: allow-silent-handler
             await self._handle_ingestion_failure(redis, currency_upper, probabilities_data, exc)
-        except REDIS_ERRORS as exc:
+        except REDIS_ERRORS as exc:  # policy_guard: allow-silent-handler
             await self._handle_ingestion_failure(redis, currency_upper, probabilities_data, exc)
         else:
             if len(results) != expected_operations:

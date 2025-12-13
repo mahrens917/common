@@ -2,6 +2,8 @@
 
 from typing import Any, Dict
 
+from common.truthy import pick_if
+
 
 def validate_required_field(hash_data: Dict[str, Any], field_name: str, context: str = "") -> Any:
     """
@@ -20,7 +22,7 @@ def validate_required_field(hash_data: Dict[str, Any], field_name: str, context:
     """
     value = hash_data.get(field_name)
     if value is None:
-        context_suffix = f" in {context}" if context else ""
+        context_suffix = pick_if(context, lambda: f" in {context}", lambda: "")
         raise RuntimeError(f"FAIL-FAST: Missing required {field_name} field{context_suffix}. " f"Cannot proceed with empty {field_name}.")
     return value
 

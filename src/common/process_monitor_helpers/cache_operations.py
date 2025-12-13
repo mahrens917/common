@@ -3,6 +3,8 @@
 import time
 from typing import Dict, List, Optional
 
+from common.truthy import pick_truthy
+
 from ..process_monitor import ProcessInfo
 
 
@@ -27,7 +29,9 @@ class CacheOperations:
         Returns:
             List of fresh processes
         """
-        cached_processes = service_cache.get(service_name) or []
+        cached_processes = service_cache.get(service_name)
+        if cached_processes is None:
+            cached_processes = []
         fresh_processes = self._filter_fresh_processes(cached_processes)
 
         # Update cache if we filtered out stale processes

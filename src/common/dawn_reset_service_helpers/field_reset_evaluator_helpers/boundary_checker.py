@@ -9,7 +9,8 @@ logger = logging.getLogger(__name__)
 
 def _format_timestamp(value: Optional[datetime]) -> str:
     if value is None:
-        return "<missing>"
+        _none_guard_value = "<missing>"
+        return _none_guard_value
     return value.isoformat()
 
 
@@ -25,9 +26,11 @@ class BoundaryChecker:
     def already_processed(last_dawn_reset: Optional[datetime], boundary: Optional[datetime]) -> bool:
         """Check if boundary was already processed."""
         if boundary is None:
-            return False
+            _none_guard_value = False
+            return _none_guard_value
         if last_dawn_reset is None:
-            return False
+            _none_guard_value = False
+            return _none_guard_value
         return last_dawn_reset >= boundary
 
     @staticmethod

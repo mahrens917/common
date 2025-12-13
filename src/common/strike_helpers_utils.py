@@ -5,9 +5,12 @@ from __future__ import annotations
 import logging
 from typing import Any, Dict, List, Optional, Tuple
 
+from common.truthy import pick_if, pick_truthy
+
 logger = logging.getLogger(__name__)
 
 _CONST_5 = 5
+_DEFAULT_STRIKE_TYPE = "greater"
 
 
 def parse_strike_segment(strike_segment: str) -> Tuple[str, str]:
@@ -25,7 +28,7 @@ def parse_strike_segment(strike_segment: str) -> Tuple[str, str]:
 
 
 def resolve_strike_type_from_prefix(prefix: str, keyword_type: Optional[str]) -> Tuple[str, Optional[float], Optional[float]]:
-    strike_type = keyword_type or "greater"
+    strike_type = _DEFAULT_STRIKE_TYPE if keyword_type is None else keyword_type
     floor_strike: Optional[float] = None
     cap_strike: Optional[float] = None
 
@@ -103,7 +106,7 @@ def resolve_strike_type(market_data: Dict[str, Any], strike_type: Optional[str])
     if strike_type:
         return strike_type
     raw_strike_type = market_data.get("strike_type")
-    return str(raw_strike_type) if raw_strike_type is not None else "unknown"
+    return pick_if(raw_strike_type is not None, lambda: str(raw_strike_type), lambda: "unknown")
 
 
 def decode_value(value: Any) -> Any:

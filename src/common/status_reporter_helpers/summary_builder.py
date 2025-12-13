@@ -2,6 +2,8 @@
 
 from typing import List
 
+from common.truthy import pick_if
+
 # Constants
 _CONST_2 = 2
 
@@ -44,20 +46,22 @@ class SummaryBuilder:
         messages = []
 
         if opportunities_found > 0:
-            opportunity_phrase = "opportunity" if opportunities_found == 1 else "opportunities"
+            opportunity_phrase = pick_if(opportunities_found == 1, lambda: "opportunity", lambda: "opportunities")
             messages.append(f"Found {opportunities_found} {opportunity_phrase}")
 
         if trades_executed > 0:
-            trade_phrase = "trade executed successfully" if trades_executed == 1 else "trades executed successfully"
+            trade_phrase = pick_if(trades_executed == 1, lambda: "trade executed successfully", lambda: "trades executed successfully")
             messages.append(f"{trades_executed} {trade_phrase}")
 
         untradeable = opportunities_found - trades_executed
         if untradeable > 0:
-            untradeable_phrase = "opportunity could not be traded" if untradeable == 1 else "opportunities could not be traded"
+            untradeable_phrase = pick_if(
+                untradeable == 1, lambda: "opportunity could not be traded", lambda: "opportunities could not be traded"
+            )
             messages.append(f"{untradeable} {untradeable_phrase}")
 
         if markets_closed > 0:
-            market_phrase = "market closed for the day" if markets_closed == 1 else "markets closed for the day"
+            market_phrase = pick_if(markets_closed == 1, lambda: "market closed for the day", lambda: "markets closed for the day")
             messages.append(f"{markets_closed} {market_phrase}")
 
         return messages

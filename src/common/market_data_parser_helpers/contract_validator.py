@@ -63,7 +63,7 @@ def _validate_contract(
 
         else:
             return True, None, stats_updates
-    except (
+    except (  # policy_guard: allow-silent-handler
         ParsingError,
         ValidationError,
         DateTimeCorruptionError,

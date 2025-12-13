@@ -6,6 +6,8 @@ from typing import Callable
 class SignatureAdapter:
     """Adapts checker method calls based on their signature requirements."""
 
+    _MISSING_SIGNATURE = object()
+
     # Maps checker names to their required argument types
     _CHECKER_SIGNATURES = {
         "_is_api_error": "error_message",
@@ -28,7 +30,9 @@ class SignatureAdapter:
         message_lower: str,
     ) -> bool:
         """Call checker with appropriate arguments based on signature."""
-        signature_type = cls._CHECKER_SIGNATURES.get(checker_name, "message")
+        signature_type = cls._CHECKER_SIGNATURES.get(checker_name, cls._MISSING_SIGNATURE)
+        if signature_type is cls._MISSING_SIGNATURE:
+            signature_type = "message"
 
         if signature_type == "error_message":
             return checker(error, message_lower)

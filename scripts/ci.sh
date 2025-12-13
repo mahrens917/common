@@ -12,5 +12,13 @@ if [[ ! -x "${SHARED_SCRIPT}" ]]; then
 fi
 
 export PYTHONPATH="${CI_SHARED_ROOT}${PYTHONPATH:+:${PYTHONPATH}}"
+export PYTHONDONTWRITEBYTECODE=1
+
+# Wrapper convenience: allow skipping git commit/push.
+# Default behavior is to stage/commit/push after checks (handled by shared runner).
+if [[ "${1-}" == "--no-commit" ]]; then
+  export CI_AUTOMATION=1
+  shift
+fi
 
 exec "${SHARED_SCRIPT}" "$@"

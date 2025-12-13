@@ -4,6 +4,8 @@ import logging
 from datetime import datetime
 from typing import Any, Dict, Optional
 
+from common.truthy import pick_if, pick_truthy
+
 logger = logging.getLogger(__name__)
 
 
@@ -75,8 +77,14 @@ class ObservationTracker:
             window_end = get_current_utc()
 
         # Apply safety margin from config for 6-hour data (less precise)
-        six_h_config = metar_config.get("6h_max") or {}
-        safety_margin = six_h_config.get("safety_margin_celsius") or 0.5
+        six_h_config = pick_truthy(metar_config.get("6h_max"), {})
+        safety_margin_value = six_h_config.get("safety_margin_celsius") if isinstance(six_h_config, dict) else None
+        safety_margin = 0.5
+        if safety_margin_value is not None:
+            try:
+                safety_margin = float(safety_margin_value)
+            except (TypeError, ValueError):  # policy_guard: allow-silent-handler
+                safety_margin = 0.5
         max_c_float = float(max_c) - safety_margin
 
         # Only update overall daily maximum (NOT hourly-only max)

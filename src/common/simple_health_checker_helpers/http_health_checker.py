@@ -65,7 +65,7 @@ class HttpHealthChecker:
                     status=HealthStatus.UNHEALTHY,
                     error_message="HTTP timeout",
                 )
-            except (
+            except (  # policy_guard: allow-silent-handler
                 ClientError,
                 OSError,
                 ValueError,

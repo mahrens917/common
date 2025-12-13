@@ -3,6 +3,7 @@
 from typing import Any, Dict, Optional
 
 from common.monitoring import ProcessStatus
+from common.truthy import pick_if
 
 
 class StatusNormalizer:
@@ -23,10 +24,11 @@ class StatusNormalizer:
         """
         # Tracker enabled is True if not explicitly set to False
         tracker_enabled_raw = tracker_status.get("enabled")
-        tracker_enabled = tracker_enabled_raw if tracker_enabled_raw is not None else True
+        tracker_enabled = pick_if(tracker_enabled_raw is None, lambda: True, lambda: bool(tracker_enabled_raw))
         tracker_running_raw = tracker_status.get("running")
         tracker_running = None if tracker_running_raw is None else bool(tracker_running_raw)
-        tracker_pid = tracker_status.get("pid")
+        tracker_pid_raw = tracker_status.get("pid")
+        tracker_pid = tracker_pid_raw if isinstance(tracker_pid_raw, int) else None
 
         return tracker_enabled, tracker_running, tracker_pid
 

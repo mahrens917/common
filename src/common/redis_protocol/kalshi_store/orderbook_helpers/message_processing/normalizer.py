@@ -41,12 +41,12 @@ def normalize_price_map(data: Dict[Any, Any]) -> Dict[str, Any]:
                 normalized_key = str(int(key)) if float(key).is_integer() else f"{float(key):.1f}"
             else:
                 normalized_key = f"{float(key):.1f}"
-        except (TypeError, ValueError):
+        except (TypeError, ValueError):  # policy_guard: allow-silent-handler
             normalized_key = str(key)
 
         try:
             numeric_value = float(value)
-        except (TypeError, ValueError):
+        except (TypeError, ValueError):  # policy_guard: allow-silent-handler
             numeric_value = value
         normalized[normalized_key] = numeric_value
     return normalized

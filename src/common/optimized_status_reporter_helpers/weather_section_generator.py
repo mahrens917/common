@@ -40,7 +40,7 @@ class WeatherSectionGenerator:
                 continue
             try:
                 temp_value = float(temp_raw)
-            except (
+            except (  # policy_guard: allow-silent-handler
                 TypeError,
                 ValueError,
             ):

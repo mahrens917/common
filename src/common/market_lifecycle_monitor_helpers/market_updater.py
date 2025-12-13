@@ -41,7 +41,7 @@ class MarketUpdater:
                 if previous_info and market_info.state != previous_info.state:
                     logger.info(f"[MarketUpdater] State change for {ticker}: " f"{previous_info.state} -> {market_info.state}")
 
-            except TRADING_ERRORS + (
+            except TRADING_ERRORS + (  # policy_guard: allow-silent-handler
                 ValueError,
                 KeyError,
             ):

@@ -20,6 +20,7 @@ from typing import Any, Optional, Set
 
 from common.config import env_bool
 from common.process_killer import SERVICE_PROCESS_PATTERNS
+from common.truthy import pick_truthy
 
 # Thread-safe lock for logging configuration
 _config_lock = threading.Lock()
@@ -30,8 +31,8 @@ _MODULE_LOGGER = logging.getLogger(__name__)
 def _get_process_cmdline(proc: Any) -> str:
     """Extract command line string from process."""
     try:
-        cmdline = proc.info.get("cmdline") or []
-        name = proc.info.get("name") or ""
+        cmdline = pick_truthy(proc.info.get("cmdline"), [])
+        name = pick_truthy(proc.info.get("name"), "")
     except (AttributeError, OSError, KeyError, TypeError):  # policy_guard: allow-silent-handler
         return ""
 

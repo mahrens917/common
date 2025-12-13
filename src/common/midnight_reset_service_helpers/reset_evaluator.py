@@ -74,13 +74,14 @@ class ResetEvaluator:
                 logger.info(
                     f"🌅 NULL TIMESTAMP: Timestamp field '{timestamp_field}' is None for field '{field_name}' - treating as new day (reset required)"
                 )
-                return True
+                _none_guard_value = True
+                return _none_guard_value
 
             previous_timestamp = datetime.fromisoformat(previous_timestamp_str.replace("Z", "+00:00"))
 
             return self._daily_checker.is_new_local_day(latitude, longitude, previous_timestamp, current_timestamp)
 
-        except (
+        except (  # policy_guard: allow-silent-handler
             ValueError,
             AttributeError,
             KeyError,

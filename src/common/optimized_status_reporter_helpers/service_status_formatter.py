@@ -7,6 +7,7 @@ Builds status display lines for individual services.
 from typing import TYPE_CHECKING, Any, Dict, Optional
 
 from common.monitoring import ProcessStatus
+from common.truthy import pick_if
 
 if TYPE_CHECKING:
     from common.health.log_activity_monitor_helpers.types import LogActivity
@@ -58,7 +59,7 @@ class ServiceStatusFormatter:
         """Determine status display text specifically for tracker service."""
         # Tracker enabled is True if not explicitly set to False
         enabled_raw = tracker_status.get("enabled")
-        enabled = enabled_raw if enabled_raw is not None else True
+        enabled = pick_if(enabled_raw is not None, lambda: enabled_raw, lambda: True)
         tracker_status["running"] = running
         if running:
             return "Active"

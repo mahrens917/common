@@ -16,6 +16,8 @@ from typing import Any, Dict, Mapping, Optional, Tuple
 
 import numpy as np
 
+from common.truthy import pick_if
+
 from .strike_helpers_utils import (
     compute_representative_strike,
     decode_redis_key,
@@ -100,7 +102,7 @@ def calculate_strike_value(
     Returns:
         Calculated representative strike or None if cannot be determined
     """
-    strike_type_lower = strike_type.lower() if strike_type else ""
+    strike_type_lower = pick_if(strike_type, lambda: strike_type.lower(), lambda: "")
 
     if strike_type_lower == "between" and floor_value is not None and cap_value is not None:
         return (floor_value + cap_value) / 2
@@ -122,7 +124,7 @@ def calculate_strike_bounds(strike_type: str, strike_price: float) -> Tuple[str,
     Returns:
         Tuple containing the normalized strike type, floor strike, and cap strike
     """
-    strike_type_lower = strike_type.lower() if strike_type else ""
+    strike_type_lower = pick_if(strike_type, lambda: strike_type.lower(), lambda: "")
 
     if strike_type_lower == "greater":
         return "greater", strike_price, float("inf")
@@ -229,7 +231,8 @@ def extract_strike_parameters(market_data: Optional[Dict[str, Any]], strike_type
     Raises:
         ValueError: If required strike data is missing or strike_type is unknown
     """
-    market_data = market_data or {}
+    if market_data is None:
+        market_data = {}
     strike_type = resolve_strike_type(market_data, strike_type)
 
     floor_strike_value = market_data.get("floor_strike")
@@ -305,13 +308,15 @@ def _handle_between(floor_strike: Optional[float], cap_strike: Optional[float]) 
 
 def _handle_greater(floor_strike: Optional[float], _: Optional[float]) -> Tuple[Optional[float], Optional[str]]:
     if floor_strike is None:
-        return None, "greater_missing_floor"
+        _none_guard_value = None, "greater_missing_floor"
+        return _none_guard_value
     return floor_strike, None
 
 
 def _handle_less(_: Optional[float], cap_strike: Optional[float]) -> Tuple[Optional[float], Optional[str]]:
     if cap_strike is None:
-        return None, "less_missing_cap"
+        _none_guard_value = None, "less_missing_cap"
+        return _none_guard_value
     return cap_strike, None
 
 

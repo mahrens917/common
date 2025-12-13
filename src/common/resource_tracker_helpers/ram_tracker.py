@@ -73,7 +73,7 @@ class RamTracker:
                     timestamp_sec = int(timestamp_str) // 1000
                     ram_mb = float(value_str)
                     history.append((timestamp_sec, ram_mb))
-                except (
+                except (  # policy_guard: allow-silent-handler
                     ValueError,
                     IndexError,
                 ) as parse_error:

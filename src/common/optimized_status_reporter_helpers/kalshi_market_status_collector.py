@@ -8,23 +8,18 @@ import asyncio
 from typing import Any, Dict, Optional
 
 from redis.asyncio import Redis
+
+from common.kalshi_client_mixin import KalshiClientMixin
 from src.kalshi.api.client import KalshiClient
 
 
-class KalshiMarketStatusCollector:
+class KalshiMarketStatusCollector(KalshiClientMixin):
     """Collects Kalshi exchange status via API."""
 
     def __init__(self, redis_client: Optional[Redis] = None):
         self.redis_client = redis_client
         self._kalshi_client: Optional[KalshiClient] = None
         self._kalshi_client_lock = asyncio.Lock()
-
-    async def _get_kalshi_client(self) -> KalshiClient:
-        """Lazily instantiate and cache the Kalshi REST client."""
-        async with self._kalshi_client_lock:
-            if self._kalshi_client is None:
-                self._kalshi_client = KalshiClient()
-            return self._kalshi_client
 
     async def get_kalshi_market_status(self) -> Dict[str, Any]:
         """Fetch Kalshi exchange and trading status directly from the Kalshi API."""

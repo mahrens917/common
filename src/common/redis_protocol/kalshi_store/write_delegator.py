@@ -9,6 +9,8 @@ from typing import Any, Dict, Optional
 
 from redis.asyncio import Redis
 
+from common.truthy import pick_if
+
 from .writer import KalshiMarketWriter
 
 
@@ -70,10 +72,10 @@ class WriteDelegator:
             return describe_kalshi_ticker(ticker).key
 
         def map_func(msg: Any) -> Any:
-            return msg if isinstance(msg, dict) else {}
+            return pick_if(isinstance(msg, dict), lambda: msg, lambda: {})
 
         def str_func(val: Any) -> str:
-            return str(val) if val is not None else ""
+            return pick_if(val is not None, lambda: str(val), lambda: "")
 
         return await self._writer.update_trade_tick(message, key_func, map_func, str_func)
 

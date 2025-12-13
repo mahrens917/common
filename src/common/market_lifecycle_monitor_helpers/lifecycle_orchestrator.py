@@ -55,7 +55,7 @@ class LifecycleOrchestrator:
             self.notifier.send_closure_warnings(results["closing_soon"])
             await self.closure_handler.handle_closures(results["updated_markets"], results)
             results["settlements"] = await self.settlement_checker.check_settlements()
-        except TRADING_ERRORS + (
+        except TRADING_ERRORS + (  # policy_guard: allow-silent-handler
             ValueError,
             TypeError,
         ) as e:

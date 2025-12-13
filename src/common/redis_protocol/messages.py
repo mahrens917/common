@@ -11,6 +11,7 @@ from typing import Any, Optional, Union
 import orjson
 
 from common.exceptions import ValidationError
+from common.truthy import pick_if
 
 from .messages_helpers.field_validator import validate_float_field, validate_required_field
 from .messages_helpers.option_normalizer import normalize_option_type
@@ -51,7 +52,7 @@ class MarketData:
         except (OverflowError, OSError, ValueError) as exc:  # policy_guard: allow-silent-handler
             raise ValidationError(f"Invalid expiry_timestamp for {self.instrument}") from exc
 
-        instrument_type_label = "Option" if self.instrument_type.lower() == "option" else "Future"
+        instrument_type_label = pick_if(self.instrument_type.lower() == "option", lambda: "Option", lambda: "Future")
 
         result.update(
             {

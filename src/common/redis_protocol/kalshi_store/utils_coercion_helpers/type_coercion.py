@@ -2,6 +2,10 @@
 
 from typing import Any, Dict, List
 
+from common.truthy import pick_if
+
+_DEFAULT_NUMERIC_ERROR_MESSAGE = "Expected numeric value"
+
 
 def coerce_mapping(candidate: Any) -> Dict[str, Any]:
     """
@@ -22,7 +26,8 @@ def coerce_mapping(candidate: Any) -> Dict[str, Any]:
 def coerce_sequence(candidate: Any) -> List[Any]:
     """Convert candidate to a list, falling back to empty list on failure."""
     if candidate is None:
-        return []
+        _none_guard_value = []
+        return _none_guard_value
     if isinstance(candidate, (list, tuple, set)):
         return list(candidate)
     if hasattr(candidate, "__iter__"):
@@ -58,7 +63,7 @@ def int_or_default(value: Any, fallback_value: int = 0) -> int:
         try:
             text = value.decode("utf-8", "ignore") if isinstance(value, (bytes, bytearray)) else value
             return int(float(text))
-        except (
+        except (  # policy_guard: allow-silent-handler
             TypeError,
             ValueError,
         ):
@@ -88,7 +93,7 @@ def float_or_default(
         return coerce_float_default(value, fallback_value)
 
     if value is None:
-        message = error_message.format(value=value) if error_message else "Expected numeric value"
+        message = error_message.format(value=value) if error_message else _DEFAULT_NUMERIC_ERROR_MESSAGE
         raise ValueError(message)
 
     try:

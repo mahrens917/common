@@ -11,16 +11,21 @@ from dataclasses import dataclass
 from enum import Enum
 from typing import Dict, Optional
 
+from common.truthy import pick_if
+
 try:  # pragma: no cover - optional dependency
     import psutil
-except ImportError:  # pragma: no cover - psutil not available in some environments
+except ImportError:  # pragma: no cover - psutil not available in some environments  # policy_guard: allow-silent-handler
     psutil = None
 
 from ..process_monitor import get_global_process_monitor
 
 logger = logging.getLogger(__name__)
 
-PSUTIL_ERRORS = (psutil.Error,) if psutil else ()
+if psutil is None:
+    PSUTIL_ERRORS = ()
+else:
+    PSUTIL_ERRORS = (psutil.Error,)
 PROCESS_MONITOR_ERRORS = (
     RuntimeError,
     OSError,
@@ -105,7 +110,7 @@ class ProcessHealthMonitor:
                     )
                 return ProcessHealthInfo(status=ProcessStatus.STOPPED)
 
-            except (
+            except (  # policy_guard: allow-silent-handler
                 psutil.NoSuchProcess,
                 psutil.AccessDenied,
             ):

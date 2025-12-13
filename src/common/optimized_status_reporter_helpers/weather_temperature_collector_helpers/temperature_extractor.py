@@ -39,7 +39,8 @@ class TemperatureExtractor:
         weather_data = decode_redis_hash(weather_data_raw)
         temp_f = weather_data.get("temp_f")
         if temp_f is None:
-            return {}
+            _none_guard_value = {}
+            return _none_guard_value
 
         emoticon_raw = weather_data.get("weather_emoticon")
         emoticon = emoticon_raw if isinstance(emoticon_raw, str) else DEFAULT_WEATHER_EMOJI

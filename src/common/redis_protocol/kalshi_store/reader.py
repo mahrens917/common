@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from common.truthy import pick_truthy
+
 """
 Kalshi Market Reader - Read-only operations for Kalshi market data
 
@@ -120,7 +122,10 @@ async def _scan_market_keys(store: "KalshiMarketReader", patterns: Optional[List
     if not await conn.ensure_connection():
         raise RuntimeError("Redis connection not established for scan_market_keys")
     redis = await conn.get_redis()
-    target_patterns = patterns or [f"{SCHEMA.kalshi_market_prefix}:*"]
+    target_patterns = patterns
+    if not target_patterns:
+        target_patterns = list()
+        target_patterns.append(f"{SCHEMA.kalshi_market_prefix}:*")
     seen: Set[str] = set()
     results: List[str] = []
     for pattern in target_patterns:

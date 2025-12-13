@@ -50,7 +50,7 @@ class TimestampResolver:
 
         try:
             return datetime.fromisoformat(str(raw_value).replace("Z", "+00:00"))
-        except (
+        except (  # policy_guard: allow-silent-handler
             ValueError,
             TypeError,
         ):

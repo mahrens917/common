@@ -79,7 +79,7 @@ def extract_and_validate_close_time(combined: Dict[str, Any], market_ticker: str
     normalized_close = timestamp_normalizer.normalize_timestamp(close_time_value) or str(close_time_value)
     try:
         close_dt = datetime.fromisoformat(normalized_close.replace("Z", "+00:00"))
-    except ValueError:
+    except ValueError:  # policy_guard: allow-silent-handler
         close_dt = None
 
     if close_dt and close_dt <= now:

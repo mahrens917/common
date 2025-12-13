@@ -83,7 +83,7 @@ class DeletionValidator:
                 return False
         except REDIS_ATOMIC_ERRORS as exc:
             self.logger.exception(
-                "Error in atomic delete validation for key %s (%s): %s",
+                "Error in atomic delete validation for key %s (%s)",
                 store_key,
                 type(exc).__name__,
             )

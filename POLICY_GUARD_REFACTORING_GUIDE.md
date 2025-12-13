@@ -410,7 +410,7 @@ Pattern: Monitor loop - skip failed processes, check others
 ```
 Violations: Parsing date/time values
 
-Recommendation: Return None for unparseable dates
+Recommendation: Return None for unparsable dates
 Pattern: Optional transformation - valid to skip bad inputs
 ```
 

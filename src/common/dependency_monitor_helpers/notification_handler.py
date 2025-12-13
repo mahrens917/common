@@ -4,6 +4,8 @@ import logging
 from functools import partial
 from typing import Callable, Optional
 
+from common.truthy import pick_if
+
 from .dependency_checker import DependencyStatus
 
 logger = logging.getLogger(__name__)
@@ -29,7 +31,7 @@ class NotificationHandler:
         if old_status == DependencyStatus.UNKNOWN:
             return
 
-        status_emoji = "✅" if new_status == DependencyStatus.AVAILABLE else "❌"
+        status_emoji = pick_if(new_status == DependencyStatus.AVAILABLE, lambda: "✅", lambda: "❌")
         message = f"{status_emoji} [{service_name}] Dependency '{dependency_name}': {old_status.value} → {new_status.value}"
 
         logger.info(message)

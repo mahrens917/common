@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from common.truthy import pick_truthy
+
 """Weather station mapping helpers dedicated to the Kalshi Redis stores."""
 
 import logging
@@ -93,8 +95,8 @@ class WeatherStationResolver:
 
     def _resolve_city_alias(self, city_code: str) -> Optional[str]:
         for canonical_code, station_data in self._mapping.items():
-            aliases = station_data.get("aliases") or []
-            if city_code in aliases:
+            aliases = station_data.get("aliases")
+            if isinstance(aliases, list) and any(isinstance(alias, str) and alias == city_code for alias in aliases):
                 self._logger.debug("Resolved alias %s -> %s", city_code, canonical_code)
                 return canonical_code
         return None

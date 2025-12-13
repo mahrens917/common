@@ -15,7 +15,6 @@ from ..diagnostics import log_human_readable_summary
 from ..exceptions import ProbabilityDataNotFoundError, ProbabilityStoreError
 from ..keys import parse_probability_key
 from .sorting_helpers import (
-    ProbabilityByStrike,
     ProbabilityByStrikeType,
 )
 
@@ -77,9 +76,20 @@ async def get_probabilities_human_readable(redis: Redis, currency: str) -> Dict[
         if event_title is None:
             raise ProbabilityStoreError(f"Missing event_title for key {key_str}")
 
-        event_title_bucket: ProbabilityByEventTitle = result.setdefault(expiry, {})
-        strike_type_bucket: ProbabilityByStrikeType = event_title_bucket.setdefault(str(event_title), {})
-        strike_bucket: ProbabilityByStrike = strike_type_bucket.setdefault(strike_type, {})
+        event_title_bucket = result.get(expiry)
+        if event_title_bucket is None:
+            event_title_bucket = {}
+            result[expiry] = event_title_bucket
+
+        strike_type_bucket = event_title_bucket.get(str(event_title))
+        if strike_type_bucket is None:
+            strike_type_bucket = {}
+            event_title_bucket[str(event_title)] = strike_type_bucket
+
+        strike_bucket = strike_type_bucket.get(strike_type)
+        if strike_bucket is None:
+            strike_bucket = {}
+            strike_type_bucket[strike_type] = strike_bucket
         strike_bucket[strike] = processed_data
 
     log_human_readable_summary(

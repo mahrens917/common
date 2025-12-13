@@ -6,6 +6,8 @@ Formats standardized time period sections with tree-style display.
 
 from typing import List, Optional
 
+from common.truthy import pick_if
+
 from ..data_models.trade_record import PnLReport
 from .dollar_converter import DollarConverter
 from .pnl_emoji_selector import PnLEmojiSelector
@@ -56,7 +58,7 @@ class TimePeriodFormatter:
         total_contracts = self.dollar_converter.calculate_total_contracts(trades)
 
         # Determine total P&L with unrealized
-        unrealized_component = unrealized_dollars if include_unrealized else 0
+        unrealized_component = pick_if(include_unrealized, lambda: unrealized_dollars, lambda: 0)
         total_with_unrealized = total_pnl_dollars + unrealized_component
 
         # Select emoji
@@ -83,7 +85,7 @@ class TimePeriodFormatter:
         # Daily average for 7-day and 30-day periods
         if days_count:
             daily_avg_absolute = total_pnl_dollars / days_count
-            daily_avg_percent = (daily_avg_absolute / total_cost_dollars) * 100 if total_cost_dollars > 0 else 0
+            daily_avg_percent = pick_if(total_cost_dollars > 0, lambda: (daily_avg_absolute / total_cost_dollars) * 100, lambda: 0)
             lines.append(f"└── Daily Avg: ${daily_avg_absolute:+,.2f} ({daily_avg_percent:+.1f}%)")
         else:
             # Make last item the end for today/yesterday

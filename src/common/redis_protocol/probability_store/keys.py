@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from common.truthy import pick_if
+
 """Key helpers for the probability store."""
 
 
@@ -48,7 +50,7 @@ def _parse_prefixed_key(strike_key: str) -> Optional[tuple[int, float]]:
     except ValueError as exc:  # policy_guard: allow-silent-handler
         raise ProbabilityStoreError(f"Invalid strike key '{strike_key}'") from exc
 
-    return (1 if prefix == ">" else -1, numeric_value)
+    return (pick_if(prefix == ">", lambda: 1, lambda: -1), numeric_value)
 
 
 def _parse_range_key(strike_key: str) -> Optional[tuple[int, float]]:

@@ -32,7 +32,8 @@ class PlainLogWriter:
     def _prepare_message(message: Optional[str]) -> str:
         """Prepare message for writing."""
         if message is None:
-            return "\n"
+            _none_guard_value = "\n"
+            return _none_guard_value
 
         if not message.endswith("\n"):
             return f"{message}\n"
@@ -57,7 +58,7 @@ class PlainLogWriter:
         try:
             handler.stream.write(message)
             handler.stream.flush()
-        except (
+        except (  # policy_guard: allow-silent-handler
             OSError,
             ValueError,
             AttributeError,

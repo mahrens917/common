@@ -16,8 +16,12 @@ def build_order_data_payload(order_request: OrderRequest, order_response: OrderR
     Returns:
         Dictionary with order data for notification
     """
-    filled_count = order_response.filled_count or 0
-    remaining_count = order_response.remaining_count or 0
+    filled_count = order_response.filled_count
+    if filled_count is None:
+        filled_count = int()
+    remaining_count = order_response.remaining_count
+    if remaining_count is None:
+        remaining_count = int()
     initial_count = filled_count + remaining_count
     return {
         "ticker": order_request.ticker,

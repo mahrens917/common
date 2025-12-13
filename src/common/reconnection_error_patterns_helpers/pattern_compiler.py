@@ -97,7 +97,10 @@ class PatternCompiler:
         Returns:
             List of compiled regex patterns
         """
-        return self.compiled_patterns.get(service_type) or []
+        patterns = self.compiled_patterns.get(service_type)
+        if patterns is None:
+            return list()
+        return patterns
 
     def get_raw_patterns(self, service_type: ServiceType) -> List[str]:
         """
@@ -109,7 +112,10 @@ class PatternCompiler:
         Returns:
             List of regex pattern strings
         """
-        return RECONNECTION_ERROR_PATTERNS.get(service_type) or []
+        patterns = RECONNECTION_ERROR_PATTERNS.get(service_type)
+        if patterns is None:
+            return list()
+        return patterns
 
     def recompile_patterns(self, service_type: ServiceType) -> None:
         """
@@ -118,5 +124,7 @@ class PatternCompiler:
         Args:
             service_type: Type of service to recompile
         """
-        patterns = RECONNECTION_ERROR_PATTERNS.get(service_type) or []
+        patterns = RECONNECTION_ERROR_PATTERNS.get(service_type)
+        if patterns is None:
+            patterns = []
         self.compiled_patterns[service_type] = [re.compile(pattern, re.IGNORECASE) for pattern in patterns]

@@ -4,6 +4,8 @@ P&L emoji selector for visual indicators.
 Selects appropriate emoji based on P&L values for Telegram reports.
 """
 
+from common.truthy import pick_if
+
 
 class PnLEmojiSelector:
     """Selects appropriate emoji based on P&L values."""
@@ -19,7 +21,7 @@ class PnLEmojiSelector:
         Returns:
             Emoji string (📈 for positive, 📉 for negative)
         """
-        return "📈" if pnl_dollars >= 0 else "📉"
+        return pick_if(pnl_dollars >= 0, lambda: "📈", lambda: "📉")
 
     @staticmethod
     def get_fire_or_cold_emoji(pnl_dollars: float) -> str:
@@ -32,4 +34,4 @@ class PnLEmojiSelector:
         Returns:
             Emoji string (🔥 for positive, ❄️ for negative)
         """
-        return "🔥" if pnl_dollars >= 0 else "❄️"
+        return pick_if(pnl_dollars >= 0, lambda: "🔥", lambda: "❄️")

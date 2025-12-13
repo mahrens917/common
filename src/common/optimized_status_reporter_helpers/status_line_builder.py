@@ -4,6 +4,7 @@ from typing import Any, Optional
 
 from common.health.log_activity_monitor import LogActivity, LogActivityStatus
 from common.monitoring import ProcessStatus
+from common.truthy import pick_if
 
 
 def get_status_emoji(running: bool, activity: Optional[LogActivity]) -> str:
@@ -21,7 +22,7 @@ def _resolve_tracker_status(running: bool, tracker_status: dict[str, Any], bool_
     """Resolve status specifically for tracker service."""
     # Tracker enabled is True if not explicitly set to False
     enabled_raw = tracker_status.get("enabled")
-    enabled = bool_or_default_func(enabled_raw, enabled_raw if enabled_raw is not None else True)
+    enabled = bool_or_default_func(enabled_raw, pick_if(enabled_raw is not None, lambda: enabled_raw, lambda: True))
     tracker_status["running"] = running
     if running:
         return "Active"

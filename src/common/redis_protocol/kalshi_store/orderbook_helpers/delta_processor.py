@@ -33,12 +33,14 @@ class DeltaProcessor(SnapshotProcessor):
     ) -> bool:
         parsed_inputs = _extract_delta_inputs(msg_data)
         if parsed_inputs is None:
-            return False
+            _none_guard_value = False
+            return _none_guard_value
 
         side_field, price_str, delta = parsed_inputs
         side_data = await _apply_side_delta(redis, market_key, market_ticker, side_field, price_str, delta)
         if side_data is None:
-            return False
+            _none_guard_value = False
+            return _none_guard_value
 
         await _update_top_of_book(self, redis, market_key, side_field, side_data)
         await ensure_awaitable(redis.hset(market_key, "timestamp", timestamp))

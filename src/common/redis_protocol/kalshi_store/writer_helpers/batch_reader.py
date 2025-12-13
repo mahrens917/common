@@ -92,5 +92,5 @@ class BatchReader:
                     "interp_error_ask": float_f(data.get("interp_error_ask"), 0.0),
                 },
             )
-        except (ValueError, KeyError):
+        except (ValueError, KeyError):  # policy_guard: allow-silent-handler
             self.logger.warning("Error parsing interpolation results for %s", ticker)

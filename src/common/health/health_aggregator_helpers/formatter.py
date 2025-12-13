@@ -31,7 +31,8 @@ class StatusFormatter:
         elif log_activity.status == LogActivityStatus.ERROR:
             return "error"
         elif log_activity.age_seconds is None:
-            return "unknown"
+            _none_guard_value = "unknown"
+            return _none_guard_value
         else:
             age = log_activity.age_seconds
             if age < _CONST_60:

@@ -283,6 +283,38 @@ def test_validate_trade_execution_consistency_excessive_fees():
     assert "Excessive fees" in message
 
 
+def test_validate_trade_execution_consistency_missing_ticker():
+    response = _order_response()
+    response.ticker = ""
+
+    is_valid, message = validate_trade_execution_consistency(
+        response, expected_ticker="TEST", expected_side=OrderSide.YES, expected_action="BUY"
+    )
+    assert not is_valid
+    assert "missing ticker" in message.lower()
+
+
+def test_validate_trade_execution_consistency_invalid_side_type():
+    response = _order_response()
+    response.side = "YES"  # type: ignore[assignment]
+
+    is_valid, message = validate_trade_execution_consistency(
+        response, expected_ticker="TEST", expected_side=OrderSide.YES, expected_action="BUY"
+    )
+    assert not is_valid
+    assert "missing valid side" in message.lower()
+
+
+def test_validate_trade_execution_consistency_accepts_string_action():
+    response = _order_response()
+    response.action = "buy"  # type: ignore[assignment]
+
+    is_valid, message = validate_trade_execution_consistency(
+        response, expected_ticker="TEST", expected_side=OrderSide.YES, expected_action="BUY"
+    )
+    assert is_valid, message
+
+
 def test_create_position_snapshot_copies_portfolio_attributes():
     position = _portfolio_position(position_count=3, average_price_cents=35, unrealized_pnl_cents=15, market_value_cents=120)
 

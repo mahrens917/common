@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import asyncio
 import gc
+import logging
 import time
 from typing import cast
 
@@ -134,6 +135,7 @@ async def test_tracked_session_closes_existing(monkeypatch: pytest.MonkeyPatch):
 
 @pytest.mark.asyncio
 async def test_log_session_diagnostics(monkeypatch: pytest.MonkeyPatch, caplog):
+    caplog.set_level(logging.DEBUG)
     tracker = fresh_tracker()
     monkeypatch.setattr("common.session_tracker.session_tracker", tracker)
 
@@ -148,6 +150,7 @@ async def test_log_session_diagnostics(monkeypatch: pytest.MonkeyPatch, caplog):
 
 @pytest.mark.asyncio
 async def test_garbage_collected_session_logs(monkeypatch: pytest.MonkeyPatch, caplog):
+    caplog.set_level(logging.DEBUG)
     tracker = fresh_tracker()
     session = FakeSession()
     session_id = tracker.track_session_creation(cast(aiohttp.ClientSession, session), "svc")

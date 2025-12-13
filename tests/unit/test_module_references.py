@@ -273,21 +273,23 @@ def test_module_has_no_exports():
     assert len(non_builtin_attrs) == 0
 
 
-def test_module_references_all_imports_use_noqa():
-    """Test that all import statements in the file use noqa: F401 to suppress warnings."""
+def test_module_references_all_imports_avoid_noqa():
+    """Test that the module avoids noqa suppressions (policy_guard enforced)."""
     # Read the source file
     module_path = os.path.join(os.path.dirname(__file__), "../../src/common/_module_references.py")
 
     with open(module_path, "r", encoding="utf-8") as f:
         content = f.read()
 
+    assert "# pyright: reportUnusedImport = false" in content
+
     # Find all import lines within the if block
     lines = content.split("\n")
     import_lines = [line for line in lines if line.strip().startswith("import common.")]
 
-    # Verify each import has noqa comment
+    # Verify each import has no noqa comment
     for line in import_lines:
-        assert "# noqa: F401" in line, f"Import missing noqa comment: {line}"
+        assert "# noqa" not in line, f"Import should not use noqa: {line}"
 
 
 def test_module_references_env_check_pattern():

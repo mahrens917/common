@@ -15,8 +15,6 @@ from ..exceptions import ProbabilityStoreError
 from ..keys import parse_probability_key
 from .sorting_helpers import (
     ProbabilityByExpiryGrouped,
-    ProbabilityByStrike,
-    ProbabilityByStrikeType,
     sort_probabilities_by_expiry_and_strike_grouped,
 )
 
@@ -62,8 +60,15 @@ async def get_probabilities_by_event_type(redis: Redis, currency: str, event_typ
             log_nan=False,
             logger_fn=logger.debug,
         )
-        expiry_bucket: ProbabilityByStrikeType = result.setdefault(expiry, {})
-        strike_type_bucket: ProbabilityByStrike = expiry_bucket.setdefault(strike_type, {})
+        expiry_bucket = result.get(expiry)
+        if expiry_bucket is None:
+            expiry_bucket = {}
+            result[expiry] = expiry_bucket
+
+        strike_type_bucket = expiry_bucket.get(strike_type)
+        if strike_type_bucket is None:
+            strike_type_bucket = {}
+            expiry_bucket[strike_type] = strike_type_bucket
         strike_type_bucket[strike] = processed_data
 
     sorted_result = sort_probabilities_by_expiry_and_strike_grouped(result)

@@ -4,6 +4,8 @@ import logging
 import re
 from typing import List
 
+from common.truthy import pick_truthy
+
 from .service_type_manager import ServiceType
 
 logger = logging.getLogger(__name__)
@@ -38,7 +40,9 @@ class ErrorMatcher:
         if service_type == ServiceType.UNKNOWN:
             return False, None
 
-        patterns = self.compiled_patterns.get(service_type) or []
+        patterns = self.compiled_patterns.get(service_type)
+        if patterns is None:
+            patterns = []
 
         for pattern in patterns:
             if pattern.search(error_message):

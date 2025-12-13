@@ -55,7 +55,7 @@ class SettlementChecker:
                         f"winner={settlement_info.winning_side}"
                     )
 
-            except TRADING_ERRORS + (
+            except TRADING_ERRORS + (  # policy_guard: allow-silent-handler
                 ValueError,
                 KeyError,
             ):

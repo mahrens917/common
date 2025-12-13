@@ -85,7 +85,7 @@ class SnapshotManager:
 
             else:
                 return None
-        except DATA_ACCESS_ERRORS as exc:
+        except DATA_ACCESS_ERRORS as exc:  # policy_guard: allow-silent-handler
             self.logger.exception(
                 "Error retrieving unrealized P&L snapshot for %s (%s)",
                 date_key,

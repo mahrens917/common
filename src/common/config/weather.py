@@ -9,15 +9,19 @@ from typing import Any, Dict, Optional
 
 logger = logging.getLogger(__name__)
 
+WeatherConfigLoadError: type[Exception]
+
 try:
     from src.weather.config_loader import WeatherConfigLoadError, load_config_json
 except ImportError as exc:
     logger.debug("Weather module not available, using fallback: %s", exc)
 
-    class WeatherConfigLoadError(RuntimeError):  # type: ignore
+    class _FallbackWeatherConfigLoadError(RuntimeError):
         """Fallback for weather config load errors."""
 
-    def load_config_json(name: str) -> Dict[str, Any]:  # type: ignore
+    WeatherConfigLoadError = _FallbackWeatherConfigLoadError
+
+    def load_config_json(name: str) -> Dict[str, Any]:
         """Fallback for loading weather config JSON."""
         raise WeatherConfigError(f"Weather module not available: {name}")
 
@@ -43,6 +47,13 @@ def _load_from_directory(name: str, directory: Path) -> Dict[str, Any]:
 def _resolve_config_json(name: str, config_dir: Optional[Path]) -> Dict[str, Any]:
     if config_dir is not None:
         return _load_from_directory(name, config_dir)
+
+    local_config_dir = Path.cwd() / "config"
+    if local_config_dir.exists():
+        try:
+            return _load_from_directory(name, local_config_dir)
+        except WeatherConfigError:
+            pass
 
     try:
         return load_config_json(name)

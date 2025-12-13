@@ -24,6 +24,8 @@ from .log_activity_monitor_helpers import (
 logger = logging.getLogger(__name__)
 
 LOG_ACTIVITY_ERRORS = (OSError, ValueError, RuntimeError, TypeError)
+_DEFAULT_RECENT_THRESHOLD_SECONDS = 60
+_DEFAULT_STALE_THRESHOLD_SECONDS = 900
 
 
 class LogActivityMonitor:
@@ -31,8 +33,10 @@ class LogActivityMonitor:
 
     def __init__(self, logs_directory: str = "./logs"):
         self.logs_directory = logs_directory
-        self.recent_threshold_seconds = env_int("LOG_RECENT_THRESHOLD", or_value=60) or 60
-        self.stale_threshold_seconds = env_int("LOG_STALE_THRESHOLD", or_value=900) or 900
+        recent_threshold = env_int("LOG_RECENT_THRESHOLD", or_value=60)
+        self.recent_threshold_seconds = _DEFAULT_RECENT_THRESHOLD_SECONDS if recent_threshold is None else int(recent_threshold)
+        stale_threshold = env_int("LOG_STALE_THRESHOLD", or_value=900)
+        self.stale_threshold_seconds = _DEFAULT_STALE_THRESHOLD_SECONDS if stale_threshold is None else int(stale_threshold)
 
     def _find_most_recent_log_file(self, log_pattern: str):
         """Locate the most recent log file for the pattern."""

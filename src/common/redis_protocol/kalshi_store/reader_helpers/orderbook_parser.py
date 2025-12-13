@@ -10,6 +10,7 @@ from typing import Any, Dict
 
 from common.exceptions import DataError
 from common.parsing_utils import safe_orjson_loads
+from common.truthy import pick_truthy
 
 logger = logging.getLogger(__name__)
 
@@ -38,8 +39,10 @@ def extract_orderbook_sizes(market_ticker: str, market_data: Dict[str, Any]) -> 
     if best_bid_price is None or best_ask_price is None:
         raise DataError(f"Orderbook data missing size information for {market_ticker}")
 
-    yes_bids = orderbook.get("yes_bids") or {}
-    yes_asks = orderbook.get("yes_asks") or {}
+    yes_bids_raw = orderbook.get("yes_bids")
+    yes_bids = yes_bids_raw if isinstance(yes_bids_raw, dict) else dict()
+    yes_asks_raw = orderbook.get("yes_asks")
+    yes_asks = yes_asks_raw if isinstance(yes_asks_raw, dict) else dict()
     return (
         resolve_orderbook_size(yes_bids, best_bid_price, market_ticker),
         resolve_orderbook_size(yes_asks, best_ask_price, market_ticker),

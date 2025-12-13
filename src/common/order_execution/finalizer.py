@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from common.truthy import pick_if
+
 """
 Trade finalisation helpers for the Kalshi trading client.
 
@@ -79,7 +81,7 @@ async def _finalize(
         order_response=order_response,
         outcome=outcome,
         market_category=market_category,
-        weather_station=weather_station or "",
+        weather_station=str() if weather_station is None else weather_station,
         trade_timestamp=get_current_utc(),
     )
     await _store_trade(trade_store, trade_record, ticker, order_id, outcome, self._operation_name)
@@ -175,10 +177,17 @@ async def _send_notification(
 
 
 def _build_order_data_payload(order_request: OrderRequest, order_response: OrderResponse) -> Dict[str, object]:
-    filled_count = order_response.filled_count or 0
-    remaining_count = order_response.remaining_count or 0
+    filled_count = order_response.filled_count
+    if filled_count is None:
+        filled_count = int()
+    remaining_count = order_response.remaining_count
+    if remaining_count is None:
+        remaining_count = int()
     total_from_response = filled_count + remaining_count
-    contract_count = total_from_response or order_request.count
+    contract_count = total_from_response if total_from_response else order_request.count
+    yes_price_cents = order_request.yes_price_cents
+    if yes_price_cents is None:
+        yes_price_cents = int()
     return {
         "ticker": order_request.ticker,
         "action": order_request.action.value,
@@ -188,7 +197,7 @@ def _build_order_data_payload(order_request: OrderRequest, order_response: Order
         "client_order_id": order_request.client_order_id,
         "trade_rule": order_request.trade_rule,
         "trade_reason": order_request.trade_reason,
-        "yes_price_cents": order_request.yes_price_cents or 0,
+        "yes_price_cents": yes_price_cents,
         "time_in_force": order_request.time_in_force.value,
         "fees_cents": order_response.fees_cents,
         "order_id": order_response.order_id,
@@ -199,6 +208,9 @@ def _build_response_data_payload(order_response: OrderResponse) -> Dict[str, obj
     timestamp = order_response.timestamp
     assert timestamp is not None, "Order response timestamp must be present"
     timestamp_str = timestamp.replace(microsecond=0).isoformat().replace("+00:00", "Z")
+    average_fill_price_cents = order_response.average_fill_price_cents
+    if average_fill_price_cents is None:
+        average_fill_price_cents = int()
     return {
         "order_id": order_response.order_id,
         "client_order_id": order_response.client_order_id,
@@ -209,7 +221,7 @@ def _build_response_data_payload(order_response: OrderResponse) -> Dict[str, obj
         "order_type": order_response.order_type.value,
         "filled_count": order_response.filled_count,
         "remaining_count": order_response.remaining_count,
-        "average_fill_price_cents": order_response.average_fill_price_cents or 0,
+        "average_fill_price_cents": average_fill_price_cents,
         "fees_cents": order_response.fees_cents,
         "timestamp": timestamp_str,
         "trade_rule": order_response.trade_rule,
@@ -219,9 +231,11 @@ def _build_response_data_payload(order_response: OrderResponse) -> Dict[str, obj
                 "count": fill.count,
                 "side": order_response.side.value,
                 "timestamp": fill.timestamp.replace(microsecond=0).isoformat().replace("+00:00", "Z"),
-                **({"yes_price": fill.price_cents} if order_response.side == OrderSide.YES else {"no_price": fill.price_cents}),
+                **pick_if(
+                    order_response.side == OrderSide.YES, lambda: {"yes_price": fill.price_cents}, lambda: {"no_price": fill.price_cents}
+                ),
             }
-            for fill in (order_response.fills or [])
+            for fill in (order_response.fills if order_response.fills is not None else list())
         ],
     }
 
@@ -236,10 +250,19 @@ def _build_trade_record(
     trade_timestamp,
 ) -> TradeRecord:
     quantity = max(outcome.total_filled, 0)
-    price_cents = outcome.average_price_cents or order_response.average_fill_price_cents or 0
-    fee_cents = order_response.fees_cents or 0
+    price_cents = outcome.average_price_cents
+    if price_cents is None:
+        price_cents = order_response.average_fill_price_cents
+    if price_cents is None:
+        price_cents = int()
+    fee_cents = order_response.fees_cents
+    if fee_cents is None:
+        fee_cents = int()
     cost_cents = price_cents * quantity + fee_cents
     trade_side = TradeSide.YES if order_response.side.value == "yes" else TradeSide.NO
+    trade_rule = order_response.trade_rule if order_response.trade_rule else order_request.trade_rule
+    trade_reason = order_response.trade_reason if order_response.trade_reason else order_request.trade_reason
+    resolved_weather_station = None if not weather_station else weather_station
     return TradeRecord(
         order_id=order_response.order_id,
         market_ticker=order_request.ticker,
@@ -250,7 +273,7 @@ def _build_trade_record(
         fee_cents=fee_cents,
         cost_cents=cost_cents,
         market_category=market_category,
-        trade_rule=order_response.trade_rule or order_request.trade_rule,
-        trade_reason=order_response.trade_reason or order_request.trade_reason,
-        weather_station=weather_station or None,
+        trade_rule=trade_rule,
+        trade_reason=trade_reason,
+        weather_station=resolved_weather_station,
     )

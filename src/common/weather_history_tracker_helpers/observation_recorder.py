@@ -100,7 +100,7 @@ class WeatherObservationRecorder:
 
             logger.debug(f"Recorded {station_icao} temperature history: {temp_f:.1f}°F at {datetime_str}")
 
-        except REDIS_ERRORS + (
+        except REDIS_ERRORS + (  # policy_guard: allow-silent-handler
             json.JSONDecodeError,
             ValueError,
             TypeError,

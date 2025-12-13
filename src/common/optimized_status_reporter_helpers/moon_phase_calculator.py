@@ -46,7 +46,7 @@ class MoonPhaseCalculator:
 
             return moon_phases[phase_index]
 
-        except (
+        except (  # policy_guard: allow-silent-handler
             ValueError,
             OverflowError,
             ZeroDivisionError,

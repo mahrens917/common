@@ -39,7 +39,7 @@ class ProcessResourceTracker:
             process = psutil.Process(service_pid)
             memory_percent = process.memory_percent()
 
-        except (
+        except (  # policy_guard: allow-silent-handler
             psutil.NoSuchProcess,
             psutil.AccessDenied,
             psutil.ZombieProcess,

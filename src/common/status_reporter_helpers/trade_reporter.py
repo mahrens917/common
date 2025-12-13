@@ -1,5 +1,7 @@
 """Reporter for trade execution and balance messages."""
 
+from common.truthy import pick_if
+
 
 class TradeReporter:
     """Formats trade execution, failure, and balance update messages."""
@@ -29,6 +31,6 @@ class TradeReporter:
         new_dollars = new_balance_cents / 100
         change_dollars = (new_balance_cents - old_balance_cents) / 100
 
-        change_sign = "+" if change_dollars >= 0 else ""
+        change_sign = pick_if(change_dollars >= 0, lambda: "+", lambda: "")
 
         return f"💰 Balance updated: ${old_dollars:.2f} → ${new_dollars:.2f} " f"({change_sign}${change_dollars:.2f})"

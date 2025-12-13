@@ -44,13 +44,13 @@ class MessageMetricsCollector:
             self.realtime_collector.get_deribit_sum_last_60_seconds(),
             self.realtime_collector.get_kalshi_sum_last_60_seconds(),
         ]
-        metadata_tasks = [self.metadata_store.get_service_metadata(name) for name in ["cfb", "asos", "metar"]]
 
         try:
             deribit_messages_60s, kalshi_messages_60s = await asyncio.gather(*realtime_tasks)
         except STATUS_REPORT_ERRORS as exc:  # policy_guard: allow-silent-handler
             raise RuntimeError("Failed to collect realtime message metrics") from exc
 
+        metadata_tasks = [self.metadata_store.get_service_metadata(name) for name in ["cfb", "asos", "metar"]]
         try:
             metadata_results = await asyncio.gather(*metadata_tasks)
         except STATUS_REPORT_ERRORS as exc:  # policy_guard: allow-silent-handler

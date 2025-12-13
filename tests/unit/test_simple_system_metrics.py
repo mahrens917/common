@@ -7,6 +7,35 @@ import common.simple_system_metrics as metrics
 DEFAULT_STATVFS_FR_SIZE = 1024
 
 
+def _patch_subprocess_popen(
+    monkeypatch,
+    *,
+    stdout: str = "",
+    returncode: int = 0,
+    popen_side_effect: Exception | None = None,
+    communicate_side_effect: Exception | None = None,
+) -> None:
+    import subprocess
+
+    class FakePopen:
+        def __init__(self) -> None:
+            self.returncode = returncode
+
+        def communicate(self, timeout: float | None = None) -> tuple[str, str]:
+            _ = timeout
+            if communicate_side_effect is not None:
+                raise communicate_side_effect
+            return stdout, ""
+
+    def fake_popen(*args, **kwargs):
+        _ = args, kwargs
+        if popen_side_effect is not None:
+            raise popen_side_effect
+        return FakePopen()
+
+    monkeypatch.setattr(subprocess, "Popen", fake_popen)
+
+
 def test_get_disk_percent_calculates_usage(monkeypatch):
     class FakeStat:
         f_blocks = 200
@@ -225,12 +254,7 @@ Pages active:                             200000.
 Pages inactive:                           50000.
 Pages wired down:                         150000."""
 
-    fake_result = subprocess.CompletedProcess(args=["vm_stat"], returncode=0, stdout=vm_stat_output)
-
-    monkeypatch.setattr(
-        "subprocess.run",
-        lambda *args, **kwargs: fake_result,
-    )
+    _patch_subprocess_popen(monkeypatch, stdout=vm_stat_output, returncode=0)
 
     usage = metrics._get_memory_percent_macos()
 
@@ -241,12 +265,7 @@ Pages wired down:                         150000."""
 
 
 def test_get_memory_percent_macos_returns_zero_on_error(monkeypatch):
-    import subprocess
-
-    monkeypatch.setattr(
-        "subprocess.run",
-        lambda *args, **kwargs: subprocess.CompletedProcess(args=[], returncode=1, stdout=""),
-    )
+    _patch_subprocess_popen(monkeypatch, stdout="", returncode=1)
 
     assert metrics._get_memory_percent_macos() == 0.0
 
@@ -254,10 +273,10 @@ def test_get_memory_percent_macos_returns_zero_on_error(monkeypatch):
 def test_get_memory_percent_macos_handles_timeout(monkeypatch):
     import subprocess
 
-    def raise_timeout(*args, **kwargs):
-        raise subprocess.TimeoutExpired(cmd="vm_stat", timeout=1)
-
-    monkeypatch.setattr("subprocess.run", raise_timeout)
+    _patch_subprocess_popen(
+        monkeypatch,
+        communicate_side_effect=subprocess.TimeoutExpired(cmd="vm_stat", timeout=1),
+    )
 
     assert metrics._get_memory_percent_macos() == 0.0
 
@@ -265,55 +284,40 @@ def test_get_memory_percent_macos_handles_timeout(monkeypatch):
 def test_get_memory_percent_macos_handles_subprocess_error(monkeypatch):
     import subprocess
 
-    def raise_error(*args, **kwargs):
-        raise subprocess.SubprocessError("error")
-
-    monkeypatch.setattr("subprocess.run", raise_error)
+    _patch_subprocess_popen(monkeypatch, communicate_side_effect=subprocess.SubprocessError("error"))
 
     assert metrics._get_memory_percent_macos() == 0.0
 
 
 def test_get_memory_percent_macos_handles_value_error(monkeypatch):
-    import subprocess
-
     vm_stat_output = """Mach Virtual Memory Statistics: (page size of 4096 bytes)
 Pages free:                               abc.
 Pages active:                             200000."""
 
-    fake_result = subprocess.CompletedProcess(args=["vm_stat"], returncode=0, stdout=vm_stat_output)
-
-    monkeypatch.setattr("subprocess.run", lambda *args, **kwargs: fake_result)
+    _patch_subprocess_popen(monkeypatch, stdout=vm_stat_output, returncode=0)
 
     assert metrics._get_memory_percent_macos() == 0.0
 
 
 def test_get_memory_percent_macos_returns_zero_when_total_zero(monkeypatch):
-    import subprocess
-
     vm_stat_output = """Mach Virtual Memory Statistics: (page size of 4096 bytes)
 Pages free:                               0.
 Pages active:                             0.
 Pages inactive:                           0.
 Pages wired down:                         0."""
 
-    fake_result = subprocess.CompletedProcess(args=["vm_stat"], returncode=0, stdout=vm_stat_output)
-
-    monkeypatch.setattr("subprocess.run", lambda *args, **kwargs: fake_result)
+    _patch_subprocess_popen(monkeypatch, stdout=vm_stat_output, returncode=0)
 
     assert metrics._get_memory_percent_macos() == 0.0
 
 
 def test_get_cpu_percent_macos_parses_iostat(monkeypatch):
-    import subprocess
-
     iostat_output = """      disk0       cpu    load average
     KB/t  tps  MB/s  us sy id   1m   5m   15m
    16.00   10  0.16  25 15 60  1.5  1.8  2.0
    12.00    8  0.10  30 10 60  1.5  1.8  2.0"""
 
-    fake_result = subprocess.CompletedProcess(args=["iostat"], returncode=0, stdout=iostat_output)
-
-    monkeypatch.setattr("subprocess.run", lambda *args, **kwargs: fake_result)
+    _patch_subprocess_popen(monkeypatch, stdout=iostat_output, returncode=0)
 
     usage = metrics._get_cpu_percent_macos()
 
@@ -323,12 +327,7 @@ def test_get_cpu_percent_macos_parses_iostat(monkeypatch):
 
 
 def test_get_cpu_percent_macos_returns_zero_on_error(monkeypatch):
-    import subprocess
-
-    monkeypatch.setattr(
-        "subprocess.run",
-        lambda *args, **kwargs: subprocess.CompletedProcess(args=[], returncode=1, stdout=""),
-    )
+    _patch_subprocess_popen(monkeypatch, stdout="", returncode=1)
 
     assert metrics._get_cpu_percent_macos() == 0.0
 
@@ -336,10 +335,10 @@ def test_get_cpu_percent_macos_returns_zero_on_error(monkeypatch):
 def test_get_cpu_percent_macos_handles_timeout(monkeypatch):
     import subprocess
 
-    def raise_timeout(*args, **kwargs):
-        raise subprocess.TimeoutExpired(cmd="iostat", timeout=3)
-
-    monkeypatch.setattr("subprocess.run", raise_timeout)
+    _patch_subprocess_popen(
+        monkeypatch,
+        communicate_side_effect=subprocess.TimeoutExpired(cmd="iostat", timeout=3),
+    )
 
     assert metrics._get_cpu_percent_macos() == 0.0
 
@@ -347,24 +346,17 @@ def test_get_cpu_percent_macos_handles_timeout(monkeypatch):
 def test_get_cpu_percent_macos_handles_subprocess_error(monkeypatch):
     import subprocess
 
-    def raise_error(*args, **kwargs):
-        raise subprocess.SubprocessError("error")
-
-    monkeypatch.setattr("subprocess.run", raise_error)
+    _patch_subprocess_popen(monkeypatch, communicate_side_effect=subprocess.SubprocessError("error"))
 
     assert metrics._get_cpu_percent_macos() == 0.0
 
 
 def test_get_cpu_percent_macos_handles_value_error(monkeypatch):
-    import subprocess
-
     iostat_output = """      disk0       cpu    load average
     KB/t  tps  MB/s  us sy id   1m   5m   15m
    16.00   10  0.16  abc def ghi  1.5  1.8  2.0"""
 
-    fake_result = subprocess.CompletedProcess(args=["iostat"], returncode=0, stdout=iostat_output)
-
-    monkeypatch.setattr("subprocess.run", lambda *args, **kwargs: fake_result)
+    _patch_subprocess_popen(monkeypatch, stdout=iostat_output, returncode=0)
 
     assert metrics._get_cpu_percent_macos() == 0.0
 
@@ -439,35 +431,21 @@ def test_calculate_cpu_percentage_returns_zero_when_total_zero():
 
 
 def test_get_cpu_percent_macos_handles_missing_column(monkeypatch):
-    import subprocess
-
     iostat_output = """some output
 without proper headers"""
 
-    fake_result = subprocess.CompletedProcess(args=["iostat"], returncode=0, stdout=iostat_output)
-
-    monkeypatch.setattr("subprocess.run", lambda *args, **kwargs: fake_result)
+    _patch_subprocess_popen(monkeypatch, stdout=iostat_output, returncode=0)
     assert metrics._get_cpu_percent_macos() == 0.0
 
 
 def test_get_cpu_percent_macos_handles_os_error(monkeypatch):
-    import subprocess
-
-    def raise_error(*args, **kwargs):
-        raise OSError("error")
-
-    monkeypatch.setattr("subprocess.run", raise_error)
+    _patch_subprocess_popen(monkeypatch, popen_side_effect=OSError("error"))
 
     assert metrics._get_cpu_percent_macos() == 0.0
 
 
 def test_get_memory_percent_macos_handles_os_error(monkeypatch):
-    import subprocess
-
-    def raise_error(*args, **kwargs):
-        raise OSError("error")
-
-    monkeypatch.setattr("subprocess.run", raise_error)
+    _patch_subprocess_popen(monkeypatch, popen_side_effect=OSError("error"))
 
     assert metrics._get_memory_percent_macos() == 0.0
 
@@ -495,17 +473,13 @@ def test_find_cpu_column_index_partial_match():
 
 
 def test_get_memory_percent_macos_with_custom_page_size(monkeypatch):
-    import subprocess
-
     vm_stat_output = """Mach Virtual Memory Statistics: (page size of 16384 bytes)
 Pages free:                               10000.
 Pages active:                             20000.
 Pages inactive:                           5000.
 Pages wired down:                         15000."""
 
-    fake_result = subprocess.CompletedProcess(args=["vm_stat"], returncode=0, stdout=vm_stat_output)
-
-    monkeypatch.setattr("subprocess.run", lambda *args, **kwargs: fake_result)
+    _patch_subprocess_popen(monkeypatch, stdout=vm_stat_output, returncode=0)
 
     usage = metrics._get_memory_percent_macos()
 

@@ -1,13 +1,18 @@
 """Scan coordination logic."""
 
+import asyncio
 import logging
 import time
+from concurrent.futures import ThreadPoolExecutor
 from typing import Dict, List
 
 from ..process_monitor import ProcessInfo
 from .scanner import ProcessScanner
 
 logger = logging.getLogger(__name__)
+
+_FULL_SCAN_TIMEOUT_SECONDS = 5.0
+_PROCESS_SCAN_EXECUTOR = ThreadPoolExecutor(max_workers=1, thread_name_prefix="process-scan")
 
 
 class ScanCoordinator:
@@ -34,8 +39,19 @@ class ScanCoordinator:
         Returns:
             Tuple of (updated_process_cache, updated_service_cache, updated_redis_processes, timestamp)
         """
-        new_process_cache, new_service_cache, new_redis_processes = self.scanner.perform_full_scan()
-        return new_process_cache, new_service_cache, new_redis_processes, time.time()
+        _ = process_cache, service_cache, redis_processes
+        try:
+            loop = asyncio.get_running_loop()
+            future = loop.run_in_executor(_PROCESS_SCAN_EXECUTOR, self.scanner.perform_full_scan)
+            new_process_cache, new_service_cache, new_redis_processes = await asyncio.wait_for(
+                future,
+                timeout=_FULL_SCAN_TIMEOUT_SECONDS,
+            )
+        except asyncio.TimeoutError:  # policy_guard: allow-silent-handler
+            logger.exception("Full process scan timed out")
+            return {}, {}, [], time.time()
+        else:
+            return new_process_cache, new_service_cache, new_redis_processes, time.time()
 
     async def perform_incremental_scan(
         self,

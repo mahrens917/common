@@ -6,6 +6,7 @@ from typing import TYPE_CHECKING, Optional
 
 from common.exceptions import ValidationError
 from common.time_helpers.expiry_conversions import parse_expiry_datetime
+from common.truthy import pick_if
 
 from ....redis_schema import DeribitInstrumentDescriptor
 
@@ -86,7 +87,7 @@ def _build_descriptor(instrument: "Instrument", expiry_dt: datetime) -> DeribitI
         strike_value = instrument.strike
 
     quote_currency = getattr(instrument, "quote_currency", None)
-    normalized_quote_currency = str(quote_currency).upper() if quote_currency else "USD"
+    normalized_quote_currency = pick_if(quote_currency, lambda: str(quote_currency).upper(), lambda: "USD")
 
     return DeribitInstrumentDescriptor.from_instrument_data(
         kind=kind,

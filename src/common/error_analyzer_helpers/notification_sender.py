@@ -4,6 +4,8 @@ import asyncio
 import logging
 from typing import Callable, Optional
 
+from common.truthy import pick_if
+
 from .data_classes import ErrorAnalysis, ErrorCategory, ErrorSeverity
 
 logger = logging.getLogger(__name__)
@@ -63,8 +65,8 @@ class NotificationSender:
             context_str = ", ".join([f"{k}={v}" for k, v in analysis.context.items()])
             message += f"📝 Context: {context_str}\n"
 
-        recovery_emoji = "✅" if analysis.recovery_possible else "❌"
-        recovery_status = "Possible" if analysis.recovery_possible else "Manual intervention required"
+        recovery_emoji = pick_if(analysis.recovery_possible, lambda: "✅", lambda: "❌")
+        recovery_status = pick_if(analysis.recovery_possible, lambda: "Possible", lambda: "Manual intervention required")
         message += f"{recovery_emoji} Auto-recovery: {recovery_status}"
 
         try:

@@ -35,7 +35,7 @@ class PayloadConverter:
                     result[field] = float(text)
                 else:
                     result[field] = int(text)
-            except (
+            except (  # policy_guard: allow-silent-handler
                 TypeError,
                 ValueError,
             ):

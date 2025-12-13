@@ -32,14 +32,17 @@ async def should_rebuild_pool(
         True if pool should be rebuilt, False otherwise
     """
     if pool is None:
-        return False
+        _none_guard_value = False
+        return _none_guard_value
 
     if pool_loop is None:
-        return False
+        _none_guard_value = False
+        return _none_guard_value
 
     cached_loop = pool_loop()
     if cached_loop is None:
-        return True
+        _none_guard_value = True
+        return _none_guard_value
 
     if cached_loop.is_closed():
         return True

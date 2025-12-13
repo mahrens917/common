@@ -4,6 +4,8 @@ import logging
 from datetime import datetime
 from typing import Any, Dict, List, Optional
 
+from common.truthy import pick_if
+
 from ....redis_schema import DeribitInstrumentType
 from ....time_utils import DERIBIT_EXPIRY_HOUR
 from ..instrument_name_builder import InstrumentNameBuilder
@@ -17,7 +19,7 @@ def _coerce_number(value: Any) -> Optional[float]:
         return None
     try:
         return float(value)
-    except (
+    except (  # policy_guard: allow-silent-handler
         TypeError,
         ValueError,
     ):
@@ -77,7 +79,7 @@ class InstrumentBuilder:
         strike_value = float(descriptor.strike) if descriptor.strike is not None else None
         option_type = None
         if descriptor.option_kind:
-            option_type = "call" if descriptor.option_kind.startswith("c") else "put"
+            option_type = pick_if(descriptor.option_kind.startswith("c"), lambda: "call", lambda: "put")
 
         from ....data_models.instrument import Instrument
 

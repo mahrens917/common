@@ -16,7 +16,9 @@ logger = logging.getLogger(__name__)
 
 def is_order_complete(operation_name: str, order_response: OrderResponse) -> bool:
     """Check if order is already filled or cancelled."""
-    filled_count = order_response.filled_count or 0
+    filled_count = order_response.filled_count
+    if filled_count is None:
+        filled_count = int()
     if filled_count > 0:
         logger.info(f"[{operation_name}] Order {order_response.order_id} filled immediately: " f"filled={order_response.filled_count}")
         return True
@@ -30,8 +32,12 @@ def is_order_complete(operation_name: str, order_response: OrderResponse) -> boo
 
 def apply_polling_outcome(order_response: OrderResponse, outcome: PollingOutcome) -> None:
     """Apply polling outcome to order response."""
-    filled_count = order_response.filled_count or 0
-    remaining_count = order_response.remaining_count or 0
+    filled_count = order_response.filled_count
+    if filled_count is None:
+        filled_count = int()
+    remaining_count = order_response.remaining_count
+    if remaining_count is None:
+        remaining_count = int()
     initial_count = filled_count + remaining_count
     order_response.filled_count = outcome.total_filled
     order_response.remaining_count = max(0, initial_count - outcome.total_filled)

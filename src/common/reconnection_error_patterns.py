@@ -72,7 +72,8 @@ class ReconnectionErrorClassifier:
         service_type_enum = self.service_type_manager.string_to_service_type(service_type)
         if service_type_enum is None:
             logger.debug(f"Unknown service type: {service_type}")
-            return False
+            _none_guard_value = False
+            return _none_guard_value
 
         matches, _ = self.error_matcher.matches_pattern(service_type_enum, error_message)
         if matches:

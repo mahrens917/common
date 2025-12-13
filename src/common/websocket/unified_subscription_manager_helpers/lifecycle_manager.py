@@ -4,10 +4,12 @@ import asyncio
 import logging
 from typing import Optional
 
+from common.websocket.monitoring_task_mixin import MonitoringTaskMixin
+
 logger = logging.getLogger(__name__)
 
 
-class LifecycleManager:
+class LifecycleManager(MonitoringTaskMixin):
     """Manages start/stop lifecycle for subscription monitoring."""
 
     def __init__(self, service_name: str):
@@ -19,6 +21,7 @@ class LifecycleManager:
         """
         self.service_name = service_name
         self._monitoring_task: Optional[asyncio.Task] = None
+        self._monitoring_label = "subscription monitoring"
 
     async def start_monitoring(self, monitor_coro) -> None:
         """
@@ -33,17 +36,6 @@ class LifecycleManager:
 
         logger.info(f"Starting {self.service_name} subscription monitoring")
         self._monitoring_task = asyncio.create_task(monitor_coro)
-
-    async def stop_monitoring(self) -> None:
-        """Stop subscription monitoring."""
-        if self._monitoring_task is not None:
-            self._monitoring_task.cancel()
-            try:
-                await self._monitoring_task
-            except asyncio.CancelledError:  # policy_guard: allow-silent-handler
-                pass
-            self._monitoring_task = None
-            logger.info(f"Stopped {self.service_name} subscription monitoring")
 
     def is_monitoring(self) -> bool:
         """Check if monitoring is active."""

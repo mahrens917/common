@@ -8,9 +8,8 @@ from typing import TYPE_CHECKING
 from common.order_execution import OrderPoller, TradeFinalizer
 
 if TYPE_CHECKING:
-    from src.kalshi.api.client import KalshiClient
-
     from common.trading import TradeStoreManager
+    from src.kalshi.api.client import KalshiClient
 
 
 class FactoryMethods:

@@ -4,6 +4,8 @@ from __future__ import annotations
 
 from typing import Any, Dict, Optional
 
+from common.truthy import pick_truthy
+
 from .trading_exceptions_core import KalshiTradingError
 
 
@@ -78,7 +80,7 @@ class KalshiDataIntegrityError(KalshiTradingError):
             operation_name=operation_name,
             request_data={"validation_errors": validation_errors, "invalid_data": data},
         )
-        self.validation_errors = validation_errors or []
+        self.validation_errors = pick_truthy(validation_errors, [])
 
 
 class KalshiOrderNotFoundError(KalshiTradingError):

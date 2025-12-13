@@ -10,6 +10,8 @@ from typing import List, Set
 
 from redis.asyncio import Redis
 
+from common.truthy import pick_truthy
+
 from ....config.redis_schema import get_schema_config
 from ....parsing_utils import decode_redis_key
 from ....redis_schema import parse_kalshi_market_key
@@ -89,7 +91,7 @@ class MarketFilter:
         if total <= 0:
             return
         skipped = total - processed
-        expired = skip_reasons.get("expired") or 0
+        expired = pick_truthy(skip_reasons.get("expired"), 0)
         self.logger.debug(
             "Processed %s/%s active markets for %s (expired=%s, skipped=%s)",
             processed,

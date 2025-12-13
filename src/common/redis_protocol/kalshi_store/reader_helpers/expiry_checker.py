@@ -9,6 +9,8 @@ from datetime import datetime
 
 from redis.asyncio import Redis
 
+from common.truthy import pick_if
+
 from ....time_utils import get_current_utc
 from ...error_types import REDIS_ERRORS
 from ...typing import ensure_awaitable
@@ -38,7 +40,7 @@ class ExpiryChecker:
                 close_time_str = CloseTimeParser.decode_close_time_string(close_time_raw)
                 self.logger.info("Market %s expired: close_time %s < current time", market_ticker, close_time_str)
                 return True
-        except REDIS_ERRORS as exc:
+        except REDIS_ERRORS as exc:  # policy_guard: allow-silent-handler
             self.logger.error(
                 "Redis error checking if market %s is expired: %s",
                 market_ticker,
@@ -66,14 +68,14 @@ class ExpiryChecker:
             current_time = get_current_utc()
             is_settled = current_time > close_time
 
-            log_template = (
-                "Market %s is settled: close_time=%s, current_time=%s"
-                if is_settled
-                else "Market %s not settled: close_time=%s, current_time=%s"
+            log_template = pick_if(
+                is_settled,
+                lambda: "Market %s is settled: close_time=%s, current_time=%s",
+                lambda: "Market %s not settled: close_time=%s, current_time=%s",
             )
             log_fn = self.logger.info if is_settled else self.logger.debug
             log_fn(log_template, market_ticker, close_time_str, current_time)
-        except REDIS_ERRORS as exc:
+        except REDIS_ERRORS as exc:  # policy_guard: allow-silent-handler
             self.logger.error(
                 "Redis error checking if market %s is settled: %s",
                 market_ticker,

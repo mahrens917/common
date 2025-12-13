@@ -20,7 +20,7 @@ class PidValidator:
         try:
             ps_process = psutil.Process(pid)
             return ps_process.is_running() and ps_process.status() != psutil.STATUS_ZOMBIE
-        except (
+        except (  # policy_guard: allow-silent-handler
             psutil.NoSuchProcess,
             psutil.AccessDenied,
             psutil.ZombieProcess,

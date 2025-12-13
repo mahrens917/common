@@ -12,11 +12,19 @@ class DummyRedisError(Exception):
     pass
 
 
+_DEFAULT_TIMEOUT_SECONDS = 5.0
+
+
 @pytest.mark.asyncio
 async def test_ping_success(monkeypatch):
     redis = MagicMock()
-    redis.ping = AsyncMock()
-    wait_for = AsyncMock(return_value=None)
+    redis.ping = AsyncMock(return_value=True)
+
+    async def _wait_for(awaitable, *, timeout):
+        assert timeout == _DEFAULT_TIMEOUT_SECONDS
+        return await awaitable
+
+    wait_for = AsyncMock(side_effect=_wait_for)
     monkeypatch.setattr(connection_verifier.asyncio, "wait_for", wait_for)
 
     success, fatal = await connection_verifier.ConnectionVerifier.ping_connection(redis)
@@ -24,18 +32,12 @@ async def test_ping_success(monkeypatch):
     assert success is True
     assert fatal is False
     wait_for.assert_awaited_once()
-    assert wait_for.await_args.kwargs["timeout"] == 5.0
 
 
 @pytest.mark.asyncio
 async def test_ping_handles_timeout(monkeypatch):
     redis = MagicMock()
-    redis.ping = AsyncMock()
-
-    async def _raise_timeout(*_, **__):
-        raise asyncio.TimeoutError()
-
-    monkeypatch.setattr(connection_verifier.asyncio, "wait_for", _raise_timeout)
+    redis.ping = AsyncMock(side_effect=asyncio.TimeoutError())
 
     success, fatal = await connection_verifier.ConnectionVerifier.ping_connection(redis, timeout=1.0)
 
@@ -46,17 +48,12 @@ async def test_ping_handles_timeout(monkeypatch):
 @pytest.mark.asyncio
 async def test_ping_handles_event_loop_closed(monkeypatch):
     redis = MagicMock()
-    redis.ping = AsyncMock()
+    redis.ping = AsyncMock(side_effect=DummyRedisError("Event loop is closed"))
     monkeypatch.setattr(
         connection_verifier,
         "REDIS_ERRORS",
         (DummyRedisError,),
     )
-
-    async def _raise_event_loop(*_, **__):
-        raise DummyRedisError("Event loop is closed")
-
-    monkeypatch.setattr(connection_verifier.asyncio, "wait_for", _raise_event_loop)
 
     success, fatal = await connection_verifier.ConnectionVerifier.ping_connection(redis)
 
@@ -67,17 +64,12 @@ async def test_ping_handles_event_loop_closed(monkeypatch):
 @pytest.mark.asyncio
 async def test_ping_handles_generic_redis_error(monkeypatch):
     redis = MagicMock()
-    redis.ping = AsyncMock()
+    redis.ping = AsyncMock(side_effect=DummyRedisError("some other failure"))
     monkeypatch.setattr(
         connection_verifier,
         "REDIS_ERRORS",
         (DummyRedisError,),
     )
-
-    async def _raise_error(*_, **__):
-        raise DummyRedisError("some other failure")
-
-    monkeypatch.setattr(connection_verifier.asyncio, "wait_for", _raise_error)
 
     success, fatal = await connection_verifier.ConnectionVerifier.ping_connection(redis)
 
@@ -88,14 +80,18 @@ async def test_ping_handles_generic_redis_error(monkeypatch):
 @pytest.mark.asyncio
 async def test_attach_redis_client_validates(monkeypatch):
     redis_client = MagicMock()
-    redis_client.ping = AsyncMock()
-    wait_for = AsyncMock(return_value=None)
+    redis_client.ping = AsyncMock(return_value=True)
+
+    async def _wait_for(awaitable, *, timeout):
+        assert timeout == _DEFAULT_TIMEOUT_SECONDS
+        return await awaitable
+
+    wait_for = AsyncMock(side_effect=_wait_for)
     monkeypatch.setattr(connection_verifier.asyncio, "wait_for", wait_for)
 
     await connection_verifier.ConnectionVerifier.attach_redis_client(redis_client)
 
     wait_for.assert_awaited_once()
-    assert wait_for.await_args.kwargs["timeout"] == 5.0
 
 
 @pytest.mark.asyncio
@@ -116,12 +112,7 @@ async def test_attach_redis_client_requires_ping():
 @pytest.mark.asyncio
 async def test_attach_redis_client_handles_timeout(monkeypatch):
     redis_client = MagicMock()
-    redis_client.ping = AsyncMock()
-
-    async def _raise_timeout(*_, **__):
-        raise asyncio.TimeoutError()
-
-    monkeypatch.setattr(connection_verifier.asyncio, "wait_for", _raise_timeout)
+    redis_client.ping = AsyncMock(side_effect=asyncio.TimeoutError())
 
     with pytest.raises(RuntimeError):
         await connection_verifier.ConnectionVerifier.attach_redis_client(redis_client)
@@ -130,17 +121,12 @@ async def test_attach_redis_client_handles_timeout(monkeypatch):
 @pytest.mark.asyncio
 async def test_attach_redis_client_handles_redis_error(monkeypatch):
     redis_client = MagicMock()
-    redis_client.ping = AsyncMock()
+    redis_client.ping = AsyncMock(side_effect=DummyRedisError("broken"))
     monkeypatch.setattr(
         connection_verifier,
         "REDIS_ERRORS",
         (DummyRedisError,),
     )
-
-    async def _raise_error(*_, **__):
-        raise DummyRedisError("broken")
-
-    monkeypatch.setattr(connection_verifier.asyncio, "wait_for", _raise_error)
 
     with pytest.raises(RuntimeError):
         await connection_verifier.ConnectionVerifier.attach_redis_client(redis_client)

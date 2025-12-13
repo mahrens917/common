@@ -18,8 +18,11 @@ from common.metadata_store_auto_updater_helpers import (
     MetadataInitializer,
     TimeWindowUpdater,
 )
+from common.truthy import pick_if
 
 logger = logging.getLogger(__name__)
+
+_UNKNOWN_TASK_NAME = "unknown"
 
 
 class MetadataStoreAutoUpdater:
@@ -74,26 +77,41 @@ class MetadataStoreAutoUpdater:
     async def stop(self) -> None:
         logger.info("Stopping MetadataStore auto-updater")
         self._shutdown_requested = True
-        if self.keyspace_listener:
-            self.keyspace_listener.request_shutdown()
-        if self.batch_processor:
-            self.batch_processor.request_shutdown()
-        if self.time_window_updater:
-            self.time_window_updater.request_shutdown()
-
-        tasks = [self._listener_task, self._batch_processor_task, self._time_window_updater_task]
-        for task in tasks:
-            if task and not task.done():
-                task.cancel()
-                try:
-                    await asyncio.wait_for(task, timeout=5.0)
-                except (asyncio.CancelledError, asyncio.TimeoutError):
-                    task_name = task.get_name() if hasattr(task, "get_name") else "unknown"
-                    logger.warning("Task %s did not complete within timeout", task_name)
-
+        self._request_component_shutdown()
+        await self._cancel_background_tasks()
         await self.init_manager.cleanup()
+        await self._cleanup_metadata_store()
+        logger.info("MetadataStore auto-updater stopped")
+
+    def _request_component_shutdown(self) -> None:
+        for component in (self.keyspace_listener, self.batch_processor, self.time_window_updater):
+            if component:
+                component.request_shutdown()
+
+    async def _cancel_background_tasks(self) -> None:
+        tasks = (self._listener_task, self._batch_processor_task, self._time_window_updater_task)
+        for task in tasks:
+            await self._cancel_task(task)
+
+    async def _cancel_task(self, task: asyncio.Task | None) -> None:
+        if not task or task.done():
+            return
+        task.cancel()
+        try:
+            await asyncio.wait_for(task, timeout=5.0)
+        except (asyncio.CancelledError, asyncio.TimeoutError):  # policy_guard: allow-silent-handler
+            logger.warning("Task %s did not complete within timeout", self._resolve_task_name(task))
+
+    @staticmethod
+    def _resolve_task_name(task: asyncio.Task | None) -> str:
+        if task is None:
+            return _UNKNOWN_TASK_NAME
+        if hasattr(task, "get_name"):
+            return task.get_name()
+        return _UNKNOWN_TASK_NAME
+
+    async def _cleanup_metadata_store(self) -> None:
         try:
             await self.metadata_store.cleanup()
         except (RuntimeError, OSError, ValueError, AttributeError, ConnectionError) as exc:  # policy_guard: allow-silent-handler
             logger.warning("Metadata store cleanup failed during stop: %s", exc)
-        logger.info("MetadataStore auto-updater stopped")

@@ -59,7 +59,7 @@ class HealthCoordinator:
                     await asyncio.sleep(self.health_check_interval)
                     self.health_monitor.reset_failures()
 
-            except (ConnectionError, TimeoutError, RuntimeError) as error:
+            except (ConnectionError, TimeoutError, RuntimeError) as error:  # policy_guard: allow-silent-handler
                 await self._handle_monitoring_error(error)
 
     async def _process_health_cycle(

@@ -45,7 +45,7 @@ class RequestExecutor:
 
         try:
             response = await _perform_http_request(request_data)
-        except WORKER_FAILURE_ERRORS as exc:
+        except WORKER_FAILURE_ERRORS as exc:  # policy_guard: allow-silent-handler
             _handle_request_exception(request_id, exc, request_data)
             return
 

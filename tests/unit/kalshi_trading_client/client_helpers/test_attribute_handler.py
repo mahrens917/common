@@ -4,7 +4,6 @@ from unittest.mock import MagicMock
 
 import pytest
 
-from common.kalshi_trading_client.client_helpers import attribute_handler
 from common.kalshi_trading_client.client_helpers.attribute_handler import (
     AttributeHandler,
 )

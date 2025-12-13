@@ -6,20 +6,31 @@ import asyncio
 import atexit
 import logging
 import weakref
+from typing import Protocol
 
 logger = logging.getLogger(__name__)
 
+
+class ServiceAlerterProtocol(Protocol):
+    async def cleanup(self) -> None: ...
+
+
+ServiceAlerter: type[ServiceAlerterProtocol]
+
+
 try:
     from src.monitor.alerter import Alerter as ServiceAlerter
-except ImportError as exc:
+except ImportError as exc:  # policy_guard: allow-silent-handler
     logger.debug("Monitor module not available, using fallback: %s", exc)
 
-    class ServiceAlerter:  # type: ignore
+    class _FallbackAlerter:
         """Fallback alerter for repos without monitor module."""
 
-        async def alert(self, *args, **kwargs):  # type: ignore
-            """No-op alert method."""
-            pass
+        async def cleanup(self) -> None:
+            """No-op cleanup method."""
+            return None
+
+    ServiceAlerter = _FallbackAlerter
 
 
 _shutdown_registry: "weakref.WeakSet" = weakref.WeakSet()
@@ -39,17 +50,16 @@ def _register_shutdown_hook(alerter) -> None:
 
     def _cleanup() -> None:
         from redis.exceptions import RedisError
-        from src.monitor.alerting.models import AlerterError
 
         from common.redis_utils import RedisOperationError
+        try:
+            from src.monitor.alerting.models import AlerterError  # type: ignore
+        except ImportError:  # policy_guard: allow-silent-handler
+            AlerterError = None
 
-        cleanup_errors = (
-            AlerterError,
-            asyncio.TimeoutError,
-            RedisError,
-            RedisOperationError,
-            OSError,
-        )
+        cleanup_errors = (asyncio.TimeoutError, RedisError, RedisOperationError, OSError)
+        if AlerterError is not None:
+            cleanup_errors = (AlerterError,) + cleanup_errors
 
         try:
             asyncio.run(alerter.cleanup())
@@ -69,7 +79,7 @@ def _register_shutdown_hook(alerter) -> None:
     atexit.register(_cleanup)
 
 
-def create_alerter() -> ServiceAlerter:
+def create_alerter() -> ServiceAlerterProtocol:
     """
     Factory function to create new Alerter instance.
 
@@ -90,7 +100,7 @@ def create_alerter() -> ServiceAlerter:
     return alerter
 
 
-def create_alerter_for_service(service_name: str) -> ServiceAlerter:
+def create_alerter_for_service(service_name: str) -> ServiceAlerterProtocol:
     """
     Factory function to create Alerter instance with service context.
 

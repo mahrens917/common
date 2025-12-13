@@ -78,7 +78,7 @@ class UpdateHandler:
                 else:
                     logger.error(f"Failed to unsubscribe from {self.service_name} channel: {channel}")
 
-            except (
+            except (  # policy_guard: allow-silent-handler
                 ConnectionError,
                 RuntimeError,
                 ValueError,

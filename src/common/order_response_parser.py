@@ -34,6 +34,7 @@ from common.order_response_parser_exceptions import (
     MissingRejectionReasonError,
     MissingTickerError,
 )
+from common.truthy import pick_if, pick_truthy
 
 from .data_models.trading import (
     OrderAction,
@@ -225,7 +226,7 @@ def _log_price_debug(order_data: Dict[str, Any], filled_count: int) -> None:
     """Log order pricing fields for debugging."""
     logger.info("🔍 [PRICE DEBUG] Raw order_data price fields:")
     for field_name in ("maker_fill_cost", "yes_price", "no_price", "side"):
-        field_value = order_data[field_name] if field_name in order_data else "missing"
+        field_value = pick_if(field_name in order_data, lambda: order_data[field_name], lambda: "missing")
         logger.info("  %s: %s", field_name, field_value)
     logger.info("  filled_count: %s", filled_count)
 
@@ -238,8 +239,8 @@ def _has_reliable_maker_cost(value: Any) -> TypeGuard[int | float]:
 def _log_unreliable_price_warning(order_data: Dict[str, Any]) -> None:
     """Emit warnings when maker fill cost is unavailable."""
     logger.warning("⚠️ [PRICE DEBUG] No reliable price in order status - setting to None (fills API will provide accurate price)")
-    yes_price = order_data["yes_price"] if "yes_price" in order_data else "missing"
-    no_price = order_data["no_price"] if "no_price" in order_data else "missing"
+    yes_price = pick_if("yes_price" in order_data, lambda: order_data["yes_price"], lambda: "missing")
+    no_price = pick_if("no_price" in order_data, lambda: order_data["no_price"], lambda: "missing")
     logger.warning(
         "   Order status yes_price: %s (UNRELIABLE - current market price)",
         yes_price,
@@ -271,7 +272,7 @@ def _parse_order_fills(
     timestamp: datetime,
     filled_count: int,
 ) -> List[OrderFill]:
-    fills_data = order_data.get("fills") or []
+    fills_data = pick_truthy(order_data.get("fills"), [])
     if not fills_data:
         return []
 

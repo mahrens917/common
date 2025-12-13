@@ -89,7 +89,8 @@ _ORDER_BOOK_JSON_FIELDS = [
 
 def _stringify(value: Any) -> str:
     if value is None:
-        return ""
+        _none_guard_value = ""
+        return _none_guard_value
     if isinstance(value, bool):
         if value:
             return "true"

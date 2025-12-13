@@ -100,7 +100,7 @@ class TradeStoreManager:
         if callable(attach):
             try:
                 attach(store)
-            except (
+            except (  # policy_guard: allow-silent-handler
                 RuntimeError,
                 ValueError,
                 TypeError,

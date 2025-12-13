@@ -35,7 +35,8 @@ class StatusFormatter:
         """Get current monitoring status."""
         latest = self.snapshot_collector.get_latest_snapshot()
         if latest is None:
-            return {"status": "no_data"}
+            _none_guard_value = {"status": "no_data"}
+            return _none_guard_value
 
         return {
             "service_name": self.service_name,

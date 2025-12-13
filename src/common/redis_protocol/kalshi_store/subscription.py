@@ -17,6 +17,8 @@ from .subscription_helpers import (
     SubscriptionIdManager,
 )
 
+_DEFAULT_SERVICE_PREFIX = "ws"
+
 T = TypeVar("T")
 
 
@@ -41,7 +43,8 @@ def _resolve_market_list(
     if keyword is not None:
         return keyword
     if positional is None:
-        return ()
+        _none_guard_value = ()
+        return _none_guard_value
     return positional
 
 
@@ -175,17 +178,18 @@ class KalshiSubscriptionTracker(SubscriptionConnectionMixin, MarketSubscriptionM
         self.logger = logger_instance
         self.service_prefix = service_prefix
         self._connection_manager = ConnectionManager(redis_connection, logger_instance)
-        self._key_provider = KeyProvider(service_prefix or "ws")
+        resolved_prefix = _DEFAULT_SERVICE_PREFIX if not service_prefix else service_prefix
+        self._key_provider = KeyProvider(resolved_prefix)
         self.SUBSCRIPTIONS_KEY = self._key_provider.subscriptions_key
         self._market_subscription_manager = MarketSubscriptionManager(
             self._connection_manager.get_redis,
             self._key_provider.subscriptions_key,
-            service_prefix or "ws",
+            resolved_prefix,
         )
         self._subscription_id_manager = SubscriptionIdManager(
             self._connection_manager.get_redis,
             self._key_provider.subscription_ids_key,
-            service_prefix or "ws",
+            resolved_prefix,
         )
         self._service_status_manager = ServiceStatusManager(
             self._connection_manager.get_redis,

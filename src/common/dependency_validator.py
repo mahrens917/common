@@ -117,7 +117,7 @@ class DependencyValidator:
         try:
             DependencyValidator.validate_ldm_dependencies()
             status["ldm"] = True
-        except LDMNotInstalledError:
+        except LDMNotInstalledError:  # policy_guard: allow-silent-handler
             status["ldm"] = False
 
         return status

@@ -73,16 +73,28 @@ async def test_get_service_status_process_not_found(monkeypatch):
 @pytest.mark.asyncio
 async def test_get_all_service_status_returns_error_on_exception(monkeypatch):
     aggregator = ServiceHealthAggregator()
+
+    ok_status = MagicMock()
+    ok_status.service_name = "svc-b"
+    ok_status.overall_status = OverallServiceStatus.HEALTHY
+    ok_status.process_info = ProcessHealthInfo(status=ProcessStatus.RUNNING)
+    ok_status.log_activity = LogActivity(status=LogActivityStatus.RECENT, age_seconds=0)
+    ok_status.service_health = ServiceHealthInfo(health=ServiceHealth.HEALTHY)
+    ok_status.status_emoji = "🟢"
+    ok_status.status_message = "Healthy"
+    ok_status.detailed_message = "ok"
+    ok_status.memory_percent = None
+    ok_status.log_age_seconds = None
     monkeypatch.setattr(
-        aggregator,
-        "get_service_status",
-        AsyncMock(side_effect=[RuntimeError("boom"), ServiceHealthInfo]),
+        aggregator.multi_checker,
+        "get_single_service_status",
+        AsyncMock(side_effect=[RuntimeError("boom"), ok_status]),
     )
 
     results = await aggregator.get_all_service_status(["svc-a", "svc-b"])
 
-    assert results["svc-a"].overall_status is OverallServiceStatus.NOT_FOUND
-    assert "process: not found" in results["svc-a"].detailed_message
+    assert results["svc-a"].overall_status is OverallServiceStatus.ERROR
+    assert "Failed to check status" in results["svc-a"].detailed_message
 
 
 def test_format_status_line_includes_memory(monkeypatch):

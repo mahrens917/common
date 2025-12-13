@@ -69,7 +69,7 @@ async def _create_order(self, order_request: OrderRequest) -> OrderResponse:
     except KalshiTradingError as exc:
         await _notify_trading_error(self, order_request, exc, operation_name)
         raise
-    except CLIENT_API_ERRORS + (ValueError, KeyError) as exc:
+    except CLIENT_API_ERRORS + (ValueError, KeyError) as exc:  # policy_guard: allow-silent-handler
         await _handle_unexpected_order_error(self, order_request, exc, operation_name)
     else:
         return order_response

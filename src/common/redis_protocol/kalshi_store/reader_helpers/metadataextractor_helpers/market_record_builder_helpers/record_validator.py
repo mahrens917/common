@@ -28,7 +28,7 @@ class RecordValidator:
         """Validate market has not expired."""
         try:
             close_dt = datetime.fromisoformat(normalized_close.replace("Z", "+00:00"))
-        except ValueError:
+        except ValueError:  # policy_guard: allow-silent-handler
             close_dt = None
 
         if close_dt and close_dt <= now:

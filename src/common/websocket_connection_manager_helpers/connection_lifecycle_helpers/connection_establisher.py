@@ -129,7 +129,7 @@ def handle_connection_error(exc: Exception, service_name: str, logger_instance: 
     Returns:
         Appropriate exception to raise
     """
-    if getattr(exc, "_already_cleaned", False):
+    if getattr(exc, "_already_cleaned", None):
         return exc
 
     if isinstance(exc, ConnectionAlreadyCleanedError):

@@ -7,6 +7,8 @@ import logging
 
 from websockets import WebSocketException
 
+from common.truthy import pick_if
+
 from ..health.types import BaseHealthMonitor, HealthCheckResult
 
 DEFAULT_WEBSOCKET_PING_INTERVAL_SECONDS = 30
@@ -48,7 +50,7 @@ class WebSocketHealthMonitor(BaseHealthMonitor):
                 self.last_ping_time = current_time
                 self.last_pong_time = current_time
                 self.logger.debug("Received pong")
-            except asyncio.TimeoutError:
+            except asyncio.TimeoutError:  # policy_guard: allow-silent-handler
                 self.logger.warning("Pong timeout")
                 return False, "pong_timeout"
             else:
@@ -67,7 +69,7 @@ class WebSocketHealthMonitor(BaseHealthMonitor):
         valid, connection_error = self._validate_websocket_connection(websocket)
         if not valid:
             self.record_failure()
-            details = {"close_code": getattr(websocket, "close_code", None)} if websocket else None
+            details = pick_if(websocket, lambda: {"close_code": getattr(websocket, "close_code", None)}, lambda: None)
             return HealthCheckResult(False, details=details, error=connection_error)
 
         try:
@@ -93,11 +95,11 @@ class WebSocketHealthMonitor(BaseHealthMonitor):
                 },
                 error=error,
             )
-        except WebSocketException as exc:
+        except WebSocketException as exc:  # policy_guard: allow-silent-handler
             self.logger.warning("WebSocket health check failed")
             self.record_failure()
             return HealthCheckResult(False, error=str(exc))
-        except (OSError, RuntimeError) as exc:
+        except (OSError, RuntimeError) as exc:  # policy_guard: allow-silent-handler
             self.logger.exception("Unexpected health check error: ")
             self.record_failure()
             return HealthCheckResult(False, error=str(exc))

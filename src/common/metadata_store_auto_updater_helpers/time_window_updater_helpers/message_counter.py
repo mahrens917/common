@@ -31,7 +31,7 @@ def count_messages_in_windows(
 
         try:
             message_count = int(message_count_str)
-        except (
+        except (  # policy_guard: allow-silent-handler
             ValueError,
             TypeError,
         ):

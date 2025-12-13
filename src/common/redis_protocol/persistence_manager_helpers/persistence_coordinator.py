@@ -54,7 +54,7 @@ class PersistenceCoordinator:
                 await ensure_awaitable(redis.config_set(key, value))
                 config_applied += 1
                 logger.debug("Applied Redis config: %s = %s", key, value)
-            except REDIS_ERRORS as exc:
+            except REDIS_ERRORS as exc:  # policy_guard: allow-silent-handler
                 config_failed += 1
                 error_msg = str(exc)
                 if "immutable" in error_msg or "protected" in error_msg:

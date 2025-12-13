@@ -108,6 +108,7 @@ async def test_update_process_metrics_removes_missing(monkeypatch):
 @pytest.mark.asyncio
 async def test_get_process_by_pid_returns_none_when_stale():
     monitor = ProcessMonitor(cache_ttl_seconds=1)
+    monitor._last_full_scan = time.time()
     monitor._process_cache[_TEST_COUNT_7] = ProcessInfo(pid=_TEST_COUNT_7, name="stale", cmdline=[], last_seen=time.time() - 10)
 
     result = await monitor.get_process_by_pid(_TEST_COUNT_7)

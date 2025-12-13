@@ -3,14 +3,18 @@
 from datetime import date, datetime
 from typing import Any, Dict, Optional
 
+from common.truthy import pick_truthy
+
 from ....data_models.trade_record import PnLReport, TradeRecord
 from .api_delegator_helpers import PnLDelegator, QueryDelegator, TradeDelegator
+
+_DEFAULT_MARKET_CATEGORY = "weather"
 
 
 class TradeStoreAPIDelegator:
     """Delegate TradeStore public API to internal components."""
 
-    def __init__(self, repository, metadata_store, queries, pnl, price_updater, executor, deps):  # noqa: PLR0913
+    def __init__(self, repository, metadata_store, queries, pnl, price_updater, executor, deps):
         self._trade_delegator = TradeDelegator(repository, metadata_store, executor, deps, price_updater)
         self._query_delegator = QueryDelegator(queries, executor)
         self._pnl_delegator = PnLDelegator(pnl, executor)
@@ -36,7 +40,7 @@ class TradeStoreAPIDelegator:
         market_category: Optional[str] = None,
         weather_station: Optional[str] = None,
     ) -> bool:
-        resolved_market_category = market_category or "weather"
+        resolved_market_category = market_category if market_category is not None else _DEFAULT_MARKET_CATEGORY
         return await self._trade_delegator.store_order_metadata(
             order_id,
             trade_rule,

@@ -5,6 +5,8 @@ Subscription ID management for KalshiSubscriptionTracker
 import logging
 from typing import Any, Dict, Sequence
 
+from common.truthy import pick_if
+
 from ...error_types import REDIS_ERRORS
 from ...typing import ensure_awaitable
 
@@ -25,7 +27,7 @@ class SubscriptionIdManager:
             return
         redis = await self._get_redis()
         payload: Dict[str, str] = {}
-        prefix = f"{self.service_prefix}:" if self.service_prefix else ""
+        prefix = pick_if(self.service_prefix, lambda: f"{self.service_prefix}:", lambda: "")
         for market, sub_id in subscriptions.items():
             if sub_id is None:
                 continue
@@ -51,7 +53,7 @@ class SubscriptionIdManager:
             return {}
 
         redis = await self._get_redis()
-        prefix = f"{self.service_prefix}:" if self.service_prefix else ""
+        prefix = pick_if(self.service_prefix, lambda: f"{self.service_prefix}:", lambda: "")
         field_names = [f"{prefix}{market}" for market in markets]
 
         try:
@@ -74,7 +76,7 @@ class SubscriptionIdManager:
         if not markets:
             return
         redis = await self._get_redis()
-        prefix = f"{self.service_prefix}:" if self.service_prefix else ""
+        prefix = pick_if(self.service_prefix, lambda: f"{self.service_prefix}:", lambda: "")
         try:
             await redis.hdel(
                 self.subscription_ids_key,

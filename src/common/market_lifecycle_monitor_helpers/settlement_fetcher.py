@@ -4,6 +4,8 @@ import asyncio
 import logging
 from typing import Optional
 
+from common.truthy import pick_if
+
 from ..trading_exceptions import KalshiTradingError
 from .market_scanner import MarketScanner
 from .state_tracker import SettlementInfo
@@ -69,8 +71,10 @@ class SettlementFetcher:
             )
 
             if is_settled and settlement_info.settlement_price_cents is not None:
-                settlement_info.winning_side = "YES" if settlement_info.settlement_price_cents >= _SETTLEMENT_THRESHOLD_CENTS else "NO"
-        except TRADING_ERRORS + (
+                settlement_info.winning_side = pick_if(
+                    settlement_info.settlement_price_cents >= _SETTLEMENT_THRESHOLD_CENTS, lambda: "YES", lambda: "NO"
+                )
+        except TRADING_ERRORS + (  # policy_guard: allow-silent-handler
             ValueError,
             KeyError,
         ):

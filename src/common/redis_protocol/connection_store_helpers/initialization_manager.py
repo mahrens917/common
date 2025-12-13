@@ -27,7 +27,7 @@ class InitializationManager:
         """Ensure ConnectionStore is initialized with Redis and helpers"""
         if self._parent.redis_client is None:
             await self._initialize_redis()
-        if not getattr(self._parent, "helpers_initialized", False):
+        if getattr(self._parent, "helpers_initialized", None) is not True:
             await self._initialize_helpers()
             self._parent.helpers_initialized = True
 

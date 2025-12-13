@@ -59,10 +59,20 @@ async def get_probabilities(redis: Redis, currency: str) -> Dict[str, Dict[str, 
         except orjson.JSONDecodeError as exc:  # policy_guard: allow-silent-handler
             raise ProbabilityStoreError(f"Error parsing probability payload for field {field}: {value_text}") from exc
 
-        expiry_bucket = result.setdefault(expiry, {})
-        strike_bucket = expiry_bucket.setdefault(strike, {})
+        if not isinstance(payload, dict):
+            raise ProbabilityStoreError(f"Invalid probability payload for field {field}: expected dict, got {type(payload).__name__}")
+
+        expiry_bucket = result.get(expiry)
+        if expiry_bucket is None:
+            expiry_bucket = {}
+            result[expiry] = expiry_bucket
+
+        strike_bucket = expiry_bucket.get(strike)
+        if strike_bucket is None:
+            strike_bucket = {}
+            expiry_bucket[strike] = strike_bucket
         for key_name, key_value in payload.items():
-            strike_bucket[key_name] = key_value
+            strike_bucket[str(key_name)] = key_value
 
     return sort_probabilities_by_expiry_and_strike(result)
 

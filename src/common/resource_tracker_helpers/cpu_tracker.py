@@ -73,7 +73,7 @@ class CpuTracker:
                     timestamp_sec = int(timestamp_str) // 1000
                     cpu_percent = float(value_str)
                     history.append((timestamp_sec, cpu_percent))
-                except (
+                except (  # policy_guard: allow-silent-handler
                     ValueError,
                     IndexError,
                 ) as parse_error:

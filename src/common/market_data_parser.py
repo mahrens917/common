@@ -147,7 +147,7 @@ class DeribitInstrumentParser:
         """
         try:
             cls.parse_instrument(ticker)
-        except (
+        except (  # policy_guard: allow-silent-handler
             ParsingError,
             ValidationError,
             DateTimeCorruptionError,
@@ -223,7 +223,7 @@ class MarketDataValidator:
             if report["stats"]["corrupted_years"] > 0:
                 report["valid"] = False
                 report["issues"].append(f"CRITICAL: Found {report['stats']['corrupted_years']} contracts with corrupted years")
-        except (
+        except (  # policy_guard: allow-silent-handler
             KeyError,
             TypeError,
             ValueError,

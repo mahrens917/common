@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from common.truthy import pick_if
+
 """Centralised validators for Kalshi market metadata."""
 
 import json
@@ -23,6 +25,12 @@ from .kalshi_helpers.data_converters import (
     to_float_value,
     to_int_value,
 )
+
+_DEFAULT_INVALID_EXPIRY_REASON = "invalid_expiry"
+_DEFAULT_UNSUPPORTED_TICKER_REASON = "unsupported_ticker"
+_DEFAULT_UNKNOWN_STRIKE_TYPE_REASON = "unknown_strike_type"
+_DEFAULT_STRIKE_VALIDATION_FAILED_REASON = "strike_validation_failed"
+_DEFAULT_PRICING_VALIDATION_FAILED_REASON = "pricing_validation_failed"
 
 
 @dataclass(frozen=True)
@@ -114,8 +122,8 @@ def _resolve_top_of_book(
         bids_payload = orderbook.get("yes_bids")
         asks_payload = orderbook.get("yes_asks")
 
-    bid_from_book = extract_best_bid(bids_payload) if bids_payload is not None else (None, None)
-    ask_from_book = extract_best_ask(asks_payload) if asks_payload is not None else (None, None)
+    bid_from_book = pick_if(bids_payload is not None, lambda: extract_best_bid(bids_payload), lambda: (None, None))
+    ask_from_book = pick_if(asks_payload is not None, lambda: extract_best_ask(asks_payload), lambda: (None, None))
 
     has_orderbook = any(value is not None for value in bid_from_book + ask_from_book)
 
@@ -167,7 +175,7 @@ def _validate_and_parse_expiry(metadata: Mapping[str, Any], current_time: dateti
     is_valid_expiry, expiry_reason = validate_expiry(expiry_dt, current_time)
     if not is_valid_expiry:
         return _invalid_market(
-            reason=expiry_reason or "invalid_expiry",
+            reason=expiry_reason if expiry_reason is not None else _DEFAULT_INVALID_EXPIRY_REASON,
             expiry=expiry_dt,
             expiry_raw=expiry_raw,
         )
@@ -184,7 +192,7 @@ def _validate_ticker(
     is_valid_ticker, ticker_reason = validate_ticker_support(metadata, is_supported_kalshi_ticker)
     if not is_valid_ticker:
         return _invalid_market(
-            reason=ticker_reason or "unsupported_ticker",
+            reason=ticker_reason if ticker_reason is not None else _DEFAULT_UNSUPPORTED_TICKER_REASON,
             expiry=expiry_dt,
             expiry_raw=expiry_raw,
         )
@@ -200,7 +208,7 @@ def _validate_strike_type(
     has_strike_type, strike_reason, strike_type_lower = validate_strike_type(metadata)
     if not has_strike_type:
         return _invalid_market(
-            reason=strike_reason or "unknown_strike_type",
+            reason=strike_reason if strike_reason is not None else _DEFAULT_UNKNOWN_STRIKE_TYPE_REASON,
             expiry=expiry_dt,
             expiry_raw=expiry_raw,
         )
@@ -223,7 +231,7 @@ def _compute_and_validate_strike(
     is_valid_strike, strike_error, strike, floor_strike, cap_strike = compute_strike_value(strike_type_lower, metadata)
     if not is_valid_strike:
         return _invalid_market(
-            reason=strike_error or "strike_validation_failed",
+            reason=strike_error if strike_error is not None else _DEFAULT_STRIKE_VALIDATION_FAILED_REASON,
             expiry=expiry_dt,
             expiry_raw=expiry_raw,
             strike_type=strike_type_lower,
@@ -250,7 +258,7 @@ def _resolve_and_validate_pricing(
     is_valid_pricing, pricing_reason = validate_pricing_data(bid_price, bid_size, ask_price, ask_size, require_pricing)
     if not is_valid_pricing:
         return _invalid_market(
-            reason=pricing_reason or "pricing_validation_failed",
+            reason=pricing_reason if pricing_reason is not None else _DEFAULT_PRICING_VALIDATION_FAILED_REASON,
             expiry=strike_info.expiry_dt,
             expiry_raw=strike_info.expiry_raw,
             strike=strike_info.strike,

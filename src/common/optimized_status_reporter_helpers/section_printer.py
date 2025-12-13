@@ -6,6 +6,8 @@ Extracted from OptimizedStatusReporter to reduce class size.
 
 from typing import Any, Dict, Optional
 
+from common.truthy import pick_if
+
 
 class SectionPrinter:
     """Handles printing of individual status report sections."""
@@ -82,7 +84,7 @@ class SectionPrinter:
             status_summary = string_or_default_func(tracker_status.get("status_summary"), "Unknown")
             running = bool_or_default_func(tracker_status.get("running"), None)
             enabled_raw = tracker_status.get("enabled")
-            enabled = bool_or_default_func(enabled_raw, enabled_raw if enabled_raw is not None else True)
+            enabled = bool_or_default_func(enabled_raw, pick_if(enabled_raw is not None, lambda: enabled_raw, lambda: True))
             if not enabled and not running:
                 status_summary = "🔴 Stopped | Disabled"
             self._emit(f"  {status_summary}")

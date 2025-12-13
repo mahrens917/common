@@ -11,12 +11,12 @@ async behavior we rely on in the codebase.
 
 from typing import TYPE_CHECKING, Awaitable, TypeVar, cast
 
-import redis.asyncio as redis
+from redis import asyncio as redis_asyncio
 
 if TYPE_CHECKING:
     from redis.asyncio import Redis as RedisClient
 else:  # pragma: no cover - runtime alias for typing-only import
-    RedisClient = redis.Redis
+    RedisClient = redis_asyncio.Redis
 
 T = TypeVar("T")
 

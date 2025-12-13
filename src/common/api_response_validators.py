@@ -7,6 +7,8 @@ No default values or inferred substitutes - fail fast on any mismatch.
 
 from typing import Any, Dict, List, Optional
 
+from common.truthy import pick_if
+
 from .api_response_validators_helpers import (
     validate_event_markets_field,
     validate_event_required_fields,
@@ -79,7 +81,7 @@ def validate_market_object(market_data: Any, index: Optional[int] = None) -> Dic
     - volume: Total volume traded
     - volume_24h: 24-hour volume
     """
-    prefix = f"Market {index}: " if index is not None else ""
+    prefix = pick_if(index is not None, lambda: f"Market {index}: ", lambda: "")
 
     if not isinstance(market_data, dict):
         raise TypeError(f"{prefix}Market data must be dict, got: {type(market_data)}")

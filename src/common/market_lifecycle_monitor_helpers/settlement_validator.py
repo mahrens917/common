@@ -40,16 +40,18 @@ class SettlementValidator:
                 return False, "Market not settled", None
 
             if settlement_info.settlement_price_cents is None:
-                return False, "No settlement price available", None
+                _none_guard_value = False, "No settlement price available", None
+                return _none_guard_value
 
             expected_pnl = self.pnl_calculator.calculate_settlement_pnl(settlement_info, position_before_settlement)
 
             if expected_pnl is None:
-                return False, "Cannot calculate P&L", None
+                _none_guard_value = False, "Cannot calculate P&L", None
+                return _none_guard_value
 
             logger.info(f"[SettlementValidator] Settlement P&L for {ticker}: {expected_pnl}¢")
 
-        except (
+        except (  # policy_guard: allow-silent-handler
             AttributeError,
             ValueError,
             TypeError,

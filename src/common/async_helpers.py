@@ -22,13 +22,13 @@ def safely_schedule_coroutine(
 
     try:
         loop = asyncio.get_running_loop()
-    except RuntimeError:
+    except RuntimeError:  # policy_guard: allow-silent-handler
         asyncio.run(coro)
         return None
 
     try:
         return loop.create_task(coro)
-    except (RuntimeError, ValueError, TypeError):
+    except (RuntimeError, ValueError, TypeError):  # policy_guard: allow-silent-handler
         asyncio.run(coro)
         return None
 

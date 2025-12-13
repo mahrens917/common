@@ -2,6 +2,8 @@
 
 from datetime import datetime
 
+from common.truthy import pick_if
+
 from ...data_models.trade_record import TradeRecord, TradeSide
 from ...data_models.trading import OrderRequest, OrderResponse, OrderSide
 from ..polling import PollingOutcome
@@ -30,11 +32,18 @@ def build_trade_record(
         Complete TradeRecord instance
     """
     trade_side = TradeSide.YES if order_request.side == OrderSide.YES else TradeSide.NO
-    fee_cents = order_response.fees_cents or 0
-    cost_cents = (outcome.average_price_cents * outcome.total_filled) + fee_cents
+    fee_cents = order_response.fees_cents
+    if fee_cents is None:
+        fee_cents = int()
+    price_cents = outcome.average_price_cents
+    if price_cents is None:
+        price_cents = int()
+    cost_cents = (price_cents * outcome.total_filled) + fee_cents
 
-    trade_rule = getattr(order_request, "trade_rule", None)
-    trade_reason = getattr(order_request, "trade_reason", None)
+    trade_rule_value = order_request.trade_rule if hasattr(order_request, "trade_rule") else None
+    trade_reason_value = order_request.trade_reason if hasattr(order_request, "trade_reason") else None
+    trade_rule = pick_if(trade_rule_value is None, str, lambda: str(trade_rule_value))
+    trade_reason = pick_if(trade_reason_value is None, str, lambda: str(trade_reason_value))
 
     return TradeRecord(
         order_id=order_response.order_id,
@@ -42,11 +51,11 @@ def build_trade_record(
         trade_timestamp=trade_timestamp,
         trade_side=trade_side,
         quantity=outcome.total_filled,
-        price_cents=outcome.average_price_cents,
+        price_cents=price_cents,
         fee_cents=fee_cents,
         cost_cents=cost_cents,
         market_category=market_category,
-        trade_rule=trade_rule or "",
-        trade_reason=trade_reason or "",
+        trade_rule=trade_rule,
+        trade_reason=trade_reason,
         weather_station=weather_station,
     )

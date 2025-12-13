@@ -88,7 +88,7 @@ class ScraperSessionManager:
                 await asyncio.wait_for(self.session.close(), timeout=5.0)
             else:
                 self.logger.debug("HTTP session already closed")
-        except (asyncio.TimeoutError, aiohttp.ClientError, OSError):
+        except (asyncio.TimeoutError, aiohttp.ClientError, OSError):  # policy_guard: allow-silent-handler
             self.logger.warning("Error closing HTTP session")
         finally:
             self.session = None

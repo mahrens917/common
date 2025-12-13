@@ -7,6 +7,9 @@ export PYTHONDONTWRITEBYTECODE := 1
 # Add pytest warning filters to allow ResourceWarning/PytestUnraisableExceptionWarning (from async test cleanup)
 SHARED_PYTEST_EXTRA = -W "ignore::ResourceWarning" -W "ignore::pytest.PytestUnraisableExceptionWarning"
 
+# Keep pylint focused on actionable failures and ensure it can resolve src-layout imports.
+PYLINT_ARGS = --errors-only --init-hook="import sys; sys.path.insert(0, 'src'); sys.path.insert(0, 'tests')" --extension-pkg-allow-list=orjson,redis
+
 # Include shared CI checks
 include ci_shared.mk
 

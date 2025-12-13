@@ -13,6 +13,7 @@ from redis.exceptions import RedisError
 
 from common.redis_utils import RedisOperationError
 from common.time_utils import get_current_utc
+from common.truthy import pick_truthy
 
 logger = logging.getLogger(__name__)
 
@@ -191,7 +192,7 @@ class ConsolePrinter:
         self.console_section_printer._emit_status_line()
         self.console_section_printer._emit_status_line("📝 System Update:")
         tracker_status = self.data_coercion.coerce_mapping(status_data.get("tracker_status"))
-        log_activity_map = status_data.get("log_activity") or {}
+        log_activity_map = pick_truthy(status_data.get("log_activity"), {})
         healthy_count, total_count = self.console_section_printer.print_managed_services(tracker_status, log_activity_map)
         self.console_section_printer.print_monitor_service(log_activity_map)
         self.console_section_printer._emit_status_line(f"📊 Process Summary: {healthy_count}/{total_count} running")

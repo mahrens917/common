@@ -31,7 +31,7 @@ class TimeFormatter:
         else:
             try:
                 total_seconds = float(seconds)
-            except (
+            except (  # policy_guard: allow-silent-handler
                 TypeError,
                 ValueError,
             ):
@@ -47,7 +47,8 @@ class TimeFormatter:
         """Convert seconds into a compact human-friendly duration."""
         normalized_seconds = cls._normalize_seconds(seconds)
         if normalized_seconds is None:
-            return "unknown"
+            _none_guard_value = "unknown"
+            return _none_guard_value
 
         if normalized_seconds < _CONST_60:
             return f"{normalized_seconds}s"

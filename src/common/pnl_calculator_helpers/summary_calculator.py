@@ -53,7 +53,7 @@ class SummaryCalculator(BaseReportOperations):
                 "win_rate": report.win_rate,
             }
 
-        except DATA_ACCESS_ERRORS as exc:
+        except DATA_ACCESS_ERRORS as exc:  # policy_guard: allow-silent-handler
             self.logger.exception(
                 "Error calculating daily summary for %s (%s)",
                 trade_date,

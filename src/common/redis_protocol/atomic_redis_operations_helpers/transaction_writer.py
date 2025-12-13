@@ -80,7 +80,7 @@ class TransactionWriter:
 
         except REDIS_ATOMIC_ERRORS as exc:
             self.logger.exception(
-                "Atomic market data write failed for %s (%s): %s",
+                "Atomic market data write failed for %s (%s)",
                 store_key,
                 type(exc).__name__,
             )

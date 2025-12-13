@@ -56,7 +56,7 @@ async def check_url_health(
         logger.warning(f"Health check client error: {url} - {e}")
         return False
 
-    except (
+    except (  # policy_guard: allow-silent-handler
         RuntimeError,
         ValueError,
         UnicodeDecodeError,

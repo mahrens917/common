@@ -27,7 +27,7 @@ class PriceExtractor:
                 return None
             try:
                 return float(value)
-            except (
+            except (  # policy_guard: allow-silent-handler
                 TypeError,
                 ValueError,
             ):

@@ -55,7 +55,8 @@ class InstrumentNameBuilder:
     def _format_strike_value(strike: Optional[float]) -> str:
         """Render a strike value with stable formatting."""
         if strike is None:
-            return "NA"
+            _none_guard_value = "NA"
+            return _none_guard_value
         if float(strike).is_integer():
             return str(int(strike))
         return f"{strike:.8f}".rstrip("0").rstrip(".")

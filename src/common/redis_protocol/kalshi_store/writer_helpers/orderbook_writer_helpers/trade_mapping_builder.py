@@ -2,6 +2,8 @@
 
 from typing import Any, Dict
 
+from common.truthy import pick_if, pick_truthy
+
 
 def build_trade_tick_mapping(
     msg: Dict, side: str, yes_price: Any, no_price: Any, raw_price: Any, timestamp_normalizer: Any
@@ -21,7 +23,7 @@ def build_trade_tick_mapping(
         Mapping dictionary for Redis HSET
     """
     ts = msg.get("ts") or msg.get("timestamp")
-    ts_iso = timestamp_normalizer.normalise_trade_timestamp(ts) if ts is not None else ""
+    ts_iso = pick_if(ts is not None, lambda: timestamp_normalizer.normalise_trade_timestamp(ts), lambda: "")
 
     mapping = _build_base_mapping(msg, side, ts, ts_iso)
     _add_taker_side(mapping, msg)
@@ -33,9 +35,9 @@ def build_trade_tick_mapping(
 def _build_base_mapping(msg: Dict, side: str, ts: Any, ts_iso: str) -> Dict[str, str]:
     """Build base mapping with required fields."""
     return {
-        "last_trade_side": side if side else "",
-        "last_trade_count": str(msg.get("count") or msg.get("quantity") or msg.get("size") or ""),
-        "last_trade_timestamp": ts_iso if ts_iso else (str(ts) if ts not in (None, "") else ""),
+        "last_trade_side": pick_if(side, lambda: side, lambda: ""),
+        "last_trade_count": str(pick_truthy(msg.get("count") or msg.get("quantity") or msg.get("size"), "")),
+        "last_trade_timestamp": ts_iso if ts_iso else pick_if(ts not in (None, ""), lambda: str(ts), lambda: ""),
     }
 
 

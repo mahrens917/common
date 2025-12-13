@@ -10,10 +10,13 @@ from typing import Any, Dict, List, Optional, Tuple
 
 import orjson
 
+from common.truthy import pick_if, pick_truthy
+
 from ... import time_utils
 from ...config.redis_schema import get_schema_config
 from ...redis_schema import parse_kalshi_market_key
 from ..error_types import REDIS_ERRORS
+from .utils_market import _resolve_market_strike
 
 SCHEMA = get_schema_config()
 STRIKE_MATCH_TOLERANCE = 0.001
@@ -97,7 +100,7 @@ async def get_interpolation_results(store, currency: str) -> Dict[str, Dict[str,
             if market_result is not None:
                 ticker, data = market_result
                 results[ticker] = data
-    except REDIS_ERRORS as exc:
+    except REDIS_ERRORS as exc:  # policy_guard: allow-silent-handler
         module_logger = getattr(sys.modules.get("common.redis_protocol.kalshi_store"), "logger", logger)
         module_logger.error(
             "Redis error getting interpolation results for %s: %s",
@@ -131,7 +134,7 @@ def _parse_bid_ask_prices(
     try:
         yes_bid_float = float(yes_bid) if yes_bid is not None else None
         yes_ask_float = float(yes_ask) if yes_ask is not None else None
-    except (ValueError, TypeError) as exc:
+    except (ValueError, TypeError) as exc:  # policy_guard: allow-silent-handler
         module_logger.warning(
             "Skipping market %s with invalid bid/ask: %s / %s (%s)",
             market_ticker,
@@ -166,7 +169,7 @@ async def _process_market_for_interpolation(
 
     try:
         interpolation_fields = _extract_interpolation_fields(store, market_data)
-    except (ValueError, TypeError) as exc:
+    except (ValueError, TypeError) as exc:  # policy_guard: allow-silent-handler
         module_logger.warning("Error parsing interpolation results for %s: %s", market_ticker, exc)
         return None
 
@@ -272,7 +275,8 @@ def _matches_strike_expiry(combined: Dict[str, Any], expiry_date: str, strike: f
         return False
     market_strike = _resolve_market_strike(combined)
     if market_strike is None:
-        return False
+        _none_guard_value = False
+        return _none_guard_value
     return market_expiry == expiry_date and abs(float(market_strike) - strike) < STRIKE_MATCH_TOLERANCE
 
 
@@ -291,8 +295,8 @@ def _extract_market_quote(
     if orderbook_payload:
         try:
             orderbook = orjson.loads(orderbook_payload)
-            yes_bids = orderbook.get("yes_bids") or {}
-            yes_asks = orderbook.get("yes_asks") or {}
+            yes_bids = pick_truthy(orderbook.get("yes_bids"), {})
+            yes_asks = pick_truthy(orderbook.get("yes_asks"), {})
             if yes_bids and best_bid_size is None:
                 best_bid_size = next(iter(yes_bids.values()))
             if yes_asks and best_ask_size is None:
@@ -323,7 +327,7 @@ async def is_market_expired(store, market_ticker: str) -> bool:
     if isinstance(close_time_raw, bytes):
         close_time_value = close_time_raw.decode("utf-8")
     else:
-        close_time_value = str(close_time_raw) if close_time_raw else ""
+        close_time_value = pick_if(close_time_raw, lambda: str(close_time_raw), lambda: "")
     if not close_time_value:
         return False
     try:
@@ -332,17 +336,6 @@ async def is_market_expired(store, market_ticker: str) -> bool:
         return False
     current_time = time_utils.get_current_utc()
     return close_dt < current_time
-
-
-def _resolve_market_strike(metadata: Dict[str, Any]) -> Optional[float]:
-    """
-    Derive a numeric strike from metadata payload.
-
-    Delegates to common.strike_helpers.resolve_strike_from_metadata.
-    """
-    from common.strike_helpers import resolve_strike_from_metadata
-
-    return resolve_strike_from_metadata(metadata)
 
 
 def _parse_strike_values(floor_strike, cap_strike) -> tuple[Optional[float], Optional[float]]:

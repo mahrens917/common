@@ -97,7 +97,8 @@ def _matches_strike_expiry(
         True if market matches criteria
     """
     if market_strike is None:
-        return False
+        _none_guard_value = False
+        return _none_guard_value
     if market_expiry != target_expiry:
         return False
     if abs(market_strike - target_strike) >= _CONST_0_001:

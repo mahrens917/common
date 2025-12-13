@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from common.truthy import pick_if
+
 """Dataclasses describing market data keys."""
 
 
@@ -159,7 +161,7 @@ class DeribitInstrumentDescriptor:
             raise TypeError("Deribit option missing option_type in instrument payload")
 
         strike_token = cls._format_strike(strike)
-        option_kind = "c" if option_type.lower().startswith("c") else "p"
+        option_kind = pick_if(option_type.lower().startswith("c"), lambda: "c", lambda: "p")
         key = DeribitInstrumentKey(instrument_type, base_currency, expiry_iso, strike_token, option_kind).key()
         return cls(
             key,

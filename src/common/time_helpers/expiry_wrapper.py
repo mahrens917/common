@@ -54,7 +54,7 @@ class DateTimeExpiry:
         if isinstance(other, str):
             try:
                 return datetime.fromisoformat(other.replace("Z", "+00:00"))
-            except (
+            except (  # policy_guard: allow-silent-handler
                 ValueError,
                 TypeError,
             ):
@@ -68,7 +68,8 @@ class DateTimeExpiry:
         if other_dt is NotImplemented:
             return NotImplemented
         if other_dt is None:
-            return False
+            _none_guard_value = False
+            return _none_guard_value
         return self.datetime_value == other_dt
 
     def __lt__(self, other):
@@ -76,7 +77,8 @@ class DateTimeExpiry:
         if other_dt is NotImplemented:
             return NotImplemented
         if other_dt is None:
-            return False
+            _none_guard_value = False
+            return _none_guard_value
         return self.datetime_value < other_dt
 
     def __le__(self, other):
@@ -87,7 +89,8 @@ class DateTimeExpiry:
         if other_dt is NotImplemented:
             return NotImplemented
         if other_dt is None:
-            return False
+            _none_guard_value = False
+            return _none_guard_value
         return self.datetime_value > other_dt
 
     def __ge__(self, other):

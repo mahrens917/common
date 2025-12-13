@@ -9,6 +9,8 @@ from typing import Any, Dict
 
 from redis.asyncio import Redis
 
+from common.truthy import pick_truthy
+
 from ...error_types import REDIS_ERRORS
 from ...typing import ensure_awaitable
 from .orderbook_parser import (
@@ -32,18 +34,18 @@ class OrderbookReader:
             pipe.hget(market_key, "yes_asks")
             try:
                 results = await pipe.execute()
-            except REDIS_ERRORS as exc:
+            except REDIS_ERRORS as exc:  # policy_guard: allow-silent-handler
                 self.logger.error("Redis error fetching orderbook for %s: %s", ticker, exc, exc_info=True)
                 return {}
 
             orderbook = {}
             for idx, field_name in enumerate(("yes_bids", "yes_asks")):
                 parsed = parse_orderbook_json(results[idx], field_name, ticker)
-                orderbook[field_name] = parsed or {}
+                orderbook[field_name] = pick_truthy(parsed, {})
 
             else:
                 return orderbook
-        except REDIS_ERRORS as exc:
+        except REDIS_ERRORS as exc:  # policy_guard: allow-silent-handler
             self.logger.error("Redis error getting orderbook for %s: %s", ticker, exc, exc_info=True)
             return {}
 
@@ -51,7 +53,7 @@ class OrderbookReader:
         try:
             side_json = await ensure_awaitable(redis.hget(market_key, side))
             return parse_orderbook_json(side_json, side, ticker)
-        except REDIS_ERRORS as exc:
+        except REDIS_ERRORS as exc:  # policy_guard: allow-silent-handler
             self.logger.error("Redis error getting %s for %s: %s", side, ticker, exc, exc_info=True)
             return {}
 

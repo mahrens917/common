@@ -60,7 +60,7 @@ class RealtimeMetricsCollector:
 
                     if timestamp >= cutoff_time:
                         total_sum += float(count_str)
-                except (
+                except (  # policy_guard: allow-silent-handler
                     ValueError,
                     TypeError,
                 ) as exc:
@@ -70,7 +70,7 @@ class RealtimeMetricsCollector:
             return int(round(total_sum))
 
         except REDIS_DATA_ERRORS as exc:  # policy_guard: allow-silent-handler
-            logger.debug("Error getting deribit sum last 60s (%s): %s", type(exc).__name__)
+            logger.debug("Error getting deribit sum last 60s (%s): %s", type(exc).__name__, exc)
             return 0
 
     async def get_kalshi_sum_last_60_seconds(self) -> int:
@@ -99,7 +99,7 @@ class RealtimeMetricsCollector:
 
                     if timestamp >= cutoff_time:
                         total_sum += float(count_str)
-                except (
+                except (  # policy_guard: allow-silent-handler
                     ValueError,
                     TypeError,
                 ) as exc:
@@ -109,5 +109,5 @@ class RealtimeMetricsCollector:
             return int(round(total_sum))
 
         except REDIS_DATA_ERRORS as exc:  # policy_guard: allow-silent-handler
-            logger.debug("Error getting kalshi sum last 60s (%s): %s", type(exc).__name__)
+            logger.debug("Error getting kalshi sum last 60s (%s): %s", type(exc).__name__, exc)
             return 0

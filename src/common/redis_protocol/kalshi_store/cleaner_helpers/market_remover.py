@@ -2,12 +2,30 @@
 Market removal operations for KalshiMarketCleaner
 """
 
+from __future__ import annotations
+
 import logging
 
 from ...error_types import REDIS_ERRORS
 from .pipeline_executor import PipelineExecutor
 
 logger = logging.getLogger(__name__)
+
+_DEFAULT_KEY_PATTERNS = ("kalshi:*",)
+
+
+def _resolve_key_patterns(patterns: list[str] | None) -> list[str]:
+    if patterns:
+        return patterns
+    resolved: list[str] = []
+    resolved.extend(_DEFAULT_KEY_PATTERNS)
+    return resolved
+
+
+def _decode_redis_key(value: object) -> str:
+    if isinstance(value, (bytes, bytearray)):
+        return value.decode("utf-8")
+    return str(value)
 
 
 class MarketRemover:
@@ -66,18 +84,14 @@ class MarketRemover:
             )
             return False
 
-    async def remove_all_kalshi_keys(self, *, patterns=None) -> bool:
+    async def remove_all_kalshi_keys(self, *, patterns: list[str] | None = None) -> bool:
         try:
             redis = await self._get_redis()
-            target_patterns = patterns or ["kalshi:*"]
+            target_patterns = _resolve_key_patterns(patterns)
             keys_to_remove = set()
             for pattern in target_patterns:
                 matched_keys = await redis.keys(pattern)
-                for key in matched_keys:
-                    if isinstance(key, (bytes, bytearray)):
-                        keys_to_remove.add(key.decode("utf-8"))
-                    else:
-                        keys_to_remove.add(str(key))
+                keys_to_remove.update(_decode_redis_key(key) for key in matched_keys)
 
             if not keys_to_remove:
                 logger.info("No Kalshi keys to remove for patterns: %s", target_patterns)
@@ -95,7 +109,7 @@ class MarketRemover:
                 logger.info("Successfully removed all Kalshi keys for patterns %s", target_patterns)
                 return True
             else:
-                return success
+                return False
         except REDIS_ERRORS as exc:  # policy_guard: allow-silent-handler
             logger.error("Error removing all Kalshi keys: %s", exc, exc_info=True)
             return False

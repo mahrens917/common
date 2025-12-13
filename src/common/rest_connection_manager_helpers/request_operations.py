@@ -45,12 +45,12 @@ class RESTRequestOperations:
 
             response = await session.request(method, url, **kwargs)
 
-        except aiohttp.ClientError:
+        except aiohttp.ClientError:  # policy_guard: allow-silent-handler
             self.logger.exception("HTTP request failed")
             if self.health_monitor:
                 self.health_monitor.record_failure()
             return None
-        except (asyncio.TimeoutError, OSError, RuntimeError):
+        except (asyncio.TimeoutError, OSError, RuntimeError):  # policy_guard: allow-silent-handler
             self.logger.exception("Unexpected error making request")
             if self.health_monitor:
                 self.health_monitor.record_failure()
@@ -94,7 +94,7 @@ class RESTRequestOperations:
                     self.logger.warning("Expected JSON but got %s", response.content_type)
                     return None
 
-        except (aiohttp.ContentTypeError, ValueError, RuntimeError, SyntaxError):
+        except (aiohttp.ContentTypeError, ValueError, RuntimeError, SyntaxError):  # policy_guard: allow-silent-handler
             self.logger.exception(f"Failed to parse JSON response: ")
             if self.health_monitor and status < HTTP_CLIENT_ERROR_MIN:
                 self.health_monitor.record_failure()

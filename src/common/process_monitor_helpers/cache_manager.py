@@ -58,7 +58,7 @@ class ProcessCacheManager:
                 process_cache[pid].last_seen = time.time()
                 return process_cache[pid]
 
-        except (
+        except (  # policy_guard: allow-silent-handler
             psutil.NoSuchProcess,
             psutil.AccessDenied,
         ):

@@ -13,6 +13,9 @@ from redis.asyncio import Redis
 
 from common.exceptions import DataError
 from common.redis_schema.markets import KalshiMarketCategory
+from common.truthy import pick_if, pick_truthy
+
+_DEFAULT_SERVICE_PREFIX = "ws"
 
 from .cleaner_helpers import MarketRemover, MetadataCleaner, ServiceKeyRemover
 from .connection import RedisConnectionManager
@@ -62,13 +65,16 @@ def _key_patterns(
     categories: Optional[Sequence[Optional[Union[str, KalshiMarketCategory]]]],
     exclude_analytics: bool,
 ) -> List[str]:
-    normalized = [_normalize_category_name(category) for category in (categories or []) if category is not None]
+    categories_iter = categories if categories is not None else tuple()
+    normalized = [_normalize_category_name(category) for category in categories_iter if category is not None]
     if normalized:
         base_patterns = [pattern for category in normalized for pattern in (f"kalshi:{category}:*", f"markets:kalshi:{category}:*")]
-        analytics_patterns: Iterable[str] = [] if exclude_analytics else [f"analytics:kalshi:{category}:*" for category in normalized]
+        analytics_patterns: Iterable[str] = pick_if(
+            exclude_analytics, lambda: [], lambda: [f"analytics:kalshi:{category}:*" for category in normalized]
+        )
     else:
         base_patterns = ["kalshi:*", "markets:kalshi:*"]
-        analytics_patterns = [] if exclude_analytics else ["analytics:kalshi:*"]
+        analytics_patterns = pick_if(exclude_analytics, lambda: [], lambda: ["analytics:kalshi:*"])
     ordered_patterns = base_patterns + list(analytics_patterns)
     return list(dict.fromkeys(ordered_patterns))
 
@@ -94,15 +100,16 @@ class KalshiMarketCleaner:
         self._connection = connection_manager if connection_manager is not None else RedisConnectionManager(logger=self.logger, redis=redis)
         if subscriptions_key:
             self.SUBSCRIPTIONS_KEY = subscriptions_key
+        resolved_prefix = _DEFAULT_SERVICE_PREFIX if not service_prefix else service_prefix
         self._market_remover = MarketRemover(
             self._get_redis,
             self.SUBSCRIPTIONS_KEY,
             _SUBSCRIBED_MARKETS_KEY,
-            service_prefix or "ws",
+            resolved_prefix,
             _market_key_from_ticker,
             _snapshot_key_from_ticker,
         )
-        self._service_key_remover = ServiceKeyRemover(self._get_redis, self.SUBSCRIPTIONS_KEY, service_prefix or "ws")
+        self._service_key_remover = ServiceKeyRemover(self._get_redis, self.SUBSCRIPTIONS_KEY, resolved_prefix)
         self._metadata_cleaner = MetadataCleaner(self._get_redis)
 
     async def _ensure_redis_connection(self) -> bool:

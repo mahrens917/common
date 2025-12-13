@@ -53,7 +53,8 @@ class DependencyChecker:
             return False
 
         if status is None:
-            return False
+            _none_guard_value = False
+            return _none_guard_value
 
         status_str = status.decode("utf-8") if isinstance(status, bytes) else status
         return status_str.lower() in ("unavailable", "unknown", "failed")

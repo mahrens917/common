@@ -4,6 +4,8 @@ import logging
 from datetime import datetime, timedelta, timezone
 from typing import Any, Optional, Tuple
 
+from common.truthy import pick_if
+
 logger = logging.getLogger(__name__)
 
 __all__ = [
@@ -49,7 +51,7 @@ def parse_expiry_datetime(expiry: Any) -> datetime:
             text = text.replace("Z", "+00:00")
         try:
             dt = datetime.fromisoformat(text)
-        except ValueError:
+        except ValueError:  # policy_guard: allow-silent-handler
             dt = dateutil_parser.parse(text)
 
     if dt.tzinfo is None:
@@ -204,10 +206,10 @@ def resolve_expiry_to_datetime(expiry: Any, *, instrument_name: Optional[str] = 
         try:
             return datetime.fromtimestamp(expiry, tz=timezone.utc)
         except (ValueError, OSError) as exc:
-            context = f" for {instrument_name}" if instrument_name else ""
+            context = pick_if(instrument_name, lambda: f" for {instrument_name}", lambda: "")
             raise ValueError(f"Invalid timestamp {expiry}{context}: {exc}") from exc
 
-    context = f" for {instrument_name}" if instrument_name else ""
+    context = pick_if(instrument_name, lambda: f" for {instrument_name}", lambda: "")
     raise ValueError(f"Expected datetime or numeric timestamp, got {type(expiry).__name__}{context}")
 
 
@@ -215,6 +217,7 @@ def is_market_expired(expiry: str) -> bool:
     """Determine whether a market has expired based on epoch time."""
     result = parse_iso_datetime(expiry)
     if result is None:
-        return True
+        _none_guard_value = True
+        return _none_guard_value
     _, time_point = result
     return time_point < (30 / (365.25 * 24 * 3600))

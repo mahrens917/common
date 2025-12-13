@@ -39,7 +39,7 @@ class PriceHistoryParser:
 
             # Filter by time range (both are now timezone-aware)
             if dt >= start_time:
-                # Convert to Unix timestamp for compatibility
+                # Convert to Unix timestamp for downstream consumers
                 timestamp = int(dt.timestamp())
                 price = float(price_str)
 
@@ -47,7 +47,7 @@ class PriceHistoryParser:
                 if price > 0:
                     return (timestamp, price)
 
-        except (
+        except (  # policy_guard: allow-silent-handler
             ValueError,
             TypeError,
         ):

@@ -21,7 +21,13 @@ from typing import Any, Dict, Optional
 from common.exceptions import ConfigurationError
 
 logger = logging.getLogger(__name__)
-_CONFIG_DIR = Path(__file__).parent.parent.parent / "config"
+
+
+def _resolve_config_dir() -> Path:
+    repo_config_dir = Path.cwd() / "config"
+    if repo_config_dir.exists():
+        return repo_config_dir
+    return Path(__file__).parent.parent.parent / "config"
 
 
 class BaseConfigLoader:
@@ -139,7 +145,7 @@ def load_config(filename: str) -> Dict[str, Any]:
         FileNotFoundError: If config file doesn't exist
         ConfigurationError: If config file is invalid JSON
     """
-    loader = BaseConfigLoader(_CONFIG_DIR)
+    loader = BaseConfigLoader(_resolve_config_dir())
     return loader.load_json_file(filename)
 
 
@@ -155,7 +161,7 @@ def load_pnl_config() -> Dict[str, Any]:
         json.JSONDecodeError: If config file is invalid JSON
         RuntimeError: If config is missing required fields
     """
-    config_path = _CONFIG_DIR / "pnl_config.json"
+    config_path = _resolve_config_dir() / "pnl_config.json"
 
     if not config_path.exists():
         raise FileNotFoundError(f"PnL config file not found: {config_path}")

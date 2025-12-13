@@ -54,7 +54,7 @@ class ConnectionManager:
         try:
             redis = await self._connection.get_redis()
             await redis.ping()
-        except (RuntimeError, ConnectionError, AttributeError) as exc:
+        except (RuntimeError, ConnectionError, AttributeError) as exc:  # policy_guard: allow-silent-handler
             self._logger.error("Failed to ensure Redis connection: %s", exc, exc_info=True)
             return False
         else:

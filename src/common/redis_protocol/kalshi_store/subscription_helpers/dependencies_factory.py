@@ -7,6 +7,8 @@ import logging
 from dataclasses import dataclass
 from typing import TYPE_CHECKING, Optional
 
+_DEFAULT_SERVICE_PREFIX = "ws"
+
 if TYPE_CHECKING:
     from ..connection import RedisConnectionManager
     from . import (
@@ -48,17 +50,18 @@ class KalshiSubscriptionTrackerDependenciesFactory:  # gitleaks:allow
         )
 
         connection_manager = ConnectionManager(redis_connection, logger_instance)
-        key_provider = KeyProvider(service_prefix or "ws")
+        resolved_prefix = _DEFAULT_SERVICE_PREFIX if not service_prefix else service_prefix
+        key_provider = KeyProvider(resolved_prefix)
 
         market_subscription_manager = MarketSubscriptionManager(
             connection_manager.get_redis,
             key_provider.subscriptions_key,
-            service_prefix or "ws",
+            resolved_prefix,
         )
         subscription_id_manager = SubscriptionIdManager(
             connection_manager.get_redis,
             key_provider.subscription_ids_key,
-            service_prefix or "ws",
+            resolved_prefix,
         )
         service_status_manager = ServiceStatusManager(
             connection_manager.get_redis,

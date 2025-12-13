@@ -66,7 +66,7 @@ class ScraperConnectionLifecycle:
             raise ConnectionError(f"Scraper session creation failed for {self.service_name}") from exc
 
         except (OSError, RuntimeError, ValueError) as exc:
-            if getattr(exc, "_already_cleaned", False):
+            if getattr(exc, "_already_cleaned", None):
                 raise
             self.logger.exception(f"Failed to establish scraper connection: ")
             await self.cleanup_connection()

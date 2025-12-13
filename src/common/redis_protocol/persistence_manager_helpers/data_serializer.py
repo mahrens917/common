@@ -3,6 +3,8 @@
 import logging
 from typing import Any, Dict
 
+from common.truthy import pick_if
+
 logger = logging.getLogger(__name__)
 
 
@@ -13,9 +15,11 @@ class DataSerializer:
         if "error" in status:
             return f"❌ Error checking persistence: {status['error']}"
 
-        aof_flag = "✅" if status["aof_enabled"] else "❌"
-        rdb_flag = "✅" if status["rdb_enabled"] else "❌"
-        overall_flag = "✅ Properly Configured" if status["persistence_properly_configured"] else "❌ Needs Configuration"
+        aof_flag = pick_if(status["aof_enabled"], lambda: "✅", lambda: "❌")
+        rdb_flag = pick_if(status["rdb_enabled"], lambda: "✅", lambda: "❌")
+        overall_flag = pick_if(
+            status["persistence_properly_configured"], lambda: "✅ Properly Configured", lambda: "❌ Needs Configuration"
+        )
 
         info_lines = [
             "=== Redis Persistence Status ===",

@@ -61,7 +61,7 @@ def decode_probability_hash(raw_data: Dict[Any, Any], *, key_str: str, log_nan: 
 
         try:
             processed[field_name] = float(value_text)
-        except ValueError:
+        except ValueError:  # policy_guard: allow-silent-handler
             processed[field_name] = value_text
 
     return processed

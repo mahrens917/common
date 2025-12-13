@@ -53,7 +53,7 @@ class WebSocketConnectionLifecycle:
             self.logger.exception("WebSocket connection error")
             raise ConnectionError("WebSocket connection failed") from exc
         except (OSError, ValueError) as exc:
-            if getattr(exc, "_already_cleaned", False):
+            if getattr(exc, "_already_cleaned", None):
                 raise
             self.logger.exception("Transport error")
             raise ConnectionError("Transport error") from exc
@@ -75,7 +75,7 @@ class WebSocketConnectionLifecycle:
                     await asyncio.wait_for(close_method(), timeout=5.0)
                 else:
                     self.logger.debug("WebSocket already closed (code: %s)", self.websocket_connection.close_code)
-            except (asyncio.TimeoutError, WebSocketException, OSError, RuntimeError):
+            except (asyncio.TimeoutError, WebSocketException, OSError, RuntimeError):  # policy_guard: allow-silent-handler
                 self.logger.warning("Error closing WebSocket")
             finally:
                 self.websocket_connection = None

@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from common.truthy import pick_if
+
 """Shared helpers for parsing Kalshi orderbook payloads."""
 
 from typing import Any, Dict, Optional, Tuple
@@ -22,13 +24,15 @@ def merge_orderbook_payload(message: Dict[str, Any]) -> Tuple[str, Dict[str, Any
 def _extract_message_type(message: Dict[str, Any]) -> str:
     """Extract and normalize message type"""
     raw_type = message.get("type")
-    return str(raw_type) if raw_type is not None else ""
+    return pick_if(raw_type is not None, lambda: str(raw_type), lambda: "")
 
 
 def _initialize_message_data(message: Dict[str, Any]) -> Dict[str, Any]:
     """Initialize message data from 'msg' field"""
     raw_msg = message.get("msg")
-    return dict(raw_msg) if isinstance(raw_msg, dict) else {}
+    if not isinstance(raw_msg, dict):
+        return {}
+    return {str(key): value for key, value in raw_msg.items()}
 
 
 def _merge_data_section(message: Dict[str, Any], msg_data: Dict[str, Any]) -> None:

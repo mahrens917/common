@@ -79,6 +79,7 @@ class RedisConnection:
                 logger.warning(
                     "Error closing Redis connection (%s): %s",
                     type(exc).__name__,
+                    exc,
                 )
             finally:
                 self._client = None
@@ -139,6 +140,7 @@ class RedisConnectionManager:
                 logger.warning(
                     "Error closing Redis connection (%s): %s",
                     type(exc).__name__,
+                    exc,
                 )
             finally:
                 self._connection = None

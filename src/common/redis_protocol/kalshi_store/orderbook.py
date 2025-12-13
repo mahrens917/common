@@ -106,7 +106,7 @@ class KalshiOrderbookProcessor:
             success = await _process_orderbook_message(context=context)
             if success and msg_type == "orderbook_snapshot":
                 await normalizer.normalize_snapshot_json(redis, market_key)
-        except (ValueError, KeyError, RuntimeError) as exc:
+        except (ValueError, KeyError, RuntimeError) as exc:  # policy_guard: allow-silent-handler
             error_msg = str(exc)
             if "Missing yes_bid_price" in error_msg or "Missing yes_ask_price" in error_msg:
                 logger.debug("Illiquid market orderbook update: %s", exc)

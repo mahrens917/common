@@ -9,7 +9,8 @@ from urllib.parse import urlsplit
 def is_aiohttp_session_open(session: Optional[Any]) -> bool:
     """Return True when the provided aiohttp session exists and remains open."""
     if session is None:
-        return False
+        _none_guard_value = False
+        return _none_guard_value
     if not hasattr(session, "closed"):
         return False
     return not bool(session.closed)

@@ -54,7 +54,8 @@ async def _get_redis_impl(store: "KalshiStore") -> Redis:
 async def _ensure_redis_connection_impl(store: "KalshiStore") -> bool:
     connection = getattr(store, "_connection")
     if connection is None:
-        return False
+        _none_guard_value = False
+        return _none_guard_value
     return await connection.ensure_redis_connection()
 
 

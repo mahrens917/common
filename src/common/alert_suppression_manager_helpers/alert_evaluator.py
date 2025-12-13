@@ -4,6 +4,8 @@ import logging
 from dataclasses import dataclass, field
 from typing import List, Optional, Set
 
+from common.truthy import pick_if
+
 from .suppression_tracker import AlertType, SuppressionDecision
 
 logger = logging.getLogger(__name__)
@@ -77,7 +79,7 @@ class AlertEvaluator:
             should_suppress = True
             reason_parts.append("service is in post-reconnection grace period")
 
-        reason = "; ".join(reason_parts) if reason_parts else "no suppression conditions met"
+        reason = pick_if(reason_parts, lambda: "; ".join(reason_parts), lambda: "no suppression conditions met")
         return SuppressionDecision(
             should_suppress=should_suppress,
             reason=reason,
@@ -96,7 +98,7 @@ def _log_reconnection_error(service_name: str, error_message: Optional[str]) -> 
 def _evaluate_recovery_alert(context: SuppressionContext) -> tuple[bool, List[str]]:
     reason_parts: List[str] = []
     if context.is_in_reconnection or context.is_in_grace_period:
-        phase = "reconnection mode" if context.is_in_reconnection else "post-reconnection grace period"
+        phase = pick_if(context.is_in_reconnection, lambda: "reconnection mode", lambda: "post-reconnection grace period")
         reason_parts.append(f"service is in {phase}")
         reason_parts.append("recovery notification suppressed to avoid redundancy")
         return True, reason_parts

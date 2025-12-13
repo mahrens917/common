@@ -5,11 +5,11 @@ This module handles validation and formatting of data before Redis writes.
 """
 
 import logging
-import math
 from typing import Any, Optional
 
 from redis.asyncio import Redis
 
+from ...market_normalization_core import format_probability_value as _format_probability_value
 from ...typing import ensure_awaitable
 
 logger = logging.getLogger(__name__)
@@ -17,6 +17,8 @@ logger = logging.getLogger(__name__)
 
 class ValidationWriter:
     """Handles validation and formatting for write operations."""
+
+    format_probability_value = staticmethod(_format_probability_value)
 
     def __init__(self, redis_connection: Redis, logger_instance: logging.Logger):
         """
@@ -35,32 +37,3 @@ class ValidationWriter:
             await ensure_awaitable(self.redis.hdel(market_key, field))
             return
         await ensure_awaitable(self.redis.hset(market_key, field, str(value)))
-
-    @staticmethod
-    def format_probability_value(value: Any) -> str:
-        """
-        Format probability value for Redis storage.
-
-        Args:
-            value: Value to format (must be float-compatible)
-
-        Returns:
-            Formatted string representation
-
-        Raises:
-            ValueError: If value is not float-compatible or not finite
-        """
-        try:
-            numeric = float(value)
-        except (TypeError, ValueError) as exc:  # policy_guard: allow-silent-handler
-            raise TypeError(f"Probability value must be float-compatible, got {value}") from exc
-
-        if not math.isfinite(numeric):
-            raise TypeError(f"Probability value must be finite, got {numeric}")
-
-        formatted = f"{numeric:.10f}"
-        if "." in formatted:
-            formatted = formatted.rstrip("0").rstrip(".")
-        if not formatted:
-            return "0"
-        return formatted

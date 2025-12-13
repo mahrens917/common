@@ -3,6 +3,8 @@
 from datetime import datetime
 from typing import TYPE_CHECKING, Any, List, Optional
 
+from common.truthy import pick_truthy
+
 # Error messages
 ERR_ORDER_ID_MISSING = "Order ID must be specified"
 ERR_ORDER_STATUS_MISSING = "Order status must be specified"
@@ -62,7 +64,7 @@ def validate_order_response_price(filled_count: int | None, average_fill_price_c
     """Validate price and fee fields."""
     # CRITICAL FIX: Allow None for average_fill_price_cents when order status API is unreliable
     # The fills API will provide accurate execution prices
-    if (filled_count or 0) > 0 and average_fill_price_cents is None:
+    if filled_count is not None and filled_count > 0 and average_fill_price_cents is None:
         # This is acceptable - Kalshi's order status API often returns unreliable price data
         # The fills API should be used for accurate execution prices
         pass

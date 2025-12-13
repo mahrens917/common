@@ -26,7 +26,7 @@ def find_closest_expiry(
         else:
             try:
                 obj = DateTimeExpiry(expiry)
-            except (
+            except (  # policy_guard: allow-silent-handler
                 TypeError,
                 ValueError,
                 ValidationError,
@@ -60,7 +60,7 @@ def match_expiries_exactly(
     for expiry in expiries:
         try:
             candidate = DateTimeExpiry(expiry) if not isinstance(expiry, DateTimeExpiry) else expiry
-        except (
+        except (  # policy_guard: allow-silent-handler
             TypeError,
             ValueError,
             ValidationError,

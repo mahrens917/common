@@ -9,6 +9,7 @@ import logging
 from typing import Any, Dict, List, Optional
 
 from common.monitoring import ProcessStatus
+from common.truthy import pick_truthy
 
 logger = logging.getLogger(__name__)
 
@@ -98,7 +99,7 @@ class TrackerStatusCollector:
         tracker_status: Dict[str, Any],
     ) -> List[Dict[str, str]]:
         """Normalize tracker state in running services list."""
-        tracker_running = bool(tracker_status.get("running") or False)
+        tracker_running = bool(pick_truthy(tracker_status.get("running"), False))
         normalized = [svc for svc in running_services if svc.get("name") != "tracker"]
         if tracker_running:
             normalized.append({"name": "tracker"})

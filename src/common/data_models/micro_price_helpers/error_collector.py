@@ -85,7 +85,7 @@ class ErrorCollector:
                 )
             )
             errors.extend(ErrorCollector.collect_basic_data_errors(params.best_bid_size, params.best_ask_size, params.option_type))
-        except (
+        except (  # policy_guard: allow-silent-handler
             TypeError,
             ValueError,
         ) as e:

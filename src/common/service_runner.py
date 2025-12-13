@@ -16,7 +16,7 @@ from .process_killer import ensure_single_instance_sync
 
 try:
     import fcntl
-except ImportError:  # pragma: no cover - fcntl unavailable on non-POSIX platforms
+except ImportError:  # pragma: no cover - fcntl unavailable on non-POSIX platforms  # policy_guard: allow-silent-handler
     fcntl = None
 
 

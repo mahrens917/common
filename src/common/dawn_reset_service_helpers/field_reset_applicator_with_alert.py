@@ -2,7 +2,9 @@
 
 from dataclasses import dataclass
 from datetime import datetime
-from typing import Any, Dict, Optional, Tuple
+from typing import Any, Dict, Optional, Tuple, cast
+
+from common.truthy import pick_if
 
 
 @dataclass(frozen=True)
@@ -47,12 +49,15 @@ class FieldResetApplicatorWithAlert:
         if isinstance(field_name, FieldResetContext):
             context = field_name
         else:
+            resolved_previous_data = pick_if(previous_data is None, dict, lambda: cast(Dict[str, Any], previous_data))
+            resolved_latitude = pick_if(latitude is None, float, lambda: cast(float, latitude))
+            resolved_longitude = pick_if(longitude is None, float, lambda: cast(float, longitude))
             context = FieldResetContext(
                 field_name=field_name,
                 current_value=current_value,
-                previous_data=previous_data or {},
-                latitude=latitude if latitude is not None else 0.0,
-                longitude=longitude if longitude is not None else 0.0,
+                previous_data=resolved_previous_data,
+                latitude=resolved_latitude,
+                longitude=resolved_longitude,
                 station_id=station_id,
                 current_timestamp=current_timestamp,
             )

@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import asyncio
 import os
 import sys
 from typing import Any
@@ -240,6 +241,41 @@ class FakeRedis:
     def dump_hash(self, key: str) -> dict[str, str]:
         """Dump contents of a hash (test helper)."""
         return self._hashes.get(key, {}).copy()
+
+
+@pytest.fixture(autouse=True)
+async def _cleanup_redis_pools_between_tests():
+    """
+    Prevent leaking real Redis connections across tests.
+
+    CI runs with `-W error`, so `ResourceWarning` on unclosed transports/connections
+    must be avoided even when a test accidentally creates a real pool/client.
+    """
+    yield
+
+    try:
+        from common.redis_protocol import connection_pool_core
+    except Exception:
+        return
+
+    pool = getattr(connection_pool_core, "_unified_pool", None)
+    if pool is not None:
+        try:
+            await asyncio.wait_for(pool.disconnect(), timeout=1.0)
+        except Exception:
+            pass
+
+    connection_pool_core._unified_pool = None
+    connection_pool_core._pool_loop = None
+
+    sync_pool = getattr(connection_pool_core, "_sync_pool", None)
+    if sync_pool is not None:
+        try:
+            sync_pool.disconnect()
+        except Exception:
+            pass
+
+    connection_pool_core._sync_pool = None
 
     def dump_string(self, key: str) -> str | None:
         """Dump contents of a string (test helper)."""

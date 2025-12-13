@@ -22,7 +22,8 @@ def parse_expiry(metadata: Mapping[str, Any]) -> tuple[Optional[str], Optional[d
 def validate_expiry(expiry_dt: Optional[datetime], current_time: datetime) -> tuple[bool, Optional[str]]:
     """Validate expiry is in the future."""
     if expiry_dt is None:
-        return False, "unparseable_expiry"
+        _none_guard_value = False, "unparseable_expiry"
+        return _none_guard_value
 
     if expiry_dt <= current_time:
         return False, "expired"

@@ -38,7 +38,7 @@ class ConnectionVerifier:
                 exc_info=False,
             )
             return False, False
-        except REDIS_ERRORS as exc:
+        except REDIS_ERRORS as exc:  # policy_guard: allow-silent-handler
             message = str(exc).lower()
             if "event loop is closed" in message:
                 logger.debug("Redis ping failed because the event loop is closing: %s", exc, exc_info=False)

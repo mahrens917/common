@@ -56,7 +56,7 @@ class ConnectionRetryHelper(ConnectionHelperBase):
             )
         except RedisFatalError:  # policy_guard: allow-silent-handler
             return False
-        except RedisRetryError as exc:
+        except RedisRetryError as exc:  # policy_guard: allow-silent-handler
             _log_retry_exhausted(self.logger, config.context, exc)
             return False
         else:

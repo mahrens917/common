@@ -9,6 +9,8 @@ from typing import Any, Callable, Dict, Iterable, Optional, Tuple, Type
 from ..data_models.trading import OrderRequest
 from ..trading_exceptions import KalshiTradeNotificationError
 
+_EMPTY_ERROR_TYPES: tuple[Type[Exception], ...] = tuple()
+
 
 class TradeNotifierAdapter:
     """Thin wrapper around the global trade notifier to keep KalshiTradingClient lean."""
@@ -19,6 +21,7 @@ class TradeNotifierAdapter:
         notifier_supplier: Optional[Callable[[], Any]] = None,
         notification_error_types: Optional[Iterable[Type[Exception]]] = None,
     ) -> None:
+        error_iterable: Iterable[Type[Exception]] = _EMPTY_ERROR_TYPES if notification_error_types is None else notification_error_types
         if notifier_supplier is None:
             try:
                 from kalshi.notifications.trade_notifier import (  # type: ignore[import]
@@ -27,12 +30,14 @@ class TradeNotifierAdapter:
                 )
 
                 notifier_supplier = get_trade_notifier
-                error_types = tuple(notification_error_types or (TradeNotificationError,))
-            except ImportError:
+                error_types = tuple(error_iterable)
+                if not error_types:
+                    error_types = (TradeNotificationError,)
+            except ImportError:  # policy_guard: allow-silent-handler
                 notifier_supplier = None
-                error_types = tuple(notification_error_types or ())
+                error_types = tuple(error_iterable)
         else:
-            error_types = tuple(notification_error_types or ())
+            error_types = tuple(error_iterable)
 
         self._notifier_supplier = notifier_supplier
         self._notification_error_types: Tuple[Type[Exception], ...] = error_types
@@ -46,6 +51,9 @@ class TradeNotifierAdapter:
         notifier_error_message: str,
     ) -> None:
         """Propagate order errors to the notifier with consistent error handling."""
+
+        if self._notifier_supplier is None:
+            return
 
         try:
             trade_notifier = self._notifier_supplier()
@@ -74,12 +82,12 @@ class TradeNotifierAdapter:
                 from kalshi.notifications.trade_notifier import TradeNotificationError  # type: ignore[import]
 
                 error_types = (TradeNotificationError,)
-            except ImportError:
+            except ImportError:  # policy_guard: allow-silent-handler
                 error_types = (RuntimeError,)
 
         try:
             await trade_notifier.send_order_error_notification(order_data, error)
-        except error_types as exc:  # policy_guard: allow-silent-handler
+        except error_types as exc:  # type: ignore[misc]
             raise KalshiTradeNotificationError(
                 notifier_error_message,
                 order_id=order_request.client_order_id,

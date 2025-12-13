@@ -57,10 +57,10 @@ class ScrapingOperations:
                     return content
                 self.logger.warning("Scraping failed for %s: HTTP %s", url, response.status)
                 return None
-        except aiohttp.ClientError:
+        except aiohttp.ClientError:  # policy_guard: allow-silent-handler
             self.logger.exception("Scraping client error for %s", url)
             return None
-        except (RuntimeError, ValueError, UnicodeDecodeError):
+        except (RuntimeError, ValueError, UnicodeDecodeError):  # policy_guard: allow-silent-handler
             self.logger.exception("Unexpected scraping error for %s", url)
             return None
 

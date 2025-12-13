@@ -27,10 +27,12 @@ async def should_recycle_pool(
     Determine if the existing pool was created by a different event loop.
     """
     if pool_loop is None:
-        return False
+        _none_guard_value = False
+        return _none_guard_value
     previous_loop = pool_loop()
     if previous_loop is None:
-        return False
+        _none_guard_value = False
+        return _none_guard_value
     if previous_loop is current_loop:
         return False
     logger.info("Detected event loop change; recycling unified Redis connection pool")

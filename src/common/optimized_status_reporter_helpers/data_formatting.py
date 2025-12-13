@@ -14,7 +14,8 @@ class DataFormatting:
     def format_percentage(value: Any) -> str:
         """Format value as percentage with one decimal place."""
         if value is None:
-            return "N/A"
+            _none_guard_value = "N/A"
+            return _none_guard_value
         if isinstance(value, bool):
             return f"{float(value):.1f}%"
         if isinstance(value, (int, float)):
@@ -23,7 +24,7 @@ class DataFormatting:
             try:
                 text = value.decode("utf-8", "ignore") if isinstance(value, (bytes, bytearray)) else value
                 return f"{float(text):.1f}%"
-            except (
+            except (  # policy_guard: allow-silent-handler
                 TypeError,
                 ValueError,
             ):

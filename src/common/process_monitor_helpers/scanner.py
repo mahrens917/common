@@ -7,6 +7,8 @@ from typing import Dict, List
 
 import psutil
 
+from common.truthy import pick_if
+
 from ..process_monitor import ProcessInfo
 
 logger = logging.getLogger(__name__)
@@ -32,8 +34,13 @@ class ProcessScanner:
             for proc in psutil.process_iter(["pid", "name", "cmdline"]):
                 try:
                     pid = proc.info["pid"]
-                    name = proc.info.get("name") or ""
-                    cmdline = proc.info.get("cmdline") or []
+                    name_value = proc.info.get("name")
+                    name = pick_if(name_value is None, lambda: "", lambda: str(name_value))
+
+                    cmdline_value = proc.info.get("cmdline")
+                    cmdline: list[str] = []
+                    if isinstance(cmdline_value, list):
+                        cmdline = [str(arg) for arg in cmdline_value]
 
                     process_info = ProcessInfo(pid=pid, name=name, cmdline=cmdline, last_seen=time.time())
 
@@ -49,7 +56,7 @@ class ProcessScanner:
                     if self._is_redis_process(name, cmdline):
                         new_redis_processes.append(process_info)
 
-                except (
+                except (  # policy_guard: allow-silent-handler
                     psutil.NoSuchProcess,
                     psutil.AccessDenied,
                 ):
@@ -60,7 +67,7 @@ class ProcessScanner:
 
             return new_process_cache, dict(new_service_cache), new_redis_processes
 
-        except (
+        except (  # policy_guard: allow-silent-handler
             psutil.Error,
             RuntimeError,
             OSError,
@@ -77,7 +84,7 @@ class ProcessScanner:
             try:
                 if not psutil.pid_exists(pid):
                     dead_pids.append(pid)
-            except (
+            except (  # policy_guard: allow-silent-handler
                 psutil.Error,
                 OSError,
             ):

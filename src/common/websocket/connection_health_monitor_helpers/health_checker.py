@@ -5,6 +5,7 @@ import time
 from typing import Protocol, Set
 
 logger = logging.getLogger(__name__)
+_MISSING_TIMESTAMP = object()
 
 
 class WebSocketClient(Protocol):
@@ -125,8 +126,14 @@ class HealthChecker:
         if hasattr(self.stats_collector, "_last_nonzero_update_time"):
             value = getattr(self.stats_collector, "_last_nonzero_update_time")
         else:
-            value = getattr(self.stats_collector, "last_nonzero_update_time", 0.0)
-        try:
+            value = getattr(self.stats_collector, "last_nonzero_update_time", _MISSING_TIMESTAMP)
+            if value is _MISSING_TIMESTAMP:
+                value = 0.0
+        if isinstance(value, (int, float)):
             return float(value)
-        except (TypeError, ValueError):  # policy_guard: allow-silent-handler
-            return 0.0
+        if isinstance(value, str):
+            try:
+                return float(value)
+            except (TypeError, ValueError):  # policy_guard: allow-silent-handler
+                return 0.0
+        return 0.0

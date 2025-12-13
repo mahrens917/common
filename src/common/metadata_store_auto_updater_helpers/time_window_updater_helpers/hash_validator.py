@@ -25,7 +25,8 @@ class HashValidator:
             True if key is valid hash or doesn't exist, False otherwise
         """
         if redis_client is None:
-            return False
+            _none_guard_value = False
+            return _none_guard_value
         try:
             key_type = await ensure_awaitable(redis_client.type(key))
             key_type = key_type.decode() if isinstance(key_type, bytes) else key_type

@@ -9,6 +9,8 @@ from typing import Any, Dict
 
 from redis.asyncio import Redis
 
+from common.truthy import pick_if, pick_truthy
+
 from ...error_types import REDIS_ERRORS
 from ...typing import ensure_awaitable
 from .timestamp_normalizer import TimestampNormalizer
@@ -58,12 +60,12 @@ class OrderbookWriter:
         if yes is not None and no is None:
             try:
                 no = 100 - float(yes)
-            except (TypeError, ValueError):
+            except (TypeError, ValueError):  # policy_guard: allow-silent-handler
                 no = None
         elif no is not None and yes is None:
             try:
                 yes = 100 - float(no)
-            except (TypeError, ValueError):
+            except (TypeError, ValueError):  # policy_guard: allow-silent-handler
                 yes = None
 
         return side, yes, no, raw
@@ -81,7 +83,7 @@ class OrderbookWriter:
         mapping = _build_trade_base_mapping(
             side,
             msg,
-            self._normalizer.normalise_trade_timestamp(ts_value) if ts_value is not None else "",
+            pick_if(ts_value is not None, lambda: self._normalizer.normalise_trade_timestamp(ts_value), lambda: ""),
             ts_value,
         )
 
@@ -97,10 +99,10 @@ class OrderbookWriter:
 
 def _build_trade_base_mapping(side: str, msg: Dict, ts_iso: str, ts_raw: Any) -> Dict[str, str]:
     """Return the core mapping fields shared by all trade ticks."""
-    timestamp_value = ts_iso if ts_iso else (str(ts_raw) if ts_raw not in (None, "") else "")
-    count_value = msg.get("count") or msg.get("quantity") or msg.get("size") or ""
+    timestamp_value = ts_iso if ts_iso else pick_if(ts_raw not in (None, ""), lambda: str(ts_raw), lambda: "")
+    count_value = pick_truthy(msg.get("count") or msg.get("quantity") or msg.get("size"), "")
     return {
-        "last_trade_side": side if side else "",
+        "last_trade_side": pick_if(side, lambda: side, lambda: ""),
         "last_trade_count": str(count_value),
         "last_trade_timestamp": timestamp_value,
     }

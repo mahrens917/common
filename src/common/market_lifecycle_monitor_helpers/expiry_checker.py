@@ -42,7 +42,7 @@ class ExpiryChecker:
 
         try:
             return datetime.fromisoformat(close_time_str.replace("Z", "+00:00"))
-        except (
+        except (  # policy_guard: allow-silent-handler
             ValueError,
             AttributeError,
         ):

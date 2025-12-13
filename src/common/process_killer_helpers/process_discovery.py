@@ -43,7 +43,14 @@ async def collect_process_candidates(
     if filtered:
         return filtered
 
-    # Direct OS scan when monitor has no matches
+    os_scan_matches = await _scan_os_processes(process_keywords, service_name)
+    return filter_processes_by_pid(os_scan_matches, exclude_pid)
+
+
+async def _scan_os_processes(process_keywords: Sequence[str], service_name: str) -> List[NormalizedProcess]:
+    """Direct OS scan fallback when the monitor has no matches."""
+    from .process_normalizer import normalize_process
+
     try:
         import psutil
     except ImportError:  # policy_guard: allow-silent-handler
@@ -58,7 +65,10 @@ async def collect_process_candidates(
     os_scan_matches: List[NormalizedProcess] = []
     for proc in psutil.process_iter(["pid", "cmdline", "name"]):
         try:
-            cmdline = proc.info.get("cmdline") or []
+            cmdline_value = proc.info.get("cmdline")
+            cmdline: list[str] = []
+            if isinstance(cmdline_value, list) and all(isinstance(item, str) for item in cmdline_value):
+                cmdline = cmdline_value
             if not _matches(cmdline):
                 continue
             os_scan_matches.append(
@@ -73,8 +83,7 @@ async def collect_process_candidates(
             )
         except (psutil.NoSuchProcess, psutil.AccessDenied):  # policy_guard: allow-silent-handler
             continue
-
-    return filter_processes_by_pid(os_scan_matches, exclude_pid)
+    return os_scan_matches
 
 
 def create_psutil_process(pid: int, *, service_name: str, cmdline: Sequence[str]) -> Optional[Any]:
@@ -168,7 +177,7 @@ def _create_valid_process(process_info: NormalizedProcess, service_name: str, su
 def _get_process_pid(process: Any, service_name: str, suppress_output: bool) -> Optional[int]:
     try:
         return process.pid
-    except (AttributeError, RuntimeError, OSError) as exc:
+    except (AttributeError, RuntimeError, OSError) as exc:  # policy_guard: allow-silent-handler
         _console(f"⚠️ Could not kill process: {exc}", suppress_output=suppress_output)
         logger.debug("Unable to read PID for %s process: %s", service_name, exc)
         return None

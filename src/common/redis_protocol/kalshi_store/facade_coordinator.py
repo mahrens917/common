@@ -190,21 +190,28 @@ class SubscriptionDelegator:
     def SERVICE_STATUS_KEY(self) -> str:
         key_provider = cast(Optional[KeyProvider], getattr(self._subscription, "_key_provider", None))
         if key_provider is None:
-            return "status"
+            _none_guard_value = "status"
+            return _none_guard_value
         return key_provider.service_status_key
 
     @property
     def SUBSCRIBED_MARKETS_KEY(self) -> str:
         key_provider = cast(Optional[KeyProvider], getattr(self._subscription, "_key_provider", None))
         if key_provider is None:
-            return "kalshi:subscribed_markets"
+            _none_guard_value = "kalshi:subscribed_markets"
+            return _none_guard_value
         return key_provider.subscribed_markets_key
 
     @property
     def SUBSCRIPTION_IDS_KEY(self) -> str:
         key_provider = cast(Optional[KeyProvider], getattr(self._subscription, "_key_provider", None))
         if key_provider is None:
-            prefix = getattr(self._subscription, "service_prefix", "ws") or "ws"
+            _missing_prefix = object()
+            raw_prefix = getattr(self._subscription, "service_prefix", _missing_prefix)
+            if raw_prefix is _missing_prefix or not raw_prefix:
+                prefix = "ws"
+            else:
+                prefix = raw_prefix
             return f"kalshi:subscription_ids:{prefix}"
         return key_provider.subscription_ids_key
 

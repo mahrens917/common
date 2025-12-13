@@ -56,7 +56,7 @@ async def check_redis_status(service_name: str, redis_client: RedisClient) -> Se
             last_update = float(timestamp_str)
             return evaluate_status_health(status_value, last_update)
 
-        except (
+        except (  # policy_guard: allow-silent-handler
             ValueError,
             TypeError,
         ):
@@ -65,7 +65,7 @@ async def check_redis_status(service_name: str, redis_client: RedisClient) -> Se
                 error_message=f"Invalid timestamp format",
             )
 
-    except HEALTH_CHECK_ERRORS + (
+    except HEALTH_CHECK_ERRORS + (  # policy_guard: allow-silent-handler
         ValueError,
         TypeError,
         UnicodeDecodeError,

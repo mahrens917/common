@@ -65,7 +65,7 @@ class BatchTimer:
             pass  # Timer cancelled, probably during shutdown
         except BATCH_PROCESS_ERRORS as exc:  # policy_guard: allow-silent-handler
             logger.exception(
-                "Error in batch timer for %s (%s): %s",
+                "Error in batch timer for %s (%s)",
                 self.name,
                 type(exc).__name__,
             )

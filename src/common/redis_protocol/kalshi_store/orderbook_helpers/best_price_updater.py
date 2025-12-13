@@ -5,18 +5,16 @@ from redis.asyncio import Redis
 from ....market_filters.kalshi import extract_best_ask, extract_best_bid
 from ...typing import ensure_awaitable
 from .side_data_updater import SideDataUpdater
+from .snapshot_processor_helpers.redis_storage import store_optional_field as store_optional_field_core
 
 
 class BestPriceUpdater:
     """Updates best bid/ask prices from orderbook sides."""
 
     @staticmethod
-    async def store_optional_field(redis: Redis, market_key: str, field: str, value) -> None:
-        """Persist Redis hash field only when value exists."""
-        if value is None:
-            await ensure_awaitable(redis.hdel(market_key, field))
-            return
-        await ensure_awaitable(redis.hset(market_key, field, str(value)))
+    async def store_optional_field(redis: Redis, market_key: str, field: str, value: object) -> None:
+        """Backward-compatible wrapper for storing optional hash fields."""
+        await store_optional_field_core(redis, market_key, field, value)
 
     @staticmethod
     async def update_from_side(redis: Redis, market_key: str, side_field: str) -> None:

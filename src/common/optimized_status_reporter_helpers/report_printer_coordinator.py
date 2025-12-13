@@ -6,6 +6,8 @@ Extracted from OptimizedStatusReporter to reduce class size.
 
 from typing import Any, Dict
 
+from common.truthy import pick_truthy
+
 
 class ReportPrinterCoordinator:
     """Coordinates printing of status report sections."""
@@ -46,7 +48,7 @@ class ReportPrinterCoordinator:
         self._emit("📝 System Update:")
 
         tracker_status = self._data_coercion.coerce_mapping(status_data.get("tracker_status"))
-        log_activity_map = status_data.get("log_activity") or {}
+        log_activity_map = pick_truthy(status_data.get("log_activity"), {})
         healthy, total = self._service_printer.print_managed_services(self._process_manager, tracker_status, log_activity_map)
         self._service_printer.print_monitor_service(self._process_manager, log_activity_map)
 
@@ -61,5 +63,6 @@ class ReportPrinterCoordinator:
     def generate_weather_section(self, weather_temperatures: Dict[str, Any]) -> list[str]:
         """Delegate to the weather generator when available."""
         if self._weather_generator is None:
-            return []
+            _none_guard_value = []
+            return _none_guard_value
         return self._weather_generator.generate_weather_section(weather_temperatures)

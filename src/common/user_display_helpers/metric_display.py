@@ -7,6 +7,7 @@ Handles display of quality metrics, timing summaries, and statistical data.
 from typing import Iterable, Optional, Tuple
 
 from common.exceptions import DataError
+from common.truthy import pick_if
 
 # Constants
 _BASE_GAP_TOLERANCE_MS = 5.0
@@ -88,7 +89,7 @@ def format_timing_summary(phase_timings: Iterable[Tuple[str, float]], sum_second
     lines.append(f"📈 Sum of all phases:                    {sum_ms:9.2f}ms")
     lines.append(f"🎯 Total end-to-end time:                {total_ms:9.2f}ms")
 
-    relative_gap = (gap_ms / total_ms) if total_ms else 0.0
+    relative_gap = pick_if(total_ms, lambda: (gap_ms / total_ms), lambda: 0.0)
     should_fail = gap_ms > dynamic_tolerance and relative_gap > _MAX_RELATIVE_GAP_FOR_PASS
 
     if not should_fail:

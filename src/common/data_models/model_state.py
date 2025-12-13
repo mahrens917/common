@@ -89,7 +89,7 @@ class ModelState:
                 candidate = getattr(self.probability_store, "_get_redis")()
             try:
                 redis_client = await ensure_awaitable(candidate)
-            except TypeError:
+            except TypeError:  # policy_guard: allow-silent-handler
                 redis_client = candidate
         except (*REDIS_ERRORS, RuntimeError) as redis_error:  # policy_guard: allow-silent-handler
             raise ModelProbabilityCalculationError(

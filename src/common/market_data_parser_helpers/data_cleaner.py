@@ -44,7 +44,7 @@ class DataCleaner:
                     "instrument_type": parsed.instrument_type,
                 }
 
-            except (
+            except (  # policy_guard: allow-silent-handler
                 ParsingError,
                 ValidationError,
                 DateTimeCorruptionError,

@@ -39,18 +39,26 @@ def _normalized_from_dict(raw: dict[str, Any], service_name: str) -> NormalizedP
     pid_value = raw.get("pid")
     if pid_value is None:
         raise ValueError(f"Missing pid in process payload for {service_name}: {raw!r}")
+    cmdline_value = raw.get("cmdline")
+    cmdline: list[str] = []
+    if isinstance(cmdline_value, list) and all(isinstance(item, str) for item in cmdline_value):
+        cmdline = cmdline_value
     return NormalizedProcess(
         pid=int(pid_value),
         name=raw.get("name"),
-        cmdline=raw.get("cmdline") or [],
+        cmdline=cmdline,
     )
 
 
 def _normalized_from_any(raw: Any) -> NormalizedProcess:
     pid_value = getattr(raw, "pid", None)
     pid = int(pid_value) if pid_value is not None else None
+    cmdline_value = getattr(raw, "cmdline", None)
+    cmdline: list[str] = []
+    if isinstance(cmdline_value, list) and all(isinstance(item, str) for item in cmdline_value):
+        cmdline = cmdline_value
     return NormalizedProcess(
         pid=pid,
         name=getattr(raw, "name", None),
-        cmdline=getattr(raw, "cmdline", None) or [],
+        cmdline=cmdline,
     )

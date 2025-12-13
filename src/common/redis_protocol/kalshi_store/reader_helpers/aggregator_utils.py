@@ -50,7 +50,11 @@ def build_strike_summary(
             "deribit_points_used": None,
             "interpolation_quality_score": None,
         }
-        summary.setdefault(expiry, []).append(strike_info)
+        bucket = summary.get(expiry)
+        if bucket is None:
+            bucket = []
+            summary[expiry] = bucket
+        bucket.append(strike_info)
     for expiry, strikes in summary.items():
         strikes.sort(key=lambda entry: float(entry["strike"]))
     return summary

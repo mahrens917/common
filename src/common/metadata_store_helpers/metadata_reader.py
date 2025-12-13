@@ -77,7 +77,8 @@ class MetadataReader:
         total_str = await fetch_hash_field(client, self.global_stats_key, "total_messages", "total message count")
 
         if total_str is None:
-            return 0
+            _none_guard_value = 0
+            return _none_guard_value
 
         try:
             return int(total_str)

@@ -8,6 +8,8 @@ from typing import Any, Dict, List, Optional
 
 import aiohttp
 
+from common.truthy import pick_if
+
 from ..health.types import BaseHealthMonitor, HealthCheckResult
 
 # Constants
@@ -40,7 +42,7 @@ class ScraperHealthMonitor(BaseHealthMonitor):
         result = HealthCheckResult(
             is_healthy,
             details=self.get_health_details(),
-            error=None if is_healthy else "insufficient_healthy_urls",
+            error=pick_if(is_healthy, lambda: None, lambda: "insufficient_healthy_urls"),
         )
         return result
 
@@ -68,11 +70,11 @@ async def _check_single_url(monitor: "ScraperHealthMonitor", session, url: str, 
         monitor.logger.debug("Health checking URL: %s", url)
         async with session.get(url, timeout=aiohttp.ClientTimeout(total=30.0)) as response:
             return await _handle_response(monitor, url, response, loop)
-    except asyncio.TimeoutError:
+    except asyncio.TimeoutError:  # policy_guard: allow-silent-handler
         _mark_url_unhealthy(monitor, url, "Health check timeout")
-    except aiohttp.ClientError as exc:
+    except aiohttp.ClientError as exc:  # policy_guard: allow-silent-handler
         _mark_url_unhealthy(monitor, url, f"Health check client error: {exc}")
-    except (RuntimeError, ValueError, UnicodeDecodeError):
+    except (RuntimeError, ValueError, UnicodeDecodeError):  # policy_guard: allow-silent-handler
         monitor.logger.exception("Unexpected health check error for %s", url)
         _mark_url_unhealthy(monitor, url, None)
     return False

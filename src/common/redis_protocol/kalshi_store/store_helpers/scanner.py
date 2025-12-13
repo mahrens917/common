@@ -21,11 +21,14 @@ async def scan_market_keys(store, patterns: Optional[List[str]] = None) -> List[
         raise RuntimeError("Redis connection not established for scan_market_keys")
 
     redis = await store._get_redis()
-    patterns = patterns or [f"{SCHEMA.kalshi_market_prefix}:*"]
+    target_patterns = patterns
+    if not target_patterns:
+        target_patterns = list()
+        target_patterns.append(f"{SCHEMA.kalshi_market_prefix}:*")
     seen: Set[str] = set()
     results: List[str] = []
 
-    for pattern in patterns:
+    for pattern in target_patterns:
         await scan_single_pattern(redis, pattern, seen, results)
     return results
 

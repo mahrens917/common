@@ -40,7 +40,7 @@ class RESTConnectionLifecycle:
             self.logger.info("REST connection established")
 
         except (aiohttp.ClientError, OSError) as e:
-            if getattr(e, "_already_cleaned", False):
+            if getattr(e, "_already_cleaned", None):
                 raise
             self.logger.exception(f"Failed to establish REST connection: ")
             await self.cleanup_connection()

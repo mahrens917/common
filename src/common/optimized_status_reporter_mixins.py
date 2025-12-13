@@ -5,6 +5,8 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Any, Dict, Optional
 from unittest.mock import Mock
 
+from common.truthy import pick_if
+
 if TYPE_CHECKING:
     from common.optimized_status_reporter_helpers.log_activity_formatter import (
         LogActivityFormatter,
@@ -13,7 +15,8 @@ if TYPE_CHECKING:
 
 def _ensure_str_list(lines: Any) -> list[str]:
     if lines is None:
-        return []
+        _none_guard_value = []
+        return _none_guard_value
     if isinstance(lines, list):
         return [str(item) for item in lines]
     try:
@@ -45,7 +48,11 @@ class StatusReporterWeatherMixin:
 
     def _generate_weather_section(self, status_data: Dict[str, Any]) -> list[str]:
         """Generate weather section lines via printer helpers."""
-        weather_temperatures = status_data.get("weather_temperatures") or {}
+        weather_temperatures_raw = status_data.get("weather_temperatures")
+        if isinstance(weather_temperatures_raw, dict):
+            weather_temperatures = weather_temperatures_raw
+        else:
+            weather_temperatures = dict()
         return _generate_weather_lines(self._printer, weather_temperatures)
 
 

@@ -7,7 +7,10 @@ import re
 from dataclasses import dataclass
 from typing import Dict, List, Optional
 
+from common.truthy import pick_truthy
+
 logger = logging.getLogger(__name__)
+_MISSING_ATTRIBUTE = object()
 
 
 class PatternCompilationError(ValueError):
@@ -52,7 +55,7 @@ class PatternMatcher:
             return False
 
         pattern_config = dependency_patterns[dependency_name]
-        compiled_patterns = pattern_config.compiled_patterns or []
+        compiled_patterns = pick_truthy(pattern_config.compiled_patterns, [])
         if not compiled_patterns:
             return False
 
@@ -62,9 +65,12 @@ class PatternMatcher:
                     logger.debug("Error message matches %s pattern: %s", dependency_name, pattern.pattern)
                     return True
             except re.error as exc:  # policy_guard: allow-silent-handler
+                pattern_text = getattr(pattern, "pattern", _MISSING_ATTRIBUTE)
+                if pattern_text is _MISSING_ATTRIBUTE:
+                    pattern_text = "<pattern>"
                 logger.warning(
                     "Error matching pattern %s: %s",
-                    getattr(pattern, "pattern", "<pattern>"),
+                    pattern_text,
                     exc,
                 )
 

@@ -17,6 +17,7 @@ if TYPE_CHECKING:
     from ....order_execution import OrderPoller, TradeFinalizer
 
 logger = logging.getLogger(__name__)
+_MISSING_FIELD = object()
 
 
 class OrderPollerCoordinator:
@@ -96,7 +97,9 @@ def _log_polling_submission(order_request: OrderRequest, timeout_seconds: int, o
 
 
 def _maybe_short_circuit_polling(order_response: OrderResponse, operation_name: str):
-    filled_count = getattr(order_response, "filled_count", 0)
+    filled_count = getattr(order_response, "filled_count", _MISSING_FIELD)
+    if filled_count is _MISSING_FIELD:
+        filled_count = 0
     if isinstance(filled_count, int) and filled_count > 0:
         logger.info(
             "[%s] Order %s filled immediately: filled=%s",

@@ -59,7 +59,8 @@ class TimestampCrossingEvaluator(_BaseEvaluator):
         logger = logging.getLogger(__name__)
 
         if previous_timestamp_raw is None:
-            return False, None
+            _none_guard_value = False, None
+            return _none_guard_value
 
         try:
             previous_timestamp = datetime.fromisoformat(previous_timestamp_raw.replace("Z", "+00:00"))

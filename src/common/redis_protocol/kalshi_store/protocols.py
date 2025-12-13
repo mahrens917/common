@@ -11,7 +11,7 @@ if TYPE_CHECKING:
     from redis.asyncio import Redis
 
 
-class IRedisConnectionManager(Protocol):
+class IRedisConnectionManager(IConnectionDelegator, Protocol):
     """Protocol for Redis connection management."""
 
     async def get_redis(self) -> Redis:
@@ -46,28 +46,8 @@ class IRedisConnectionManager(Protocol):
         """Ping connection with timeout."""
         ...
 
-    async def connect_with_retry(
-        self,
-        *,
-        allow_reuse: bool = True,
-        context: str = "facade_connection",
-        attempts: int = 3,
-        retry_delay: float = 0.1,
-    ) -> bool:
-        """Connect with retry logic."""
-        ...
-
     async def ensure_redis_connection(self) -> bool:
         """Ensure Redis connection is available."""
-        ...
-
-    async def attach_redis_client(
-        self,
-        redis_client: Redis,
-        *,
-        health_check_timeout: float = 5.0,
-    ) -> None:
-        """Attach external Redis client."""
         ...
 
     def ensure_ready(self) -> None:

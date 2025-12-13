@@ -26,7 +26,8 @@ class StateManager:
     async def store_connection_state(self, state_info: ConnectionStateInfo) -> bool:
         state_json = serialize_state_info(state_info)
         if state_json is None:
-            return False
+            _none_guard_value = False
+            return _none_guard_value
         client = await self._get_client()
         try:
             await ensure_awaitable(client.hset(self.connection_states_key, state_info.service_name, state_json))

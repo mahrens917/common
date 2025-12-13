@@ -6,6 +6,8 @@ Handles market removal, key cleanup, and metadata clearing.
 
 from typing import List, Optional
 
+_DEFAULT_MARKET_METADATA_PATTERN = "markets:kalshi:*"
+
 from .cleaner import KalshiMarketCleaner
 
 
@@ -40,7 +42,7 @@ class CleanupDelegator:
         categories: Optional[List[str]] = None,
     ) -> int:
         """Clear market metadata."""
-        target_pattern = pattern or "markets:kalshi:*"
+        target_pattern = _DEFAULT_MARKET_METADATA_PATTERN if not pattern else pattern
         return await self._cleaner.clear_market_metadata(
             target_pattern,
             chunk_size=chunk_size,

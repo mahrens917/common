@@ -5,6 +5,8 @@ from typing import Any, Dict, List, Optional, Tuple
 
 import orjson
 
+from common.truthy import pick_if, pick_truthy
+
 logger = logging.getLogger(__name__)
 
 
@@ -25,7 +27,7 @@ def parse_orderbook_field(market_data: Dict[str, Any], field_name: str, ticker: 
     from common.parsing_utils import safe_json_loads
 
     field_value = market_data.get(field_name)
-    field_json = field_value if isinstance(field_value, str) else "{}"
+    field_json = pick_if(isinstance(field_value, str), lambda: field_value, lambda: "{}")
 
     if not field_json:
         return {}, None
@@ -98,7 +100,7 @@ def extract_best_price_from_json(order_book_json: str, is_bid: bool) -> Tuple[Op
 
 def _get_default_price_result(allow_zero: bool) -> Tuple[Optional[float], Optional[int]]:
     """Return default result for empty or invalid orderbooks."""
-    return (0.0, 0) if allow_zero else (None, None)
+    return pick_if(allow_zero, lambda: (0.0, 0), lambda: (None, None))
 
 
 def _parse_price_size_pairs(order_book_dict: Dict[str, Any]) -> List[Tuple[float, int]]:
@@ -161,8 +163,12 @@ def extract_best_bid_ask(orderbook: Dict[str, Any]) -> Tuple[Optional[float], Op
     Returns:
         Tuple of (best_bid_price, best_ask_price) or (None, None) if extraction fails
     """
-    yes_bids = orderbook.get("yes_bids") or {}
-    yes_asks = orderbook.get("yes_asks") or {}
+    yes_bids_raw = orderbook.get("yes_bids")
+    yes_bids_dict = yes_bids_raw if isinstance(yes_bids_raw, dict) else None
+    yes_bids = yes_bids_dict if yes_bids_dict is not None else dict()
+    yes_asks_raw = orderbook.get("yes_asks")
+    yes_asks_dict = yes_asks_raw if isinstance(yes_asks_raw, dict) else None
+    yes_asks = yes_asks_dict if yes_asks_dict is not None else dict()
 
     best_bid, _ = extract_best_price_from_dict(yes_bids, is_bid=True)
     best_ask, _ = extract_best_price_from_dict(yes_asks, is_bid=False)
@@ -192,14 +198,14 @@ def parse_and_extract_best_price(raw_order_book: Any, side: str, *, allow_zero: 
         TypeError: If raw_order_book is not dict, str, or None
     """
     if raw_order_book in (None, "", "{}", {}):
-        return (0.0, 0) if allow_zero else (None, None)
+        return pick_if(allow_zero, lambda: (0.0, 0), lambda: (None, None))
 
     if isinstance(raw_order_book, dict):
         order_book_dict = raw_order_book
     elif isinstance(raw_order_book, str):
         payload = raw_order_book.strip()
         if not payload:
-            return (0.0, 0) if allow_zero else (None, None)
+            return pick_if(allow_zero, lambda: (0.0, 0), lambda: (None, None))
         try:
             order_book_dict = orjson.loads(payload)
         except orjson.JSONDecodeError as exc:  # policy_guard: allow-silent-handler

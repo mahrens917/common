@@ -67,13 +67,9 @@ def get_connection_config(service_name: str | None = None) -> ConnectionConfig:
     Returns:
         ConnectionConfig instance with appropriate settings
     """
-    base_config = ConnectionConfig()
-
     if service_name:
-        # Apply service-specific overrides
         overrides = get_service_specific_config(service_name)
-        for key, value in overrides.items():
-            if hasattr(base_config, key):
-                setattr(base_config, key, value)
+        if overrides:
+            return ConnectionConfig(**overrides)
 
-    return base_config
+    return ConnectionConfig()

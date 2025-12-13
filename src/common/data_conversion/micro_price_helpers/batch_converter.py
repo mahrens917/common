@@ -47,7 +47,7 @@ class BatchConverter:
                 # Use the centralized conversion logic
                 micro_price_option = converter_func(instrument, currency)
 
-            except (
+            except (  # policy_guard: allow-silent-handler
                 ValueError,
                 TypeError,
                 OSError,

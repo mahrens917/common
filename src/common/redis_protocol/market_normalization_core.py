@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from common.truthy import pick_truthy
+
 """Normalization helpers for the Kalshi Redis protocol stores."""
 
 import math
@@ -33,6 +35,7 @@ class ProbabilityValueError(ValueError):
 _CONST_2 = 2
 _CONST_4 = 4
 _CONST_5 = 5
+_DEFAULT_STRIKE_TYPE = "custom"
 
 
 def convert_numeric_field(value: Any) -> NumericField:
@@ -192,7 +195,7 @@ def _finalize_non_between_fields(
         cap_strike = strike_value
     if strike_type == "greater" and floor_strike is None:
         floor_strike = strike_value
-    resolved_type = strike_type or "custom"
+    resolved_type = _DEFAULT_STRIKE_TYPE if strike_type is None else strike_type
     return resolved_type, floor_strike, cap_strike, strike_value
 
 

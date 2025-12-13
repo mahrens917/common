@@ -12,6 +12,7 @@ from typing import Any, Dict, Optional
 import orjson
 
 from common.redis_schema import build_kalshi_market_key
+from common.truthy import pick_if
 
 from ...market_skip import MarketSkip
 
@@ -97,7 +98,7 @@ def _decode_metadata_payload(payload: Any, market_ticker: str) -> Dict[str, Any]
         return {}
     try:
         decoded = orjson.loads(payload)
-        return decoded if isinstance(decoded, dict) else {}
+        return pick_if(isinstance(decoded, dict), lambda: decoded, lambda: {})
     except orjson.JSONDecodeError:  # policy_guard: allow-silent-handler
         logger.debug("Failed to decode metadata JSON for %s", market_ticker)
         return {}
@@ -131,7 +132,7 @@ def _normalize_close_time(close_time: Any, timestamp_normalizer: Any) -> tuple[s
     normalized_close = timestamp_normalizer.normalize_timestamp(close_time) or str(close_time)
     try:
         close_dt = datetime.fromisoformat(normalized_close.replace("Z", "+00:00"))
-    except ValueError:
+    except ValueError:  # policy_guard: allow-silent-handler
         close_dt = None
     return normalized_close, close_dt
 

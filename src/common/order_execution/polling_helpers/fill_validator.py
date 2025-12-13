@@ -2,6 +2,8 @@
 
 from typing import Any, Dict
 
+from common.truthy import pick_if
+
 from ...trading_exceptions import KalshiOrderPollingError
 
 
@@ -100,7 +102,7 @@ def validate_fill_price(fill: Dict[str, Any], side: str, order_id: str, operatio
     Raises:
         KalshiOrderPollingError: If price is invalid
     """
-    price_key = "yes_price" if side == "yes" else "no_price"
+    price_key = pick_if(side == "yes", lambda: "yes_price", lambda: "no_price")
 
     if price_key not in fill:
         raise KalshiOrderPollingError(

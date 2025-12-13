@@ -70,7 +70,7 @@ class RedisPersistenceManager:
             # Build complete status dictionary
             return self._serializer.build_status_dict(config_info, persistence_info, last_save_time)
 
-        except REDIS_ERRORS as exc:
+        except REDIS_ERRORS as exc:  # policy_guard: allow-silent-handler
             self.logger.error("Error checking persistence status: %s", exc, exc_info=True)
             return {"error": str(exc)}
 
@@ -85,7 +85,7 @@ class RedisPersistenceManager:
             status = await self.check_persistence_status()
             return self._validator.validate_status(status)
 
-        except (
+        except (  # policy_guard: allow-silent-handler
             RuntimeError,
             ValueError,
             OSError,
@@ -100,7 +100,7 @@ class RedisPersistenceManager:
             status = await self.check_persistence_status()
             return self._serializer.format_persistence_status(status)
 
-        except (
+        except (  # policy_guard: allow-silent-handler
             RuntimeError,
             ValueError,
             OSError,

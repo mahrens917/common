@@ -57,7 +57,7 @@ class MarketRegistrar:
 
             self.notifier.log_market_registered(ticker, market_info.time_to_close_hours, market_info.state)
 
-        except TRADING_ERRORS + (
+        except TRADING_ERRORS + (  # policy_guard: allow-silent-handler
             ValueError,
             KeyError,
         ):

@@ -4,6 +4,8 @@ import logging
 import time
 from typing import Any, Dict, Optional
 
+from common.truthy import pick_truthy
+
 from .state_cleaner import StateCleaner
 from .types import BackoffConfig, BackoffType
 
@@ -11,14 +13,19 @@ logger = logging.getLogger(__name__)
 
 
 def _service_bucket(backoff_state: Dict, service_name: str) -> Dict[BackoffType, Dict[str, Any]]:
-    return backoff_state.setdefault(service_name, {})
+    bucket = backoff_state.get(service_name)
+    if bucket is None:
+        bucket = {}
+        backoff_state[service_name] = bucket
+    return bucket
 
 
 def _init_state(bucket: Dict[BackoffType, Dict[str, Any]], backoff_type: BackoffType) -> Dict[str, Any]:
-    return bucket.setdefault(
-        backoff_type,
-        {"attempt": 0, "last_failure_time": time.time(), "consecutive_failures": 0},
-    )
+    state = bucket.get(backoff_type)
+    if state is None:
+        state = {"attempt": 0, "last_failure_time": time.time(), "consecutive_failures": 0}
+        bucket[backoff_type] = state
+    return state
 
 
 def _ensure_state(backoff_state: Dict, service_name: str, backoff_type: BackoffType) -> Dict[str, Any]:
@@ -82,7 +89,9 @@ class BackoffStateManager:
         StateCleaner.cleanup_old_state(self.backoff_state, max_age_seconds)
 
     def get_backoff_info(self, service_name: str, backoff_type: BackoffType, config: BackoffConfig) -> Dict[str, Any]:
-        bucket = self.backoff_state.get(service_name) or {}
+        bucket = self.backoff_state.get(service_name)
+        if bucket is None:
+            bucket = {}
         state = bucket.get(backoff_type)
         if not state:
             return _info_for_missing_state(config)

@@ -8,6 +8,7 @@ from typing import Any, Dict, Optional
 from common.exceptions import DataError
 
 logger = logging.getLogger(__name__)
+_MISSING_REDIS_FIELD = object()
 
 
 def initialize_or_restore_daily_state(should_reset: bool, previous_data: Dict[str, Any]):
@@ -34,7 +35,9 @@ def initialize_or_restore_daily_state(should_reset: bool, previous_data: Dict[st
                 daily_state.__dict__["state"] = state_dict
             logger.info(" Successfully restored daily max state from previous data")
         except (json.JSONDecodeError, KeyError, ValueError) as exc:
-            _stored_state = previous_data.get("daily_max_state", "MISSING")
+            _stored_state = previous_data.get("daily_max_state", _MISSING_REDIS_FIELD)
+            if _stored_state is _MISSING_REDIS_FIELD:
+                _stored_state = "MISSING"
             logger.exception("CRITICAL: Failed to restore daily max state from Redis data")
             logger.exception("Corrupted daily_max_state data")
             raise DataError(f"Cannot restore daily max state from corrupted Redis data") from exc

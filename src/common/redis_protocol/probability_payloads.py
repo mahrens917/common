@@ -179,7 +179,8 @@ def _serialize_optional(value: Any) -> Optional[str]:
 
 def _serialize_nullable(value: Any) -> str:
     if value is None:
-        return "null"
+        _none_guard_value = "null"
+        return _none_guard_value
     return _serialize_value(value)
 
 

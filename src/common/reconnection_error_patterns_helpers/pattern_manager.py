@@ -2,6 +2,8 @@
 
 import logging
 
+from common.truthy import pick_truthy
+
 from .pattern_compiler import RECONNECTION_ERROR_PATTERNS
 from .service_type_manager import ServiceType
 
@@ -46,4 +48,7 @@ class PatternManager:
         Returns:
             List of regex pattern strings
         """
-        return RECONNECTION_ERROR_PATTERNS.get(service_type) or []
+        patterns = RECONNECTION_ERROR_PATTERNS.get(service_type)
+        if patterns is None:
+            return list()
+        return patterns

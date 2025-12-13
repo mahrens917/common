@@ -72,7 +72,7 @@ async def _terminate_single_process(
 
     try:
         proc.wait(timeout=graceful_timeout)
-    except psutil_module.TimeoutExpired:
+    except psutil_module.TimeoutExpired:  # policy_guard: allow-silent-handler
         console_output_func(f"⏱️ Process {pid} did not terminate within {graceful_timeout}s; sending SIGKILL")
     else:
         console_output_func(f"✅ Process {pid} terminated gracefully")

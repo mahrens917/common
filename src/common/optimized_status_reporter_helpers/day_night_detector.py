@@ -49,13 +49,14 @@ class DayNightDetector:
 
             self._station_coordinates = coordinates
 
-        except (
+        except (  # policy_guard: allow-silent-handler
             OSError,
             ValueError,
         ) as exc:
             logger.debug(
                 "Weather station coordinates unavailable (%s): %s",
                 type(exc).__name__,
+                exc,
             )
             self._station_coordinates = {}
 
@@ -77,7 +78,7 @@ class DayNightDetector:
                 return ""
             return self.moon_phase_calculator.get_moon_phase_emoji()
 
-        except (
+        except (  # policy_guard: allow-silent-handler
             RuntimeError,
             ValueError,
             KeyError,

@@ -22,6 +22,7 @@ from common.session_tracker_mixins import (
     SessionTrackerQueryMixin,
     SessionTrackerSyncMixin,
 )
+from common.truthy import pick_truthy
 
 logger = logging.getLogger(__name__)
 
@@ -37,7 +38,7 @@ __all__ = [
 ]
 
 # Configurable logging level for session tracking
-_SESSION_TRACKING_LOG_LEVEL_VALUE = env_str("SESSION_TRACKING_LOG_LEVEL") or "DEBUG"
+_SESSION_TRACKING_LOG_LEVEL_VALUE = pick_truthy(env_str("SESSION_TRACKING_LOG_LEVEL"), "DEBUG")
 if _SESSION_TRACKING_LOG_LEVEL_VALUE:
     _SESSION_TRACKING_LOG_LEVEL_NAME = _SESSION_TRACKING_LOG_LEVEL_VALUE.upper()
 else:
@@ -114,7 +115,7 @@ session_tracker = SessionTracker()
 
 
 # Import context manager utilities
-from contextlib import asynccontextmanager  # noqa: E402
+from contextlib import asynccontextmanager
 
 
 @asynccontextmanager

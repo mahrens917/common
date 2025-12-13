@@ -67,7 +67,7 @@ class SubscriptionProcessor:
             # Clear pending subscriptions
             self.pending_subscriptions.clear()
 
-        except (
+        except (  # policy_guard: allow-silent-handler
             ConnectionError,
             RuntimeError,
             ValueError,

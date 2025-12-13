@@ -10,6 +10,8 @@ Exception classes support two patterns:
 
 from typing import Any
 
+_DEFAULT_APPLICATION_ERROR_MESSAGE = "Application error occurred"
+
 
 class ApplicationError(Exception):
     """Base exception for all application errors.
@@ -19,7 +21,8 @@ class ApplicationError(Exception):
 
     def __init__(self, message: str = "", **kwargs: Any) -> None:
         if not message:
-            message = self.__class__.__doc__ or "Application error occurred"
+            class_doc = self.__class__.__doc__
+            message = class_doc if class_doc else _DEFAULT_APPLICATION_ERROR_MESSAGE
         super().__init__(message)
         for key, value in kwargs.items():
             setattr(self, key, value)

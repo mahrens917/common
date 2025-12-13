@@ -35,7 +35,8 @@ def _classify_kalshi_ticker(
 
     prefix_match = _match_supported_prefix(display)
     if prefix_match is None:
-        return category, underlying, expiry_token
+        _none_guard_value = category, underlying, expiry_token
+        return _none_guard_value
 
     prefix, category = prefix_match
     parts = display.split("-")

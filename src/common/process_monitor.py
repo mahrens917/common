@@ -141,7 +141,7 @@ class ProcessMonitor(
         self._shutdown_event.set()
         try:
             await asyncio.wait_for(self._background_task, timeout=2.0)
-        except asyncio.TimeoutError:
+        except asyncio.TimeoutError:  # policy_guard: allow-silent-handler
             self._background_task.cancel()
         self._background_task = None
         logger.info("Process monitor background scanning stopped")

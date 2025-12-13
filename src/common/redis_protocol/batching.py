@@ -54,7 +54,7 @@ class BatchManager(Generic[T]):
             await self._executor.execute(batch, batch_size, batch_time, reason)
         except asyncio.CancelledError:  # policy_guard: allow-silent-handler
             raise
-        except (RuntimeError, ValueError, ConnectionError, OSError):
+        except (RuntimeError, ValueError, ConnectionError, OSError):  # policy_guard: allow-silent-handler
             self._collector.clear()
 
     async def flush(self) -> None:

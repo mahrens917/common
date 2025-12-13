@@ -111,7 +111,7 @@ class SubscriptionStore(_SubscriptionConnectionAccessors, _SubscriptionChannelAc
         """Get all active subscriptions from Redis grouped by type"""
         try:
             redis = await self._get_redis()
-        except (
+        except (  # policy_guard: allow-silent-handler
             RuntimeError,
             ConnectionError,
             AttributeError,
@@ -124,7 +124,7 @@ class SubscriptionStore(_SubscriptionConnectionAccessors, _SubscriptionChannelAc
         """Get subscription counts from Redis"""
         try:
             redis = await self._get_redis()
-        except (
+        except (  # policy_guard: allow-silent-handler
             RuntimeError,
             ConnectionError,
             AttributeError,

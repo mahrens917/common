@@ -9,8 +9,7 @@ import asyncio
 import logging
 from typing import Any, Dict, Optional
 
-from src.kalshi.api.client import KalshiClient
-
+from common.kalshi_client_mixin import KalshiClientMixin
 from common.optimized_status_reporter_helpers.log_activity_formatter import (
     LogActivityFormatter,
 )
@@ -19,6 +18,7 @@ from common.optimized_status_reporter_mixins import (
     StatusReporterFormatterMixin,
     StatusReporterWeatherMixin,
 )
+from src.kalshi.api.client import KalshiClient
 
 from .optimized_status_reporter_helpers.dependencies_factory import (
     StatusReporterDependencies,
@@ -30,6 +30,7 @@ logger = logging.getLogger(__name__)
 
 
 class OptimizedStatusReporter(
+    KalshiClientMixin,
     StatusReporterWeatherMixin,
     StatusReporterFormatterMixin,
 ):
@@ -111,7 +112,7 @@ class OptimizedStatusReporter(
             if owns_client:
                 try:
                     await redis_client.aclose()
-                except (
+                except (  # policy_guard: allow-silent-handler
                     ConnectionError,
                     OSError,
                     RuntimeError,
@@ -119,7 +120,7 @@ class OptimizedStatusReporter(
                     pass
 
     async def _get_kalshi_client(self) -> KalshiClient:
-        """Lazily instantiate Kalshi client."""
+        """Return cached KalshiClient, creating on first use."""
         async with self._kalshi_client_lock:
             if self._kalshi_client is None:
                 self._kalshi_client = KalshiClient()

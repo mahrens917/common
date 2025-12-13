@@ -11,6 +11,8 @@ from dataclasses import dataclass
 from datetime import datetime
 from typing import Optional, Tuple
 
+from common.truthy import pick_if, pick_truthy
+
 from .data_models.trading import (
     OrderResponse,
     OrderSide,
@@ -104,7 +106,8 @@ def validate_position_state_transition(
     # Calculate expected position count change
     expected_count_change = _calculate_expected_count_change(trade)
     if expected_count_change is None:
-        return False, f"Invalid trade action: {trade.action}"
+        _none_guard_value = False, f"Invalid trade action: {trade.action}"
+        return _none_guard_value
 
     # Validate position count
     is_valid, error = _validate_position_count(before, after, expected_count_change)
@@ -144,7 +147,7 @@ def _validate_position_count(
     before: Optional[PositionStateSnapshot], after: PositionStateSnapshot, expected_change: int
 ) -> Tuple[bool, str]:
     """Validate position count changed correctly."""
-    before_count = 0 if before is None else before.position_count
+    before_count = int() if before is None else before.position_count
     expected_after_count = before_count + expected_change
 
     if after.position_count != expected_after_count:
@@ -226,7 +229,9 @@ def create_trade_execution(order_response: OrderResponse, ticker: str, side: Ord
     timestamp = order_response.timestamp
     if timestamp is None:
         raise ValueError("Order response missing timestamp; cannot build trade execution")
-    fees_cents = order_response.fees_cents or 0
+    fees_cents = order_response.fees_cents
+    if fees_cents is None:
+        fees_cents = int()
     return TradeExecution(
         order_id=order_response.order_id,
         ticker=ticker,

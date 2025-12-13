@@ -37,7 +37,7 @@ class BackgroundScanWorker:
                 except asyncio.TimeoutError:  # policy_guard: allow-silent-handler
                     continue  # Normal timeout, continue scanning
 
-            except (
+            except (  # policy_guard: allow-silent-handler
                 psutil.Error,
                 asyncio.CancelledError,
                 OSError,

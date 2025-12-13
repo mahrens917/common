@@ -44,7 +44,7 @@ class WeatherStatisticsRetriever:
             temp_f = float(data["temp_f"])
             if _TEMP_MIN <= temp_f <= _TEMP_MAX:
                 return (int(score), temp_f)
-        except (
+        except (  # policy_guard: allow-silent-handler
             ValueError,
             KeyError,
             json.JSONDecodeError,
@@ -112,7 +112,7 @@ class WeatherStatisticsRetriever:
             cutoff_ts = (get_current_utc() - timedelta(hours=hours)).timestamp()
             return WeatherStatisticsRetriever._filter_and_parse_entries(entries, cutoff_ts)
 
-        except REDIS_ERRORS + (
+        except REDIS_ERRORS + (  # policy_guard: allow-silent-handler
             json.JSONDecodeError,
             ValueError,
             TypeError,

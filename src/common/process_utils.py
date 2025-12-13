@@ -22,7 +22,8 @@ class FailedServiceMixin:
             raise AttributeError("FAILED_SERVICE_STATES must be set on mixin implementers")
         process_info = getattr(self, "process_info", None)
         if process_info is None:
-            return []
+            _none_guard_value = []
+            return _none_guard_value
         return collect_failed_services(process_info, self.FAILED_SERVICE_STATES)
 
 

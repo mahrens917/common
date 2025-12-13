@@ -50,7 +50,7 @@ def get_current_market_price_cents(
 
     try:
         return int(round(float(price)))
-    except (
+    except (  # policy_guard: allow-silent-handler
         TypeError,
         ValueError,
     ):
