@@ -9,6 +9,7 @@ import asyncio
 import logging
 from typing import Any, Dict, Optional
 
+from common.kalshi_api.client import KalshiClient
 from common.kalshi_client_mixin import KalshiClientMixin
 from common.optimized_status_reporter_helpers.log_activity_formatter import (
     LogActivityFormatter,
@@ -18,7 +19,6 @@ from common.optimized_status_reporter_mixins import (
     StatusReporterFormatterMixin,
     StatusReporterWeatherMixin,
 )
-from src.kalshi.api.client import KalshiClient
 
 from .optimized_status_reporter_helpers.dependencies_factory import (
     StatusReporterDependencies,

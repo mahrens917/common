@@ -9,8 +9,8 @@ from typing import Any, Dict, Optional
 
 from redis.asyncio import Redis
 
+from common.kalshi_api.client import KalshiClient
 from common.kalshi_client_mixin import KalshiClientMixin
-from src.kalshi.api.client import KalshiClient
 
 
 class KalshiMarketStatusCollector(KalshiClientMixin):

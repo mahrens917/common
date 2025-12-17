@@ -10,7 +10,7 @@ and reportPrivateUsage warnings from pyright.
 import logging
 from typing import Any, Dict, Optional
 
-from src.kalshi.api.client import KalshiClient
+from common.kalshi_api.client import KalshiClient
 
 from ..data_models.trading import OrderRequest, OrderResponse
 from ..order_execution import OrderPoller, TradeFinalizer

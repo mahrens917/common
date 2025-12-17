@@ -8,7 +8,7 @@ Shared error classifications for Kalshi trading client services.
 import asyncio
 import urllib.error
 
-from src.kalshi.api.client import KalshiClientError
+from common.kalshi_api.client import KalshiClientError
 
 from ..trading_exceptions import KalshiTradingError
 

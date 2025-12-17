@@ -8,9 +8,9 @@ import logging
 from typing import TYPE_CHECKING, Any, Dict, Optional
 
 from common.backoff_manager import BackoffManager
+from common.kalshi_api.client import KalshiClient
 from common.trading import WeatherStationResolver
 from common.trading.notifier_adapter import TradeNotifierAdapter
-from src.kalshi.api.client import KalshiClient
 
 from ..services import OrderService, PortfolioService, TradeCollectionController
 from ..services.order_helpers.dependencies_factory import OrderServiceDependenciesFactory

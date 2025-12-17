@@ -40,6 +40,9 @@ if os.environ.get("REFERENCE_UNUSED_MODULES") in ("1", "true"):
     import common.kalshi_trading_client.services.order_helpers.notifier_updater
     import common.kalshi_trading_client.services.order_helpers.order_creator_helpers
     import common.kalshi_trading_client.services.order_helpers.order_poller_helpers
+
+    # External library modules (used by peak, kalshi, and other projects)
+    import common.kalshi_ws.api_client
     import common.market_data_parser_helpers.contract_validator_helpers.batch_validator
     import common.market_data_parser_helpers.contract_validator_helpers.validation_workflow
     import common.market_data_parser_helpers.data_cleaner
@@ -69,6 +72,7 @@ if os.environ.get("REFERENCE_UNUSED_MODULES") in ("1", "true"):
     import common.process_killer_helpers.process_filter
     import common.process_killer_helpers.process_normalizer
     import common.process_monitor_helpers.service_patterns
+    import common.rate_limiter
     import common.redis_protocol.atomic_redis_operations_helpers.coordinator
     import common.redis_protocol.connection_helpers.pool_initialization
     import common.redis_protocol.connection_helpers.pool_lifecycle

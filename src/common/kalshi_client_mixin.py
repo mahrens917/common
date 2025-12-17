@@ -5,7 +5,7 @@ from __future__ import annotations
 import asyncio
 from typing import Optional
 
-from src.kalshi.api.client import KalshiClient
+from common.kalshi_api.client import KalshiClient
 
 
 class KalshiClientMixin:

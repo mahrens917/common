@@ -23,11 +23,11 @@ if TYPE_CHECKING:
         PortfolioBalance,
         PortfolioPosition,
     )
+    from common.kalshi_api.client import KalshiClient
     from common.order_execution import OrderPoller, TradeFinalizer
     from common.trading import TradeStoreManager, WeatherStationResolver
     from common.trading.notifier_adapter import TradeNotifierAdapter
     from common.trading.polling_workflow import PollingOutcome
-    from src.kalshi.api.client import KalshiClient
 
 
 class IOrderService(Protocol):

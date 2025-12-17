@@ -15,6 +15,13 @@ from enum import Enum, auto
 from functools import lru_cache
 from typing import TYPE_CHECKING, Any, Optional
 
+from common.constants.network import HTTP_OK
+
+# Constants for avoiding literal fallbacks in ternary expressions
+EMPTY_API_KEY_SECRET: str = ""
+EMPTY_PARAMS: dict = {}
+NESTED_MARKETS_PARAMS: dict = {"with_nested_markets": "true"}
+
 if TYPE_CHECKING:
     from cryptography.hazmat.primitives.asymmetric import rsa
 
@@ -39,17 +46,16 @@ except ModuleNotFoundError:
     WebsocketStatusException = None  # type: ignore[assignment]
 
 
-class KalshiErrorBase(RuntimeError):
-    """Base error that attaches provided keyword fields as attributes."""
+class KalshiWSClientError(RuntimeError):
+    """Base error for Kalshi websocket client failures.
+
+    Supports attaching arbitrary keyword fields as attributes.
+    """
 
     def __init__(self, message: str, **kwargs: Any) -> None:
         super().__init__(message)
         for key, value in kwargs.items():
             setattr(self, key, value)
-
-
-class KalshiWSClientError(KalshiErrorBase):
-    """Base error for Kalshi websocket client failures."""
 
 
 class KalshiWSConnectionError(KalshiWSClientError):
@@ -100,7 +106,8 @@ def get_kalshi_credentials(*, require_secret: bool = True) -> KalshiCredentials:
     key_id = os.environ.get("KALSHI_KEY_ID")
     if not key_id:
         raise KalshiWSConfigurationError("KALSHI_KEY_ID must be set")
-    api_key_secret = os.environ.get("KALSHI_API_KEY_SECRET", "")
+    api_key_secret_env = os.environ.get("KALSHI_API_KEY_SECRET")
+    api_key_secret = api_key_secret_env if api_key_secret_env is not None else EMPTY_API_KEY_SECRET
     if require_secret and not api_key_secret:
         raise KalshiWSConfigurationError("KALSHI_API_KEY_SECRET must be provided")
     private_key = os.environ.get("KALSHI_RSA_PRIVATE_KEY")
@@ -115,9 +122,7 @@ def get_kalshi_credentials(*, require_secret: bool = True) -> KalshiCredentials:
 class AuthenticationManager:
     """Manage authentication and request signing for Kalshi WebSocket."""
 
-    def __init__(
-        self, api_key_id: Optional[str] = None, api_key_secret: Optional[str] = None
-    ):
+    def __init__(self, api_key_id: Optional[str] = None, api_key_secret: Optional[str] = None):
         """Initialize authentication manager."""
         self._credentials = get_kalshi_credentials(require_secret=False)
         self.api_key_id = api_key_id or self._credentials.key_id
@@ -144,20 +149,14 @@ class AuthenticationManager:
             key_bytes = base64.b64decode(b64_key)
             private_key = serialization.load_pem_private_key(key_bytes, password=None)
         except Exception as exc:
-            raise KalshiWSConfigurationError(
-                f"Failed to load private key: {exc}"
-            ) from exc
+            raise KalshiWSConfigurationError(f"Failed to load private key: {exc}") from exc
 
         if not isinstance(private_key, rsa.RSAPrivateKey):
-            raise KalshiWSConfigurationError(
-                "Loaded private key is not an RSA private key"
-            )
+            raise KalshiWSConfigurationError("Loaded private key is not an RSA private key")
 
         return private_key
 
-    def get_auth_headers(
-        self, method: str, path: str, params: Optional[dict] = None
-    ) -> dict:
+    def get_auth_headers(self, method: str, path: str, params: Optional[dict] = None) -> dict:
         """Generate authentication headers for API request."""
         from cryptography.hazmat.primitives import hashes
         from cryptography.hazmat.primitives.asymmetric import padding
@@ -210,9 +209,7 @@ class ConnectionHandler:
         from websockets import exceptions as ws_exceptions
 
         if self.state != ConnectionState.AUTHENTICATED:
-            raise KalshiWSConnectionError(
-                "Client must be authenticated before connecting"
-            )
+            raise KalshiWSConnectionError("Client must be authenticated before connecting")
 
         path = "/trade-api/ws/v2"
         headers = self.auth_manager.get_auth_headers("GET", path)
@@ -235,15 +232,9 @@ class ConnectionHandler:
             # Check if it's a status exception
             if status_exc is not None and isinstance(exc, status_exc):
                 if "401" in str(exc):
-                    raise KalshiWSConnectionError(
-                        "Authentication failed (HTTP 401). Check API key and private key"
-                    ) from exc
-                raise KalshiWSConnectionError(
-                    "Websocket connection returned invalid status code"
-                ) from exc
-            raise KalshiWSConnectionError(
-                "Failed to connect to Kalshi websocket"
-            ) from exc
+                    raise KalshiWSConnectionError("Authentication failed (HTTP 401). Check API key and private key") from exc
+                raise KalshiWSConnectionError("Websocket connection returned invalid status code") from exc
+            raise KalshiWSConnectionError("Failed to connect to Kalshi websocket") from exc
 
         if self.ws is not None:
             await self.close()
@@ -272,15 +263,13 @@ class APIRequestHandler:
         """Get event details from Kalshi API."""
         import aiohttp
 
-        params = {"with_nested_markets": "true"} if with_nested_markets else {}
+        params = NESTED_MARKETS_PARAMS if with_nested_markets else EMPTY_PARAMS
         path = f"/trade-api/v2/events/{event_ticker}"
         url = self.base_url + path
         headers = self.auth_manager.get_auth_headers("GET", path)
 
         try:
-            timeout = aiohttp.ClientTimeout(
-                total=self.config.request_timeout_seconds * 2
-            )
+            timeout = aiohttp.ClientTimeout(total=self.config.request_timeout_seconds * 2)
             async with aiohttp.ClientSession() as session:
                 async with session.get(
                     url,
@@ -288,28 +277,20 @@ class APIRequestHandler:
                     headers=headers,
                     timeout=timeout,
                 ) as response:
-                    if response.status != 200:
+                    if response.status != HTTP_OK:
                         text = await response.text()
-                        raise KalshiWSHTTPError(
-                            f"Failed to get event {event_ticker}: {response.status} - {text}"
-                        )
+                        raise KalshiWSHTTPError(f"Failed to get event {event_ticker}: {response.status} - {text}")
                     return await response.json()
         except asyncio.TimeoutError as exc:
-            raise KalshiWSHTTPError(
-                f"API request timed out while fetching event {event_ticker}"
-            ) from exc
+            raise KalshiWSHTTPError(f"API request timed out while fetching event {event_ticker}") from exc
         except aiohttp.ClientError as exc:
-            raise KalshiWSHTTPError(
-                f"HTTP error while fetching event {event_ticker}"
-            ) from exc
+            raise KalshiWSHTTPError(f"HTTP error while fetching event {event_ticker}") from exc
 
 
 class KalshiWebsocketClient:
     """Kalshi WebSocket client with authentication and API support."""
 
-    def __init__(
-        self, api_key_id: Optional[str] = None, api_key_secret: Optional[str] = None
-    ):
+    def __init__(self, api_key_id: Optional[str] = None, api_key_secret: Optional[str] = None):
         """Initialize Kalshi WebSocket client."""
         from common.connection_config import get_connection_config
 

@@ -9,7 +9,8 @@
       "reconnection_backoff_multiplier": 2.0,
       "max_consecutive_failures": 10,
       "heartbeat_interval_seconds": 30,
-      "ping_interval_seconds": 20
+      "ping_interval_seconds": 20,
+      "ping_timeout_seconds": 60
     },
     "subscription": {
       "timeout_seconds": 120,
@@ -36,7 +37,8 @@
       "reconnection_backoff_multiplier": 2.0,
       "max_consecutive_failures": 10,
       "heartbeat_interval_seconds": 10,
-      "ping_interval_seconds": 20
+      "ping_interval_seconds": 20,
+      "ping_timeout_seconds": 60
     },
     "subscription": {
       "batch_size": 100,

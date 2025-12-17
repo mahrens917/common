@@ -10,6 +10,7 @@ Configuration is loaded from JSON config files with environment variable overrid
 
 from dataclasses import dataclass, field
 from functools import partial
+from typing import Optional
 
 from common.connectionconfig_helpers.config_loader import (
     require_env_float,
@@ -55,6 +56,10 @@ class ConnectionConfig:
 
     # WebSocket subscription configuration
     subscription_timeout_seconds: int = field(default_factory=partial(require_env_int, "SUBSCRIPTION_TIMEOUT_SECONDS"))
+
+    # WebSocket ping/pong configuration (optional, service-specific)
+    ping_interval_seconds: Optional[int] = None
+    ping_timeout_seconds: Optional[int] = None
 
 
 def get_connection_config(service_name: str | None = None) -> ConnectionConfig:

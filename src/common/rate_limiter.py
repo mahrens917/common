@@ -9,17 +9,22 @@ Used by: peak, kalshi, and other trading system repositories.
 from __future__ import annotations
 
 import asyncio
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import Dict, Optional
+
+# Rate limiter configuration constants
+INITIAL_BACKOFF_MS = 1000.0
+MAX_BACKOFF_MS = 30000.0
+BACKOFF_MULTIPLIER = 2.0
 
 
 @dataclass
 class RateLimiterConfig:
     """Configuration for rate limiter."""
 
-    initial_backoff_ms: float = 1000.0
-    max_backoff_ms: float = 30000.0
-    backoff_multiplier: float = 2.0
+    initial_backoff_ms: float = field(default_factory=lambda: INITIAL_BACKOFF_MS)
+    max_backoff_ms: float = field(default_factory=lambda: MAX_BACKOFF_MS)
+    backoff_multiplier: float = field(default_factory=lambda: BACKOFF_MULTIPLIER)
 
 
 class RateLimiter:
@@ -67,9 +72,7 @@ class RateLimiter:
         self._current_delay_ms = 0.0
         self._is_backing_off = False
 
-    def record_rate_limit(
-        self, retry_after_seconds: Optional[float] = None
-    ) -> float:
+    def record_rate_limit(self, retry_after_seconds: Optional[float] = None) -> float:
         """Record a rate limit response, triggering or increasing backoff.
 
         Args:
@@ -96,9 +99,7 @@ class RateLimiter:
         self._is_backing_off = True
         return self._current_delay_ms
 
-    def handle_429_response(
-        self, retry_after_seconds: Optional[float] = None
-    ) -> float:
+    def handle_429_response(self, retry_after_seconds: Optional[float] = None) -> float:
         """Compatibility alias for record_rate_limit."""
         return self.record_rate_limit(retry_after_seconds)
 

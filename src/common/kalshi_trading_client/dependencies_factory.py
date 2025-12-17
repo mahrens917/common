@@ -3,7 +3,7 @@
 from dataclasses import dataclass
 from typing import Any, Optional
 
-from src.kalshi.api.client import KalshiClient
+from common.kalshi_api.client import KalshiClient
 
 from ..redis_protocol.trade_store import TradeStore
 from ..trading import TradeStoreManager, WeatherStationResolver

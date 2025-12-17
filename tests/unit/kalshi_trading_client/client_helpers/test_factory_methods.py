@@ -2,6 +2,8 @@
 
 from unittest.mock import MagicMock
 
+import pytest
+
 from common.kalshi_trading_client.client_helpers import factory_methods
 from common.kalshi_trading_client.client_helpers.factory_methods import FactoryMethods
 
@@ -28,6 +30,17 @@ def test_create_order_poller_delegates_get_fills(monkeypatch):
     assert captured["get_fills"] is client.get_fills
 
 
+def _can_import_kalshi_notifications() -> bool:
+    """Check if kalshi.notifications can be imported without errors."""
+    try:
+        import kalshi.notifications.trade_notifier  # noqa: F401
+    except (ImportError, ModuleNotFoundError):
+        return False
+    else:
+        return True
+
+
+@pytest.mark.skipif(not _can_import_kalshi_notifications(), reason="kalshi.notifications not importable")
 def test_create_trade_finalizer_wires_dependencies(monkeypatch):
     captured = {}
 
@@ -57,7 +70,7 @@ def test_create_trade_finalizer_wires_dependencies(monkeypatch):
 
     notifier_supplier = MagicMock()
     monkeypatch.setattr(
-        "src.kalshi.notifications.trade_notifier_factory.get_trade_notifier",
+        "kalshi.notifications.trade_notifier.get_trade_notifier",
         lambda: notifier_supplier,
     )
 

@@ -7,7 +7,7 @@ Extracted from OptimizedStatusReporter to reduce class size.
 from dataclasses import dataclass
 from typing import Any, Dict, Optional
 
-from src.kalshi.api.client import KalshiClient
+from common.kalshi_api.client import KalshiClient
 
 
 @dataclass(frozen=True)

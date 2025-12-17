@@ -8,9 +8,9 @@ from ...order_execution import OrderPoller, TradeFinalizer
 
 if TYPE_CHECKING:
     from common.data_models.trading import OrderRequest, OrderResponse
+    from common.kalshi_api.client import KalshiClient
     from common.trading import TradeStoreManager
     from common.trading.polling_workflow import PollingOutcome
-    from src.kalshi.api.client import KalshiClient
 
     from ..services import OrderService
 

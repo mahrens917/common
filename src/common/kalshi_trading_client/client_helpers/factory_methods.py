@@ -8,8 +8,8 @@ from typing import TYPE_CHECKING
 from common.order_execution import OrderPoller, TradeFinalizer
 
 if TYPE_CHECKING:
+    from common.kalshi_api.client import KalshiClient
     from common.trading import TradeStoreManager
-    from src.kalshi.api.client import KalshiClient
 
 
 class FactoryMethods:
@@ -27,7 +27,7 @@ class FactoryMethods:
         kalshi_client: KalshiClient,
     ) -> TradeFinalizer:
         """Create a TradeFinalizer instance."""
-        from src.kalshi.notifications.trade_notifier_factory import get_trade_notifier
+        from kalshi.notifications.trade_notifier import get_trade_notifier  # type: ignore[import]
 
         return TradeFinalizer(
             trade_store_provider=trade_store_manager.get_or_create,
