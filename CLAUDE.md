@@ -25,3 +25,11 @@ Shared Python utilities library used across multiple trading system repositories
 - Do fix the code rather than weakening checks (`# noqa`, `# pylint: disable`, `# type: ignore`, `policy_guard: allow-*`, or threshold changes are off-limits).
 - Do keep secrets and generated artifacts out of git; use `.gitleaks.toml`/`ci_tools/config/*` for safe patterns.
 - Do keep required docs current (`README.md`, `CLAUDE.md`, `docs/README.md`, package READMEs) and avoid undoing user edits.
+
+## External Dependencies (DO NOT DELETE)
+The following modules are imported by external projects (peak, kalshi, etc.) and must NOT be removed even if they show 0% coverage locally or appear unused:
+
+- `kalshi_ws/` - WebSocket client for Kalshi API (used by peak)
+- `rate_limiter.py` - Rate limiting with exponential backoff (used by peak)
+
+These modules may have 0% coverage in common's test suite because they are tested in the consuming projects. Do not delete them based on coverage or unused code analysis.
