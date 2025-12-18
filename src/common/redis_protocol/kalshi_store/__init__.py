@@ -9,7 +9,6 @@ from redis.asyncio import Redis
 
 from ...redis_schema import parse_kalshi_market_key
 from .. import cleanup_redis_pool, get_redis_pool
-from ..config import REDIS_DB, REDIS_HOST, REDIS_PASSWORD, REDIS_PORT, REDIS_SSL
 from ..orderbook_utils import merge_orderbook_payload
 from ..retry import (
     RedisFatalError,
@@ -32,11 +31,6 @@ __all__ = [
     "get_redis_pool",
     "logger",
     "merge_orderbook_payload",
-    "REDIS_HOST",
-    "REDIS_PORT",
-    "REDIS_DB",
-    "REDIS_PASSWORD",
-    "REDIS_SSL",
     "parse_kalshi_market_key",
     "execute_with_retry",
     "RedisRetryPolicy",

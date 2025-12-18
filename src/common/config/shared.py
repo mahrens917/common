@@ -27,21 +27,10 @@ class RedisSettings:
 
 @lru_cache(maxsize=1)
 def get_redis_settings() -> RedisSettings:
-    host = env_str("REDIS_HOST", or_value=None)
-    if host is None:
-        raise ConfigurationError("REDIS_HOST must be set")
-
-    port_value = env_int("REDIS_PORT", None)
-    if port_value is None:
-        raise ConfigurationError("REDIS_PORT must be set")
-
-    ssl_flag = env_bool("REDIS_SSL", or_value=None)
-    if ssl_flag is None:
-        raise ConfigurationError("REDIS_SSL must be set")
-
-    retry_on_timeout_flag = env_bool("REDIS_RETRY_ON_TIMEOUT", or_value=None)
-    if retry_on_timeout_flag is None:
-        raise ConfigurationError("REDIS_RETRY_ON_TIMEOUT must be set")
+    host = env_str("REDIS_HOST", or_value="localhost")
+    port_value = env_int("REDIS_PORT", 6379)
+    ssl_flag = env_bool("REDIS_SSL", or_value=False)
+    retry_on_timeout_flag = env_bool("REDIS_RETRY_ON_TIMEOUT", or_value=True)
 
     db_value = env_int("REDIS_DB", 0)
     if db_value is None:
