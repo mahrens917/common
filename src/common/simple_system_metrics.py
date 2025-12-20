@@ -12,6 +12,8 @@ Key benefits:
 4. Fail-fast design with simple error handling
 """
 
+from __future__ import annotations
+
 import logging
 import os
 import platform
