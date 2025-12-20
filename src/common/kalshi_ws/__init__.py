@@ -229,11 +229,12 @@ class ConnectionHandler:
             status_exc = getattr(ws_exceptions, "InvalidStatusCode", None)
 
         try:
+            # Disable library-level ping/pong; app handles staleness via message timeout
             ws = await websockets.connect(
                 self.ws_url,
                 additional_headers=headers,
-                ping_interval=20,
-                ping_timeout=20,
+                ping_interval=None,
+                ping_timeout=None,
                 max_size=None,
                 close_timeout=self.config.connection_timeout_seconds // 3,
             )
