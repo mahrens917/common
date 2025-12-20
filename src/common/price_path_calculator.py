@@ -16,6 +16,7 @@ def _default_surface_loader(currency: str):
 
     return load_surface_sync(currency)
 
+
 # Validation thresholds
 MIN_STRIKE_COUNT = 32
 MIN_TIMELINE_POINTS = 4
@@ -62,21 +63,13 @@ class MostProbablePricePathCalculator:
         self._path_interpolator = deps.path_interpolator
         self._expectation_scaler = deps.expectation_scaler
 
-    def generate_price_path(
-        self, currency: str, prediction_horizon_days: float = 30.0
-    ) -> List[Tuple[float, float, float]]:
+    def generate_price_path(self, currency: str, prediction_horizon_days: float = 30.0) -> List[Tuple[float, float, float]]:
         if prediction_horizon_days <= 0:
             raise TypeError(PREDICTION_HORIZON_DAYS_NOT_POSITIVE_ERROR)
-        surface = self._surface_loader.load_surface(
-            currency, self._surface_loader_fn, self._ensure_path_metrics
-        )
+        surface = self._surface_loader.load_surface(currency, self._surface_loader_fn, self._ensure_path_metrics)
         if surface.futures_curve is None:
-            raise PricePathComputationError(
-                GP_SURFACE_MISSING_FUTURES_CURVE_TEMPLATE.format(currency.upper())
-            )
-        path_metrics = self._metrics_extractor.extract_path_metrics(
-            surface=surface, currency=currency
-        )
+            raise PricePathComputationError(GP_SURFACE_MISSING_FUTURES_CURVE_TEMPLATE.format(currency.upper()))
+        path_metrics = self._metrics_extractor.extract_path_metrics(surface=surface, currency=currency)
         metadata = getattr(surface, "futures_curve_metadata", None)
         training_range = metadata.get("training_time_range") if metadata else None
         timeline_years, timeline_days = self._timeline_builder.derive_prediction_timeline(
@@ -113,9 +106,7 @@ class MostProbablePricePathCalculator:
 
         ensure_metrics = getattr(surface, "ensure_path_metrics", None)
         if ensure_metrics and not isinstance(ensure_metrics, CallableType):
-            raise PricePathComputationError(
-                NON_CALLABLE_ENSURE_PATH_METRICS_TEMPLATE.format(currency.upper())
-            )
+            raise PricePathComputationError(NON_CALLABLE_ENSURE_PATH_METRICS_TEMPLATE.format(currency.upper()))
         if ensure_metrics and isinstance(ensure_metrics, CallableType):
             try:
                 ensure_metrics()
@@ -125,9 +116,7 @@ class MostProbablePricePathCalculator:
                 OSError,
                 Exception,
             ) as e:  # pragma: no cover - best-effort logging upstream
-                raise PricePathComputationError(
-                    FAILED_TO_GENERATE_METRICS_TEMPLATE.format(currency.upper())
-                ) from e
+                raise PricePathComputationError(FAILED_TO_GENERATE_METRICS_TEMPLATE.format(currency.upper())) from e
 
     @staticmethod
     def _build_timestamps(timeline_days):

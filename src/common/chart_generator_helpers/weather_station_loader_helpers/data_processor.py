@@ -7,9 +7,7 @@ from typing import List, Tuple
 logger = logging.getLogger("src.monitor.chart_generator")
 
 
-def process_temperature_data(
-    temperature_data: List[Tuple[int, float]], station_icao: str
-) -> Tuple[List[datetime], List[float]]:
+def process_temperature_data(temperature_data: List[Tuple[int, float]], station_icao: str) -> Tuple[List[datetime], List[float]]:
     """
     Process raw temperature data into timestamps and values.
 
@@ -34,9 +32,7 @@ def process_temperature_data(
         try:
             timestamp = dt_cls.fromtimestamp(timestamp_int, tz=timezone.utc)
         except (OverflowError, OSError, ValueError, TypeError) as exc:
-            logger.warning(
-                "Skipping invalid timestamp for %s: %s (%s)", station_icao, timestamp_int, exc
-            )
+            logger.warning("Skipping invalid timestamp for %s: %s (%s)", station_icao, timestamp_int, exc)
             continue
 
         if timestamp.tzinfo is None:
@@ -46,9 +42,7 @@ def process_temperature_data(
             temperatures.append(float(temperature_f))
             timestamps.append(timestamp)
         except (TypeError, ValueError):
-            logger.warning(
-                "Skipping invalid temperature data for %s: %s", station_icao, temperature_f
-            )
+            logger.warning("Skipping invalid temperature data for %s: %s", station_icao, temperature_f)
 
     if not timestamps or not temperatures:
         raise InsufficientDataError(f"No valid temperature data for {station_icao}")

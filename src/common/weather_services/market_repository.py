@@ -111,9 +111,7 @@ class RedisWeatherMarketRepository(MarketRepository):
         """Asynchronously iterate over Redis keys matching a pattern."""
         cursor = 0
         while True:
-            cursor, batch = await ensure_awaitable(
-                self._redis.scan(cursor=cursor, match=pattern, count=count)
-            )
+            cursor, batch = await ensure_awaitable(self._redis.scan(cursor=cursor, match=pattern, count=count))
             for key in batch:
                 yield key
             if cursor == 0:

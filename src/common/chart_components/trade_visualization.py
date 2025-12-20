@@ -6,7 +6,7 @@ from datetime import datetime
 from typing import TYPE_CHECKING, Callable, Optional, Sequence, cast
 
 if TYPE_CHECKING:
-    from src.monitor.trade_visualizer import TradeVisualizer
+    from src.common.trade_visualizer import TradeVisualizer
 
 logger = logging.getLogger(__name__)
 
@@ -99,8 +99,8 @@ async def _render_trade_visualizations(
 async def _initialize_visualizer(
     trade_visualizer_cls: Optional[type[TradeVisualizer]],
 ) -> Optional[TradeVisualizer]:
-    from src.monitor.trade_visualizer import (
-        TradeVisualizer as TradeVisualizerCls,
+    from src.common.trade_visualizer import TradeVisualizer as TradeVisualizerCls
+    from src.common.trade_visualizer import (
         create_trade_visualizer,
     )
 

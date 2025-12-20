@@ -33,9 +33,7 @@ class InitializationCoordinator:
         Returns:
             Dictionary containing all initialized components
         """
-        components = AlerterComponentsBuilder(settings).build(
-            send_alert_callback, flush_callback, ensure_proc_callback
-        )
+        components = AlerterComponentsBuilder(settings).build(send_alert_callback, flush_callback, ensure_proc_callback)
 
         result = {
             "telegram_enabled": components["telegram_enabled"],
@@ -50,9 +48,7 @@ class InitializationCoordinator:
                     "command_processor": components["command_processor"],
                     "polling_coordinator": components["polling_coordinator"],
                     "price_validation_tracker": components["price_validation_tracker"],
-                    "alert_sender": InitializationCoordinator._create_alert_sender(
-                        components, send_alert_callback, ensure_proc_callback
-                    ),
+                    "alert_sender": InitializationCoordinator._create_alert_sender(components, send_alert_callback, ensure_proc_callback),
                 }
             )
 

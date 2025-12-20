@@ -52,9 +52,7 @@ class StrikeAccumulator:
             strikes.add(cap_strike)
 
     @staticmethod
-    def _add_both_strikes(
-        floor_strike: Optional[float], cap_strike: Optional[float], strikes: set[float]
-    ) -> None:
+    def _add_both_strikes(floor_strike: Optional[float], cap_strike: Optional[float], strikes: set[float]) -> None:
         """Add both floor and cap strikes if present."""
         if floor_strike is not None:
             strikes.add(floor_strike)

@@ -21,15 +21,11 @@ class MarketHashDecoder:
             Decoded dictionary with string keys and values
         """
         return {
-            (k.decode("utf-8") if isinstance(k, bytes) else k): (
-                v.decode("utf-8") if isinstance(v, bytes) else v
-            )
+            (k.decode("utf-8") if isinstance(k, bytes) else k): (v.decode("utf-8") if isinstance(v, bytes) else v)
             for k, v in market_data.items()
         }
 
-    def extract_strike_info(
-        self, decoded: Dict[str, str]
-    ) -> Tuple[str, Optional[float], Optional[float]]:
+    def extract_strike_info(self, decoded: Dict[str, str]) -> Tuple[str, Optional[float], Optional[float]]:
         """
         Extract strike information from decoded market hash
 

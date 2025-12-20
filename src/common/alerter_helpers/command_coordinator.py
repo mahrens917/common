@@ -23,9 +23,7 @@ class CommandCoordinator:
         self.chart_mgr.ensure_chart_dependencies_initialized()
         from .command_handlers import LoadCommandHandler
 
-        await LoadCommandHandler(
-            self.chart_mgr.chart_generator, self.send_alert, self.send_chart
-        ).handle(msg)
+        await LoadCommandHandler(self.chart_mgr.chart_generator, self.send_alert, self.send_chart).handle(msg)
 
     async def handle_pnl(self, msg: Dict[str, Any]) -> None:
         """Handle /pnl command."""
@@ -52,6 +50,4 @@ class CommandCoordinator:
         self.chart_mgr.ensure_chart_dependencies_initialized()
         from .command_handlers import TempCommandHandler
 
-        await TempCommandHandler(
-            self.chart_mgr.chart_generator, self.send_alert, self.send_chart
-        ).handle(msg)
+        await TempCommandHandler(self.chart_mgr.chart_generator, self.send_alert, self.send_chart).handle(msg)

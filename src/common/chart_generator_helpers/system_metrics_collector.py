@@ -70,15 +70,11 @@ class SystemMetricsCollector:
                 ValueError,
                 TypeError,
             ):
-                logger.warning(
-                    f"Skipping invalid {metric_type} data point: {datetime_str}={value_str}, error"
-                )
+                logger.warning(f"Skipping invalid {metric_type} data point: {datetime_str}={value_str}, error")
                 continue
 
         if len(timestamps) < _MIN_DATA_POINTS:
-            raise InsufficientDataError(
-                f"Insufficient data points for {metric_type}: {len(timestamps)}"
-            )
+            raise InsufficientDataError(f"Insufficient data points for {metric_type}: {len(timestamps)}")
 
         sorted_data = sorted(zip(timestamps, values))
         timestamps, values = zip(*sorted_data)

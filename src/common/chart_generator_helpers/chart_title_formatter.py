@@ -24,9 +24,5 @@ class ChartTitleFormatter:
 
     def format_price_chart_title(self, symbol: str, current_price: float) -> str:
         """Format title for price chart with current price"""
-        formatted_current_price = (
-            f"${current_price:,.0f}"
-            if current_price == int(current_price)
-            else f"${current_price:,.2f}"
-        )
+        formatted_current_price = f"${current_price:,.0f}" if current_price == int(current_price) else f"${current_price:,.2f}"
         return f"{symbol} Price History (Current: {formatted_current_price})"

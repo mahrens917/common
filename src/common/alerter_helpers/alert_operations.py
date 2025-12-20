@@ -37,8 +37,6 @@ class AlertOperations:
             True if successful, False otherwise
         """
         if telegram_enabled:
-            return await alert_sender.send_alert(
-                message, severity, alert_type, details, target_user_id
-            )
+            return await alert_sender.send_alert(message, severity, alert_type, details, target_user_id)
         logger.info(f"Alert (no channels): [{severity.value}] {message}")
         return True

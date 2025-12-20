@@ -31,9 +31,7 @@ class ChartGeneratorProtocol(Protocol):
 
     async def generate_weather_charts(self) -> List[str]: ...
 
-    async def generate_price_chart_with_path(
-        self, symbol: str, prediction_horizon_days: Optional[int] = None
-    ) -> str: ...
+    async def generate_price_chart_with_path(self, symbol: str, prediction_horizon_days: Optional[int] = None) -> str: ...
 
     def cleanup_single_chart_file(self, chart_path: str) -> None: ...
 
@@ -107,9 +105,7 @@ class LoadCommandHandler(_ChartHandlerBase):
 
         from .chart_batch_sender import ChartBatchSender
 
-        batch_sender = ChartBatchSender(
-            self.chart_generator, self.send_chart_image, self.send_alert
-        )
+        batch_sender = ChartBatchSender(self.chart_generator, self.send_chart_image, self.send_alert)
         success_count = await batch_sender.send_charts_batch(chart_paths, "")
         if success_count == 0:
             await self.send_alert("❌ Failed to send load charts")
@@ -228,9 +224,7 @@ class PriceCommandHandler:
         tails = self._build_tail_specs()
         for currency in ("BTC", "ETH"):
             for tail_label, horizon_days, timeline_points in tails:
-                await self._generate_price_chart(
-                    currency, tail_label, horizon_days, timeline_points
-                )
+                await self._generate_price_chart(currency, tail_label, horizon_days, timeline_points)
 
     def _build_tail_specs(self) -> List[tuple[str, float, int]]:
         short_horizon = 12.0 / 24.0
@@ -240,9 +234,7 @@ class PriceCommandHandler:
             ("long", long_horizon, max(12, int(round(long_horizon)))),
         ]
 
-    async def _generate_price_chart(
-        self, currency: str, tail_label: str, horizon_days: float, timeline_points: int
-    ) -> None:
+    async def _generate_price_chart(self, currency: str, tail_label: str, horizon_days: float, timeline_points: int) -> None:
         chart_path: Optional[str] = None
         generator: Optional[ChartGeneratorProtocol] = None
 
@@ -270,15 +262,11 @@ class PriceCommandHandler:
             horizon_days_int = max(1, int(round(horizon_days)))
             generator = cast(
                 ChartGeneratorProtocol,
-                ChartGenerator(
-                    price_path_calculator=calculator, prediction_horizon_days=horizon_days_int
-                ),
+                ChartGenerator(price_path_calculator=calculator, prediction_horizon_days=horizon_days_int),
             )
 
             logger.info("Generating %s %s price chart", currency, tail_label)
-            chart_path = await generator.generate_price_chart_with_path(
-                currency, prediction_horizon_days=horizon_days_int
-            )
+            chart_path = await generator.generate_price_chart_with_path(currency, prediction_horizon_days=horizon_days_int)
             await self.send_chart_image(chart_path, "")
             logger.info("Sent %s %s price chart", currency, tail_label)
         except (
@@ -306,6 +294,4 @@ class PriceCommandHandler:
                 try:
                     generator.cleanup_single_chart_file(chart_path)
                 except (OSError, RuntimeError):
-                    logger.debug(
-                        "Cleanup failed for %s %s chart %s", currency, tail_label, chart_path
-                    )
+                    logger.debug("Cleanup failed for %s %s chart %s", currency, tail_label, chart_path)

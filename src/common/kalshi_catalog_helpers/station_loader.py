@@ -43,9 +43,7 @@ class WeatherStationLoader:
             with mapping_path.open("r", encoding="utf-8") as handle:
                 payload = json.load(handle)
         except FileNotFoundError:
-            logger.warning(
-                "Weather station mapping file missing at %s, using defaults", mapping_path
-            )
+            logger.warning("Weather station mapping file missing at %s, using defaults", mapping_path)
             return set(self._DEFAULT_WEATHER_STATIONS)
         except json.JSONDecodeError:
             logger.warning("Invalid JSON in %s, using defaults", mapping_path)

@@ -33,8 +33,4 @@ class ChartOperations:
             return False
 
         recipients = [target_user_id] if target_user_id else list(authorized_user_ids)
-        return (
-            await delivery_manager.send_chart(image_path, caption, recipients)
-            if recipients
-            else False
-        )
+        return await delivery_manager.send_chart(image_path, caption, recipients) if recipients else False

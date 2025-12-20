@@ -30,14 +30,10 @@ class TimeContextBuilder:
     ) -> ChartTimeContext:
         """Build complete time context with timezone handling"""
         timestamps_naive = ensure_naive_timestamps(timestamps)
-        prediction_naive = (
-            ensure_naive_timestamps(prediction_timestamps) if prediction_timestamps else None
-        )
+        prediction_naive = ensure_naive_timestamps(prediction_timestamps) if prediction_timestamps else None
         axis_timestamps = build_axis_timestamps(timestamps_naive, prediction_naive)
         localized_result = (
-            localize_temperature_timestamps(timestamps_naive, station_coordinates)
-            if is_temperature_chart and station_coordinates
-            else None
+            localize_temperature_timestamps(timestamps_naive, station_coordinates) if is_temperature_chart and station_coordinates else None
         )
         localized = localized_result.timestamps if localized_result else None
         local_timezone = localized_result.timezone if localized_result else None

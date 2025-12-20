@@ -24,9 +24,7 @@ class LifecycleHelpers:
 
     async def cleanup(self) -> None:
         """Clean up resources."""
-        await self.cleanup_resources(
-            self._mgr.telegram_enabled, self._mgr.get_telegram_component("cmd_processor")
-        )
+        await self.cleanup_resources(self._mgr.telegram_enabled, self._mgr.get_telegram_component("cmd_processor"))
 
     @staticmethod
     def ensure_processor(command_processor) -> None:

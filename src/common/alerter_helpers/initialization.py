@@ -37,12 +37,8 @@ class AlerterInitializer:
             result["telegram_token"] = telegram_settings.bot_token
             result["authorized_user_ids"] = list(telegram_settings.chat_ids)
             result["telegram_timeout_seconds"] = self.settings.alerting.telegram_timeout_seconds
-            result["telegram_long_poll_timeout_seconds"] = min(
-                60, max(25, int(result["telegram_timeout_seconds"] * 2))
-            )
-            result["telegram_client"] = TelegramClient(
-                result["telegram_token"], timeout_seconds=result["telegram_timeout_seconds"]
-            )
+            result["telegram_long_poll_timeout_seconds"] = min(60, max(25, int(result["telegram_timeout_seconds"] * 2)))
+            result["telegram_client"] = TelegramClient(result["telegram_token"], timeout_seconds=result["telegram_timeout_seconds"])
             logger.info(
                 "Telegram notifications enabled for %s authorized user(s)",
                 len(result["authorized_user_ids"]),
@@ -74,9 +70,7 @@ class AlerterInitializer:
 
     def _initialize_telegram_helpers(self, result: Dict[str, Any]) -> None:
         """Initialize Telegram-specific helpers."""
-        result["backoff_manager"] = TelegramNetworkBackoffManager(
-            result["telegram_timeout_seconds"]
-        )
+        result["backoff_manager"] = TelegramNetworkBackoffManager(result["telegram_timeout_seconds"])
         result["message_sender"] = TelegramMessageSender(
             result["telegram_client"],
             result["telegram_timeout_seconds"],
@@ -87,9 +81,7 @@ class AlerterInitializer:
             result["telegram_timeout_seconds"],
             result["backoff_manager"],
         )
-        result["delivery_manager"] = TelegramDeliveryManager(
-            result["message_sender"], result["media_sender"], result["alert_formatter"]
-        )
+        result["delivery_manager"] = TelegramDeliveryManager(result["message_sender"], result["media_sender"], result["alert_formatter"])
         result["rate_limit_handler"] = TelegramRateLimitHandler()
         result["authorization_checker"] = CommandAuthorizationChecker(result["authorized_user_ids"])
         result["command_registry"] = CommandHandlerRegistry()

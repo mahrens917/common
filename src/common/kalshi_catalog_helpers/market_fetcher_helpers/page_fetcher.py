@@ -13,6 +13,7 @@ class PageFetcher:
     async def fetch_page(self, params: Dict[str, Any]) -> Dict[str, object]:
         """Fetch a single page of markets from the API."""
         from common.kalshi_api import KalshiClientError
+
         from ..market_fetcher import KalshiMarketCatalogError
 
         try:

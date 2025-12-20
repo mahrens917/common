@@ -54,9 +54,7 @@ class AlertDeliveryMixin:
             return False
         return await self._deliver_telegram(alert, recipients)
 
-    def _collect_recipients(
-        self, target_user_id: Optional[str], authorized_user_ids: List[str]
-    ) -> List[str]:
+    def _collect_recipients(self, target_user_id: Optional[str], authorized_user_ids: List[str]) -> List[str]:
         recipients = [target_user_id] if target_user_id else list(authorized_user_ids)
         if not recipients:
             logger.warning("Telegram alert dropped; no authorized recipients configured")
@@ -77,9 +75,7 @@ class AlertDeliveryMixin:
             return True
 
     def _handle_telegram_exception(self, exc: Exception) -> bool:
-        if getattr(self.suppression_manager, "is_shutdown_in_progress", None) and (
-            self.suppression_manager.is_shutdown_in_progress()
-        ):
+        if getattr(self.suppression_manager, "is_shutdown_in_progress", None) and (self.suppression_manager.is_shutdown_in_progress()):
             logger.info("Telegram alert failed during shutdown; ignoring error: %s", exc)
             return False
 

@@ -41,9 +41,7 @@ class AxesLimitsConfigurator:
         else:
             y_axis_padding = max(abs(extended_max) * 0.02, 1.0)
         ax.set_ylim(extended_min - y_axis_padding, extended_max + y_axis_padding)
-        self._configure_x_limits(
-            ax, values, config.time_context, config.is_pnl_chart, config.mdates
-        )
+        self._configure_x_limits(ax, values, config.time_context, config.is_pnl_chart, config.mdates)
         self._add_baseline_lines(
             ax,
             config.stats,
@@ -87,21 +85,13 @@ class AxesLimitsConfigurator:
         if is_pnl_chart:
             ax.axhline(y=0, color="black", linestyle="-", alpha=0.5, linewidth=1)
         elif not is_price_chart and not is_temperature_chart:
-            ax.axhline(
-                y=float(stats.min_value), color="red", linestyle="--", alpha=0.7, linewidth=1
-            )
-            ax.axhline(
-                y=float(stats.mean_value), color="red", linestyle="--", alpha=0.7, linewidth=1
-            )
-            ax.axhline(
-                y=float(stats.max_value), color="red", linestyle="--", alpha=0.7, linewidth=1
-            )
+            ax.axhline(y=float(stats.min_value), color="red", linestyle="--", alpha=0.7, linewidth=1)
+            ax.axhline(y=float(stats.mean_value), color="red", linestyle="--", alpha=0.7, linewidth=1)
+            ax.axhline(y=float(stats.max_value), color="red", linestyle="--", alpha=0.7, linewidth=1)
         if is_temperature_chart and kalshi_strikes:
             self._expand_for_strikes(ax, kalshi_strikes)
 
-    def _expand_for_strikes(
-        self: AxesLimitsConfigurator, ax: Axes, kalshi_strikes: List[float]
-    ) -> None:
+    def _expand_for_strikes(self: AxesLimitsConfigurator, ax: Axes, kalshi_strikes: List[float]) -> None:
         current_ylim = ax.get_ylim()
         min_strike = min(kalshi_strikes)
         max_strike = max(kalshi_strikes)

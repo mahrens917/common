@@ -23,9 +23,7 @@ class MarketValidators:
             if hasattr(option, "strike") and option.strike is not None and option.strike > 0:
                 valid_strikes.append(option.strike)
         if not valid_strikes:
-            raise ValidationError(
-                "No valid strike prices found in market data for bounds derivation"
-            )
+            raise ValidationError("No valid strike prices found in market data for bounds derivation")
         market_min_strike = min(valid_strikes)
         market_max_strike = max(valid_strikes)
         safety_margin_low = 0.5
@@ -35,9 +33,7 @@ class MarketValidators:
         return min_strike, max_strike
 
     @staticmethod
-    def validate_bid_ask_relationship(
-        bid: float, ask: float, instrument_name: str = "instrument"
-    ) -> bool:
+    def validate_bid_ask_relationship(bid: float, ask: float, instrument_name: str = "instrument") -> bool:
         """Validate bid <= ask relationship for market data.
 
         Delegates to canonical validate_kalshi_bid_ask_relationship.
@@ -61,9 +57,7 @@ class MarketValidators:
         try:
             open_interest_check = open_interest < 0
         except TypeError:
-            raise ValidationError(
-                f"Open interest must be integer, got {type(open_interest).__name__}"
-            )
+            raise ValidationError(f"Open interest must be integer, got {type(open_interest).__name__}")
         if open_interest_check:
             raise ValidationError(f"Open interest {open_interest} cannot be negative")
         return True

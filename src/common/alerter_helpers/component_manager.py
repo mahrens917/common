@@ -43,9 +43,7 @@ class ComponentManager:
 
         # Initialize chart and command coordination
         self.chart_mgr = ChartManager(self.telegram_enabled)
-        self.cmd_coord = CommandCoordinator(
-            self.chart_mgr, send_alert_callback, send_chart_callback
-        )
+        self.cmd_coord = CommandCoordinator(self.chart_mgr, send_alert_callback, send_chart_callback)
 
         # Register commands if telegram is enabled
         if self.telegram_enabled:

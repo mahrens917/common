@@ -32,9 +32,7 @@ class CityTokenResolver:
         with open_fn(config_path, "r", encoding="utf-8") as f:
             return json.load(f)
 
-    def _extract_tokens_for_station(
-        self, icao_code: str, mapping_data: dict
-    ) -> Tuple[List[str], Optional[str]]:
+    def _extract_tokens_for_station(self, icao_code: str, mapping_data: dict) -> Tuple[List[str], Optional[str]]:
         """Extract tokens and canonical token for a given ICAO code."""
         for city_code, station_data in mapping_data["mappings"].items():
             # Check if station matches the ICAO code

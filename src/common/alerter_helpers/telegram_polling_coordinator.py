@@ -112,6 +112,4 @@ class TelegramPollingCoordinator:
             "timeout": long_poll_timeout,
         }
         url = f"{self.telegram_client.base_url}/getUpdates"
-        return TelegramPollingConfig(
-            url=url, params=params, timeout=timeout, long_poll_timeout=long_poll_timeout
-        )
+        return TelegramPollingConfig(url=url, params=params, timeout=timeout, long_poll_timeout=long_poll_timeout)

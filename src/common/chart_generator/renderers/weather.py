@@ -44,17 +44,13 @@ class WeatherChartRendererMixin(UnifiedChartRendererMixin):
         city_name: str,
         station_coordinates: Optional[Tuple[float, float]] = None,
     ) -> str:
-        sanitized_coordinates = self._sanitize_station_coordinates(
-            station_icao, station_coordinates
-        )
+        sanitized_coordinates = self._sanitize_station_coordinates(station_icao, station_coordinates)
 
         loader = WeatherStationLoader()
         series = await loader.load_station_temperature_series(station_icao)
 
         calculator = AstronomicalCalculator()
-        astronomical = calculator.compute_astronomical_features(
-            station_icao, sanitized_coordinates, series.timestamps
-        )
+        astronomical = calculator.compute_astronomical_features(station_icao, sanitized_coordinates, series.timestamps)
 
         chart_title = self._format_weather_chart_title(station_name, station_icao, series)
         kalshi_strikes = await self._load_kalshi_strikes_with_logging(station_icao)
@@ -81,21 +77,15 @@ class WeatherChartRendererMixin(UnifiedChartRendererMixin):
             try:
                 sanitized = (float(station_coordinates[0]), float(station_coordinates[1]))
             except (TypeError, ValueError):
-                logger.warning(
-                    "Invalid coordinates provided for %s, dawn/dusk shading disabled", station_icao
-                )
+                logger.warning("Invalid coordinates provided for %s, dawn/dusk shading disabled", station_icao)
                 return None
             logger.info("Using coordinates for %s: %s", station_icao, sanitized)
             return sanitized
 
-        logger.warning(
-            "No valid coordinates provided for %s, dawn/dusk shading disabled", station_icao
-        )
+        logger.warning("No valid coordinates provided for %s, dawn/dusk shading disabled", station_icao)
         return None
 
-    def _format_weather_chart_title(
-        self, station_name: str, station_icao: str, series: WeatherChartSeries
-    ) -> str:
+    def _format_weather_chart_title(self, station_name: str, station_icao: str, series: WeatherChartSeries) -> str:
         return f"{station_name} ({station_icao}) - {series.current_temperature:.1f}°F"
 
     async def _load_kalshi_strikes_with_logging(self, station_icao: str) -> List[Any]:

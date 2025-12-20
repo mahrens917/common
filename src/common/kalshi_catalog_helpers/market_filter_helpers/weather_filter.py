@@ -10,9 +10,7 @@ class WeatherFilter:
         """Initialize with weather station tokens."""
         self._weather_station_tokens = weather_station_tokens
 
-    def passes_filters(
-        self, market: Dict[str, object], now_ts: float, close_time_validator
-    ) -> bool:
+    def passes_filters(self, market: Dict[str, object], now_ts: float, close_time_validator) -> bool:
         """Check if weather market passes filters."""
         ticker = str(market.get("ticker") or "").upper()
         if not ticker.startswith("KXHIGH"):

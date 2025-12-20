@@ -30,9 +30,7 @@ class TimelineBuilder:
         max_tau_metrics = float(sigma_timeline[-1])
         timeline_mask = timeline_years <= max_tau_metrics
         if not np.any(timeline_mask):
-            raise PricePathComputationError(
-                f"Prediction horizon exceeds precomputed range for {currency.upper()}"
-            )
+            raise PricePathComputationError(f"Prediction horizon exceeds precomputed range for {currency.upper()}")
         timeline_years = timeline_years[timeline_mask]
         timeline_days = timeline_days[timeline_mask]
 
@@ -41,9 +39,7 @@ class TimelineBuilder:
             max_tau_training = float(training_range[1])
             training_mask = timeline_years <= max_tau_training
             if not np.any(training_mask):
-                raise PricePathComputationError(
-                    f"Prediction horizon exceeds futures training range for {currency.upper()}"
-                )
+                raise PricePathComputationError(f"Prediction horizon exceeds futures training range for {currency.upper()}")
             timeline_years = timeline_years[training_mask]
             timeline_days = timeline_days[training_mask]
 

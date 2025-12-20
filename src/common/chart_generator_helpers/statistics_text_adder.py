@@ -39,15 +39,9 @@ class StatisticsTextAdder:
             average_label = value_formatter(avg_pnl) if value_formatter else f"{avg_pnl:.2f}"
             stats_text = f"Total: {total_label}\nAverage: {average_label}"
         else:
-            min_label = (
-                value_formatter(stats.min_value) if value_formatter else f"{stats.min_value:.0f}"
-            )
-            mean_label = (
-                value_formatter(stats.mean_value) if value_formatter else f"{stats.mean_value:.0f}"
-            )
-            max_label = (
-                value_formatter(stats.max_value) if value_formatter else f"{stats.max_value:.0f}"
-            )
+            min_label = value_formatter(stats.min_value) if value_formatter else f"{stats.min_value:.0f}"
+            mean_label = value_formatter(stats.mean_value) if value_formatter else f"{stats.mean_value:.0f}"
+            max_label = value_formatter(stats.max_value) if value_formatter else f"{stats.max_value:.0f}"
             stats_text = f"Min: {min_label}\nMean: {mean_label}\nMax: {max_label}"
 
         ax.text(

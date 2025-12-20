@@ -39,24 +39,18 @@ class WeatherStationLoader:
         tracker_cls = getattr(cg_module, "WeatherHistoryTracker", WeatherHistoryTracker)
         return tracker_cls()
 
-    async def _fetch_temperature_history(
-        self, tracker, station_icao: str
-    ) -> List[Tuple[int, float]]:
+    async def _fetch_temperature_history(self, tracker, station_icao: str) -> List[Tuple[int, float]]:
         try:
             await tracker.initialize()
             return await tracker.get_temperature_history(station_icao)
         finally:
             await tracker.cleanup()
 
-    def _ensure_minimum_data(
-        self, station_icao: str, temperature_data: List[Tuple[int, float]] | None
-    ) -> None:
+    def _ensure_minimum_data(self, station_icao: str, temperature_data: List[Tuple[int, float]] | None) -> None:
         if not temperature_data:
             raise InsufficientDataError(f"No temperature data available for {station_icao}")
         if len(temperature_data) < _MIN_DATA_POINTS:
-            raise InsufficientDataError(
-                f"Insufficient temperature data for {station_icao}: {len(temperature_data)} points"
-            )
+            raise InsufficientDataError(f"Insufficient temperature data for {station_icao}: {len(temperature_data)} points")
 
     def _parse_temperature_samples(
         self, station_icao: str, temperature_data: List[Tuple[int, float]]
@@ -73,9 +67,7 @@ class WeatherStationLoader:
                 temperatures.append(float(temperature_f))
                 timestamps.append(timestamp)
             except (TypeError, ValueError):
-                logger.warning(
-                    "Skipping invalid temperature data for %s: %s", station_icao, temperature_f
-                )
+                logger.warning("Skipping invalid temperature data for %s: %s", station_icao, temperature_f)
         if not timestamps or not temperatures:
             raise InsufficientDataError(f"No valid temperature data for {station_icao}")
         return timestamps, temperatures
@@ -84,14 +76,10 @@ class WeatherStationLoader:
         try:
             return _datetime_cls().fromtimestamp(timestamp_int, tz=timezone.utc)
         except (OverflowError, OSError, ValueError, TypeError) as exc:
-            logger.warning(
-                "Skipping invalid timestamp for %s: %s (%s)", station_icao, timestamp_int, exc
-            )
+            logger.warning("Skipping invalid timestamp for %s: %s (%s)", station_icao, timestamp_int, exc)
             return None
 
-    def _build_chart_series(
-        self, timestamps: List[datetime], temperatures: List[float]
-    ) -> WeatherChartSeries:
+    def _build_chart_series(self, timestamps: List[datetime], temperatures: List[float]) -> WeatherChartSeries:
         sorted_data = sorted(zip(timestamps, temperatures))
         timestamps_sorted, temperatures_sorted = zip(*sorted_data)
         return WeatherChartSeries(

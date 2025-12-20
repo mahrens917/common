@@ -7,9 +7,7 @@ class PriceValidationOperations:
     """Handles price validation alert operations."""
 
     @staticmethod
-    def should_send_alert(
-        telegram_enabled: bool, price_tracker, currency: str, details: Dict[str, Any]
-    ) -> bool:
+    def should_send_alert(telegram_enabled: bool, price_tracker, currency: str, details: Dict[str, Any]) -> bool:
         """Check if price validation alert should be sent."""
         return price_tracker.should_send_alert(currency, details) if telegram_enabled else False
 

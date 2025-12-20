@@ -17,11 +17,10 @@ class CryptoFetcher:
         self._crypto_assets = crypto_assets
         self._fetcher_client = fetcher_client
 
-    async def fetch_crypto_markets(
-        self, markets: List[Dict[str, object]], seen_tickers: set[str]
-    ) -> int:
+    async def fetch_crypto_markets(self, markets: List[Dict[str, object]], seen_tickers: set[str]) -> int:
         """Fetch crypto-specific markets."""
         from common.kalshi_api import KalshiClientError
+
         from ..market_fetcher import KalshiMarketCatalogError
 
         try:

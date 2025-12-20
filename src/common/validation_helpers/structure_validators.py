@@ -20,9 +20,7 @@ class StructureValidators:
         return True
 
     @staticmethod
-    def validate_dictionary_has_keys(
-        data_dict: Dict[str, Any] | None, required_keys: List[str], dict_name: str = "dictionary"
-    ) -> bool:
+    def validate_dictionary_has_keys(data_dict: Dict[str, Any] | None, required_keys: List[str], dict_name: str = "dictionary") -> bool:
         """Validate dictionary contains all required keys."""
         if data_dict is None:
             raise ValidationError(f"{dict_name} cannot be None")

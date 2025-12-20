@@ -55,8 +55,6 @@ class MarketExpirationValidator:
             return dt.date() == today_et
 
         if not seen_metadata:
-            raise RuntimeError(
-                f"No expiration metadata available for {market_key}; cannot determine resolution date"
-            )
+            raise RuntimeError(f"No expiration metadata available for {market_key}; cannot determine resolution date")
 
         return today_market_date.lower() in market_key.lower()

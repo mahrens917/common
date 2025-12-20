@@ -43,9 +43,7 @@ class PricePathCalculatorDependenciesFactory:
         timeline_builder = TimelineBuilder(min_horizon_days, timeline_points)
         expectation_integrator = ExpectationIntegrator()
         path_interpolator = PathInterpolator()
-        expectation_scaler = ExpectationScaler(
-            sigma_min_ratio=sigma_min_ratio, sigma_max_ratio=sigma_max_ratio
-        )
+        expectation_scaler = ExpectationScaler(sigma_min_ratio=sigma_min_ratio, sigma_max_ratio=sigma_max_ratio)
 
         return PricePathCalculatorDependencies(
             surface_loader=surface_loader,

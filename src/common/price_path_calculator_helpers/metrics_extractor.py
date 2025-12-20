@@ -35,40 +35,21 @@ class MetricsExtractor:
         """Extract all required path metrics from surface."""
         metrics = getattr(surface, "precomputed_path_metrics", None)
         if not metrics:
-            raise PricePathComputationError(
-                "GP surface missing precomputed path metrics. Rerun PDF pipeline."
-            )
+            raise PricePathComputationError("GP surface missing precomputed path metrics. Rerun PDF pipeline.")
 
-        sigma_timeline = self._require_metric_array(
-            metrics, "timeline_years", "Missing sigma timeline"
-        )
-        sigma_mid_mean = self._require_metric_array(
-            metrics, "mid_sigma_mean", "Missing sigma metadata"
-        )
-        sigma_mid_p95 = self._require_metric_array(
-            metrics, "mid_sigma_p95", "Missing sigma percentiles"
-        )
+        sigma_timeline = self._require_metric_array(metrics, "timeline_years", "Missing sigma timeline")
+        sigma_mid_mean = self._require_metric_array(metrics, "mid_sigma_mean", "Missing sigma metadata")
+        sigma_mid_p95 = self._require_metric_array(metrics, "mid_sigma_p95", "Missing sigma percentiles")
 
         if sigma_mid_mean.size == 0:
             raise PricePathComputationError("Empty sigma metadata")
 
-        moneyness_grid = self._require_metric_array(
-            metrics, "moneyness_grid", "Missing moneyness grid"
-        )
-        forward_curve = self._require_metric_array(
-            metrics, "forward_curve", "Missing forward curve"
-        )
-        bid_second_grid = self._require_metric_array(
-            metrics, "bid_second", "Missing bid derivative grid"
-        )
-        ask_second_grid = self._require_metric_array(
-            metrics, "ask_second", "Missing ask derivative grid"
-        )
+        moneyness_grid = self._require_metric_array(metrics, "moneyness_grid", "Missing moneyness grid")
+        forward_curve = self._require_metric_array(metrics, "forward_curve", "Missing forward curve")
+        bid_second_grid = self._require_metric_array(metrics, "bid_second", "Missing bid derivative grid")
+        ask_second_grid = self._require_metric_array(metrics, "ask_second", "Missing ask derivative grid")
 
-        if (
-            forward_curve.size != bid_second_grid.shape[0]
-            or bid_second_grid.shape != ask_second_grid.shape
-        ):
+        if forward_curve.size != bid_second_grid.shape[0] or bid_second_grid.shape != ask_second_grid.shape:
             raise PricePathComputationError("Derivative grid dimensions inconsistent")
 
         return PathMetrics(
@@ -82,9 +63,7 @@ class MetricsExtractor:
         )
 
     @staticmethod
-    def _require_metric_array(
-        metrics: Mapping[str, Any], key: str, error_message: str
-    ) -> np.ndarray:
+    def _require_metric_array(metrics: Mapping[str, Any], key: str, error_message: str) -> np.ndarray:
         """Extract required metric array with validation."""
         if key not in metrics:
             raise PricePathComputationError(error_message)

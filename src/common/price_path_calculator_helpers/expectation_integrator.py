@@ -23,15 +23,11 @@ class ExpectationIntegrator:
 
         mid_second_grid = 0.5 * (metrics.bid_second_grid + metrics.ask_second_grid)
         integrand = strikes_grid * mid_second_grid
-        density_integral = np.asarray(
-            np.trapezoid(mid_second_grid, x=strikes_grid, axis=1), dtype=float
-        )
+        density_integral = np.asarray(np.trapezoid(mid_second_grid, x=strikes_grid, axis=1), dtype=float)
         expected_curve = np.asarray(np.trapezoid(integrand, x=strikes_grid, axis=1), dtype=float)
 
         if not (np.all(np.isfinite(expected_curve)) and np.all(np.isfinite(density_integral))):
-            raise PricePathComputationError(
-                "Non-finite values produced during expectation integration"
-            )
+            raise PricePathComputationError("Non-finite values produced during expectation integration")
 
         with np.errstate(divide="ignore", invalid="ignore"):
             normalized_expectation = np.where(

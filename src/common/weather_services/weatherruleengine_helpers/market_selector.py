@@ -20,9 +20,7 @@ class MarketSelector:
     def __init__(self, repository: MarketRepository) -> None:
         self._repository = repository
 
-    async def select_target_market(
-        self, city_code: str, *, day_code: Optional[str], max_temp_f: float
-    ) -> Optional[MarketSnapshot]:
+    async def select_target_market(self, city_code: str, *, day_code: Optional[str], max_temp_f: float) -> Optional[MarketSnapshot]:
         """Select best market for rule 4 application."""
         best_snapshot, best_cap, best_floor = None, None, None
         async for snapshot in self._repository.iter_city_markets(city_code, day_code=day_code):

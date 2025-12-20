@@ -53,7 +53,5 @@ class DatetimeValidators:
         if time_to_expiry <= 0:
             raise ValidationError(f"Time to expiry {time_to_expiry} must be positive")
         if time_to_expiry > MAX_TIME_TO_EXPIRY_YEARS:
-            raise ValidationError(
-                f"Time to expiry {time_to_expiry} years exceeds maximum of {MAX_TIME_TO_EXPIRY_YEARS} years"
-            )
+            raise ValidationError(f"Time to expiry {time_to_expiry} years exceeds maximum of {MAX_TIME_TO_EXPIRY_YEARS} years")
         return True

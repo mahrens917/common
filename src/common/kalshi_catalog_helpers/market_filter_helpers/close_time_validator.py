@@ -54,9 +54,7 @@ class CloseTimeValidator:
 
         if isinstance(close_time, str):
             try:
-                return datetime.datetime.fromisoformat(
-                    close_time.replace("Z", "+00:00")
-                ).timestamp()
+                return datetime.datetime.fromisoformat(close_time.replace("Z", "+00:00")).timestamp()
             except ValueError:
                 return None
 

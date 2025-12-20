@@ -40,6 +40,7 @@ def __getattr__(name: str):
         return cli_temp_f
     raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
 
+
 _STATE_FIELDS = {
     "max_temp_c": "max_temp_c",
     "precision": "precision",

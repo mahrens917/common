@@ -94,18 +94,10 @@ def _compute_lazy_value(name: str) -> Any:
         default = settings.socket_timeout if settings.socket_timeout is not None else DEFAULT_SOCKET_TIMEOUT_SECONDS
         return env_float("REDIS_SOCKET_TIMEOUT", or_value=default)
     if name == "REDIS_SOCKET_CONNECT_TIMEOUT":
-        default = (
-            settings.socket_connect_timeout
-            if settings.socket_connect_timeout is not None
-            else DEFAULT_CONNECT_TIMEOUT_SECONDS
-        )
+        default = settings.socket_connect_timeout if settings.socket_connect_timeout is not None else DEFAULT_CONNECT_TIMEOUT_SECONDS
         return env_float("REDIS_SOCKET_CONNECT_TIMEOUT", or_value=default)
     if name == "REDIS_HEALTH_CHECK_INTERVAL":
-        default = (
-            settings.health_check_interval
-            if settings.health_check_interval is not None
-            else DEFAULT_HEALTH_CHECK_INTERVAL_SECONDS
-        )
+        default = settings.health_check_interval if settings.health_check_interval is not None else DEFAULT_HEALTH_CHECK_INTERVAL_SECONDS
         return env_float("REDIS_HEALTH_CHECK_INTERVAL", or_value=default)
     if name == "MARKET_KEY_PREFIX":
         return f"{schema.deribit_market_prefix}:"

@@ -69,9 +69,7 @@ class ChartComponentApplier:
 
         if data.is_temperature_chart and data.kalshi_strikes:
             data.add_kalshi_strike_lines_func(ax, data.kalshi_strikes)
-            data.add_comprehensive_temperature_labels_func(
-                ax, limits_configurator, data.kalshi_strikes
-            )
+            data.add_comprehensive_temperature_labels_func(ax, limits_configurator, data.kalshi_strikes)
 
         titles_applier = ChartTitlesLabelsApplier()
         titles_data = ChartTitlesLabelsData(

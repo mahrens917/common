@@ -143,9 +143,7 @@ class StationMappingIndexer:
         return alias_index
 
     @staticmethod
-    def resolve_city_code(
-        station_icao: str, mapping: Dict[str, Dict[str, Any]], alias_index: Dict[str, str]
-    ) -> Optional[str]:
+    def resolve_city_code(station_icao: str, mapping: Dict[str, Dict[str, Any]], alias_index: Dict[str, str]) -> Optional[str]:
         """Find city code from station ICAO, checking direct and alias lookup."""
         for city_code, station_data in mapping.items():
             if station_data.get("icao") == station_icao:

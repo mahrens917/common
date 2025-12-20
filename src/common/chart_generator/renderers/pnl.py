@@ -33,9 +33,7 @@ class PnlChartRendererMixin(UnifiedChartRendererMixin):
         """Delegate to the helper responsible for generating P&L charts."""
         return await self._generate_pnl_charts_impl(pnl_data)
 
-    async def _generate_pnl_charts_impl(
-        self: "PnlChartRendererMixin", pnl_data: Dict[str, Any]
-    ) -> List[str]:
+    async def _generate_pnl_charts_impl(self: "PnlChartRendererMixin", pnl_data: Dict[str, Any]) -> List[str]:
         if not pnl_data:
             raise InsufficientDataError("No P&L data available for chart generation")
 
@@ -68,9 +66,7 @@ class PnlChartRendererMixin(UnifiedChartRendererMixin):
         """Delegate to the helper that renders the daily P&L chart."""
         return await _generate_daily_pnl_chart_impl(self, daily_pnl_data)
 
-    async def _generate_cumulative_pnl_chart(
-        self, daily_pnl_dollars: List[Tuple[date, float]]
-    ) -> str:
+    async def _generate_cumulative_pnl_chart(self, daily_pnl_dollars: List[Tuple[date, float]]) -> str:
         """Delegate to the helper that renders the cumulative P&L chart."""
         return await _generate_cumulative_pnl_chart_impl(self, daily_pnl_dollars)
 
@@ -83,14 +79,10 @@ class PnlChartRendererMixin(UnifiedChartRendererMixin):
         return _generate_rule_breakdown_chart_impl(self, rule_breakdown)
 
 
-async def _generate_daily_pnl_chart_impl(
-    self: "PnlChartRendererMixin", daily_pnl_data: List[Tuple[date, float]]
-) -> str:
+async def _generate_daily_pnl_chart_impl(self: "PnlChartRendererMixin", daily_pnl_data: List[Tuple[date, float]]) -> str:
     if not daily_pnl_data:
         raise InsufficientDataError("No daily P&L data available")
-    timestamps = [
-        datetime.combine(day, datetime.min.time(), tzinfo=timezone.utc) for day, _ in daily_pnl_data
-    ]
+    timestamps = [datetime.combine(day, datetime.min.time(), tzinfo=timezone.utc) for day, _ in daily_pnl_data]
     values = [float(value) for _, value in daily_pnl_data]
     return await self.generate_unified_chart(
         timestamps=timestamps,
@@ -102,15 +94,10 @@ async def _generate_daily_pnl_chart_impl(
     )
 
 
-async def _generate_cumulative_pnl_chart_impl(
-    self: "PnlChartRendererMixin", daily_pnl_dollars: List[Tuple[date, float]]
-) -> str:
+async def _generate_cumulative_pnl_chart_impl(self: "PnlChartRendererMixin", daily_pnl_dollars: List[Tuple[date, float]]) -> str:
     if not daily_pnl_dollars:
         raise InsufficientDataError("No cumulative P&L data available")
-    timestamps = [
-        datetime.combine(day, datetime.min.time(), tzinfo=timezone.utc)
-        for day, _ in daily_pnl_dollars
-    ]
+    timestamps = [datetime.combine(day, datetime.min.time(), tzinfo=timezone.utc) for day, _ in daily_pnl_dollars]
     cumulative_cents = np.cumsum([float(value) for _, value in daily_pnl_dollars])
     values = list(cumulative_cents / 100.0)
     return await self.generate_unified_chart(
@@ -123,9 +110,7 @@ async def _generate_cumulative_pnl_chart_impl(
     )
 
 
-def _generate_station_breakdown_chart_impl(
-    self: "PnlChartRendererMixin", station_breakdown: Dict[str, int]
-) -> str:
+def _generate_station_breakdown_chart_impl(self: "PnlChartRendererMixin", station_breakdown: Dict[str, int]) -> str:
     renderer = PnlBreakdownChartRenderer(
         chart_width_inches=self.chart_width_inches,
         chart_height_inches=self.chart_height_inches,
@@ -142,9 +127,7 @@ def _generate_station_breakdown_chart_impl(
     )
 
 
-def _generate_rule_breakdown_chart_impl(
-    self: "PnlChartRendererMixin", rule_breakdown: Dict[str, int]
-) -> str:
+def _generate_rule_breakdown_chart_impl(self: "PnlChartRendererMixin", rule_breakdown: Dict[str, int]) -> str:
     renderer = PnlBreakdownChartRenderer(
         chart_width_inches=self.chart_width_inches,
         chart_height_inches=self.chart_height_inches,

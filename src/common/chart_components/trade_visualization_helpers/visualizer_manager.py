@@ -1,12 +1,14 @@
 """Manage trade visualizer lifecycle and rendering."""
 
+from __future__ import annotations
+
 import asyncio
 import logging
 from datetime import datetime
 from typing import TYPE_CHECKING, Callable, Optional, Sequence
 
 if TYPE_CHECKING:
-    from src.monitor.trade_visualizer import TradeVisualizer
+    from src.common.trade_visualizer import TradeVisualizer
 
 logger = logging.getLogger(__name__)
 
@@ -35,14 +37,10 @@ class VisualizerManager:
                 return
             visualizer_instance: TradeVisualizer = visualizer
 
-            trade_shadings = await self._fetch_trade_shadings(
-                visualizer_instance, station_icao, naive_timestamps, kalshi_strikes
-            )
+            trade_shadings = await self._fetch_trade_shadings(visualizer_instance, station_icao, naive_timestamps, kalshi_strikes)
 
             if trade_shadings:
-                self._apply_shadings(
-                    ax, visualizer_instance, trade_shadings, plot_timestamps, station_icao
-                )
+                self._apply_shadings(ax, visualizer_instance, trade_shadings, plot_timestamps, station_icao)
         except asyncio.CancelledError:
             raise
         except (OSError, RuntimeError, ValueError):
@@ -70,9 +68,7 @@ class VisualizerManager:
         start_time = timestamps_to_use[0]
         end_time = timestamps_to_use[-1]
 
-        return await visualizer.get_trade_shadings_for_station(
-            station_icao, start_time, end_time, timestamps_to_use, strike_levels
-        )
+        return await visualizer.get_trade_shadings_for_station(station_icao, start_time, end_time, timestamps_to_use, strike_levels)
 
     def _apply_shadings(
         self,
@@ -84,9 +80,7 @@ class VisualizerManager:
     ) -> None:
         """Apply trade shadings to chart."""
         visualizer.apply_trade_shadings_to_chart(ax, trade_shadings, list(plot_timestamps))
-        logger.info(
-            "<¯ Added %d trade visualizations to %s chart", len(trade_shadings), station_icao
-        )
+        logger.info("<¯ Added %d trade visualizations to %s chart", len(trade_shadings), station_icao)
 
     async def _cleanup_visualizer(self, station_icao: str) -> None:
         """Clean up visualizer resources."""

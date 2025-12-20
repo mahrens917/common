@@ -24,21 +24,15 @@ class LoadChartsGenerator:
         success = False
 
         try:
-            chart_paths["deribit"] = await self.load_chart_creator.create_load_chart(
-                "deribit", hours
-            )
+            chart_paths["deribit"] = await self.load_chart_creator.create_load_chart("deribit", hours)
             chart_paths["kalshi"] = await self.load_chart_creator.create_load_chart("kalshi", hours)
 
             from common.redis_utils import get_redis_connection
 
             redis_client: RedisClient = await get_redis_connection()
             try:
-                chart_paths["cpu"] = await self.system_chart_creator.create_system_chart(
-                    "cpu", hours, redis_client
-                )
-                chart_paths["memory"] = await self.system_chart_creator.create_system_chart(
-                    "memory", hours, redis_client
-                )
+                chart_paths["cpu"] = await self.system_chart_creator.create_system_chart("cpu", hours, redis_client)
+                chart_paths["memory"] = await self.system_chart_creator.create_system_chart("memory", hours, redis_client)
             finally:
                 await redis_client.aclose()
 

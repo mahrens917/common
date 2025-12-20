@@ -42,9 +42,7 @@ class ChartDataPreparer:
         timestamps: List[datetime],
         values: List[float],
         data: ChartPreparationData,
-    ) -> tuple[
-        ChartTimeContext, ChartStatistics, PredictionOverlayResult, Optional[Tuple[datetime, float]]
-    ]:
+    ) -> tuple[ChartTimeContext, ChartStatistics, PredictionOverlayResult, Optional[Tuple[datetime, float]]]:
         """Prepare chart data and render primary series"""
         time_context_builder = TimeContextBuilder()
         stats_calculator = SeriesStatisticsCalculator()
@@ -58,9 +56,7 @@ class ChartDataPreparer:
         stats = stats_calculator.compute_series_statistics(values, data.np)
         plot_color = data.line_color if data.line_color is not None else self.primary_color
 
-        series_renderer = PrimarySeriesRenderer(
-            primary_color=self.primary_color, secondary_color=self.secondary_color
-        )
+        series_renderer = PrimarySeriesRenderer(primary_color=self.primary_color, secondary_color=self.secondary_color)
         render_config = PrimarySeriesRenderConfig(
             ax=ax,
             values=values,

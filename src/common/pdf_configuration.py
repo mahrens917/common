@@ -68,8 +68,7 @@ def _resolve_currency(currency: Optional[str]) -> str:
     candidate = currency or _CURRENT_CURRENCY.get()
     if not candidate:
         raise PDFConfigurationCurrencyUnset(
-            "PDF configuration requested without specifying a currency. "
-            "Set the currency context or provide a currency argument."
+            "PDF configuration requested without specifying a currency. " "Set the currency context or provide a currency argument."
         )
     return _normalize_currency(candidate)
 
@@ -80,9 +79,7 @@ def _optimized_config_path(currency: str) -> Path:
     return PROJECT_ROOT / "config" / filename
 
 
-def load_active_pdf_config(
-    currency: Optional[str] = None, *, allow_missing: bool = False
-) -> Tuple[Dict[str, Any], Dict[str, Any]]:
+def load_active_pdf_config(currency: Optional[str] = None, *, allow_missing: bool = False) -> Tuple[Dict[str, Any], Dict[str, Any]]:
     """
     Load the active PDF configuration with optimized overrides applied.
 
@@ -117,9 +114,7 @@ def load_active_pdf_config(
 
     parameters = optimized_blob.get("parameters") or {}
     if not parameters and not optimized_missing:
-        raise ValueError(
-            f"Optimized configuration {optimized_path} must provide a 'parameters' object."
-        )
+        raise ValueError(f"Optimized configuration {optimized_path} must provide a 'parameters' object.")
 
     merged_config = _deep_merge_dict(base_config, parameters)
     metadata = {key: value for key, value in optimized_blob.items() if key != "parameters"}
@@ -140,9 +135,7 @@ def get_active_config_paths(currency: Optional[str] = None) -> Tuple[Path, Path]
     optimized_path = _optimized_config_path(resolved_currency)
 
     if not optimized_path.exists():
-        raise PDFConfigurationMissing(
-            f"Optimized PDF configuration missing for {resolved_currency}: {optimized_path}"
-        )
+        raise PDFConfigurationMissing(f"Optimized PDF configuration missing for {resolved_currency}: {optimized_path}")
     return BASE_CONFIG_PATH, optimized_path
 
 

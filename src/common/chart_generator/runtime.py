@@ -21,9 +21,7 @@ from .runtime_helpers import cleanup_chart_files as _cleanup_chart_files_impl
 from .runtime_helpers import cleanup_single_chart_file as _cleanup_single_chart_file_impl
 from .runtime_helpers import configure_price_chart_axis as _configure_price_chart_axis_impl
 from .runtime_helpers import configure_time_axis as _configure_time_axis_impl
-from .runtime_helpers import (
-    configure_time_axis_with_5_minute_alignment as _configure_time_axis_with_5_minute_alignment_impl,
-)
+from .runtime_helpers import configure_time_axis_with_5_minute_alignment as _configure_time_axis_with_5_minute_alignment_impl
 from .runtime_helpers import create_load_chart as _create_load_chart_impl
 from .runtime_helpers import create_price_chart_impl as _create_price_chart_impl
 from .runtime_helpers import create_system_chart as _create_system_chart_impl
@@ -100,9 +98,7 @@ class ChartCreationMixin:
     async def create_system_chart(self, metric: str, hours: int) -> str:
         return await self._create_system_chart(metric, hours)
 
-    async def create_price_chart(
-        self, symbol: str, prediction_horizon_days: Optional[int] = None
-    ) -> str:
+    async def create_price_chart(self, symbol: str, prediction_horizon_days: Optional[int] = None) -> str:
         return await self._create_price_chart(symbol, prediction_horizon_days)
 
     async def get_city_tokens_for_icao(self, station_icao: str):
@@ -149,17 +145,11 @@ class ChartHelperMixin:
         generator = cast("ChartGenerator", self)
         return await _generate_load_charts_impl(generator, hours)
 
-    async def generate_price_chart_with_path(
-        self, symbol: str, prediction_horizon_days: Optional[int] = None
-    ) -> str:
+    async def generate_price_chart_with_path(self, symbol: str, prediction_horizon_days: Optional[int] = None) -> str:
         generator = cast("ChartGenerator", self)
-        return await _generate_price_chart_with_path_impl(
-            generator, symbol, prediction_horizon_days
-        )
+        return await _generate_price_chart_with_path_impl(generator, symbol, prediction_horizon_days)
 
-    async def _create_price_chart(
-        self, symbol: str, prediction_horizon_days: Optional[int] = None
-    ) -> str:
+    async def _create_price_chart(self, symbol: str, prediction_horizon_days: Optional[int] = None) -> str:
         generator = cast("ChartGenerator", self)
         return await _create_price_chart_impl(generator, symbol, prediction_horizon_days)
 
@@ -181,9 +171,7 @@ class ChartHelperMixin:
         station_coordinates=None,
     ):
         generator = cast("ChartGenerator", self)
-        return _configure_time_axis_with_5_minute_alignment_impl(
-            generator, ax, timestamps, chart_type, station_coordinates
-        )
+        return _configure_time_axis_with_5_minute_alignment_impl(generator, ax, timestamps, chart_type, station_coordinates)
 
     def _configure_price_chart_axis(self, ax, timestamps) -> None:
         generator = cast("ChartGenerator", self)
@@ -290,6 +278,4 @@ class ChartGenerator(
         chart_type: str = "default",
         station_coordinates=None,
     ):
-        return _configure_time_axis_with_5_minute_alignment_impl(
-            self, ax, timestamps, chart_type, station_coordinates
-        )
+        return _configure_time_axis_with_5_minute_alignment_impl(self, ax, timestamps, chart_type, station_coordinates)

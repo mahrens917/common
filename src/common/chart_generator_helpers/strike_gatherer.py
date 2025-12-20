@@ -38,9 +38,7 @@ class StrikeGatherer:
             normalized_token = token.lower()
             pattern = f"{self.schema.kalshi_weather_prefix}:*{normalized_token}*"
             async for market_key in redis_client.scan_iter(match=pattern, count=100):
-                key_str = (
-                    market_key.decode("utf-8") if isinstance(market_key, bytes) else str(market_key)
-                )
+                key_str = market_key.decode("utf-8") if isinstance(market_key, bytes) else str(market_key)
                 context = StrikeCollectionContext(
                     redis_client=redis_client,
                     key_str=key_str,
@@ -67,9 +65,7 @@ class StrikeGatherer:
     ) -> set[float]:
         strikes: set[float] = set()
         for market_key in key_candidates:
-            key_str = (
-                market_key.decode("utf-8") if isinstance(market_key, bytes) else str(market_key)
-            )
+            key_str = market_key.decode("utf-8") if isinstance(market_key, bytes) else str(market_key)
             context = StrikeCollectionContext(
                 redis_client=redis_client,
                 key_str=key_str,
@@ -105,7 +101,5 @@ class StrikeGatherer:
             return False
         before = len(context.strikes)
         strike_type, floor_strike, cap_strike = self.hash_decoder.extract_strike_info(decoded)
-        self.strike_accumulator.accumulate_strike_values(
-            strike_type, floor_strike, cap_strike, context.strikes
-        )
+        self.strike_accumulator.accumulate_strike_values(strike_type, floor_strike, cap_strike, context.strikes)
         return len(context.strikes) > before

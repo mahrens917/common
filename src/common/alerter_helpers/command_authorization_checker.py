@@ -37,16 +37,10 @@ class CommandAuthorizationChecker:
             user_info = {}
 
         return {
-            "username": self._extract_user_field(
-                user_info, "username", DEFAULT_TELEGRAM_MESSAGE_TEXT
-            ),
+            "username": self._extract_user_field(user_info, "username", DEFAULT_TELEGRAM_MESSAGE_TEXT),
             "user_id": self._extract_user_field(user_info, "id", DEFAULT_TELEGRAM_ID_STR),
-            "first_name": self._extract_user_field(
-                user_info, "first_name", DEFAULT_TELEGRAM_FIRST_NAME
-            ),
-            "last_name": self._extract_user_field(
-                user_info, "last_name", DEFAULT_TELEGRAM_LAST_NAME
-            ),
+            "first_name": self._extract_user_field(user_info, "first_name", DEFAULT_TELEGRAM_FIRST_NAME),
+            "last_name": self._extract_user_field(user_info, "last_name", DEFAULT_TELEGRAM_LAST_NAME),
         }
 
     def _check_authorization(self, user_data: Dict[str, str], authorized_users: List[str]) -> bool:
@@ -78,9 +72,7 @@ class CommandAuthorizationChecker:
 
         # SECURITY: If no authorized users configured, DENY ALL ACCESS (fail-safe)
         if not authorized_users:
-            logger.warning(
-                "No TELEGRAM_AUTHORIZED_USERS configured - denying all access for security"
-            )
+            logger.warning("No TELEGRAM_AUTHORIZED_USERS configured - denying all access for security")
             return False
 
         # Extract user information

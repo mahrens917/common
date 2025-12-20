@@ -29,9 +29,7 @@ class AstronomicalCalculator:
     ) -> AstronomicalFeatures:
         """Compute astronomical features for the chart time range"""
         if not station_coordinates:
-            logger.warning(
-                "No coordinates available for %s - skipping astronomical features", station_icao
-            )
+            logger.warning("No coordinates available for %s - skipping astronomical features", station_icao)
             return AstronomicalFeatures(vertical_lines=[], dawn_dusk_periods=None)
 
         latitude, longitude = station_coordinates
@@ -50,9 +48,7 @@ class AstronomicalCalculator:
         try:
             local_tz = self._get_local_timezone(latitude, longitude, station_icao)
 
-            current_date = (start_date - timedelta(days=1)).replace(
-                hour=0, minute=0, second=0, microsecond=0
-            )
+            current_date = (start_date - timedelta(days=1)).replace(hour=0, minute=0, second=0, microsecond=0)
             if current_date.tzinfo is None:
                 current_date = current_date.replace(tzinfo=timezone.utc)
 
@@ -101,9 +97,7 @@ class AstronomicalCalculator:
             )
             return AstronomicalFeatures(vertical_lines=[], dawn_dusk_periods=None)
 
-    def _get_local_timezone(
-        self, latitude: float, longitude: float, station_icao: str
-    ) -> Optional[tzinfo]:
+    def _get_local_timezone(self, latitude: float, longitude: float, station_icao: str) -> Optional[tzinfo]:
         """Get local timezone for coordinates"""
         try:
             import pytz

@@ -20,22 +20,16 @@ class AlerterComponentsBuilder:
         self.settings = settings
         self.result: Dict[str, Any] = {}
 
-    def build(
-        self, send_alert_callback, flush_callback, ensure_processor_callback
-    ) -> Dict[str, Any]:
+    def build(self, send_alert_callback, flush_callback, ensure_processor_callback) -> Dict[str, Any]:
         """Build and return all alerter components."""
         self.result.update(TelegramBuilder.build_telegram_config(self.settings))
         self._build_core_helpers()
         self._build_throttle()
 
         if self.result["telegram_enabled"]:
+            self.result.update(TelegramBuilder.build_basic_and_command_components(self.result, send_alert_callback))
             self.result.update(
-                TelegramBuilder.build_basic_and_command_components(self.result, send_alert_callback)
-            )
-            self.result.update(
-                TelegramBuilder.build_polling_components(
-                    self.result, send_alert_callback, flush_callback, ensure_processor_callback
-                )
+                TelegramBuilder.build_polling_components(self.result, send_alert_callback, flush_callback, ensure_processor_callback)
             )
 
         return self.result

@@ -65,15 +65,11 @@ class NumericalValidators:
         if price < 0:
             raise ValidationError(f"{price_type} price {price} cannot be negative")
         if price_type.lower() in ["kalshi", "yes", "no"] and price > KALSHI_MAX_PRICE_CENTS:
-            raise ValidationError(
-                f"{price_type} price {price} exceeds maximum of {KALSHI_MAX_PRICE_CENTS} cents"
-            )
+            raise ValidationError(f"{price_type} price {price} exceeds maximum of {KALSHI_MAX_PRICE_CENTS} cents")
         return True
 
     @staticmethod
-    def validate_numerical_range(
-        value: float, min_value: float, max_value: float, value_name: str = "value"
-    ) -> bool:
+    def validate_numerical_range(value: float, min_value: float, max_value: float, value_name: str = "value") -> bool:
         """Validate numerical value is within specified range."""
         try:
             is_nan = math.isnan(value)
@@ -88,7 +84,5 @@ class NumericalValidators:
         if is_inf:
             raise ValidationError(f"{value_name} cannot be infinite")
         if value < min_value or value > max_value:
-            raise ValidationError(
-                f"{value_name} {value} must be in range [{min_value}, {max_value}]"
-            )
+            raise ValidationError(f"{value_name} {value} must be in range [{min_value}, {max_value}]")
         return True

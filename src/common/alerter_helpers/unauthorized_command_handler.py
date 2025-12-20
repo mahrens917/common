@@ -39,21 +39,13 @@ class UnauthorizedCommandHandler:
             user_info = {}
 
         username_value = user_info.get("username")
-        username = (
-            username_value
-            if isinstance(username_value, str) and username_value
-            else UNKNOWN_TELEGRAM_USERNAME
-        )
+        username = username_value if isinstance(username_value, str) and username_value else UNKNOWN_TELEGRAM_USERNAME
         raw_user_id = user_info.get("id")
         user_id = str(raw_user_id) if raw_user_id is not None else UNKNOWN_TELEGRAM_USER_ID
         first_name_value = user_info.get("first_name")
-        first_name = (
-            first_name_value if isinstance(first_name_value, str) else DEFAULT_TELEGRAM_FIRST_NAME
-        )
+        first_name = first_name_value if isinstance(first_name_value, str) else DEFAULT_TELEGRAM_FIRST_NAME
         last_name_value = user_info.get("last_name")
-        last_name = (
-            last_name_value if isinstance(last_name_value, str) else DEFAULT_TELEGRAM_LAST_NAME
-        )
+        last_name = last_name_value if isinstance(last_name_value, str) else DEFAULT_TELEGRAM_LAST_NAME
         full_name = f"{first_name} {last_name}".strip()
 
         security_alert = (

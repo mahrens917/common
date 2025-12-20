@@ -45,9 +45,7 @@ class ValidationHelpers:
         return DatetimeValidators.validate_time_to_expiry(time_to_expiry)
 
     @staticmethod
-    def validate_bid_ask_relationship(
-        bid: float, ask: float, instrument_name: str = "instrument"
-    ) -> bool:
+    def validate_bid_ask_relationship(bid: float, ask: float, instrument_name: str = "instrument") -> bool:
         """Validate bid <= ask relationship for market data."""
         return MarketValidators.validate_bid_ask_relationship(bid, ask, instrument_name)
 
@@ -72,9 +70,7 @@ class ValidationHelpers:
         return StructureValidators.validate_list_not_empty(data_list, list_name)
 
     @staticmethod
-    def validate_dictionary_has_keys(
-        data_dict: Dict[str, Any], required_keys: List[str], dict_name: str = "dictionary"
-    ) -> bool:
+    def validate_dictionary_has_keys(data_dict: Dict[str, Any], required_keys: List[str], dict_name: str = "dictionary") -> bool:
         """Validate dictionary contains all required keys."""
         return StructureValidators.validate_dictionary_has_keys(data_dict, required_keys, dict_name)
 

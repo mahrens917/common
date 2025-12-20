@@ -36,9 +36,7 @@ class PublicAPI:
             target_user_id,
         )
 
-    async def send_chart_image(
-        self, image_path: str, caption: str = "", target_user_id: str | None = None
-    ) -> bool:
+    async def send_chart_image(self, image_path: str, caption: str = "", target_user_id: str | None = None) -> bool:
         """Send chart."""
         return await ChartOperations.send_chart_image(
             self._mgr.telegram_enabled,
@@ -49,9 +47,7 @@ class PublicAPI:
             target_user_id,
         )
 
-    async def send_chart(
-        self, image_path: str, caption: str = "", target_user_id: str | None = None
-    ) -> bool:
+    async def send_chart(self, image_path: str, caption: str = "", target_user_id: str | None = None) -> bool:
         """Alias for send_chart_image."""
         return await self.send_chart_image(image_path, caption, target_user_id)
 

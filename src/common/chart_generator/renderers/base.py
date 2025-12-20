@@ -196,6 +196,4 @@ class UnifiedChartRendererMixin(
         chart_type: str = "default",
         station_coordinates=None,
     ):
-        raise NotImplementedError(
-            "_configure_time_axis must be provided by the renderer inheriting this mixin"
-        )
+        raise NotImplementedError("_configure_time_axis must be provided by the renderer inheriting this mixin")

@@ -7,8 +7,9 @@ import logging
 from pathlib import Path
 from typing import Dict, List
 
-from common.redis_protocol.messages import InstrumentMetadata
 from common.kalshi_api import KalshiClient
+from common.redis_protocol.messages import InstrumentMetadata
+
 from .catalog_helpers import MarketFetcher, MarketFilter, WeatherStationLoader
 
 logger = logging.getLogger(__name__)
@@ -94,9 +95,7 @@ class KalshiMarketCatalog:
             raise KalshiMarketCatalogError("Cannot build metadata from empty market list")
         return self._metadata_from_markets(markets)
 
-    def _metadata_from_markets(
-        self, markets: List[Dict[str, object]]
-    ) -> Dict[str, InstrumentMetadata]:
+    def _metadata_from_markets(self, markets: List[Dict[str, object]]) -> Dict[str, InstrumentMetadata]:
         """Convert markets to metadata map."""
         metadata: Dict[str, InstrumentMetadata] = {}
         for market in markets:

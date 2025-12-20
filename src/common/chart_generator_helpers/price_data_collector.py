@@ -46,9 +46,7 @@ class PriceDataCollector:
                 raise InsufficientDataError(f"No price data available for {symbol}")
 
             if len(price_data) < _MIN_DATA_POINTS:
-                raise InsufficientDataError(
-                    f"Insufficient price data for {symbol}: {len(price_data)} points"
-                )
+                raise InsufficientDataError(f"Insufficient price data for {symbol}: {len(price_data)} points")
 
             timestamps = []
             prices = []
@@ -62,9 +60,7 @@ class PriceDataCollector:
                     ValueError,
                     TypeError,
                 ):
-                    logger.warning(
-                        f"Skipping invalid price data point for {symbol}: timestamp={timestamp_int}, price={price_float}, error"
-                    )
+                    logger.warning(f"Skipping invalid price data point for {symbol}: timestamp={timestamp_int}, price={price_float}, error")
                     continue
 
             if not timestamps or not prices:

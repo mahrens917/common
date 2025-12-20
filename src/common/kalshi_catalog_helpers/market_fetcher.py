@@ -51,9 +51,7 @@ def _extract_page_markets(payload: Dict[str, object]) -> List[Any]:
     return page_markets
 
 
-def _should_continue_pagination(
-    cursor: Optional[str], seen_cursors: set[str | None], label: str
-) -> bool:
+def _should_continue_pagination(cursor: Optional[str], seen_cursors: set[str | None], label: str) -> bool:
     if cursor in seen_cursors:
         logger.warning("Received repeated cursor '%s' for %s; stopping pagination", cursor, label)
         return False
@@ -149,9 +147,7 @@ class MarketFetcher:
         self._crypto_assets = crypto_assets
         self._fetcher_client = MarketFetcherClient(client)
 
-    async def fetch_all_markets(
-        self, categories: Optional[Iterable[str]]
-    ) -> tuple[List[Dict[str, object]], int]:
+    async def fetch_all_markets(self, categories: Optional[Iterable[str]]) -> tuple[List[Dict[str, object]], int]:
         """Fetch all markets across categories."""
         markets: List[Dict[str, object]] = []
         seen_tickers: set[str] = set()
@@ -165,14 +161,10 @@ class MarketFetcher:
             else:
                 label = category if category else "<all>"
                 base_params: BaseParams | None = {"category": category} if category else None
-                total_pages += await self._fetcher_client.fetch_markets(
-                    label, markets, seen_tickers, base_params=base_params
-                )
+                total_pages += await self._fetcher_client.fetch_markets(label, markets, seen_tickers, base_params=base_params)
         return markets, total_pages
 
-    async def _fetch_crypto_markets(
-        self, markets: List[Dict[str, object]], seen_tickers: set[str]
-    ) -> int:
+    async def _fetch_crypto_markets(self, markets: List[Dict[str, object]], seen_tickers: set[str]) -> int:
         """Fetch crypto-specific markets."""
         from common.kalshi_api import KalshiClientError
 
@@ -201,24 +193,18 @@ class MarketFetcher:
             )
 
         if matched_series == 0:
-            raise KalshiMarketCatalogError(
-                "Crypto series returned no BTC/ETH tickers; aborting market discovery"
-            )
+            raise KalshiMarketCatalogError("Crypto series returned no BTC/ETH tickers; aborting market discovery")
 
         return pages
 
-    async def _fetch_weather_markets(
-        self, category: str, markets: List[Dict[str, object]], seen_tickers: set[str]
-    ) -> int:
+    async def _fetch_weather_markets(self, category: str, markets: List[Dict[str, object]], seen_tickers: set[str]) -> int:
         """Fetch weather-specific markets."""
         from common.kalshi_api import KalshiClientError
 
         try:
             series_list = await self._client.get_series(category=category)
         except (KalshiClientError, KeyError, TypeError, ValueError) as exc:
-            raise KalshiMarketCatalogError(
-                f"Failed to fetch Kalshi weather series for {category}"
-            ) from exc
+            raise KalshiMarketCatalogError(f"Failed to fetch Kalshi weather series for {category}") from exc
 
         pages = 0
         matched_series = 0
@@ -237,8 +223,6 @@ class MarketFetcher:
             )
 
         if matched_series == 0:
-            raise KalshiMarketCatalogError(
-                f"Weather series for {category} returned no KXHIGH tickers; aborting market discovery"
-            )
+            raise KalshiMarketCatalogError(f"Weather series for {category} returned no KXHIGH tickers; aborting market discovery")
 
         return pages

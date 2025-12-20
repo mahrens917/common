@@ -38,10 +38,7 @@ def _normalize_numeric_string(value: str) -> Optional[str]:
         stripped = stripped[1:]
 
     if not _NUMERIC_PRICE_PATTERN.match(stripped):
-        if (
-            stripped not in _SANITIZED_PRICE_VALUES_LOGGED
-            and value not in _SANITIZED_PRICE_VALUES_LOGGED
-        ):
+        if stripped not in _SANITIZED_PRICE_VALUES_LOGGED and value not in _SANITIZED_PRICE_VALUES_LOGGED:
             _SANITIZED_PRICE_VALUES_LOGGED.add(stripped)
             _SANITIZED_PRICE_VALUES_LOGGED.add(value)
             logger.debug("Skipping non-numeric market price value: %r", value)

@@ -26,9 +26,7 @@ class LoadChartsSender:
             if not chart_paths:
                 return False
 
-            batch_sender = ChartBatchSender(
-                self.chart_generator, self.send_chart_image, self.send_alert
-            )
+            batch_sender = ChartBatchSender(self.chart_generator, self.send_chart_image, self.send_alert)
             success_count = await batch_sender.send_charts_batch(chart_paths, "")
             return success_count == len(chart_paths)
 

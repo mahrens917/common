@@ -22,40 +22,20 @@ class AstronomicalEventProcessor:
     ) -> None:
         """Process astronomical events for a single day"""
         try:
-            solar_noon = data.calculate_solar_noon_utc(
-                data.latitude, data.longitude, data.current_date
-            )
-            if (
-                (data.start_date - timedelta(hours=12))
-                <= solar_noon
-                <= (data.end_date + timedelta(hours=12))
-            ):
+            solar_noon = data.calculate_solar_noon_utc(data.latitude, data.longitude, data.current_date)
+            if (data.start_date - timedelta(hours=12)) <= solar_noon <= (data.end_date + timedelta(hours=12)):
                 data.vertical_lines.append((solar_noon, "orange", "Solar Noon"))
 
-            local_midnight = data.calculate_local_midnight_utc(
-                data.latitude, data.longitude, data.current_date
-            )
-            if (
-                (data.start_date - timedelta(hours=12))
-                <= local_midnight
-                <= (data.end_date + timedelta(hours=12))
-            ):
+            local_midnight = data.calculate_local_midnight_utc(data.latitude, data.longitude, data.current_date)
+            if (data.start_date - timedelta(hours=12)) <= local_midnight <= (data.end_date + timedelta(hours=12)):
                 data.vertical_lines.append((local_midnight, "blue", "Local Midnight"))
 
             dawn = data.calculate_dawn_utc(data.latitude, data.longitude, data.current_date)
-            if (
-                (data.start_date - timedelta(hours=12))
-                <= dawn
-                <= (data.end_date + timedelta(hours=12))
-            ):
+            if (data.start_date - timedelta(hours=12)) <= dawn <= (data.end_date + timedelta(hours=12)):
                 data.vertical_lines.append((dawn, "lightsalmon", "Dawn"))
 
             dusk = data.calculate_dusk_utc(data.latitude, data.longitude, data.current_date)
-            if (
-                (data.start_date - timedelta(hours=12))
-                <= dusk
-                <= (data.end_date + timedelta(hours=12))
-            ):
+            if (data.start_date - timedelta(hours=12)) <= dusk <= (data.end_date + timedelta(hours=12)):
                 data.vertical_lines.append((dusk, "darkorange", "Dusk"))
 
             if dawn and dusk:

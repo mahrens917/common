@@ -89,15 +89,11 @@ class UnifiedChartRenderer:
             station_icao=kwargs.get("station_icao"),
             value_formatter=kwargs.get("value_formatter"),
             add_kalshi_strike_lines_func=kwargs["add_kalshi_strike_lines_func"],
-            add_comprehensive_temperature_labels_func=kwargs[
-                "add_comprehensive_temperature_labels_func"
-            ],
+            add_comprehensive_temperature_labels_func=kwargs["add_comprehensive_temperature_labels_func"],
             mdates=kwargs["mdates"],
         )
 
-        features_applier = ChartFeaturesApplier(
-            configure_time_axis_func=self.configure_time_axis_func
-        )
+        features_applier = ChartFeaturesApplier(configure_time_axis_func=self.configure_time_axis_func)
         await features_applier.apply_all_features(
             data=component_data,
             format_y_axis_func=kwargs["format_y_axis_func"],

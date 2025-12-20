@@ -112,9 +112,7 @@ def _shade_between_dusks_and_dawns(
             logger.debug("  Shaded dusk(%s) to chart end", dusk_time.strftime("%H:%M"))
 
 
-def _next_dawn_after(
-    dawns: Sequence[Tuple[float, datetime]], dusk_x: float
-) -> Optional[Tuple[float, datetime]]:
+def _next_dawn_after(dawns: Sequence[Tuple[float, datetime]], dusk_x: float) -> Optional[Tuple[float, datetime]]:
     return next((dawn for dawn in dawns if dawn[0] > dusk_x), None)
 
 
@@ -143,15 +141,9 @@ def add_vertical_line_annotations(
                 line_datetime_utc = line_datetime.replace(tzinfo=timezone.utc)
             else:
                 line_datetime_utc = line_datetime.astimezone(timezone.utc)
-            line_datetime_converted = line_datetime_utc.astimezone(local_timezone).replace(
-                tzinfo=None
-            )
+            line_datetime_converted = line_datetime_utc.astimezone(local_timezone).replace(tzinfo=None)
         else:
-            line_datetime_converted = (
-                line_datetime.replace(tzinfo=None)
-                if line_datetime.tzinfo is not None
-                else line_datetime
-            )
+            line_datetime_converted = line_datetime.replace(tzinfo=None) if line_datetime.tzinfo is not None else line_datetime
 
         line_x = mdates.date2num(line_datetime_converted)
 

@@ -81,9 +81,7 @@ def _extract_weather_station_token(ticker: str) -> Optional[str]:
     return WeatherFilter.extract_station_token(ticker)
 
 
-def _passes_weather_filters(
-    market: Dict[str, object], now_ts: float, weather_tokens: Set[str]
-) -> bool:
+def _passes_weather_filters(market: Dict[str, object], now_ts: float, weather_tokens: Set[str]) -> bool:
     weather_filter = WeatherFilter(weather_tokens)
     return weather_filter.passes_filters(market, now_ts, CloseTimeValidator)
 
@@ -178,9 +176,7 @@ class MarketFilter:
         self._weather_station_tokens = weather_station_tokens
         self._crypto_validator = CryptoMarketValidator()
 
-    def filter_markets(
-        self, markets: List[Dict[str, object]]
-    ) -> Tuple[List[Dict[str, object]], Dict[str, int]]:
+    def filter_markets(self, markets: List[Dict[str, object]]) -> Tuple[List[Dict[str, object]], Dict[str, int]]:
         """Filter markets and return filtered list with stats."""
         filtered: List[Dict[str, object]] = []
         stats = _create_empty_stats()

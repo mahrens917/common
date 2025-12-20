@@ -27,9 +27,7 @@ def configure_temperature_axis(ax, timestamps: List[datetime], *, mdates, plt) -
     ax.set_xlabel("")
 
 
-def configure_default_axis(
-    ax, timestamps: List[datetime], time_range_hours: float, *, mdates, plt
-) -> None:
+def configure_default_axis(ax, timestamps: List[datetime], time_range_hours: float, *, mdates, plt) -> None:
     """Configure x-axis for non-temperature charts with dynamic tick spacing."""
     from common.config_loader import load_config
 
@@ -49,9 +47,7 @@ def configure_default_axis(
 
     # Set major ticks
     if tick_interval_minutes >= minutes_per_hour:
-        ax.xaxis.set_major_locator(
-            mdates.HourLocator(interval=tick_interval_minutes // minutes_per_hour)
-        )
+        ax.xaxis.set_major_locator(mdates.HourLocator(interval=tick_interval_minutes // minutes_per_hour))
         ax.xaxis.set_major_formatter(mdates.DateFormatter("%H:%M"))
     else:
         ax.xaxis.set_major_locator(mdates.MinuteLocator(interval=tick_interval_minutes))

@@ -43,9 +43,7 @@ class PnlBreakdownChartRenderer:
         labels = list(data.keys())
         values = np.array(list(data.values()), dtype=float) / 100.0
 
-        fig, ax = plt.subplots(
-            figsize=(self.chart_width_inches, self.chart_height_inches), dpi=self.dpi
-        )
+        fig, ax = plt.subplots(figsize=(self.chart_width_inches, self.chart_height_inches), dpi=self.dpi)
         try:
             colors = ["#28a745" if value >= 0 else "#dc3545" for value in values]
             bars = ax.bar(labels, values, color=colors)

@@ -48,9 +48,7 @@ async def create_load_chart(generator: "ChartGenerator", service_name: str, hour
                 timestamps.append(entry["timestamp"])
                 values.append(numeric_value)
         if len(timestamps) < MIN_DATA_POINTS_FOR_CHART:
-            raise InsufficientDataError(
-                f"Insufficient data points for {service_name}: {len(timestamps)}"
-            )
+            raise InsufficientDataError(f"Insufficient data points for {service_name}: {len(timestamps)}")
     finally:
         await metadata_store.cleanup()
 
@@ -120,9 +118,7 @@ async def get_city_tokens_for_icao(generator: "ChartGenerator", station_icao: st
     return await resolver.get_city_tokens_for_icao(station_icao)
 
 
-async def get_kalshi_strikes_for_station(
-    generator: "ChartGenerator", station_icao: str
-) -> List[float]:
+async def get_kalshi_strikes_for_station(generator: "ChartGenerator", station_icao: str) -> List[float]:
     from common.redis_utils import get_redis_connection
 
     redis_client = await get_redis_connection()
@@ -130,9 +126,7 @@ async def get_kalshi_strikes_for_station(
         city_tokens, canonical_token = await generator.get_city_tokens_for_icao(station_icao)
         if not city_tokens and not canonical_token:
             raise RuntimeError(f"No Kalshi tokens available for {station_icao}")
-        return await generator.strike_collector.get_kalshi_strikes_for_station(
-            redis_client, station_icao, city_tokens, canonical_token
-        )
+        return await generator.strike_collector.get_kalshi_strikes_for_station(redis_client, station_icao, city_tokens, canonical_token)
     finally:
         await redis_client.aclose()
 
@@ -204,18 +198,14 @@ async def generate_load_charts(generator: "ChartGenerator", hours: int = 24) -> 
     }
 
 
-async def generate_price_chart_with_path(
-    generator: "ChartGenerator", symbol: str, prediction_horizon_days: Optional[int] = None
-) -> str:
+async def generate_price_chart_with_path(generator: "ChartGenerator", symbol: str, prediction_horizon_days: Optional[int] = None) -> str:
     creator = generator.price_chart_creator
     if creator is not None:
         return await creator.create_price_chart(symbol, prediction_horizon_days)
     return await generator.create_price_chart(symbol, prediction_horizon_days)
 
 
-async def create_price_chart_impl(
-    generator: "ChartGenerator", symbol: str, prediction_horizon_days: Optional[int] = None
-) -> str:
+async def create_price_chart_impl(generator: "ChartGenerator", symbol: str, prediction_horizon_days: Optional[int] = None) -> str:
     creator = generator.price_chart_creator
     if creator is None:
         progress_notifier = generator.progress_notifier
@@ -253,9 +243,7 @@ def configure_time_axis(
     station_coordinates=None,
 ) -> None:
     if chart_type == "price":
-        generator.time_configurator.configure_price_chart_axis(
-            ax, timestamps, mdates=mdates, plt=plt
-        )
+        generator.time_configurator.configure_price_chart_axis(ax, timestamps, mdates=mdates, plt=plt)
         return
 
     configure_time_axis_with_5_minute_alignment(

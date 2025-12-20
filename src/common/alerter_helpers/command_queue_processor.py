@@ -60,9 +60,7 @@ class CommandQueueProcessor:
                         await queued_command.handler(queued_command.message)
                         logger.debug(f"Successfully processed command: /{queued_command.command}")
                     except (RuntimeError, ValueError, TypeError, KeyError, OSError) as exc:
-                        logger.exception(
-                            "Error executing queued command /%s", queued_command.command
-                        )
+                        logger.exception("Error executing queued command /%s", queued_command.command)
                         # Send error message to user
                         await self.send_alert_callback(
                             f"Error executing command /{queued_command.command}: {str(exc)}",

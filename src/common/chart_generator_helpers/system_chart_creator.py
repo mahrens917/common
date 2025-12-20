@@ -27,9 +27,7 @@ class SystemChartCreator:
 
     async def create_system_chart(self, metric_type: str, hours: int, redis_client) -> str:
         """Create a system metrics chart for CPU or memory"""
-        timestamps, values = await self.metrics_collector.collect_system_metric_data(
-            redis_client, metric_type, hours
-        )
+        timestamps, values = await self.metrics_collector.collect_system_metric_data(redis_client, metric_type, hours)
 
         chart_title = self.title_formatter.format_system_chart_title(metric_type)
         formatter = lambda x: f"{x:.1f}%"

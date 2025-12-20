@@ -38,9 +38,7 @@ class TelegramBuilder:
                 "authorized_user_ids": list(telegram_settings.chat_ids),
                 "telegram_timeout_seconds": timeout,
                 "telegram_long_poll_timeout_seconds": min(60, max(25, int(timeout * 2))),
-                "telegram_client": TelegramClient(
-                    telegram_settings.bot_token, timeout_seconds=timeout
-                ),
+                "telegram_client": TelegramClient(telegram_settings.bot_token, timeout_seconds=timeout),
             }
             logger.info(
                 "Telegram notifications enabled for %s authorized user(s)",
@@ -67,31 +65,23 @@ class TelegramBuilder:
             result["authorized_user_ids"],
         )
         backoff_mgr, cmd_queue = TelegramNetworkBackoffManager(timeout), asyncio.Queue()
-        msg_sender, media_sender = TelegramMessageSender(
-            client, timeout, backoff_mgr
-        ), TelegramMediaSender(client, timeout, backoff_mgr)
+        msg_sender, media_sender = TelegramMessageSender(client, timeout, backoff_mgr), TelegramMediaSender(client, timeout, backoff_mgr)
         auth_checker, cmd_registry = CommandAuthorizationChecker(user_ids), CommandHandlerRegistry()
         return {
             "backoff_manager": backoff_mgr,
             "message_sender": msg_sender,
             "media_sender": media_sender,
-            "delivery_manager": TelegramDeliveryManager(
-                msg_sender, media_sender, result["alert_formatter"]
-            ),
+            "delivery_manager": TelegramDeliveryManager(msg_sender, media_sender, result["alert_formatter"]),
             "rate_limit_handler": TelegramRateLimitHandler(),
             "authorization_checker": auth_checker,
             "command_registry": cmd_registry,
             "command_queue": cmd_queue,
             "command_processor": CommandQueueProcessor(cmd_queue, send_alert_callback),
-            "update_processor": TelegramUpdateProcessor(
-                auth_checker, cmd_registry, cmd_queue, send_alert_callback
-            ),
+            "update_processor": TelegramUpdateProcessor(auth_checker, cmd_registry, cmd_queue, send_alert_callback),
         }
 
     @staticmethod
-    def build_polling_components(
-        result, send_alert_callback, flush_callback, ensure_processor_callback
-    ):
+    def build_polling_components(result, send_alert_callback, flush_callback, ensure_processor_callback):
         """Build polling coordinator components."""
         client, timeout = result["telegram_client"], result["telegram_timeout_seconds"]
         polling_executor = TelegramPollingRequestExecutor(

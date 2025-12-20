@@ -15,9 +15,7 @@ class PaginationHelper:
     def should_continue(cursor: Optional[str], seen_cursors: set[str | None], label: str) -> bool:
         """Check if pagination should continue."""
         if cursor in seen_cursors:
-            logger.warning(
-                "Received repeated cursor '%s' for %s; stopping pagination", cursor, label
-            )
+            logger.warning("Received repeated cursor '%s' for %s; stopping pagination", cursor, label)
             return False
         return True
 

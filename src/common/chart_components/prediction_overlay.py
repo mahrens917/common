@@ -66,9 +66,7 @@ def _draw_prediction_line(ax, numeric: np.ndarray, values: np.ndarray, color: st
     )
 
 
-def _validate_uncertainty_inputs(
-    prediction_values: Sequence[float], prediction_uncertainties: Sequence[float]
-) -> None:
+def _validate_uncertainty_inputs(prediction_values: Sequence[float], prediction_uncertainties: Sequence[float]) -> None:
     if len(prediction_uncertainties) != len(prediction_values):
         raise ValueError("prediction_uncertainties must match prediction_values length")
 
@@ -199,9 +197,7 @@ def _plot_uncertainty_bands(ax, numeric, envelopes, colors, plot_color: str) -> 
     )
 
 
-def _collect_uncertainty_extrema(
-    prediction_values: Sequence[float], prediction_uncertainties: Sequence[float]
-) -> List[float]:
+def _collect_uncertainty_extrema(prediction_values: Sequence[float], prediction_uncertainties: Sequence[float]) -> List[float]:
     extrema: List[float] = []
     for value, uncertainty in zip(prediction_values, prediction_uncertainties):
         extrema.extend([value + uncertainty, value - uncertainty])
@@ -238,13 +234,9 @@ def render_prediction_overlay(
     if len(prediction_timestamps) != len(prediction_values):
         raise ValueError("prediction_timestamps and prediction_values must have the same length")
 
-    anchor_numeric, anchor_value = _extract_historical_anchor(
-        historical_timestamps, historical_values
-    )
+    anchor_numeric, anchor_value = _extract_historical_anchor(historical_timestamps, historical_values)
     prediction_numeric = mdates.date2num(prediction_timestamps)
-    merged_numeric, merged_values = _merge_prediction_series(
-        anchor_numeric, anchor_value, prediction_numeric, prediction_values
-    )
+    merged_numeric, merged_values = _merge_prediction_series(anchor_numeric, anchor_value, prediction_numeric, prediction_values)
 
     _draw_prediction_line(ax, merged_numeric, merged_values, plot_color)
 

@@ -24,13 +24,9 @@ def _find_potential_t_separators(ticker: str) -> list[int]:
 def _validate_separator_count(potential_separators: list[int], ticker: str) -> None:
     """Validate that exactly one T separator was found."""
     if len(potential_separators) > 1:
-        raise ValidationError(
-            f"Invalid ticker format - multiple 'T' separators found in ticker: {ticker}"
-        )
+        raise ValidationError(f"Invalid ticker format - multiple 'T' separators found in ticker: {ticker}")
     if len(potential_separators) == 0:
-        raise ValidationError(
-            f"Invalid ticker format - no valid 'T' separator found in ticker: {ticker}"
-        )
+        raise ValidationError(f"Invalid ticker format - no valid 'T' separator found in ticker: {ticker}")
 
 
 def _find_ticker_t_separator(ticker: str) -> int:
@@ -45,9 +41,7 @@ def _validate_ticker_prefix(prefix: str, ticker: str) -> None:
     if len(prefix) == 0:
         raise ValidationError(f"Invalid ticker format - empty prefix before 'T': {ticker}")
     if "-" not in prefix:
-        raise ValidationError(
-            f"Invalid ticker format - missing date separator in prefix '{prefix}': {ticker}"
-        )
+        raise ValidationError(f"Invalid ticker format - missing date separator in prefix '{prefix}': {ticker}")
 
 
 def _validate_ticker_strike(strike_suffix: str, ticker: str) -> None:
@@ -60,9 +54,7 @@ def _validate_ticker_strike(strike_suffix: str, ticker: str) -> None:
         strike_price = float(strike_suffix)
         NumericalValidators.validate_strike_price(strike_price)
     except ValueError:
-        raise ValidationError(
-            f"Invalid ticker format - non-numeric strike price '{strike_suffix}' in ticker: {ticker}"
-        )
+        raise ValidationError(f"Invalid ticker format - non-numeric strike price '{strike_suffix}' in ticker: {ticker}")
 
 
 class FormatValidators:
@@ -80,9 +72,7 @@ class FormatValidators:
         supported_currencies = {"BTC", "ETH"}
         currency_upper = currency.upper()
         if currency_upper not in supported_currencies:
-            raise ValidationError(
-                f"Unsupported currency '{currency}', must be one of {supported_currencies}"
-            )
+            raise ValidationError(f"Unsupported currency '{currency}', must be one of {supported_currencies}")
         return True
 
     @staticmethod

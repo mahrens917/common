@@ -53,21 +53,15 @@ class TelegramMessageSender:
 
         if self.backoff_manager.should_skip_operation("sendMessage"):
             logger.warning("Skipping Telegram sendMessage due to active network backoff")
-            return TelegramDeliveryResult(
-                success=False, failed_recipients=list(recipients), queued_recipients=[]
-            )
+            return TelegramDeliveryResult(success=False, failed_recipients=list(recipients), queued_recipients=[])
 
         success_count = 0
         for chat_id in recipients:
             try:
-                success, error_text = await self.telegram_client.send_message(
-                    chat_id, formatted_message
-                )
+                success, error_text = await self.telegram_client.send_message(chat_id, formatted_message)
             except asyncio.TimeoutError as exc:
                 self.backoff_manager.record_failure(exc)
-                raise RuntimeError(
-                    f"Telegram send_message timeout after {self.timeout_seconds}s for {chat_id}"
-                ) from exc
+                raise RuntimeError(f"Telegram send_message timeout after {self.timeout_seconds}s for {chat_id}") from exc
             except Exception as exc:
                 self.backoff_manager.record_failure(exc)
                 raise RuntimeError(f"Telegram send_message failed for {chat_id}") from exc
@@ -75,9 +69,7 @@ class TelegramMessageSender:
             if not success:
                 failure_message = error_text if error_text else "unknown error"
                 self.backoff_manager.record_failure(RuntimeError(failure_message))
-                raise RuntimeError(
-                    f"Telegram send_message returned failure for {chat_id}: {failure_message}"
-                )
+                raise RuntimeError(f"Telegram send_message returned failure for {chat_id}: {failure_message}")
 
             success_count += 1
             self.backoff_manager.clear_backoff()

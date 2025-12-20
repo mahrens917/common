@@ -42,9 +42,7 @@ class WeatherRuleEngine:
         self,
         repository: MarketRepository,
         *,
-        station_mapping_loader: Callable[
-            [], Dict[str, Dict[str, Any]]
-        ] = load_weather_station_mapping,
+        station_mapping_loader: Callable[[], Dict[str, Dict[str, Any]]] = load_weather_station_mapping,
     ) -> None:
         self._repository = repository
         self._station_mapping_loader = station_mapping_loader or load_weather_station_mapping
@@ -61,9 +59,7 @@ class WeatherRuleEngine:
         if not city_code:
             raise StationCityMappingMissingError(station_icao)
         day_code = DayCodeBuilder.build()
-        target_snapshot = await self._select_target_market(
-            city_code, day_code=day_code, max_temp_f=max_temp_f
-        )
+        target_snapshot = await self._select_target_market(city_code, day_code=day_code, max_temp_f=max_temp_f)
         if not target_snapshot:
             logger.info(
                 "WeatherRuleEngine: No Rule 4 market found for %s at %.1f°F",
@@ -71,9 +67,7 @@ class WeatherRuleEngine:
                 max_temp_f,
             )
             return None
-        return await self._apply_market_fields_and_return_result(
-            target_snapshot, station_icao, max_temp_f
-        )
+        return await self._apply_market_fields_and_return_result(target_snapshot, station_icao, max_temp_f)
 
     def reload_station_mapping(self) -> None:
         self._station_mapping = self._load_station_mapping()
@@ -86,13 +80,9 @@ class WeatherRuleEngine:
             raise WeatherRuleEngineError(str(exc)) from exc
 
     def _resolve_city_code(self, station_icao: str) -> Optional[str]:
-        return StationMappingIndexer.resolve_city_code(
-            station_icao, self._station_mapping, self._alias_index
-        )
+        return StationMappingIndexer.resolve_city_code(station_icao, self._station_mapping, self._alias_index)
 
-    async def _select_target_market(
-        self, city_code: str, *, day_code: Optional[str], max_temp_f: float
-    ) -> Optional[MarketSnapshot]:
+    async def _select_target_market(self, city_code: str, *, day_code: Optional[str], max_temp_f: float) -> Optional[MarketSnapshot]:
         best_snapshot, best_cap, best_floor = None, None, None
         async for snapshot in self._repository.iter_city_markets(city_code, day_code=day_code):
             cap, floor = MarketEvaluator.extract_strike_values(snapshot, TemperatureCoercer)

@@ -135,18 +135,27 @@ class AuthenticationManager:
 
     def _load_private_key(self) -> "rsa.RSAPrivateKey":
         """Load and validate RSA private key."""
+        import os
+        from pathlib import Path
+
         from cryptography.hazmat.primitives import serialization
         from cryptography.hazmat.primitives.asymmetric import rsa
 
         from common.config import ConfigurationError
 
         try:
-            b64_key = self._credentials.require_private_key()
+            key_value = self._credentials.require_private_key()
         except ConfigurationError as exc:
             raise KalshiWSConfigurationError(str(exc)) from exc
 
         try:
-            key_bytes = base64.b64decode(b64_key)
+            # Check if it's a file path
+            if key_value.startswith("/") or key_value.startswith("~"):
+                key_path = Path(os.path.expanduser(key_value))
+                key_bytes = key_path.read_bytes()
+            else:
+                # Treat as base64-encoded key content
+                key_bytes = base64.b64decode(key_value)
             private_key = serialization.load_pem_private_key(key_bytes, password=None)
         except Exception as exc:
             raise KalshiWSConfigurationError(f"Failed to load private key: {exc}") from exc

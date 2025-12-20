@@ -20,9 +20,7 @@ _MIN_DATA_POINTS = 2
 class LoadDataCollector:
     """Collects load monitoring data from MetadataStore"""
 
-    async def collect_service_load_data(
-        self, service_name: str, hours: int
-    ) -> Tuple[List[datetime], List[float]]:
+    async def collect_service_load_data(self, service_name: str, hours: int) -> Tuple[List[datetime], List[float]]:
         """
         Collect load data for a service from MetadataStore
 
@@ -72,9 +70,7 @@ class LoadDataCollector:
                     values.append(numeric_value)
 
             if len(timestamps) < _MIN_DATA_POINTS:
-                raise InsufficientDataError(
-                    f"Insufficient data points for {service_name}: {len(timestamps)}"
-                )
+                raise InsufficientDataError(f"Insufficient data points for {service_name}: {len(timestamps)}")
 
             return timestamps, values
 

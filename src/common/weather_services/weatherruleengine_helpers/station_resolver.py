@@ -32,9 +32,7 @@ class StationResolver:
 
     def resolve_city_code(self, station_icao: str) -> Optional[str]:
         """Resolve station ICAO to city code."""
-        return StationMappingIndexer.resolve_city_code(
-            station_icao, self._station_mapping, self._alias_index
-        )
+        return StationMappingIndexer.resolve_city_code(station_icao, self._station_mapping, self._alias_index)
 
     def _load_station_mapping(self) -> Dict[str, Dict[str, Any]]:
         try:

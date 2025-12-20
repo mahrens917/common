@@ -24,9 +24,7 @@ class DeliveryValidator:
             raise FileNotFoundError(f"Telegram media payload missing at {payload_path}")
 
         if backoff_manager.should_skip_operation(telegram_method):
-            raise RuntimeError(
-                f"Telegram network backoff active; refusing to send {telegram_method} payload."
-            )
+            raise RuntimeError(f"Telegram network backoff active; refusing to send {telegram_method} payload.")
 
         return payload_path
 

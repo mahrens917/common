@@ -13,7 +13,7 @@ from src.common.price_path_calculator import (
 )
 
 if TYPE_CHECKING:
-    from src.monitor.trade_visualizer import TradeVisualizer
+    from src.common.trade_visualizer import TradeVisualizer
 
 from . import dependencies as _deps
 from .contexts import AstronomicalFeatures, ChartStatistics, ChartTimeContext, WeatherChartSeries
@@ -66,7 +66,7 @@ __all__ = [
 def __getattr__(name: str):
     """Lazy loading for monitor-dependent imports."""
     if name == "TradeVisualizer":
-        from src.monitor.trade_visualizer import TradeVisualizer
+        from src.common.trade_visualizer import TradeVisualizer
 
         return TradeVisualizer
     raise AttributeError(f"module {__name__!r} has no attribute {name!r}")

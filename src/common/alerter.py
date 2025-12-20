@@ -81,9 +81,7 @@ class AlertDispatchMixin:
             target_user_id,
         )
 
-    async def send_chart_image(
-        self, image_path: str, caption: str = "", target_user_id: str | None = None
-    ) -> bool:
+    async def send_chart_image(self, image_path: str, caption: str = "", target_user_id: str | None = None) -> bool:
         if not self.telegram_enabled:
             return False
         assert self.delivery_manager is not None
@@ -94,9 +92,7 @@ class AlertDispatchMixin:
             return False
         return await self.delivery_manager.send_chart(image_path, caption, recipients)
 
-    async def send_chart(
-        self, image_path: str, caption: str = "", target_user_id: str | None = None
-    ) -> bool:
+    async def send_chart(self, image_path: str, caption: str = "", target_user_id: str | None = None) -> bool:
         return await self.send_chart_image(image_path, caption, target_user_id)
 
     def _ensure_proc(self) -> None:
@@ -123,9 +119,7 @@ class CommandHandlersMixin:
 
         self.command_registry.register_command_handler("help", self.command_coordinator.handle_help)
         self.command_registry.register_command_handler("load", self.command_coordinator.handle_load)
-        self.command_registry.register_command_handler(
-            "price", self.command_coordinator.handle_price
-        )
+        self.command_registry.register_command_handler("price", self.command_coordinator.handle_price)
         self.command_registry.register_command_handler("temp", self.command_coordinator.handle_temp)
         self.command_registry.register_command_handler("pnl", self.command_coordinator.handle_pnl)
         TelegramSurfaceHandler(self).register_surface_command()
@@ -233,9 +227,7 @@ class Alerter(
         self.command_processor: Any | None = None
         self.polling_coordinator: Any | None = None
         self.alert_sender: AlertSender | None = None
-        c = AlerterComponentsBuilder(self.settings).build(
-            self.send_alert, self._flush, self._ensure_proc
-        )
+        c = AlerterComponentsBuilder(self.settings).build(self.send_alert, self._flush, self._ensure_proc)
         self.telegram_enabled, self.authorized_user_ids = (
             c["telegram_enabled"],
             c["authorized_user_ids"],
@@ -261,9 +253,7 @@ class Alerter(
                 self._ensure_proc,
             )
         self.chart_manager = ChartManager(self.telegram_enabled)
-        self.command_coordinator = CommandCoordinator(
-            self.chart_manager, self.send_alert, self.send_chart_image
-        )
+        self.command_coordinator = CommandCoordinator(self.chart_manager, self.send_alert, self.send_chart_image)
         if self.telegram_enabled:
             self._register_cmds()
 
@@ -285,9 +275,7 @@ async def _send_alert(
     alerter = cast("Alerter", self)
     if alerter.telegram_enabled:
         assert alerter.alert_sender is not None
-        return await alerter.alert_sender.send_alert(
-            message, severity, alert_type, details, target_user_id
-        )
+        return await alerter.alert_sender.send_alert(message, severity, alert_type, details, target_user_id)
     alert = Alert(
         message=message,
         severity=severity,

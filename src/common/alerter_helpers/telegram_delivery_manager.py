@@ -58,9 +58,7 @@ class TelegramDeliveryManager:
             result = await self.message_sender.send_message(formatted_message, recipients)
         except Exception as exc:  # pragma: no cover - defensive
             logger.error("Failed to send Telegram alert: %s", exc, exc_info=True)
-            return TelegramDeliveryResult(
-                success=False, failed_recipients=list(recipients), queued_recipients=[]
-            )
+            return TelegramDeliveryResult(success=False, failed_recipients=list(recipients), queued_recipients=[])
         if isinstance(result, TelegramDeliveryResult) and not result.success:
             logger.warning("Telegram alert delivery skipped/failed for %s", recipients)
         return result

@@ -32,9 +32,7 @@ class BackoffGuardMixin:
 
     def _ensure_backoff_allowance(self, telegram_method: str) -> None:
         if self.backoff_manager.should_skip_operation(telegram_method):
-            raise RuntimeError(
-                f"Telegram network backoff active; refusing to send {telegram_method} payload."
-            )
+            raise RuntimeError(f"Telegram network backoff active; refusing to send {telegram_method} payload.")
 
 
 class DeliveryMixin:
@@ -81,9 +79,7 @@ class DeliveryMixin:
         if not success:
             failure_message = error_text if error_text else "unknown error"
             self.backoff_manager.record_failure(RuntimeError(failure_message))
-            raise RuntimeError(
-                f"Telegram media send returned failure for user {user_id}: {failure_message}"
-            )
+            raise RuntimeError(f"Telegram media send returned failure for user {user_id}: {failure_message}")
         self.backoff_manager.clear_backoff()
         logger.debug("Telegram media %s delivered to user %s", payload_path.name, user_id)
 
@@ -105,14 +101,10 @@ class DeliveryMixin:
             )
         except asyncio.TimeoutError as exc:
             self.backoff_manager.record_failure(exc)
-            raise RuntimeError(
-                f"Telegram media timeout after {self.timeout_seconds}s for user {user_id}"
-            ) from exc
+            raise RuntimeError(f"Telegram media timeout after {self.timeout_seconds}s for user {user_id}") from exc
         except Exception as exc:
             self.backoff_manager.record_failure(exc)
-            raise RuntimeError(
-                f"Telegram media send failed for user {user_id} with payload {payload_path}"
-            ) from exc
+            raise RuntimeError(f"Telegram media send failed for user {user_id} with payload {payload_path}") from exc
 
 
 class TelegramMediaSender(
@@ -146,9 +138,7 @@ class TelegramMediaSender(
         payload_path = self._resolve_payload_path(source_path, spooled_path)
         if self.backoff_manager.should_skip_operation(telegram_method):
             logger.warning("Skipping Telegram %s due to active network backoff", telegram_method)
-            return TelegramDeliveryResult(
-                success=False, failed_recipients=list(recipients), queued_recipients=[]
-            )
+            return TelegramDeliveryResult(success=False, failed_recipients=list(recipients), queued_recipients=[])
         success_count = await self._deliver_to_recipients(
             recipients,
             payload_path,

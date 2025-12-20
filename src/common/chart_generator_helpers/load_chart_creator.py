@@ -27,9 +27,7 @@ class LoadChartCreator:
 
     async def create_load_chart(self, service_name: str, hours: int) -> str:
         """Create a load monitoring chart for a specific service"""
-        timestamps, values = await self.load_collector.collect_service_load_data(
-            service_name, hours
-        )
+        timestamps, values = await self.load_collector.collect_service_load_data(service_name, hours)
 
         chart_title = self.title_formatter.format_load_chart_title(service_name)
         load_formatter = lambda x: f"{x:,.0f}"

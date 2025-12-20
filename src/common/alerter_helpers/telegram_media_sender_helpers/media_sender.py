@@ -33,9 +33,7 @@ class MediaSender:
             logger.debug("Telegram media %s delivered to user %s", payload_path.name, user_id)
         return success_count
 
-    async def _send_to_recipient(
-        self, user_id: str, payload_path: Path, caption: str, is_photo: bool, telegram_method: str
-    ) -> None:
+    async def _send_to_recipient(self, user_id: str, payload_path: Path, caption: str, is_photo: bool, telegram_method: str) -> None:
         """Send media to a single recipient."""
         try:
             success, error_text = await self.telegram_client.send_media(
@@ -43,18 +41,12 @@ class MediaSender:
             )
         except asyncio.TimeoutError as exc:
             self.backoff_manager.record_failure(exc)
-            raise RuntimeError(
-                f"Telegram media timeout after {self.timeout_seconds}s for user {user_id}"
-            ) from exc
+            raise RuntimeError(f"Telegram media timeout after {self.timeout_seconds}s for user {user_id}") from exc
         except (OSError, RuntimeError, ValueError) as exc:
             self.backoff_manager.record_failure(exc)
-            raise RuntimeError(
-                f"Telegram media send failed for user {user_id} with payload {payload_path}"
-            ) from exc
+            raise RuntimeError(f"Telegram media send failed for user {user_id} with payload {payload_path}") from exc
 
         if not success:
             failure_message = error_text if error_text else "unknown error"
             self.backoff_manager.record_failure(RuntimeError(failure_message))
-            raise RuntimeError(
-                f"Telegram media send returned failure for user {user_id}: {failure_message}"
-            )
+            raise RuntimeError(f"Telegram media send returned failure for user {user_id}: {failure_message}")

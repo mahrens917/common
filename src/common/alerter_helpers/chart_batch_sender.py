@@ -22,9 +22,7 @@ class ChartBatchSender:
         self.send_chart_callback = send_chart_callback
         self.send_alert_callback = send_alert_callback
 
-    async def send_charts_batch(
-        self, chart_paths: Dict[str, str], caption_prefix: str = "📊"
-    ) -> int:
+    async def send_charts_batch(self, chart_paths: Dict[str, str], caption_prefix: str = "📊") -> int:
         """
         Send multiple charts and return count of successful sends.
 

@@ -8,9 +8,7 @@ import matplotlib.colors as mcolors
 import numpy as np
 
 
-def prepare_sigma_array(
-    anchor_numeric: Optional[float], prediction_uncertainties: Sequence[float]
-) -> np.ndarray:
+def prepare_sigma_array(anchor_numeric: Optional[float], prediction_uncertainties: Sequence[float]) -> np.ndarray:
     """Prepare sigma array for uncertainty bands."""
     sigma = np.concatenate(([0.0], prediction_uncertainties))
     if anchor_numeric is None:
@@ -64,9 +62,7 @@ def draw_uncertainty_bands(
     ax.plot(numeric, sigma2_lower, color="#475569", linewidth=1.0, alpha=0.6, linestyle="--")
 
 
-def collect_extrema(
-    prediction_values: Sequence[float], prediction_uncertainties: Sequence[float]
-) -> List[float]:
+def collect_extrema(prediction_values: Sequence[float], prediction_uncertainties: Sequence[float]) -> List[float]:
     """Collect extrema from prediction values and uncertainties."""
     extrema: List[float] = []
     for value, uncertainty in zip(prediction_values, prediction_uncertainties):

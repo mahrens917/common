@@ -36,26 +36,18 @@ class PriceChartCreator:
         self.price_collector = PriceDataCollector()
         self.title_formatter = ChartTitleFormatter()
 
-    async def create_price_chart(
-        self, symbol: str, prediction_horizon_days: Optional[int] = None
-    ) -> str:
+    async def create_price_chart(self, symbol: str, prediction_horizon_days: Optional[int] = None) -> str:
         """Create a price chart for BTC or ETH with predicted path"""
         self.progress_notifier.notify_progress(f"{symbol}: fetching price history")
         timestamps, prices = await self.price_collector.collect_price_history(symbol)
 
         horizon_days = prediction_horizon_days or self.price_path_horizon_days
         self.progress_notifier.notify_progress(f"{symbol}: computing price path ({horizon_days}d)")
-        predicted_path = self.price_path_calculator.generate_price_path(
-            symbol, prediction_horizon_days=horizon_days
-        )
+        predicted_path = self.price_path_calculator.generate_price_path(symbol, prediction_horizon_days=horizon_days)
         if not predicted_path:
-            raise PricePathComputationError(
-                f"Price path calculator returned no points for {symbol}"
-            )
+            raise PricePathComputationError(f"Price path calculator returned no points for {symbol}")
 
-        predicted_timestamps = [
-            datetime.fromtimestamp(point[0], tz=timezone.utc) for point in predicted_path
-        ]
+        predicted_timestamps = [datetime.fromtimestamp(point[0], tz=timezone.utc) for point in predicted_path]
         predicted_prices = [point[1] for point in predicted_path]
         predicted_uncertainties = [point[2] for point in predicted_path]
 
