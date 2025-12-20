@@ -9,22 +9,6 @@ from typing import Any, Dict, Optional
 
 logger = logging.getLogger(__name__)
 
-WeatherConfigLoadError: type[Exception]
-
-try:
-    from src.weather.config_loader import WeatherConfigLoadError, load_config_json
-except ImportError as exc:
-    logger.debug("Weather module not available, using fallback: %s", exc)
-
-    class _FallbackWeatherConfigLoadError(RuntimeError):
-        """Fallback for weather config load errors."""
-
-    WeatherConfigLoadError = _FallbackWeatherConfigLoadError
-
-    def load_config_json(name: str) -> Dict[str, Any]:
-        """Fallback for loading weather config JSON."""
-        raise WeatherConfigError(f"Weather module not available: {name}")
-
 
 class WeatherConfigError(RuntimeError):
     """Raised when required weather configuration assets cannot be loaded."""
@@ -55,8 +39,10 @@ def _resolve_config_json(name: str, config_dir: Optional[Path]) -> Dict[str, Any
             return _load_from_directory(name, local_config_dir)
 
     try:
+        from src.weather.config_loader import load_config_json
+
         return load_config_json(name)
-    except WeatherConfigLoadError as exc:  # policy_guard: allow-silent-handler
+    except Exception as exc:  # policy_guard: allow-silent-handler
         raise WeatherConfigError(str(exc)) from exc
 
 

@@ -17,8 +17,6 @@ logger = logging.getLogger(__name__)
 
 DEFAULT_WEATHER_SOURCE = "ldm"
 
-from src.weather.settings import get_weather_settings
-
 
 class DependencyError(Exception):
     """Base exception for dependency validation errors"""
@@ -86,6 +84,8 @@ class DependencyValidator:
     @staticmethod
     def _validate_weather_service_dependencies():
         """Validate weather service specific dependencies"""
+        from src.weather.settings import get_weather_settings
+
         weather_settings = get_weather_settings()
         metar_source = weather_settings.sources.metar_source
         if metar_source is None or metar_source == "":

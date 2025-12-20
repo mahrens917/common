@@ -3,13 +3,18 @@ from __future__ import annotations
 import time
 from typing import List, Tuple
 
-from src.pdf.utils.gp_surface_store import load_surface_sync
-
 from .price_path_calculator_helpers.config import PricePathCalculatorConfig
 from .price_path_calculator_helpers.dependencies_factory import (
     PricePathCalculatorDependenciesFactory,
 )
 from .price_path_calculator_helpers.metrics_extractor import PricePathComputationError
+
+
+def _default_surface_loader(currency: str):
+    """Lazy-load surface loader to avoid pdf dependency at import time."""
+    from src.pdf.utils.gp_surface_store import load_surface_sync
+
+    return load_surface_sync(currency)
 
 # Validation thresholds
 MIN_STRIKE_COUNT = 32
@@ -42,9 +47,7 @@ class MostProbablePricePathCalculator:
         self._strike_count, self._min_moneyness = config.strike_count, config.min_moneyness
         self._max_moneyness, self._timeline_points = config.max_moneyness, config.timeline_points
         self._min_horizon_days = config.min_horizon_days
-        self._surface_loader_fn = config.surface_loader or (
-            lambda currency: load_surface_sync(currency)
-        )
+        self._surface_loader_fn = config.surface_loader or _default_surface_loader
         self._progress_callback = config.progress_callback
         deps = config.dependencies or PricePathCalculatorDependenciesFactory.create(
             config.min_horizon_days,

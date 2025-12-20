@@ -1,10 +1,13 @@
 """Scale expectations and uncertainties to spot price."""
 
-from typing import Tuple
+from __future__ import annotations
+
+from typing import TYPE_CHECKING, Any, Tuple
 
 import numpy as np
 
-from src.pdf.phases.phase_5_gp_interpolation import MicroPriceGPSurface
+if TYPE_CHECKING:
+    from src.pdf.phases.phase_5_gp_interpolation import MicroPriceGPSurface
 
 
 class ExpectationScaler:

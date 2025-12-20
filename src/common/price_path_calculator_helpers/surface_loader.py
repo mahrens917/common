@@ -1,8 +1,11 @@
 """Load and validate GP surfaces."""
 
-from typing import Callable, Optional
+from __future__ import annotations
 
-from src.pdf.phases.phase_5_gp_interpolation import MicroPriceGPSurface
+from typing import TYPE_CHECKING, Any, Callable, Optional
+
+if TYPE_CHECKING:
+    from src.pdf.phases.phase_5_gp_interpolation import MicroPriceGPSurface
 
 
 class PricePathComputationError(Exception):
@@ -15,9 +18,9 @@ class SurfaceLoader:
     def load_surface(
         self,
         currency: str,
-        loader_fn: Callable[[str], Optional[MicroPriceGPSurface]],
-        ensure_metrics_fn: Callable[[MicroPriceGPSurface, str], None],
-    ) -> MicroPriceGPSurface:
+        loader_fn: Callable[[str], Optional[Any]],
+        ensure_metrics_fn: Callable[[Any, str], None],
+    ) -> Any:
         """Load surface and ensure path metrics are available."""
         surface = loader_fn(currency)
         if surface is None:

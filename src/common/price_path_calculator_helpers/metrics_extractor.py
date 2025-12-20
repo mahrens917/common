@@ -1,11 +1,14 @@
 """Extract path metrics from GP surfaces."""
 
+from __future__ import annotations
+
 from dataclasses import dataclass
-from typing import Any, Mapping
+from typing import TYPE_CHECKING, Any, Mapping
 
 import numpy as np
 
-from src.pdf.phases.phase_5_gp_interpolation import MicroPriceGPSurface
+if TYPE_CHECKING:
+    from src.pdf.phases.phase_5_gp_interpolation import MicroPriceGPSurface
 
 
 class PricePathComputationError(Exception):

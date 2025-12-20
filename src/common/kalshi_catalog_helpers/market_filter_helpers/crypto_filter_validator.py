@@ -3,8 +3,6 @@
 import re
 from typing import Dict, Tuple
 
-from src.pdf.utils.validation_helpers import ValidationHelpers
-
 _CRYPTO_MONTH_PATTERN = re.compile(r"\d{2}(JAN|FEB|MAR|APR|MAY|JUN|JUL|AUG|SEP|OCT|NOV|DEC)\d{2}")
 _CRYPTO_ASSETS: Tuple[str, ...] = ("BTC", "ETH")
 _VALID_CRYPTO_STRIKE_TYPES: Tuple[str, ...] = (
@@ -22,6 +20,8 @@ def validate_ticker_format(ticker: str) -> bool:
     if not asset_present or not _CRYPTO_MONTH_PATTERN.search(ticker):
         return False
     try:
+        from src.pdf.utils.validation_helpers import ValidationHelpers
+
         return ValidationHelpers.validate_ticker_format(ticker)
     except (ValueError, TypeError, AttributeError):
         # Validation helper rejected the ticker format

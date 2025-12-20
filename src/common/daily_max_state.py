@@ -17,8 +17,6 @@ import logging
 from datetime import datetime
 from typing import Any, Dict, Optional
 
-from src.weather.temperature_converter import cli_temp_f
-
 from .daily_max_state_helpers.config_loader import MetarConfigLoadError
 from .daily_max_state_helpers.factory import DailyMaxStateDelegator, DailyMaxStateFactory
 from .daily_max_state_helpers.result_generator import DailyMaxResult
@@ -32,6 +30,15 @@ __all__ = [
     "cli_temp_f",
     "create_daily_max_state",
 ]
+
+
+def __getattr__(name: str):
+    """Lazy loading for weather-dependent imports."""
+    if name == "cli_temp_f":
+        from src.weather.temperature_converter import cli_temp_f
+
+        return cli_temp_f
+    raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
 
 _STATE_FIELDS = {
     "max_temp_c": "max_temp_c",

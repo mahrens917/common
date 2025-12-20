@@ -6,8 +6,6 @@ Formats and prints message metrics and weather data metrics sections.
 
 from typing import Any, Dict
 
-from src.weather.settings import get_weather_settings
-
 from .base_printer import StatusLinePrinterBase
 
 
@@ -36,6 +34,8 @@ class MetricsSectionPrinter(StatusLinePrinterBase):
         """Print weather data metrics section."""
         self._emit_status_line()
         self._emit_status_line("📈 Temperature Change Metrics (Past 65 Minutes):")
+
+        from src.weather.settings import get_weather_settings
 
         weather_settings = get_weather_settings()
         raw_asos_source = weather_settings.sources.asos_source

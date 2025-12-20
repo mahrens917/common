@@ -6,7 +6,6 @@ from datetime import datetime
 from typing import Any, Dict, Optional
 
 from common.exceptions import DataError
-from src.weather.temperature_converter import cli_temp_f
 
 from .confidence_calculator import ConfidenceCalculator
 
@@ -44,6 +43,8 @@ class ResultGenerator:
             return None
 
         # Convert to Fahrenheit using CLI formula
+        from src.weather.temperature_converter import cli_temp_f
+
         max_temp_f = cli_temp_f(max_temp_c)
         confidence = ConfidenceCalculator.get_confidence_level(precision)
 
@@ -77,6 +78,8 @@ class ResultGenerator:
         else:
             raise ValueError(f"Unknown rule_type: {rule_type}")
 
+        from src.weather.temperature_converter import cli_temp_f
+
         return cli_temp_f(adjusted_c)
 
     @staticmethod
@@ -88,4 +91,6 @@ class ResultGenerator:
             return None
 
         # Use CLI conversion formula
+        from src.weather.temperature_converter import cli_temp_f
+
         return cli_temp_f(hourly_max_temp_c)
