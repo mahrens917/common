@@ -5,6 +5,8 @@ Why: Separates pool lifecycle concerns from main pool acquisition logic
 How: Validates event loop state and handles pool cleanup on loop changes
 """
 
+from __future__ import annotations
+
 import asyncio
 import logging
 import weakref
