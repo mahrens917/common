@@ -23,11 +23,17 @@ Breaking up the kalshi monolith into 6 service repos (cfb, deribit, kalshi, pdf,
 - [x] `common.time_helpers.time_parsing` - `parse_time_utc` function
 - [x] `common.errors` - `PricingValidationError` class
 
+#### Cross-Repo Tests Moved
+- [x] `test_daily_max_state.py` → weather repo (depends on `src.weather`)
+- [x] `test_weather_config_extended.py` → weather repo (depends on `src.weather`)
+- [x] `test_alert_sender.py` → monitor repo (depends on `src.monitor`)
+- [x] `test_silent_failure_alerter.py` → monitor repo (depends on `src.monitor`)
+
 ### CI Status - All Passing ✅
 
 | Repo | Tests Collected | Errors | Status |
 |------|-----------------|--------|--------|
-| common | 6303 | 0 | ✅ |
+| common | 6284 | 0 | ✅ |
 | monitor | 9906 | 0 | ✅ |
 
 ### Service Repos Verified ✅
@@ -51,10 +57,15 @@ These are working code using `__getattr__` for lazy loading:
 2. `0df5f99` - Add missing common modules (network_errors, time_parsing)
 3. `0786cc5` - Update MIGRATION_PLAN.md
 4. `01c553d` - Add common/errors.py with PricingValidationError
+5. `253c00a` - Move cross-repo dependent tests to their respective repos
 
 ### monitor repo
 1. `afbd344a` - Convert trade_visualizer to re-export from common
 2. `4e20b30a` - Fix kalshi API imports and update to common modules
+3. `0174f86f` - Add websocket tests from common repo
+
+### weather repo
+1. `fa7de83` - Add cross-repo tests from common repo
 
 ## Migration Complete
 All migration work has been completed and pushed to remote repositories.
