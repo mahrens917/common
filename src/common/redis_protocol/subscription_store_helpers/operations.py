@@ -2,6 +2,8 @@
 Subscription add/remove operations.
 """
 
+from __future__ import annotations
+
 import logging
 
 from .. import messages

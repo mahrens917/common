@@ -1,5 +1,7 @@
 """Temperature history retrieval and statistics for weather stations"""
 
+from __future__ import annotations
+
 import asyncio
 import json
 import logging

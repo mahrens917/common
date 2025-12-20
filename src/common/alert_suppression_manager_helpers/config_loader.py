@@ -3,6 +3,8 @@
 Delegates to load_config() for JSON loading, provides domain-specific validation.
 """
 
+from __future__ import annotations
+
 from pathlib import Path
 from typing import Any, Dict, Set
 

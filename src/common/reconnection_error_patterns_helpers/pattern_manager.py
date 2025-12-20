@@ -1,5 +1,7 @@
 """Pattern management for adding custom patterns."""
 
+from __future__ import annotations
+
 import logging
 
 from common.truthy import pick_truthy

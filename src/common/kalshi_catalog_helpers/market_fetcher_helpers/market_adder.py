@@ -1,5 +1,7 @@
 """Add markets to list with deduplication."""
 
+from __future__ import annotations
+
 from typing import Any, Dict, List, Optional
 
 

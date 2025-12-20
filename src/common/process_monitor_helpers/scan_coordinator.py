@@ -1,5 +1,7 @@
 """Scan coordination logic."""
 
+from __future__ import annotations
+
 import asyncio
 import logging
 import time

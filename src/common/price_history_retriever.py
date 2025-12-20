@@ -5,6 +5,8 @@ Handles fetching and parsing of price history from Redis hash structure with
 time-range filtering and chronological sorting.
 """
 
+from __future__ import annotations
+
 import json
 import logging
 from datetime import datetime, timedelta

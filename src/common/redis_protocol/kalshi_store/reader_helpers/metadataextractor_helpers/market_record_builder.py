@@ -4,6 +4,8 @@ Market Record Builder - Build market records from Redis data
 Constructs complete market records with validation and skip logic.
 """
 
+from __future__ import annotations
+
 import logging
 from dataclasses import dataclass
 from datetime import datetime

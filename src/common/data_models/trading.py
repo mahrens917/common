@@ -6,6 +6,8 @@ and trading operations. All models follow fail-fast principles with strict
 validation and no default values that could hide data integrity issues.
 """
 
+from __future__ import annotations
+
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from enum import Enum

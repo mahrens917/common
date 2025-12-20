@@ -1,5 +1,7 @@
 """ParsedInstrument validation helpers."""
 
+from __future__ import annotations
+
 from datetime import datetime
 
 from ..market_data_parser import DateTimeCorruptionError, ValidationError

@@ -4,6 +4,8 @@ Orderbook Reader - Orderbook-specific read operations
 Handles orderbook data retrieval, parsing, and size extraction.
 """
 
+from __future__ import annotations
+
 import logging
 from typing import Any, Dict
 

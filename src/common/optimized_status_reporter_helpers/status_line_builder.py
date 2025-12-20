@@ -1,5 +1,7 @@
 """Status line building helpers."""
 
+from __future__ import annotations
+
 from typing import Any, Optional
 
 from common.health.log_activity_monitor import LogActivity, LogActivityStatus

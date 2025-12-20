@@ -5,6 +5,8 @@ Uses the existing ProcessMonitor infrastructure but provides a clean interface
 focused solely on process lifecycle status.
 """
 
+from __future__ import annotations
+
 import asyncio
 import logging
 from dataclasses import dataclass

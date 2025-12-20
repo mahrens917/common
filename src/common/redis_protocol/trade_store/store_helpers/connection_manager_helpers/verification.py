@@ -1,5 +1,7 @@
 """Connection verification for TradeStore."""
 
+from __future__ import annotations
+
 from typing import Any
 
 from .base import ConnectionHelperBase

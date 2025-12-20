@@ -1,5 +1,7 @@
 """Field validation for micro price conversion."""
 
+from __future__ import annotations
+
 import logging
 from typing import Optional
 

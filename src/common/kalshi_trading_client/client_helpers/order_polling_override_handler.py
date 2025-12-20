@@ -1,5 +1,7 @@
 """Handles create_order_with_polling method override logic."""
 
+from __future__ import annotations
+
 from typing import Any, Callable, Optional
 
 from ...data_models.trading import OrderRequest, OrderResponse

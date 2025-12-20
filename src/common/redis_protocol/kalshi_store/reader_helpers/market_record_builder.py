@@ -4,6 +4,8 @@ Market Record Builder - Build market records from Redis data
 Handles creation of market records with metadata and filtering.
 """
 
+from __future__ import annotations
+
 import logging
 from collections import Counter
 from typing import Any, Dict, List

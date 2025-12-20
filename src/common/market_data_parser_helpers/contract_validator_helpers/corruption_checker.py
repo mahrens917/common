@@ -1,5 +1,7 @@
 """Datetime corruption detection utilities."""
 
+from __future__ import annotations
+
 from datetime import datetime
 from typing import Dict
 

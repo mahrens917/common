@@ -1,5 +1,7 @@
 """Format validation helpers for currency codes and ticker symbols."""
 
+from __future__ import annotations
+
 from .exceptions import ValidationError
 
 

@@ -1,5 +1,7 @@
 """Field parsing utilities for Kalshi API responses."""
 
+from __future__ import annotations
+
 from datetime import datetime
 from typing import Any, Dict, List, Optional
 

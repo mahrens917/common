@@ -5,6 +5,8 @@ Why: Coordinates pool creation, testing, and logging
 How: Encapsulates the full pool initialization sequence
 """
 
+from __future__ import annotations
+
 import asyncio
 import logging
 import weakref

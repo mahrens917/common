@@ -1,5 +1,7 @@
 """Public API methods for Alerter."""
 
+from __future__ import annotations
+
 from typing import Any, Callable, Dict, Optional
 
 from src.common.alerter_helpers.alert_operations import AlertOperations

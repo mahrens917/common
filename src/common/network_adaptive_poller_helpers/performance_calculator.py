@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 # ruff: noqa: PLR2004, PLR0913, PLR0911, PLR0912, PLR0915, C901
 """Performance metric calculations."""
 

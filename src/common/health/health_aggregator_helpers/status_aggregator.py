@@ -1,5 +1,7 @@
 """Aggregate component statuses into overall status."""
 
+from __future__ import annotations
+
 from ..health_types import OverallServiceStatus
 from ..log_activity_monitor import LogActivity, LogActivityStatus
 from ..process_health_monitor import ProcessHealthInfo, ProcessStatus

@@ -8,6 +8,8 @@ operational experience to eliminate magic numbers throughout the codebase.
 Configuration is loaded from JSON config files with environment variable overrides.
 """
 
+from __future__ import annotations
+
 from dataclasses import dataclass, field
 from functools import partial
 from typing import Optional

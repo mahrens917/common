@@ -1,5 +1,7 @@
 """Type coercion utilities for Redis data conversion."""
 
+from __future__ import annotations
+
 from typing import Any, Dict, List
 
 from common.truthy import pick_if

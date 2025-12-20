@@ -5,6 +5,8 @@ Automatically maintains MetadataStore by listening for changes to history:* keys
 Eliminates the need for services to explicitly call record_service_message().
 """
 
+from __future__ import annotations
+
 import asyncio
 import logging
 from collections import defaultdict

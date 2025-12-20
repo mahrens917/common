@@ -1,5 +1,7 @@
 """Sequential command queue processor for Telegram commands."""
 
+from __future__ import annotations
+
 import asyncio
 import logging
 

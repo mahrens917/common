@@ -5,6 +5,8 @@ Handles validation and persistence of BTC/ETH price updates to Redis hash struct
 with automatic TTL management.
 """
 
+from __future__ import annotations
+
 import logging
 
 from common.exceptions import ValidationError

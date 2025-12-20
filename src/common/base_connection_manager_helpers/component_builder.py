@@ -1,5 +1,7 @@
 """Component builder for connection manager initialization."""
 
+from __future__ import annotations
+
 from typing import Any
 
 

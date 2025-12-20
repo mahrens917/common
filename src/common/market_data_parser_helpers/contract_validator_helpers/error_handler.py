@@ -1,5 +1,7 @@
 """Error handling for contract validation."""
 
+from __future__ import annotations
+
 from typing import Dict
 
 

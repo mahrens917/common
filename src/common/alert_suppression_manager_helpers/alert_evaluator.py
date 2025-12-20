@@ -1,5 +1,7 @@
 """Core logic for evaluating whether alerts should be suppressed."""
 
+from __future__ import annotations
+
 import logging
 from dataclasses import dataclass, field
 from typing import List, Optional, Set

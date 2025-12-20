@@ -1,5 +1,7 @@
 """Public API methods for ProcessMonitor."""
 
+from __future__ import annotations
+
 from typing import Dict, Iterable, List, Optional
 
 from ..process_monitor import ProcessInfo

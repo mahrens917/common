@@ -4,6 +4,8 @@ Metadata Extractor - Parse and extract market metadata
 Handles metadata parsing, strike resolution, and price extraction.
 """
 
+from __future__ import annotations
+
 import logging
 from datetime import datetime
 from typing import Any, Dict, Optional

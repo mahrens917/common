@@ -1,5 +1,7 @@
 """Validation functions for trade record data."""
 
+from __future__ import annotations
+
 from typing import Any, Dict, Mapping
 
 from common.exceptions import ValidationError

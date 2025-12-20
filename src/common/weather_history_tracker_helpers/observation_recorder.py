@@ -1,5 +1,7 @@
 """Temperature observation recording for weather history"""
 
+from __future__ import annotations
+
 import asyncio
 import json
 import logging

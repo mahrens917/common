@@ -1,5 +1,7 @@
 """Confidence level and safety margin calculations."""
 
+from __future__ import annotations
+
 # Constants
 _PRECISION_HIGH = 0.1
 

@@ -1,5 +1,7 @@
 """Process messages from Redis pub/sub."""
 
+from __future__ import annotations
+
 import logging
 
 from ...redis_protocol import SubscriptionUpdate

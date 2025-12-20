@@ -1,5 +1,7 @@
 """Price formatting helpers for snapshot processor."""
 
+from __future__ import annotations
+
 from typing import Any, Dict
 
 # Constants

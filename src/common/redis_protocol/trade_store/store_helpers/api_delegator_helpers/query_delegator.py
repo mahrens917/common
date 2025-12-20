@@ -1,5 +1,7 @@
 """Trade query operations delegation"""
 
+from __future__ import annotations
+
 from datetime import date
 
 from .....data_models.trade_record import TradeRecord

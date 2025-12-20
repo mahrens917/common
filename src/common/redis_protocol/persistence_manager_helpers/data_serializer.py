@@ -1,5 +1,7 @@
 """Data serialization and formatting for Redis persistence."""
 
+from __future__ import annotations
+
 import logging
 from typing import Any, Dict
 

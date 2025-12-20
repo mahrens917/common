@@ -1,5 +1,7 @@
 """State management for alert suppression statistics and persistence."""
 
+from __future__ import annotations
+
 from typing import Any, Dict
 
 from .suppression_tracker import SuppressionDecision, SuppressionTracker

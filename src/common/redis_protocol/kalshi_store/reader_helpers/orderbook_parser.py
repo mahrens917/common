@@ -5,6 +5,8 @@ This module provides Redis-specific orderbook parsing utilities that delegate to
 canonical implementations in common.orderbook_utils for actual parsing logic.
 """
 
+from __future__ import annotations
+
 import logging
 from typing import Any, Dict
 

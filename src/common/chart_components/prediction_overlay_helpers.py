@@ -1,5 +1,7 @@
 """Helper functions for prediction overlay rendering."""
 
+from __future__ import annotations
+
 from typing import List, Optional, Sequence
 
 import matplotlib.colors as mcolors

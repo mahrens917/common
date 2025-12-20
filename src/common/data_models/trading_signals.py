@@ -6,6 +6,8 @@ and consumed by the tracker for execution. This centralizes all trading logic in
 weather service while keeping the tracker as a pure execution engine.
 """
 
+from __future__ import annotations
+
 from dataclasses import dataclass
 from datetime import datetime
 from enum import Enum

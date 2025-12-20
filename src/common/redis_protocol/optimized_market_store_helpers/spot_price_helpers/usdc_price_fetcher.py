@@ -1,5 +1,7 @@
 """USDC bid/ask price fetching with validation"""
 
+from __future__ import annotations
+
 import logging
 
 from ....redis_schema import DeribitInstrumentKey, DeribitInstrumentType

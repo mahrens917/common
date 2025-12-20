@@ -1,5 +1,7 @@
 """Batch collection and state management."""
 
+from __future__ import annotations
+
 import logging
 import time
 from typing import Generic, List, Optional, TypeVar

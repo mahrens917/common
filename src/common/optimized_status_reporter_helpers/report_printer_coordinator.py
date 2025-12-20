@@ -4,6 +4,8 @@ Report printing coordinator for OptimizedStatusReporter.
 Extracted from OptimizedStatusReporter to reduce class size.
 """
 
+from __future__ import annotations
+
 from typing import Any, Dict
 
 from common.truthy import pick_truthy

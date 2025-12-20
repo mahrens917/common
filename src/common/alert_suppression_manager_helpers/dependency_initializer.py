@@ -1,5 +1,7 @@
 """Dependency initialization for alert suppression manager."""
 
+from __future__ import annotations
+
 import logging
 from typing import Optional
 

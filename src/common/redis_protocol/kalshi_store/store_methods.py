@@ -4,6 +4,8 @@ Store method implementations extracted from store.py.
 This module contains the main business logic methods from KalshiStore.
 """
 
+from __future__ import annotations
+
 import logging
 from datetime import datetime
 from typing import Any, Dict, List, Optional, Tuple

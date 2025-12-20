@@ -1,5 +1,7 @@
 """Weather market fetching logic."""
 
+from __future__ import annotations
+
 import logging
 from typing import Dict, List
 

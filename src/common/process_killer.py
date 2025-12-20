@@ -12,6 +12,8 @@ Usage:
     ensure_single_instance("kalshi")
 """
 
+from __future__ import annotations
+
 import asyncio
 import logging
 import os

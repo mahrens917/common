@@ -5,6 +5,8 @@ This module consolidates all delegation logic from KalshiStore to its underlying
 reducing the size of the main facade class.
 """
 
+from __future__ import annotations
+
 from typing import Any, Callable, Dict, List, Optional, Sequence, Set, cast
 
 from redis.asyncio import Redis

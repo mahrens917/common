@@ -1,5 +1,7 @@
 """Message counting logic for time windows."""
 
+from __future__ import annotations
+
 from typing import Any, Dict
 
 

@@ -1,5 +1,7 @@
 """Datetime validation helpers."""
 
+from __future__ import annotations
+
 import math
 from datetime import datetime
 from datetime import timezone as tz

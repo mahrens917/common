@@ -6,6 +6,8 @@ across multiple KalshiStore components. All functions are stateless and can be
 used independently.
 """
 
+from __future__ import annotations
+
 import logging
 import math
 from collections import Counter

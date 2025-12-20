@@ -1,5 +1,7 @@
 """Ticker validation helpers for Kalshi markets."""
 
+from __future__ import annotations
+
 from typing import Any, Callable, Mapping, Optional
 
 from common.redis_schema import is_supported_kalshi_ticker

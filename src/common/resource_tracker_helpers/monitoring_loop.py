@@ -1,5 +1,7 @@
 """Per-second monitoring loop for resource tracking."""
 
+from __future__ import annotations
+
 import asyncio
 import logging
 import time

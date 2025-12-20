@@ -1,5 +1,7 @@
 """Generational GC handler for session references."""
 
+from __future__ import annotations
+
 import logging
 import weakref
 from typing import Dict

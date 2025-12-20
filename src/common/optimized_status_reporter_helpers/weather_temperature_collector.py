@@ -4,6 +4,8 @@ Weather temperature data collection from Redis.
 Gathers current temperatures for all weather stations.
 """
 
+from __future__ import annotations
+
 from typing import Any, Dict, List
 
 from common.redis_protocol.converters import decode_redis_hash

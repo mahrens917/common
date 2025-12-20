@@ -1,5 +1,7 @@
 """Handle checking multiple services concurrently."""
 
+from __future__ import annotations
+
 import asyncio
 import logging
 from typing import Dict, List

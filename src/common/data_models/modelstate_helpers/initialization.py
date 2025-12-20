@@ -1,5 +1,7 @@
 """Model state initialization and validation logic."""
 
+from __future__ import annotations
+
 import asyncio
 import logging
 

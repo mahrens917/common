@@ -2,6 +2,8 @@
 Redis initialization and connection management for OptimizedMarketStore
 """
 
+from __future__ import annotations
+
 import logging
 from typing import Any, Optional
 

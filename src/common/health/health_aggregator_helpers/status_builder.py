@@ -1,5 +1,7 @@
 """Build status tuples from component information."""
 
+from __future__ import annotations
+
 from ..health_types import OverallServiceStatus
 from ..log_activity_monitor import LogActivity
 from ..process_health_monitor import ProcessHealthInfo
