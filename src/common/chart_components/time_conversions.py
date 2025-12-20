@@ -46,7 +46,10 @@ def localize_temperature_timestamps(
     Returns:
         LocalizedTimestamps with naive datetimes suitable for matplotlib.
     """
-    import zoneinfo
+    try:
+        import zoneinfo
+    except ImportError:
+        from backports import zoneinfo
 
     latitude, longitude = station_coordinates
     timezone_name = get_timezone_from_coordinates(latitude, longitude)

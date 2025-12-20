@@ -40,7 +40,10 @@ class KalshiStrikeCollector:
         city_tokens: List[str],
         _canonical_token: Optional[str],
     ) -> List[float]:
-        import zoneinfo
+        try:
+            import zoneinfo
+        except ImportError:
+            from backports import zoneinfo
 
         et_timezone = zoneinfo.ZoneInfo("America/New_York")
         datetime_module = sys.modules.get("src.monitor.chart_generator.datetime")

@@ -2,8 +2,13 @@ from __future__ import annotations
 
 """Local timezone calculations for weather stations."""
 
-import zoneinfo
+import sys
 from datetime import datetime, timezone
+
+if sys.version_info >= (3, 9):
+    import zoneinfo
+else:
+    from backports import zoneinfo
 from typing import Optional
 
 from ..time_helpers.location import get_timezone_from_coordinates
