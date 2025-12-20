@@ -1,12 +1,16 @@
 """Component manager for Alerter."""
 
-from typing import Any, Callable
+from __future__ import annotations
+
+from typing import TYPE_CHECKING, Any, Callable
 
 from src.common.alerter_helpers.chart_manager import ChartManager
 from src.common.alerter_helpers.command_coordinator import CommandCoordinator
 from src.common.alerter_helpers.command_registration import CommandRegistration
 from src.common.alerter_helpers.initialization_coordinator import InitializationCoordinator
-from src.common.settings import MonitorSettings
+
+if TYPE_CHECKING:
+    from src.monitor.settings import MonitorSettings
 
 
 class ComponentManager:

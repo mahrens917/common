@@ -1,10 +1,14 @@
 """Coordinates Alerter initialization."""
 
-from typing import Any, Callable, Dict
+from __future__ import annotations
+
+from typing import TYPE_CHECKING, Any, Callable, Dict
 
 from src.common.alerter_helpers.alert_sender import AlertSender, AlertSenderConfig
 from src.common.alerter_helpers.alerter_components_builder import AlerterComponentsBuilder
-from src.common.settings import MonitorSettings
+
+if TYPE_CHECKING:
+    from src.monitor.settings import MonitorSettings
 
 
 class InitializationCoordinator:
