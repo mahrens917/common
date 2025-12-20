@@ -15,48 +15,45 @@ Breaking up the kalshi monolith into 6 service repos (cfb, deribit, kalshi, pdf,
 - [x] Monitor trade_visualizer files converted to re-export modules (commit afbd344a)
 - [x] Fixed `health_snapshot_collector.py` import
 - [x] Added `from __future__ import annotations` to `visualizer_manager.py`
-
-### In Progress
-1. **Fix remaining `src.kalshi.api` imports** - 45 files in monitor still use old import path
-2. **Fix missing common modules** - Several modules referenced but don't exist
-
-### Remaining Import Fixes (monitor repo)
-
-#### src.kalshi.api -> common.kalshi_api (45 files)
-Files still using `src.kalshi.api.client.KalshiClient` need updating to `common.kalshi_api.client.KalshiClient`:
-- `src/kalshi/subscription_helpers/market_manager.py`
-- `src/kalshi/subscription_helpers/initialization.py`
-- `src/kalshi/notifications/notifier_helpers/notification_sender.py`
-- `src/kalshi/notifications/trade_notifier_helpers/fills_data_processor.py`
-- `src/pdf/utils/kalshi_metadata_primer.py`
-- ... and 40 more files
-
-#### Missing Common Modules (need to be created or imports fixed)
-- `common.network_errors` - 29 imports, module doesn't exist
-- `common.time_helpers.time_parsing` - 56 imports, module doesn't exist
+- [x] Added `common.network_errors` module (commit 0df5f99)
+- [x] Added `common.time_helpers.time_parsing` module (commit 0df5f99)
+- [x] Fixed `src.kalshi.api` imports -> `common.kalshi_api` (commit 4e20b30a)
+- [x] Fixed `src.kalshi.api_helpers` imports -> `common.kalshi_api` (commit 4e20b30a)
 
 ### CI Status
 
-| Repo | Tests Collected | Errors | Notes |
-|------|-----------------|--------|-------|
-| common | 6303 | 4 | Cross-repo imports (expected) |
-| monitor | 7711 | 190 | Missing modules, old kalshi imports |
-
-### Error Breakdown (monitor)
-- 103 errors: `src.kalshi.api` - needs import update
-- 56 errors: `common.time_helpers.time_parsing` - module missing
-- 29 errors: `common.network_errors` - module missing
-- 1 error: `src.kalshi.api_helpers` - needs import update
+| Repo | Tests Collected | Errors | Status |
+|------|-----------------|--------|--------|
+| common | 6303 | 4 | ✅ (cross-repo imports expected) |
+| monitor | 9906 | 0 | ✅ |
 
 ### Pre-existing Issues (Not from migration)
+These exist but are separate from the migration work:
 - `redis_protocol/config.py` - Undefined variables in `__all__`
 - `tracker_pricing.py` - Imports from `.errors` which doesn't exist
 - `daily_max_state.py` - `cli_temp_f` undefined in `__all__`
 
+### Cross-Repo Import Warnings (Expected)
+These appear when running CI on common repo without full PYTHONPATH:
+- `src.weather.settings` in metrics_section_printer.py
+- `src.weather.temperature_converter` in daily_max_state.py
+- `src.weather.config_loader` in config/weather.py
+- `src.monitor.pnl_reporter` in chart_manager.py
+- `src.monitor.settings` in alerter.py
+- `src.pdf.utils.validation_helpers` in crypto_filter_validator.py
+- `src.pdf.utils.gp_surface_store` in price_path_calculator.py
+
+## Commits Summary
+
+### common repo
+1. `524b73c` - Move trade_visualizer from monitor to common
+2. `0df5f99` - Add missing common modules for monitor migration
+
+### monitor repo
+1. `afbd344a` - Convert trade_visualizer to re-export from common
+2. `4e20b30a` - Fix kalshi API imports and update to common modules
+
 ## Next Steps
-1. **Fix src.kalshi.api imports** - Update 45 files to use common.kalshi_api
-2. **Create missing modules or fix imports**:
-   - `common.network_errors`
-   - `common.time_helpers.time_parsing`
-3. Run full CI on both repos
-4. Push changes to remote branches
+1. Push changes to remote branches
+2. Verify all 6 service repos work with the new common modules
+3. Run full CI pipeline in GitHub Actions
