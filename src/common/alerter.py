@@ -1,12 +1,14 @@
 """Minimal alerter with maximal delegation to helpers."""
 
+from __future__ import annotations
+
 import asyncio
 import logging
 import sys
 import time
 import types
 from pathlib import Path
-from typing import Any, Callable, Dict, Optional, cast
+from typing import TYPE_CHECKING, Any, Callable, Dict, Optional, cast
 
 import aiohttp
 
@@ -23,7 +25,9 @@ from .alerting.models import (
     QueuedCommand,
     TelegramDeliveryResult,
 )
-from .settings import MonitorSettings, get_monitor_settings
+
+if TYPE_CHECKING:
+    from src.monitor.settings import MonitorSettings
 
 logger = logging.getLogger(__name__)
 
@@ -218,7 +222,11 @@ class Alerter(
     def __init__(self, settings: MonitorSettings | None = None):
         from .alerter_helpers.alerter_components_builder import AlerterComponentsBuilder
 
-        self.settings = settings if settings else get_monitor_settings()
+        if settings is None:
+            from src.monitor.settings import get_monitor_settings
+
+            settings = get_monitor_settings()
+        self.settings = settings
         self.rate_limit_handler: TelegramRateLimitHandler | None = None
         self.delivery_manager: Any | None = None
         self.command_registry: Any | None = None

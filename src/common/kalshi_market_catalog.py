@@ -10,7 +10,6 @@ from typing import Dict, List
 from common.redis_protocol.messages import InstrumentMetadata
 from common.kalshi_api import KalshiClient
 from .catalog_helpers import MarketFetcher, MarketFilter, WeatherStationLoader
-from .settings import get_kalshi_settings
 
 logger = logging.getLogger(__name__)
 
@@ -29,6 +28,8 @@ class KalshiMarketCatalog:
 
     def __init__(self, client: KalshiClient) -> None:
         self._client = client
+        from src.kalshi.settings import get_kalshi_settings
+
         settings = get_kalshi_settings().market_catalog
 
         self._refresh_interval_seconds = max(1, settings.refresh_interval_seconds)
