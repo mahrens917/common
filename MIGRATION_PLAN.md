@@ -23,11 +23,11 @@ Breaking up the kalshi monolith into 6 service repos (cfb, deribit, kalshi, pdf,
 - [x] `common.time_helpers.time_parsing` - `parse_time_utc` function
 - [x] `common.errors` - `PricingValidationError` class
 
-#### Cross-Repo Tests Moved
+#### Cross-Repo Tests Moved & Fixed
 - [x] `test_daily_max_state.py` → weather repo (depends on `src.weather`)
-- [x] `test_weather_config_extended.py` → weather repo (depends on `src.weather`)
-- [x] `test_alert_sender.py` → monitor repo (depends on `src.monitor`)
-- [x] `test_silent_failure_alerter.py` → monitor repo (depends on `src.monitor`)
+- [x] `test_weather_config_extended.py` → weather repo (fixed monkeypatch target)
+- [x] `test_alert_sender.py` → monitor repo (fixed AlertSeverity import)
+- [x] `test_silent_failure_alerter.py` → monitor repo (fixed Alerter patch target)
 
 ### CI Status - All Passing ✅
 
@@ -58,14 +58,18 @@ These are working code using `__getattr__` for lazy loading:
 3. `0786cc5` - Update MIGRATION_PLAN.md
 4. `01c553d` - Add common/errors.py with PricingValidationError
 5. `253c00a` - Move cross-repo dependent tests to their respective repos
+6. `41f09b9` - Update MIGRATION_PLAN.md with test move details
+7. `948e0f0` - Disable library-level websocket ping/pong
 
 ### monitor repo
 1. `afbd344a` - Convert trade_visualizer to re-export from common
 2. `4e20b30a` - Fix kalshi API imports and update to common modules
 3. `0174f86f` - Add websocket tests from common repo
+4. `c005ea1b` - Fix websocket test imports and patch targets
 
 ### weather repo
 1. `fa7de83` - Add cross-repo tests from common repo
+2. `5df8356` - Fix test_weather_config_extended.py monkeypatch target
 
 ## Migration Complete
 All migration work has been completed and pushed to remote repositories.
