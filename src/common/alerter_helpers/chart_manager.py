@@ -1,11 +1,15 @@
 """Chart management helper for Alerter."""
 
+from __future__ import annotations
+
 import logging
-from typing import Optional
+from typing import TYPE_CHECKING, Any, Optional
 
 from ..chart_generator import ChartGenerator
-from ..optimized_history_metrics_recorder import OptimizedHistoryMetricsRecorder
 from ..pnl_reporter import PnlReporter
+
+if TYPE_CHECKING:
+    from src.monitor.optimized_history_metrics_recorder import OptimizedHistoryMetricsRecorder
 
 logger = logging.getLogger(__name__)
 
