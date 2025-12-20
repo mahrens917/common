@@ -1,13 +1,29 @@
 """Alert suppression logic during shutdown."""
 
+from __future__ import annotations
+
 import logging
+import os
+import tempfile
+from pathlib import Path
 from typing import Set
 
-from common.config import ConfigurationError
-from ..helpers.runtime_paths import get_shutdown_flag_path
-from ..settings import get_monitor_settings
-
 logger = logging.getLogger(__name__)
+
+_SHUTDOWN_MARKER_NAME = "monitor_shutdown_in_progress"
+
+
+def _get_runtime_directory() -> Path:
+    """Return directory used for runtime markers; allows override via env."""
+    override = os.environ.get("MONITOR_RUNTIME_DIR")
+    if override:
+        return Path(override)
+    return Path(tempfile.gettempdir())
+
+
+def _get_shutdown_flag_path() -> Path:
+    """Return full path to the shutdown flag marker."""
+    return _get_runtime_directory() / _SHUTDOWN_MARKER_NAME
 
 
 class AlertSuppressionManager:
@@ -44,13 +60,10 @@ class AlertSuppressionManager:
         return self._is_shutdown_in_progress()
 
     def _is_shutdown_in_progress(self) -> bool:
-        """Check if shutdown is in progress via config or flag file."""
-        try:
-            shutdown_flag = get_monitor_settings().features.shutdown_in_progress
-        except ConfigurationError:
-            shutdown_flag = False
+        """Check if shutdown is in progress via env var or flag file."""
+        shutdown_flag = os.environ.get("SHUTDOWN_IN_PROGRESS", "").lower() == "true"
 
         if not shutdown_flag:
-            shutdown_flag = get_shutdown_flag_path().exists()
+            shutdown_flag = _get_shutdown_flag_path().exists()
 
         return shutdown_flag
