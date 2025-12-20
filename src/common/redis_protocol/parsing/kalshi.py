@@ -2,10 +2,14 @@ from __future__ import annotations
 
 """Ticker and expiry parsing helpers for Kalshi markets."""
 
-
+import sys
 from datetime import datetime, timedelta, timezone
 from typing import Optional, Tuple
-from zoneinfo import ZoneInfo
+
+if sys.version_info >= (3, 9):
+    from zoneinfo import ZoneInfo
+else:
+    from backports.zoneinfo import ZoneInfo
 
 from common.exceptions import DataError, ValidationError
 
