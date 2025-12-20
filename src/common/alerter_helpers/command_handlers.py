@@ -1,8 +1,10 @@
 """Command handlers for Alerter Telegram commands."""
 
+from __future__ import annotations
+
 import logging
 from datetime import datetime
-from typing import Any, Dict, List, Optional, Protocol, cast
+from typing import TYPE_CHECKING, Any, Dict, List, Optional, Protocol, cast
 
 from src.common.price_path_calculator import (
     MostProbablePricePathCalculator,
@@ -11,7 +13,9 @@ from src.common.price_path_calculator import (
 
 from ..alerting import AlertSeverity
 from ..chart_generator import ChartGenerator, InsufficientDataError, ProgressNotificationError
-from ..pnl_reporter import PnlReporter
+
+if TYPE_CHECKING:
+    from src.monitor.pnl_reporter import PnlReporter
 
 logger = logging.getLogger(__name__)
 

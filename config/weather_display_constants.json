@@ -1,1 +1,13 @@
-{}
+{
+  "description": "Display and UI-related constants for weather services",
+  "version": "1.0",
+  "station_cache_max_size": 50,
+  "cloud_coverage_levels": {
+    "overcast_broken_level": 3,
+    "scattered_level": 2,
+    "few_level": 1
+  },
+  "visibility_clear_threshold_miles": 10,
+  "metar_loop_overrun_tolerance_ratio": 1.25,
+  "rationale": "Centralized display-related constants including cache sizes, cloud coverage thresholds, and UI tolerance ratios"
+}

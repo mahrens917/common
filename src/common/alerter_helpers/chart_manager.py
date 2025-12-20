@@ -6,10 +6,10 @@ import logging
 from typing import TYPE_CHECKING, Any, Optional
 
 from ..chart_generator import ChartGenerator
-from ..pnl_reporter import PnlReporter
 
 if TYPE_CHECKING:
     from src.monitor.optimized_history_metrics_recorder import OptimizedHistoryMetricsRecorder
+    from src.monitor.pnl_reporter import PnlReporter
 
 logger = logging.getLogger(__name__)
 
@@ -42,6 +42,8 @@ class ChartManager:
     async def ensure_pnl_reporter(self) -> PnlReporter:
         """Ensure PnL reporter is initialized."""
         if self.pnl_reporter is None:
-            self.pnl_reporter = PnlReporter()
+            from src.monitor.pnl_reporter import PnlReporter as PnlReporterCls
+
+            self.pnl_reporter = PnlReporterCls()
         await self.pnl_reporter.initialize()
         return self.pnl_reporter
