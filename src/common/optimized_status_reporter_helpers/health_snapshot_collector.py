@@ -6,7 +6,7 @@ Collects and categorizes system health checks.
 
 from typing import Any, Dict
 
-from src.monitor.health_checker import HealthStatus
+from src.common.health_checker import HealthStatus
 
 
 class HealthSnapshotCollector:

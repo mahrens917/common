@@ -19,7 +19,7 @@ ServiceAlerter: type[ServiceAlerterProtocol]
 
 
 try:
-    from src.monitor.alerter import Alerter as ServiceAlerter
+    from src.common.alerter import Alerter as ServiceAlerter
 except ImportError as exc:  # policy_guard: allow-silent-handler
     logger.debug("Monitor module not available, using fallback: %s", exc)
 
@@ -54,7 +54,7 @@ def _register_shutdown_hook(alerter) -> None:
         from common.redis_utils import RedisOperationError
 
         try:
-            from src.monitor.alerting.models import AlerterError  # type: ignore
+            from src.common.alerting.models import AlerterError  # type: ignore
         except ImportError:  # policy_guard: allow-silent-handler
             AlerterError = None
 

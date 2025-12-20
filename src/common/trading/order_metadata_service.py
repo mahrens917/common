@@ -7,7 +7,7 @@ import logging
 from typing import Any, Awaitable, Callable, Optional, Protocol, Tuple
 
 try:
-    from src.monitor.alerter import ALERT_FAILURE_ERRORS as _ALERTER_FAILURES
+    from src.common.alerter import ALERT_FAILURE_ERRORS as _ALERTER_FAILURES
 except ModuleNotFoundError:  # policy_guard: allow-silent-handler
     _ALERTER_FAILURES = ()
 
