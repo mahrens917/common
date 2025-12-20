@@ -3,9 +3,10 @@ from __future__ import annotations
 import asyncio
 import logging
 from datetime import datetime
-from typing import Callable, Optional, Sequence, cast
+from typing import TYPE_CHECKING, Callable, Optional, Sequence, cast
 
-from src.common.trade_visualizer import TradeVisualizer, create_trade_visualizer
+if TYPE_CHECKING:
+    from src.monitor.trade_visualizer import TradeVisualizer
 
 logger = logging.getLogger(__name__)
 
@@ -98,7 +99,12 @@ async def _render_trade_visualizations(
 async def _initialize_visualizer(
     trade_visualizer_cls: Optional[type[TradeVisualizer]],
 ) -> Optional[TradeVisualizer]:
-    visualizer_cls = trade_visualizer_cls or TradeVisualizer
+    from src.monitor.trade_visualizer import (
+        TradeVisualizer as TradeVisualizerCls,
+        create_trade_visualizer,
+    )
+
+    visualizer_cls = trade_visualizer_cls or TradeVisualizerCls
     visualizer_factory = cast(Callable[[], TradeVisualizer], visualizer_cls)
     try:
         visualizer = visualizer_factory()

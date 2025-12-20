@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import logging
 from datetime import datetime
+from typing import TYPE_CHECKING
 
 from common.config.redis_schema import get_schema_config
 from common.history_tracker import PriceHistoryTracker, WeatherHistoryTracker
@@ -10,7 +11,9 @@ from src.common.price_path_calculator import (
     MostProbablePricePathCalculator,
     PricePathComputationError,
 )
-from src.common.trade_visualizer import TradeVisualizer
+
+if TYPE_CHECKING:
+    from src.monitor.trade_visualizer import TradeVisualizer
 
 from . import dependencies as _deps
 from .contexts import AstronomicalFeatures, ChartStatistics, ChartTimeContext, WeatherChartSeries
@@ -58,3 +61,12 @@ __all__ = [
     "tempfile",
     "time",
 ]
+
+
+def __getattr__(name: str):
+    """Lazy loading for monitor-dependent imports."""
+    if name == "TradeVisualizer":
+        from src.monitor.trade_visualizer import TradeVisualizer
+
+        return TradeVisualizer
+    raise AttributeError(f"module {__name__!r} has no attribute {name!r}")

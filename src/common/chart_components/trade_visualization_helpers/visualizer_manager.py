@@ -3,9 +3,10 @@
 import asyncio
 import logging
 from datetime import datetime
-from typing import Callable, Optional, Sequence
+from typing import TYPE_CHECKING, Callable, Optional, Sequence
 
-from src.common.trade_visualizer import TradeVisualizer
+if TYPE_CHECKING:
+    from src.monitor.trade_visualizer import TradeVisualizer
 
 logger = logging.getLogger(__name__)
 
