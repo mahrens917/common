@@ -7,7 +7,7 @@ import os
 from datetime import date, datetime, timezone
 from typing import Any, Dict, List, Sequence, Tuple
 
-from src.common.chart_generator_helpers.pnl_breakdown_chart_renderer import (
+from common.chart_generator_helpers.pnl_breakdown_chart_renderer import (
     PnlBreakdownChartRenderer,
 )
 

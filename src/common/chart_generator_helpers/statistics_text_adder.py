@@ -6,7 +6,7 @@ from __future__ import annotations
 import logging
 from typing import TYPE_CHECKING, Callable, List, Optional
 
-from src.common.chart_generator.contexts import ChartStatistics
+from common.chart_generator.contexts import ChartStatistics
 
 if TYPE_CHECKING:
     from matplotlib.axes import Axes

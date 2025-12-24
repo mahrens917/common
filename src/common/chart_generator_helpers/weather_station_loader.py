@@ -9,8 +9,8 @@ from datetime import datetime, timezone
 from typing import List, Optional, Tuple
 
 from common.history_tracker import WeatherHistoryTracker
-from src.common.chart_generator.contexts import WeatherChartSeries
-from src.common.chart_generator.exceptions import InsufficientDataError
+from common.chart_generator.contexts import WeatherChartSeries
+from common.chart_generator.exceptions import InsufficientDataError
 
 logger = logging.getLogger("src.monitor.chart_generator")
 

@@ -3,7 +3,7 @@
 import asyncio
 import logging
 
-from src.common.alerter import Alerter, AlertSeverity
+from common.alerter import Alerter, AlertSeverity
 
 logger = logging.getLogger(__name__)
 

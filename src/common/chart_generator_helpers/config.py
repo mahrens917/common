@@ -5,8 +5,8 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Any, Callable, List, Optional
 
-from src.common.chart_components.prediction_overlay import PredictionOverlayResult
-from src.common.chart_generator.contexts import ChartStatistics, ChartTimeContext
+from common.chart_components.prediction_overlay import PredictionOverlayResult
+from common.chart_generator.contexts import ChartStatistics, ChartTimeContext
 
 
 @dataclass(frozen=True)

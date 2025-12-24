@@ -104,11 +104,16 @@ def load_weather_config() -> Dict[str, Any]:
         raise FileNotFoundError("Weather config file not found") from exc
 
     try:
-        # Extract only the timeout values we need
+        # Extract all connection config values
         return {
             "connection_timeout_seconds": config["connection_timeout_seconds"],
             "request_timeout_seconds": config["request_timeout_seconds"],
             "reconnection_initial_delay_seconds": config["reconnection_initial_delay_seconds"],
+            "reconnection_max_delay_seconds": config["reconnection_max_delay_seconds"],
+            "reconnection_backoff_multiplier": config["reconnection_backoff_multiplier"],
+            "max_consecutive_failures": config["max_consecutive_failures"],
+            "health_check_interval_seconds": config["health_check_interval_seconds"],
+            "subscription_timeout_seconds": config["subscription_timeout_seconds"],
         }
     except KeyError as exc:  # policy_guard: allow-silent-handler
         raise ConfigurationError("Invalid weather config file: missing required field") from exc

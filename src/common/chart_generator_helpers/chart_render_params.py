@@ -11,8 +11,8 @@ if TYPE_CHECKING:
 
     from matplotlib.axes import Axes
 
-    from src.common.chart_components import PredictionOverlayResult
-    from src.common.chart_generator.contexts import ChartStatistics, ChartTimeContext
+    from common.chart_components import PredictionOverlayResult
+    from common.chart_generator.contexts import ChartStatistics, ChartTimeContext
 
 
 @dataclass

@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import inspect
+import logging
 from typing import TYPE_CHECKING, Any, Dict, List, Optional
 
 from common.data_models.trading import OrderRequest, OrderResponse
@@ -10,6 +11,8 @@ from common.redis_protocol.error_types import REDIS_ERRORS
 from common.trading.order_payloads import build_order_payload
 
 from .client_helpers.errors import KalshiClientError
+
+logger = logging.getLogger(__name__)
 
 if TYPE_CHECKING:
     from common.redis_protocol.trade_store import TradeStore
@@ -80,6 +83,7 @@ class OrderOperations:
             payload = build_order_payload(order_request)
         except ValueError as exc:
             raise KalshiClientError(str(exc)) from exc
+        logger.debug("Creating order with payload: %s", payload)
         method_upper, url, kwargs, op = self._request_builder.build_request_context(
             method="POST",
             path="/trade-api/v2/portfolio/orders",
@@ -88,8 +92,16 @@ class OrderOperations:
             operation_name="create_order",
         )
         creation_response = await self._request_builder.execute_request(method_upper, url, kwargs, "/trade-api/v2/portfolio/orders", op)
+        logger.info("Order creation API response: %s", creation_response)
         order_id = creation_response.get("order_id")
+        logger.debug("Extracted order_id: %s (type: %s)", order_id, type(order_id).__name__)
         if not isinstance(order_id, str):
+            logger.error(
+                "Order creation failed: expected order_id as string, got %s (type: %s). Full response: %s",
+                order_id,
+                type(order_id).__name__,
+                creation_response,
+            )
             raise KalshiClientError("Order creation response missing 'order_id'")
         return await self.get_order(
             order_id,

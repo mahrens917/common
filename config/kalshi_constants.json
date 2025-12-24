@@ -1,0 +1,5 @@
+{
+  "notifications": {
+    "max_price_cents_display": 100
+  }
+}

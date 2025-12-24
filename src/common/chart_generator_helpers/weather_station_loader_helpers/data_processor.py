@@ -23,7 +23,7 @@ def process_temperature_data(temperature_data: List[Tuple[int, float]], station_
     """
     from datetime import datetime as dt_cls
 
-    from src.common.chart_generator.exceptions import InsufficientDataError
+    from common.chart_generator.exceptions import InsufficientDataError
 
     timestamps: List[datetime] = []
     temperatures: List[float] = []

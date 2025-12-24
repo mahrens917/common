@@ -8,7 +8,7 @@ from datetime import datetime
 from typing import TYPE_CHECKING, Callable, Optional, Sequence
 
 if TYPE_CHECKING:
-    from src.common.trade_visualizer import TradeVisualizer
+    from common.trade_visualizer import TradeVisualizer
 
 logger = logging.getLogger(__name__)
 

@@ -48,7 +48,7 @@ class RedisFetcher:
 
     async def _fetch_market_keys(self, redis) -> list:
         """Fetch matching market keys from Redis."""
-        from src.common import trade_visualizer
+        from common import trade_visualizer
 
         schema = trade_visualizer.get_schema_config()
         pattern = f"{schema.kalshi_weather_prefix}:*fl*"
@@ -94,7 +94,7 @@ class RedisFetcher:
     def _extract_ticker(self, key: str) -> str | None:
         """Extract ticker from market key."""
         try:
-            from src.common import trade_visualizer
+            from common import trade_visualizer
 
             return trade_visualizer.parse_kalshi_market_key(key).ticker
         except ValueError:

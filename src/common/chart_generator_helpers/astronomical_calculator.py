@@ -7,7 +7,7 @@ import logging
 from datetime import datetime, timedelta, timezone, tzinfo
 from typing import List, Optional, Tuple
 
-from src.common.chart_generator.contexts import AstronomicalFeatures
+from common.chart_generator.contexts import AstronomicalFeatures
 
 from .astronomical_event_processor import AstronomicalEventProcessor
 from .config import AstronomicalEventData

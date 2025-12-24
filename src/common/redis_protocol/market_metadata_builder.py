@@ -165,17 +165,17 @@ def _extract_strike_fields(
         raise TypeError(f"strike_type must be provided for {ticker}")
     strike_type_key = strike_type_raw.lower()
 
-    if strike_type_key not in {"greater", "less", "between"}:
+    if strike_type_key not in {"greater", "greater_or_equal", "less", "less_or_equal", "between"}:
         raise TypeError(f"Unsupported strike_type '{strike_type_raw}' in Kalshi payload")
 
-    if strike_type_key == "greater":
+    if strike_type_key in ("greater", "greater_or_equal"):
         if floor_strike_api is None:
-            raise ValueError(f"floor_strike missing for 'greater' market {ticker}")
+            raise ValueError(f"floor_strike missing for '{strike_type_key}' market {ticker}")
         floor_strike_value = _stringify(floor_strike_api)
         cap_strike_value = "inf"
-    elif strike_type_key == "less":
+    elif strike_type_key in ("less", "less_or_equal"):
         if cap_strike_api is None:
-            raise ValueError(f"cap_strike missing for 'less' market {ticker}")
+            raise ValueError(f"cap_strike missing for '{strike_type_key}' market {ticker}")
         floor_strike_value = "0"
         cap_strike_value = _stringify(cap_strike_api)
     else:  # between

@@ -11,7 +11,7 @@ from typing import List, Optional
 from matplotlib.axes import Axes
 
 from common.data_models.trade_record import TradeRecord
-from src.common.trade_visualizer_helpers import shading_helpers
+from common.trade_visualizer_helpers import shading_helpers
 
 # Kalshi market price boundaries (cents)
 _KALSHI_MIN_PRICE = 0

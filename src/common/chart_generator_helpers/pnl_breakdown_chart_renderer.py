@@ -6,7 +6,7 @@ from __future__ import annotations
 import logging
 from typing import TYPE_CHECKING, Dict
 
-from src.common.chart_generator.exceptions import InsufficientDataError
+from common.chart_generator.exceptions import InsufficientDataError
 
 if TYPE_CHECKING:
     pass

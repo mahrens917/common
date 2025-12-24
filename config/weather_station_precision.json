@@ -1,0 +1,40 @@
+{
+  "stations": {
+    "KAUS": {
+      "metar_precision_c": 0.1,
+      "asos_precision_c": 1.0
+    },
+    "KMDW": {
+      "metar_precision_c": 0.1,
+      "asos_precision_c": 1.0
+    },
+    "KDEN": {
+      "metar_precision_c": 0.1,
+      "asos_precision_c": 1.0
+    },
+    "KLAX": {
+      "metar_precision_c": 0.1,
+      "asos_precision_c": 1.0
+    },
+    "KMIA": {
+      "metar_precision_c": 0.1,
+      "asos_precision_c": 1.0
+    },
+    "KNYC": {
+      "metar_precision_c": 0.1,
+      "asos_precision_c": 1.0
+    },
+    "KPHL": {
+      "metar_precision_c": 0.1,
+      "asos_precision_c": 1.0
+    },
+    "KTEST": {
+      "metar_precision_c": 0.1,
+      "asos_precision_c": 1.0
+    },
+    "KHIST": {
+      "metar_precision_c": 0.1,
+      "asos_precision_c": 1.0
+    }
+  }
+}

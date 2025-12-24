@@ -10,14 +10,14 @@ from typing import TYPE_CHECKING, Any, Dict, List, Optional
 import redis
 
 from common.redis_protocol.typing import ensure_awaitable
-from src.common.chart_generator.exceptions import (
+from common.chart_generator.exceptions import (
     InsufficientDataError,
     ProgressNotificationError,
 )
-from src.common.chart_generator_helpers.chart_file_manager import ChartFileManager
-from src.common.chart_generator_helpers.float_utils import safe_float
-from src.common.chart_generator_helpers.price_chart_creator import PriceChartCreator
-from src.common.chart_generator_helpers.progress_notifier import ProgressNotifier
+from common.chart_generator_helpers.chart_file_manager import ChartFileManager
+from common.chart_generator_helpers.float_utils import safe_float
+from common.chart_generator_helpers.price_chart_creator import PriceChartCreator
+from common.chart_generator_helpers.progress_notifier import ProgressNotifier
 
 from .dependencies import mdates, os, plt
 
@@ -112,7 +112,7 @@ async def create_system_chart(generator: "ChartGenerator", metric: str, hours: i
 
 
 async def get_city_tokens_for_icao(generator: "ChartGenerator", station_icao: str):
-    from src.common.chart_generator_helpers.city_token_resolver import CityTokenResolver
+    from common.chart_generator_helpers.city_token_resolver import CityTokenResolver
 
     resolver = CityTokenResolver()
     return await resolver.get_city_tokens_for_icao(station_icao)

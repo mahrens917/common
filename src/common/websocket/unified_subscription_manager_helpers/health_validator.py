@@ -5,7 +5,7 @@ import logging
 import time
 from typing import Dict
 
-from src.common.alerter import Alerter, AlertSeverity
+from common.alerter import Alerter, AlertSeverity
 
 logger = logging.getLogger(__name__)
 

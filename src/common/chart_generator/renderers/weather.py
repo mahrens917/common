@@ -4,11 +4,11 @@ import logging
 import sys
 from typing import Any, List, Optional, Tuple
 
-from src.common.chart_generator_helpers.astronomical_calculator import AstronomicalCalculator
-from src.common.chart_generator_helpers.weather_charts_orchestrator import (
+from common.chart_generator_helpers.astronomical_calculator import AstronomicalCalculator
+from common.chart_generator_helpers.weather_charts_orchestrator import (
     WeatherChartsOrchestrator,
 )
-from src.common.chart_generator_helpers.weather_station_loader import WeatherStationLoader
+from common.chart_generator_helpers.weather_station_loader import WeatherStationLoader
 
 from ..contexts import WeatherChartSeries
 from ..dependencies import os as dependencies_os

@@ -7,18 +7,17 @@ from typing import TYPE_CHECKING
 from common.config.redis_schema import get_schema_config
 from common.history_tracker import PriceHistoryTracker, WeatherHistoryTracker
 from common.redis_schema import parse_kalshi_market_key
-from src.common.price_path_calculator import (
+from common.price_path_calculator import (
     MostProbablePricePathCalculator,
     PricePathComputationError,
 )
 
 if TYPE_CHECKING:
-    from src.common.trade_visualizer import TradeVisualizer
+    from common.trade_visualizer import TradeVisualizer
 
 from . import dependencies as _deps
 from .contexts import AstronomicalFeatures, ChartStatistics, ChartTimeContext, WeatherChartSeries
 from .exceptions import InsufficientDataError, ProgressNotificationError
-from .runtime import ChartGenerator
 
 LOGGER_NAME = "src.monitor.chart_generator"
 logger = logging.getLogger(LOGGER_NAME)
@@ -64,9 +63,13 @@ __all__ = [
 
 
 def __getattr__(name: str):
-    """Lazy loading for monitor-dependent imports."""
+    """Lazy loading for imports that would cause circular dependencies."""
     if name == "TradeVisualizer":
-        from src.common.trade_visualizer import TradeVisualizer
+        from common.trade_visualizer import TradeVisualizer
 
         return TradeVisualizer
+    if name == "ChartGenerator":
+        from .runtime import ChartGenerator
+
+        return ChartGenerator
     raise AttributeError(f"module {__name__!r} has no attribute {name!r}")

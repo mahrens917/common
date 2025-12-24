@@ -4,10 +4,10 @@ from __future__ import annotations
 
 from typing import Any, Callable, Dict, Optional
 
-from src.common.alerter_helpers.alert_operations import AlertOperations
-from src.common.alerter_helpers.chart_operations import ChartOperations
-from src.common.alerter_helpers.price_validation_operations import PriceValidationOperations
-from src.common.alerting import AlertSeverity
+from common.alerter_helpers.alert_operations import AlertOperations
+from common.alerter_helpers.chart_operations import ChartOperations
+from common.alerter_helpers.price_validation_operations import PriceValidationOperations
+from common.alerting import AlertSeverity
 
 
 class PublicAPI:

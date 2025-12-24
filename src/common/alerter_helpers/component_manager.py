@@ -4,10 +4,10 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any, Callable
 
-from src.common.alerter_helpers.chart_manager import ChartManager
-from src.common.alerter_helpers.command_coordinator import CommandCoordinator
-from src.common.alerter_helpers.command_registration import CommandRegistration
-from src.common.alerter_helpers.initialization_coordinator import InitializationCoordinator
+from common.alerter_helpers.chart_manager import ChartManager
+from common.alerter_helpers.command_coordinator import CommandCoordinator
+from common.alerter_helpers.command_registration import CommandRegistration
+from common.alerter_helpers.initialization_coordinator import InitializationCoordinator
 
 if TYPE_CHECKING:
     from src.monitor.settings import MonitorSettings

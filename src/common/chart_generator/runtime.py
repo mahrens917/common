@@ -5,13 +5,13 @@ from __future__ import annotations
 import sys
 from typing import Any, Awaitable, Callable, Dict, List, Optional, Tuple, cast
 
-from src.common.chart_generator_helpers.chart_file_manager import ChartFileManager
-from src.common.chart_generator_helpers.chart_generator_initializer import (
+from common.chart_generator_helpers.chart_file_manager import ChartFileManager
+from common.chart_generator_helpers.chart_generator_initializer import (
     ChartGeneratorInitializer,
 )
-from src.common.chart_generator_helpers.load_charts_generator import LoadChartsGenerator
-from src.common.chart_generator_helpers.progress_notifier import ProgressNotifier
-from src.common.price_path_calculator import MostProbablePricePathCalculator
+from common.chart_generator_helpers.load_charts_generator import LoadChartsGenerator
+from common.chart_generator_helpers.progress_notifier import ProgressNotifier
+from common.price_path_calculator import MostProbablePricePathCalculator
 
 from .dependencies import os as dependencies_os
 from .dependencies import plt

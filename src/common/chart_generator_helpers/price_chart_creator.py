@@ -7,7 +7,7 @@ import logging
 from datetime import datetime, timezone
 from typing import Optional
 
-from src.common.price_path_calculator import PricePathComputationError
+from common.price_path_calculator import PricePathComputationError
 
 from .chart_title_formatter import ChartTitleFormatter
 from .price_data_collector import PriceDataCollector

@@ -7,12 +7,12 @@ import logging
 from datetime import datetime
 from typing import List, Optional, Tuple
 
-from src.common.chart_components import (
+from common.chart_components import (
     build_axis_timestamps,
     ensure_naive_timestamps,
     localize_temperature_timestamps,
 )
-from src.common.chart_generator.contexts import ChartTimeContext
+from common.chart_generator.contexts import ChartTimeContext
 
 logger = logging.getLogger("src.monitor.chart_generator")
 

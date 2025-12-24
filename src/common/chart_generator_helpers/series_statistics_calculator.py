@@ -6,8 +6,8 @@ from __future__ import annotations
 import logging
 from typing import List
 
-from src.common.chart_generator.contexts import ChartStatistics
-from src.common.chart_generator.exceptions import InsufficientDataError
+from common.chart_generator.contexts import ChartStatistics
+from common.chart_generator.exceptions import InsufficientDataError
 
 logger = logging.getLogger("src.monitor.chart_generator")
 

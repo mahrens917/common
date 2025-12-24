@@ -80,7 +80,7 @@ class ChartFeaturesApplier:
         resolve_trade_visualizer_func,
     ) -> None:
         """Annotate trades if required"""
-        from src.common.chart_components import annotate_trades_if_needed
+        from common.chart_components import annotate_trades_if_needed
 
         trade_visualizer_cls = resolve_trade_visualizer_func()
         await annotate_trades_if_needed(

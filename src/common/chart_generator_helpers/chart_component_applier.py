@@ -6,7 +6,7 @@ from __future__ import annotations
 import logging
 from typing import TYPE_CHECKING
 
-from src.common.chart_components import add_dawn_dusk_shading, add_vertical_line_annotations
+from common.chart_components import add_dawn_dusk_shading, add_vertical_line_annotations
 
 from .axes_limits_configurator import AxesLimitsConfigurator
 from .chart_titles_labels_applier import ChartTitlesLabelsApplier

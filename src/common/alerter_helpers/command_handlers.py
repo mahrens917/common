@@ -6,7 +6,7 @@ import logging
 from datetime import datetime
 from typing import TYPE_CHECKING, Any, Dict, List, Optional, Protocol, cast
 
-from src.common.price_path_calculator import (
+from common.price_path_calculator import (
     MostProbablePricePathCalculator,
     PricePathComputationError,
 )
@@ -244,7 +244,7 @@ class PriceCommandHandler:
                 logger.info("↳ [%s %s] evaluating horizon %d/%d", currency, tail_label, step, total)
 
         try:
-            from src.common.price_path_calculator_helpers.config import (
+            from common.price_path_calculator_helpers.config import (
                 PricePathCalculatorConfig,
             )
 

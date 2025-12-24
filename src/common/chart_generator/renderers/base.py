@@ -6,8 +6,8 @@ from datetime import datetime
 from importlib import import_module
 from typing import Callable, List, Optional, Tuple
 
-from src.common.chart_generator_helpers.chart_axes_creator import ChartAxesCreator
-from src.common.chart_generator_helpers.unified_chart_renderer import UnifiedChartRenderer
+from common.chart_generator_helpers.chart_axes_creator import ChartAxesCreator
+from common.chart_generator_helpers.unified_chart_renderer import UnifiedChartRenderer
 
 from ..dependencies import mdates, np, plt, tempfile, ticker
 from ..exceptions import InsufficientDataError

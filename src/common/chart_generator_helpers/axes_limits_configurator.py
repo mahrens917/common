@@ -6,8 +6,8 @@ from __future__ import annotations
 import logging
 from typing import TYPE_CHECKING, List, Optional
 
-from src.common.chart_components import collect_prediction_extrema
-from src.common.chart_generator.contexts import ChartStatistics, ChartTimeContext
+from common.chart_components import collect_prediction_extrema
+from common.chart_generator.contexts import ChartStatistics, ChartTimeContext
 
 from .config import AxesLimitsConfig
 

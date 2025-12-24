@@ -9,7 +9,7 @@ from typing import Optional
 
 from common.config.redis_schema import get_schema_config
 from common.history_tracker import WeatherHistoryTracker
-from src.common.price_path_calculator import MostProbablePricePathCalculator
+from common.price_path_calculator import MostProbablePricePathCalculator
 
 from .chart_file_manager import ChartFileManager
 from .chart_styler import ChartStyler
@@ -51,7 +51,7 @@ class ChartGeneratorInitializer:
                 "MostProbablePricePathCalculator",
                 MostProbablePricePathCalculator,
             )
-            from src.common.price_path_calculator_helpers.config import PricePathCalculatorConfig
+            from common.price_path_calculator_helpers.config import PricePathCalculatorConfig
 
             config = PricePathCalculatorConfig(
                 strike_count=64,

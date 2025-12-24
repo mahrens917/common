@@ -72,20 +72,20 @@ def build_cfb_config() -> Dict[str, Any]:
 
 def get_service_specific_config(service_name: str) -> Dict[str, Any]:
     """Get service-specific configuration overrides."""
-    ws_config = load_websocket_config()
-
-    service_configs = {
-        "kalshi": build_kalshi_config(ws_config),
-        "deribit": build_deribit_config(ws_config),
-        "cfb": build_cfb_config(),
-    }
-
     if service_name == "weather":
         from common.connectionconfig_helpers.config_loader import load_weather_config
 
         return load_weather_config()
 
-    resolved = service_configs.get(service_name)
-    if resolved is None:
-        return dict()
-    return resolved
+    if service_name == "cfb":
+        return build_cfb_config()
+
+    ws_config = load_websocket_config()
+
+    if service_name == "kalshi":
+        return build_kalshi_config(ws_config)
+
+    if service_name == "deribit":
+        return build_deribit_config(ws_config)
+
+    return dict()

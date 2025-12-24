@@ -17,7 +17,7 @@ async def send_silent_failure_alert(service_name: str, time_since_last_update: f
     Note:
         Failures to send alerts are logged but not raised to avoid disrupting monitoring.
     """
-    from src.common.alerter import Alerter, AlertSeverity
+    from common.alerter import Alerter, AlertSeverity
 
     try:
         alerter = Alerter()

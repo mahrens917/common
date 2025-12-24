@@ -3,7 +3,7 @@
 import logging
 from typing import Any, Dict, Optional
 
-from src.common.alerting import AlertSeverity
+from common.alerting import AlertSeverity
 
 logger = logging.getLogger(__name__)
 

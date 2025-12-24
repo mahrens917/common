@@ -7,7 +7,7 @@ import logging
 from datetime import datetime
 from typing import TYPE_CHECKING, List, Optional, Tuple
 
-from src.common.chart_components import (
+from common.chart_components import (
     PredictionOverlayParams,
     render_prediction_overlay_if_needed,
 )
@@ -21,8 +21,8 @@ from .time_context_builder import TimeContextBuilder
 if TYPE_CHECKING:
     from matplotlib.axes import Axes
 
-    from src.common.chart_components import PredictionOverlayResult
-    from src.common.chart_generator.contexts import ChartStatistics, ChartTimeContext
+    from common.chart_components import PredictionOverlayResult
+    from common.chart_generator.contexts import ChartStatistics, ChartTimeContext
 
 logger = logging.getLogger("src.monitor.chart_generator")
 
