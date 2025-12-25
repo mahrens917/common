@@ -1,4 +1,33 @@
 # =============================================================================
+# Project Metadata
+# =============================================================================
+
+[build-system]
+requires = ["setuptools>=68.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "common"
+version = "0.1.0"
+description = "Shared utilities and configuration for trading services"
+readme = "README.md"
+requires-python = ">=3.12"
+authors = [
+    {name = "Common Team"},
+]
+dependencies = [
+    "redis",
+    "aioredis",
+    "python-dotenv",
+]
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+
+[tool.setuptools.packages]
+find = {where = ["src"], include = ["common*"]}
+
+# =============================================================================
 # Repository-Specific Tool Configurations
 # =============================================================================
 # These are repo-specific and not standardized across repositories
