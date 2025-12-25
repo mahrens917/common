@@ -30,7 +30,12 @@ class PrimarySeriesRenderer:
         """Render primary data series with appropriate styling"""
         if config.is_pnl_chart:
             x_values = list(range(len(config.values)))
-            bar_colors = ["green" if value >= 0 else "red" for value in config.values]
+            bar_colors = []
+            for value in config.values:
+                if value >= 0:
+                    bar_colors.append("green")
+                else:
+                    bar_colors.append("red")
             config.ax.bar(x_values, config.values, color=bar_colors, alpha=0.7, width=0.8)
             return None
 

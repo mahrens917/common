@@ -70,7 +70,10 @@ class AxesLimitsConfigurator:
             start_time = mdates.date2num(min(timestamps_for_limits))
             end_time = mdates.date2num(max(timestamps_for_limits))
             time_range = end_time - start_time
-            padding = time_range * 0.02 if time_range > 0 else 0.01
+            if time_range > 0:
+                padding = time_range * 0.02
+            else:
+                padding = 0.01
             ax.set_xlim(float(start_time - padding), float(end_time + padding))
 
     def _add_baseline_lines(

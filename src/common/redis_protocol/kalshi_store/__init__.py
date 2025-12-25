@@ -12,7 +12,6 @@ from .. import cleanup_redis_pool
 from .. import config as redis_config
 from .. import get_redis_pool
 from ..orderbook_utils import merge_orderbook_payload
-from ..config import REDIS_HOST, REDIS_PASSWORD
 from ..retry import (
     RedisFatalError,
     RedisRetryContext,
@@ -29,8 +28,6 @@ __all__ = [
     "KalshiStore",
     "KalshiStoreError",
     "MarketSkip",
-    "REDIS_HOST",
-    "REDIS_PASSWORD",
     "default_weather_station_loader",
     "cleanup_redis_pool",
     "get_redis_pool",

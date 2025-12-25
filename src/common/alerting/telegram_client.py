@@ -56,7 +56,10 @@ class TelegramClient:
                 form_data.add_field("chat_id", chat_id)
                 if caption:
                     form_data.add_field("caption", caption)
-                field_name = "photo" if is_photo else "document"
+                if is_photo:
+                    field_name = "photo"
+                else:
+                    field_name = "document"
                 form_data.add_field(field_name, file_handle, filename=payload_path.name)
                 async with session.post(f"{self._base_url}/{method}", data=form_data) as response:
                     if response.status == _HTTP_OK:

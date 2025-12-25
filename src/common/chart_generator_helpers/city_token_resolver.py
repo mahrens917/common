@@ -39,7 +39,10 @@ class CityTokenResolver:
             if "icao" in station_data and station_data["icao"] == icao_code:
                 tokens = [city_code]
                 # Aliases are optional
-                aliases = station_data["aliases"] if "aliases" in station_data else []
+                if "aliases" in station_data:
+                    aliases = station_data["aliases"]
+                else:
+                    aliases = []
                 if isinstance(aliases, list):
                     tokens.extend(alias for alias in aliases if isinstance(alias, str))
                 tokens.append(icao_code)

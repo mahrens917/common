@@ -13,7 +13,28 @@ import logging
 import shutil
 from typing import Any, Dict
 
-from src.weather.settings import get_weather_settings
+
+def _get_weather_settings_func():
+    """Load weather settings with fallback."""
+    import importlib
+
+    for module_path in ["src.weather.settings", "weather.settings"]:
+        try:
+            module = importlib.import_module(module_path)
+            return module.get_weather_settings
+        except (ImportError, ModuleNotFoundError, AttributeError):
+            continue
+
+    def get_weather_settings():
+        """Fallback when weather package is not installed."""
+        from types import SimpleNamespace
+
+        return SimpleNamespace(sources=SimpleNamespace(asos_source=None))
+
+    return get_weather_settings
+
+
+get_weather_settings = _get_weather_settings_func()
 
 logger = logging.getLogger(__name__)
 

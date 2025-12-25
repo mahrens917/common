@@ -232,7 +232,10 @@ class PriceCommandHandler:
         generator: Optional[ChartGeneratorProtocol] = None
 
         def _progress(step: int, total: int) -> None:
-            interval = max(1, total // 10) if total > 0 else 1
+            if total > 0:
+                interval = max(1, total // 10)
+            else:
+                interval = 1
             if step == total or step % interval == 0:
                 logger.info("↳ [%s %s] evaluating horizon %d/%d", currency, tail_label, step, total)
 

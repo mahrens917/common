@@ -3,12 +3,9 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import TYPE_CHECKING, Any, Mapping
+from typing import Any, Mapping
 
 import numpy as np
-
-if TYPE_CHECKING:
-    from src.pdf.phases.phase_5_gp_interpolation import MicroPriceGPSurface
 
 
 class PricePathComputationError(Exception):
@@ -31,7 +28,7 @@ class PathMetrics:
 class MetricsExtractor:
     """Extract and validate path metrics from GP surfaces."""
 
-    def extract_path_metrics(self, surface: MicroPriceGPSurface, currency: str) -> PathMetrics:
+    def extract_path_metrics(self, surface: Any, currency: str) -> PathMetrics:
         """Extract all required path metrics from surface."""
         metrics = getattr(surface, "precomputed_path_metrics", None)
         if not metrics:

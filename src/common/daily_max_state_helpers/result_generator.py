@@ -12,6 +12,24 @@ from .confidence_calculator import ConfidenceCalculator
 logger = logging.getLogger(__name__)
 
 
+def _get_cli_temp_f():
+    """Get the cli_temp_f function from weather package."""
+    import importlib
+
+    for module_path in ["src.weather.temperature_converter", "weather.temperature_converter"]:
+        try:
+            module = importlib.import_module(module_path)
+            return module.cli_temp_f
+        except (ImportError, ModuleNotFoundError, AttributeError):
+            continue
+
+    def cli_temp_f(celsius):
+        """Fallback when weather package is not installed."""
+        return int(celsius * 9 / 5 + 32)
+
+    return cli_temp_f
+
+
 @dataclass
 class DailyMaxResult:
     """Result of daily maximum temperature calculation."""
@@ -43,7 +61,7 @@ class ResultGenerator:
             return None
 
         # Convert to Fahrenheit using CLI formula
-        from src.weather.temperature_converter import cli_temp_f
+        cli_temp_f = _get_cli_temp_f()
 
         max_temp_f = cli_temp_f(max_temp_c)
         confidence = ConfidenceCalculator.get_confidence_level(precision)
@@ -78,7 +96,7 @@ class ResultGenerator:
         else:
             raise ValueError(f"Unknown rule_type: {rule_type}")
 
-        from src.weather.temperature_converter import cli_temp_f
+        cli_temp_f = _get_cli_temp_f()
 
         return cli_temp_f(adjusted_c)
 
@@ -91,6 +109,6 @@ class ResultGenerator:
             return None
 
         # Use CLI conversion formula
-        from src.weather.temperature_converter import cli_temp_f
+        cli_temp_f = _get_cli_temp_f()
 
         return cli_temp_f(hourly_max_temp_c)

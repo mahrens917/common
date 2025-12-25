@@ -70,12 +70,18 @@ class UnifiedChartStrikeMixin:
         if isinstance(bounds_or_config, (int, float)) and isinstance(maybe_second, (int, float)):
             temp_min = math.floor(bounds_or_config)
             temp_max = math.ceil(maybe_second)
-            strikes = list(maybe_third or [])
+            if maybe_third:
+                strikes = list(maybe_third)
+            else:
+                strikes = []
         else:
             y_min, y_max = ax.get_ylim()
             temp_min = math.floor(y_min)
             temp_max = math.ceil(y_max)
-            strikes = list(maybe_second or [])
+            if maybe_second:
+                strikes = list(maybe_second)
+            else:
+                strikes = []
         ticks = list(range(temp_min, temp_max + 1))
         ax.set_yticks(ticks)
         ax.set_yticklabels([f"{temp:d}°F" for temp in ticks])

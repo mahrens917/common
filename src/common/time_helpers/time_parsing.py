@@ -45,7 +45,10 @@ def parse_time_utc(value: str) -> tuple[int, int, int]:
     try:
         hour = int(parts[0])
         minute = int(parts[1])
-        second = int(parts[2]) if len(parts) == TIME_PARTS_WITH_SECONDS else 0
+        if len(parts) == TIME_PARTS_WITH_SECONDS:
+            second = int(parts[2])
+        else:
+            second = 0
     except ValueError as exc:
         raise ValueError(NONNUMERIC_TIME_COMPONENT_ERROR_TEMPLATE.format(value)) from exc
 

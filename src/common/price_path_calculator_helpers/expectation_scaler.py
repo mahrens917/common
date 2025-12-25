@@ -2,12 +2,9 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, Tuple
+from typing import Any, Tuple
 
 import numpy as np
-
-if TYPE_CHECKING:
-    from src.pdf.phases.phase_5_gp_interpolation import MicroPriceGPSurface
 
 
 class ExpectationScaler:
@@ -20,7 +17,7 @@ class ExpectationScaler:
     def scale_expectations(
         self,
         *,
-        surface: MicroPriceGPSurface,
+        surface: Any,
         expected_interp: np.ndarray,
         forward_interp: np.ndarray,
         sigma_interp: np.ndarray,
@@ -29,14 +26,22 @@ class ExpectationScaler:
         """Scale expectations to spot price and compute bounded uncertainties."""
         if surface.spot_price and surface.spot_price > 0.0:
             spot_reference = float(surface.spot_price)
+        elif expected_interp.size:
+            spot_reference = float(expected_interp[0])
         else:
-            spot_reference = float(expected_interp[0] if expected_interp.size else forward_interp[0])
+            spot_reference = float(forward_interp[0])
 
-        reference_expectation = float(expected_interp[0]) if expected_interp.size else spot_reference
+        if expected_interp.size:
+            reference_expectation = float(expected_interp[0])
+        else:
+            reference_expectation = spot_reference
         if reference_expectation <= 0.0:
             reference_expectation = float(forward_interp[0])
 
-        scale_ratio = spot_reference / reference_expectation if reference_expectation else 1.0
+        if reference_expectation:
+            scale_ratio = spot_reference / reference_expectation
+        else:
+            scale_ratio = 1.0
 
         expected_prices = expected_interp * scale_ratio
         scaled_sigma = np.abs(scale_ratio) * sigma_interp

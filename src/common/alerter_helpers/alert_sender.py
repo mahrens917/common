@@ -55,7 +55,10 @@ class AlertDeliveryMixin:
         return await self._deliver_telegram(alert, recipients)
 
     def _collect_recipients(self, target_user_id: Optional[str], authorized_user_ids: List[str]) -> List[str]:
-        recipients = [target_user_id] if target_user_id else list(authorized_user_ids)
+        if target_user_id is not None:
+            recipients = [target_user_id]
+        else:
+            recipients = list(authorized_user_ids)
         if not recipients:
             logger.warning("Telegram alert dropped; no authorized recipients configured")
         return recipients

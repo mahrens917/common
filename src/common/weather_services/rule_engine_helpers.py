@@ -133,7 +133,12 @@ class StationMappingIndexer:
         """Create alias -> city_code index."""
         alias_index: Dict[str, str] = {}
         for city_code, station_data in mapping.items():
-            for alias in (station_data.get("aliases") or []) or []:
+            aliases_val = station_data.get("aliases")
+            if aliases_val:
+                aliases_list = aliases_val
+            else:
+                aliases_list = []
+            for alias in aliases_list:
                 alias_index[alias] = city_code
         return alias_index
 

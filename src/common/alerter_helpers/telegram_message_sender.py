@@ -69,7 +69,10 @@ class TelegramMessageSender:
                 raise RuntimeError(f"Telegram send_message failed for {chat_id}") from exc
 
             if not success:
-                failure_message = error_text if error_text else "unknown error"
+                if error_text:
+                    failure_message = error_text
+                else:
+                    failure_message = "unknown error"
                 self.backoff_manager.record_failure(RuntimeError(failure_message))
                 raise RuntimeError(f"Telegram send_message returned failure for {chat_id}: {failure_message}")
 

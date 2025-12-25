@@ -68,12 +68,16 @@ class _NightShadingContext:
         self._label_applied = False
 
     def shade(self, start: float, end: float) -> None:
+        if not self._label_applied:
+            label_value = "Night Hours"
+        else:
+            label_value = None
         self._ax.axvspan(
             float(start),
             float(end),
             alpha=0.15,
             color="gray",
-            label="Night Hours" if not self._label_applied else None,
+            label=label_value,
             zorder=1,
         )
         self._label_applied = True

@@ -15,6 +15,28 @@ from .kalshi_catalog_helpers import MarketFetcher, MarketFilter, WeatherStationL
 logger = logging.getLogger(__name__)
 
 
+def _load_kalshi_settings_func():
+    """Load kalshi settings with fallback."""
+    import importlib
+
+    for module_path in ["src.kalshi.settings", "kalshi.settings"]:
+        try:
+            module = importlib.import_module(module_path)
+            return module.get_kalshi_settings
+        except (ImportError, ModuleNotFoundError, AttributeError):
+            continue
+
+    def get_kalshi_settings():
+        """Fallback when kalshi package is not installed."""
+        from types import SimpleNamespace
+
+        return SimpleNamespace(
+            market_catalog=SimpleNamespace(refresh_interval_seconds=900, categories=("Crypto", "Climate and Weather"), status="open")
+        )
+
+    return get_kalshi_settings
+
+
 class KalshiMarketCatalogError(RuntimeError):
     """Raised when market discovery fails."""
 
@@ -29,8 +51,7 @@ class KalshiMarketCatalog:
 
     def __init__(self, client: KalshiClient) -> None:
         self._client = client
-        from src.kalshi.settings import get_kalshi_settings
-
+        get_kalshi_settings = _load_kalshi_settings_func()
         settings = get_kalshi_settings().market_catalog
 
         self._refresh_interval_seconds = max(1, settings.refresh_interval_seconds)
@@ -41,7 +62,10 @@ class KalshiMarketCatalog:
             self._market_categories = settings.categories
 
         status_value = settings.status
-        self._market_status = status_value if status_value else self._DEFAULT_MARKET_STATUS
+        if status_value:
+            self._market_status = status_value
+        else:
+            self._market_status = self._DEFAULT_MARKET_STATUS
 
         # Initialize helpers
         config_root = Path(__file__).resolve().parents[2] / "config"
@@ -60,7 +84,10 @@ class KalshiMarketCatalog:
         """Fetch and return the filtered set of Kalshi markets."""
         markets, total_pages = await self._market_fetcher.fetch_all_markets(self._market_categories)
 
-        category_summary = ",".join(self._market_categories) if self._market_categories else "<all>"
+        if self._market_categories:
+            category_summary = ",".join(self._market_categories)
+        else:
+            category_summary = "<all>"
         logger.info(
             "Kalshi market fetch complete: %s markets across %s page(s) (categories=%s)",
             len(markets),
@@ -99,15 +126,24 @@ class KalshiMarketCatalog:
         """Convert markets to metadata map."""
         metadata: Dict[str, InstrumentMetadata] = {}
         for market in markets:
-            ticker = market["ticker"] if "ticker" in market else None
+            if "ticker" in market:
+                ticker = market["ticker"]
+            else:
+                ticker = None
             if not isinstance(ticker, str):
                 raise KalshiMarketCatalogError("Kalshi market missing ticker")
 
             raw_currency = market.get("currency")
-            currency_value = str(raw_currency) if raw_currency is not None else "unknown"
+            if raw_currency is not None:
+                currency_value = str(raw_currency)
+            else:
+                currency_value = "unknown"
 
             raw_close_time = market.get("close_time")
-            close_time_text = str(raw_close_time) if raw_close_time is not None else ""
+            if raw_close_time is not None:
+                close_time_text = str(raw_close_time)
+            else:
+                close_time_text = ""
 
             metadata[ticker] = InstrumentMetadata(
                 type="market",

@@ -47,6 +47,9 @@ class MediaSender:
             raise RuntimeError(f"Telegram media send failed for user {user_id} with payload {payload_path}") from exc
 
         if not success:
-            failure_message = error_text if error_text else "unknown error"
+            if error_text:
+                failure_message = error_text
+            else:
+                failure_message = "unknown error"
             self.backoff_manager.record_failure(RuntimeError(failure_message))
             raise RuntimeError(f"Telegram media send returned failure for user {user_id}: {failure_message}")

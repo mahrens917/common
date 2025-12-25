@@ -113,7 +113,11 @@ def load_active_pdf_config(currency: Optional[str] = None, *, allow_missing: boo
     else:
         optimized_blob = _load_json(optimized_path)
 
-    parameters = optimized_blob.get("parameters") or {}
+    parameters_val = optimized_blob.get("parameters")
+    if parameters_val:
+        parameters = parameters_val
+    else:
+        parameters = {}
     if not parameters and not optimized_missing:
         raise ValueError(f"Optimized configuration {optimized_path} must provide a 'parameters' object.")
 

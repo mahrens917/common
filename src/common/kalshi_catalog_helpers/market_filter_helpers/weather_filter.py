@@ -12,7 +12,11 @@ class WeatherFilter:
 
     def passes_filters(self, market: Dict[str, object], now_ts: float, close_time_validator) -> bool:
         """Check if weather market passes filters."""
-        ticker = str(market.get("ticker") or "").upper()
+        ticker_val = market.get("ticker")
+        if ticker_val:
+            ticker = str(ticker_val).upper()
+        else:
+            ticker = ""
         if not ticker.startswith("KXHIGH"):
             return False
         if not close_time_validator.is_in_future(market, now_ts):

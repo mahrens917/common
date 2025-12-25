@@ -35,10 +35,19 @@ class MarketHashDecoder:
         Returns:
             Tuple of (strike_type, floor_strike, cap_strike)
         """
-        raw_strike_type = decoded["strike_type"] if "strike_type" in decoded else ""
+        if "strike_type" in decoded:
+            raw_strike_type = decoded["strike_type"]
+        else:
+            raw_strike_type = ""
         strike_type = str(raw_strike_type).lower()
-        floor_raw = decoded["floor_strike"] if "floor_strike" in decoded else None
-        cap_raw = decoded["cap_strike"] if "cap_strike" in decoded else None
+        if "floor_strike" in decoded:
+            floor_raw = decoded["floor_strike"]
+        else:
+            floor_raw = None
+        if "cap_strike" in decoded:
+            cap_raw = decoded["cap_strike"]
+        else:
+            cap_raw = None
         floor_strike = safe_float(floor_raw)
         cap_strike = safe_float(cap_raw)
         return strike_type, floor_strike, cap_strike

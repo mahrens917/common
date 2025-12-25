@@ -38,12 +38,25 @@ def _resolve_config_json(name: str, config_dir: Optional[Path]) -> Dict[str, Any
         if config_path.exists():
             return _load_from_directory(name, local_config_dir)
 
+    load_config_json = _import_config_loader()
     try:
-        from src.weather.config_loader import load_config_json
-
         return load_config_json(name)
-    except (ImportError, ModuleNotFoundError, WeatherConfigError, OSError) as exc:
+    except (WeatherConfigError, OSError) as exc:
         raise WeatherConfigError(str(exc)) from exc
+
+
+def _import_config_loader():
+    """Import config loader from weather package with fallback."""
+    import importlib
+
+    for module_path in ["src.weather.config_loader", "weather.config_loader"]:
+        try:
+            module = importlib.import_module(module_path)
+            return module.load_config_json
+        except (ImportError, ModuleNotFoundError, AttributeError):
+            continue
+
+    raise WeatherConfigError("weather package is not installed")
 
 
 def load_weather_station_mapping(

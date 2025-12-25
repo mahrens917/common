@@ -11,12 +11,16 @@ def _create_shading_function(ax, label_applied_ref: List[bool]) -> Callable[[flo
     """Create a closure for shading chart regions."""
 
     def shade(start: float, end: float) -> None:
+        if not label_applied_ref[0]:
+            label_value = "Night Hours"
+        else:
+            label_value = None
         ax.axvspan(
             float(start),
             float(end),
             alpha=0.15,
             color="gray",
-            label="Night Hours" if not label_applied_ref[0] else None,
+            label=label_value,
             zorder=1,
         )
         label_applied_ref[0] = True

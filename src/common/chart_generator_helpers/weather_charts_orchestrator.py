@@ -20,7 +20,10 @@ class WeatherChartsOrchestrator:
         config_loader_kwargs: Dict[str, Any] | None = None,
     ):
         self.create_weather_chart_func = create_weather_chart_func
-        self._config_loader_kwargs = config_loader_kwargs or {}
+        if config_loader_kwargs:
+            self._config_loader_kwargs = config_loader_kwargs
+        else:
+            self._config_loader_kwargs = {}
 
     async def generate_weather_charts(self) -> List[str]:
         """Render temperature charts for every configured station."""

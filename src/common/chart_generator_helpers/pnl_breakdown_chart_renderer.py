@@ -17,6 +17,20 @@ logger = logging.getLogger("src.monitor.chart_generator")
 _MIN_LABELS_FOR_ROTATION = 5
 
 
+def _get_bar_color(value: float) -> str:
+    """Get color for bar based on value sign."""
+    if value >= 0:
+        return "#28a745"
+    return "#dc3545"
+
+
+def _get_text_alignment(value: float) -> str:
+    """Get vertical alignment for text based on value sign."""
+    if value >= 0:
+        return "bottom"
+    return "top"
+
+
 class PnlBreakdownChartRenderer:
     """Renders breakdown bar charts for station and rule PnL"""
 
@@ -45,7 +59,7 @@ class PnlBreakdownChartRenderer:
 
         fig, ax = plt.subplots(figsize=(self.chart_width_inches, self.chart_height_inches), dpi=self.dpi)
         try:
-            colors = ["#28a745" if value >= 0 else "#dc3545" for value in values]
+            colors = [_get_bar_color(value) for value in values]
             bars = ax.bar(labels, values, color=colors)
             ax.set_title(title)
             ax.set_xlabel(xlabel)
@@ -53,12 +67,13 @@ class PnlBreakdownChartRenderer:
             ax.grid(axis="y", linestyle="--", alpha=0.5)
 
             for bar, value in zip(bars, values):
+                va_value = _get_text_alignment(value)
                 ax.text(
                     bar.get_x() + bar.get_width() / 2,
                     bar.get_height(),
                     f"${value:+.2f}",
                     ha="center",
-                    va="bottom" if value >= 0 else "top",
+                    va=va_value,
                 )
 
             if len(labels) >= _MIN_LABELS_FOR_ROTATION:

@@ -2,10 +2,7 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, Callable, Optional
-
-if TYPE_CHECKING:
-    from src.pdf.phases.phase_5_gp_interpolation import MicroPriceGPSurface
+from typing import Any, Callable, Optional
 
 
 class PricePathComputationError(Exception):

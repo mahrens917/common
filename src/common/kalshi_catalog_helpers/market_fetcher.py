@@ -19,7 +19,10 @@ def _build_request_params(
     base_params: Optional[BaseParams],
     cursor: Optional[str],
 ) -> BaseParams:
-    params: Dict[str, Optional[str]] = dict(base_params) if base_params else {}
+    if base_params:
+        params: Dict[str, Optional[str]] = dict(base_params)
+    else:
+        params = {}
     params["status"] = client._market_status
     if cursor:
         params["cursor"] = cursor
@@ -74,7 +77,10 @@ def _add_markets(
 ) -> int:
     added = 0
     for market in page_markets:
-        ticker = market.get("ticker") if isinstance(market, dict) else None
+        if isinstance(market, dict):
+            ticker = market.get("ticker")
+        else:
+            ticker = None
         if not isinstance(ticker, str) or not ticker.strip():
             raise KalshiMarketCatalogError("Kalshi market missing ticker")
         ticker_upper = ticker.upper()
@@ -83,8 +89,14 @@ def _add_markets(
         if ticker != ticker_upper:
             market["ticker"] = ticker_upper
         seen_tickers.add(ticker_upper)
-        category = base_params.get("category") if base_params else None
-        market["__category"] = category if category else label
+        if base_params:
+            category = base_params.get("category")
+        else:
+            category = None
+        if category:
+            market["__category"] = category
+        else:
+            market["__category"] = label
         markets.append(market)
         added += 1
     return added
@@ -106,7 +118,10 @@ class MarketFetcherClient:
         """Fetch markets with pagination."""
         cursor: str | None = None
         seen_cursors: set[str | None] = set()
-        logged_params = base_params if base_params else "<none>"
+        if base_params:
+            logged_params = base_params
+        else:
+            logged_params = "<none>"
         logger.info("Requesting Kalshi markets with params %s", logged_params)
         pages = 0
 
@@ -151,7 +166,10 @@ class MarketFetcher:
         """Fetch all markets across categories."""
         markets: List[Dict[str, object]] = []
         seen_tickers: set[str] = set()
-        category_list: Iterable[Optional[str]] = categories if categories else (None,)
+        if categories:
+            category_list: Iterable[Optional[str]] = categories
+        else:
+            category_list = (None,)
         total_pages = 0
         for category in category_list:
             if category == "Crypto":
@@ -159,8 +177,14 @@ class MarketFetcher:
             elif category in {"Weather", "Climate and Weather"}:
                 total_pages += await self._fetch_weather_markets(category, markets, seen_tickers)
             else:
-                label = category if category else "<all>"
-                base_params: BaseParams | None = {"category": category} if category else None
+                if category:
+                    label = category
+                else:
+                    label = "<all>"
+                if category:
+                    base_params: BaseParams | None = {"category": category}
+                else:
+                    base_params = None
                 total_pages += await self._fetcher_client.fetch_markets(label, markets, seen_tickers, base_params=base_params)
         return markets, total_pages
 
@@ -176,7 +200,10 @@ class MarketFetcher:
         pages = 0
         matched_series = 0
         for series in series_list:
-            ticker = series.get("ticker") if isinstance(series, dict) else None
+            if isinstance(series, dict):
+                ticker = series.get("ticker")
+            else:
+                ticker = None
             if not ticker:
                 continue
             ticker_upper = ticker.upper()
@@ -209,7 +236,10 @@ class MarketFetcher:
         pages = 0
         matched_series = 0
         for series in series_list:
-            ticker = series.get("ticker") if isinstance(series, dict) else None
+            if isinstance(series, dict):
+                ticker = series.get("ticker")
+            else:
+                ticker = None
             if not ticker or not ticker.upper().startswith("KXHIGH"):
                 continue
 

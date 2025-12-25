@@ -52,10 +52,11 @@ __all__ = [
 ]
 
 # Provide a module alias for monkeypatch-friendly Path.exists
-_path_module = types.ModuleType(__name__ + ".Path")
-_path_module.__name__ = __name__ + ".Path"
+_path_module_name = __name__ + ".Path"
+_path_module = types.ModuleType(_path_module_name)
+_path_module.__name__ = _path_module_name
 setattr(_path_module, "exists", Path.exists)
-sys.modules[_path_module.__name__] = _path_module
+sys.modules[_path_module_name] = _path_module
 
 
 class AlertDispatchMixin:
@@ -88,7 +89,10 @@ class AlertDispatchMixin:
         assert self.delivery_manager is not None
         authorized_user_ids = self.authorized_user_ids
         assert authorized_user_ids is not None
-        recipients = [target_user_id] if target_user_id else list(authorized_user_ids)
+        if target_user_id is not None:
+            recipients = [target_user_id]
+        else:
+            recipients = list(authorized_user_ids)
         if not recipients:
             return False
         return await self.delivery_manager.send_chart(image_path, caption, recipients)

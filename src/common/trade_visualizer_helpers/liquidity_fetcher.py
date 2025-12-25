@@ -122,7 +122,10 @@ class LiquidityFetcher:
 
     def _build_market_state(self, decoded: Dict[str, str], market_ticker: str) -> MarketState:
         traded_value = decoded.get("traded")
-        traded_flag = str(traded_value).lower() == "true" if traded_value is not None else False
+        if traded_value is not None:
+            traded_flag = str(traded_value).lower() == "true"
+        else:
+            traded_flag = False
         return MarketState(
             timestamp=datetime.now(timezone.utc),
             market_ticker=market_ticker,

@@ -311,15 +311,12 @@ def _normalise_fill(client, payload: Dict[str, Any]) -> Dict[str, Any]:
 
 
 def _get_session_lock(client):
-    cached = client.__dict__.get("_cached_session_lock", None)
-    if cached is not None:
-        return cached
     manager = getattr(client, "_session_manager", None)
-    if manager is None:
-        return None
-    lock = manager.session_lock
-    client.__dict__["_cached_session_lock"] = lock
-    return lock
+    if manager is not None:
+        lock = manager.session_lock
+        client.__dict__["_cached_session_lock"] = lock
+        return lock
+    return client.__dict__.get("_cached_session_lock", None)
 
 
 def _set_session_lock(client, value) -> None:
@@ -377,6 +374,7 @@ def bind_client_methods(client_cls, session_getter, session_setter) -> None:
     setattr(client_cls, "_normalise_fill", _normalise_fill)
     client_cls.api_request = _api_request_impl
     setattr(client_cls, "_direct_api_request", _direct_api_request_impl)
+    setattr(client_cls, "_legacy_api_request", _direct_api_request_impl)
     client_cls.get_portfolio_balance = _get_portfolio_balance_impl
     client_cls.get_portfolio_positions = _get_portfolio_positions_impl
     client_cls.create_order = _create_order_impl

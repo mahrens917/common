@@ -38,7 +38,10 @@ class ChartBatchSender:
         for chart_name, chart_path in chart_paths.items():
             try:
                 # Only generate caption if prefix is provided
-                caption = f"{caption_prefix} {chart_name.title()} Load" if caption_prefix else ""
+                if caption_prefix:
+                    caption = f"{caption_prefix} {chart_name.title()} Load"
+                else:
+                    caption = ""
                 if await self.send_chart_callback(chart_path, caption):
                     success_count += 1
                     logger.info(f"Successfully sent {chart_name} chart")

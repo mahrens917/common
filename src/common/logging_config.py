@@ -126,32 +126,34 @@ def _should_skip_logging_configuration(root_logger: logging.Logger, managed_by_m
     return has_console and has_file
 
 
-def _reset_all_handlers(root_logger: logging.Logger) -> None:
-    # Close existing handlers before clearing to avoid ResourceWarning
-    for handler in list(root_logger.handlers):
+def _close_handlers(logger: logging.Logger, logger_name: Optional[str] = None) -> None:
+    """Close all handlers for a logger, logging any errors."""
+    for handler in list(logger.handlers):
         try:
             handler.close()
         except OSError as e:  # Best-effort cleanup operation  # policy_guard: allow-silent-handler
-            _MODULE_LOGGER.debug("Handler close failed (expected for some handlers): %s", e)
-    root_logger.handlers = []
+            safe_name = logger_name if logger_name else "<unknown>"
+            _MODULE_LOGGER.debug("Handler close failed for logger '%s': %s", safe_name, e)
 
+
+def _reset_handlers(root_logger: logging.Logger) -> None:
+    """Reset handlers for all loggers in the system."""
     for logger_name in list(logging.Logger.manager.loggerDict.keys()):
         try:
             target_logger = logging.getLogger(logger_name)
-            # Close handlers before clearing to avoid ResourceWarning
-            for handler in list(target_logger.handlers):
-                try:
-                    handler.close()
-                except OSError as e:  # Best-effort cleanup operation  # policy_guard: allow-silent-handler
-                    _MODULE_LOGGER.debug("Handler close failed for logger '%s': %s", logger_name or "<unknown>", e)
+            _close_handlers(target_logger, logger_name)
             target_logger.handlers = []
             target_logger.propagate = True
         except (AttributeError, RuntimeError) as exc:  # Expected data validation or parsing failure  # policy_guard: allow-silent-handler
-            if logger_name:
-                logger_name_safe = logger_name
-            else:
-                logger_name_safe = "<unknown>"
-            _MODULE_LOGGER.debug("Failed to reset handlers for logger '%s': %s", logger_name_safe, exc)
+            safe_name = logger_name if logger_name else "<unknown>"
+            _MODULE_LOGGER.debug("Failed to reset handlers for logger '%s': %s", safe_name, exc)
+
+
+def _reset_all_handlers(root_logger: logging.Logger) -> None:
+    """Close existing handlers and reset all loggers."""
+    _close_handlers(root_logger)
+    root_logger.handlers = []
+    _reset_handlers(root_logger)
 
 
 def _build_console_handler(service_name: Optional[str], user_friendly: bool, managed_by_monitor: bool) -> logging.Handler:

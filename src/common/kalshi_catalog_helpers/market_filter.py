@@ -69,7 +69,11 @@ def _create_empty_stats() -> Dict[str, int]:
 def _is_valid_market(market: object) -> bool:
     if not isinstance(market, dict):
         return False
-    ticker = str(market.get("ticker") or "")
+    ticker_val = market.get("ticker")
+    if ticker_val:
+        ticker = str(ticker_val)
+    else:
+        ticker = ""
     return bool(ticker)
 
 
@@ -95,7 +99,11 @@ def _process_market_entry(
     weather_tokens: Set[str],
 ) -> None:
     category = market.get("__category")
-    ticker = str(market.get("ticker") or "")
+    ticker_val = market.get("ticker")
+    if ticker_val:
+        ticker = str(ticker_val)
+    else:
+        ticker = ""
 
     if category == "Crypto" or crypto_validator.is_crypto_market(market):
         stats["crypto_total"] += 1
@@ -147,7 +155,11 @@ class CryptoMarketValidator:
         return False
 
     def _normalized_ticker(self, market: Dict[str, object]) -> str:
-        return str(market.get("ticker") or "").upper()
+        ticker_val = market.get("ticker")
+        if ticker_val:
+            return str(ticker_val).upper()
+        else:
+            return ""
 
     def _contains_crypto_asset(self, ticker: str) -> bool:
         return any(asset in ticker for asset in CRYPTO_ASSETS)

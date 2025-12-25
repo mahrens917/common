@@ -20,9 +20,15 @@ def validate_ticker_format(ticker: str) -> bool:
     if not asset_present or not _CRYPTO_MONTH_PATTERN.search(ticker):
         return False
     try:
-        from src.pdf.utils.validation_helpers import ValidationHelpers
+        import importlib
 
-        return ValidationHelpers.validate_ticker_format(ticker)
+        for module_path in ["src.pdf.utils.validation_helpers", "pdf.utils.validation_helpers"]:
+            try:
+                module = importlib.import_module(module_path)
+                return module.ValidationHelpers.validate_ticker_format(ticker)
+            except (ImportError, ModuleNotFoundError, AttributeError):
+                continue
+        return False
     except (ValueError, TypeError, AttributeError):  # Expected data validation or parsing failure  # policy_guard: allow-silent-handler
         # Validation helper rejected the ticker format
         return False

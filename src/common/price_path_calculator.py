@@ -15,9 +15,16 @@ from .price_path_calculator_helpers.metrics_extractor import PricePathComputatio
 
 def _default_surface_loader(currency: str):
     """Lazy-load surface loader to avoid pdf dependency at import time."""
-    from src.pdf.utils.gp_surface_store import load_surface_sync
+    import importlib
 
-    return load_surface_sync(currency)
+    for module_path in ["src.pdf.utils.gp_surface_store", "pdf.utils.gp_surface_store"]:
+        try:
+            module = importlib.import_module(module_path)
+            return module.load_surface_sync(currency)
+        except (ImportError, ModuleNotFoundError, AttributeError):
+            continue
+
+    raise ImportError("pdf package not found")
 
 
 # Validation thresholds

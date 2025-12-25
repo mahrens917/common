@@ -20,5 +20,8 @@ async def send_connection_notification(manager: Any, is_connected: bool, details
                 metrics_dict = asdict(metrics)
             except TypeError:  # Expected data validation or parsing failure  # policy_guard: allow-silent-handler
                 # metrics is not a dataclass, convert to dict manually
-                metrics_dict = vars(metrics) if hasattr(metrics, "__dict__") else {}
+                if hasattr(metrics, "__dict__"):
+                    metrics_dict = vars(metrics)
+                else:
+                    metrics_dict = {}
         await tracker.store_service_metrics(manager.service_name, metrics_dict)

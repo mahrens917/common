@@ -34,10 +34,26 @@ __all__ = [
 def __getattr__(name: str):
     """Lazy loading for weather-dependent imports."""
     if name == "cli_temp_f":
-        from src.weather.temperature_converter import cli_temp_f
-
-        return cli_temp_f
+        return _load_cli_temp_f()
     raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
+
+
+def _load_cli_temp_f():
+    """Load temperature converter function with fallback."""
+    import importlib
+
+    for module_path in ["src.weather.temperature_converter", "weather.temperature_converter"]:
+        try:
+            module = importlib.import_module(module_path)
+            return module.cli_temp_f
+        except (ImportError, ModuleNotFoundError, AttributeError):
+            continue
+
+    def cli_temp_f(celsius):
+        """Fallback when weather package is not installed."""
+        return int(celsius * 9 / 5 + 32)
+
+    return cli_temp_f
 
 
 _STATE_FIELDS = {

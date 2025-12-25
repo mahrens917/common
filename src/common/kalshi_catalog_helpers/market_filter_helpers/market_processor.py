@@ -30,7 +30,11 @@ class MarketProcessor:
     ) -> None:
         """Process single market and update stats."""
         category = market.get("__category")
-        ticker = str(market.get("ticker") or "")
+        ticker_val = market.get("ticker")
+        if ticker_val:
+            ticker = str(ticker_val)
+        else:
+            ticker = ""
 
         if self._is_crypto_market(market, category):
             self._process_crypto_market(market, filtered, stats, now_ts)
@@ -63,7 +67,11 @@ class MarketProcessor:
 
     def _passes_crypto_filters(self, market: Dict[str, object], now_ts: float) -> bool:
         """Check if crypto market passes all filters."""
-        ticker = str(market.get("ticker") or "").upper()
+        ticker_val = market.get("ticker")
+        if ticker_val:
+            ticker = str(ticker_val).upper()
+        else:
+            ticker = ""
 
         if not validate_crypto_ticker(ticker):
             return False

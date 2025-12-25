@@ -38,11 +38,15 @@ class TelegramNetworkBackoffManager:
         remaining = self._block_until - time.time()
         if remaining > 0:
             if not self._logged:
+                if self._reason:
+                    reason = self._reason
+                else:
+                    reason = "unknown error"
                 logger.warning(
                     "Telegram %s skipped; network still unreachable for %.1fs (%s)",
                     action,
                     max(0.0, remaining),
-                    self._reason if self._reason else "unknown error",
+                    reason,
                 )
                 self._logged = True
             return True

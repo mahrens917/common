@@ -14,6 +14,14 @@ logger = logging.getLogger(__name__)
 ERR_NO_RECIPIENTS = "Telegram alert requires at least one recipient."
 
 
+def _get_image_properties(image_path: str) -> tuple[str, bool]:
+    """Extract image format and determine Telegram send method."""
+    image_path_obj = Path(image_path)
+    suffix = image_path_obj.suffix.lower()
+    is_photo = suffix in {".png", ".jpg", ".jpeg", ".webp"}
+    return image_path_obj.name, is_photo
+
+
 class TelegramDeliveryManager:
     """Coordinates message and media delivery to Telegram."""
 
@@ -97,8 +105,7 @@ class TelegramDeliveryManager:
             logger.error(f"Chart file not found: '{chart_name}' (path: {image_path})")
             return False
 
-        suffix = image_path_obj.suffix.lower()
-        is_photo = suffix in {".png", ".jpg", ".jpeg", ".webp"}
+        chart_name, is_photo = _get_image_properties(image_path)
         telegram_method = "sendPhoto" if is_photo else "sendDocument"
 
         try:

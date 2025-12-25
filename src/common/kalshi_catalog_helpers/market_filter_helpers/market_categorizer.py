@@ -18,5 +18,9 @@ def is_valid_market(market: object) -> bool:
     """Check if market is valid and has a ticker."""
     if not isinstance(market, dict):
         return False
-    ticker = str(market.get("ticker") or "")
+    ticker_val = market.get("ticker")
+    if ticker_val:
+        ticker = str(ticker_val)
+    else:
+        ticker = ""
     return bool(ticker)

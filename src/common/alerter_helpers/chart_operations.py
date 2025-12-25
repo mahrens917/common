@@ -32,5 +32,11 @@ class ChartOperations:
         if not telegram_enabled:
             return False
 
-        recipients = [target_user_id] if target_user_id else list(authorized_user_ids)
-        return await delivery_manager.send_chart(image_path, caption, recipients) if recipients else False
+        if target_user_id is not None:
+            recipients = [target_user_id]
+        else:
+            recipients = list(authorized_user_ids)
+
+        if not recipients:
+            return False
+        return await delivery_manager.send_chart(image_path, caption, recipients)
