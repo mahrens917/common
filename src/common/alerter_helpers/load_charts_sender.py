@@ -30,12 +30,12 @@ class LoadChartsSender:
             success_count = await batch_sender.send_charts_batch(chart_paths, "")
             return success_count == len(chart_paths)
 
-        except InsufficientDataError as e:
+        except InsufficientDataError as e:  # Expected exception, returning default value  # policy_guard: allow-silent-handler
             error_msg = f"❌ Cannot generate charts: {str(e)}"
             logger.exception(f"[Monitor] ")
             await self.send_alert(error_msg)
             return False
-        except (
+        except (  # policy_guard: allow-silent-handler
             PricePathComputationError,
             ProgressNotificationError,
             RuntimeError,

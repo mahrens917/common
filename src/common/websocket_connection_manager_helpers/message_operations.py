@@ -25,10 +25,10 @@ class WebSocketMessageOperations:
         try:
             await websocket.send(message)
             self.logger.debug(f"Sent message: {message[:100]}...")
-        except WebSocketException:  # policy_guard: allow-silent-handler
+        except WebSocketException:  # Expected exception, returning default value  # policy_guard: allow-silent-handler
             self.logger.exception(f"Failed to send message: ")
             return False
-        except (OSError, RuntimeError, ValueError):  # policy_guard: allow-silent-handler
+        except (OSError, RuntimeError, ValueError):  # Best-effort cleanup operation  # policy_guard: allow-silent-handler
             self.logger.exception(f"Unexpected error sending message: ")
             return False
         else:
@@ -54,13 +54,13 @@ class WebSocketMessageOperations:
 
             self.logger.debug(f"Received message: {str(message)[:100]}...")
 
-        except asyncio.TimeoutError:  # policy_guard: allow-silent-handler
+        except asyncio.TimeoutError:  # Transient network/connection failure  # policy_guard: allow-silent-handler
             self.logger.debug("Receive timeout")
             return None
-        except WebSocketException:  # policy_guard: allow-silent-handler
+        except WebSocketException:  # Expected exception, returning default value  # policy_guard: allow-silent-handler
             self.logger.exception(f"Failed to receive message: ")
             return None
-        except (OSError, RuntimeError, ValueError):  # policy_guard: allow-silent-handler
+        except (OSError, RuntimeError, ValueError):  # Best-effort cleanup operation  # policy_guard: allow-silent-handler
             self.logger.exception(f"Unexpected error receiving message: ")
             return None
         else:

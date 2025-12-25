@@ -29,6 +29,12 @@ from .trade_visualizer_helpers.shading_creator import (
 logger = logging.getLogger(__name__)
 parse_kalshi_market_key = _parse_market_key
 
+# Default color constants
+_DEFAULT_EXECUTED_BUY_COLOR = "#90EE90"
+_DEFAULT_EXECUTED_SELL_COLOR = "#FFB6C1"
+_DEFAULT_UNEXECUTED_COLOR = "#808080"
+_DEFAULT_ALPHA = 0.3
+
 
 def create_trade_visualizer() -> "TradeVisualizer":
     """Factory function to create TradeVisualizer with default dependencies."""
@@ -128,10 +134,10 @@ class TradeVisualizer(TradeVisualizerTestHooks):
         self._shading_builder = shading_builder
         self._redis_fetcher = redis_fetcher
         # Expose palette for tests/consumers
-        self.EXECUTED_BUY_COLOR = getattr(shading_builder, "EXECUTED_BUY_COLOR", "#90EE90")
-        self.EXECUTED_SELL_COLOR = getattr(shading_builder, "EXECUTED_SELL_COLOR", "#FFB6C1")
-        self.UNEXECUTED_COLOR = getattr(shading_builder, "UNEXECUTED_COLOR", "#808080")
-        self.DEFAULT_ALPHA = getattr(shading_builder, "DEFAULT_ALPHA", 0.3)
+        self.EXECUTED_BUY_COLOR = getattr(shading_builder, "EXECUTED_BUY_COLOR", _DEFAULT_EXECUTED_BUY_COLOR)
+        self.EXECUTED_SELL_COLOR = getattr(shading_builder, "EXECUTED_SELL_COLOR", _DEFAULT_EXECUTED_SELL_COLOR)
+        self.UNEXECUTED_COLOR = getattr(shading_builder, "UNEXECUTED_COLOR", _DEFAULT_UNEXECUTED_COLOR)
+        self.DEFAULT_ALPHA = getattr(shading_builder, "DEFAULT_ALPHA", _DEFAULT_ALPHA)
 
     async def initialize(self) -> bool:
         """Open the Redis-backed stores required for fetching trade information."""
@@ -177,7 +183,7 @@ class TradeVisualizer(TradeVisualizerTestHooks):
                         logger.info("Added no-liquidity shading for %s", state.market_ticker)
         except asyncio.CancelledError:
             raise
-        except (
+        except (  # policy_guard: allow-silent-handler
             OSError,
             ConnectionError,
             RuntimeError,

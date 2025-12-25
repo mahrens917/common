@@ -18,7 +18,7 @@ class SnapshotRetriever:
         """Get market snapshot."""
         try:
             redis = await self._conn.get_redis()
-        except RuntimeError as exc:  # policy_guard: allow-silent-handler
+        except RuntimeError as exc:
             raise KalshiStoreError("Unable to acquire Redis for market snapshot") from exc
         return await self._snapshot_reader.get_market_snapshot(redis, self._get_key(ticker), ticker, include_orderbook=include_orderbook)
 
@@ -30,7 +30,7 @@ class SnapshotRetriever:
 
         try:
             descriptor = parse_kalshi_market_key(market_key)
-        except ValueError as exc:  # policy_guard: allow-silent-handler
+        except ValueError as exc:
             raise TypeError(str(exc)) from exc
         return await self.get_snapshot(descriptor.ticker, include_orderbook=include_orderbook)
 

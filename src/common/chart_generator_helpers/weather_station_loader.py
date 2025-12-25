@@ -8,9 +8,9 @@ import sys
 from datetime import datetime, timezone
 from typing import List, Optional, Tuple
 
-from common.history_tracker import WeatherHistoryTracker
 from common.chart_generator.contexts import WeatherChartSeries
 from common.chart_generator.exceptions import InsufficientDataError
+from common.history_tracker import WeatherHistoryTracker
 
 logger = logging.getLogger("src.monitor.chart_generator")
 
@@ -66,7 +66,7 @@ class WeatherStationLoader:
             try:
                 temperatures.append(float(temperature_f))
                 timestamps.append(timestamp)
-            except (TypeError, ValueError):
+            except (TypeError, ValueError):  # Expected data validation or parsing failure  # policy_guard: allow-silent-handler
                 logger.warning("Skipping invalid temperature data for %s: %s", station_icao, temperature_f)
         if not timestamps or not temperatures:
             raise InsufficientDataError(f"No valid temperature data for {station_icao}")
@@ -75,7 +75,12 @@ class WeatherStationLoader:
     def _coerce_timestamp(self, station_icao: str, timestamp_int: int) -> Optional[datetime]:
         try:
             return _datetime_cls().fromtimestamp(timestamp_int, tz=timezone.utc)
-        except (OverflowError, OSError, ValueError, TypeError) as exc:
+        except (
+            OverflowError,
+            OSError,
+            ValueError,
+            TypeError,
+        ) as exc:  # Best-effort cleanup operation  # policy_guard: allow-silent-handler
             logger.warning("Skipping invalid timestamp for %s: %s (%s)", station_icao, timestamp_int, exc)
             return None
 

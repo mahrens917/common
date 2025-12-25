@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import logging
 import sys
+import zoneinfo
 from typing import List, Optional
 
 from common.config.redis_schema import get_schema_config
@@ -40,11 +41,6 @@ class KalshiStrikeCollector:
         city_tokens: List[str],
         _canonical_token: Optional[str],
     ) -> List[float]:
-        try:
-            import zoneinfo
-        except ImportError:
-            from backports import zoneinfo
-
         et_timezone = zoneinfo.ZoneInfo("America/New_York")
         datetime_module = sys.modules.get("src.monitor.chart_generator.datetime")
         if datetime_module is None:

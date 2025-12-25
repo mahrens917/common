@@ -50,7 +50,7 @@ class WebSocketHealthMonitor(BaseHealthMonitor):
                 self.last_ping_time = current_time
                 self.last_pong_time = current_time
                 self.logger.debug("Received pong")
-            except asyncio.TimeoutError:  # policy_guard: allow-silent-handler
+            except asyncio.TimeoutError:  # Transient network/connection failure  # policy_guard: allow-silent-handler
                 self.logger.warning("Pong timeout")
                 return False, "pong_timeout"
             else:
@@ -95,11 +95,11 @@ class WebSocketHealthMonitor(BaseHealthMonitor):
                 },
                 error=error,
             )
-        except WebSocketException as exc:  # policy_guard: allow-silent-handler
+        except WebSocketException as exc:  # Expected exception in operation  # policy_guard: allow-silent-handler
             self.logger.warning("WebSocket health check failed")
             self.record_failure()
             return HealthCheckResult(False, error=str(exc))
-        except (OSError, RuntimeError) as exc:  # policy_guard: allow-silent-handler
+        except (OSError, RuntimeError) as exc:  # Best-effort cleanup operation  # policy_guard: allow-silent-handler
             self.logger.exception("Unexpected health check error: ")
             self.record_failure()
             return HealthCheckResult(False, error=str(exc))

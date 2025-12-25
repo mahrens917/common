@@ -69,7 +69,7 @@ class ShadingBuilder:
                 alpha=self.DEFAULT_ALPHA,
                 label=f"Executed {trade.trade_side.value} at {trade_price:.0f}°F",
             )
-        except (ValueError, AttributeError, TypeError):
+        except (ValueError, AttributeError, TypeError):  # Expected data validation or parsing failure  # policy_guard: allow-silent-handler
             # pragma: no cover - defensive logging
             logger.exception("Failed to create executed trade shading")
             return None
@@ -95,7 +95,7 @@ class ShadingBuilder:
                 alpha=self.DEFAULT_ALPHA,
                 label=f"No liquidity in {state.market_ticker}",
             )
-        except (ValueError, AttributeError, TypeError):
+        except (ValueError, AttributeError, TypeError):  # Expected data validation or parsing failure  # policy_guard: allow-silent-handler
             # pragma: no cover - defensive logging
             logger.exception("Failed to create no-liquidity shading")
             return None
@@ -115,6 +115,10 @@ class ShadingBuilder:
             )
             for idx, shading in enumerate(shadings, start=1):
                 shading_helpers.apply_single_shading(ax, idx, shading.y_min, shading.y_max, shading.color, shading.alpha)
-        except (ValueError, RuntimeError, AttributeError):
+        except (
+            ValueError,
+            RuntimeError,
+            AttributeError,
+        ):  # Expected data validation or parsing failure  # policy_guard: allow-silent-handler
             # pragma: no cover - defensive logging
             logger.exception("Failed to apply trade shadings to chart")

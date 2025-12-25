@@ -40,13 +40,13 @@ def validate_order_timestamps(order_data: Dict[str, Any]) -> None:
     """Validate timestamp fields in order data."""
     try:
         datetime.fromisoformat(order_data["created_time"].replace("Z", "+00:00"))
-    except (ValueError, AttributeError) as e:  # policy_guard: allow-silent-handler
+    except (ValueError, AttributeError) as e:
         raise ValueError(f"Invalid created_time format: {order_data['created_time']}") from e
 
     if "expiration_time" in order_data and order_data["expiration_time"]:
         try:
             datetime.fromisoformat(order_data["expiration_time"].replace("Z", "+00:00"))
-        except (ValueError, AttributeError) as e:  # policy_guard: allow-silent-handler
+        except (ValueError, AttributeError) as e:
             raise ValueError(f"Invalid expiration_time format: {order_data['expiration_time']}") from e
 
 

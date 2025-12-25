@@ -5,7 +5,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from functools import lru_cache
-from typing import Optional
+from typing import Optional, cast
 
 from . import ConfigurationError, env_bool, env_float, env_int, env_list, env_seconds, env_str
 
@@ -27,10 +27,14 @@ class RedisSettings:
 
 @lru_cache(maxsize=1)
 def get_redis_settings() -> RedisSettings:
-    host = env_str("REDIS_HOST", or_value="localhost")
-    port_value = env_int("REDIS_PORT", 6379)
-    ssl_flag = env_bool("REDIS_SSL", or_value=False)
-    retry_on_timeout_flag = env_bool("REDIS_RETRY_ON_TIMEOUT", or_value=True)
+    host = env_str("REDIS_HOST", required=True)
+    if not host:
+        raise ConfigurationError("REDIS_HOST must be set")
+    port_value = env_int("REDIS_PORT", required=True)
+    if port_value is None:
+        raise ConfigurationError("REDIS_PORT must be set")
+    ssl_flag = cast(bool, env_bool("REDIS_SSL", or_value=False))
+    retry_on_timeout_flag = cast(bool, env_bool("REDIS_RETRY_ON_TIMEOUT", or_value=True))
 
     db_value = env_int("REDIS_DB", 0)
     if db_value is None:

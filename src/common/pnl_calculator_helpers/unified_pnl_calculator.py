@@ -50,7 +50,7 @@ class UnifiedPnLCalculator:
         try:
             trades = await self.trade_store.get_trades_by_date_range(target_date, target_date)
             return sum(trade.calculate_current_pnl_cents() for trade in trades)
-        except DATA_ACCESS_ERRORS as exc:  # policy_guard: allow-silent-handler
+        except DATA_ACCESS_ERRORS as exc:  # Expected exception, returning default value  # policy_guard: allow-silent-handler
             self.logger.exception(
                 "Error calculating unified P&L for %s (%s)",
                 target_date,

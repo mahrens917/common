@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import zoneinfo
 from dataclasses import dataclass
 from datetime import datetime, timezone, tzinfo
 from typing import List, Optional, Sequence, Tuple
@@ -46,11 +47,6 @@ def localize_temperature_timestamps(
     Returns:
         LocalizedTimestamps with naive datetimes suitable for matplotlib.
     """
-    try:
-        import zoneinfo
-    except ImportError:
-        from backports import zoneinfo
-
     latitude, longitude = station_coordinates
     timezone_name = get_timezone_from_coordinates(latitude, longitude)
     local_tz = zoneinfo.ZoneInfo(timezone_name)

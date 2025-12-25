@@ -10,7 +10,7 @@ from typing import Dict, List
 from common.kalshi_api import KalshiClient
 from common.redis_protocol.messages import InstrumentMetadata
 
-from .catalog_helpers import MarketFetcher, MarketFilter, WeatherStationLoader
+from .kalshi_catalog_helpers import MarketFetcher, MarketFilter, WeatherStationLoader
 
 logger = logging.getLogger(__name__)
 

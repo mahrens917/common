@@ -44,7 +44,12 @@ async def _attempt_connection(
         transition_state(ConnectionState.CONNECTING)
         connection_successful = await establish_connection()
         manager.metrics_tracker.metrics.total_reconnection_attempts = attempts
-    except (RuntimeError, ConnectionError, ValueError, TypeError) as exc:  # policy_guard: allow-silent-handler
+    except (
+        RuntimeError,
+        ConnectionError,
+        ValueError,
+        TypeError,
+    ) as exc:  # Transient network/connection failure  # policy_guard: allow-silent-handler
         manager.metrics_tracker.metrics.total_reconnection_attempts = attempts
         transition_state(ConnectionState.FAILED, str(exc))
         metrics = manager.metrics_tracker.get_metrics()

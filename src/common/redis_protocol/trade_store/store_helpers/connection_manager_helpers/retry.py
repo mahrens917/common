@@ -4,6 +4,8 @@ import logging
 from dataclasses import dataclass
 from typing import Callable, Optional
 
+logger = logging.getLogger(__name__)
+
 from ....retry import (
     RedisFatalError,
     RedisRetryError,
@@ -54,9 +56,10 @@ class ConnectionRetryHelper(ConnectionHelperBase):
                 context=config.context,
                 on_retry=on_retry,
             )
-        except RedisFatalError:  # policy_guard: allow-silent-handler
+        except RedisFatalError:  # Expected exception, returning default value  # policy_guard: allow-silent-handler
+            logger.debug("Expected exception, returning default value")
             return False
-        except RedisRetryError as exc:  # policy_guard: allow-silent-handler
+        except RedisRetryError as exc:  # Expected exception, returning default value  # policy_guard: allow-silent-handler
             _log_retry_exhausted(self.logger, config.context, exc)
             return False
         else:

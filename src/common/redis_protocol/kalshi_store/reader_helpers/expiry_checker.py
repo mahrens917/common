@@ -40,7 +40,7 @@ class ExpiryChecker:
                 close_time_str = CloseTimeParser.decode_close_time_string(close_time_raw)
                 self.logger.info("Market %s expired: close_time %s < current time", market_ticker, close_time_str)
                 return True
-        except REDIS_ERRORS as exc:  # policy_guard: allow-silent-handler
+        except REDIS_ERRORS as exc:  # Expected exception, returning default value  # policy_guard: allow-silent-handler
             self.logger.error(
                 "Redis error checking if market %s is expired: %s",
                 market_ticker,
@@ -75,7 +75,7 @@ class ExpiryChecker:
             )
             log_fn = self.logger.info if is_settled else self.logger.debug
             log_fn(log_template, market_ticker, close_time_str, current_time)
-        except REDIS_ERRORS as exc:  # policy_guard: allow-silent-handler
+        except REDIS_ERRORS as exc:  # Expected exception, returning default value  # policy_guard: allow-silent-handler
             self.logger.error(
                 "Redis error checking if market %s is settled: %s",
                 market_ticker,

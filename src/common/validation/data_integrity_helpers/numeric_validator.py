@@ -21,7 +21,7 @@ class NumericValidator:
         if isinstance(value, (int, float, str, bytes)):
             try:
                 return float(value)
-            except (ValueError, TypeError):  # policy_guard: allow-silent-handler
+            except (ValueError, TypeError):
                 raise DataIntegrityError(f"Cannot convert {variable_name} to numeric value: {value} (type: {type(value)}). Error")
 
         raise DataIntegrityError(f"Cannot convert {variable_name} to numeric value: {value} (type: {type(value)})")

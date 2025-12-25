@@ -44,7 +44,7 @@ def coerce_float_strict(value: Any) -> float:
 
     try:
         return float(value)
-    except (ValueError, TypeError) as exc:  # policy_guard: allow-silent-handler
+    except (ValueError, TypeError) as exc:
         raise ValueError(f"Cannot convert {type(value).__name__} to float: {value!r}") from exc
 
 
@@ -80,7 +80,8 @@ def coerce_float_optional(value: Any) -> Optional[float]:
 
     try:
         return float(value)
-    except (ValueError, TypeError):  # policy_guard: allow-silent-handler
+    except (ValueError, TypeError):  # Expected data validation or parsing failure  # policy_guard: allow-silent-handler
+        logger.warning("Expected data validation or parsing failure")
         return None
 
 
@@ -142,7 +143,7 @@ def coerce_int_strict(value: Any) -> int:
 
     try:
         return int(value)
-    except (ValueError, TypeError) as exc:  # policy_guard: allow-silent-handler
+    except (ValueError, TypeError) as exc:
         raise ValueError(f"Cannot convert {type(value).__name__} to int: {value!r}") from exc
 
 
@@ -178,7 +179,8 @@ def coerce_int_optional(value: Any) -> Optional[int]:
 
     try:
         return int(value)
-    except (ValueError, TypeError):  # policy_guard: allow-silent-handler
+    except (ValueError, TypeError):  # Expected data validation or parsing failure  # policy_guard: allow-silent-handler
+        logger.warning("Expected data validation or parsing failure")
         return None
 
 

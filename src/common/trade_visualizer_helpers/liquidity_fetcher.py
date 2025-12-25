@@ -47,7 +47,8 @@ class LiquidityFetcher:
 
         try:
             return safe_float_parse(value)
-        except (ValueError, TypeError):
+        except (ValueError, TypeError):  # Expected data validation or parsing failure  # policy_guard: allow-silent-handler
+            logger.warning("Expected data validation or parsing failure")
             return None
 
     async def get_market_liquidity_states(
@@ -67,7 +68,12 @@ class LiquidityFetcher:
             await redis.aclose()
         except asyncio.CancelledError:
             raise
-        except (OSError, ConnectionError, RuntimeError, ValueError, Exception):
+        except (
+            OSError,
+            ConnectionError,
+            RuntimeError,
+            ValueError,
+        ):  # Transient network/connection failure  # policy_guard: allow-silent-handler
             logger.exception("Failed to fetch market liquidity states for %s", station_icao)
             return []
         else:
@@ -110,7 +116,8 @@ class LiquidityFetcher:
     def _parse_market_ticker(self, market_key: str) -> Optional[str]:
         try:
             return parse_kalshi_market_key(market_key).ticker
-        except ValueError:
+        except ValueError:  # Expected data validation or parsing failure  # policy_guard: allow-silent-handler
+            logger.warning("Expected data validation or parsing failure")
             return None
 
     def _build_market_state(self, decoded: Dict[str, str], market_ticker: str) -> MarketState:

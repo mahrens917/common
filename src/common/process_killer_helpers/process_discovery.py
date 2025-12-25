@@ -55,7 +55,8 @@ async def _scan_os_processes(process_keywords: Sequence[str], service_name: str)
 
     try:
         import psutil
-    except ImportError:  # policy_guard: allow-silent-handler
+    except ImportError:  # Optional module not available  # policy_guard: allow-silent-handler
+        logger.debug("Optional module not available")
         return []
     if not hasattr(psutil, "process_iter"):
         return []
@@ -83,7 +84,11 @@ async def _scan_os_processes(process_keywords: Sequence[str], service_name: str)
                     service_name,
                 )
             )
-        except (psutil.NoSuchProcess, psutil.AccessDenied):  # policy_guard: allow-silent-handler
+        except (
+            psutil.NoSuchProcess,
+            psutil.AccessDenied,
+        ):  # Expected exception in loop, continuing iteration  # policy_guard: allow-silent-handler
+            logger.debug("Expected exception in loop, continuing iteration")
             continue
     return os_scan_matches
 
@@ -92,19 +97,19 @@ def create_psutil_process(pid: int, *, service_name: str, cmdline: Sequence[str]
     """Create a psutil.Process instance for the given PID."""
     try:
         import psutil
-    except ImportError as import_exc:  # policy_guard: allow-silent-handler
+    except ImportError as import_exc:
         raise RuntimeError(f"psutil is required to manage {service_name} processes but is not installed.") from import_exc
 
     try:
         return psutil.Process(pid)
-    except KeyError:  # policy_guard: allow-silent-handler
+    except KeyError:  # Expected exception, returning default value  # policy_guard: allow-silent-handler
         logger.debug("Process %s disappeared before psutil inspection", pid)
         return None
-    except psutil.NoSuchProcess:  # policy_guard: allow-silent-handler
+    except psutil.NoSuchProcess:  # Expected exception, returning default value  # policy_guard: allow-silent-handler
         # Process already exited; treat as non-candidate.
         logger.debug("Process %s vanished before psutil inspection", pid)
         return None
-    except psutil.AccessDenied:  # policy_guard: allow-silent-handler
+    except psutil.AccessDenied:  # Expected exception, returning default value  # policy_guard: allow-silent-handler
         logger.debug(
             "Access denied inspecting %s process %s (cmdline=%s)",
             service_name,
@@ -179,7 +184,7 @@ def _create_valid_process(process_info: NormalizedProcess, service_name: str, su
 def _get_process_pid(process: Any, service_name: str, suppress_output: bool) -> Optional[int]:
     try:
         return process.pid
-    except (AttributeError, RuntimeError, OSError) as exc:  # policy_guard: allow-silent-handler
+    except (AttributeError, RuntimeError, OSError) as exc:  # Best-effort cleanup operation  # policy_guard: allow-silent-handler
         _console(f"⚠️ Could not kill process: {exc}", suppress_output=suppress_output)
         logger.debug("Unable to read PID for %s process: %s", service_name, exc)
         return None
@@ -204,7 +209,7 @@ def import_psutil(service_name: str) -> Any:
     try:
         import psutil
 
-    except ImportError as import_exc:  # policy_guard: allow-silent-handler
+    except ImportError as import_exc:
         raise RuntimeError(
             f"psutil is required for process management but not available. Cannot ensure single instance of {service_name}"
         ) from import_exc

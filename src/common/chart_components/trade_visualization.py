@@ -90,7 +90,7 @@ async def _render_trade_visualizations(
         _apply_trade_shadings(ax, trade_visualizer, trade_shadings, plot_timestamps, station_icao)
     except asyncio.CancelledError:
         raise
-    except (OSError, RuntimeError, ValueError):
+    except (OSError, RuntimeError, ValueError):  # Best-effort cleanup operation  # policy_guard: allow-silent-handler
         logger.exception("Failed to add trade visualization for %s", station_icao)
     finally:
         await _close_visualizer(trade_visualizer, station_icao)
@@ -108,15 +108,15 @@ async def _initialize_visualizer(
     visualizer_factory = cast(Callable[[], TradeVisualizer], visualizer_cls)
     try:
         visualizer = visualizer_factory()
-    except TypeError:
+    except TypeError:  # Expected data validation or parsing failure  # policy_guard: allow-silent-handler
         visualizer = create_trade_visualizer()
-    except (ValueError, AttributeError, RuntimeError):
+    except (ValueError, AttributeError, RuntimeError):  # Expected data validation or parsing failure  # policy_guard: allow-silent-handler
         # Visualizer instantiation failed - charts will be disabled
         return None
     try:
         if await visualizer.initialize():
             return visualizer
-    except (OSError, RuntimeError, ValueError):
+    except (OSError, RuntimeError, ValueError):  # Best-effort cleanup operation  # policy_guard: allow-silent-handler
         # Visualizer initialization failed - charts will be disabled
         return None
     return None
@@ -144,5 +144,9 @@ async def _close_visualizer(trade_visualizer: Optional[TradeVisualizer], station
         return
     try:
         await trade_visualizer.close()
-    except (RuntimeError, ValueError, TypeError) as exc:
+    except (
+        RuntimeError,
+        ValueError,
+        TypeError,
+    ) as exc:  # Expected data validation or parsing failure  # policy_guard: allow-silent-handler
         logger.debug("Trade visualizer cleanup failed for %s: %s", station_icao, exc)

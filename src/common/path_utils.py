@@ -20,5 +20,5 @@ def get_project_root(reference_file: Union[str, Path], *, levels_up: int = 2) ->
     base_path = Path(reference_file).resolve()
     try:
         return base_path.parents[levels_up]
-    except IndexError as exc:  # policy_guard: allow-silent-handler
+    except IndexError as exc:
         raise ValueError(f"Cannot ascend {levels_up} levels from {base_path}; adjust levels_up.") from exc

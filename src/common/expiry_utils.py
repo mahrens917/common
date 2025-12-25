@@ -152,7 +152,7 @@ def group_markets_by_expiry(markets: List[Any], current_time: datetime, use_time
                 markets_by_expiry[expiry_key] = []
             markets_by_expiry[expiry_key].append(market)
 
-        except (ValueError, TypeError, OverflowError):  # policy_guard: allow-silent-handler
+        except (ValueError, TypeError, OverflowError):  # Expected data validation or parsing failure  # policy_guard: allow-silent-handler
             ticker = _resolve_market_ticker(market)
             logger.warning(f"Failed to process market {ticker} for expiry grouping")
             skipped_markets += 1
@@ -213,7 +213,7 @@ def _extract_unique_strikes_from_markets(markets: List[Any]) -> List[float]:
         try:
             market_strikes = _extract_strikes_from_market(market)
             strikes.extend(market_strikes)
-        except (ValueError, TypeError):  # policy_guard: allow-silent-handler
+        except (ValueError, TypeError):  # Expected data validation or parsing failure  # policy_guard: allow-silent-handler
             ticker = _resolve_market_ticker(market)
             logger.warning(f"Failed to extract strikes from market {ticker}")
             continue
@@ -233,7 +233,7 @@ def _extract_strikes_from_market(market: Any) -> List[float]:
 
         try:
             strikes.append(float(value))
-        except (TypeError, ValueError):  # policy_guard: allow-silent-handler
+        except (TypeError, ValueError):  # Expected data validation or parsing failure  # policy_guard: allow-silent-handler
             logger.warning("Invalid strike value '%s' for field %s", value, field)
 
     return strikes

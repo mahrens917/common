@@ -54,7 +54,8 @@ class MonitoringLoop:
 
                 await asyncio.sleep(5.0)
 
-            except asyncio.CancelledError:  # policy_guard: allow-silent-handler
+            except asyncio.CancelledError:  # Expected during task cancellation  # policy_guard: allow-silent-handler
+                logger.debug("Expected during task cancellation")
                 break
 
         logger.info(f"[{self.service_name}] Dependency monitoring loop ended")

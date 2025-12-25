@@ -5,7 +5,7 @@ Connection settings resolution for RedisConnectionManager
 import logging
 from typing import Any, Dict, Optional
 
-from ...config import REDIS_DB, REDIS_HOST, REDIS_PASSWORD, REDIS_PORT, REDIS_SSL
+from ... import config as redis_config
 
 logger = logging.getLogger(__name__)
 
@@ -32,11 +32,11 @@ class ConnectionSettingsResolver:
             kalshi_store_module = importlib.import_module("common.redis_protocol.kalshi_store")
 
             settings: Dict[str, Any] = {
-                "host": getattr(kalshi_store_module, "REDIS_HOST", REDIS_HOST),
-                "port": getattr(kalshi_store_module, "REDIS_PORT", REDIS_PORT),
-                "db": getattr(kalshi_store_module, "REDIS_DB", REDIS_DB),
-                "password": getattr(kalshi_store_module, "REDIS_PASSWORD", REDIS_PASSWORD),
-                "ssl": getattr(kalshi_store_module, "REDIS_SSL", REDIS_SSL),
+                "host": getattr(kalshi_store_module, "REDIS_HOST", redis_config.REDIS_HOST),
+                "port": getattr(kalshi_store_module, "REDIS_PORT", redis_config.REDIS_PORT),
+                "db": getattr(kalshi_store_module, "REDIS_DB", redis_config.REDIS_DB),
+                "password": getattr(kalshi_store_module, "REDIS_PASSWORD", redis_config.REDIS_PASSWORD),
+                "ssl": getattr(kalshi_store_module, "REDIS_SSL", redis_config.REDIS_SSL),
             }
             self._connection_settings = settings
 

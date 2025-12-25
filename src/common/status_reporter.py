@@ -3,6 +3,7 @@ Human-readable status reporting for trading operations.
 Provides clean, concise status updates without verbose logging prefixes.
 """
 
+import logging
 from typing import Optional
 
 from .status_reporter_helpers import (
@@ -13,6 +14,8 @@ from .status_reporter_helpers import (
     TimeFormatter,
     TradeReporter,
 )
+
+logger = logging.getLogger(__name__)
 
 
 class _MarketStatusHelper:
@@ -112,7 +115,8 @@ class StatusReporter:
         for helper in self._helpers:
             try:
                 return getattr(helper, name)
-            except AttributeError:  # policy_guard: allow-silent-handler
+            except AttributeError:  # Expected data validation or parsing failure  # policy_guard: allow-silent-handler
+                logger.warning("Expected data validation or parsing failure")
                 continue
         raise AttributeError(f"{self.__class__.__name__} has no attribute {name}")
 

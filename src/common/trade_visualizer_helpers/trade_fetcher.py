@@ -40,12 +40,11 @@ class TradeFetcher:
             trades = await self._collect_trades(order_ids, start_aware, end_aware)
         except asyncio.CancelledError:
             raise
-        except (
+        except (  # policy_guard: allow-silent-handler
             OSError,
             ConnectionError,
             RuntimeError,
             ValueError,
-            Exception,
         ):  # pragma: no cover - defensive logging
             logger.exception("Failed to fetch executed trades for %s", station_icao)
             return []

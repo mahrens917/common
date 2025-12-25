@@ -47,16 +47,16 @@ def _normalize_numeric_string(value: str) -> Optional[str]:
     return stripped
 
 
-def _coerce_price(value: Any, *, default: float = 0.0) -> float:
+def _coerce_price(value: Any) -> float:
     """Convert *value* to float, raising on invalid numeric data.
 
     Delegates to canonical implementation in common.redis_protocol.converters.
     Preserves tracker-specific behavior: percentage handling, custom error types.
     """
 
-    # Handle None with default
+    # Handle None
     if value is None:
-        return default
+        raise PricingValidationError(value)
 
     # Apply tracker-specific string normalization (handles percentages)
     if isinstance(value, str):
@@ -112,7 +112,11 @@ def _coerce_optional_price(value: Any) -> Optional[float]:
         # Check result for NaN/Inf after coercion
         if result is not None and not math.isfinite(result):
             _raise_pricing_error(None)
-    except (FloatCoercionError, ValueError, TypeError) as exc:
+    except (
+        FloatCoercionError,
+        ValueError,
+        TypeError,
+    ) as exc:  # Expected data validation or parsing failure  # policy_guard: allow-silent-handler
         _raise_pricing_error(exc)
     else:
         return result

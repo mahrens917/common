@@ -24,7 +24,7 @@ class WeatherFetcher:
 
         try:
             series_list = await self._client.get_series(category=category)
-        except (KalshiClientError, KeyError, TypeError, ValueError, Exception) as exc:
+        except (KalshiClientError, KeyError, TypeError, ValueError) as exc:
             raise KalshiMarketCatalogError(f"Failed to fetch Kalshi weather series for {category}") from exc
 
         pages = 0

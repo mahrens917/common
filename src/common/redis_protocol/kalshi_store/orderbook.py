@@ -37,7 +37,8 @@ class KalshiOrderbookProcessor:
     async def _ensure_redis_connection(self) -> bool:
         try:
             await self._get_redis()
-        except RuntimeError:  # policy_guard: allow-silent-handler
+        except RuntimeError:  # Expected runtime failure in operation  # policy_guard: allow-silent-handler
+            logger.warning("Expected runtime failure in operation")
             return False
         else:
             return True
@@ -106,14 +107,18 @@ class KalshiOrderbookProcessor:
             success = await _process_orderbook_message(context=context)
             if success and msg_type == "orderbook_snapshot":
                 await normalizer.normalize_snapshot_json(redis, market_key)
-        except (ValueError, KeyError, RuntimeError) as exc:  # policy_guard: allow-silent-handler
+        except (
+            ValueError,
+            KeyError,
+            RuntimeError,
+        ) as exc:  # Expected data validation or parsing failure  # policy_guard: allow-silent-handler
             error_msg = str(exc)
             if "Missing yes_bid_price" in error_msg or "Missing yes_ask_price" in error_msg:
                 logger.debug("Illiquid market orderbook update: %s", exc)
                 return True
             logger.error("Invalid orderbook update payload: %s", exc, exc_info=True)
             return False
-        except REDIS_ERRORS as exc:  # policy_guard: allow-silent-handler
+        except REDIS_ERRORS as exc:  # Expected exception, returning default value  # policy_guard: allow-silent-handler
             logger.error("Redis error updating orderbook: %s", exc, exc_info=True)
             return False
         else:

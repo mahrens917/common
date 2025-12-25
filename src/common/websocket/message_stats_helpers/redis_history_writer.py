@@ -38,6 +38,6 @@ async def write_message_count_to_redis(
 
         logger.debug(f"{service_name.upper()}_HISTORY: Recorded {message_count} messages at {datetime_str}")
 
-    except REDIS_WRITE_ERRORS as exc:  # policy_guard: allow-silent-handler
+    except REDIS_WRITE_ERRORS as exc:
         logger.exception("CRITICAL: Failed to record %s message count to Redis", service_name)
         raise ConnectionError(f"Redis write failure for {service_name}") from exc

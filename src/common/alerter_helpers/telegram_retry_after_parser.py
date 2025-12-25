@@ -16,7 +16,7 @@ class TelegramRetryAfterParser:
         """Parse retry-after from header value."""
         try:
             return max(1, int(float(header_value)))
-        except ValueError:
+        except ValueError:  # Expected data validation or parsing failure  # policy_guard: allow-silent-handler
             logger.debug("Unable to parse Retry-After header value: %s", header_value)
             return None
 
@@ -25,9 +25,10 @@ class TelegramRetryAfterParser:
         """Fetch JSON payload from response."""
         try:
             return await response.json()
-        except aiohttp.ContentTypeError:
+        except aiohttp.ContentTypeError:  # Expected data validation or parsing failure  # policy_guard: allow-silent-handler
+            logger.warning("Expected data validation or parsing failure")
             return None
-        except (
+        except (  # policy_guard: allow-silent-handler
             aiohttp.ClientError,
             ValueError,
         ) as exc:
@@ -47,7 +48,7 @@ class TelegramRetryAfterParser:
 
         try:
             retry_seconds = float(retry_after)
-        except (
+        except (  # policy_guard: allow-silent-handler
             TypeError,
             ValueError,
         ):

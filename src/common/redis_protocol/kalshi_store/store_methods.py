@@ -102,7 +102,7 @@ async def get_interpolation_results(store, currency: str) -> Dict[str, Dict[str,
             if market_result is not None:
                 ticker, data = market_result
                 results[ticker] = data
-    except REDIS_ERRORS as exc:  # policy_guard: allow-silent-handler
+    except REDIS_ERRORS as exc:  # Expected exception in operation  # policy_guard: allow-silent-handler
         module_logger = getattr(sys.modules.get("common.redis_protocol.kalshi_store"), "logger", logger)
         module_logger.error(
             "Redis error getting interpolation results for %s: %s",
@@ -119,7 +119,8 @@ def _validate_market_for_interpolation(market_key_str: str, currency_upper: str,
     """Validate market key and extract ticker."""
     try:
         descriptor = parse_kalshi_market_key(market_key_str)
-    except ValueError:  # policy_guard: allow-silent-handler
+    except ValueError:  # Expected data validation or parsing failure  # policy_guard: allow-silent-handler
+        logger.warning("Expected data validation or parsing failure")
         return None
     market_ticker = descriptor.ticker
     if currency_upper not in market_ticker.upper():
@@ -136,7 +137,7 @@ def _parse_bid_ask_prices(
     try:
         yes_bid_float = float(yes_bid) if yes_bid is not None else None
         yes_ask_float = float(yes_ask) if yes_ask is not None else None
-    except (ValueError, TypeError) as exc:  # policy_guard: allow-silent-handler
+    except (ValueError, TypeError) as exc:  # Expected data validation or parsing failure  # policy_guard: allow-silent-handler
         module_logger.warning(
             "Skipping market %s with invalid bid/ask: %s / %s (%s)",
             market_ticker,
@@ -171,7 +172,7 @@ async def _process_market_for_interpolation(
 
     try:
         interpolation_fields = _extract_interpolation_fields(store, market_data)
-    except (ValueError, TypeError) as exc:  # policy_guard: allow-silent-handler
+    except (ValueError, TypeError) as exc:  # Expected data validation or parsing failure  # policy_guard: allow-silent-handler
         module_logger.warning("Error parsing interpolation results for %s: %s", market_ticker, exc)
         return None
 
@@ -261,7 +262,7 @@ def _build_combined_metadata(snapshot: Dict[str, Any], market_ticker: str) -> Di
     if metadata_payload:
         try:
             metadata = orjson.loads(metadata_payload)
-        except orjson.JSONDecodeError:  # policy_guard: allow-silent-handler
+        except orjson.JSONDecodeError:  # Expected exception in operation  # policy_guard: allow-silent-handler
             logger.debug("Failed to decode metadata JSON for %s", market_ticker)
     return {**metadata, **snapshot}
 
@@ -303,7 +304,7 @@ def _extract_market_quote(
                 best_bid_size = next(iter(yes_bids.values()))
             if yes_asks and best_ask_size is None:
                 best_ask_size = next(iter(yes_asks.values()))
-        except orjson.JSONDecodeError:  # policy_guard: allow-silent-handler
+        except orjson.JSONDecodeError:  # Expected exception in operation  # policy_guard: allow-silent-handler
             logger.debug("Invalid orderbook payload for %s", market_ticker)
 
     return {
@@ -334,7 +335,8 @@ async def is_market_expired(store, market_ticker: str) -> bool:
         return False
     try:
         close_dt = datetime.fromisoformat(close_time_value.replace("Z", "+00:00"))
-    except ValueError:  # policy_guard: allow-silent-handler
+    except ValueError:  # Expected data validation or parsing failure  # policy_guard: allow-silent-handler
+        logger.warning("Expected data validation or parsing failure")
         return False
     current_time = time_utils.get_current_utc()
     return close_dt < current_time

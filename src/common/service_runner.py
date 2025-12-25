@@ -53,12 +53,12 @@ class ServiceInstanceLock:
                     data = fh.read().strip()
                     if data:
                         existing_pid = data
-            except (OSError, ValueError):  # policy_guard: allow-silent-handler
+            except (OSError, ValueError):  # Best-effort cleanup operation  # policy_guard: allow-silent-handler
                 # Best-effort PID inspection - errors are not fatal
                 existing_pid = None
             try:
                 os.close(fd)
-            except OSError:  # policy_guard: allow-silent-handler
+            except OSError:  # Best-effort cleanup operation  # policy_guard: allow-silent-handler
                 # Best-effort descriptor cleanup - errors are not fatal
                 pass
 
@@ -86,7 +86,7 @@ class ServiceInstanceLock:
             finally:
                 try:
                     os.close(self._fd)
-                except OSError:  # policy_guard: allow-silent-handler
+                except OSError:  # Best-effort cleanup operation  # policy_guard: allow-silent-handler
                     # Best-effort descriptor cleanup - errors are not fatal
                     pass
                 self._fd = None
@@ -94,7 +94,7 @@ class ServiceInstanceLock:
         try:
             if self.lock_path.exists():
                 self.lock_path.unlink()
-        except OSError:  # policy_guard: allow-silent-handler
+        except OSError:  # Best-effort cleanup operation  # policy_guard: allow-silent-handler
             # Lock file might have been cleaned up by another process or permissions issue.
             pass
 
@@ -153,16 +153,16 @@ def run_async_service(
                 try:
                     signal.signal(signal.SIGHUP, signal.SIG_IGN)
                     logger.debug("Ignoring SIGHUP for %s", service_name)
-                except AttributeError:  # policy_guard: allow-silent-handler
+                except AttributeError:  # Expected data validation or parsing failure  # policy_guard: allow-silent-handler
                     # SIGHUP is not defined on all platforms (e.g., Windows).
                     logger.debug("SIGHUP not available; cannot ignore for %s", service_name)
-                except ValueError:  # policy_guard: allow-silent-handler
+                except ValueError:  # Expected data validation or parsing failure  # policy_guard: allow-silent-handler
                     # Raised when signals are configured outside the main thread.
                     logger.warning("Failed to ignore SIGHUP for %s", service_name)
 
             try:
                 asyncio.run(factory())
-            except KeyboardInterrupt:  # policy_guard: allow-silent-handler
+            except KeyboardInterrupt:  # Expected exception in operation  # policy_guard: allow-silent-handler
                 # CTRL+C translates into a friendly shutdown log
                 if shutdown_message:
                     logger.info(shutdown_message)

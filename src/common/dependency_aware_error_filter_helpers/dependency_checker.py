@@ -27,7 +27,7 @@ class DependencyChecker:
         dependencies_key = f"service_dependencies:{service_name}"
         try:
             dependencies = await ensure_awaitable(redis.smembers(dependencies_key))
-        except (ConnectionError, OSError, RuntimeError):  # policy_guard: allow-silent-handler
+        except (ConnectionError, OSError, RuntimeError):  # Transient network/connection failure  # policy_guard: allow-silent-handler
             logger.exception("Failed to get dependencies for %s", service_name)
             return []
         return [dep.decode("utf-8") if isinstance(dep, bytes) else dep for dep in dependencies]
@@ -44,7 +44,7 @@ class DependencyChecker:
         status_key = f"{redis_key_prefix}:{service_name}"
         try:
             status = await ensure_awaitable(redis.hget(status_key, dependency_name))
-        except (ConnectionError, OSError, RuntimeError):  # policy_guard: allow-silent-handler
+        except (ConnectionError, OSError, RuntimeError):  # Transient network/connection failure  # policy_guard: allow-silent-handler
             logger.exception(
                 "Failed to check dependency status for %s:%s",
                 service_name,

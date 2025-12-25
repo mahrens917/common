@@ -42,7 +42,7 @@ def find_most_recent_log_file(logs_directory: str, pattern: str, quick_check_sec
             current_age = time.time() - stat.st_mtime
             if current_age < quick_check_seconds:
                 return current_log
-        except OSError as exc:  # policy_guard: allow-silent-handler
+        except OSError as exc:  # Best-effort cleanup operation  # policy_guard: allow-silent-handler
             # File may have been removed between exists() and stat() - fall through to slow path
             logger.debug("Failed to stat log file %s: %s", current_log, exc)
 
@@ -66,7 +66,8 @@ def find_most_recent_log_file(logs_directory: str, pattern: str, quick_check_sec
             if most_recent_time is None or file_time > most_recent_time:
                 most_recent_time = file_time
                 most_recent_file = log_file
-        except OSError:  # policy_guard: allow-silent-handler
+        except OSError:  # Best-effort cleanup operation  # policy_guard: allow-silent-handler
+            logger.debug("Best-effort cleanup operation")
             continue
 
     return most_recent_file

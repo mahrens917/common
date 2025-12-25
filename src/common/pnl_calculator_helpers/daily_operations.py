@@ -50,7 +50,7 @@ class DailyOperations:
             today = get_timezone_aware_date(self.timezone)
             trades = await self.trade_store.get_trades_by_date_range(today, today)
             return await self.pnl_engine.calculate_unrealized_pnl(trades)
-        except DATA_ACCESS_ERRORS as exc:  # policy_guard: allow-silent-handler
+        except DATA_ACCESS_ERRORS as exc:  # Expected exception, returning default value  # policy_guard: allow-silent-handler
             self.logger.exception("Error calculating current day unrealized P&L (%s)", type(exc).__name__)
             return 0
 
@@ -65,6 +65,6 @@ class DailyOperations:
             yesterday = get_timezone_aware_date(self.timezone) - timedelta(days=1)
             unrealized_trades = await self.trade_store.get_unrealized_trades_for_date(yesterday)
             return await self.pnl_engine.calculate_unrealized_pnl(unrealized_trades)
-        except DATA_ACCESS_ERRORS as exc:  # policy_guard: allow-silent-handler
+        except DATA_ACCESS_ERRORS as exc:  # Expected exception, returning default value  # policy_guard: allow-silent-handler
             self.logger.exception("Error calculating yesterday unrealized P&L (%s)", type(exc).__name__)
             return 0

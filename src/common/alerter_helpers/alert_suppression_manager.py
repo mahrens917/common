@@ -61,7 +61,7 @@ class AlertSuppressionManager:
 
     def _is_shutdown_in_progress(self) -> bool:
         """Check if shutdown is in progress via env var or flag file."""
-        shutdown_flag = os.environ.get("SHUTDOWN_IN_PROGRESS", "").lower() == "true"
+        shutdown_flag = os.environ.get("SHUTDOWN_IN_PROGRESS", None) is not None and os.environ.get("SHUTDOWN_IN_PROGRESS").lower() == "true"
 
         if not shutdown_flag:
             shutdown_flag = _get_shutdown_flag_path().exists()

@@ -8,7 +8,7 @@ from typing import Any, Awaitable, Callable, Optional, Protocol, Tuple
 
 try:
     from common.alerter import ALERT_FAILURE_ERRORS as _ALERTER_FAILURES
-except ModuleNotFoundError:  # policy_guard: allow-silent-handler
+except ModuleNotFoundError:  # Optional module not available  # policy_guard: allow-silent-handler
     _ALERTER_FAILURES = ()
 
 from ..data_models.trade_record import is_trade_reason_valid
@@ -52,7 +52,7 @@ async def fetch_order_metadata(
     if telegram_handler:
         try:
             await telegram_handler.send_alert(f"🚨 ORDER METADATA MISSING\n\n{error_msg}\n\nImmediate investigation required.")
-        except ALERT_SEND_ERRORS as alert_exc:  # policy_guard: allow-silent-handler
+        except ALERT_SEND_ERRORS as alert_exc:  # Expected exception in operation  # policy_guard: allow-silent-handler
             logger.warning(
                 "Failed to send missing metadata alert for order %s: %s",
                 order_id,

@@ -20,7 +20,7 @@ ServiceAlerter: type[ServiceAlerterProtocol]
 
 try:
     from common.alerter import Alerter as ServiceAlerter
-except ImportError as exc:  # policy_guard: allow-silent-handler
+except ImportError as exc:  # Optional module not available  # policy_guard: allow-silent-handler
     logger.debug("Monitor module not available, using fallback: %s", exc)
 
     class _FallbackAlerter:
@@ -53,14 +53,24 @@ def _register_shutdown_hook(alerter) -> None:
 
         from common.redis_utils import RedisOperationError
 
+        alert_errors = []
         try:
-            from common.alerting.models import AlerterError  # type: ignore
-        except ImportError:  # policy_guard: allow-silent-handler
-            AlerterError = None
+            from common.alerting.models import AlerterError as CommonAlerterError  # type: ignore
+
+            alert_errors.append(CommonAlerterError)
+        except ImportError as e:  # Optional module not available  # policy_guard: allow-silent-handler
+            logger.debug("CommonAlerterError not available: %s", e)
+
+        try:
+            from src.monitor.alerting.models import AlerterError as MonitorAlerterError  # type: ignore
+
+            alert_errors.append(MonitorAlerterError)
+        except ImportError as e:  # Optional module not available  # policy_guard: allow-silent-handler
+            logger.debug("MonitorAlerterError not available: %s", e)
 
         cleanup_errors = (asyncio.TimeoutError, RedisError, RedisOperationError, OSError)
-        if AlerterError is not None:
-            cleanup_errors = (AlerterError,) + cleanup_errors
+        if alert_errors:
+            cleanup_errors = tuple(alert_errors) + cleanup_errors
 
         try:
             asyncio.run(alerter.cleanup())
@@ -68,12 +78,12 @@ def _register_shutdown_hook(alerter) -> None:
             loop = asyncio.new_event_loop()
             try:
                 loop.run_until_complete(alerter.cleanup())
-            except cleanup_errors as exc:  # policy_guard: allow-silent-handler
+            except cleanup_errors as exc:
                 logger.warning("Alerter cleanup during interpreter shutdown failed: %s", exc, exc_info=True)
                 raise AlerterCleanupError("Alerter cleanup failed during interpreter shutdown") from exc
             finally:
                 loop.close()
-        except cleanup_errors as exc:  # policy_guard: allow-silent-handler
+        except cleanup_errors as exc:
             logger.warning("Alerter cleanup during interpreter shutdown failed: %s", exc, exc_info=True)
             raise AlerterCleanupError("Alerter cleanup failed during interpreter shutdown") from exc
 

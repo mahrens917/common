@@ -40,7 +40,7 @@ class OrderCanceller:
 
             try:
                 validated_order = validator(response_data)
-            except ValueError:  # policy_guard: allow-silent-handler
+            except ValueError:
                 logger.exception(f"[{operation_name}] Cancel response validation failed")
                 logger.info(f"[{operation_name}] Raw response: {response_data}")
                 raise
@@ -53,7 +53,7 @@ class OrderCanceller:
                 logger.error(f"[{operation_name}] Order {order_id} not canceled: status={validated_order['status']}")
                 cancelled = False
 
-        except CLIENT_API_ERRORS + (ValueError, KeyError) as exc:  # policy_guard: allow-silent-handler
+        except CLIENT_API_ERRORS + (ValueError, KeyError) as exc:
             logger.exception(
                 "[%s] Failed to cancel order %s (%s)",
                 operation_name,

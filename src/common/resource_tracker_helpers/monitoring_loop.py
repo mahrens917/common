@@ -54,7 +54,7 @@ class MonitoringLoop:
         self._stop_monitoring.set()
         try:
             await asyncio.wait_for(self._monitoring_task, timeout=2.0)
-        except asyncio.TimeoutError:  # policy_guard: allow-silent-handler
+        except asyncio.TimeoutError:  # Transient network/connection failure  # policy_guard: allow-silent-handler
             self._monitoring_task.cancel()
         self._monitoring_task = None
         logger.debug("Stopped per-second resource monitoring task")
@@ -72,18 +72,19 @@ class MonitoringLoop:
                 try:
                     await self.cpu_tracker.record_cpu_usage(cpu_percent)
                     await self.ram_tracker.record_ram_usage(ram_mb)
-                except (RuntimeError, ValueError, TypeError, AttributeError) as exc:  # policy_guard: allow-silent-handler
+                except (RuntimeError, ValueError, TypeError, AttributeError) as exc:
                     logger.exception("Error storing per-second data to Redis")
                     raise RuntimeError("Failed to store resource metrics to Redis") from exc
 
-            except (RuntimeError, ValueError, TypeError, AttributeError) as exc:  # policy_guard: allow-silent-handler
+            except (RuntimeError, ValueError, TypeError, AttributeError) as exc:
                 logger.exception("Error in per-second monitoring")
                 raise
 
             try:
                 await asyncio.wait_for(self._stop_monitoring.wait(), timeout=1.0)
                 break
-            except asyncio.TimeoutError:  # policy_guard: allow-silent-handler
+            except asyncio.TimeoutError:  # Transient network/connection failure  # policy_guard: allow-silent-handler
+                logger.warning("Transient network/connection failure")
                 continue
 
     def get_max_cpu_last_minute(self) -> Optional[float]:

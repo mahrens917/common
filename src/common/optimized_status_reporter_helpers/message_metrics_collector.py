@@ -47,13 +47,13 @@ class MessageMetricsCollector:
 
         try:
             deribit_messages_60s, kalshi_messages_60s = await asyncio.gather(*realtime_tasks)
-        except STATUS_REPORT_ERRORS as exc:  # policy_guard: allow-silent-handler
+        except STATUS_REPORT_ERRORS as exc:
             raise RuntimeError("Failed to collect realtime message metrics") from exc
 
         metadata_tasks = [self.metadata_store.get_service_metadata(name) for name in ["cfb", "asos", "metar"]]
         try:
             metadata_results = await asyncio.gather(*metadata_tasks)
-        except STATUS_REPORT_ERRORS as exc:  # policy_guard: allow-silent-handler
+        except STATUS_REPORT_ERRORS as exc:
             raise DataError("Failed to collect metadata message metrics") from exc
 
         if len(metadata_results) != _CONST_3:
@@ -78,11 +78,11 @@ class MessageMetricsCollector:
             raise DataError(f"Metadata for {name} service is unavailable")
         try:
             value = getattr(result, attribute)
-        except AttributeError as exc:  # policy_guard: allow-silent-handler
+        except AttributeError as exc:
             raise DataError(f"Metadata for {name} missing required attribute '{attribute}'") from exc
         if value is None:
             raise DataError(f"Metadata for {name} has null value for '{attribute}'")
         try:
             return int(value)
-        except (TypeError, ValueError) as exc:  # policy_guard: allow-silent-handler
+        except (TypeError, ValueError) as exc:
             raise DataError(f"Metadata for {name} contains non-numeric value for '{attribute}': {value}") from exc

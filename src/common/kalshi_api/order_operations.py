@@ -77,6 +77,13 @@ class OrderOperations:
         """Attach a trade store for order metadata operations."""
         self._metadata_manager.attach_trade_store(trade_store)
 
+    async def _execute_order_request(self, method: str, path: str, json_payload: Optional[Any], operation_name: str) -> Any:
+        """Execute an order request."""
+        method_upper, url, kwargs, op = self._request_builder.build_request_context(
+            method=method, path=path, params={}, json_payload=json_payload, operation_name=operation_name
+        )
+        return await self._request_builder.execute_request(method_upper, url, kwargs, path, op)
+
     async def create_order(self, order_request: OrderRequest) -> OrderResponse:
         """Create a new order and return the order response."""
         try:
@@ -84,14 +91,7 @@ class OrderOperations:
         except ValueError as exc:
             raise KalshiClientError(str(exc)) from exc
         logger.debug("Creating order with payload: %s", payload)
-        method_upper, url, kwargs, op = self._request_builder.build_request_context(
-            method="POST",
-            path="/trade-api/v2/portfolio/orders",
-            params=None,
-            json_payload=payload,
-            operation_name="create_order",
-        )
-        creation_response = await self._request_builder.execute_request(method_upper, url, kwargs, "/trade-api/v2/portfolio/orders", op)
+        creation_response = await self._execute_order_request("POST", "/trade-api/v2/portfolio/orders", payload, "create_order")
         logger.info("Order creation API response: %s", creation_response)
         order_id = creation_response.get("order_id")
         logger.debug("Extracted order_id: %s (type: %s)", order_id, type(order_id).__name__)
@@ -113,33 +113,13 @@ class OrderOperations:
         """Cancel an existing order by order ID."""
         if not order_id:
             raise KalshiClientError("Order ID must be provided for cancellation")
-        method_upper, url, kwargs, op = self._request_builder.build_request_context(
-            method="DELETE",
-            path=f"/trade-api/v2/portfolio/orders/{order_id}",
-            params={},
-            json_payload=None,
-            operation_name="cancel_order",
-        )
-        return await self._request_builder.execute_request(method_upper, url, kwargs, f"/trade-api/v2/portfolio/orders/{order_id}", op)
+        return await self._execute_order_request("DELETE", f"/trade-api/v2/portfolio/orders/{order_id}", None, "cancel_order")
 
-    async def get_order(
-        self,
-        order_id: str,
-        *,
-        trade_rule: Optional[str] = None,
-        trade_reason: Optional[str] = None,
-    ) -> OrderResponse:
+    async def get_order(self, order_id: str, *, trade_rule: Optional[str] = None, trade_reason: Optional[str] = None) -> OrderResponse:
         """Get order details by order ID with optional trade metadata."""
         if not order_id:
             raise KalshiClientError("Order ID must be provided")
-        method_upper, url, kwargs, op = self._request_builder.build_request_context(
-            method="GET",
-            path=f"/trade-api/v2/portfolio/orders/{order_id}",
-            params={},
-            json_payload=None,
-            operation_name="get_order",
-        )
-        payload = await self._request_builder.execute_request(method_upper, url, kwargs, f"/trade-api/v2/portfolio/orders/{order_id}", op)
+        payload = await self._execute_order_request("GET", f"/trade-api/v2/portfolio/orders/{order_id}", None, "get_order")
         metadata: Dict[str, str] = {}
         if trade_rule is None or trade_reason is None:
             metadata = await self._metadata_manager.fetch_metadata(order_id)
@@ -151,20 +131,10 @@ class OrderOperations:
         """Get fills for an order by order ID."""
         if not order_id:
             raise KalshiClientError("Order ID must be provided")
-        method_upper, url, kwargs, op = self._request_builder.build_request_context(
-            method="GET",
-            path=f"/trade-api/v2/portfolio/orders/{order_id}/fills",
-            params={},
-            json_payload=None,
-            operation_name="get_fills",
-        )
-        response_payload: Any = await self._request_builder.execute_request(
-            method_upper, url, kwargs, f"/trade-api/v2/portfolio/orders/{order_id}/fills", op
-        )
+        response_payload = await self._execute_order_request("GET", f"/trade-api/v2/portfolio/orders/{order_id}/fills", None, "get_fills")
         if not isinstance(response_payload, dict):
             raise KalshiClientError("Fills response was not a JSON object")
-        payload = response_payload
-        fills_raw = payload.get("fills")
+        fills_raw = response_payload.get("fills")
         if not isinstance(fills_raw, list):
             raise KalshiClientError("Fills response was not a list")
         normalised: List[Dict[str, Any]] = []

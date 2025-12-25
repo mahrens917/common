@@ -3,10 +3,13 @@
 from __future__ import annotations
 
 import json
+import logging
 import math
 from typing import Any
 
 import orjson
+
+logger = logging.getLogger(__name__)
 
 
 def safe_json_loads(json_string: str, *, otherwise: Any = None) -> Any:
@@ -27,7 +30,8 @@ def safe_json_loads(json_string: str, *, otherwise: Any = None) -> Any:
         return otherwise
     try:
         return json.loads(json_string)
-    except json.JSONDecodeError:  # policy_guard: allow-silent-handler
+    except json.JSONDecodeError:  # Expected exception in operation  # policy_guard: allow-silent-handler
+        logger.debug("Expected exception in operation")
         return otherwise
 
 
@@ -49,7 +53,8 @@ def safe_orjson_loads(json_bytes: bytes, *, otherwise: Any = None) -> Any:
         return otherwise
     try:
         return orjson.loads(json_bytes)
-    except orjson.JSONDecodeError:  # policy_guard: allow-silent-handler
+    except orjson.JSONDecodeError:  # Expected exception in operation  # policy_guard: allow-silent-handler
+        logger.debug("Expected exception in operation")
         return otherwise
 
 

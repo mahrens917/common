@@ -102,9 +102,10 @@ class RetryHandler:
                 context=config.context,
                 on_retry=_on_retry,
             )
-        except RedisFatalError:  # policy_guard: allow-silent-handler
+        except RedisFatalError:  # Expected exception, returning default value  # policy_guard: allow-silent-handler
+            logger.debug("Expected exception, returning default value")
             return False
-        except RedisRetryError:  # policy_guard: allow-silent-handler
+        except RedisRetryError:  # Expected exception, returning default value  # policy_guard: allow-silent-handler
             self._logger.exception("%s: %s")
             return False
         else:

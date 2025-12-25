@@ -57,7 +57,7 @@ class ContentValidationHandler:
             self.last_content_validation_time = loop.time()
             self.consecutive_validation_failures = 0
 
-        except VALIDATION_EXCEPTIONS:  # policy_guard: allow-silent-handler
+        except VALIDATION_EXCEPTIONS:  # Expected exception, returning default value  # policy_guard: allow-silent-handler
             self.consecutive_validation_failures += 1
             self.logger.exception(f"Content validation error: ")
             return False

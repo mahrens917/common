@@ -2,18 +2,20 @@ from __future__ import annotations
 
 import logging
 from datetime import datetime
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 from common.config.redis_schema import get_schema_config
 from common.history_tracker import PriceHistoryTracker, WeatherHistoryTracker
-from common.redis_schema import parse_kalshi_market_key
 from common.price_path_calculator import (
     MostProbablePricePathCalculator,
     PricePathComputationError,
 )
+from common.redis_schema import parse_kalshi_market_key
 
 if TYPE_CHECKING:
+    from typing import Type
     from common.trade_visualizer import TradeVisualizer
+    from .runtime import ChartGenerator
 
 from . import dependencies as _deps
 from .contexts import AstronomicalFeatures, ChartStatistics, ChartTimeContext, WeatherChartSeries
@@ -62,7 +64,7 @@ __all__ = [
 ]
 
 
-def __getattr__(name: str):
+def __getattr__(name: str) -> Any:
     """Lazy loading for imports that would cause circular dependencies."""
     if name == "TradeVisualizer":
         from common.trade_visualizer import TradeVisualizer

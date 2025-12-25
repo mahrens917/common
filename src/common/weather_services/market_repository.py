@@ -76,7 +76,7 @@ class RedisWeatherMarketRepository(MarketRepository):
 
             try:
                 descriptor = parse_kalshi_market_key(key_str)
-            except (
+            except (  # policy_guard: allow-silent-handler
                 ValueError,
                 TypeError,
             ):

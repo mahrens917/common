@@ -71,9 +71,9 @@ async def write_status_to_redis(
             },
         )
 
-    except asyncio.CancelledError:  # policy_guard: allow-silent-handler
+    except asyncio.CancelledError:
         raise
-    except (RedisError, ConnectionError, OSError) as exc:  # policy_guard: allow-silent-handler
+    except (RedisError, ConnectionError, OSError) as exc:
         logger.exception(
             "Failed to report status to Redis",
             extra={

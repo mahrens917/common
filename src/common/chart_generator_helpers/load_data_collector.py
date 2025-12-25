@@ -59,7 +59,7 @@ class LoadDataCollector:
 
                 try:
                     numeric_value = float(value)
-                except (
+                except (  # policy_guard: allow-silent-handler
                     TypeError,
                     ValueError,
                 ):

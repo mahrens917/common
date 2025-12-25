@@ -61,10 +61,10 @@ class UsdcPriceFetcher:
                 market_key,
             )
 
-        except ValueError:  # policy_guard: allow-silent-handler
+        except ValueError:
             logger.exception("Invalid USDC bid/ask data for %s: %s")
             raise
-        except REDIS_ERRORS as exc:  # policy_guard: allow-silent-handler
+        except REDIS_ERRORS as exc:
             logger.error("Error getting USDC bid/ask prices for %s: %s", currency, exc, exc_info=True)
             raise
         else:

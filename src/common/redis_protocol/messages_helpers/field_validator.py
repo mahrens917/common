@@ -45,5 +45,5 @@ def validate_float_field(hash_data: Dict[str, Any], field_name: str, context: st
     value_str = validate_required_field(hash_data, field_name, context)
     try:
         return float(value_str)
-    except (TypeError, ValueError) as exc:  # policy_guard: allow-silent-handler
+    except (TypeError, ValueError) as exc:
         raise RuntimeError(f"Invalid {field_name} value '{value_str}' - cannot convert to float") from exc

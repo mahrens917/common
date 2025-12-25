@@ -38,7 +38,7 @@ class JsonValidator:
 
             try:
                 parsed_data = json.loads(json_data)
-            except json.JSONDecodeError as e:  # policy_guard: allow-silent-handler
+            except json.JSONDecodeError as e:
                 raise DataIntegrityError(f"Invalid JSON string for {variable_name}") from e
             else:
                 return parsed_data

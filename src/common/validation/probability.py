@@ -1,7 +1,10 @@
 """Shared probability normalization helpers."""
 
+import logging
 import math
 from typing import Optional
+
+logger = logging.getLogger(__name__)
 
 
 def clamp_probability(value: Optional[float]) -> Optional[float]:
@@ -14,7 +17,8 @@ def clamp_probability(value: Optional[float]) -> Optional[float]:
         return None
     try:
         numeric = float(value)
-    except (TypeError, ValueError):  # policy_guard: allow-silent-handler
+    except (TypeError, ValueError):  # Expected data validation or parsing failure  # policy_guard: allow-silent-handler
+        logger.warning("Expected data validation or parsing failure")
         return None
     if not math.isfinite(numeric):
         return None

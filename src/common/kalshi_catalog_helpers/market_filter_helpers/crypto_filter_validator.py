@@ -23,7 +23,7 @@ def validate_ticker_format(ticker: str) -> bool:
         from src.pdf.utils.validation_helpers import ValidationHelpers
 
         return ValidationHelpers.validate_ticker_format(ticker)
-    except (ValueError, TypeError, AttributeError):
+    except (ValueError, TypeError, AttributeError):  # Expected data validation or parsing failure  # policy_guard: allow-silent-handler
         # Validation helper rejected the ticker format
         return False
 

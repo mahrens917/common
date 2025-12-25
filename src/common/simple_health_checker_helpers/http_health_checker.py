@@ -1,6 +1,7 @@
 """HTTP-based health checking."""
 
 import asyncio
+import logging
 import time
 from typing import List
 
@@ -8,6 +9,8 @@ import aiohttp
 from aiohttp import ClientError, ClientTimeout
 
 from .types import HealthStatus, ServiceHealth
+
+logger = logging.getLogger(__name__)
 
 # Constants
 _TEMP_MAX = 200
@@ -59,7 +62,8 @@ class HttpHealthChecker:
                                 error_message=f"HTTP {response.status}",
                             )
 
-            except asyncio.TimeoutError:  # policy_guard: allow-silent-handler
+            except asyncio.TimeoutError:  # Transient network/connection failure  # policy_guard: allow-silent-handler
+                logger.warning("Transient network/connection failure")
                 return ServiceHealth(
                     service_name=service_name,
                     status=HealthStatus.UNHEALTHY,

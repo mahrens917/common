@@ -58,14 +58,15 @@ class BatchReader:
 
             else:
                 return results
-        except REDIS_ERRORS as exc:  # policy_guard: allow-silent-handler
+        except REDIS_ERRORS as exc:  # Expected exception in operation  # policy_guard: allow-silent-handler
             logger.error("Redis error getting interpolation results for %s: %s", currency, exc, exc_info=True)
             return {}
 
     async def _extract_single_interpolation_result(self, key_str: str, curr: str, parser: Any, str_f: Any, int_f: Any, float_f: Any) -> Any:
         try:
             desc = parser(key_str)
-        except ValueError:  # policy_guard: allow-silent-handler
+        except ValueError:  # Expected data validation or parsing failure  # policy_guard: allow-silent-handler
+            logger.warning("Expected data validation or parsing failure")
             return None
 
         ticker = desc.ticker
@@ -92,5 +93,5 @@ class BatchReader:
                     "interp_error_ask": float_f(data.get("interp_error_ask"), 0.0),
                 },
             )
-        except (ValueError, KeyError):  # policy_guard: allow-silent-handler
+        except (ValueError, KeyError):  # Expected data validation or parsing failure  # policy_guard: allow-silent-handler
             self.logger.warning("Error parsing interpolation results for %s", ticker)

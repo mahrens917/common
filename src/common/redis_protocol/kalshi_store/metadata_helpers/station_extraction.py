@@ -29,7 +29,7 @@ def extract_station_from_ticker(
             return station
 
         logger.debug("No weather station mapping found for city code in ticker: %s", market_ticker)
-    except WeatherStationMappingError:  # policy_guard: allow-silent-handler
+    except WeatherStationMappingError:  # Expected exception, returning default value  # policy_guard: allow-silent-handler
         logger.exception("Error extracting weather station from ticker %s: %s")
         return None
     else:

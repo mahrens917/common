@@ -115,6 +115,6 @@ async def set_service_status(service_name: str, status: ServiceStatus, **fields:
         detail_key = f"status:{name_key}"
         serialized = {key: json.dumps(value) if isinstance(value, (dict, list)) else str(value) for key, value in detail.items()}
         await ensure_awaitable(redis.hset(detail_key, mapping=serialized))
-    except STATUS_UPDATE_ERRORS as exc:  # policy_guard: allow-silent-handler
+    except STATUS_UPDATE_ERRORS as exc:
         logger.exception("Failed to update status for %s (%s)", name_key, type(exc).__name__, exc_info=True)
         raise

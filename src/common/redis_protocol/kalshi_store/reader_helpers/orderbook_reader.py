@@ -36,7 +36,7 @@ class OrderbookReader:
             pipe.hget(market_key, "yes_asks")
             try:
                 results = await pipe.execute()
-            except REDIS_ERRORS as exc:  # policy_guard: allow-silent-handler
+            except REDIS_ERRORS as exc:  # Expected exception in operation  # policy_guard: allow-silent-handler
                 self.logger.error("Redis error fetching orderbook for %s: %s", ticker, exc, exc_info=True)
                 return {}
 
@@ -47,7 +47,7 @@ class OrderbookReader:
 
             else:
                 return orderbook
-        except REDIS_ERRORS as exc:  # policy_guard: allow-silent-handler
+        except REDIS_ERRORS as exc:  # Expected exception in operation  # policy_guard: allow-silent-handler
             self.logger.error("Redis error getting orderbook for %s: %s", ticker, exc, exc_info=True)
             return {}
 
@@ -55,7 +55,7 @@ class OrderbookReader:
         try:
             side_json = await ensure_awaitable(redis.hget(market_key, side))
             return parse_orderbook_json(side_json, side, ticker)
-        except REDIS_ERRORS as exc:  # policy_guard: allow-silent-handler
+        except REDIS_ERRORS as exc:  # Expected exception in operation  # policy_guard: allow-silent-handler
             self.logger.error("Redis error getting %s for %s: %s", side, ticker, exc, exc_info=True)
             return {}
 

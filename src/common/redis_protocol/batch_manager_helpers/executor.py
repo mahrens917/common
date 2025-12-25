@@ -55,7 +55,7 @@ class BatchExecutor(Generic[T]):
         try:
             await self.process_batch(batch)
             logger.debug(f"{self.name}: Batch processing complete")
-        except BATCH_PROCESS_ERRORS as exc:  # policy_guard: allow-silent-handler
+        except BATCH_PROCESS_ERRORS as exc:
             logger.exception(
                 "Error processing batch in %s (%s)",
                 self.name,

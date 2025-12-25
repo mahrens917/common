@@ -1,14 +1,9 @@
 """Helper components for weather rule engine."""
 
 import logging
-import sys
 from datetime import datetime
 from typing import Any, Dict, Optional
-
-if sys.version_info >= (3, 9):
-    from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
-else:
-    from backports.zoneinfo import ZoneInfo, ZoneInfoNotFoundError
+from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
 
 logger = logging.getLogger(__name__)
 

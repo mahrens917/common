@@ -66,7 +66,7 @@ def default_weather_station_loader() -> Dict[str, Dict[str, Any]]:  # pragma: no
     """
     try:
         return load_weather_station_mapping()
-    except WeatherConfigError:  # policy_guard: allow-silent-handler
+    except WeatherConfigError:
         logger.exception("Weather station mapping unavailable; aborting KalshiStore initialisation")
         raise
     except (
@@ -106,7 +106,7 @@ def _convert_numeric_field(value: Any) -> Optional[float]:  # pragma: no cover -
 
     try:
         return coerce_float_optional(value)
-    except (ValueError, TypeError) as exc:  # policy_guard: allow-silent-handler
+    except (ValueError, TypeError) as exc:
         raise ValidationError(f"Invalid numeric value: {value!r}") from exc
 
 
@@ -264,7 +264,7 @@ def _to_optional_float(value: Any, *, context: str) -> Optional[float]:
         return None
     try:
         return float(value)
-    except (TypeError, ValueError) as exc:  # policy_guard: allow-silent-handler
+    except (TypeError, ValueError) as exc:
         raise RuntimeError(f"Invalid {context} value: {value}") from exc
 
 
@@ -370,7 +370,7 @@ def _format_probability_value(value: Any) -> str:
     """
     try:
         numeric = float(value)
-    except (TypeError, ValueError) as exc:  # policy_guard: allow-silent-handler
+    except (TypeError, ValueError) as exc:
         raise TypeError(f"Probability value must be float-compatible, got {value}") from exc
 
     if not math.isfinite(numeric):

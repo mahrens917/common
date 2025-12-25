@@ -41,10 +41,18 @@ class ChartAxesCreator:
         """Clean up matplotlib figure resources"""
         try:
             plt.close(fig)
-        except (RuntimeError, ValueError, TypeError) as cleanup_error:
+        except (
+            RuntimeError,
+            ValueError,
+            TypeError,
+        ) as cleanup_error:  # Expected data validation or parsing failure  # policy_guard: allow-silent-handler
             logger.warning("Error during matplotlib figure cleanup: %s", cleanup_error)
         try:
             plt.clf()
             plt.cla()
-        except (RuntimeError, ValueError, TypeError) as cleanup_error:
+        except (
+            RuntimeError,
+            ValueError,
+            TypeError,
+        ) as cleanup_error:  # Expected data validation or parsing failure  # policy_guard: allow-silent-handler
             logger.warning("Error during matplotlib state cleanup: %s", cleanup_error)

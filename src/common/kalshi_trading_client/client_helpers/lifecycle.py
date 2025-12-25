@@ -30,7 +30,7 @@ class LifecycleManager:
         try:
             await kalshi_client.close()
             logger.info("[KalshiTradingClient] Trading client closed")
-        except CLEANUP_ERRORS as exc:  # policy_guard: allow-silent-handler
+        except CLEANUP_ERRORS as exc:  # Expected exception in operation  # policy_guard: allow-silent-handler
             logger.warning(
                 "[KalshiTradingClient] Error during close (%s): %s",
                 type(exc).__name__,

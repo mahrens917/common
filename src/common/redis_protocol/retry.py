@@ -106,7 +106,7 @@ async def execute_with_retry(
     for attempt in range(1, max_attempts + 1):
         try:
             return await operation(attempt)
-        except RedisFatalError:  # policy_guard: allow-silent-handler
+        except RedisFatalError:
             raise
         except policy.retry_exceptions as exc:
             if attempt >= max_attempts:

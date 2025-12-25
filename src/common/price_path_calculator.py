@@ -1,9 +1,12 @@
 from __future__ import annotations
 
+import logging
 import time
 from typing import List, Tuple
 
 from .price_path_calculator_helpers.config import PricePathCalculatorConfig
+
+logger = logging.getLogger(__name__)
 from .price_path_calculator_helpers.dependencies_factory import (
     PricePathCalculatorDependenciesFactory,
 )
@@ -114,7 +117,6 @@ class MostProbablePricePathCalculator:
                 ValueError,
                 RuntimeError,
                 OSError,
-                Exception,
             ) as e:  # pragma: no cover - best-effort logging upstream
                 raise PricePathComputationError(FAILED_TO_GENERATE_METRICS_TEMPLATE.format(currency.upper())) from e
 
@@ -130,7 +132,12 @@ class MostProbablePricePathCalculator:
             if index % interval == 0 or index == total_steps:
                 try:
                     self._progress_callback(index, total_steps)
-                except (RuntimeError, ValueError, TypeError, Exception):
+                except (
+                    RuntimeError,
+                    ValueError,
+                    TypeError,
+                ):  # Expected data validation or parsing failure  # policy_guard: allow-silent-handler
+                    logger.warning("Expected data validation or parsing failure")
                     break
 
     def _generate_prediction_timeline(self, horizon_days: float):

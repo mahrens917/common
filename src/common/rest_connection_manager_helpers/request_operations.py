@@ -6,6 +6,8 @@ from typing import Any, Dict, Optional
 
 import aiohttp
 
+logger = logging.getLogger(__name__)
+
 # Constants
 HTTP_SUCCESS_MIN = 200  # Minimum HTTP status code for success
 HTTP_CLIENT_ERROR_MIN = 400  # Minimum HTTP status code for client errors
@@ -45,12 +47,12 @@ class RESTRequestOperations:
 
             response = await session.request(method, url, **kwargs)
 
-        except aiohttp.ClientError:  # policy_guard: allow-silent-handler
+        except aiohttp.ClientError:  # Expected exception, returning default value  # policy_guard: allow-silent-handler
             self.logger.exception("HTTP request failed")
             if self.health_monitor:
                 self.health_monitor.record_failure()
             return None
-        except (asyncio.TimeoutError, OSError, RuntimeError):  # policy_guard: allow-silent-handler
+        except (asyncio.TimeoutError, OSError, RuntimeError):  # Transient network/connection failure  # policy_guard: allow-silent-handler
             self.logger.exception("Unexpected error making request")
             if self.health_monitor:
                 self.health_monitor.record_failure()
@@ -63,7 +65,8 @@ class RESTRequestOperations:
         """Get authentication headers from handler."""
         try:
             return self.auth_handler(method, endpoint)
-        except TypeError:  # policy_guard: allow-silent-handler
+        except TypeError:  # Expected data validation or parsing failure  # policy_guard: allow-silent-handler
+            logger.warning("Expected data validation or parsing failure")
             return self.auth_handler()
 
     def _record_response_health(self, response: aiohttp.ClientResponse) -> None:
@@ -94,7 +97,12 @@ class RESTRequestOperations:
                     self.logger.warning("Expected JSON but got %s", response.content_type)
                     return None
 
-        except (aiohttp.ContentTypeError, ValueError, RuntimeError, SyntaxError):  # policy_guard: allow-silent-handler
+        except (
+            aiohttp.ContentTypeError,
+            ValueError,
+            RuntimeError,
+            SyntaxError,
+        ):  # Expected data validation or parsing failure  # policy_guard: allow-silent-handler
             self.logger.exception(f"Failed to parse JSON response: ")
             if self.health_monitor and status < HTTP_CLIENT_ERROR_MIN:
                 self.health_monitor.record_failure()

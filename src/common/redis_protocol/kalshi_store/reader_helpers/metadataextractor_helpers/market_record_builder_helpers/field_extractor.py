@@ -29,7 +29,7 @@ def extract_and_merge_metadata(raw_hash: Dict[str, Any], market_ticker: str) -> 
     if metadata_payload:
         try:
             metadata = orjson.loads(metadata_payload)
-        except orjson.JSONDecodeError:  # policy_guard: allow-silent-handler
+        except orjson.JSONDecodeError:  # Expected exception in operation  # policy_guard: allow-silent-handler
             logger.debug("Failed to decode metadata JSON for %s", market_ticker)
 
     combined: Dict[str, Any] = {}
@@ -79,7 +79,7 @@ def extract_and_validate_close_time(combined: Dict[str, Any], market_ticker: str
     normalized_close = timestamp_normalizer.normalize_timestamp(close_time_value) or str(close_time_value)
     try:
         close_dt = datetime.fromisoformat(normalized_close.replace("Z", "+00:00"))
-    except ValueError:  # policy_guard: allow-silent-handler
+    except ValueError:  # Expected data validation or parsing failure  # policy_guard: allow-silent-handler
         close_dt = None
 
     if close_dt and close_dt <= now:

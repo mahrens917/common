@@ -30,7 +30,7 @@ class MarketKeyBuilder:
 
         try:
             expiry_dt = parse_expiry_datetime(instrument.expiry)
-        except ValueError as exc:  # policy_guard: allow-silent-handler
+        except ValueError as exc:
             raise ValidationError(f"Invalid expiry '{instrument.expiry}'") from exc
 
         descriptor = _build_descriptor(instrument, expiry_dt)

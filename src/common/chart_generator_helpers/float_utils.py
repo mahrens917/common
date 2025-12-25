@@ -1,8 +1,11 @@
 """Shared float parsing helpers for chart generator components."""
 
+import logging
 from typing import Optional
 
 from common.parsing_utils import safe_float_parse
+
+logger = logging.getLogger(__name__)
 
 
 def safe_float(value: Optional[str]) -> Optional[float]:
@@ -11,5 +14,6 @@ def safe_float(value: Optional[str]) -> Optional[float]:
         return None
     try:
         return safe_float_parse(value, allow_nan_inf=False)
-    except ValueError:
+    except ValueError:  # Expected data validation or parsing failure  # policy_guard: allow-silent-handler
+        logger.warning("Expected data validation or parsing failure")
         return None

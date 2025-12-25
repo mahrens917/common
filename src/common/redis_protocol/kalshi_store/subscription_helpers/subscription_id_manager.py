@@ -33,7 +33,7 @@ class SubscriptionIdManager:
                 continue
             try:
                 payload[f"{prefix}{market}"] = str(sub_id)
-            except (TypeError, ValueError):  # policy_guard: allow-silent-handler
+            except (TypeError, ValueError):  # Expected data validation or parsing failure  # policy_guard: allow-silent-handler
                 logger.debug(
                     "Skipping subscription id for %s due to serialization failure",
                     market,
@@ -43,7 +43,7 @@ class SubscriptionIdManager:
             return
         try:
             await redis.hset(self.subscription_ids_key, mapping=payload)
-        except REDIS_ERRORS as exc:  # policy_guard: allow-silent-handler
+        except REDIS_ERRORS as exc:
             logger.error("Error recording subscription ids: %s", exc, exc_info=True)
             raise
 
@@ -58,7 +58,7 @@ class SubscriptionIdManager:
 
         try:
             raw_values = await ensure_awaitable(redis.hmget(self.subscription_ids_key, field_names))
-        except REDIS_ERRORS as exc:  # policy_guard: allow-silent-handler
+        except REDIS_ERRORS as exc:
             logger.error("Error fetching subscription ids: %s", exc, exc_info=True)
             raise
 
@@ -82,6 +82,6 @@ class SubscriptionIdManager:
                 self.subscription_ids_key,
                 *(f"{prefix}{market}" for market in markets),
             )
-        except REDIS_ERRORS as exc:  # policy_guard: allow-silent-handler
+        except REDIS_ERRORS as exc:
             logger.error("Error clearing subscription ids: %s", exc, exc_info=True)
             raise

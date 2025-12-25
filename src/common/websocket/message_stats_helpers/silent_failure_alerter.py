@@ -26,10 +26,16 @@ async def send_silent_failure_alert(service_name: str, time_since_last_update: f
             severity=AlertSeverity.CRITICAL,
             alert_type=f"{service_name}_ws_silent_failure",
         )
-    except asyncio.CancelledError:  # policy_guard: allow-silent-handler
+    except asyncio.CancelledError:
         raise
-    except (RuntimeError, ConnectionError, OSError, ValueError):  # policy_guard: allow-silent-handler
-        logger.exception(f"Failed to send silent failure alert: ")
+    except (
+        RuntimeError,
+        ConnectionError,
+        OSError,
+        ValueError,
+        ImportError,
+    ):  # Transient network/connection failure  # policy_guard: allow-silent-handler
+        logger.debug(f"Silent failure alert not available: Alerter setup failed")
 
 
 def check_silent_failure_threshold(

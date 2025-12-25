@@ -99,7 +99,7 @@ async def _apply_side_delta(
     """Load the current side snapshot, apply the delta, and persist the result."""
     try:
         side_json = await ensure_awaitable(redis.hget(market_key, side_field))
-    except REDIS_ERRORS as exc:  # policy_guard: allow-silent-handler
+    except REDIS_ERRORS as exc:
         logger.error("Redis error retrieving %s for %s: %s", side_field, market_key, exc, exc_info=True)
         raise
 

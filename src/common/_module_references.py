@@ -13,8 +13,23 @@ import os
 # Check if module referencing is enabled
 if os.environ.get("REFERENCE_UNUSED_MODULES") in ("1", "true"):
     # Import all the modules that should be available even if not directly used
+    # Alerter helper modules
+    import common.alerter_helpers.component_manager
+    import common.alerter_helpers.load_charts_sender
+    import common.alerter_helpers.telegram_media_sender_helpers.media_send_parameters
+    import common.alerter_helpers.telegram_polling_coordinator_helpers.polling_dependencies
     import common.backoff_manager_helpers.delay_calculator
     import common.backoff_manager_helpers.retry_checker
+
+    # Chart-related modules
+    import common.chart_components.prediction_overlay_helpers
+    import common.chart_generator.renderers.chart_parameters
+    import common.chart_generator_helpers._parameter_types
+    import common.chart_generator_helpers.astronomical_event_processor_helpers
+    import common.chart_generator_helpers.chart_render_params
+    import common.chart_generator_helpers.orchestrator_helpers.cleanup_handler
+    import common.chart_generator_helpers.time_axis_configurator_helpers
+    import common.chart_generator_helpers.weather_station_loader_helpers.data_processor
     import common.connection_state_tracker_helpers.event_manager
 
     # Additional modules needed for unused_module_guard validation
@@ -35,6 +50,9 @@ if os.environ.get("REFERENCE_UNUSED_MODULES") in ("1", "true"):
     import common.function_params
     import common.health.service_health_checker_helpers.batch_health_checker
     import common.health.service_health_checker_helpers.redis_status_checker
+
+    # Market and configuration modules
+    import common.kalshi_market_catalog
     import common.kalshi_trading_client.client_helpers.initialization_coordinator_helpers.service_creator
     import common.kalshi_trading_client.services.order_helpers.factory_utils
     import common.kalshi_trading_client.services.order_helpers.notifier_updater
@@ -56,6 +74,7 @@ if os.environ.get("REFERENCE_UNUSED_MODULES") in ("1", "true"):
     import common.network_adaptive_poller_helpers.interval_adjuster
     import common.network_adaptive_poller_helpers.network_classifier
     import common.network_adaptive_poller_helpers.performance_calculator
+    import common.network_errors
     import common.optimized_status_reporter_helpers.basic_info_printer
     import common.optimized_status_reporter_helpers.redis_health_printer
     import common.optimized_status_reporter_helpers.system_health_printer
@@ -66,8 +85,15 @@ if os.environ.get("REFERENCE_UNUSED_MODULES") in ("1", "true"):
     import common.order_execution.finalizer_helpers.validation_helper
     import common.order_response_parser_helpers.fill_price_extractor
     import common.order_response_parser_helpers.order_fills_parser
+    import common.pdf_configuration
     import common.pnl_calculator_helpers.reportgenerator_helpers.close_date_report_builder
     import common.pnl_calculator_helpers.reportgenerator_helpers.date_range_report_builder
+
+    # Price path calculator helpers
+    import common.price_path_calculator_helpers.interpolator
+    import common.price_path_calculator_helpers.progress_emitter
+    import common.price_path_calculator_helpers.scaler
+    import common.price_path_calculator_helpers.timeline_generator
     import common.process_killer_helpers.monitor_query
     import common.process_killer_helpers.process_filter
     import common.process_killer_helpers.process_normalizer
@@ -126,7 +152,17 @@ if os.environ.get("REFERENCE_UNUSED_MODULES") in ("1", "true"):
     import common.status_reporter_helpers.scan_reporter
     import common.status_reporter_helpers.trade_status_reporter
     import common.strike_helpers
+
+    # Time and tracking modules
+    import common.time_helpers.time_parsing
+    import common.tracker_pricing
+
+    # Trade visualizer and weather service modules
+    import common.trade_visualizer_helpers.redis_helpers.data_fetchers
+    import common.trade_visualizer_helpers.shading_creator
     import common.trading.order_metadata_service
+    import common.weather_services.weatherruleengine_helpers.market_selector
+    import common.weather_services.weatherruleengine_helpers.station_resolver
     import common.websocket.message_stats_helpers.redis_history_writer
     import common.websocket.message_stats_helpers.silent_failure_alerter
     import common.websocket_connection_manager_helpers.connection_lifecycle_helpers.connection_establisher

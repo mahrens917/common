@@ -61,7 +61,7 @@ class DailyPnLCollector:
 
             else:
                 return daily_pnl_percentage
-        except DATA_ACCESS_ERRORS as exc:  # policy_guard: allow-silent-handler
+        except DATA_ACCESS_ERRORS as exc:
             logger.error(
                 "Error getting daily P&L percentage series (%s): %s",
                 type(exc).__name__,
@@ -93,6 +93,6 @@ class DailyPnLCollector:
 
             else:
                 return daily_pnl
-        except DATA_ACCESS_ERRORS as exc:  # policy_guard: allow-silent-handler
+        except DATA_ACCESS_ERRORS as exc:
             logger.error("Error getting daily P&L series (%s): %s", type(exc).__name__, exc, exc_info=True)
             raise

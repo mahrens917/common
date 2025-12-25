@@ -28,7 +28,7 @@ class SnapshotManager:
         try:
             await ensure_awaitable(redis.bgsave())
             logger.info("Initiated background save for initial RDB file")
-        except REDIS_ERRORS as exc:  # policy_guard: allow-silent-handler
+        except REDIS_ERRORS as exc:  # Expected exception, returning default value  # policy_guard: allow-silent-handler
             logger.warning("Failed to initiate background save: %s", exc)
             return False
         else:
@@ -71,7 +71,7 @@ class SnapshotManager:
 
             logger.debug(f"Configured RDB save points: {save_config}")
 
-        except REDIS_ERRORS:  # policy_guard: allow-silent-handler
+        except REDIS_ERRORS:  # Expected exception, returning default value  # policy_guard: allow-silent-handler
             logger.warning(f"Failed to configure save points")
             return False
         else:

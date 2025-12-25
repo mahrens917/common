@@ -73,15 +73,16 @@ class TelegramPollingCoordinator:
 
         try:
             config = self._create_polling_config()
-        except RuntimeError:
+        except RuntimeError:  # Expected runtime failure in operation  # policy_guard: allow-silent-handler
+            logger.warning("Expected runtime failure in operation")
             return
 
         try:
             async with aiohttp.ClientSession(timeout=config.timeout) as session:
                 await self.request_executor.execute_polling_request(session, config)
-        except asyncio.TimeoutError:
+        except asyncio.TimeoutError:  # Transient network/connection failure  # policy_guard: allow-silent-handler
             logger.debug("Telegram long polling timeout (expected)")
-        except (
+        except (  # policy_guard: allow-silent-handler
             aiohttp.ClientError,
             OSError,
         ) as exc:

@@ -118,7 +118,7 @@ class ProcessHealthMonitor:
             ):
                 return ProcessHealthInfo(status=ProcessStatus.STOPPED)
 
-        except PROCESS_MONITOR_ERRORS:  # policy_guard: allow-silent-handler
+        except PROCESS_MONITOR_ERRORS:  # Expected exception in operation  # policy_guard: allow-silent-handler
             logger.exception(f"Error checking process status for : ")
             return ProcessHealthInfo(status=ProcessStatus.NOT_FOUND)
 

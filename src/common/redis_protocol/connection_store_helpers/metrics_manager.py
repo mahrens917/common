@@ -39,7 +39,7 @@ class MetricsManager:
 
         try:
             metrics_json = json.dumps(metrics)
-        except SERIALIZATION_ERRORS:  # policy_guard: allow-silent-handler
+        except SERIALIZATION_ERRORS:  # Expected exception, returning default value  # policy_guard: allow-silent-handler
             logger.error(
                 "Failed to serialise connection metrics for %s",
                 service_name,
@@ -52,7 +52,7 @@ class MetricsManager:
             await ensure_awaitable(client.set(metrics_key, metrics_json))
             await ensure_awaitable(client.expire(metrics_key, 3600))
             logger.debug("Stored connection metrics for %s", service_name)
-        except REDIS_ERRORS:  # policy_guard: allow-silent-handler
+        except REDIS_ERRORS:  # Expected exception, returning default value  # policy_guard: allow-silent-handler
             logger.error(
                 "Failed to store connection metrics for %s",
                 service_name,
@@ -77,7 +77,7 @@ class MetricsManager:
 
         try:
             metrics_json = await ensure_awaitable(client.get(metrics_key))
-        except REDIS_ERRORS:  # policy_guard: allow-silent-handler
+        except REDIS_ERRORS:  # Expected exception, returning default value  # policy_guard: allow-silent-handler
             logger.error(
                 "Failed to get connection metrics for %s",
                 service_name,
@@ -90,7 +90,7 @@ class MetricsManager:
 
         try:
             return json.loads(metrics_json)
-        except JSON_ERRORS:  # policy_guard: allow-silent-handler
+        except JSON_ERRORS:  # Expected exception, returning default value  # policy_guard: allow-silent-handler
             logger.error(
                 "Failed to decode connection metrics for %s",
                 service_name,

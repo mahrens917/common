@@ -40,7 +40,7 @@ async def get_subscribed_markets(redis: Redis, subscriptions_key: str) -> Set[st
             parts = key_str.split(":", 1)
             if len(parts) == _CONST_2:
                 markets.add(parts[1])
-    except REDIS_ERRORS as exc:  # policy_guard: allow-silent-handler
+    except REDIS_ERRORS as exc:
         logger.error("Error getting subscribed markets: %s", exc, exc_info=True)
         raise
     else:

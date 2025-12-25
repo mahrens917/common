@@ -8,8 +8,8 @@ import os
 from pathlib import Path
 from typing import Any, Dict
 
-from common.config_loader import BaseConfigLoader
 from common.chart_generator.exceptions import InsufficientDataError
+from common.config_loader import BaseConfigLoader
 
 logger = logging.getLogger("src.monitor.chart_generator")
 _CONFIG_DIR = Path("config")

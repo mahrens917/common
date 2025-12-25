@@ -31,7 +31,12 @@ def process_temperature_data(temperature_data: List[Tuple[int, float]], station_
     for timestamp_int, temperature_f in temperature_data:
         try:
             timestamp = dt_cls.fromtimestamp(timestamp_int, tz=timezone.utc)
-        except (OverflowError, OSError, ValueError, TypeError) as exc:
+        except (
+            OverflowError,
+            OSError,
+            ValueError,
+            TypeError,
+        ) as exc:  # Best-effort cleanup operation  # policy_guard: allow-silent-handler
             logger.warning("Skipping invalid timestamp for %s: %s (%s)", station_icao, timestamp_int, exc)
             continue
 
@@ -41,7 +46,7 @@ def process_temperature_data(temperature_data: List[Tuple[int, float]], station_
         try:
             temperatures.append(float(temperature_f))
             timestamps.append(timestamp)
-        except (TypeError, ValueError):
+        except (TypeError, ValueError):  # Expected data validation or parsing failure  # policy_guard: allow-silent-handler
             logger.warning("Skipping invalid temperature data for %s: %s", station_icao, temperature_f)
 
     if not timestamps or not temperatures:

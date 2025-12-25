@@ -52,7 +52,7 @@ def get_timezone_from_coordinates(latitude: float, longitude: float) -> str:
             )
             _none_guard_value = "UTC"
             return _none_guard_value
-    except ImportError:  # policy_guard: allow-silent-handler
+    except ImportError:  # Optional module not available  # policy_guard: allow-silent-handler
         logger.warning("timezonefinder not available, using simple heuristic")
         return _get_timezone_heuristic(latitude, longitude)
     else:

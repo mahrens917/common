@@ -40,7 +40,7 @@ class PersistenceCoordinator:
             data_dir = Path(self.IMMUTABLE_CONFIGS["dir"])
             data_dir.mkdir(exist_ok=True)
             logger.info("Ensured data directory exists: %s", data_dir.absolute())
-        except OSError:  # policy_guard: allow-silent-handler
+        except OSError:  # Best-effort cleanup operation  # policy_guard: allow-silent-handler
             logger.exception("Failed to create data directory")
             return False
         else:
@@ -56,7 +56,7 @@ class PersistenceCoordinator:
                 await ensure_awaitable(redis.config_set(key, value))
                 config_applied += 1
                 logger.debug("Applied Redis config: %s = %s", key, value)
-            except REDIS_ERRORS as exc:  # policy_guard: allow-silent-handler
+            except REDIS_ERRORS as exc:  # Expected exception in operation  # policy_guard: allow-silent-handler
                 config_failed += 1
                 error_msg = str(exc)
                 if "immutable" in error_msg or "protected" in error_msg:
@@ -74,7 +74,7 @@ class PersistenceCoordinator:
         try:
             await ensure_awaitable(redis.config_rewrite())
             logger.info("Redis configuration rewritten to disk")
-        except REDIS_ERRORS as exc:  # policy_guard: allow-silent-handler
+        except REDIS_ERRORS as exc:  # Expected exception, returning default value  # policy_guard: allow-silent-handler
             logger.warning("Failed to rewrite Redis config to disk: %s", exc)
             return False
         else:

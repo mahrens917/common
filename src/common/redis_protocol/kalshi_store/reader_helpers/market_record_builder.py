@@ -53,7 +53,7 @@ async def build_market_records(
             market_key = get_market_key_func(market_ticker)
             raw_hash = await ensure_awaitable(redis.hgetall(market_key))
             record = metadata_extractor.create_market_record(market_ticker, raw_hash, currency=currency, now=current_time)
-        except MarketSkip as skip:  # policy_guard: allow-silent-handler
+        except MarketSkip as skip:  # Expected exception in loop, continuing iteration  # policy_guard: allow-silent-handler
             skip_reasons[skip.reason] += 1
             logger_instance.debug("Skipping market %s: %s", market_ticker, skip)
             continue

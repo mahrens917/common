@@ -76,7 +76,7 @@ async def execute_polling_workflow(
             timeout_seconds=timeout_seconds,
             operation_name=operation_name,
         )
-    except KalshiOrderPollingError:  # policy_guard: allow-silent-handler
+    except KalshiOrderPollingError:
         logger.exception(
             "[%s] Polling failed for order %s",
             operation_name,
@@ -107,14 +107,14 @@ async def finalize_polling_result(
 
     try:
         await trade_finalizer.finalize(order_request, order_after_polling, outcome)
-    except KalshiTradePersistenceError:  # policy_guard: allow-silent-handler
+    except KalshiTradePersistenceError:
         logger.exception(
             "[%s] Trade persistence failed for order %s",
             operation_name,
             order_after_polling.order_id,
         )
         raise
-    except KalshiTradeNotificationError:  # policy_guard: allow-silent-handler
+    except KalshiTradeNotificationError:
         logger.exception(
             "[%s] Trade notification failed for order %s",
             operation_name,

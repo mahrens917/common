@@ -83,7 +83,7 @@ class ObservationTracker:
         if safety_margin_value is not None:
             try:
                 safety_margin = float(safety_margin_value)
-            except (TypeError, ValueError):  # policy_guard: allow-silent-handler
+            except (TypeError, ValueError):  # Expected data validation or parsing failure  # policy_guard: allow-silent-handler
                 safety_margin = 0.5
         max_c_float = float(max_c) - safety_margin
 

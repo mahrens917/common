@@ -46,10 +46,10 @@ class SpotPriceFetcher:
             market_data = await self._market_data_retriever.get_spot_market_data(currency)
             spot_price = self._price_calculator.calculate_spot_price(market_data, currency)
 
-        except ValueError:  # policy_guard: allow-silent-handler
+        except ValueError:
             logger.exception("Invalid market data for %s: %s")
             raise
-        except REDIS_ERRORS as exc:  # policy_guard: allow-silent-handler
+        except REDIS_ERRORS as exc:
             logger.error("Error getting spot price for %s: %s", currency, exc, exc_info=True)
             raise
         else:

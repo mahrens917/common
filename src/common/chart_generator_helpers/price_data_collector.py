@@ -56,7 +56,7 @@ class PriceDataCollector:
                     dt = datetime.fromtimestamp(timestamp_int, tz=timezone.utc)
                     timestamps.append(dt)
                     prices.append(float(price_float))
-                except (
+                except (  # policy_guard: allow-silent-handler
                     ValueError,
                     TypeError,
                 ):

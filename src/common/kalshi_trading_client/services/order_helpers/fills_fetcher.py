@@ -19,7 +19,7 @@ class FillsFetcher:
         """Fetch fills for a specific order."""
         try:
             return await self._client.get_fills(order_id)
-        except CLIENT_API_ERRORS as exc:  # policy_guard: allow-silent-handler
+        except CLIENT_API_ERRORS as exc:
             logger.exception(
                 "[KalshiTradingClient] Failed to get fills for order %s (%s)",
                 order_id,
@@ -37,7 +37,7 @@ class FillsFetcher:
         """Fetch all fills subject to optional filters."""
         try:
             return await self._client.get_all_fills(min_ts, max_ts, ticker, cursor)
-        except CLIENT_API_ERRORS as exc:  # policy_guard: allow-silent-handler
+        except CLIENT_API_ERRORS as exc:
             logger.exception(
                 "[KalshiTradingClient] Failed to get all fills (%s)",
                 type(exc).__name__,

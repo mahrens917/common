@@ -37,7 +37,7 @@ class DependencyErrorPattern:
                 try:
                     compiled = re.compile(pattern, re.IGNORECASE)
                     self.compiled_patterns.append(compiled)
-                except re.error:  # policy_guard: allow-silent-handler
+                except re.error:  # Expected exception in operation  # policy_guard: allow-silent-handler
                     logger.exception(
                         "Invalid regex pattern '%s' for dependency %s",
                         pattern,
@@ -64,7 +64,7 @@ class PatternMatcher:
                 if pattern.search(error_message):
                     logger.debug("Error message matches %s pattern: %s", dependency_name, pattern.pattern)
                     return True
-            except re.error as exc:  # policy_guard: allow-silent-handler
+            except re.error as exc:  # Expected exception in operation  # policy_guard: allow-silent-handler
                 pattern_text = getattr(pattern, "pattern", _MISSING_ATTRIBUTE)
                 if pattern_text is _MISSING_ATTRIBUTE:
                     pattern_text = "<pattern>"

@@ -34,6 +34,6 @@ async def get_market_field(redis: Redis, market_key: str, ticker: str, field: st
 
         else:
             return ""
-    except REDIS_ERRORS as exc:  # policy_guard: allow-silent-handler
+    except REDIS_ERRORS as exc:  # Expected exception, returning default value  # policy_guard: allow-silent-handler
         logger.error("Redis error getting field %s for %s: %s", field, ticker, exc, exc_info=True)
         return ""

@@ -24,7 +24,7 @@ async def store_order_metadata_safely(order_response, order_request, get_trade_s
             weather_station=metadata_station,
         )
         logger.debug(f"[{operation_name}] Stored order metadata for {order_response.order_id}")
-    except TradeStoreError as metadata_error:  # policy_guard: allow-silent-handler
+    except TradeStoreError as metadata_error:
         raise KalshiTradePersistenceError(
             f"Failed to store order metadata: {metadata_error}",
             order_id=order_response.order_id,

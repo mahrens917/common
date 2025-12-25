@@ -61,9 +61,9 @@ class BatchTimer:
             logger.debug(f"{self.name}: Timer expired - Triggering timeout callback")
             await self.on_timeout()
 
-        except asyncio.CancelledError:  # policy_guard: allow-silent-handler
+        except asyncio.CancelledError:  # Expected during task cancellation  # policy_guard: allow-silent-handler
             pass  # Timer cancelled, probably during shutdown
-        except BATCH_PROCESS_ERRORS as exc:  # policy_guard: allow-silent-handler
+        except BATCH_PROCESS_ERRORS as exc:  # Expected exception in operation  # policy_guard: allow-silent-handler
             logger.exception(
                 "Error in batch timer for %s (%s)",
                 self.name,
@@ -80,7 +80,8 @@ class BatchTimer:
         if self._task and not self._task.done():
             try:
                 await self._task
-            except asyncio.CancelledError:  # policy_guard: allow-silent-handler
+            except asyncio.CancelledError:  # Expected during task cancellation  # policy_guard: allow-silent-handler
+                logger.debug("Expected during task cancellation")
                 pass
 
     def is_running(self) -> bool:

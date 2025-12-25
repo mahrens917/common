@@ -57,10 +57,14 @@ class ScrapingOperations:
                     return content
                 self.logger.warning("Scraping failed for %s: HTTP %s", url, response.status)
                 return None
-        except aiohttp.ClientError:  # policy_guard: allow-silent-handler
+        except aiohttp.ClientError:  # Expected exception, returning default value  # policy_guard: allow-silent-handler
             self.logger.exception("Scraping client error for %s", url)
             return None
-        except (RuntimeError, ValueError, UnicodeDecodeError):  # policy_guard: allow-silent-handler
+        except (
+            RuntimeError,
+            ValueError,
+            UnicodeDecodeError,
+        ):  # Expected data validation or parsing failure  # policy_guard: allow-silent-handler
             self.logger.exception("Unexpected scraping error for %s", url)
             return None
 

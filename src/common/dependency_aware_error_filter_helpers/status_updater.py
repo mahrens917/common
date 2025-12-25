@@ -30,7 +30,7 @@ class StatusUpdater:
             if dependencies:
                 await ensure_awaitable(redis.sadd(dependencies_key, *dependencies))
             logger.debug("Updated dependencies for %s: %s", service_name, dependencies)
-        except (ConnectionError, OSError, RuntimeError):  # policy_guard: allow-silent-handler
+        except (ConnectionError, OSError, RuntimeError):  # Transient network/connection failure  # policy_guard: allow-silent-handler
             logger.exception("Failed to update dependencies for %s", service_name)
 
     @staticmethod
@@ -46,7 +46,7 @@ class StatusUpdater:
         try:
             await ensure_awaitable(redis.hset(status_key, dependency_name, status))
             logger.debug("Updated dependency status: %s:%s = %s", service_name, dependency_name, status)
-        except (ConnectionError, OSError, RuntimeError):  # policy_guard: allow-silent-handler
+        except (ConnectionError, OSError, RuntimeError):  # Transient network/connection failure  # policy_guard: allow-silent-handler
             logger.exception(
                 "Failed to update dependency status for %s:%s",
                 service_name,

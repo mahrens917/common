@@ -79,7 +79,7 @@ class TimestampCrossingEvaluator(_BaseEvaluator):
 
             else:
                 return True, boundary
-        except (ValueError, AttributeError, KeyError) as exc:  # policy_guard: allow-silent-handler
+        except (ValueError, AttributeError, KeyError) as exc:
             logger.error(
                 f"Failed to parse timestamp '{previous_timestamp_raw}' for field '{field_name}'",
                 exc_info=True,

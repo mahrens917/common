@@ -60,7 +60,7 @@ class CityTokenResolver:
         try:
             mapping_data = self._load_mapping_data()
             return self._extract_tokens_for_station(icao_code, mapping_data)
-        except (
+        except (  # policy_guard: allow-silent-handler
             OSError,
             json.JSONDecodeError,
             KeyError,

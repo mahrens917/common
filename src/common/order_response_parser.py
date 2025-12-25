@@ -314,7 +314,7 @@ def _parse_fill_timestamp(fill_data: Dict[str, Any], order_timestamp: datetime) 
     raw_timestamp = str(fill_data["timestamp"]).replace("Z", "+00:00")
     try:
         return datetime.fromisoformat(raw_timestamp)
-    except (ValueError, AttributeError) as exc:  # policy_guard: allow-silent-handler
+    except (ValueError, AttributeError) as exc:
         raise ValueError("Invalid fill timestamp format") from exc
 
 
@@ -355,7 +355,7 @@ def _parse_order_enums(
 def _parse_enum_value(value: Any, enum_cls: Type[Any], field_name: str) -> Any:
     try:
         return enum_cls(str(value).lower())
-    except ValueError as exc:  # policy_guard: allow-silent-handler
+    except ValueError as exc:
         raise ValueError(f"Invalid order {field_name}") from exc
 
 

@@ -37,7 +37,7 @@ class CollectionTracker:
         for name, size_getter in self.tracked_collections.items():
             try:
                 collection_sizes[name] = size_getter()
-            except COLLECTION_ERRORS as e:  # policy_guard: allow-silent-handler
+            except COLLECTION_ERRORS as e:  # Expected exception in operation  # policy_guard: allow-silent-handler
                 logger.warning(f"Failed to get size for collection '{name}': {e}")
                 collection_sizes[name] = -1
         return collection_sizes

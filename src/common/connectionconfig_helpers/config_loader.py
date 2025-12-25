@@ -3,12 +3,15 @@
 Delegates to BaseConfigLoader for JSON loading operations.
 """
 
+import logging
 from typing import Any, Dict, Optional
 
 from common.config import env_float, env_int
 from common.config.errors import ConfigurationError
 from common.config_loader import load_config
 from common.exceptions import ConfigurationError
+
+logger = logging.getLogger(__name__)
 
 _RECOMMENDED_INT_VALUES = {
     "CONNECTION_TIMEOUT_SECONDS": 30,
@@ -80,7 +83,8 @@ def load_websocket_config() -> Dict[str, Any]:
     """
     try:
         return load_config("websocket_config.json")
-    except FileNotFoundError:  # policy_guard: allow-silent-handler
+    except FileNotFoundError:  # Expected exception in operation  # policy_guard: allow-silent-handler
+        logger.debug("Expected exception in operation")
         return {}
 
 
@@ -100,7 +104,7 @@ def load_weather_config() -> Dict[str, Any]:
     """
     try:
         config = load_config("weather_config.json")
-    except FileNotFoundError as exc:  # policy_guard: allow-silent-handler
+    except FileNotFoundError as exc:
         raise FileNotFoundError("Weather config file not found") from exc
 
     try:
@@ -115,5 +119,5 @@ def load_weather_config() -> Dict[str, Any]:
             "health_check_interval_seconds": config["health_check_interval_seconds"],
             "subscription_timeout_seconds": config["subscription_timeout_seconds"],
         }
-    except KeyError as exc:  # policy_guard: allow-silent-handler
+    except KeyError as exc:
         raise ConfigurationError("Invalid weather config file: missing required field") from exc

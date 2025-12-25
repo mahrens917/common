@@ -20,7 +20,7 @@ class ArrayValidator:
             raise DataIntegrityError(f"None array not allowed for {variable_name}")
         try:
             return np.asarray(array)
-        except (TypeError, ValueError) as exc:  # policy_guard: allow-silent-handler
+        except (TypeError, ValueError) as exc:
             raise DataIntegrityError(f"Cannot convert {variable_name} to numpy array") from exc
 
     @staticmethod

@@ -34,7 +34,7 @@ class WeatherStationResolver:
     def _load(self) -> Dict[str, Dict[str, Any]]:
         try:
             mapping = self._loader()
-        except WeatherConfigError as exc:  # policy_guard: allow-silent-handler
+        except WeatherConfigError as exc:
             raise WeatherStationMappingError(str(exc)) from exc
 
         self._logger.debug("Loaded weather station mapping for %d cities", len(mapping))

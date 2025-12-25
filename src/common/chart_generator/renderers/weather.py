@@ -76,7 +76,7 @@ class WeatherChartRendererMixin(UnifiedChartRendererMixin):
         if station_coordinates and len(station_coordinates) == _COORDINATE_TUPLE_LENGTH:
             try:
                 sanitized = (float(station_coordinates[0]), float(station_coordinates[1]))
-            except (TypeError, ValueError):
+            except (TypeError, ValueError):  # Expected data validation or parsing failure  # policy_guard: allow-silent-handler
                 logger.warning("Invalid coordinates provided for %s, dawn/dusk shading disabled", station_icao)
                 return None
             logger.info("Using coordinates for %s: %s", station_icao, sanitized)

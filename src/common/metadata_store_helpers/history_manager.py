@@ -64,7 +64,7 @@ async def _load_history_hash(client: RedisClient, redis_key: str, service_name: 
     """Fetch all history entries for a service."""
     try:
         return await ensure_awaitable(client.hgetall(redis_key))
-    except REDIS_ERRORS as exc:  # policy_guard: allow-silent-handler
+    except REDIS_ERRORS as exc:
         raise RuntimeError(f"Failed to load history for service '{service_name}'") from exc
 
 
@@ -98,7 +98,7 @@ def _parse_history_entry(datetime_raw: Any, value_raw: Any, service_name: str) -
     try:
         timestamp = _coerce_timestamp(datetime_str)
         messages_per_minute = float(value_str)
-    except (ValueError, TypeError) as exc:  # policy_guard: allow-silent-handler
+    except (ValueError, TypeError) as exc:  # Expected data validation or parsing failure  # policy_guard: allow-silent-handler
         logger.warning(
             "Skipping invalid history data for %s: %s=%s (%s)",
             service_name,

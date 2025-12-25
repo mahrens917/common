@@ -2,13 +2,8 @@ from __future__ import annotations
 
 """Local timezone calculations for weather stations."""
 
-import sys
+import zoneinfo
 from datetime import datetime, timezone
-
-if sys.version_info >= (3, 9):
-    import zoneinfo
-else:
-    from backports import zoneinfo
 from typing import Optional
 
 from ..time_helpers.location import get_timezone_from_coordinates
@@ -35,7 +30,7 @@ def calculate_local_midnight_utc(latitude: float, longitude: float, date: dateti
 
     try:
         local_tz = zoneinfo.ZoneInfo(timezone_name)
-    except (zoneinfo.ZoneInfoNotFoundError, ValueError) as exc:  # policy_guard: allow-silent-handler
+    except (zoneinfo.ZoneInfoNotFoundError, ValueError) as exc:
         logger.exception(
             "Failed to load timezone %s for coordinates lat=%s, lon=%s: %s",
             timezone_name,

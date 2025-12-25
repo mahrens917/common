@@ -45,14 +45,14 @@ async def get_probability_data(
     currency_upper = currency.upper()
     try:
         rounded_strike = normalise_strike_value(strike)
-    except ValueError:  # policy_guard: allow-silent-handler
+    except ValueError:  # Expected data validation or parsing failure  # policy_guard: allow-silent-handler
         rounded_strike = strike
 
     key = f"probabilities:{currency_upper}:{expiry}:{strike_type}:{rounded_strike}"
 
     try:
         data = await ensure_awaitable(redis.hgetall(key))
-    except REDIS_ERRORS as exc:  # policy_guard: allow-silent-handler
+    except REDIS_ERRORS as exc:
         raise ProbabilityStoreError(f"Failed to get probability data for {key}: Redis error {exc}") from exc
 
     if not data:
@@ -70,7 +70,7 @@ async def get_probability_data(
 
         try:
             result[field_name] = float(value_text)
-        except ValueError:  # policy_guard: allow-silent-handler
+        except ValueError:  # Expected data validation or parsing failure  # policy_guard: allow-silent-handler
             result[field_name] = value_text
 
     if event_title is not None and result.get("event_title") != event_title:

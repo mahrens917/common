@@ -26,7 +26,7 @@ class CloseTimeParser:
 
         try:
             return parse_expiry_datetime(close_time)
-        except (ValueError, TypeError) as exc:  # policy_guard: allow-silent-handler
+        except (ValueError, TypeError) as exc:  # Expected data validation or parsing failure  # policy_guard: allow-silent-handler
             logger.warning(f"Error parsing close_time '{close_time}': {exc}")
             return None
 

@@ -68,7 +68,7 @@ class ConnectionManager:
             self._initialized = True
             logger.debug("RedisPersistenceManager Redis connection established")
 
-        except REDIS_ERRORS as exc:  # policy_guard: allow-silent-handler
+        except REDIS_ERRORS as exc:  # Expected exception, returning default value  # policy_guard: allow-silent-handler
             logger.error("Failed to establish Redis connection: %s", exc, exc_info=True)
             return False
         else:
@@ -80,7 +80,7 @@ class ConnectionManager:
             redis = self.redis
             try:
                 await redis.aclose()
-            except REDIS_ERRORS:  # policy_guard: allow-silent-handler
+            except REDIS_ERRORS:  # Expected exception in operation  # policy_guard: allow-silent-handler
                 logger.debug("Failed to close Redis client cleanly", exc_info=True)
             finally:
                 self.redis = None

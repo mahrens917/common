@@ -134,6 +134,11 @@ class TestLoadWeatherConfig:
             "connection_timeout_seconds": 30,
             "request_timeout_seconds": 15,
             "reconnection_initial_delay_seconds": 2,
+            "reconnection_max_delay_seconds": 300,
+            "reconnection_backoff_multiplier": 2.0,
+            "max_consecutive_failures": 10,
+            "health_check_interval_seconds": 60,
+            "subscription_timeout_seconds": 120,
             "extra_field": "ignored",
         }
         with patch(
@@ -145,6 +150,11 @@ class TestLoadWeatherConfig:
         assert result["connection_timeout_seconds"] == 30
         assert result["request_timeout_seconds"] == 15
         assert result["reconnection_initial_delay_seconds"] == 2
+        assert result["reconnection_max_delay_seconds"] == 300
+        assert result["reconnection_backoff_multiplier"] == 2.0
+        assert result["max_consecutive_failures"] == 10
+        assert result["health_check_interval_seconds"] == 60
+        assert result["subscription_timeout_seconds"] == 120
         assert "extra_field" not in result
 
     def test_raises_file_not_found_when_missing(self) -> None:

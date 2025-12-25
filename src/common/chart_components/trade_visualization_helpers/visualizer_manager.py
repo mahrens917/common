@@ -43,7 +43,7 @@ class VisualizerManager:
                 self._apply_shadings(ax, visualizer_instance, trade_shadings, plot_timestamps, station_icao)
         except asyncio.CancelledError:
             raise
-        except (OSError, RuntimeError, ValueError):
+        except (OSError, RuntimeError, ValueError):  # Best-effort cleanup operation  # policy_guard: allow-silent-handler
             logger.exception("Failed to add trade visualization for %s", station_icao)
         finally:
             await self._cleanup_visualizer(station_icao)
@@ -87,5 +87,10 @@ class VisualizerManager:
         if self._visualizer is not None and hasattr(self._visualizer, "close"):
             try:
                 await self._visualizer.close()
-            except (RuntimeError, ValueError, TypeError, OSError) as exc:
+            except (
+                RuntimeError,
+                ValueError,
+                TypeError,
+                OSError,
+            ) as exc:  # Best-effort cleanup operation  # policy_guard: allow-silent-handler
                 logger.debug("Trade visualizer cleanup failed for %s: %s", station_icao, exc)

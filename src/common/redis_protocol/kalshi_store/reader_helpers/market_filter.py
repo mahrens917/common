@@ -55,7 +55,8 @@ class MarketFilter:
                 key_str = decode_redis_key(raw_key)
                 try:
                     descriptor = parse_kalshi_market_key(key_str)
-                except ValueError:  # policy_guard: allow-silent-handler
+                except ValueError:  # Expected data validation or parsing failure  # policy_guard: allow-silent-handler
+                    logger.warning("Expected data validation or parsing failure")
                     continue
 
                 ticker = descriptor.ticker

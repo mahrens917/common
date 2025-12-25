@@ -58,7 +58,7 @@ class MetadataReader:
                 messages_last_minute=self.normalizer.int_field(normalized, "messages_last_minute", value_on_error=0),
                 messages_last_65_minutes=self.normalizer.int_field(normalized, "messages_last_65_minutes", value_on_error=0),
             )
-        except (TypeError, ValueError) as exc:  # policy_guard: allow-silent-handler
+        except (TypeError, ValueError) as exc:
             raise DataError(f"Metadata for service '{service_name}' is corrupt: {metadata_data}") from exc
 
     async def get_all_services(self, client: RedisClient) -> Set[str]:
@@ -82,5 +82,5 @@ class MetadataReader:
 
         try:
             return int(total_str)
-        except (TypeError, ValueError) as exc:  # policy_guard: allow-silent-handler
+        except (TypeError, ValueError) as exc:
             raise TypeError(f"Global message count is not an integer: {total_str!r}") from exc

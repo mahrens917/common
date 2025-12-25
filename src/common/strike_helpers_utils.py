@@ -51,12 +51,14 @@ def extract_between_bounds(tokens: List[str]) -> Tuple[Optional[float], Optional
             return None
         try:
             return float(segment)
-        except (TypeError, ValueError):  # policy_guard: allow-silent-handler
+        except (TypeError, ValueError):  # Expected data validation or parsing failure  # policy_guard: allow-silent-handler
+            logger.warning("Expected data validation or parsing failure")
             return None
 
     try:
         idx = tokens.index("BETWEEN")
-    except ValueError:  # policy_guard: allow-silent-handler
+    except ValueError:  # Expected data validation or parsing failure  # policy_guard: allow-silent-handler
+        logger.warning("Expected data validation or parsing failure")
         return None, None
 
     floor_strike = _parse_float(tokens[idx + 1] if idx + 1 < len(tokens) else None)
@@ -78,7 +80,7 @@ def decode_redis_key(key: bytes | str) -> Optional[str]:
     if isinstance(key, bytes):
         try:
             return key.decode("utf-8")
-        except UnicodeDecodeError as decode_error:  # policy_guard: allow-silent-handler
+        except UnicodeDecodeError as decode_error:  # Expected exception, returning default value  # policy_guard: allow-silent-handler
             logger.debug("Could not decode strike key %s: %s", key, decode_error)
             return None
     return str(key)
@@ -113,7 +115,8 @@ def decode_value(value: Any) -> Any:
     if isinstance(value, bytes):
         try:
             return value.decode("utf-8")
-        except UnicodeDecodeError:  # policy_guard: allow-silent-handler
+        except UnicodeDecodeError:  # Expected exception, returning default value  # policy_guard: allow-silent-handler
+            logger.debug("Expected exception, returning default value")
             return None
     return value
 
@@ -123,5 +126,6 @@ def to_float(value: Any) -> Optional[float]:
         return None
     try:
         return float(value)
-    except (TypeError, ValueError):  # policy_guard: allow-silent-handler
+    except (TypeError, ValueError):  # Expected data validation or parsing failure  # policy_guard: allow-silent-handler
+        logger.warning("Expected data validation or parsing failure")
         return None

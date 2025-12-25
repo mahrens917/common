@@ -41,7 +41,7 @@ class InstrumentFetcher:
                 currency,
             )
 
-        except REDIS_ERRORS as exc:  # policy_guard: allow-silent-handler
+        except REDIS_ERRORS as exc:  # Expected exception in operation  # policy_guard: allow-silent-handler
             logger.error("Error in get_all_instruments for %s: %s", currency, exc, exc_info=True)
             return []
         else:
@@ -52,7 +52,7 @@ class InstrumentFetcher:
         try:
             instruments = await self.get_all_instruments(currency)
             return [instrument for instrument in instruments if not instrument.is_future]
-        except REDIS_ERRORS as exc:  # policy_guard: allow-silent-handler
+        except REDIS_ERRORS as exc:  # Expected exception in operation  # policy_guard: allow-silent-handler
             logger.error("Error in get_options_by_currency for %s: %s", currency, exc, exc_info=True)
             return []
 
@@ -61,7 +61,7 @@ class InstrumentFetcher:
         try:
             instruments = await self.get_all_instruments(currency)
             return [instrument for instrument in instruments if instrument.is_future]
-        except REDIS_ERRORS as exc:  # policy_guard: allow-silent-handler
+        except REDIS_ERRORS as exc:  # Expected exception in operation  # policy_guard: allow-silent-handler
             logger.error("Error in get_futures_by_currency for %s: %s", currency, exc, exc_info=True)
             return []
 
@@ -70,6 +70,6 @@ class InstrumentFetcher:
         try:
             instruments = await self.get_all_instruments(currency)
             return [instrument for instrument in instruments if not instrument.is_future and instrument.option_type == "put"]
-        except REDIS_ERRORS as exc:  # policy_guard: allow-silent-handler
+        except REDIS_ERRORS as exc:  # Expected exception in operation  # policy_guard: allow-silent-handler
             logger.error("Error in get_puts_by_currency for %s: %s", currency, exc, exc_info=True)
             return []

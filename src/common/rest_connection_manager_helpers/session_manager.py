@@ -74,7 +74,11 @@ class RESTSessionManager:
             else:
                 self.logger.debug("HTTP session already closed")
 
-        except (aiohttp.ClientError, asyncio.TimeoutError, OSError):  # policy_guard: allow-silent-handler
+        except (
+            aiohttp.ClientError,
+            asyncio.TimeoutError,
+            OSError,
+        ):  # Transient network/connection failure  # policy_guard: allow-silent-handler
             self.logger.warning(f"Error closing HTTP session")
         finally:
             self.session = None

@@ -156,5 +156,5 @@ def _cleanup_partial_charts(chart_paths: Sequence[str]) -> None:
         try:
             if os.path.exists(path):
                 os.unlink(path)
-        except OSError:
+        except OSError:  # Best-effort cleanup operation  # policy_guard: allow-silent-handler
             logger.warning("Unable to clean up P&L chart %s", path)

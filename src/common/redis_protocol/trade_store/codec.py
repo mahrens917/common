@@ -99,7 +99,7 @@ def _ensure_mapping(payload: JsonLike) -> Dict[str, Any]:
 
     try:
         return orjson.loads(text_payload)
-    except orjson.JSONDecodeError as exc:  # policy_guard: allow-silent-handler
+    except orjson.JSONDecodeError as exc:
         raise ValueError("Trade payload is not valid JSON") from exc
 
 

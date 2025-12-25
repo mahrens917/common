@@ -80,6 +80,6 @@ class RedisInitializer:
         try:
             pool = await get_redis_pool()
             return RedisInitializer.initialize_from_pool_or_client(pool)
-        except REDIS_ERRORS as exc:  # policy_guard: allow-silent-handler
+        except REDIS_ERRORS as exc:
             logger.error("Error creating Redis connection with pool: %s", exc, exc_info=True)
             raise

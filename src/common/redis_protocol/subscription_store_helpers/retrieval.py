@@ -19,7 +19,8 @@ class SubscriptionRetrieval:
         if isinstance(value, bytes):
             try:
                 return value.decode("utf-8")
-            except UnicodeDecodeError:  # policy_guard: allow-silent-handler
+            except UnicodeDecodeError:  # Expected exception in operation  # policy_guard: allow-silent-handler
+                logger.debug("Expected exception in operation")
                 return value.decode("utf-8", errors="replace")
         return str(value)
 
@@ -54,7 +55,7 @@ class SubscriptionRetrieval:
                 category = self._map_subscription_type(sub_type)
                 if category:
                     grouped[category][name] = self._decode_text(channel)
-        except REDIS_ERRORS as exc:  # policy_guard: allow-silent-handler
+        except REDIS_ERRORS as exc:  # Expected exception in operation  # policy_guard: allow-silent-handler
             logger.error("Failed to get active subscriptions: %s", exc, exc_info=True)
             return {}
         else:
@@ -71,7 +72,7 @@ class SubscriptionRetrieval:
                     counts[category] += 1
             total = sum(counts.values())
             logger.info("Active subscriptions: %s", total)
-        except REDIS_ERRORS as exc:  # policy_guard: allow-silent-handler
+        except REDIS_ERRORS as exc:  # Expected exception in operation  # policy_guard: allow-silent-handler
             logger.error("Count failed: %s", exc, exc_info=True)
             return {"instruments": 0, "price_indices": 0, "volatility_indices": 0}
         else:

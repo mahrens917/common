@@ -89,9 +89,9 @@ class ModelState:
                 candidate = getattr(self.probability_store, "_get_redis")()
             try:
                 redis_client = await ensure_awaitable(candidate)
-            except TypeError:  # policy_guard: allow-silent-handler
+            except TypeError:  # Expected data validation or parsing failure  # policy_guard: allow-silent-handler
                 redis_client = candidate
-        except (*REDIS_ERRORS, RuntimeError) as redis_error:  # policy_guard: allow-silent-handler
+        except (*REDIS_ERRORS, RuntimeError) as redis_error:
             raise ModelProbabilityCalculationError(
                 f"Failed to acquire Redis client for probability calculation ({self.currency})"
             ) from redis_error

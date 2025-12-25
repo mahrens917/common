@@ -2,11 +2,14 @@
 Instrument name construction for OptimizedMarketStore
 """
 
+import logging
 import re
 from datetime import datetime
 from typing import Optional
 
 from ...redis_schema import DeribitInstrumentDescriptor, DeribitInstrumentType
+
+logger = logging.getLogger(__name__)
 
 
 class InstrumentNameBuilder:
@@ -42,13 +45,15 @@ class InstrumentNameBuilder:
             try:
                 dt = datetime.strptime(token, fmt)
                 return dt.strftime("%d%b%y").upper()
-            except ValueError:  # policy_guard: allow-silent-handler
+            except ValueError:  # Expected data validation or parsing failure  # policy_guard: allow-silent-handler
+                logger.warning("Expected data validation or parsing failure")
                 continue
 
         try:
             dt = datetime.fromisoformat(token)
             return dt.strftime("%d%b%y").upper()
-        except ValueError:  # policy_guard: allow-silent-handler
+        except ValueError:  # Expected data validation or parsing failure  # policy_guard: allow-silent-handler
+            logger.warning("Expected data validation or parsing failure")
             return uppercase
 
     @staticmethod

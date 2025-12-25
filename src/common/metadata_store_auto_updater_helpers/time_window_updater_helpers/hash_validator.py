@@ -37,7 +37,7 @@ class HashValidator:
                 key,
                 key_type,
             )
-        except REDIS_ERRORS as exc:  # policy_guard: allow-silent-handler
+        except REDIS_ERRORS as exc:  # Expected exception, returning default value  # policy_guard: allow-silent-handler
             logger.error("Failed to normalize history key %s: %s", key, exc, exc_info=True)
             return False
 

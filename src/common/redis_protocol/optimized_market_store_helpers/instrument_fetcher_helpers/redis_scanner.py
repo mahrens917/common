@@ -38,7 +38,7 @@ class RedisInstrumentScanner:
                     logger.debug("KEY_SCAN_DEBUG: Key %s returned no data", key)
             else:
                 return results
-        except REDIS_ERRORS as exc:  # policy_guard: allow-silent-handler
+        except REDIS_ERRORS as exc:  # Expected exception in operation  # policy_guard: allow-silent-handler
             logger.error("Error scanning instruments for %s: %s", currency, exc, exc_info=True)
             return []
 
@@ -57,7 +57,7 @@ class RedisInstrumentScanner:
         for key in keys:
             try:
                 descriptor = parse_deribit_market_key(key)
-            except ValueError as exc:  # policy_guard: allow-silent-handler
+            except ValueError as exc:  # Expected data validation or parsing failure  # policy_guard: allow-silent-handler
                 logger.debug("KEY_PARSE_DEBUG: skipping key %s (%s)", key, exc)
                 continue
             if descriptor.currency.lower() != currency.lower():

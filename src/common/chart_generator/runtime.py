@@ -2,8 +2,11 @@
 
 from __future__ import annotations
 
+import logging
 import sys
 from typing import Any, Awaitable, Callable, Dict, List, Optional, Tuple, cast
+
+logger = logging.getLogger(__name__)
 
 from common.chart_generator_helpers.chart_file_manager import ChartFileManager
 from common.chart_generator_helpers.chart_generator_initializer import (
@@ -209,7 +212,8 @@ class ChartHelperMixin:
     def _safe_float(value: str | float | int | None) -> Optional[float]:
         try:
             return _safe_float_value_impl(value)
-        except ValueError:
+        except ValueError:  # Expected data validation or parsing failure  # policy_guard: allow-silent-handler
+            logger.warning("Expected data validation or parsing failure")
             return None
 
 

@@ -69,7 +69,7 @@ class RealtimeMetricsCollector:
 
             return int(round(total_sum))
 
-        except REDIS_DATA_ERRORS as exc:  # policy_guard: allow-silent-handler
+        except REDIS_DATA_ERRORS as exc:  # Expected exception, returning default value  # policy_guard: allow-silent-handler
             logger.debug("Error getting deribit sum last 60s (%s): %s", type(exc).__name__, exc)
             return 0
 
@@ -108,6 +108,6 @@ class RealtimeMetricsCollector:
 
             return int(round(total_sum))
 
-        except REDIS_DATA_ERRORS as exc:  # policy_guard: allow-silent-handler
+        except REDIS_DATA_ERRORS as exc:  # Expected exception, returning default value  # policy_guard: allow-silent-handler
             logger.debug("Error getting kalshi sum last 60s (%s): %s", type(exc).__name__, exc)
             return 0

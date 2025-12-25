@@ -18,9 +18,9 @@ def build_weather_resolver(loader: "Callable", logger: logging.Logger) -> Weathe
     """Build weather station resolver with error handling."""
     try:
         return WeatherStationResolver(loader, logger=logger)
-    except WeatherConfigError:  # policy_guard: allow-silent-handler
+    except WeatherConfigError:
         logger.exception("Weather resolver initialization failed")
         raise
-    except (RuntimeError, ValueError, OSError, KeyError, TypeError) as exc:  # policy_guard: allow-silent-handler
+    except (RuntimeError, ValueError, OSError, KeyError, TypeError) as exc:
         logger.exception("Unexpected error building weather resolver")
         raise WeatherConfigError("Weather resolver construction failed") from exc

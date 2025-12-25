@@ -118,7 +118,11 @@ class HealthChecker:
                 return False
             else:
                 return True
-        except (RuntimeError, AttributeError, ValueError):  # policy_guard: allow-silent-handler
+        except (
+            RuntimeError,
+            AttributeError,
+            ValueError,
+        ):  # Expected data validation or parsing failure  # policy_guard: allow-silent-handler
             logger.exception("Error in %s health check", self.service_name)
             return False
 
@@ -134,6 +138,7 @@ class HealthChecker:
         if isinstance(value, str):
             try:
                 return float(value)
-            except (TypeError, ValueError):  # policy_guard: allow-silent-handler
+            except (TypeError, ValueError):  # Expected data validation or parsing failure  # policy_guard: allow-silent-handler
+                logger.warning("Expected data validation or parsing failure")
                 return 0.0
         return 0.0

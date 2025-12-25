@@ -25,7 +25,7 @@ class CryptoFetcher:
 
         try:
             series_list = await self._client.get_series(category="Crypto")
-        except (KalshiClientError, KeyError, TypeError, ValueError, Exception) as exc:
+        except (KalshiClientError, KeyError, TypeError, ValueError) as exc:
             raise KalshiMarketCatalogError(f"Failed to fetch Kalshi crypto series") from exc
 
         pages = 0

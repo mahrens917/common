@@ -24,7 +24,7 @@ class MetadataResolver:
         """Resolve weather station from ticker via shared resolver."""
         try:
             return self._weather_resolver.resolve_ticker(market_ticker)
-        except ValidationError as exc:  # policy_guard: allow-silent-handler
+        except ValidationError as exc:
             raise ValueError(str(exc)) from exc
 
     def resolve_trade_context(self, market_ticker: str) -> Tuple[str, Optional[str]]:

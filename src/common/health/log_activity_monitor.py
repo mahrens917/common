@@ -79,7 +79,7 @@ class LogActivityMonitor:
                 age_seconds=age_seconds,
                 log_file_path=log_file_path,
             )
-        except LOG_ACTIVITY_ERRORS as exc:  # policy_guard: allow-silent-handler
+        except LOG_ACTIVITY_ERRORS as exc:  # Expected exception in operation  # policy_guard: allow-silent-handler
             logger.exception("Error checking log activity for %s", service_name)
             return LogActivity(status=LogActivityStatus.ERROR, error_message=str(exc))
 

@@ -102,7 +102,7 @@ class EmergencyPositionManager:
 
             else:
                 return results
-        except TRADING_OPERATION_ERRORS:  # policy_guard: allow-silent-handler
+        except TRADING_OPERATION_ERRORS:  # Expected exception in operation  # policy_guard: allow-silent-handler
             logger.exception("[EmergencyPositionManager] Failed to close all positions")
             return {"error": (False, "Failed to close all")}
 

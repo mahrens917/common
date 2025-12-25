@@ -33,14 +33,14 @@ class ConnectionVerifier:
 
         try:
             await asyncio.wait_for(redis.ping(), timeout=timeout)
-        except asyncio.TimeoutError:  # policy_guard: allow-silent-handler
+        except asyncio.TimeoutError:  # Transient network/connection failure  # policy_guard: allow-silent-handler
             logger.warning(
                 "Redis ping timed out after %.1fs; connection will be refreshed",
                 timeout,
                 exc_info=False,
             )
             return False, False
-        except REDIS_ERRORS as exc:  # policy_guard: allow-silent-handler
+        except REDIS_ERRORS as exc:  # Expected exception in operation  # policy_guard: allow-silent-handler
             message = str(exc).lower()
             if "event loop is closed" in message:
                 logger.debug("Redis ping failed because the event loop is closing: %s", exc, exc_info=False)
@@ -84,7 +84,7 @@ class ConnectionVerifier:
 
         try:
             await asyncio.wait_for(redis_client.ping(), timeout=health_check_timeout)
-        except asyncio.TimeoutError as exc:  # policy_guard: allow-silent-handler
+        except asyncio.TimeoutError as exc:
             raise RuntimeError("Redis client ping timed out during attachment") from exc
-        except REDIS_ERRORS as exc:  # policy_guard: allow-silent-handler
+        except REDIS_ERRORS as exc:
             raise RuntimeError(f"Redis client ping failed during attachment") from exc

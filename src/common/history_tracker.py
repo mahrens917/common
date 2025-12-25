@@ -79,7 +79,7 @@ async def _record_service_update(self, service_name: str, updates_per_second: fl
             updates_per_second,
             current_timestamp,
         )
-    except REDIS_ERRORS as exc:  # policy_guard: allow-silent-handler
+    except REDIS_ERRORS as exc:
         logger.exception("Failed to record %s history", service_name)
         raise RuntimeError(f"Failed to record {service_name} history in Redis") from exc
     else:
@@ -98,10 +98,10 @@ async def _get_service_history(self, service_name: str, hours: int = 24) -> List
             timestamp = int(score)
             value = float(member)
             history_data.append((timestamp, value))
-    except REDIS_ERRORS as exc:  # policy_guard: allow-silent-handler
+    except REDIS_ERRORS as exc:
         logger.exception("Failed to get %s history", service_name)
         raise RuntimeError(f"Failed to load {service_name} history from Redis") from exc
-    except (ValueError, TypeError):  # policy_guard: allow-silent-handler
+    except (ValueError, TypeError):
         logger.exception("Invalid %s history payload", service_name)
         raise
     else:
@@ -157,9 +157,9 @@ class PriceHistoryTracker:
             await self.initialize()
             client = self._connection_manager.get_client()
             success, _ = await self._recorder.record_price(client, currency, price)
-        except ValidationError as exc:  # policy_guard: allow-silent-handler
+        except ValidationError as exc:
             raise ValueError(str(exc)) from exc
-        except (RuntimeError, ValueError, TypeError, AttributeError) as exc:  # policy_guard: allow-silent-handler
+        except (RuntimeError, ValueError, TypeError, AttributeError) as exc:
             raise RuntimeError(f"Failed to record {currency} price history") from exc
         else:
             return success
@@ -182,7 +182,7 @@ class PriceHistoryTracker:
             await self.initialize()
             client = self._connection_manager.get_client()
             return await self._retriever.get_history(client, currency, hours)
-        except ValidationError as exc:  # policy_guard: allow-silent-handler
+        except ValidationError as exc:
             raise ValueError(str(exc)) from exc
 
 
@@ -234,7 +234,7 @@ class WeatherHistoryTracker:
         """
         try:
             self._observation_recorder.validate_temperature_input(station_icao, temp_f)
-        except ValidationError as exc:  # policy_guard: allow-silent-handler
+        except ValidationError as exc:
             raise ValueError(str(exc)) from exc
 
         await self.initialize()
@@ -260,5 +260,5 @@ class WeatherHistoryTracker:
             await self.initialize()
             client = self._connection_manager.get_client()
             return await self._statistics_retriever.get_history(client, station_icao, hours)
-        except ValidationError as exc:  # policy_guard: allow-silent-handler
+        except ValidationError as exc:
             raise ValueError(str(exc)) from exc

@@ -124,7 +124,7 @@ class ErrorAnalyzer:
         """Send a Telegram notification and log failures without raising."""
         try:
             await self.notification_sender.send_telegram_notification(analysis)
-        except OSError:  # policy_guard: allow-silent-handler
+        except OSError:  # Best-effort cleanup operation  # policy_guard: allow-silent-handler
             logger.exception("Failed to send error notification")
 
 

@@ -39,7 +39,7 @@ class DotenvLoader:
                 if key:
                     values[key] = value
 
-        except OSError as exc:  # policy_guard: allow-silent-handler
+        except OSError as exc:
             raise ConfigurationError(f"Failed to load configuration from {path}") from exc
 
         return values

@@ -14,5 +14,5 @@ def emit_progress(callback: Optional[Callable], total_steps: int, current_step: 
     if current_step % interval == 0 or current_step == total_steps:
         try:
             callback(current_step, total_steps)
-        except (TypeError, ValueError) as exc:
+        except (TypeError, ValueError) as exc:  # Expected data validation or parsing failure  # policy_guard: allow-silent-handler
             logger.debug("Progress callback failed; ignoring error: %s", exc, exc_info=True)

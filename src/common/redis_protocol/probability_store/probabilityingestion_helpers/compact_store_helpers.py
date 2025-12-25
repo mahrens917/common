@@ -62,9 +62,9 @@ def handle_storage_errors(currency_upper: str):
         async def wrapper(*args, **kwargs):
             try:
                 return await func(*args, **kwargs)
-            except (ValueError, TypeError, *SERIALIZATION_ERRORS) as exc:  # policy_guard: allow-silent-handler
+            except (ValueError, TypeError, *SERIALIZATION_ERRORS) as exc:
                 raise ProbabilityStoreError(f"Failed to store probabilities for {currency_upper}") from exc
-            except REDIS_ERRORS as exc:  # policy_guard: allow-silent-handler
+            except REDIS_ERRORS as exc:
                 raise ProbabilityStoreError(f"Failed to store probabilities for {currency_upper}: Redis error {exc}") from exc
 
         return wrapper

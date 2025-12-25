@@ -33,7 +33,13 @@ class ResourceTracker:
                 from redis.exceptions import RedisError
 
                 redis = await self._get_redis()
-            except (RedisError, OSError, RuntimeError, ConnectionError, ValueError) as exc:  # policy_guard: allow-silent-handler
+            except (
+                RedisError,
+                OSError,
+                RuntimeError,
+                ConnectionError,
+                ValueError,
+            ) as exc:  # Transient network/connection failure  # policy_guard: allow-silent-handler
                 logger.error("Failed to initialize resource trackers: %s", exc, exc_info=True)
                 return False
             self._cpu_tracker = CpuTracker(redis)

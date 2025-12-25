@@ -4,8 +4,11 @@ from common.truthy import pick_truthy
 
 """Normalization helpers for the Kalshi Redis protocol stores."""
 
+import logging
 import math
 from typing import Any, Dict, List, Mapping, MutableMapping, Optional, Tuple
+
+logger = logging.getLogger(__name__)
 
 from common.exceptions import ValidationError
 
@@ -55,7 +58,7 @@ def convert_numeric_field(value: Any) -> NumericField:
             return None
         try:
             return float(text)
-        except ValueError as exc:  # policy_guard: allow-silent-handler
+        except ValueError as exc:
             raise NumericFieldError(f"Invalid numeric value: {value!r}") from exc
     if isinstance(value, Mapping):
         raise NumericFieldError(f"Unsupported numeric value type: {type(value).__name__}")
@@ -98,7 +101,7 @@ def format_probability_value(value: Any) -> str:
 
     try:
         numeric = float(value)
-    except (TypeError, ValueError) as exc:  # policy_guard: allow-silent-handler
+    except (TypeError, ValueError) as exc:
         raise ProbabilityValueError(f"Probability value must be float-compatible, got {value}") from exc
 
     if not math.isfinite(numeric):
@@ -139,7 +142,8 @@ def _tokenize_ticker(market_ticker: str) -> List[str]:
 def _coerce_strike_value(value_str: str) -> Optional[float]:
     try:
         return float(value_str)
-    except ValueError:  # policy_guard: allow-silent-handler
+    except ValueError:  # Expected data validation or parsing failure  # policy_guard: allow-silent-handler
+        logger.warning("Expected data validation or parsing failure")
         return None
 
 

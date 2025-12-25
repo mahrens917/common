@@ -28,7 +28,7 @@ class PortfolioService:
         try:
             portfolio_balance = await self._client.get_portfolio_balance()
             logger.info(f"[{operation_name}] Retrieved balance: ${portfolio_balance.balance_cents/100:.2f}")
-        except CLIENT_API_ERRORS as exc:  # policy_guard: allow-silent-handler
+        except CLIENT_API_ERRORS as exc:
             logger.exception(
                 "[%s] Error retrieving portfolio balance (%s)",
                 operation_name,
@@ -45,7 +45,7 @@ class PortfolioService:
         try:
             positions = await self._client.get_portfolio_positions()
             logger.info(f"[{operation_name}] Retrieved {len(positions)} positions")
-        except CLIENT_API_ERRORS as exc:  # policy_guard: allow-silent-handler
+        except CLIENT_API_ERRORS as exc:
             logger.exception(
                 "[%s] Error retrieving portfolio positions (%s)",
                 operation_name,

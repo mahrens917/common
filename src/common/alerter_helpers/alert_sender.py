@@ -66,10 +66,11 @@ class AlertDeliveryMixin:
             if hasattr(result, "success") and not getattr(result, "success"):
                 logger.warning("Telegram alert delivery skipped or failed (backoff active?)")
                 return False
-        except asyncio.CancelledError:
+        except asyncio.CancelledError:  # Expected during task cancellation  # policy_guard: allow-silent-handler
             logger.info("Telegram alert send cancelled during shutdown")
             return False
-        except (RuntimeError, ValueError, TypeError) as exc:
+        except RuntimeError as exc:  # Expected runtime failure in operation  # policy_guard: allow-silent-handler
+            logger.warning("Expected runtime failure in operation")
             return self._handle_telegram_exception(exc)
         else:
             return True

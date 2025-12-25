@@ -34,7 +34,7 @@ class BackgroundScanWorker:
                 try:
                     await asyncio.wait_for(self.shutdown_event.wait(), timeout=self.scan_interval_seconds)
                     break  # Shutdown requested
-                except asyncio.TimeoutError:  # policy_guard: allow-silent-handler
+                except asyncio.TimeoutError:  # Transient network/connection failure  # policy_guard: allow-silent-handler
                     continue  # Normal timeout, continue scanning
 
             except (  # policy_guard: allow-silent-handler

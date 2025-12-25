@@ -32,16 +32,16 @@ class ConfigLoader:
         """
         try:
             config_data = self._loader.load_json_file("metar_data_sources.json")
-        except FileNotFoundError as exc:  # policy_guard: allow-silent-handler
+        except FileNotFoundError as exc:
             raise MetarConfigLoadError("METAR config file not found") from exc
-        except ConfigurationError as exc:  # policy_guard: allow-silent-handler
+        except ConfigurationError as exc:
             raise MetarConfigLoadError(str(exc)) from exc
-        except OSError as exc:  # policy_guard: allow-silent-handler
+        except OSError as exc:
             raise MetarConfigLoadError("Failed to read METAR config") from exc
 
         try:
             data_sources = self._loader.get_section(config_data, "data_sources")
-        except ConfigurationError as exc:  # policy_guard: allow-silent-handler
+        except ConfigurationError as exc:
             raise MetarConfigLoadError(str(exc)) from exc
 
         if not data_sources:

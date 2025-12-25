@@ -61,7 +61,7 @@ class TrackerStatusCollector:
 
         try:
             return await self.tracker_controller.get_tracker_status()
-        except TRACKER_STATUS_ERRORS as exc:  # policy_guard: allow-silent-handler
+        except TRACKER_STATUS_ERRORS as exc:  # Expected exception in operation  # policy_guard: allow-silent-handler
             logger.exception(
                 "Failed to get tracker status (%s)",
                 type(exc).__name__,

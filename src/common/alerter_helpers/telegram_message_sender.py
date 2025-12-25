@@ -4,6 +4,8 @@ import asyncio
 import logging
 from typing import List
 
+import aiohttp
+
 from ..alerting import TelegramClient, TelegramDeliveryResult
 
 logger = logging.getLogger(__name__)
@@ -62,7 +64,7 @@ class TelegramMessageSender:
             except asyncio.TimeoutError as exc:
                 self.backoff_manager.record_failure(exc)
                 raise RuntimeError(f"Telegram send_message timeout after {self.timeout_seconds}s for {chat_id}") from exc
-            except Exception as exc:
+            except (aiohttp.ClientError, OSError, RuntimeError) as exc:
                 self.backoff_manager.record_failure(exc)
                 raise RuntimeError(f"Telegram send_message failed for {chat_id}") from exc
 

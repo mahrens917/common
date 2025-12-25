@@ -79,7 +79,7 @@ class TradeStoreManager:
             return
         try:
             await self._managed_store.close()
-        except CLOSE_ERRORS as exc:  # policy_guard: allow-silent-handler
+        except CLOSE_ERRORS as exc:  # Expected exception in operation  # policy_guard: allow-silent-handler
             logger.warning("Error while closing managed trade store: %s", exc, exc_info=True)
         finally:
             self._managed_store = None

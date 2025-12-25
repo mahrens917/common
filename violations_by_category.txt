@@ -1,0 +1,2111 @@
+
+================================================================================
+EXPECTED_FAILURE: 25 violations
+================================================================================
+
+/Users/mahrens917/projects/common/src/common/telegram_surface_handler.py:107
+  Exception: GPSurfaceNotAvailableError
+  Reason: suppresses exception with continue
+
+/Users/mahrens917/projects/common/src/common/telegram_surface_handler.py:111
+  Exception: SurfaceEvaluationError
+  Reason: suppresses exception with continue
+
+/Users/mahrens917/projects/common/src/common/telegram_surface_handler.py:115
+  Exception: VisualizationGenerationError
+  Reason: suppresses exception with continue
+
+src/common/alerter_helpers/command_handlers.py:87
+  Exception: InsufficientDataError
+  Reason: suppresses exception with literal return
+
+src/common/alerter_helpers/command_handlers.py:91
+  Exception: (PricePathComputationError, ProgressNotificationError)
+  Reason: suppresses exception with literal return
+
+src/common/alerter_helpers/command_handlers.py:158
+  Exception: InsufficientDataError
+  Reason: suppresses exception with literal return
+
+src/common/alerter_helpers/command_handlers.py:162
+  Exception: (PricePathComputationError, ProgressNotificationError)
+  Reason: suppresses exception with literal return
+
+src/common/alerter_helpers/command_handlers.py:190
+  Exception: InsufficientDataError
+  Reason: exception handler without re-raise
+
+src/common/alerter_helpers/command_handlers.py:193
+  Exception: (PricePathComputationError, ProgressNotificationError)
+  Reason: exception handler without re-raise
+
+src/common/alerter_helpers/command_handlers.py:259
+  Exception: InsufficientDataError
+  Reason: exception handler without re-raise
+
+src/common/alerter_helpers/command_handlers.py:261
+  Exception: (PricePathComputationError, ProgressNotificationError)
+  Reason: exception handler without re-raise
+
+src/common/alerter_helpers/load_charts_sender.py:33
+  Exception: InsufficientDataError
+  Reason: suppresses exception with literal return
+
+src/common/alerter_helpers/load_charts_sender.py:38
+  Exception: (PricePathComputationError, ProgressNotificationError, RuntimeError, ValueError, OSError)
+  Reason: suppresses exception with literal return
+
+src/common/chart_generator_helpers/orchestrator_helpers/chart_generator.py:50
+  Exception: InsufficientDataError
+  Reason: suppresses exception with continue
+
+src/common/config/runtime_helpers/json_config_loader.py:50
+  Exception: FileNotFoundError
+  Reason: exception handler without re-raise
+
+src/common/connectionconfig_helpers/config_loader.py:83
+  Exception: FileNotFoundError
+  Reason: exception handler without re-raise
+
+src/common/dependency_aware_error_filter.py:137
+  Exception: PatternCompilationError
+  Reason: exception handler without re-raise
+
+src/common/dependency_validator.py:120
+  Exception: LDMNotInstalledError
+  Reason: exception handler without re-raise
+
+src/common/kalshi_catalog_helpers/station_loader.py:45
+  Exception: FileNotFoundError
+  Reason: exception handler without re-raise
+
+src/common/logging_config.py:100
+  Exception: FileNotFoundError
+  Reason: suppresses exception with continue
+
+src/common/market_data_parser.py:150
+  Exception: (ParsingError, ValidationError, DateTimeCorruptionError)
+  Reason: exception handler without re-raise
+
+src/common/market_data_parser_helpers/contract_validator.py:68
+  Exception: (ParsingError, ValidationError, DateTimeCorruptionError)
+  Reason: exception handler without re-raise
+
+src/common/market_data_parser_helpers/data_cleaner.py:47
+  Exception: (ParsingError, ValidationError, DateTimeCorruptionError)
+  Reason: suppresses exception with continue
+
+src/common/time_helpers/expiry_matching.py:29
+  Exception: (TypeError, ValueError, ValidationError)
+  Reason: suppresses exception with continue
+
+src/common/time_helpers/expiry_matching.py:63
+  Exception: (TypeError, ValueError, ValidationError)
+  Reason: suppresses exception with continue
+
+
+================================================================================
+MIXED_ERRORS: 0 violations
+================================================================================
+
+
+================================================================================
+PROGRAMMING_ERROR: 174 violations
+================================================================================
+
+/Users/mahrens917/projects/common/src/common/telegram_surface_handler.py:119
+  Exception: (RuntimeError, ValueError, KeyError)
+  Reason: suppresses exception with continue
+
+src/common/alerter.py:103
+  Exception: RuntimeError
+  Reason: exception handler without re-raise
+
+src/common/alerter_helpers/alert_sender.py:72
+  Exception: RuntimeError
+  Reason: exception handler without re-raise
+
+src/common/alerter_helpers/command_handlers.py:138
+  Exception: ValueError
+  Reason: suppresses exception with literal return
+
+src/common/alerter_helpers/lifecycle_helpers.py:40
+  Exception: RuntimeError
+  Reason: exception handler without re-raise
+
+src/common/alerter_helpers/telegram_polling_coordinator.py:76
+  Exception: RuntimeError
+  Reason: suppresses exception with literal return
+
+src/common/alerter_helpers/telegram_retry_after_parser.py:19
+  Exception: ValueError
+  Reason: suppresses exception with literal return
+
+src/common/alerter_helpers/telegram_retry_after_parser.py:30
+  Exception: (unknown, ValueError)
+  Reason: suppresses exception with literal return
+
+src/common/alerter_helpers/telegram_retry_after_parser.py:50
+  Exception: (TypeError, ValueError)
+  Reason: suppresses exception with literal return
+
+src/common/async_helpers.py:25
+  Exception: RuntimeError
+  Reason: suppresses exception with literal return
+
+src/common/async_helpers.py:31
+  Exception: (RuntimeError, ValueError, TypeError)
+  Reason: suppresses exception with literal return
+
+src/common/base_connection_manager_helpers/notification_helpers.py:21
+  Exception: TypeError
+  Reason: exception handler without re-raise
+
+src/common/chart_components/trade_visualization.py:111
+  Exception: TypeError
+  Reason: exception handler without re-raise
+
+src/common/chart_components/trade_visualization.py:113
+  Exception: (ValueError, AttributeError, RuntimeError)
+  Reason: suppresses exception with literal return
+
+src/common/chart_components/trade_visualization.py:147
+  Exception: (RuntimeError, ValueError, TypeError)
+  Reason: exception handler without re-raise
+
+src/common/chart_generator/renderers/weather.py:79
+  Exception: (TypeError, ValueError)
+  Reason: suppresses exception with literal return
+
+src/common/chart_generator/runtime.py:212
+  Exception: ValueError
+  Reason: suppresses exception with literal return
+
+src/common/chart_generator/runtime_helpers.py:90
+  Exception: (ValueError, UnicodeDecodeError, TypeError)
+  Reason: suppresses exception with continue
+
+src/common/chart_generator/runtime_helpers.py:161
+  Exception: (TypeError, ValueError)
+  Reason: suppresses exception with literal return
+
+src/common/chart_generator_helpers/astronomical_calculator.py:87
+  Exception: (RuntimeError, ValueError, TypeError)
+  Reason: exception handler without re-raise
+
+src/common/chart_generator_helpers/astronomical_calculator.py:110
+  Exception: (RuntimeError, ValueError, TypeError, KeyError)
+  Reason: suppresses exception with literal return
+
+src/common/chart_generator_helpers/astronomical_event_processor.py:43
+  Exception: (RuntimeError, ValueError, TypeError)
+  Reason: exception handler without re-raise
+
+src/common/chart_generator_helpers/chart_axes_creator.py:44
+  Exception: (RuntimeError, ValueError, TypeError)
+  Reason: exception handler without re-raise
+
+src/common/chart_generator_helpers/chart_axes_creator.py:49
+  Exception: (RuntimeError, ValueError, TypeError)
+  Reason: exception handler without re-raise
+
+src/common/chart_generator_helpers/float_utils.py:14
+  Exception: ValueError
+  Reason: suppresses exception with literal return
+
+src/common/chart_generator_helpers/load_data_collector.py:62
+  Exception: (TypeError, ValueError)
+  Reason: suppresses exception with continue
+
+src/common/chart_generator_helpers/pnl_breakdown_chart_renderer.py:75
+  Exception: (RuntimeError, ValueError, TypeError)
+  Reason: exception handler without re-raise
+
+src/common/chart_generator_helpers/price_data_collector.py:59
+  Exception: (ValueError, TypeError)
+  Reason: suppresses exception with continue
+
+src/common/chart_generator_helpers/strike_gatherer.py:90
+  Exception: ValueError
+  Reason: suppresses exception with literal return
+
+src/common/chart_generator_helpers/system_metrics_collector.py:68
+  Exception: (UnicodeDecodeError, ValueError, TypeError)
+  Reason: suppresses exception with continue
+
+src/common/chart_generator_helpers/weather_station_loader.py:69
+  Exception: (TypeError, ValueError)
+  Reason: exception handler without re-raise
+
+src/common/chart_generator_helpers/weather_station_loader_helpers/data_processor.py:44
+  Exception: (TypeError, ValueError)
+  Reason: exception handler without re-raise
+
+src/common/daily_max_state_helpers/observation_tracker.py:86
+  Exception: (TypeError, ValueError)
+  Reason: exception handler without re-raise
+
+src/common/data_models/micro_price_helpers/error_collector.py:88
+  Exception: (TypeError, ValueError)
+  Reason: exception handler without re-raise
+
+src/common/data_models/model_state.py:92
+  Exception: TypeError
+  Reason: exception handler without re-raise
+
+src/common/data_models/trade_record_helpers/trade_record_pnl.py:53
+  Exception: (TypeError, ValueError)
+  Reason: suppresses exception with literal return
+
+src/common/dawn_reset_service_helpers/timestamp_resolver.py:53
+  Exception: (ValueError, TypeError)
+  Reason: suppresses exception with literal return
+
+src/common/emergency_position_manager_helpers/order_completion_waiter.py:80
+  Exception: (TypeError, ValueError)
+  Reason: exception handler without re-raise
+
+src/common/expiry_utils.py:155
+  Exception: (ValueError, TypeError, OverflowError)
+  Reason: suppresses exception with continue
+
+src/common/expiry_utils.py:216
+  Exception: (ValueError, TypeError)
+  Reason: suppresses exception with continue
+
+src/common/expiry_utils.py:236
+  Exception: (TypeError, ValueError)
+  Reason: exception handler without re-raise
+
+src/common/health/service_health_checker_helpers/redis_status_checker.py:59
+  Exception: (ValueError, TypeError)
+  Reason: exception handler without re-raise
+
+src/common/kalshi_catalog_helpers/market_filter_helpers/close_time_validator.py:58
+  Exception: ValueError
+  Reason: suppresses exception with literal return
+
+src/common/kalshi_catalog_helpers/market_filter_helpers/crypto_filter_validator.py:26
+  Exception: (ValueError, TypeError, AttributeError)
+  Reason: suppresses exception with literal return
+
+src/common/kalshi_trading_client/services/order_helpers/fee_calculator.py:17
+  Exception: AttributeError
+  Reason: exception handler without re-raise
+
+src/common/logging_config.py:148
+  Exception: (AttributeError, RuntimeError)
+  Reason: exception handler without re-raise
+
+src/common/market_data_parser.py:226
+  Exception: (KeyError, TypeError, ValueError)
+  Reason: exception handler without re-raise
+
+src/common/market_filters/kalshi_helpers/data_converters.py:44
+  Exception: (ValueError, TypeError)
+  Reason: suppresses exception with literal return
+
+src/common/market_filters/kalshi_helpers/expiry_validator.py:20
+  Exception: ValueError
+  Reason: exception handler without re-raise
+
+src/common/market_lifecycle_monitor_helpers/expiry_checker.py:45
+  Exception: (ValueError, AttributeError)
+  Reason: suppresses exception with literal return
+
+src/common/market_lifecycle_monitor_helpers/settlement_validator.py:54
+  Exception: (AttributeError, ValueError, TypeError)
+  Reason: exception handler without re-raise
+
+src/common/metadata_store_auto_updater_helpers/keyspace_listener_helpers/event_handler.py:60
+  Exception: (RuntimeError, ValueError, KeyError, AttributeError)
+  Reason: exception handler without re-raise
+
+src/common/metadata_store_auto_updater_helpers/time_window_updater_helpers/message_counter.py:36
+  Exception: (ValueError, TypeError)
+  Reason: exception handler without re-raise
+
+src/common/metadata_store_auto_updater_helpers/time_window_updater_helpers/service_updater.py:96
+  Exception: (TypeError, ValueError)
+  Reason: suppresses exception with literal return
+
+src/common/metadata_store_helpers/history_manager.py:101
+  Exception: (ValueError, TypeError)
+  Reason: suppresses exception with literal return
+
+src/common/metadata_store_helpers/timestamp_parser.py:25
+  Exception: (ValueError, TypeError)
+  Reason: suppresses exception with literal return
+
+src/common/midnight_reset_service_helpers/reset_evaluator.py:84
+  Exception: (ValueError, AttributeError, KeyError)
+  Reason: suppresses exception with literal return
+
+src/common/optimized_status_reporter_helpers/data_formatting.py:27
+  Exception: (TypeError, ValueError)
+  Reason: suppresses exception with literal return
+
+src/common/optimized_status_reporter_helpers/day_night_detector.py:81
+  Exception: (RuntimeError, ValueError, KeyError, TypeError)
+  Reason: suppresses exception with literal return
+
+src/common/optimized_status_reporter_helpers/moon_phase_calculator.py:49
+  Exception: (ValueError, OverflowError, ZeroDivisionError, TypeError)
+  Reason: suppresses exception with literal return
+
+src/common/optimized_status_reporter_helpers/process_resource_tracker.py:42
+  Exception: (unknown, unknown, unknown, unknown, RuntimeError)
+  Reason: suppresses exception with literal return
+
+src/common/optimized_status_reporter_helpers/realtime_metrics_collector.py:63
+  Exception: (ValueError, TypeError)
+  Reason: suppresses exception with continue
+
+src/common/optimized_status_reporter_helpers/realtime_metrics_collector.py:102
+  Exception: (ValueError, TypeError)
+  Reason: suppresses exception with continue
+
+src/common/optimized_status_reporter_helpers/time_formatter.py:36
+  Exception: (TypeError, ValueError)
+  Reason: suppresses exception with literal return
+
+src/common/optimized_status_reporter_helpers/weather_section_generator.py:43
+  Exception: (TypeError, ValueError)
+  Reason: suppresses exception with continue
+
+src/common/optimized_status_reporter_mixins.py:24
+  Exception: TypeError
+  Reason: exception handler without re-raise
+
+src/common/orderbook_utils.py:62
+  Exception: (ValueError, TypeError)
+  Reason: suppresses exception with literal return
+
+src/common/orderbook_utils.py:94
+  Exception: (unknown, ValueError, TypeError)
+  Reason: exception handler without re-raise
+
+src/common/orderbook_utils.py:151
+  Exception: (ValueError, TypeError)
+  Reason: exception handler without re-raise
+
+src/common/position_lifecycle_validators_portfolio.py:69
+  Exception: (ArithmeticError, AttributeError, TypeError, ValueError)
+  Reason: exception handler without re-raise
+
+src/common/position_lifecycle_validators_portfolio.py:111
+  Exception: (ArithmeticError, AttributeError, TypeError, ValueError)
+  Reason: exception handler without re-raise
+
+src/common/position_lifecycle_validators_portfolio.py:146
+  Exception: (ArithmeticError, AttributeError, TypeError, ValueError)
+  Reason: exception handler without re-raise
+
+src/common/position_lifecycle_validators_portfolio.py:191
+  Exception: (ArithmeticError, AttributeError, TypeError, ValueError, ZeroDivisionError)
+  Reason: exception handler without re-raise
+
+src/common/price_history_parser.py:52
+  Exception: (ValueError, TypeError)
+  Reason: exception handler without re-raise
+
+src/common/price_path_calculator.py:132
+  Exception: (RuntimeError, ValueError, TypeError)
+  Reason: suppresses exception with break
+
+src/common/price_path_calculator_helpers/progress_emitter.py:17
+  Exception: (TypeError, ValueError)
+  Reason: exception handler without re-raise
+
+src/common/process_killer.py:109
+  Exception: RuntimeError
+  Reason: exception handler without re-raise
+
+src/common/process_killer.py:162
+  Exception: (RuntimeError, ValueError, TypeError)
+  Reason: suppresses exception with continue
+
+src/common/process_killer.py:324
+  Exception: (ValueError, TypeError, AttributeError)
+  Reason: suppresses exception with literal return
+
+src/common/process_killer_helpers/process_discovery.py:100
+  Exception: KeyError
+  Reason: suppresses exception with literal return
+
+src/common/redis_protocol/connection_pool_core.py:207
+  Exception: RuntimeError
+  Reason: suppresses exception with pass
+
+src/common/redis_protocol/connection_pool_core.py:247
+  Exception: RuntimeError
+  Reason: exception handler without re-raise
+
+src/common/redis_protocol/connection_pool_core.py:254
+  Exception: (RuntimeError, unknown)
+  Reason: suppresses exception with pass
+
+src/common/redis_protocol/connection_store_helpers/state_persistence.py:14
+  Exception: (TypeError, ValueError)
+  Reason: suppresses exception with literal return
+
+src/common/redis_protocol/connection_store_helpers/state_persistence.py:23
+  Exception: (unknown, ValueError)
+  Reason: suppresses exception with literal return
+
+src/common/redis_protocol/connection_store_helpers/state_processor.py:52
+  Exception: (ValueError, KeyError, TypeError)
+  Reason: suppresses exception with literal return
+
+src/common/redis_protocol/kalshi_store/connection_helpers/pool_manager.py:55
+  Exception: RuntimeError
+  Reason: exception handler without re-raise
+
+src/common/redis_protocol/kalshi_store/orderbook.py:40
+  Exception: RuntimeError
+  Reason: suppresses exception with literal return
+
+src/common/redis_protocol/kalshi_store/orderbook.py:109
+  Exception: (ValueError, KeyError, RuntimeError)
+  Reason: suppresses exception with literal return
+
+src/common/redis_protocol/kalshi_store/orderbook_helpers/message_processing/normalizer.py:44
+  Exception: (TypeError, ValueError)
+  Reason: exception handler without re-raise
+
+src/common/redis_protocol/kalshi_store/orderbook_helpers/message_processing/normalizer.py:49
+  Exception: (TypeError, ValueError)
+  Reason: exception handler without re-raise
+
+src/common/redis_protocol/kalshi_store/orderbook_helpers/side_data_updater.py:24
+  Exception: (unknown, TypeError)
+  Reason: exception handler without re-raise
+
+src/common/redis_protocol/kalshi_store/reader_helpers/close_time_parser.py:29
+  Exception: (ValueError, TypeError)
+  Reason: suppresses exception with literal return
+
+src/common/redis_protocol/kalshi_store/reader_helpers/market_filter.py:58
+  Exception: ValueError
+  Reason: suppresses exception with continue
+
+src/common/redis_protocol/kalshi_store/reader_helpers/metadataextractor_helpers/market_record_builder.py:137
+  Exception: ValueError
+  Reason: exception handler without re-raise
+
+src/common/redis_protocol/kalshi_store/reader_helpers/metadataextractor_helpers/market_record_builder_helpers/field_extractor.py:82
+  Exception: ValueError
+  Reason: exception handler without re-raise
+
+src/common/redis_protocol/kalshi_store/reader_helpers/metadataextractor_helpers/market_record_builder_helpers/record_validator.py:31
+  Exception: ValueError
+  Reason: exception handler without re-raise
+
+src/common/redis_protocol/kalshi_store/reader_helpers/metadataextractor_helpers/price_extractor.py:32
+  Exception: (TypeError, ValueError)
+  Reason: suppresses exception with literal return
+
+src/common/redis_protocol/kalshi_store/reader_helpers/orderbook_parser.py:75
+  Exception: ValueError
+  Reason: exception handler without re-raise
+
+src/common/redis_protocol/kalshi_store/store_methods.py:122
+  Exception: ValueError
+  Reason: suppresses exception with literal return
+
+src/common/redis_protocol/kalshi_store/store_methods.py:139
+  Exception: (ValueError, TypeError)
+  Reason: suppresses exception with literal return
+
+src/common/redis_protocol/kalshi_store/store_methods.py:174
+  Exception: (ValueError, TypeError)
+  Reason: suppresses exception with literal return
+
+src/common/redis_protocol/kalshi_store/store_methods.py:337
+  Exception: ValueError
+  Reason: suppresses exception with literal return
+
+src/common/redis_protocol/kalshi_store/subscription_helpers/subscription_id_manager.py:36
+  Exception: (TypeError, ValueError)
+  Reason: exception handler without re-raise
+
+src/common/redis_protocol/kalshi_store/utils_coercion_helpers/type_coercion.py:23
+  Exception: (TypeError, ValueError, AttributeError)
+  Reason: exception handler without re-raise
+
+src/common/redis_protocol/kalshi_store/utils_coercion_helpers/type_coercion.py:38
+  Exception: (TypeError, ValueError, AttributeError)
+  Reason: exception handler without re-raise
+
+src/common/redis_protocol/kalshi_store/utils_coercion_helpers/type_coercion.py:68
+  Exception: (TypeError, ValueError)
+  Reason: exception handler without re-raise
+
+src/common/redis_protocol/kalshi_store/writer_helpers/batch_reader.py:68
+  Exception: ValueError
+  Reason: suppresses exception with literal return
+
+src/common/redis_protocol/kalshi_store/writer_helpers/batch_reader.py:95
+  Exception: (ValueError, KeyError)
+  Reason: exception handler without re-raise
+
+src/common/redis_protocol/kalshi_store/writer_helpers/market_update_writer.py:100
+  Exception: (ValueError, TypeError)
+  Reason: exception handler without re-raise
+
+src/common/redis_protocol/kalshi_store/writer_helpers/orderbook_writer.py:40
+  Exception: (ValueError, TypeError)
+  Reason: suppresses exception with literal return
+
+src/common/redis_protocol/kalshi_store/writer_helpers/orderbook_writer.py:63
+  Exception: (TypeError, ValueError)
+  Reason: exception handler without re-raise
+
+src/common/redis_protocol/kalshi_store/writer_helpers/orderbook_writer.py:68
+  Exception: (TypeError, ValueError)
+  Reason: exception handler without re-raise
+
+src/common/redis_protocol/kalshi_store/writer_helpers/orderbook_writer.py:77
+  Exception: (TypeError, ValueError)
+  Reason: suppresses exception with literal return
+
+src/common/redis_protocol/market_cleanup_helpers/cleanup_helpers/expiration_checker.py:28
+  Exception: (ValueError, AttributeError)
+  Reason: suppresses exception with literal return
+
+src/common/redis_protocol/market_cleanup_helpers/cleanup_helpers/expiration_checker.py:54
+  Exception: (ValueError, AttributeError)
+  Reason: suppresses exception with literal return
+
+src/common/redis_protocol/market_normalization_core.py:142
+  Exception: ValueError
+  Reason: suppresses exception with literal return
+
+src/common/redis_protocol/optimized_market_store.py:140
+  Exception: (RuntimeError, ValueError, AttributeError)
+  Reason: exception handler without re-raise
+
+src/common/redis_protocol/optimized_market_store_helpers/instrument_fetcher_helpers/instrument_builder.py:22
+  Exception: (TypeError, ValueError)
+  Reason: suppresses exception with literal return
+
+src/common/redis_protocol/optimized_market_store_helpers/instrument_fetcher_helpers/instrument_builder.py:70
+  Exception: ValueError
+  Reason: suppresses exception with literal return
+
+src/common/redis_protocol/optimized_market_store_helpers/instrument_fetcher_helpers/redis_scanner.py:60
+  Exception: ValueError
+  Reason: suppresses exception with continue
+
+src/common/redis_protocol/optimized_market_store_helpers/instrument_name_builder.py:45
+  Exception: ValueError
+  Reason: suppresses exception with continue
+
+src/common/redis_protocol/optimized_market_store_helpers/instrument_name_builder.py:51
+  Exception: ValueError
+  Reason: exception handler without re-raise
+
+src/common/redis_protocol/optimized_market_store_helpers/market_data_fetcher_helpers/payload_converter.py:38
+  Exception: (TypeError, ValueError)
+  Reason: exception handler without re-raise
+
+src/common/redis_protocol/orderbook_utils.py:133
+  Exception: (TypeError, ValueError)
+  Reason: exception handler without re-raise
+
+src/common/redis_protocol/parsing/kalshi.py:151
+  Exception: ValueError
+  Reason: suppresses exception with literal return
+
+src/common/redis_protocol/probability_store/codec.py:64
+  Exception: ValueError
+  Reason: exception handler without re-raise
+
+src/common/redis_protocol/probability_store/keys.py:38
+  Exception: ValueError
+  Reason: suppresses exception with literal return
+
+src/common/redis_protocol/probability_store/probabilityingestion_helpers/human_readable_store.py:65
+  Exception: (ValueError, TypeError, ProbabilityStoreError)
+  Reason: exception handler without re-raise
+
+src/common/redis_protocol/probability_store/probabilityretrieval_helpers/single_probability_retrieval.py:48
+  Exception: ValueError
+  Reason: exception handler without re-raise
+
+src/common/redis_protocol/probability_store/probabilityretrieval_helpers/single_probability_retrieval.py:73
+  Exception: ValueError
+  Reason: exception handler without re-raise
+
+src/common/redis_protocol/subscription_store_helpers/retrieval.py:22
+  Exception: UnicodeDecodeError
+  Reason: exception handler without re-raise
+
+src/common/resource_tracker_helpers/cpu_tracker.py:76
+  Exception: (ValueError, IndexError)
+  Reason: suppresses exception with continue
+
+src/common/resource_tracker_helpers/ram_tracker.py:76
+  Exception: (ValueError, IndexError)
+  Reason: suppresses exception with continue
+
+src/common/rest_connection_manager_helpers/health_monitor.py:51
+  Exception: TypeError
+  Reason: exception handler without re-raise
+
+src/common/rest_connection_manager_helpers/request_operations.py:66
+  Exception: TypeError
+  Reason: exception handler without re-raise
+
+src/common/rest_connection_manager_helpers/request_operations.py:97
+  Exception: (unknown, ValueError, RuntimeError, SyntaxError)
+  Reason: suppresses exception with literal return
+
+src/common/scraper_connection_manager_helpers/health_monitor.py:77
+  Exception: (RuntimeError, ValueError, UnicodeDecodeError)
+  Reason: exception handler without re-raise
+
+src/common/scraper_connection_manager_helpers/health_monitor_helpers/url_checker.py:59
+  Exception: (RuntimeError, ValueError, UnicodeDecodeError)
+  Reason: suppresses exception with literal return
+
+src/common/scraper_connection_manager_helpers/health_monitor_helpers/url_tester.py:40
+  Exception: (RuntimeError, ValueError, UnicodeDecodeError)
+  Reason: suppresses exception with literal return
+
+src/common/scraper_connection_manager_helpers/scraping_operations.py:63
+  Exception: (RuntimeError, ValueError, UnicodeDecodeError)
+  Reason: suppresses exception with literal return
+
+src/common/service_runner.py:156
+  Exception: AttributeError
+  Reason: exception handler without re-raise
+
+src/common/service_runner.py:159
+  Exception: ValueError
+  Reason: exception handler without re-raise
+
+src/common/simple_system_metrics.py:254
+  Exception: (ValueError, IndexError)
+  Reason: suppresses exception with continue
+
+src/common/status_reporter.py:115
+  Exception: AttributeError
+  Reason: suppresses exception with continue
+
+src/common/strike_helpers.py:53
+  Exception: (ValueError, TypeError)
+  Reason: suppresses exception with literal return
+
+src/common/strike_helpers.py:76
+  Exception: (TypeError, ValueError)
+  Reason: suppresses exception with literal return
+
+src/common/strike_helpers.py:161
+  Exception: UnicodeDecodeError
+  Reason: suppresses exception with literal return
+
+src/common/strike_helpers.py:210
+  Exception: (ValueError, TypeError)
+  Reason: suppresses exception with literal return
+
+src/common/strike_helpers_utils.py:54
+  Exception: (TypeError, ValueError)
+  Reason: suppresses exception with literal return
+
+src/common/strike_helpers_utils.py:59
+  Exception: ValueError
+  Reason: exception handler without re-raise
+
+src/common/strike_helpers_utils.py:81
+  Exception: UnicodeDecodeError
+  Reason: suppresses exception with literal return
+
+src/common/strike_helpers_utils.py:116
+  Exception: UnicodeDecodeError
+  Reason: suppresses exception with literal return
+
+src/common/strike_helpers_utils.py:126
+  Exception: (TypeError, ValueError)
+  Reason: suppresses exception with literal return
+
+src/common/time_helpers/expiry_conversions.py:54
+  Exception: ValueError
+  Reason: exception handler without re-raise
+
+src/common/time_helpers/expiry_conversions.py:160
+  Exception: (ValueError, TypeError)
+  Reason: suppresses exception with literal return
+
+src/common/time_helpers/expiry_wrapper.py:57
+  Exception: (ValueError, TypeError)
+  Reason: suppresses exception with literal return
+
+src/common/time_helpers/timestamp_parser.py:87
+  Exception: ValueError
+  Reason: suppresses exception with pass
+
+src/common/tracker_pricing.py:115
+  Exception: (FloatCoercionError, ValueError, TypeError)
+  Reason: exception handler without re-raise
+
+src/common/trade_visualizer_helpers/liquidity_fetcher.py:50
+  Exception: (ValueError, TypeError)
+  Reason: suppresses exception with literal return
+
+src/common/trade_visualizer_helpers/liquidity_fetcher.py:113
+  Exception: ValueError
+  Reason: suppresses exception with literal return
+
+src/common/trade_visualizer_helpers/redis_fetcher.py:100
+  Exception: ValueError
+  Reason: suppresses exception with literal return
+
+src/common/trade_visualizer_helpers/redis_fetcher.py:122
+  Exception: (ValueError, TypeError)
+  Reason: suppresses exception with literal return
+
+src/common/trade_visualizer_helpers/shading_builder.py:72
+  Exception: (ValueError, AttributeError, TypeError)
+  Reason: suppresses exception with literal return
+
+src/common/trade_visualizer_helpers/shading_builder.py:98
+  Exception: (ValueError, AttributeError, TypeError)
+  Reason: suppresses exception with literal return
+
+src/common/trade_visualizer_helpers/shading_builder.py:118
+  Exception: (ValueError, RuntimeError, AttributeError)
+  Reason: exception handler without re-raise
+
+src/common/trading/trade_store_manager.py:103
+  Exception: (RuntimeError, ValueError, TypeError)
+  Reason: exception handler without re-raise
+
+src/common/utils/numeric.py:83
+  Exception: (ValueError, TypeError)
+  Reason: suppresses exception with literal return
+
+src/common/utils/numeric.py:181
+  Exception: (ValueError, TypeError)
+  Reason: suppresses exception with literal return
+
+src/common/validation/probability.py:17
+  Exception: (TypeError, ValueError)
+  Reason: suppresses exception with literal return
+
+src/common/weather_history_tracker_helpers/statistics_retriever.py:49
+  Exception: (ValueError, KeyError, unknown, TypeError)
+  Reason: suppresses exception with literal return
+
+src/common/weather_services/market_repository.py:79
+  Exception: (ValueError, TypeError)
+  Reason: suppresses exception with continue
+
+src/common/websocket/connection_health_monitor_helpers/health_checker.py:121
+  Exception: (RuntimeError, AttributeError, ValueError)
+  Reason: suppresses exception with literal return
+
+src/common/websocket/connection_health_monitor_helpers/health_checker.py:137
+  Exception: (TypeError, ValueError)
+  Reason: suppresses exception with literal return
+
+
+================================================================================
+REDIS_NETWORK: 126 violations
+================================================================================
+
+src/common/base_connection_manager_helpers/health_coordinator.py:64
+  Exception: (ConnectionError, TimeoutError, RuntimeError)
+  Reason: exception handler without re-raise
+
+src/common/base_connection_manager_helpers/retry_logic.py:47
+  Exception: (RuntimeError, ConnectionError, ValueError, TypeError)
+  Reason: exception handler without re-raise
+
+src/common/dependency_aware_error_filter.py:88
+  Exception: REDIS_ERRORS
+  Reason: suppresses exception with literal return
+
+src/common/dependency_aware_error_filter_helpers/dependency_checker.py:30
+  Exception: (ConnectionError, OSError, RuntimeError)
+  Reason: exception handler without re-raise
+
+src/common/dependency_aware_error_filter_helpers/dependency_checker.py:47
+  Exception: (ConnectionError, OSError, RuntimeError)
+  Reason: suppresses exception with literal return
+
+src/common/dependency_aware_error_filter_helpers/status_updater.py:33
+  Exception: (ConnectionError, OSError, RuntimeError)
+  Reason: exception handler without re-raise
+
+src/common/dependency_aware_error_filter_helpers/status_updater.py:49
+  Exception: (ConnectionError, OSError, RuntimeError)
+  Reason: exception handler without re-raise
+
+src/common/metadata_store_auto_updater.py:118
+  Exception: (RuntimeError, OSError, ValueError, AttributeError, ConnectionError)
+  Reason: exception handler without re-raise
+
+src/common/metadata_store_auto_updater_helpers/batch_processor.py:42
+  Exception: REDIS_ERRORS
+  Reason: exception handler without re-raise
+
+src/common/metadata_store_auto_updater_helpers/batch_processor.py:54
+  Exception: REDIS_ERRORS
+  Reason: exception handler without re-raise
+
+src/common/metadata_store_auto_updater_helpers/initialization_manager.py:89
+  Exception: (unknown, ConnectionError, OSError, RuntimeError, AttributeError)
+  Reason: exception handler without re-raise
+
+src/common/metadata_store_auto_updater_helpers/initialization_manager.py:97
+  Exception: (unknown, ConnectionError, OSError, RuntimeError, AttributeError)
+  Reason: exception handler without re-raise
+
+src/common/metadata_store_auto_updater_helpers/keyspace_listener_helpers/pubsub_manager.py:62
+  Exception: REDIS_ERRORS
+  Reason: exception handler without re-raise
+
+src/common/metadata_store_auto_updater_helpers/metadata_initializer.py:54
+  Exception: REDIS_ERRORS
+  Reason: suppresses exception with continue
+
+src/common/metadata_store_auto_updater_helpers/metadata_initializer.py:64
+  Exception: REDIS_ERRORS
+  Reason: exception handler without re-raise
+
+src/common/metadata_store_auto_updater_helpers/metadata_initializer.py:84
+  Exception: REDIS_ERRORS
+  Reason: suppresses exception with literal return
+
+src/common/metadata_store_auto_updater_helpers/time_window_updater.py:35
+  Exception: REDIS_ERRORS
+  Reason: exception handler without re-raise
+
+src/common/metadata_store_auto_updater_helpers/time_window_updater.py:45
+  Exception: REDIS_ERRORS
+  Reason: exception handler without re-raise
+
+src/common/metadata_store_auto_updater_helpers/time_window_updater_helpers/hash_validator.py:40
+  Exception: REDIS_ERRORS
+  Reason: suppresses exception with literal return
+
+src/common/metadata_store_auto_updater_helpers/time_window_updater_helpers/service_updater.py:49
+  Exception: REDIS_ERRORS
+  Reason: exception handler without re-raise
+
+src/common/optimized_status_reporter.py:115
+  Exception: (ConnectionError, OSError, RuntimeError)
+  Reason: suppresses exception with pass
+
+src/common/optimized_status_reporter_helpers/realtime_metrics_collector.py:72
+  Exception: REDIS_DATA_ERRORS
+  Reason: suppresses exception with literal return
+
+src/common/optimized_status_reporter_helpers/realtime_metrics_collector.py:111
+  Exception: REDIS_DATA_ERRORS
+  Reason: suppresses exception with literal return
+
+src/common/pnl_calculator_helpers/daily_operations.py:53
+  Exception: DATA_ACCESS_ERRORS
+  Reason: suppresses exception with literal return
+
+src/common/pnl_calculator_helpers/daily_operations.py:68
+  Exception: DATA_ACCESS_ERRORS
+  Reason: suppresses exception with literal return
+
+src/common/pnl_calculator_helpers/snapshot_manager.py:88
+  Exception: DATA_ACCESS_ERRORS
+  Reason: suppresses exception with literal return
+
+src/common/pnl_calculator_helpers/summary_calculator.py:56
+  Exception: DATA_ACCESS_ERRORS
+  Reason: suppresses exception with literal return
+
+src/common/pnl_calculator_helpers/unified_pnl_calculator.py:53
+  Exception: DATA_ACCESS_ERRORS
+  Reason: suppresses exception with literal return
+
+src/common/redis_connection_manager.py:49
+  Exception: REDIS_ERRORS
+  Reason: exception handler without re-raise
+
+src/common/redis_connection_manager.py:65
+  Exception: REDIS_ERRORS
+  Reason: exception handler without re-raise
+
+src/common/redis_protocol/batching.py:57
+  Exception: (RuntimeError, ValueError, ConnectionError, OSError)
+  Reason: exception handler without re-raise
+
+src/common/redis_protocol/connection_pool_core.py:217
+  Exception: REDIS_SETUP_ERRORS
+  Reason: exception handler without re-raise
+
+src/common/redis_protocol/connection_pool_core.py:228
+  Exception: REDIS_SETUP_ERRORS
+  Reason: exception handler without re-raise
+
+src/common/redis_protocol/connection_pool_core.py:292
+  Exception: REDIS_SETUP_ERRORS
+  Reason: suppresses exception with literal return
+
+src/common/redis_protocol/connection_pool_core.py:331
+  Exception: REDIS_SETUP_ERRORS
+  Reason: exception handler without re-raise
+
+src/common/redis_protocol/connection_store_helpers/metrics_manager.py:42
+  Exception: SERIALIZATION_ERRORS
+  Reason: suppresses exception with literal return
+
+src/common/redis_protocol/connection_store_helpers/metrics_manager.py:55
+  Exception: REDIS_ERRORS
+  Reason: suppresses exception with literal return
+
+src/common/redis_protocol/connection_store_helpers/metrics_manager.py:80
+  Exception: REDIS_ERRORS
+  Reason: suppresses exception with literal return
+
+src/common/redis_protocol/connection_store_helpers/metrics_manager.py:93
+  Exception: JSON_ERRORS
+  Reason: suppresses exception with literal return
+
+src/common/redis_protocol/connection_store_helpers/reconnection_event_manager.py:48
+  Exception: SERIALIZATION_ERRORS
+  Reason: suppresses exception with literal return
+
+src/common/redis_protocol/connection_store_helpers/reconnection_event_manager.py:61
+  Exception: REDIS_ERRORS
+  Reason: exception handler without re-raise
+
+src/common/redis_protocol/connection_store_helpers/reconnection_event_manager.py:83
+  Exception: REDIS_ERRORS
+  Reason: exception handler without re-raise
+
+src/common/redis_protocol/connection_store_helpers/reconnection_event_manager.py:95
+  Exception: JSON_ERRORS
+  Reason: suppresses exception with continue
+
+src/common/redis_protocol/connection_store_helpers/state_manager.py:40
+  Exception: REDIS_ERRORS
+  Reason: suppresses exception with literal return
+
+src/common/redis_protocol/connection_store_helpers/state_manager.py:54
+  Exception: REDIS_ERRORS
+  Reason: suppresses exception with literal return
+
+src/common/redis_protocol/connection_store_helpers/state_manager.py:66
+  Exception: REDIS_ERRORS
+  Reason: exception handler without re-raise
+
+src/common/redis_protocol/connection_store_helpers/state_manager.py:95
+  Exception: REDIS_ERRORS
+  Reason: exception handler without re-raise
+
+src/common/redis_protocol/connection_store_helpers/state_processor.py:61
+  Exception: SERIALIZATION_ERRORS
+  Reason: suppresses exception with literal return
+
+src/common/redis_protocol/connection_store_helpers/state_processor.py:75
+  Exception: JSON_ERRORS
+  Reason: suppresses exception with literal return
+
+src/common/redis_protocol/connection_store_helpers/state_serializer.py:20
+  Exception: JSON_ERRORS
+  Reason: suppresses exception with literal return
+
+src/common/redis_protocol/connection_store_helpers/state_serializer.py:30
+  Exception: SERIALIZATION_ERRORS
+  Reason: suppresses exception with literal return
+
+src/common/redis_protocol/connection_wrappers.py:78
+  Exception: REDIS_SETUP_ERRORS
+  Reason: exception handler without re-raise
+
+src/common/redis_protocol/connection_wrappers.py:139
+  Exception: REDIS_SETUP_ERRORS
+  Reason: exception handler without re-raise
+
+src/common/redis_protocol/kalshi_store/cleaner_helpers/market_remover.py:78
+  Exception: REDIS_ERRORS
+  Reason: suppresses exception with literal return
+
+src/common/redis_protocol/kalshi_store/cleaner_helpers/market_remover.py:113
+  Exception: REDIS_ERRORS
+  Reason: suppresses exception with literal return
+
+src/common/redis_protocol/kalshi_store/cleaner_helpers/pipeline_executor.py:26
+  Exception: REDIS_ERRORS
+  Reason: suppresses exception with literal return
+
+src/common/redis_protocol/kalshi_store/cleaner_helpers/service_key_remover.py:73
+  Exception: REDIS_ERRORS
+  Reason: suppresses exception with literal return
+
+src/common/redis_protocol/kalshi_store/connection_helpers/connection_verifier.py:43
+  Exception: REDIS_ERRORS
+  Reason: exception handler without re-raise
+
+src/common/redis_protocol/kalshi_store/connection_helpers/pool_manager.py:43
+  Exception: REDIS_ERRORS
+  Reason: exception handler without re-raise
+
+src/common/redis_protocol/kalshi_store/connection_helpers/pool_manager.py:60
+  Exception: REDIS_ERRORS
+  Reason: exception handler without re-raise
+
+src/common/redis_protocol/kalshi_store/connection_helpers/retry_handler.py:105
+  Exception: RedisFatalError
+  Reason: suppresses exception with literal return
+
+src/common/redis_protocol/kalshi_store/connection_helpers/retry_handler.py:107
+  Exception: RedisRetryError
+  Reason: suppresses exception with literal return
+
+src/common/redis_protocol/kalshi_store/orderbook.py:116
+  Exception: REDIS_ERRORS
+  Reason: suppresses exception with literal return
+
+src/common/redis_protocol/kalshi_store/reader_helpers/expiry_checker.py:43
+  Exception: REDIS_ERRORS
+  Reason: suppresses exception with literal return
+
+src/common/redis_protocol/kalshi_store/reader_helpers/expiry_checker.py:78
+  Exception: REDIS_ERRORS
+  Reason: suppresses exception with literal return
+
+src/common/redis_protocol/kalshi_store/reader_helpers/market_operations.py:74
+  Exception: REDIS_ERRORS
+  Reason: suppresses exception with literal return
+
+src/common/redis_protocol/kalshi_store/reader_helpers/orderbook_reader.py:39
+  Exception: REDIS_ERRORS
+  Reason: exception handler without re-raise
+
+src/common/redis_protocol/kalshi_store/reader_helpers/orderbook_reader.py:50
+  Exception: REDIS_ERRORS
+  Reason: exception handler without re-raise
+
+src/common/redis_protocol/kalshi_store/reader_helpers/orderbook_reader.py:58
+  Exception: REDIS_ERRORS
+  Reason: exception handler without re-raise
+
+src/common/redis_protocol/kalshi_store/reader_helpers/snapshotreader_helpers/field_accessor.py:37
+  Exception: REDIS_ERRORS
+  Reason: suppresses exception with literal return
+
+src/common/redis_protocol/kalshi_store/store_methods.py:105
+  Exception: REDIS_ERRORS
+  Reason: exception handler without re-raise
+
+src/common/redis_protocol/kalshi_store/subscription_helpers/connection_manager.py:57
+  Exception: (RuntimeError, ConnectionError, AttributeError)
+  Reason: suppresses exception with literal return
+
+src/common/redis_protocol/kalshi_store/writer_helpers/batch_reader.py:61
+  Exception: REDIS_ERRORS
+  Reason: exception handler without re-raise
+
+src/common/redis_protocol/kalshi_store/writer_helpers/market_update_writer.py:86
+  Exception: REDIS_ERRORS
+  Reason: exception handler without re-raise
+
+src/common/redis_protocol/kalshi_store/writer_helpers/orderbook_writer.py:43
+  Exception: REDIS_ERRORS
+  Reason: suppresses exception with literal return
+
+src/common/redis_protocol/optimized_market_store.py:93
+  Exception: (RuntimeError, ValueError, AttributeError, KeyError, OSError, ConnectionError)
+  Reason: exception handler without re-raise
+
+src/common/redis_protocol/optimized_market_store_helpers/instrument_fetcher.py:44
+  Exception: REDIS_ERRORS
+  Reason: exception handler without re-raise
+
+src/common/redis_protocol/optimized_market_store_helpers/instrument_fetcher.py:55
+  Exception: REDIS_ERRORS
+  Reason: exception handler without re-raise
+
+src/common/redis_protocol/optimized_market_store_helpers/instrument_fetcher.py:64
+  Exception: REDIS_ERRORS
+  Reason: exception handler without re-raise
+
+src/common/redis_protocol/optimized_market_store_helpers/instrument_fetcher.py:73
+  Exception: REDIS_ERRORS
+  Reason: exception handler without re-raise
+
+src/common/redis_protocol/optimized_market_store_helpers/instrument_fetcher_helpers/redis_scanner.py:41
+  Exception: REDIS_ERRORS
+  Reason: exception handler without re-raise
+
+src/common/redis_protocol/persistence_manager.py:73
+  Exception: REDIS_ERRORS
+  Reason: exception handler without re-raise
+
+src/common/redis_protocol/persistence_manager.py:94
+  Exception: REDIS_ERRORS
+  Reason: exception handler without re-raise
+
+src/common/redis_protocol/persistence_manager.py:109
+  Exception: REDIS_ERRORS
+  Reason: exception handler without re-raise
+
+src/common/redis_protocol/persistence_manager_helpers/config_orchestrator.py:73
+  Exception: REDIS_ERRORS
+  Reason: suppresses exception with literal return
+
+src/common/redis_protocol/persistence_manager_helpers/connection_manager.py:71
+  Exception: REDIS_ERRORS
+  Reason: suppresses exception with literal return
+
+src/common/redis_protocol/persistence_manager_helpers/connection_manager.py:83
+  Exception: REDIS_ERRORS
+  Reason: exception handler without re-raise
+
+src/common/redis_protocol/persistence_manager_helpers/key_scanner.py:30
+  Exception: REDIS_ERRORS
+  Reason: exception handler without re-raise
+
+src/common/redis_protocol/persistence_manager_helpers/key_scanner.py:46
+  Exception: REDIS_ERRORS
+  Reason: exception handler without re-raise
+
+src/common/redis_protocol/persistence_manager_helpers/persistence_coordinator.py:59
+  Exception: REDIS_ERRORS
+  Reason: exception handler without re-raise
+
+src/common/redis_protocol/persistence_manager_helpers/persistence_coordinator.py:77
+  Exception: REDIS_ERRORS
+  Reason: suppresses exception with literal return
+
+src/common/redis_protocol/persistence_manager_helpers/snapshot_manager.py:31
+  Exception: REDIS_ERRORS
+  Reason: suppresses exception with literal return
+
+src/common/redis_protocol/persistence_manager_helpers/snapshot_manager.py:74
+  Exception: REDIS_ERRORS
+  Reason: suppresses exception with literal return
+
+src/common/redis_protocol/probability_store/probabilityingestion_helpers/human_readable_store.py:67
+  Exception: REDIS_ERRORS
+  Reason: exception handler without re-raise
+
+src/common/redis_protocol/subscription_store.py:114
+  Exception: (RuntimeError, ConnectionError, AttributeError)
+  Reason: exception handler without re-raise
+
+src/common/redis_protocol/subscription_store.py:127
+  Exception: (RuntimeError, ConnectionError, AttributeError)
+  Reason: exception handler without re-raise
+
+src/common/redis_protocol/subscription_store_helpers/operations.py:52
+  Exception: REDIS_ERRORS
+  Reason: suppresses exception with literal return
+
+src/common/redis_protocol/subscription_store_helpers/operations.py:71
+  Exception: REDIS_ERRORS
+  Reason: suppresses exception with literal return
+
+src/common/redis_protocol/subscription_store_helpers/retrieval.py:57
+  Exception: REDIS_ERRORS
+  Reason: exception handler without re-raise
+
+src/common/redis_protocol/subscription_store_helpers/retrieval.py:74
+  Exception: REDIS_ERRORS
+  Reason: exception handler without re-raise
+
+src/common/redis_protocol/trade_store/store_helpers/connection_manager_helpers/retry.py:57
+  Exception: RedisFatalError
+  Reason: suppresses exception with literal return
+
+src/common/redis_protocol/trade_store/store_helpers/connection_manager_helpers/retry.py:59
+  Exception: RedisRetryError
+  Reason: suppresses exception with literal return
+
+src/common/redis_protocol/trade_store/store_helpers/connection_manager_helpers/retry_helpers/executor.py:19
+  Exception: RedisFatalError
+  Reason: suppresses exception with literal return
+
+src/common/redis_protocol/trade_store/store_helpers/connection_manager_helpers/retry_helpers/executor.py:21
+  Exception: RedisRetryError
+  Reason: suppresses exception with literal return
+
+src/common/report_generator_helpers/error_handler.py:46
+  Exception: DATA_ACCESS_ERRORS
+  Reason: exception handler without re-raise
+
+src/common/report_generator_helpers/report_delegator.py:39
+  Exception: DATA_ACCESS_ERRORS
+  Reason: exception handler without re-raise
+
+src/common/report_generator_helpers/report_delegator.py:55
+  Exception: DATA_ACCESS_ERRORS
+  Reason: suppresses exception with literal return
+
+src/common/report_generator_helpers/report_delegator.py:70
+  Exception: DATA_ACCESS_ERRORS
+  Reason: suppresses exception with literal return
+
+src/common/report_generator_helpers/report_delegator.py:87
+  Exception: DATA_ACCESS_ERRORS
+  Reason: suppresses exception with literal return
+
+src/common/report_generator_helpers/report_delegator.py:94
+  Exception: DATA_ACCESS_ERRORS
+  Reason: suppresses exception with literal return
+
+src/common/resource_tracker.py:36
+  Exception: (RedisError, OSError, RuntimeError, ConnectionError, ValueError)
+  Reason: suppresses exception with literal return
+
+src/common/resource_tracker_helpers/cpu_tracker.py:45
+  Exception: REDIS_ERRORS
+  Reason: suppresses exception with literal return
+
+src/common/resource_tracker_helpers/cpu_tracker.py:86
+  Exception: REDIS_ERRORS
+  Reason: exception handler without re-raise
+
+src/common/resource_tracker_helpers/ram_tracker.py:45
+  Exception: REDIS_ERRORS
+  Reason: suppresses exception with literal return
+
+src/common/resource_tracker_helpers/ram_tracker.py:86
+  Exception: REDIS_ERRORS
+  Reason: exception handler without re-raise
+
+src/common/trade_visualizer.py:180
+  Exception: (OSError, ConnectionError, RuntimeError, ValueError)
+  Reason: exception handler without re-raise
+
+src/common/trade_visualizer_helpers/liquidity_fetcher.py:70
+  Exception: (OSError, ConnectionError, RuntimeError, ValueError)
+  Reason: exception handler without re-raise
+
+src/common/trade_visualizer_helpers/trade_fetcher.py:43
+  Exception: (OSError, ConnectionError, RuntimeError, ValueError)
+  Reason: exception handler without re-raise
+
+src/common/websocket/message_stats_helpers/silent_failure_alerter.py:31
+  Exception: (RuntimeError, ConnectionError, OSError, ValueError, ImportError)
+  Reason: exception handler without re-raise
+
+src/common/websocket/unified_subscription_manager_helpers/monitoring_loop.py:97
+  Exception: REDIS_ERRORS
+  Reason: exception handler without re-raise
+
+src/common/websocket/unified_subscription_manager_helpers/subscription_processor.py:70
+  Exception: (ConnectionError, RuntimeError, ValueError)
+  Reason: exception handler without re-raise
+
+src/common/websocket/unified_subscription_manager_helpers/update_handler.py:81
+  Exception: (ConnectionError, RuntimeError, ValueError)
+  Reason: exception handler without re-raise
+
+src/common/websocket_connection_manager_helpers/connection_lifecycle.py:78
+  Exception: (unknown, WebSocketException, OSError, RuntimeError)
+  Reason: exception handler without re-raise
+
+src/common/websocket_connection_manager_helpers/health_monitor.py:98
+  Exception: WebSocketException
+  Reason: exception handler without re-raise
+
+src/common/websocket_connection_manager_helpers/message_operations.py:28
+  Exception: WebSocketException
+  Reason: suppresses exception with literal return
+
+src/common/websocket_connection_manager_helpers/message_operations.py:60
+  Exception: WebSocketException
+  Reason: suppresses exception with literal return
+
+
+================================================================================
+SYSTEM_ERROR: 79 violations
+================================================================================
+
+src/common/alerter_factory.py:23
+  Exception: ImportError
+  Reason: exception handler without re-raise
+
+src/common/alerter_factory.py:61
+  Exception: ImportError
+  Reason: suppresses exception with pass
+
+src/common/alerter_factory.py:68
+  Exception: ImportError
+  Reason: suppresses exception with pass
+
+src/common/alerter_helpers/chart_batch_sender.py:49
+  Exception: OSError
+  Reason: exception handler without re-raise
+
+src/common/alerter_helpers/command_handlers.py:281
+  Exception: OSError
+  Reason: exception handler without re-raise
+
+src/common/alerter_helpers/command_queue_processor.py:62
+  Exception: (RuntimeError, ValueError, TypeError, KeyError, OSError)
+  Reason: exception handler without re-raise
+
+src/common/alerter_helpers/command_queue_processor.py:76
+  Exception: (OSError, RuntimeError, ValueError)
+  Reason: exception handler without re-raise
+
+src/common/alerter_helpers/command_queue_processor.py:82
+  Exception: (OSError, RuntimeError, ValueError)
+  Reason: exception handler without re-raise
+
+src/common/alerter_helpers/telegram_delivery_manager.py:62
+  Exception: (unknown, unknown, OSError, RuntimeError)
+  Reason: exception handler without re-raise
+
+src/common/alerter_helpers/telegram_delivery_manager.py:111
+  Exception: (unknown, unknown, OSError, RuntimeError)
+  Reason: suppresses exception with literal return
+
+src/common/alerter_helpers/telegram_polling_coordinator.py:84
+  Exception: (unknown, OSError)
+  Reason: exception handler without re-raise
+
+src/common/chart_components/trade_visualization.py:93
+  Exception: (OSError, RuntimeError, ValueError)
+  Reason: exception handler without re-raise
+
+src/common/chart_components/trade_visualization.py:119
+  Exception: (OSError, RuntimeError, ValueError)
+  Reason: suppresses exception with literal return
+
+src/common/chart_components/trade_visualization_helpers/visualizer_manager.py:46
+  Exception: (OSError, RuntimeError, ValueError)
+  Reason: exception handler without re-raise
+
+src/common/chart_components/trade_visualization_helpers/visualizer_manager.py:90
+  Exception: (RuntimeError, ValueError, TypeError, OSError)
+  Reason: exception handler without re-raise
+
+src/common/chart_generator/renderers/pnl.py:159
+  Exception: OSError
+  Reason: exception handler without re-raise
+
+src/common/chart_generator/runtime_helpers.py:183
+  Exception: OSError
+  Reason: exception handler without re-raise
+
+src/common/chart_generator/runtime_helpers.py:190
+  Exception: OSError
+  Reason: exception handler without re-raise
+
+src/common/chart_generator_helpers/chart_saver.py:37
+  Exception: (RuntimeError, OSError, IOError)
+  Reason: exception handler without re-raise
+
+src/common/chart_generator_helpers/city_token_resolver.py:63
+  Exception: (OSError, unknown, KeyError)
+  Reason: exception handler without re-raise
+
+src/common/chart_generator_helpers/load_charts_generator.py:47
+  Exception: OSError
+  Reason: exception handler without re-raise
+
+src/common/chart_generator_helpers/orchestrator_helpers/chart_generator.py:55
+  Exception: (IOError, OSError, ValueError, RuntimeError)
+  Reason: suppresses exception with continue
+
+src/common/chart_generator_helpers/orchestrator_helpers/cleanup_handler.py:19
+  Exception: OSError
+  Reason: exception handler without re-raise
+
+src/common/chart_generator_helpers/weather_station_loader.py:78
+  Exception: (OverflowError, OSError, ValueError, TypeError)
+  Reason: suppresses exception with literal return
+
+src/common/chart_generator_helpers/weather_station_loader_helpers/data_processor.py:34
+  Exception: (OverflowError, OSError, ValueError, TypeError)
+  Reason: suppresses exception with continue
+
+src/common/connection_manager.py:146
+  Exception: ImportError
+  Reason: exception handler without re-raise
+
+src/common/data_conversion/micro_price_helpers/batch_converter.py:50
+  Exception: (ValueError, TypeError, OSError)
+  Reason: suppresses exception with continue
+
+src/common/dependency_monitor_helpers/callback_runner.py:21
+  Exception: (RuntimeError, ValueError, TypeError, AttributeError, OSError, KeyError)
+  Reason: suppresses exception with continue
+
+src/common/error_analyzer.py:127
+  Exception: OSError
+  Reason: exception handler without re-raise
+
+src/common/health/log_activity_monitor_helpers/log_file_finder.py:45
+  Exception: OSError
+  Reason: exception handler without re-raise
+
+src/common/health/log_activity_monitor_helpers/log_file_finder.py:69
+  Exception: OSError
+  Reason: suppresses exception with continue
+
+src/common/health/log_activity_monitor_helpers/timestamp_extractor.py:33
+  Exception: OSError
+  Reason: suppresses exception with literal return
+
+src/common/health/process_health_monitor.py:20
+  Exception: ImportError
+  Reason: exception handler without re-raise
+
+src/common/logging_config.py:36
+  Exception: (AttributeError, OSError, KeyError, TypeError)
+  Reason: suppresses exception with literal return
+
+src/common/logging_config.py:60
+  Exception: ImportError
+  Reason: exception handler without re-raise
+
+src/common/logging_config.py:74
+  Exception: OSError
+  Reason: exception handler without re-raise
+
+src/common/logging_config.py:133
+  Exception: OSError
+  Reason: suppresses exception with pass
+
+src/common/logging_config.py:144
+  Exception: OSError
+  Reason: suppresses exception with pass
+
+src/common/memory_monitor_helpers/metrics_reader.py:31
+  Exception: PSUTIL_ERRORS
+  Reason: suppresses exception with literal return
+
+src/common/memory_monitor_helpers/metrics_reader.py:39
+  Exception: PSUTIL_ERRORS
+  Reason: suppresses exception with literal return
+
+src/common/optimized_status_reporter_helpers/day_night_detector.py:52
+  Exception: (OSError, ValueError)
+  Reason: exception handler without re-raise
+
+src/common/orderbook_utils.py:37
+  Exception: (ValueError, TypeError, KeyError, OSError)
+  Reason: exception handler without re-raise
+
+src/common/output_utils_helpers/plain_log_writer.py:61
+  Exception: (OSError, ValueError, AttributeError)
+  Reason: suppresses exception with literal return
+
+src/common/process_killer.py:279
+  Exception: (OSError, RuntimeError, ValueError)
+  Reason: exception handler without re-raise
+
+src/common/process_killer.py:317
+  Exception: (AttributeError, RuntimeError, OSError)
+  Reason: suppresses exception with literal return
+
+src/common/process_killer_helpers/process_discovery.py:58
+  Exception: ImportError
+  Reason: exception handler without re-raise
+
+src/common/process_killer_helpers/process_discovery.py:182
+  Exception: (AttributeError, RuntimeError, OSError)
+  Reason: suppresses exception with literal return
+
+src/common/process_monitor_helpers/background_worker.py:40
+  Exception: (unknown, unknown, OSError, RuntimeError)
+  Reason: exception handler without re-raise
+
+src/common/process_monitor_helpers/scanner.py:72
+  Exception: (unknown, RuntimeError, OSError)
+  Reason: exception handler without re-raise
+
+src/common/process_monitor_helpers/scanner.py:89
+  Exception: (unknown, OSError)
+  Reason: exception handler without re-raise
+
+src/common/process_monitor_mixins.py:32
+  Exception: (RuntimeError, ValueError, OSError)
+  Reason: exception handler without re-raise
+
+src/common/redis_protocol/kalshi_store/utils_market.py:53
+  Exception: (ValueError, TypeError, OSError)
+  Reason: suppresses exception with literal return
+
+src/common/redis_protocol/persistence_manager.py:88
+  Exception: (RuntimeError, ValueError, OSError)
+  Reason: exception handler without re-raise
+
+src/common/redis_protocol/persistence_manager.py:103
+  Exception: (RuntimeError, ValueError, OSError)
+  Reason: exception handler without re-raise
+
+src/common/redis_protocol/persistence_manager_helpers/persistence_coordinator.py:43
+  Exception: OSError
+  Reason: suppresses exception with literal return
+
+src/common/redis_utils.py:112
+  Exception: (OSError, RuntimeError)
+  Reason: exception handler without re-raise
+
+src/common/rest_connection_manager_helpers/health_monitor.py:81
+  Exception: OSError
+  Reason: exception handler without re-raise
+
+src/common/rest_connection_manager_helpers/request_operations.py:53
+  Exception: (unknown, OSError, RuntimeError)
+  Reason: suppresses exception with literal return
+
+src/common/rest_connection_manager_helpers/session_manager.py:77
+  Exception: (unknown, unknown, OSError)
+  Reason: exception handler without re-raise
+
+src/common/scraper_connection_manager_helpers/session_manager.py:91
+  Exception: (unknown, unknown, OSError)
+  Reason: exception handler without re-raise
+
+src/common/service_runner.py:19
+  Exception: ImportError
+  Reason: exception handler without re-raise
+
+src/common/service_runner.py:56
+  Exception: (OSError, ValueError)
+  Reason: exception handler without re-raise
+
+src/common/service_runner.py:61
+  Exception: OSError
+  Reason: suppresses exception with pass
+
+src/common/service_runner.py:89
+  Exception: OSError
+  Reason: suppresses exception with pass
+
+src/common/service_runner.py:97
+  Exception: OSError
+  Reason: suppresses exception with pass
+
+src/common/simple_health_checker_helpers/http_health_checker.py:68
+  Exception: (ClientError, OSError, ValueError)
+  Reason: exception handler without re-raise
+
+src/common/simple_health_checker_helpers/log_health_checker.py:76
+  Exception: OSError
+  Reason: exception handler without re-raise
+
+src/common/simple_system_metrics.py:81
+  Exception: OSError
+  Reason: suppresses exception with literal return
+
+src/common/simple_system_metrics.py:106
+  Exception: (OSError, ValueError)
+  Reason: suppresses exception with literal return
+
+src/common/simple_system_metrics.py:139
+  Exception: (OSError, ValueError)
+  Reason: suppresses exception with literal return
+
+src/common/simple_system_metrics.py:163
+  Exception: (unknown, unknown, ValueError, OSError)
+  Reason: suppresses exception with literal return
+
+src/common/simple_system_metrics.py:227
+  Exception: (unknown, unknown, ValueError, OSError)
+  Reason: suppresses exception with literal return
+
+src/common/status_reporter_helpers/output_writer.py:22
+  Exception: (BrokenPipeError, OSError)
+  Reason: suppresses exception with pass
+
+src/common/time_helpers/location.py:55
+  Exception: ImportError
+  Reason: exception handler without re-raise
+
+src/common/trading/notifier_adapter.py:36
+  Exception: ImportError
+  Reason: exception handler without re-raise
+
+src/common/trading/notifier_adapter.py:85
+  Exception: ImportError
+  Reason: exception handler without re-raise
+
+src/common/websocket_connection_manager_helpers/health_monitor.py:102
+  Exception: (OSError, RuntimeError)
+  Reason: exception handler without re-raise
+
+src/common/websocket_connection_manager_helpers/message_operations.py:31
+  Exception: (OSError, RuntimeError, ValueError)
+  Reason: suppresses exception with literal return
+
+src/common/websocket_connection_manager_helpers/message_operations.py:63
+  Exception: (OSError, RuntimeError, ValueError)
+  Reason: suppresses exception with literal return
+
+
+================================================================================
+TRADING_EXPECTED: 10 violations
+================================================================================
+
+src/common/dawn_reset_service_helpers/alert_manager.py:78
+  Exception: ALERT_DELIVERY_ERRORS
+  Reason: exception handler without re-raise
+
+src/common/emergency_position_manager.py:105
+  Exception: TRADING_OPERATION_ERRORS
+  Reason: exception handler without re-raise
+
+src/common/emergency_position_manager_helpers/limit_enforcer.py:69
+  Exception: MONITOR_ENFORCEMENT_ERRORS
+  Reason: exception handler without re-raise
+
+src/common/emergency_position_manager_helpers/position_closer.py:76
+  Exception: TRADING_OPERATION_ERRORS
+  Reason: exception handler without re-raise
+
+src/common/emergency_position_manager_helpers/stop_loss_monitor.py:68
+  Exception: TRADING_OPERATION_ERRORS
+  Reason: exception handler without re-raise
+
+src/common/market_lifecycle_monitor_helpers/close_detector.py:54
+  Exception: TRADING_ERRORS
+  Reason: exception handler without re-raise
+
+src/common/market_lifecycle_monitor_helpers/close_detector.py:80
+  Exception: TRADING_ERRORS
+  Reason: exception handler without re-raise
+
+src/common/market_lifecycle_monitor_helpers/market_scanner.py:54
+  Exception: TRADING_ERRORS
+  Reason: suppresses exception with literal return
+
+src/common/websocket/connection_health_monitor_helpers/alert_sender.py:35
+  Exception: ALERT_FAILURE_ERRORS
+  Reason: exception handler without re-raise
+
+src/common/websocket/unified_subscription_manager_helpers/health_validator.py:92
+  Exception: ALERT_FAILURE_ERRORS
+  Reason: exception handler without re-raise
+
+
+================================================================================
+UNKNOWN: 105 violations
+================================================================================
+
+src/common/alerter_helpers/alert_sender.py:69
+  Exception: unknown
+  Reason: suppresses exception with literal return
+
+src/common/alerter_helpers/command_queue_processor.py:41
+  Exception: unknown
+  Reason: suppresses exception with pass
+
+src/common/alerter_helpers/command_queue_processor.py:73
+  Exception: unknown
+  Reason: suppresses exception with break
+
+src/common/alerter_helpers/telegram_polling_coordinator.py:82
+  Exception: unknown
+  Reason: exception handler without re-raise
+
+src/common/alerter_helpers/telegram_retry_after_parser.py:28
+  Exception: unknown
+  Reason: suppresses exception with literal return
+
+src/common/dependency_aware_error_filter_helpers/pattern_matcher.py:40
+  Exception: unknown
+  Reason: exception handler without re-raise
+
+src/common/dependency_aware_error_filter_helpers/pattern_matcher.py:67
+  Exception: unknown
+  Reason: exception handler without re-raise
+
+src/common/dependency_monitor_helpers/monitoring_loop.py:57
+  Exception: unknown
+  Reason: suppresses exception with break
+
+src/common/emergency_position_manager_helpers/order_completion_waiter.py:63
+  Exception: ORDER_POLLING_ERRORS
+  Reason: exception handler without re-raise
+
+src/common/error_analyzer_helpers/notification_sender.py:74
+  Exception: NOTIFICATION_ERRORS
+  Reason: exception handler without re-raise
+
+src/common/health/log_activity_monitor.py:82
+  Exception: LOG_ACTIVITY_ERRORS
+  Reason: exception handler without re-raise
+
+src/common/health/process_health_monitor.py:115
+  Exception: (unknown, unknown)
+  Reason: exception handler without re-raise
+
+src/common/health/process_health_monitor.py:121
+  Exception: PROCESS_MONITOR_ERRORS
+  Reason: exception handler without re-raise
+
+src/common/health/service_health_checker.py:70
+  Exception: HEALTH_CHECK_ERRORS
+  Reason: exception handler without re-raise
+
+src/common/health/service_health_checker.py:100
+  Exception: HEALTH_CHECK_ERRORS
+  Reason: suppresses exception with literal return
+
+src/common/health/service_health_checker_helpers/redis_status_checker.py:68
+  Exception: unknown
+  Reason: exception handler without re-raise
+
+src/common/kalshi_catalog_helpers/station_loader.py:48
+  Exception: unknown
+  Reason: exception handler without re-raise
+
+src/common/kalshi_trading_client/client_helpers/lifecycle.py:33
+  Exception: CLEANUP_ERRORS
+  Reason: exception handler without re-raise
+
+src/common/kalshi_trading_client/services/order_helpers/metadata_fetcher.py:48
+  Exception: TELEGRAM_ALERT_ERRORS
+  Reason: exception handler without re-raise
+
+src/common/kalshi_trading_client/services/order_helpers/order_creator.py:72
+  Exception: unknown
+  Reason: exception handler without re-raise
+
+src/common/market_filters/kalshi.py:59
+  Exception: unknown
+  Reason: exception handler without re-raise
+
+src/common/market_lifecycle_monitor_helpers/close_detector.py:104
+  Exception: unknown
+  Reason: exception handler without re-raise
+
+src/common/market_lifecycle_monitor_helpers/lifecycle_orchestrator.py:60
+  Exception: unknown
+  Reason: exception handler without re-raise
+
+src/common/market_lifecycle_monitor_helpers/market_registrar.py:60
+  Exception: unknown
+  Reason: suppresses exception with literal return
+
+src/common/market_lifecycle_monitor_helpers/market_updater.py:44
+  Exception: unknown
+  Reason: exception handler without re-raise
+
+src/common/market_lifecycle_monitor_helpers/settlement_checker.py:58
+  Exception: unknown
+  Reason: exception handler without re-raise
+
+src/common/market_lifecycle_monitor_helpers/settlement_fetcher.py:79
+  Exception: unknown
+  Reason: suppresses exception with literal return
+
+src/common/memory_monitor_helpers/collection_tracker.py:40
+  Exception: COLLECTION_ERRORS
+  Reason: exception handler without re-raise
+
+src/common/memory_monitor_helpers/metrics_reader.py:48
+  Exception: TASK_QUERY_ERRORS
+  Reason: suppresses exception with literal return
+
+src/common/memory_monitor_helpers/monitoring_loop.py:68
+  Exception: unknown
+  Reason: exception handler without re-raise
+
+src/common/memory_monitor_helpers/monitoring_loop.py:100
+  Exception: unknown
+  Reason: suppresses exception with break
+
+src/common/memory_monitor_helpers/monitoring_loop.py:103
+  Exception: MONITOR_LOOP_ERRORS
+  Reason: exception handler without re-raise
+
+src/common/metadata_store_auto_updater.py:104
+  Exception: (unknown, unknown)
+  Reason: exception handler without re-raise
+
+src/common/metadata_store_auto_updater_helpers/initialization_manager.py:67
+  Exception: POOL_ERRORS
+  Reason: exception handler without re-raise
+
+src/common/optimized_status_reporter_helpers/log_activity_collector.py:41
+  Exception: unknown
+  Reason: exception handler without re-raise
+
+src/common/optimized_status_reporter_helpers/service_state_collector_helpers/pid_validator.py:23
+  Exception: (unknown, unknown, unknown)
+  Reason: suppresses exception with literal return
+
+src/common/optimized_status_reporter_helpers/tracker_status_collector.py:64
+  Exception: TRACKER_STATUS_ERRORS
+  Reason: exception handler without re-raise
+
+src/common/parsing_utils.py:30
+  Exception: unknown
+  Reason: exception handler without re-raise
+
+src/common/parsing_utils.py:52
+  Exception: unknown
+  Reason: exception handler without re-raise
+
+src/common/process_killer.py:239
+  Exception: unknown
+  Reason: exception handler without re-raise
+
+src/common/process_killer.py:241
+  Exception: unknown
+  Reason: exception handler without re-raise
+
+src/common/process_killer.py:263
+  Exception: unknown
+  Reason: suppresses exception with literal return
+
+src/common/process_killer.py:277
+  Exception: unknown
+  Reason: exception handler without re-raise
+
+src/common/process_killer.py:291
+  Exception: unknown
+  Reason: suppresses exception with literal return
+
+src/common/process_killer.py:294
+  Exception: unknown
+  Reason: suppresses exception with literal return
+
+src/common/process_killer.py:300
+  Exception: unknown
+  Reason: exception handler without re-raise
+
+src/common/process_killer.py:302
+  Exception: unknown
+  Reason: exception handler without re-raise
+
+src/common/process_killer_helpers/process_discovery.py:86
+  Exception: (unknown, unknown)
+  Reason: suppresses exception with continue
+
+src/common/process_killer_helpers/process_discovery.py:103
+  Exception: unknown
+  Reason: suppresses exception with literal return
+
+src/common/process_killer_helpers/process_discovery.py:107
+  Exception: unknown
+  Reason: suppresses exception with literal return
+
+src/common/process_killer_helpers/process_terminator.py:51
+  Exception: unknown
+  Reason: exception handler without re-raise
+
+src/common/process_killer_helpers/process_terminator.py:75
+  Exception: unknown
+  Reason: exception handler without re-raise
+
+src/common/process_killer_helpers/process_terminator.py:130
+  Exception: unknown
+  Reason: suppresses exception with literal return
+
+src/common/process_monitor.py:144
+  Exception: unknown
+  Reason: exception handler without re-raise
+
+src/common/process_monitor_helpers/background_worker.py:37
+  Exception: unknown
+  Reason: suppresses exception with continue
+
+src/common/process_monitor_helpers/cache_manager.py:61
+  Exception: (unknown, unknown)
+  Reason: exception handler without re-raise
+
+src/common/process_monitor_helpers/lifecycle.py:42
+  Exception: unknown
+  Reason: exception handler without re-raise
+
+src/common/process_monitor_helpers/scan_coordinator.py:52
+  Exception: unknown
+  Reason: exception handler without re-raise
+
+src/common/process_monitor_helpers/scanner.py:61
+  Exception: (unknown, unknown)
+  Reason: suppresses exception with continue
+
+src/common/redis_protocol/batch_manager_helpers/timer.py:64
+  Exception: unknown
+  Reason: suppresses exception with pass
+
+src/common/redis_protocol/batch_manager_helpers/timer.py:66
+  Exception: BATCH_PROCESS_ERRORS
+  Reason: exception handler without re-raise
+
+src/common/redis_protocol/batch_manager_helpers/timer.py:83
+  Exception: unknown
+  Reason: suppresses exception with pass
+
+src/common/redis_protocol/connection_pool_core.py:215
+  Exception: unknown
+  Reason: exception handler without re-raise
+
+src/common/redis_protocol/connection_store_helpers/state_serializer.py:50
+  Exception: PARSING_ERRORS
+  Reason: exception handler without re-raise
+
+src/common/redis_protocol/kalshi_store/connection_helpers/connection_verifier.py:36
+  Exception: unknown
+  Reason: exception handler without re-raise
+
+src/common/redis_protocol/kalshi_store/metadata_helpers/station_extraction.py:32
+  Exception: WeatherStationMappingError
+  Reason: suppresses exception with literal return
+
+src/common/redis_protocol/kalshi_store/orderbook_helpers/message_processing/normalizer.py:19
+  Exception: unknown
+  Reason: suppresses exception with continue
+
+src/common/redis_protocol/kalshi_store/reader_helpers/market_record_builder.py:56
+  Exception: MarketSkip
+  Reason: suppresses exception with continue
+
+src/common/redis_protocol/kalshi_store/reader_helpers/metadataextractor_helpers/market_record_builder.py:104
+  Exception: unknown
+  Reason: exception handler without re-raise
+
+src/common/redis_protocol/kalshi_store/reader_helpers/metadataextractor_helpers/market_record_builder_helpers/field_extractor.py:32
+  Exception: unknown
+  Reason: exception handler without re-raise
+
+src/common/redis_protocol/kalshi_store/reader_helpers/metadataextractor_helpers/market_record_builder_helpers/metadata_builder.py:33
+  Exception: unknown
+  Reason: exception handler without re-raise
+
+src/common/redis_protocol/kalshi_store/reader_helpers/metadataextractor_helpers/metadata_parser.py:35
+  Exception: unknown
+  Reason: suppresses exception with literal return
+
+src/common/redis_protocol/kalshi_store/store_methods.py:264
+  Exception: unknown
+  Reason: exception handler without re-raise
+
+src/common/redis_protocol/kalshi_store/store_methods.py:306
+  Exception: unknown
+  Reason: exception handler without re-raise
+
+src/common/redis_protocol/kalshi_store/utils_market.py:102
+  Exception: unknown
+  Reason: suppresses exception with literal return
+
+src/common/redis_protocol/kalshi_store/writer_helpers/market_update_writer.py:93
+  Exception: TradeStoreError
+  Reason: exception handler without re-raise
+
+src/common/resource_tracker_helpers/monitoring_loop.py:57
+  Exception: unknown
+  Reason: exception handler without re-raise
+
+src/common/resource_tracker_helpers/monitoring_loop.py:86
+  Exception: unknown
+  Reason: suppresses exception with continue
+
+src/common/rest_connection_manager_helpers/health_monitor.py:73
+  Exception: unknown
+  Reason: exception handler without re-raise
+
+src/common/rest_connection_manager_helpers/health_monitor.py:77
+  Exception: unknown
+  Reason: exception handler without re-raise
+
+src/common/rest_connection_manager_helpers/request_operations.py:48
+  Exception: unknown
+  Reason: suppresses exception with literal return
+
+src/common/scraper_connection_manager_helpers/content_validation.py:60
+  Exception: VALIDATION_EXCEPTIONS
+  Reason: suppresses exception with literal return
+
+src/common/scraper_connection_manager_helpers/health_monitor.py:73
+  Exception: unknown
+  Reason: exception handler without re-raise
+
+src/common/scraper_connection_manager_helpers/health_monitor.py:75
+  Exception: unknown
+  Reason: exception handler without re-raise
+
+src/common/scraper_connection_manager_helpers/health_monitor_helpers/url_checker.py:51
+  Exception: unknown
+  Reason: suppresses exception with literal return
+
+src/common/scraper_connection_manager_helpers/health_monitor_helpers/url_checker.py:55
+  Exception: unknown
+  Reason: suppresses exception with literal return
+
+src/common/scraper_connection_manager_helpers/health_monitor_helpers/url_tester.py:34
+  Exception: unknown
+  Reason: suppresses exception with literal return
+
+src/common/scraper_connection_manager_helpers/health_monitor_helpers/url_tester.py:37
+  Exception: unknown
+  Reason: suppresses exception with literal return
+
+src/common/scraper_connection_manager_helpers/scraping_operations.py:60
+  Exception: unknown
+  Reason: suppresses exception with literal return
+
+src/common/service_runner.py:165
+  Exception: KeyboardInterrupt
+  Reason: exception handler without re-raise
+
+src/common/simple_health_checker_helpers/http_health_checker.py:62
+  Exception: unknown
+  Reason: exception handler without re-raise
+
+src/common/time_helpers/timezone.py:49
+  Exception: unknown
+  Reason: suppresses exception with literal return
+
+src/common/trading/order_metadata_service.py:11
+  Exception: ModuleNotFoundError
+  Reason: exception handler without re-raise
+
+src/common/trading/order_metadata_service.py:55
+  Exception: ALERT_SEND_ERRORS
+  Reason: exception handler without re-raise
+
+src/common/trading/trade_store_manager.py:82
+  Exception: CLOSE_ERRORS
+  Reason: exception handler without re-raise
+
+src/common/weather_history_tracker_helpers/observation_recorder.py:105
+  Exception: unknown
+  Reason: exception handler without re-raise
+
+src/common/weather_history_tracker_helpers/statistics_retriever.py:117
+  Exception: unknown
+  Reason: exception handler without re-raise
+
+src/common/websocket/monitoring_task_mixin.py:20
+  Exception: unknown
+  Reason: suppresses exception with pass
+
+src/common/websocket/unified_subscription_manager_helpers/message_processor.py:71
+  Exception: UPDATE_PARSE_ERRORS
+  Reason: suppresses exception with literal return
+
+src/common/websocket/unified_subscription_manager_helpers/monitoring_loop.py:66
+  Exception: unknown
+  Reason: suppresses exception with continue
+
+src/common/websocket/unified_subscription_manager_helpers/monitoring_loop.py:75
+  Exception: unknown
+  Reason: suppresses exception with break
+
+src/common/websocket/unified_subscription_manager_helpers/monitoring_loop.py:78
+  Exception: unknown
+  Reason: suppresses exception with continue
+
+src/common/websocket/unified_subscription_manager_helpers/monitoring_loop.py:90
+  Exception: unknown
+  Reason: exception handler without re-raise
+
+src/common/websocket_connection_manager_helpers/health_monitor.py:53
+  Exception: unknown
+  Reason: exception handler without re-raise
+
+src/common/websocket_connection_manager_helpers/message_operations.py:57
+  Exception: unknown
+  Reason: suppresses exception with literal return
+

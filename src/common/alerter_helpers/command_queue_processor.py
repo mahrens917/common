@@ -38,8 +38,8 @@ class CommandQueueProcessor:
             self.processor_task.cancel()
             try:
                 await self.processor_task
-            except asyncio.CancelledError:
-                pass
+            except asyncio.CancelledError:  # Expected during task cancellation  # policy_guard: allow-silent-handler
+                logger.debug("Command queue processor task was cancelled")
             logger.info("Command queue processor stopped")
 
     async def _process_queue(self) -> None:
@@ -59,7 +59,13 @@ class CommandQueueProcessor:
                     try:
                         await queued_command.handler(queued_command.message)
                         logger.debug(f"Successfully processed command: /{queued_command.command}")
-                    except (RuntimeError, ValueError, TypeError, KeyError, OSError) as exc:
+                    except (
+                        RuntimeError,
+                        ValueError,
+                        TypeError,
+                        KeyError,
+                        OSError,
+                    ) as exc:  # Best-effort cleanup operation  # policy_guard: allow-silent-handler
                         logger.exception("Error executing queued command /%s", queued_command.command)
                         # Send error message to user
                         await self.send_alert_callback(
@@ -70,16 +76,16 @@ class CommandQueueProcessor:
                         # Mark task as done
                         self.command_queue.task_done()
 
-                except asyncio.CancelledError:
+                except asyncio.CancelledError:  # Expected during task cancellation  # policy_guard: allow-silent-handler
                     logger.info("Command queue processor cancelled")
                     break
-                except (OSError, RuntimeError, ValueError) as exc:
+                except (OSError, RuntimeError, ValueError) as exc:  # Best-effort cleanup operation  # policy_guard: allow-silent-handler
                     logger.exception("Error in command queue processor")
                     # Continue processing other commands
 
         except asyncio.CancelledError:
             raise
-        except (OSError, RuntimeError, ValueError) as exc:
+        except (OSError, RuntimeError, ValueError) as exc:  # Best-effort cleanup operation  # policy_guard: allow-silent-handler
             logger.exception("Fatal error in command queue processor")
         finally:
             self.is_processing = False

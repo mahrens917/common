@@ -50,7 +50,7 @@ class MonitoringLoop:
             finally:
                 await self._cleanup_pubsub(pubsub)
 
-        except REDIS_ERRORS + (ConnectionError, RuntimeError):  # policy_guard: allow-silent-handler
+        except REDIS_ERRORS + (ConnectionError, RuntimeError):
             logger.exception("Fatal error in %s subscription monitoring", self.service_name)
             raise
         finally:
@@ -72,7 +72,7 @@ class MonitoringLoop:
 
                     await asyncio.sleep(0.1)  # Check frequently
 
-            except asyncio.CancelledError:  # policy_guard: allow-silent-handler
+            except asyncio.CancelledError:  # Expected during task cancellation  # policy_guard: allow-silent-handler
                 logger.info(f"{self.service_name} subscription monitoring cancelled")
                 break
             except REDIS_ERRORS + (ConnectionError, RuntimeError, ValueError):  # policy_guard: allow-silent-handler
@@ -94,5 +94,5 @@ class MonitoringLoop:
         """Clean up Redis connection."""
         try:
             await redis_client.aclose()
-        except REDIS_ERRORS:  # policy_guard: allow-silent-handler
+        except REDIS_ERRORS:  # Expected exception in operation  # policy_guard: allow-silent-handler
             logger.exception("Error closing %s Redis connection", self.service_name)

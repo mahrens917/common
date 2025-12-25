@@ -29,7 +29,7 @@ class TradeCollectionController:
         """Ensure a trade store is available before marking collection as active."""
         try:
             await self._trade_store_getter()
-        except (RuntimeError, ValueError, TypeError, AttributeError) as exc:  # policy_guard: allow-silent-handler
+        except (RuntimeError, ValueError, TypeError, AttributeError) as exc:
             raise ValidationError("Trade store required for trade collection") from exc
 
         self._logger.info("[KalshiTradingClient] Trade collection started (immediate storage mode)")

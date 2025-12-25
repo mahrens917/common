@@ -70,7 +70,7 @@ class ConfigOrchestrator:
             success = config_failed == 0
             logger.info(f"Redis persistence configuration completed: {config_applied} applied, " f"{config_failed} failed")
 
-        except REDIS_ERRORS as exc:  # policy_guard: allow-silent-handler
+        except REDIS_ERRORS as exc:  # Expected exception, returning default value  # policy_guard: allow-silent-handler
             logger.error("Error configuring Redis persistence: %s", exc, exc_info=True)
             return False
         else:

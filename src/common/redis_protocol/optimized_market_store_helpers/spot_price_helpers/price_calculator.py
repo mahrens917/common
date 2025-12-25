@@ -79,7 +79,7 @@ class PriceCalculator:
         try:
             bid_price = float(best_bid_str)
             ask_price = float(best_ask_str)
-        except (TypeError, ValueError) as exc:  # policy_guard: allow-silent-handler
+        except (TypeError, ValueError) as exc:
             raise ValidationError(f"USDC pair market data invalid for {currency}; bid='{best_bid_str}', ask='{best_ask_str}'") from exc
 
         return bid_price, ask_price

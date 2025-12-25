@@ -16,9 +16,16 @@ class CallbackRunner:
         for callback in callbacks:
             try:
                 error = await callback_executor.run_callback(callback)
-            except asyncio.CancelledError:  # policy_guard: allow-silent-handler
+            except asyncio.CancelledError:
                 raise
-            except (RuntimeError, ValueError, TypeError, AttributeError, OSError, KeyError):  # policy_guard: allow-silent-handler
+            except (
+                RuntimeError,
+                ValueError,
+                TypeError,
+                AttributeError,
+                OSError,
+                KeyError,
+            ):  # Best-effort cleanup operation  # policy_guard: allow-silent-handler
                 logger.exception("[%s] Error in callback", service_name)
                 continue
             if isinstance(error, BaseException):

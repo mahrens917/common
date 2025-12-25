@@ -2,10 +2,13 @@
 
 from __future__ import annotations
 
+import logging
 from datetime import datetime
 from typing import Any, Mapping, Optional
 
 from .data_converters import decode_payload, parse_expiry_datetime
+
+logger = logging.getLogger(__name__)
 
 
 def parse_expiry(metadata: Mapping[str, Any]) -> tuple[Optional[str], Optional[datetime]]:
@@ -17,7 +20,8 @@ def parse_expiry(metadata: Mapping[str, Any]) -> tuple[Optional[str], Optional[d
     try:
         expiry_dt = parse_expiry_datetime(str(expiry_raw))
         return str(expiry_raw), expiry_dt
-    except ValueError:  # policy_guard: allow-silent-handler
+    except ValueError:  # Expected data validation or parsing failure  # policy_guard: allow-silent-handler
+        logger.warning("Expected data validation or parsing failure")
         return str(expiry_raw), None
 
 

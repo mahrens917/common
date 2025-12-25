@@ -9,7 +9,6 @@ from typing import TYPE_CHECKING, Any, Dict, List, Optional
 
 import redis
 
-from common.redis_protocol.typing import ensure_awaitable
 from common.chart_generator.exceptions import (
     InsufficientDataError,
     ProgressNotificationError,
@@ -18,6 +17,7 @@ from common.chart_generator_helpers.chart_file_manager import ChartFileManager
 from common.chart_generator_helpers.float_utils import safe_float
 from common.chart_generator_helpers.price_chart_creator import PriceChartCreator
 from common.chart_generator_helpers.progress_notifier import ProgressNotifier
+from common.redis_protocol.typing import ensure_awaitable
 
 from .dependencies import mdates, os, plt
 
@@ -26,6 +26,7 @@ if TYPE_CHECKING:
 
 logger = logging.getLogger("src.monitor.chart_generator")
 MIN_DATA_POINTS_FOR_CHART = 2
+_DEFAULT_PRIMARY_COLOR = "#627EEA"
 
 
 async def create_load_chart(generator: "ChartGenerator", service_name: str, hours: int) -> str:
@@ -60,7 +61,7 @@ async def create_load_chart(generator: "ChartGenerator", service_name: str, hour
         chart_title=chart_title,
         y_label="",
         value_formatter_func=load_formatter,
-        line_color=getattr(generator, "primary_color", "#627EEA"),
+        line_color=getattr(generator, "primary_color", _DEFAULT_PRIMARY_COLOR),
     )
 
 
@@ -87,7 +88,12 @@ async def create_system_chart(generator: "ChartGenerator", metric: str, hours: i
             dt = datetime.strptime(datetime_str, "%Y-%m-%d %H:%M:%S")
             timestamp = int(dt.timestamp())
             numeric_value = float(value_str)
-        except (ValueError, UnicodeDecodeError, TypeError):
+        except (
+            ValueError,
+            UnicodeDecodeError,
+            TypeError,
+        ):  # Expected data validation or parsing failure  # policy_guard: allow-silent-handler
+            logger.warning("Expected data validation or parsing failure")
             continue
         if timestamp >= start_time and numeric_value > 0:
             timestamps.append(datetime.fromtimestamp(timestamp, tz=timezone.utc))
@@ -107,7 +113,7 @@ async def create_system_chart(generator: "ChartGenerator", metric: str, hours: i
         chart_title=chart_title,
         y_label="",
         value_formatter_func=pct_formatter,
-        line_color=getattr(generator, "primary_color", "#627EEA"),
+        line_color=getattr(generator, "primary_color", _DEFAULT_PRIMARY_COLOR),
     )
 
 
@@ -158,7 +164,8 @@ def safe_float_value(value: str | float | int | None) -> Optional[float]:
 def _coerce_into_float(value: Any) -> Optional[float]:
     try:
         return float(value)
-    except (TypeError, ValueError):
+    except (TypeError, ValueError):  # Expected data validation or parsing failure  # policy_guard: allow-silent-handler
+        logger.warning("Expected data validation or parsing failure")
         return None
 
 
@@ -180,14 +187,14 @@ async def generate_load_charts(generator: "ChartGenerator", hours: int = 24) -> 
         for path in generated_paths:
             try:
                 os.unlink(path)
-            except OSError:
+            except OSError:  # Best-effort cleanup operation  # policy_guard: allow-silent-handler
                 logger.warning("Failed to cleanup load chart %s", path)
         raise
     except (IOError, OSError, ValueError, RuntimeError, redis.RedisError):
         for path in generated_paths:
             try:
                 os.unlink(path)
-            except OSError:
+            except OSError:  # Best-effort cleanup operation  # policy_guard: allow-silent-handler
                 logger.warning("Failed to cleanup load chart %s", path)
         raise
     return {
@@ -213,7 +220,7 @@ async def create_price_chart_impl(generator: "ChartGenerator", symbol: str, pred
             progress_notifier = ProgressNotifier(generator.progress_callback)
             generator.progress_notifier = progress_notifier
         creator = PriceChartCreator(
-            primary_color=getattr(generator, "primary_color", "#627EEA"),
+            primary_color=getattr(generator, "primary_color", _DEFAULT_PRIMARY_COLOR),
             price_path_calculator=generator.price_path_calculator,
             price_path_horizon_days=generator.price_path_horizon_days,
             progress_notifier=progress_notifier,

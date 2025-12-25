@@ -204,7 +204,7 @@ async def cleanup_redis_pool():
                         logger.warning("Event loop is closed, skipping Redis pool cleanup")
                         _unified_pool = None
                         return
-                except RuntimeError:  # policy_guard: allow-silent-handler
+                except RuntimeError:  # Expected runtime failure in operation  # policy_guard: allow-silent-handler
                     # No running loop, safe to proceed
                     pass
 
@@ -212,9 +212,9 @@ async def cleanup_redis_pool():
                 try:
                     await _disconnect_pool(_unified_pool, timeout=5.0)
                     logger.info("Cleaned up unified Redis connection pool")
-                except asyncio.TimeoutError:  # policy_guard: allow-silent-handler
+                except asyncio.TimeoutError:  # Transient network/connection failure  # policy_guard: allow-silent-handler
                     logger.warning("Redis pool cleanup timed out after 5 seconds")
-                except REDIS_SETUP_ERRORS as disconnect_error:  # policy_guard: allow-silent-handler
+                except REDIS_SETUP_ERRORS as disconnect_error:  # Expected exception in operation  # policy_guard: allow-silent-handler
                     logger.exception(
                         "Error during Redis pool disconnect (%s)",
                         type(disconnect_error).__name__,
@@ -225,7 +225,7 @@ async def cleanup_redis_pool():
                 _redis_health_monitor.record_pool_cleanup()
                 _pool_loop = None
 
-            except REDIS_SETUP_ERRORS as exc:  # policy_guard: allow-silent-handler
+            except REDIS_SETUP_ERRORS as exc:  # Expected exception in operation  # policy_guard: allow-silent-handler
                 # Don't raise on cleanup errors during teardown, but log them
                 logger.exception(
                     "Error during Redis pool cleanup (%s)",
@@ -244,14 +244,15 @@ async def _disconnect_pool(pool: redis.asyncio.ConnectionPool, *, timeout: float
     pool_loop = _pool_loop() if _pool_loop else None
     try:
         current_loop = asyncio.get_running_loop()
-    except RuntimeError:  # policy_guard: allow-silent-handler
+    except RuntimeError:  # Expected runtime failure in operation  # policy_guard: allow-silent-handler
         current_loop = None
 
     if pool_loop and pool_loop is not current_loop and not pool_loop.is_closed():
         try:
             future = asyncio.run_coroutine_threadsafe(pool.disconnect(), pool_loop)
             await asyncio.wait_for(asyncio.wrap_future(future), timeout=timeout)
-        except (RuntimeError, asyncio.CancelledError):  # policy_guard: allow-silent-handler
+        except (RuntimeError, asyncio.CancelledError):  # Expected during task cancellation  # policy_guard: allow-silent-handler
+            logger.debug("Expected during task cancellation")
             pass
         else:
             return
@@ -289,7 +290,7 @@ async def perform_redis_health_check() -> bool:
         else:
             logger.warning("Redis health check failed - value mismatch")
 
-    except REDIS_SETUP_ERRORS as exc:  # policy_guard: allow-silent-handler
+    except REDIS_SETUP_ERRORS as exc:  # Expected exception, returning default value  # policy_guard: allow-silent-handler
         logger.exception(
             "Redis health check failed (%s)",
             type(exc).__name__,
@@ -328,7 +329,7 @@ async def cleanup_redis_pool_on_network_issues():
 
         logger.info("Redis connection pool cleanup completed")
 
-    except REDIS_SETUP_ERRORS as exc:  # policy_guard: allow-silent-handler
+    except REDIS_SETUP_ERRORS as exc:  # Expected exception in operation  # policy_guard: allow-silent-handler
         logger.exception(
             "Error during network-triggered Redis pool cleanup (%s)",
             type(exc).__name__,

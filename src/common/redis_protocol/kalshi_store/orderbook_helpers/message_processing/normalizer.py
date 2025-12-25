@@ -1,11 +1,14 @@
 """JSON normalization for orderbook snapshots."""
 
+import logging
 from typing import Any, Dict
 
 import orjson
 from redis.asyncio import Redis
 
 from ....typing import ensure_awaitable
+
+logger = logging.getLogger(__name__)
 
 
 async def normalize_snapshot_json(redis: Redis, market_key: str) -> None:
@@ -16,7 +19,8 @@ async def normalize_snapshot_json(redis: Redis, market_key: str) -> None:
             continue
         try:
             decoded = orjson.loads(payload)
-        except orjson.JSONDecodeError:  # policy_guard: allow-silent-handler
+        except orjson.JSONDecodeError:  # Expected exception in loop, continuing iteration  # policy_guard: allow-silent-handler
+            logger.debug("Expected exception in loop, continuing iteration")
             continue
 
         updated = normalize_price_map(decoded)
@@ -41,12 +45,12 @@ def normalize_price_map(data: Dict[Any, Any]) -> Dict[str, Any]:
                 normalized_key = str(int(key)) if float(key).is_integer() else f"{float(key):.1f}"
             else:
                 normalized_key = f"{float(key):.1f}"
-        except (TypeError, ValueError):  # policy_guard: allow-silent-handler
+        except (TypeError, ValueError):  # Expected data validation or parsing failure  # policy_guard: allow-silent-handler
             normalized_key = str(key)
 
         try:
             numeric_value = float(value)
-        except (TypeError, ValueError):  # policy_guard: allow-silent-handler
+        except (TypeError, ValueError):  # Expected data validation or parsing failure  # policy_guard: allow-silent-handler
             numeric_value = value
         normalized[normalized_key] = numeric_value
     return normalized

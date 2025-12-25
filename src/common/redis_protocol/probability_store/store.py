@@ -50,9 +50,9 @@ class ProbabilityStore:
     async def store_probabilities(self, currency: str, probabilities_data: Dict[str, Any]) -> bool:
         try:
             return await self._ingestion.store_probabilities(currency, probabilities_data)
-        except ProbabilityStoreError:  # policy_guard: allow-silent-handler
+        except ProbabilityStoreError:
             raise
-        except REDIS_ERRORS as exc:  # policy_guard: allow-silent-handler
+        except REDIS_ERRORS as exc:
             raise ProbabilityStoreError(f"Failed to store probabilities for {currency.upper()}: Redis error {exc}") from exc
 
     async def store_probabilities_human_readable(self, currency: str, probabilities_data: Dict[str, Dict[str, Dict[str, float]]]) -> bool:

@@ -42,7 +42,7 @@ class CpuTracker:
 
             logger.debug(f"Recorded {total_cpu_percent}% total CPU usage at {timestamp}")
 
-        except REDIS_ERRORS as exc:  # policy_guard: allow-silent-handler
+        except REDIS_ERRORS as exc:  # Expected exception, returning default value  # policy_guard: allow-silent-handler
             logger.error("Error recording CPU usage: %s", exc, exc_info=True)
             return False
         else:
@@ -83,7 +83,7 @@ class CpuTracker:
             history.sort(key=lambda x: x[0])
             logger.debug(f"Retrieved {len(history)} CPU history entries over {hours} hours")
 
-        except REDIS_ERRORS as exc:  # policy_guard: allow-silent-handler
+        except REDIS_ERRORS as exc:  # Expected exception in operation  # policy_guard: allow-silent-handler
             logger.error("Error getting CPU history: %s", exc, exc_info=True)
             return []
         else:

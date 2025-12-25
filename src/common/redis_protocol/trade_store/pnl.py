@@ -57,7 +57,7 @@ class PnLStore:
             return None
         try:
             return orjson.loads(summary_json)
-        except orjson.JSONDecodeError as exc:  # policy_guard: allow-silent-handler
+        except orjson.JSONDecodeError as exc:
             raise TradeStoreError(f"Invalid daily summary JSON for {trade_date}") from exc
 
     async def store_unrealized_snapshot(self, redis_key: str, data: Dict[str, Any]) -> bool:
@@ -74,7 +74,7 @@ class PnLStore:
             return None
         try:
             return orjson.loads(snapshot)
-        except orjson.JSONDecodeError as exc:  # policy_guard: allow-silent-handler
+        except orjson.JSONDecodeError as exc:
             raise TradeStoreError(f"Invalid unrealized P&L JSON for {redis_key}") from exc
 
     async def get_unrealized_history(self, start_date: date, end_date: date) -> List[Dict[str, Any]]:

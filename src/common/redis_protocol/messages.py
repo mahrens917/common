@@ -51,7 +51,7 @@ class MarketData:
 
         try:
             expiry_dt = datetime.fromtimestamp(self.expiry_timestamp, tz=timezone.utc)
-        except (OverflowError, OSError, ValueError) as exc:  # policy_guard: allow-silent-handler
+        except (OverflowError, OSError, ValueError) as exc:
             raise ValidationError(f"Invalid expiry_timestamp for {self.instrument}") from exc
 
         instrument_type_label = pick_if(self.instrument_type.lower() == "option", lambda: "Option", lambda: "Future")

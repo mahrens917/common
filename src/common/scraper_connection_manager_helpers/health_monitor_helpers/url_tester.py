@@ -31,13 +31,17 @@ class URLTester:
 
                 return await self._validate_response_content(url, response, content_validator)
 
-        except asyncio.TimeoutError:  # policy_guard: allow-silent-handler
+        except asyncio.TimeoutError:  # Transient network/connection failure  # policy_guard: allow-silent-handler
             self.logger.warning(f"Health check timeout: {url}")
             return False
-        except aiohttp.ClientError as exc:  # policy_guard: allow-silent-handler
+        except aiohttp.ClientError as exc:  # Expected exception, returning default value  # policy_guard: allow-silent-handler
             self.logger.warning(f"Health check client error: {url} - {exc}")
             return False
-        except (RuntimeError, ValueError, UnicodeDecodeError):  # policy_guard: allow-silent-handler
+        except (
+            RuntimeError,
+            ValueError,
+            UnicodeDecodeError,
+        ):  # Expected data validation or parsing failure  # policy_guard: allow-silent-handler
             self.logger.exception(f"Unexpected health check error:  - ")
             return False
 

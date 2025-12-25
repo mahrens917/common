@@ -105,7 +105,7 @@ def _stringify_json(value: Any) -> str:
         return value
     try:
         return orjson.dumps(value).decode("utf-8")
-    except (JSONEncodeError, TypeError) as exc:  # policy_guard: allow-silent-handler
+    except (JSONEncodeError, TypeError) as exc:
         raise ValueError(f"Unable to serialise value to JSON: {value!r}") from exc
 
 

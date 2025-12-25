@@ -45,7 +45,7 @@ class ClientAttributeResolver:
                 raise ValueError("Trade store required for trade collection")
             try:
                 await store_getter()
-            except (AttributeError, RuntimeError, ValueError, TypeError) as exc:  # policy_guard: allow-silent-handler
+            except (AttributeError, RuntimeError, ValueError, TypeError) as exc:
                 raise ValueError("Trade store required for trade collection") from exc
             self._client.is_running = await attr(*args, **kwargs)
 

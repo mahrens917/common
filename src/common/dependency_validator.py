@@ -13,6 +13,8 @@ import logging
 import shutil
 from typing import Any, Dict
 
+from src.weather.settings import get_weather_settings
+
 logger = logging.getLogger(__name__)
 
 DEFAULT_WEATHER_SOURCE = "ldm"
@@ -84,8 +86,6 @@ class DependencyValidator:
     @staticmethod
     def _validate_weather_service_dependencies():
         """Validate weather service specific dependencies"""
-        from src.weather.settings import get_weather_settings
-
         weather_settings = get_weather_settings()
         metar_source = weather_settings.sources.metar_source
         if metar_source is None or metar_source == "":
@@ -117,7 +117,7 @@ class DependencyValidator:
         try:
             DependencyValidator.validate_ldm_dependencies()
             status["ldm"] = True
-        except LDMNotInstalledError:  # policy_guard: allow-silent-handler
+        except LDMNotInstalledError:  # Expected exception in operation  # policy_guard: allow-silent-handler
             status["ldm"] = False
 
         return status

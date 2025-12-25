@@ -16,5 +16,5 @@ def cleanup_chart_files(chart_paths: List[str]) -> None:
         try:
             if os_module.path.exists(chart_path):
                 os_module.unlink(chart_path)
-        except OSError:
+        except OSError:  # Best-effort cleanup operation  # policy_guard: allow-silent-handler
             logger.warning("Unable to clean up weather chart %s", chart_path)

@@ -70,11 +70,15 @@ async def _check_single_url(monitor: "ScraperHealthMonitor", session, url: str, 
         monitor.logger.debug("Health checking URL: %s", url)
         async with session.get(url, timeout=aiohttp.ClientTimeout(total=30.0)) as response:
             return await _handle_response(monitor, url, response, loop)
-    except asyncio.TimeoutError:  # policy_guard: allow-silent-handler
+    except asyncio.TimeoutError:  # Transient network/connection failure  # policy_guard: allow-silent-handler
         _mark_url_unhealthy(monitor, url, "Health check timeout")
-    except aiohttp.ClientError as exc:  # policy_guard: allow-silent-handler
+    except aiohttp.ClientError as exc:  # Expected exception in operation  # policy_guard: allow-silent-handler
         _mark_url_unhealthy(monitor, url, f"Health check client error: {exc}")
-    except (RuntimeError, ValueError, UnicodeDecodeError):  # policy_guard: allow-silent-handler
+    except (
+        RuntimeError,
+        ValueError,
+        UnicodeDecodeError,
+    ):  # Expected data validation or parsing failure  # policy_guard: allow-silent-handler
         monitor.logger.exception("Unexpected health check error for %s", url)
         _mark_url_unhealthy(monitor, url, None)
     return False

@@ -1,10 +1,13 @@
 """Log file-based health checking."""
 
+import logging
 import os
 import time
 
 from .activity_classifier import ActivityClassifier
 from .types import HealthStatus, ServiceHealth
+
+logger = logging.getLogger(__name__)
 
 
 class LogHealthChecker:
@@ -73,7 +76,8 @@ class LogHealthChecker:
                 seconds_since_last_log=age_seconds,
             )
 
-        except OSError:  # policy_guard: allow-silent-handler
+        except OSError:  # Best-effort cleanup operation  # policy_guard: allow-silent-handler
+            logger.debug("Best-effort cleanup operation")
             return ServiceHealth(
                 service_name=service_name,
                 status=HealthStatus.UNKNOWN,

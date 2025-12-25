@@ -2,10 +2,13 @@
 
 from __future__ import annotations
 
+import logging
 from typing import TYPE_CHECKING, Any, Dict, Optional
 from unittest.mock import Mock
 
 from common.truthy import pick_if
+
+logger = logging.getLogger(__name__)
 
 if TYPE_CHECKING:
     from common.optimized_status_reporter_helpers.log_activity_formatter import (
@@ -21,7 +24,8 @@ def _ensure_str_list(lines: Any) -> list[str]:
         return [str(item) for item in lines]
     try:
         return [str(item) for item in list(lines)]
-    except TypeError:  # policy_guard: allow-silent-handler
+    except TypeError:  # Expected data validation or parsing failure  # policy_guard: allow-silent-handler
+        logger.warning("Expected data validation or parsing failure")
         return [str(lines)]
 
 

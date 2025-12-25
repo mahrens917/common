@@ -34,5 +34,5 @@ class ChartSaver:
         finally:
             try:
                 plt.close(fig)
-            except (RuntimeError, OSError, IOError) as cleanup_error:
+            except (RuntimeError, OSError, IOError) as cleanup_error:  # Best-effort cleanup operation  # policy_guard: allow-silent-handler
                 logger.warning("Error during figure cleanup after save: %s", cleanup_error)

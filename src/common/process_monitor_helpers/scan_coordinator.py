@@ -49,7 +49,7 @@ class ScanCoordinator:
                 future,
                 timeout=_FULL_SCAN_TIMEOUT_SECONDS,
             )
-        except asyncio.TimeoutError:  # policy_guard: allow-silent-handler
+        except asyncio.TimeoutError:  # Transient network/connection failure  # policy_guard: allow-silent-handler
             logger.exception("Full process scan timed out")
             return {}, {}, [], time.time()
         else:

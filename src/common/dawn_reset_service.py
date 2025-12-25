@@ -71,7 +71,7 @@ class DawnResetService:
     ) -> Tuple[bool, Optional[datetime]]:
         try:
             return self.field_reset_manager.should_reset_field(field_name, latitude, longitude, previous_data, current_timestamp)
-        except DataError as exc:  # policy_guard: allow-silent-handler
+        except DataError as exc:
             # Align with historical behaviour expected by consumers/tests: surface parsing errors as ValueError
             raise ValueError(str(exc)) from exc
 

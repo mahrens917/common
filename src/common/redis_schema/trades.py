@@ -26,7 +26,7 @@ class TradeRecordKey:
     def key(self) -> str:
         try:
             order_segment = sanitize_segment(self.order_id)
-        except ValidationError as exc:  # policy_guard: allow-silent-handler
+        except ValidationError as exc:
             raise ValueError(str(exc)) from exc
         segments = ["record", self.trade_date.isoformat(), order_segment]
         builder = KeyBuilder(RedisNamespace.TRADES, tuple(segments))

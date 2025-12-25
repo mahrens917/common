@@ -25,7 +25,7 @@ def parse_utc_timestamp(value: Union[str, int, float]) -> int:
         dt = parse_timestamp(value, allow_none=False)
         assert dt is not None
         return int(dt.timestamp())
-    except (ValueError, TypeError) as e:  # policy_guard: allow-silent-handler
+    except (ValueError, TypeError) as e:
         raise DataError(f"FAIL-FAST: Invalid timestamp format '{value}'. Cannot parse timestamp: {e}") from e
 
 

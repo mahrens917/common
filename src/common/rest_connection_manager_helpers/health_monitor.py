@@ -48,7 +48,7 @@ class RESTHealthMonitor(BaseHealthMonitor):
             if self.auth_handler:
                 try:
                     auth_headers = self.auth_handler("GET", self.health_check_endpoint)
-                except TypeError:  # policy_guard: allow-silent-handler
+                except TypeError:  # Expected data validation or parsing failure  # policy_guard: allow-silent-handler
                     auth_headers = self.auth_handler()
 
                 if auth_headers:
@@ -70,15 +70,15 @@ class RESTHealthMonitor(BaseHealthMonitor):
                     error=f"HTTP {response.status}",
                 )
 
-        except asyncio.TimeoutError:  # policy_guard: allow-silent-handler
+        except asyncio.TimeoutError:  # Transient network/connection failure  # policy_guard: allow-silent-handler
             self.logger.warning("Health check timeout")
             self.record_failure()
             return HealthCheckResult(False, error="timeout")
-        except aiohttp.ClientError as exc:  # policy_guard: allow-silent-handler
+        except aiohttp.ClientError as exc:  # Expected exception in operation  # policy_guard: allow-silent-handler
             self.logger.warning("Health check client error")
             self.record_failure()
             return HealthCheckResult(False, error=str(exc))
-        except OSError as exc:  # policy_guard: allow-silent-handler
+        except OSError as exc:  # Best-effort cleanup operation  # policy_guard: allow-silent-handler
             self.logger.exception("Unexpected error in health check: ")
             self.record_failure()
             return HealthCheckResult(False, error=str(exc))

@@ -7,6 +7,8 @@ import logging
 from pathlib import Path
 from typing import Any, List, Optional
 
+import aiohttp
+
 from ..alerting import TelegramClient, TelegramDeliveryResult
 
 logger = logging.getLogger(__name__)
@@ -102,7 +104,7 @@ class DeliveryMixin:
         except asyncio.TimeoutError as exc:
             self.backoff_manager.record_failure(exc)
             raise RuntimeError(f"Telegram media timeout after {self.timeout_seconds}s for user {user_id}") from exc
-        except Exception as exc:
+        except (aiohttp.ClientError, OSError, RuntimeError) as exc:
             self.backoff_manager.record_failure(exc)
             raise RuntimeError(f"Telegram media send failed for user {user_id} with payload {payload_path}") from exc
 

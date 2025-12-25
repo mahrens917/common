@@ -29,10 +29,10 @@ class TimeWindowUpdater(ShutdownRequestMixin):
                 await asyncio.sleep(60)
                 await self._update_all_time_windows()
 
-        except asyncio.CancelledError:  # policy_guard: allow-silent-handler
+        except asyncio.CancelledError:
             logger.info("Time window updater cancelled")
             raise
-        except REDIS_ERRORS as exc:  # policy_guard: allow-silent-handler
+        except REDIS_ERRORS as exc:  # Expected exception in operation  # policy_guard: allow-silent-handler
             logger.error("Error in time window updater: %s", exc, exc_info=True)
 
     async def _update_all_time_windows(self):
@@ -42,5 +42,5 @@ class TimeWindowUpdater(ShutdownRequestMixin):
             for service_name in services:
                 await self._service_updater.update_service_time_windows(service_name)
 
-        except REDIS_ERRORS as exc:  # policy_guard: allow-silent-handler
+        except REDIS_ERRORS as exc:  # Expected exception in operation  # policy_guard: allow-silent-handler
             logger.error("Error updating time windows: %s", exc, exc_info=True)

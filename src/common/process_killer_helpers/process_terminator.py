@@ -33,7 +33,7 @@ async def terminate_matching_processes(
     """
     try:
         import psutil
-    except ImportError as import_exc:  # policy_guard: allow-silent-handler
+    except ImportError as import_exc:
         raise RuntimeError("psutil is required for process termination") from import_exc
 
     killed_processes = []
@@ -48,9 +48,9 @@ async def terminate_matching_processes(
                 console_output_func=console_output_func,
             )
             killed_processes.append(proc.pid)
-        except psutil.NoSuchProcess:  # policy_guard: allow-silent-handler
+        except psutil.NoSuchProcess:  # Expected exception in operation  # policy_guard: allow-silent-handler
             logger.debug("%s process %s exited before termination completed", service_name, proc.pid)
-        except psutil.AccessDenied as access_exc:  # policy_guard: allow-silent-handler
+        except psutil.AccessDenied as access_exc:
             raise RuntimeError(f"Access denied while terminating {service_name} process {proc.pid}") from access_exc
 
     return killed_processes
@@ -72,7 +72,7 @@ async def _terminate_single_process(
 
     try:
         proc.wait(timeout=graceful_timeout)
-    except psutil_module.TimeoutExpired:  # policy_guard: allow-silent-handler
+    except psutil_module.TimeoutExpired:  # Expected exception in operation  # policy_guard: allow-silent-handler
         console_output_func(f"⏱️ Process {pid} did not terminate within {graceful_timeout}s; sending SIGKILL")
     else:
         console_output_func(f"✅ Process {pid} terminated gracefully")
@@ -81,7 +81,7 @@ async def _terminate_single_process(
     proc.kill()
     try:
         proc.wait(timeout=force_timeout)
-    except psutil_module.TimeoutExpired as kill_exc:  # policy_guard: allow-silent-handler
+    except psutil_module.TimeoutExpired as kill_exc:
         raise RuntimeError(
             f"{service_name} process {pid} persisted after SIGKILL for " f"{force_timeout}s; manual intervention required."
         ) from kill_exc
@@ -122,15 +122,15 @@ def _create_psutil_process_safe(pid: int, *, service_name: str, cmdline: list) -
     """Create psutil Process object with error handling."""
     try:
         import psutil
-    except ImportError as import_exc:  # policy_guard: allow-silent-handler
+    except ImportError as import_exc:
         raise RuntimeError(f"psutil is required to manage {service_name} processes but is not installed.") from import_exc
 
     try:
         return psutil.Process(pid)
-    except psutil.NoSuchProcess:  # policy_guard: allow-silent-handler
+    except psutil.NoSuchProcess:  # Expected exception, returning default value  # policy_guard: allow-silent-handler
         logger.debug("Process %s vanished before psutil inspection", pid)
         return None
-    except psutil.AccessDenied as access_exc:  # policy_guard: allow-silent-handler
+    except psutil.AccessDenied as access_exc:
         raise RuntimeError(f"Access denied while inspecting {service_name} process {pid} ({' '.join(cmdline)})") from access_exc
 
 

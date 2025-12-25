@@ -36,13 +36,13 @@ class OrderParser:
                 f"Filled: {order_response.filled_count}, Remaining: {order_response.remaining_count}"
             )
 
-        except ValueError as exc:  # policy_guard: allow-silent-handler
+        except ValueError as exc:
             raise KalshiDataIntegrityError(
                 f"Order response validation failed: {exc}",
                 operation_name=operation_name,
                 data=response_data,
             ) from exc
-        except (KeyError, TypeError, RuntimeError) as exc:  # policy_guard: allow-silent-handler
+        except (KeyError, TypeError, RuntimeError) as exc:
             raise KalshiDataIntegrityError(
                 f"Unexpected error parsing order response: {exc}",
                 operation_name=operation_name,

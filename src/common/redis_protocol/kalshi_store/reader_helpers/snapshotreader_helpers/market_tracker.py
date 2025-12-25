@@ -30,7 +30,7 @@ async def is_market_tracked(redis: Redis, market_key: str, market_ticker: str) -
     """
     try:
         return await redis.exists(market_key)
-    except REDIS_ERRORS as exc:  # policy_guard: allow-silent-handler
+    except REDIS_ERRORS as exc:
         logger.error(
             "Error checking if market %s is tracked: %s",
             market_ticker,

@@ -2,16 +2,14 @@ from __future__ import annotations
 
 """Ticker and expiry parsing helpers for Kalshi markets."""
 
-import sys
+import logging
 from datetime import datetime, timedelta, timezone
 from typing import Optional, Tuple
-
-if sys.version_info >= (3, 9):
-    from zoneinfo import ZoneInfo
-else:
-    from backports.zoneinfo import ZoneInfo
+from zoneinfo import ZoneInfo
 
 from common.exceptions import DataError, ValidationError
+
+logger = logging.getLogger(__name__)
 
 # Constants
 _CONST_2 = 2
@@ -92,7 +90,7 @@ def _parse_day_from_prefix(token: str, prefix: str) -> int:
     """Parse day value from token prefix"""
     try:
         return int(prefix)
-    except ValueError as exc:  # policy_guard: allow-silent-handler
+    except ValueError as exc:
         raise ValidationError(f"Invalid day segment in expiry token '{token}'") from exc
 
 
@@ -101,12 +99,12 @@ def parse_year_month_day_format(token: str, prefix: str, month: int, remainder: 
     try:
         year = 2000 + int(prefix)
         day = int(remainder)
-    except ValueError as exc:  # policy_guard: allow-silent-handler
+    except ValueError as exc:
         raise ValidationError(f"Invalid year/day segment in expiry token '{token}'") from exc
 
     try:
         local_dt = datetime(year, month, day, 23, 59, tzinfo=ZoneInfo("America/New_York"))
-    except ValueError as exc:  # policy_guard: allow-silent-handler
+    except ValueError as exc:
         raise ValidationError(f"Invalid calendar date in expiry token '{token}'") from exc
 
     return local_dt.astimezone(timezone.utc)
@@ -118,7 +116,7 @@ def parse_intraday_format(token: str, now: datetime, month: int, day: int, remai
     minute = int(remainder[_CONST_2:])
     try:
         candidate = datetime(now.year, month, day, hour, minute, tzinfo=timezone.utc)
-    except ValueError as exc:  # policy_guard: allow-silent-handler
+    except ValueError as exc:
         raise ValidationError(f"Invalid timestamp segment in expiry token '{token}'") from exc
 
     if candidate < now - timedelta(hours=1):
@@ -131,7 +129,7 @@ def parse_day_month_year_format(token: str, month: int, day: int, remainder: str
     year = 2000 + int(remainder)
     try:
         return datetime(year, month, day, 8, 0, tzinfo=timezone.utc)
-    except ValueError as exc:  # policy_guard: allow-silent-handler
+    except ValueError as exc:
         raise ValidationError(f"Invalid calendar date in expiry token '{token}'") from exc
 
 
@@ -153,7 +151,8 @@ def derive_strike_fields(
 
     try:
         strike_value = float(value_str)
-    except ValueError:  # policy_guard: allow-silent-handler
+    except ValueError:  # Expected data validation or parsing failure  # policy_guard: allow-silent-handler
+        logger.warning("Expected data validation or parsing failure")
         return None
 
     strike_type = "greater"

@@ -38,7 +38,7 @@ async def fetch_hash_data(client: RedisClient, key: str, error_context: str) -> 
     """
     try:
         data = await ensure_awaitable(client.hgetall(key))
-    except REDIS_ERRORS as exc:  # policy_guard: allow-silent-handler
+    except REDIS_ERRORS as exc:
         raise RuntimeError(f"Failed to fetch {error_context}") from exc
 
     return data if data else None
@@ -60,7 +60,7 @@ async def fetch_service_keys(client: RedisClient, pattern: str) -> Set[str]:
     """
     try:
         keys = await ensure_awaitable(client.keys(pattern))
-    except REDIS_ERRORS as exc:  # policy_guard: allow-silent-handler
+    except REDIS_ERRORS as exc:
         raise DataError("Failed to enumerate metadata services") from exc
 
     decoded_keys: Set[str] = set()
@@ -89,7 +89,7 @@ async def fetch_hash_field(client: RedisClient, key: str, field: str, error_cont
     """
     try:
         value = await ensure_awaitable(client.hget(key, field))
-    except REDIS_ERRORS as exc:  # policy_guard: allow-silent-handler
+    except REDIS_ERRORS as exc:
         raise RuntimeError(f"Failed to read {error_context}") from exc
 
     return value

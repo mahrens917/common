@@ -51,6 +51,6 @@ class MarketScanner:
                 return None
             return response["market"] if "market" in response else None
 
-        except TRADING_ERRORS:  # policy_guard: allow-silent-handler
+        except TRADING_ERRORS:  # Expected exception, returning default value  # policy_guard: allow-silent-handler
             logger.exception(f"[MarketScanner] Error fetching market data for : ")
             return None

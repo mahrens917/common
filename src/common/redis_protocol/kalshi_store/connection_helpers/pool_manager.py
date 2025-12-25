@@ -40,7 +40,7 @@ class PoolManager:
         if callable(close_fn):
             try:
                 await ensure_awaitable(close_fn())
-            except REDIS_ERRORS:  # policy_guard: allow-silent-handler
+            except REDIS_ERRORS:  # Expected exception in operation  # policy_guard: allow-silent-handler
                 logger.debug("Failed to close Redis client cleanly", exc_info=True)
 
     @staticmethod
@@ -52,12 +52,12 @@ class PoolManager:
             kalshi_store_pkg = importlib.import_module("common.redis_protocol.kalshi_store")
             cleanup = getattr(kalshi_store_pkg, "cleanup_redis_pool", cleanup_redis_pool)
             await cleanup()
-        except RuntimeError:  # policy_guard: allow-silent-handler
+        except RuntimeError:  # Expected runtime failure in operation  # policy_guard: allow-silent-handler
             logger.debug(
                 "Event loop already closed when cleaning up pool; skipping pool cleanup",
                 exc_info=True,
             )
-        except REDIS_ERRORS:  # policy_guard: allow-silent-handler
+        except REDIS_ERRORS:  # Expected exception in operation  # policy_guard: allow-silent-handler
             logger.debug("Error cleaning up Redis pool", exc_info=True)
 
     async def acquire_pool(self, *, allow_reuse: bool, redis: Optional[Redis], close_callback) -> Redis:

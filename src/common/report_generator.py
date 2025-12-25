@@ -55,7 +55,7 @@ class ReportGenerator:
         """Load timezone configuration using the shared config loader."""
         try:
             return load_configured_timezone()
-        except RuntimeError as exc:  # policy_guard: allow-silent-handler
+        except RuntimeError as exc:
             raise ConfigurationError("Failed to load reporting timezone configuration") from exc
 
     async def generate_daily_report(self, trade_date: date) -> str:

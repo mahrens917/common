@@ -3,12 +3,15 @@
 Delegates to BaseConfigLoader for JSON loading, adds environment variable normalization.
 """
 
+import logging
 from pathlib import Path
 from typing import Any, Dict
 
 from common.config_loader import BaseConfigLoader
 
 from ..errors import ConfigurationError
+
+logger = logging.getLogger(__name__)
 
 
 class JsonConfigLoader:
@@ -47,11 +50,12 @@ class JsonConfigLoader:
         loader = BaseConfigLoader(path.parent)
         try:
             payload = loader.load_json_file(path.name)
-        except FileNotFoundError:  # policy_guard: allow-silent-handler
+        except FileNotFoundError:  # Expected exception in operation  # policy_guard: allow-silent-handler
+            logger.debug("Expected exception in operation")
             return {}
-        except ConfigurationError:  # policy_guard: allow-silent-handler
+        except ConfigurationError:
             raise
-        except OSError as exc:  # policy_guard: allow-silent-handler
+        except OSError as exc:
             raise ConfigurationError(f"Failed to read {path}") from exc
 
         return JsonConfigLoader._normalize_values(payload, path)

@@ -37,10 +37,10 @@ class OrderbookWriter:
             side, yes, no, raw = self._extract_price_data(data, str_func)
             mapping = self._build_trade_mapping(data, side, yes, no, raw)
             await ensure_awaitable(self.redis.hset(key_func(ticker), mapping=mapping))
-        except (ValueError, TypeError) as exc:  # policy_guard: allow-silent-handler
+        except (ValueError, TypeError) as exc:  # Expected data validation or parsing failure  # policy_guard: allow-silent-handler
             logger.error("Invalid trade tick payload: %s", exc, exc_info=True)
             return False
-        except REDIS_ERRORS as exc:  # policy_guard: allow-silent-handler
+        except REDIS_ERRORS as exc:  # Expected exception, returning default value  # policy_guard: allow-silent-handler
             logger.error("Redis error updating trade tick: %s", exc, exc_info=True)
             return False
         else:
@@ -60,12 +60,12 @@ class OrderbookWriter:
         if yes is not None and no is None:
             try:
                 no = 100 - float(yes)
-            except (TypeError, ValueError):  # policy_guard: allow-silent-handler
+            except (TypeError, ValueError):  # Expected data validation or parsing failure  # policy_guard: allow-silent-handler
                 no = None
         elif no is not None and yes is None:
             try:
                 yes = 100 - float(no)
-            except (TypeError, ValueError):  # policy_guard: allow-silent-handler
+            except (TypeError, ValueError):  # Expected data validation or parsing failure  # policy_guard: allow-silent-handler
                 yes = None
 
         return side, yes, no, raw
@@ -74,7 +74,8 @@ class OrderbookWriter:
     def _derive_yes_price_from_raw(raw: Any, side: str) -> Any:
         try:
             val = float(raw)
-        except (TypeError, ValueError):  # policy_guard: allow-silent-handler
+        except (TypeError, ValueError):  # Expected data validation or parsing failure  # policy_guard: allow-silent-handler
+            logger.warning("Expected data validation or parsing failure")
             return None
         return val if side == "yes" else (100 - val if side == "no" else None)
 

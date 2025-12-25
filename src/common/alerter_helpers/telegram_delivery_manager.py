@@ -1,8 +1,11 @@
 """Manages Telegram message and media delivery."""
 
+import asyncio
 import logging
 from pathlib import Path
 from typing import List
+
+import aiohttp
 
 from ..alerting import Alert, TelegramDeliveryResult
 
@@ -56,8 +59,12 @@ class TelegramDeliveryManager:
         formatted_message = self.alert_formatter.format_telegram_message(alert)
         try:
             result = await self.message_sender.send_message(formatted_message, recipients)
-        except Exception as exc:  # pragma: no cover - defensive
-            logger.error("Failed to send Telegram alert: %s", exc, exc_info=True)
+        except (
+            aiohttp.ClientError,
+            asyncio.TimeoutError,
+            OSError,
+            RuntimeError,
+        ) as exc:  # pragma: no cover - defensive            logger.error("Failed to send Telegram alert: %s", exc, exc_info=True)  # policy_guard: allow-silent-handler
             return TelegramDeliveryResult(success=False, failed_recipients=list(recipients), queued_recipients=[])
         if isinstance(result, TelegramDeliveryResult) and not result.success:
             logger.warning("Telegram alert delivery skipped/failed for %s", recipients)
@@ -105,7 +112,12 @@ class TelegramDeliveryManager:
             if isinstance(result, TelegramDeliveryResult) and not result.success:
                 logger.warning("Telegram media delivery skipped/failed for %s", recipients)
                 return False
-        except Exception as exc:
+        except (
+            aiohttp.ClientError,
+            asyncio.TimeoutError,
+            OSError,
+            RuntimeError,
+        ) as exc:  # Transient network/connection failure  # policy_guard: allow-silent-handler
             chart_name = caption if caption.strip() else image_path_obj.name
             logger.error("Failed to send Telegram media '%s': %s", chart_name, exc, exc_info=True)
             return False

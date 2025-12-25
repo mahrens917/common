@@ -17,7 +17,7 @@ def deserialize_state_info(service_name: str, state_json: str) -> Optional[Conne
     """Deserialize JSON string to ConnectionStateInfo."""
     try:
         state_dict = json.loads(state_json)
-    except JSON_ERRORS:  # policy_guard: allow-silent-handler
+    except JSON_ERRORS:  # Expected exception, returning default value  # policy_guard: allow-silent-handler
         logger.error(
             "Failed to decode connection state payload for %s",
             service_name,
@@ -27,7 +27,7 @@ def deserialize_state_info(service_name: str, state_json: str) -> Optional[Conne
 
     try:
         state_dict["state"] = ConnectionState(state_dict["state"])
-    except SERIALIZATION_ERRORS:  # policy_guard: allow-silent-handler
+    except SERIALIZATION_ERRORS:  # Expected exception, returning default value  # policy_guard: allow-silent-handler
         logger.error(
             "Failed to convert state '%s' to ConnectionState enum for %s",
             state_dict.get("state"),
@@ -47,7 +47,7 @@ def parse_all_states(all_states: Dict[str, Any]) -> Dict[str, ConnectionStateInf
             state_dict = json.loads(state_json)
             state_dict["state"] = ConnectionState(state_dict["state"])
             result[service_name] = ConnectionStateInfo(**state_dict)
-        except PARSING_ERRORS as exc:  # policy_guard: allow-silent-handler
+        except PARSING_ERRORS as exc:  # Expected exception in operation  # policy_guard: allow-silent-handler
             logger.warning(
                 "Failed to parse connection state for %s: %s",
                 service_name,

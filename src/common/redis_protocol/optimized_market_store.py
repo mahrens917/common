@@ -90,7 +90,14 @@ class OptimizedMarketStore:
             return _none_guard_value
         try:
             return await fetcher.get_all_instruments(currency)
-        except (RuntimeError, ValueError, AttributeError, KeyError, OSError, ConnectionError) as exc:  # policy_guard: allow-silent-handler
+        except (
+            RuntimeError,
+            ValueError,
+            AttributeError,
+            KeyError,
+            OSError,
+            ConnectionError,
+        ) as exc:  # Transient network/connection failure  # policy_guard: allow-silent-handler
             log = getattr(self, "logger", logger)
             log.error("Failed to fetch instruments for %s: %s", currency, exc, exc_info=True)
             return []
@@ -137,7 +144,11 @@ async def _filter_instruments(store: OptimizedMarketStore, currency: str, predic
     try:
         instruments = await store.get_all_instruments(currency)
         return [inst for inst in instruments if predicate(inst)]
-    except (RuntimeError, ValueError, AttributeError) as exc:  # policy_guard: allow-silent-handler
+    except (
+        RuntimeError,
+        ValueError,
+        AttributeError,
+    ) as exc:  # Expected data validation or parsing failure  # policy_guard: allow-silent-handler
         log = getattr(store, "logger", logger)
         log.error("Failed to load %s for %s: %s", label, currency, exc, exc_info=True)
         return []

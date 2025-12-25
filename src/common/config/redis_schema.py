@@ -285,7 +285,7 @@ class TradeKeys:
 def _require_section(raw: Mapping[str, object], name: str) -> Mapping[str, object]:
     try:
         section = raw[name]
-    except KeyError as exc:  # policy_guard: allow-silent-handler
+    except KeyError as exc:
         raise ConfigurationError(f"Redis schema configuration missing '{name}' section") from exc
     if not isinstance(section, Mapping):
         raise ConfigurationError(f"Redis schema configuration section '{name}' must be an object; received {type(section).__name__}")
@@ -295,7 +295,7 @@ def _require_section(raw: Mapping[str, object], name: str) -> Mapping[str, objec
 def _require_string(section: Mapping[str, object], key: str, section_name: str) -> str:
     try:
         value = section[key]
-    except KeyError as exc:  # policy_guard: allow-silent-handler
+    except KeyError as exc:
         raise ConfigurationError(f"Redis schema configuration missing '{key}' in '{section_name}' section") from exc
     if not isinstance(value, str) or not value:
         raise ConfigurationError(f"Redis schema configuration value '{section_name}.{key}' must be a non-empty string")

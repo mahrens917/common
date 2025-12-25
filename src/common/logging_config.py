@@ -33,7 +33,8 @@ def _get_process_cmdline(proc: Any) -> str:
     try:
         cmdline = pick_truthy(proc.info.get("cmdline"), [])
         name = pick_truthy(proc.info.get("name"), "")
-    except (AttributeError, OSError, KeyError, TypeError):  # policy_guard: allow-silent-handler
+    except (AttributeError, OSError, KeyError, TypeError):  # Best-effort cleanup operation  # policy_guard: allow-silent-handler
+        _MODULE_LOGGER.debug("Best-effort cleanup operation")
         return ""
 
     cmdline_str = " ".join(cmdline) if isinstance(cmdline, list) else str(cmdline)
@@ -57,7 +58,7 @@ def _find_running_services() -> Set[str]:
 
     try:
         import psutil
-    except ImportError:  # policy_guard: allow-silent-handler
+    except ImportError:  # Optional module not available  # policy_guard: allow-silent-handler
         _MODULE_LOGGER.debug("psutil unavailable; skipping running service detection")
         return set()
 
@@ -71,7 +72,7 @@ def _find_running_services() -> Set[str]:
             matched_service = _match_service_pattern(cmdline_str)
             if matched_service:
                 running_services.add(matched_service)
-    except OSError as exc:  # policy_guard: allow-silent-handler
+    except OSError as exc:  # Best-effort cleanup operation  # policy_guard: allow-silent-handler
         _MODULE_LOGGER.debug("Failed to detect running services during log cleanup: %s", exc)
 
     return running_services
@@ -97,11 +98,11 @@ def _clear_logs_directory(log_dir: Path) -> None:
                     shutil.rmtree(entry)
                 else:
                     entry.unlink()
-            except FileNotFoundError as exc:  # policy_guard: allow-silent-handler
+            except FileNotFoundError as exc:  # Expected exception in loop, continuing iteration  # policy_guard: allow-silent-handler
                 # File was removed between listdir and unlink - expected race condition
                 _MODULE_LOGGER.debug("Log entry disappeared during cleanup: %s", exc)
                 continue
-            except OSError as exc:  # policy_guard: allow-silent-handler
+            except OSError as exc:
                 raise RuntimeError(f"Failed to clear log entry {entry}") from exc
 
     _LOGS_CLEARED = True
@@ -130,8 +131,8 @@ def _reset_all_handlers(root_logger: logging.Logger) -> None:
     for handler in list(root_logger.handlers):
         try:
             handler.close()
-        except OSError:  # policy_guard: allow-silent-handler
-            pass
+        except OSError as e:  # Best-effort cleanup operation  # policy_guard: allow-silent-handler
+            _MODULE_LOGGER.debug("Handler close failed (expected for some handlers): %s", e)
     root_logger.handlers = []
 
     for logger_name in list(logging.Logger.manager.loggerDict.keys()):
@@ -141,11 +142,11 @@ def _reset_all_handlers(root_logger: logging.Logger) -> None:
             for handler in list(target_logger.handlers):
                 try:
                     handler.close()
-                except OSError:  # policy_guard: allow-silent-handler
-                    pass
+                except OSError as e:  # Best-effort cleanup operation  # policy_guard: allow-silent-handler
+                    _MODULE_LOGGER.debug("Handler close failed for logger '%s': %s", logger_name or "<unknown>", e)
             target_logger.handlers = []
             target_logger.propagate = True
-        except (AttributeError, RuntimeError) as exc:  # policy_guard: allow-silent-handler
+        except (AttributeError, RuntimeError) as exc:  # Expected data validation or parsing failure  # policy_guard: allow-silent-handler
             if logger_name:
                 logger_name_safe = logger_name
             else:

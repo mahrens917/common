@@ -75,7 +75,7 @@ class OptimizedStatusReporter(
 
             status_data = await self._aggregator.gather_status_data(redis_client, process_monitor, kalshi_client)
             await self._printer.print_status_report(status_data)
-        except (RuntimeError, ValueError, TypeError, AttributeError, KeyError) as exc:  # policy_guard: allow-silent-handler
+        except (RuntimeError, ValueError, TypeError, AttributeError, KeyError) as exc:
             logger.exception("Status report failed: %s", type(exc).__name__)
             raise RuntimeError("Status report generation failed") from exc
         else:
@@ -116,8 +116,8 @@ class OptimizedStatusReporter(
                     ConnectionError,
                     OSError,
                     RuntimeError,
-                ):  # pragma: no cover - best effort cleanup
-                    pass
+                ) as e:  # pragma: no cover - best effort cleanup
+                    logger.debug("Redis client close failed (best-effort): %s", e)
 
     async def _get_kalshi_client(self) -> KalshiClient:
         """Return cached KalshiClient, creating on first use."""

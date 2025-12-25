@@ -65,7 +65,7 @@ class SystemMetricsCollector:
                     timestamps.append(dt_obj)
                     values.append(float(value_str))
 
-            except (
+            except (  # policy_guard: allow-silent-handler
                 UnicodeDecodeError,
                 ValueError,
                 TypeError,

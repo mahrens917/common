@@ -6,7 +6,7 @@ Uses lazy loading to avoid requiring Redis env vars at import time.
 
 from __future__ import annotations
 
-from typing import Any
+from typing import Any, cast
 
 from common.config import env_float
 
@@ -73,36 +73,48 @@ def _get_schema() -> Any:
     return _lazy_cache["_schema"]
 
 
+def _get_socket_timeout() -> float:
+    """Get socket timeout value."""
+    settings = _get_redis_settings()
+    configured = settings.socket_timeout if settings.socket_timeout is not None else DEFAULT_SOCKET_TIMEOUT_SECONDS
+    return cast(float, env_float("REDIS_SOCKET_TIMEOUT", or_value=configured))
+
+
+def _get_socket_connect_timeout() -> float:
+    """Get socket connect timeout value."""
+    settings = _get_redis_settings()
+    configured = settings.socket_connect_timeout if settings.socket_connect_timeout is not None else DEFAULT_CONNECT_TIMEOUT_SECONDS
+    return cast(float, env_float("REDIS_SOCKET_CONNECT_TIMEOUT", or_value=configured))
+
+
+def _get_health_check_interval() -> float:
+    """Get health check interval value."""
+    settings = _get_redis_settings()
+    configured = settings.health_check_interval if settings.health_check_interval is not None else DEFAULT_HEALTH_CHECK_INTERVAL_SECONDS
+    return cast(float, env_float("REDIS_HEALTH_CHECK_INTERVAL", or_value=configured))
+
+
 def _compute_lazy_value(name: str) -> Any:
     """Compute a lazy value by name."""
     settings = _get_redis_settings()
     schema = _get_schema()
 
-    if name == "REDIS_HOST":
-        return settings.host
-    if name == "REDIS_PORT":
-        return settings.port
-    if name == "REDIS_DB":
-        return settings.db
-    if name == "REDIS_PASSWORD":
-        return _normalize_optional_string(settings.password)
-    if name == "REDIS_SSL":
-        return bool(settings.ssl)
-    if name == "REDIS_RETRY_ON_TIMEOUT":
-        return settings.retry_on_timeout
-    if name == "REDIS_SOCKET_TIMEOUT":
-        default = settings.socket_timeout if settings.socket_timeout is not None else DEFAULT_SOCKET_TIMEOUT_SECONDS
-        return env_float("REDIS_SOCKET_TIMEOUT", or_value=default)
-    if name == "REDIS_SOCKET_CONNECT_TIMEOUT":
-        default = settings.socket_connect_timeout if settings.socket_connect_timeout is not None else DEFAULT_CONNECT_TIMEOUT_SECONDS
-        return env_float("REDIS_SOCKET_CONNECT_TIMEOUT", or_value=default)
-    if name == "REDIS_HEALTH_CHECK_INTERVAL":
-        default = settings.health_check_interval if settings.health_check_interval is not None else DEFAULT_HEALTH_CHECK_INTERVAL_SECONDS
-        return env_float("REDIS_HEALTH_CHECK_INTERVAL", or_value=default)
-    if name == "MARKET_KEY_PREFIX":
-        return f"{schema.deribit_market_prefix}:"
-    if name == "KALSHI_MARKET_PREFIX":
-        return f"{schema.kalshi_market_prefix}:"
+    lazy_values = {
+        "REDIS_HOST": settings.host,
+        "REDIS_PORT": settings.port,
+        "REDIS_DB": settings.db,
+        "REDIS_PASSWORD": _normalize_optional_string(settings.password),
+        "REDIS_SSL": bool(settings.ssl),
+        "REDIS_RETRY_ON_TIMEOUT": settings.retry_on_timeout,
+        "REDIS_SOCKET_TIMEOUT": _get_socket_timeout(),
+        "REDIS_SOCKET_CONNECT_TIMEOUT": _get_socket_connect_timeout(),
+        "REDIS_HEALTH_CHECK_INTERVAL": _get_health_check_interval(),
+        "MARKET_KEY_PREFIX": f"{schema.deribit_market_prefix}:",
+        "KALSHI_MARKET_PREFIX": f"{schema.kalshi_market_prefix}:",
+    }
+
+    if name in lazy_values:
+        return lazy_values[name]
     raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
 
 
@@ -158,19 +170,19 @@ __all__ = [
     "REDIS_CONNECTION_POOL_MAXSIZE",
     "REDIS_CONNECTION_POOL_SIZE",
     "REDIS_DB",
+    "REDIS_PASSWORD",
     "REDIS_DNS_CACHE_SIZE",
     "REDIS_DNS_CACHE_TTL",
     "REDIS_HEALTH_CHECK_INTERVAL",
     "REDIS_HOST",
     "REDIS_MAX_RETRIES",
-    "REDIS_PASSWORD",
     "REDIS_PORT",
     "REDIS_RETRY_DELAY",
     "REDIS_RETRY_ON_TIMEOUT",
+    "REDIS_SSL",
     "REDIS_SOCKET_CONNECT_TIMEOUT",
     "REDIS_SOCKET_KEEPALIVE",
     "REDIS_SOCKET_TIMEOUT",
-    "REDIS_SSL",
     "REDIS_VERIFY_WRITES",
     "UNIFIED_POOL_SIZE",
 ]

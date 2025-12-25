@@ -40,7 +40,7 @@ class AstronomicalEventProcessor:
 
             if dawn and dusk:
                 self._add_dawn_dusk_period(dawn, dusk, data.local_tz, data.dawn_dusk_periods)
-        except (
+        except (  # policy_guard: allow-silent-handler
             RuntimeError,
             ValueError,
             TypeError,

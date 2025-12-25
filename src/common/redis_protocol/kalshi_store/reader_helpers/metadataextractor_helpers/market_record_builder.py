@@ -101,7 +101,7 @@ def _decode_metadata_payload(payload: Any, market_ticker: str) -> Dict[str, Any]
     try:
         decoded = orjson.loads(payload)
         return pick_if(isinstance(decoded, dict), lambda: decoded, lambda: {})
-    except orjson.JSONDecodeError:  # policy_guard: allow-silent-handler
+    except orjson.JSONDecodeError:  # Expected exception in operation  # policy_guard: allow-silent-handler
         logger.debug("Failed to decode metadata JSON for %s", market_ticker)
         return {}
 
@@ -134,7 +134,7 @@ def _normalize_close_time(close_time: Any, timestamp_normalizer: Any) -> tuple[s
     normalized_close = timestamp_normalizer.normalize_timestamp(close_time) or str(close_time)
     try:
         close_dt = datetime.fromisoformat(normalized_close.replace("Z", "+00:00"))
-    except ValueError:  # policy_guard: allow-silent-handler
+    except ValueError:  # Expected data validation or parsing failure  # policy_guard: allow-silent-handler
         close_dt = None
     return normalized_close, close_dt
 

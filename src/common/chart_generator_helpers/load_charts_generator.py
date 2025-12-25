@@ -44,5 +44,5 @@ class LoadChartsGenerator:
                 for path in chart_paths.values():
                     try:
                         os.unlink(path)
-                    except OSError:
+                    except OSError:  # Best-effort cleanup operation  # policy_guard: allow-silent-handler
                         logger.warning("Unable to clean up chart file %s", path)

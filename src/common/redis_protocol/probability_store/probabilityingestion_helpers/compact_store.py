@@ -60,9 +60,9 @@ class CompactStore:
             _validate_pipeline_results(results, stats["field_count"], currency_upper)
             await _validate_stored_field_count(redis, key, stats["field_count"], currency_upper)
             _log_store_summary(stats, currency_upper)
-        except (ValueError, TypeError, *SERIALIZATION_ERRORS) as exc:  # policy_guard: allow-silent-handler
+        except (ValueError, TypeError, *SERIALIZATION_ERRORS) as exc:
             raise ProbabilityStoreError(f"Failed to store probabilities for {currency_upper}") from exc
-        except REDIS_ERRORS as exc:  # policy_guard: allow-silent-handler
+        except REDIS_ERRORS as exc:
             raise ProbabilityStoreError(f"Failed to store probabilities for {currency_upper}: Redis error {exc}") from exc
         else:
             return True

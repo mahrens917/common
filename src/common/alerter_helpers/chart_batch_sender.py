@@ -46,7 +46,7 @@ class ChartBatchSender:
                 else:
                     logger.error(f"Failed to send {chart_name} chart")
                     self.chart_generator.cleanup_single_chart_file(chart_path)
-            except OSError:
+            except OSError:  # Best-effort cleanup operation  # policy_guard: allow-silent-handler
                 logger.exception("Failed to send %s chart due to filesystem error: %s")
                 self.chart_generator.cleanup_single_chart_file(chart_path)
                 await self.send_alert_callback(f"❌ Failed to send {chart_name} chart")

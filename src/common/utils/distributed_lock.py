@@ -40,7 +40,7 @@ class DistributedLock:
                 ex=self.timeout_seconds,  # Auto-expire to prevent deadlocks
                 nx=True,  # Only set if key doesn't exist
             )
-        except REDIS_ERRORS as exc:  # policy_guard: allow-silent-handler
+        except REDIS_ERRORS as exc:
             raise LockUnavailableError(f"Failed to acquire distributed lock '{self.lock_key}': {exc}") from exc
 
         if not lock_acquired:
@@ -70,7 +70,7 @@ class DistributedLock:
             self._acquired = False
             logger.debug(f"Released distributed lock: {self.lock_key}")
 
-        except REDIS_ERRORS as exc:  # policy_guard: allow-silent-handler
+        except REDIS_ERRORS as exc:
             raise LockUnavailableError(f"Failed to release distributed lock '{self.lock_key}': {exc}") from exc
 
     @asynccontextmanager
@@ -78,7 +78,7 @@ class DistributedLock:
         """Context manager for automatic lock acquisition and release."""
         try:
             acquired = await self.acquire()
-        except (LockUnavailableError, RuntimeError, ValueError) as exc:  # policy_guard: allow-silent-handler
+        except (LockUnavailableError, RuntimeError, ValueError) as exc:
             raise LockUnavailableError(f"Could not acquire lock: {self.lock_key}") from exc
 
         if not acquired:

@@ -45,9 +45,9 @@ class MonitorLifecycle(MonitoringTaskMixin):
             while True:
                 await asyncio.sleep(self.health_check_interval_seconds)
                 await check_health_callback()
-        except asyncio.CancelledError:  # policy_guard: allow-silent-handler
+        except asyncio.CancelledError:
             logger.info(f"{self.service_name} health monitoring cancelled")
             raise
-        except ConnectionError:  # policy_guard: allow-silent-handler
+        except ConnectionError:
             logger.exception("Fatal error in %s health monitoring", self.service_name)
             raise

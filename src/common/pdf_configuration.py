@@ -22,6 +22,7 @@ _CURRENT_CURRENCY.set(None)
 
 _OPTIMIZED_FILENAME_TEMPLATE = "pdf_parameters.optimized.{currency}.json"
 NDIM_2D = 2
+_DEFAULT_METADATA = {}
 
 
 class PDFConfigurationMissing(FileNotFoundError):
@@ -154,7 +155,7 @@ def write_optimized_snapshot(payload: Dict[str, Any], currency: str) -> Path:
     optimized_path = _optimized_config_path(resolved_currency)
     optimized_path.parent.mkdir(parents=True, exist_ok=True)
 
-    metadata = payload.setdefault("metadata", {})
+    metadata = payload.setdefault("metadata", _DEFAULT_METADATA)
     metadata.setdefault("currency", resolved_currency)
 
     with optimized_path.open("w", encoding="utf-8") as handle:

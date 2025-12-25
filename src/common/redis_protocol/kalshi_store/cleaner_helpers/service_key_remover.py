@@ -70,7 +70,7 @@ class ServiceKeyRemover:
             logger.info(
                 f"Successfully removed all Kalshi keys and subscription entries for service_prefix={self.service_prefix} from Redis"
             )
-        except REDIS_ERRORS as exc:  # policy_guard: allow-silent-handler
+        except REDIS_ERRORS as exc:  # Expected exception, returning default value  # policy_guard: allow-silent-handler
             logger.error(
                 "Error removing all Kalshi keys and subscriptions for service_prefix=%s: %s",
                 self.service_prefix,

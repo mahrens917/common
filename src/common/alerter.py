@@ -53,6 +53,7 @@ __all__ = [
 
 # Provide a module alias for monkeypatch-friendly Path.exists
 _path_module = types.ModuleType(__name__ + ".Path")
+_path_module.__name__ = __name__ + ".Path"
 setattr(_path_module, "exists", Path.exists)
 sys.modules[_path_module.__name__] = _path_module
 
@@ -98,10 +99,11 @@ class AlertDispatchMixin:
     def _ensure_proc(self) -> None:
         if self.telegram_enabled:
             try:
-                asyncio.get_running_loop()
-                asyncio.create_task(self.command_processor.start())
-            except RuntimeError:
+                loop = asyncio.get_running_loop()
+            except RuntimeError:  # Expected runtime failure in operation  # policy_guard: allow-silent-handler
                 logger.debug("No running event loop, skipping command processor start")
+            else:
+                asyncio.create_task(self.command_processor.start())
 
     async def _flush(self) -> None:
         return None
@@ -217,9 +219,14 @@ class Alerter(
         from .alerter_helpers.alerter_components_builder import AlerterComponentsBuilder
 
         if settings is None:
-            from src.monitor.settings import get_monitor_settings
+            try:
+                from src.monitor.settings import get_monitor_settings
 
-            settings = get_monitor_settings()
+                settings = get_monitor_settings()
+            except (ModuleNotFoundError, ImportError):  # pragma: no cover
+                # Monitor module not available; raise with helpful message
+                logger.debug("Monitor settings not available, Alerter requires monitor repo")
+                raise RuntimeError("Alerter requires monitor repository to be installed") from None
         self.settings = settings
         self.rate_limit_handler: TelegramRateLimitHandler | None = None
         self.delivery_manager: Any | None = None

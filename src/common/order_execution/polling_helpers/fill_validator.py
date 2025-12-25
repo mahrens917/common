@@ -32,7 +32,7 @@ def validate_fill_count(fill: Dict[str, Any], order_id: str, operation_name: str
 
     try:
         count = int(fill["count"])
-    except (TypeError, ValueError) as exc:  # policy_guard: allow-silent-handler
+    except (TypeError, ValueError) as exc:
         raise KalshiOrderPollingError(
             f"Invalid fill count ({fill['count']})",
             order_id=order_id,
@@ -115,7 +115,7 @@ def validate_fill_price(fill: Dict[str, Any], side: str, order_id: str, operatio
     price = fill[price_key]
     try:
         return int(price)
-    except (TypeError, ValueError) as exc:  # policy_guard: allow-silent-handler
+    except (TypeError, ValueError) as exc:
         raise KalshiOrderPollingError(
             f"Invalid price in fill ({price})",
             order_id=order_id,

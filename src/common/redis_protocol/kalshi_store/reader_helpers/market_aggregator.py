@@ -42,7 +42,7 @@ class MarketAggregator:
                 )
             try:
                 strike_value = float(strike)
-            except (TypeError, ValueError) as exc:  # policy_guard: allow-silent-handler
+            except (TypeError, ValueError) as exc:
                 raise RuntimeError(f"Market {ticker} has non-numeric strike value: {strike}") from exc
             strike_type = str(strike_type_value)
             ticker_str = str(ticker)

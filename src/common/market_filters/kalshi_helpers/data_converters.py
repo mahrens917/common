@@ -1,10 +1,13 @@
 """Data conversion utilities for Kalshi market validation."""
 
+import logging
 import math
 from datetime import datetime
 from typing import Any, Optional
 
 from ...time_helpers.expiry_conversions import parse_expiry_datetime as _parse_expiry_datetime
+
+logger = logging.getLogger(__name__)
 
 
 def decode_payload(value: Any) -> Any:
@@ -41,7 +44,8 @@ def to_int_value(value: Any) -> Optional[int]:
         return result
     try:
         return int(float(decoded))
-    except (ValueError, TypeError):  # policy_guard: allow-silent-handler
+    except (ValueError, TypeError):  # Expected data validation or parsing failure  # policy_guard: allow-silent-handler
+        logger.warning("Expected data validation or parsing failure")
         return None
 
 

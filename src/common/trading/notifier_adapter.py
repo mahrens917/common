@@ -33,7 +33,7 @@ class TradeNotifierAdapter:
                 error_types = tuple(error_iterable)
                 if not error_types:
                     error_types = (TradeNotificationError,)
-            except ImportError:  # policy_guard: allow-silent-handler
+            except ImportError:  # Optional module not available  # policy_guard: allow-silent-handler
                 notifier_supplier = None
                 error_types = tuple(error_iterable)
         else:
@@ -57,7 +57,7 @@ class TradeNotifierAdapter:
 
         try:
             trade_notifier = self._notifier_supplier()
-        except RuntimeError as exc:  # policy_guard: allow-silent-handler
+        except RuntimeError as exc:
             raise KalshiTradeNotificationError(
                 "Trade notifier unavailable",
                 order_id=order_request.client_order_id,
@@ -82,7 +82,7 @@ class TradeNotifierAdapter:
                 from kalshi.notifications.trade_notifier import TradeNotificationError  # type: ignore[import]
 
                 error_types = (TradeNotificationError,)
-            except ImportError:  # policy_guard: allow-silent-handler
+            except ImportError:  # Optional module not available  # policy_guard: allow-silent-handler
                 error_types = (RuntimeError,)
 
         try:

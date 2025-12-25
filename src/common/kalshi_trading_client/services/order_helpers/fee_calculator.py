@@ -14,12 +14,12 @@ class FeeCalculator:
         """Calculate fees for a proposed order."""
         try:
             fee_func = getattr(importlib.import_module("common.kalshi_trading_client"), "calculate_fees")
-        except AttributeError:  # policy_guard: allow-silent-handler
+        except AttributeError:  # Expected data validation or parsing failure  # policy_guard: allow-silent-handler
             from ....kalshi_fees import calculate_fees as fee_func
 
         try:
             return fee_func(quantity, price_cents, market_ticker)
-        except (ValueError, TypeError, RuntimeError, OverflowError) as exc:  # policy_guard: allow-silent-handler
+        except (ValueError, TypeError, RuntimeError, OverflowError) as exc:
             logger.exception(
                 "Failed to calculate fees for %s (%s)",
                 market_ticker,

@@ -78,7 +78,7 @@ def get_disk_percent(path: str = "/") -> float:
 
         else:
             return 0.0
-    except OSError:  # policy_guard: allow-silent-handler
+    except OSError:  # Best-effort cleanup operation  # policy_guard: allow-silent-handler
         logger.debug(f"Error getting disk usage for {path}")
         return 0.0
 
@@ -103,7 +103,7 @@ def _get_memory_percent_linux() -> float:
 
         else:
             return 0.0
-    except (OSError, ValueError):  # policy_guard: allow-silent-handler
+    except (OSError, ValueError):  # Best-effort cleanup operation  # policy_guard: allow-silent-handler
         logger.debug(f"Error reading /proc/meminfo")
         return 0.0
 
@@ -136,7 +136,7 @@ def _get_cpu_percent_linux() -> float:
 
         else:
             return 0.0
-    except (OSError, ValueError):  # policy_guard: allow-silent-handler
+    except (OSError, ValueError):  # Best-effort cleanup operation  # policy_guard: allow-silent-handler
         logger.debug(f"Error reading /proc/stat")
         return 0.0
 
@@ -160,7 +160,12 @@ def _get_memory_percent_macos() -> float:
         vm_stats = _parse_vm_stat_output(lines)
         return _calculate_memory_percentage(vm_stats)
 
-    except (subprocess.TimeoutExpired, subprocess.SubprocessError, ValueError, OSError):  # policy_guard: allow-silent-handler
+    except (
+        subprocess.TimeoutExpired,
+        subprocess.SubprocessError,
+        ValueError,
+        OSError,
+    ):  # Best-effort cleanup operation  # policy_guard: allow-silent-handler
         logger.debug(f"Error reading vm_stat for memory")
         return 0.0
 
@@ -224,7 +229,12 @@ def _get_cpu_percent_macos() -> float:
             return 0.0
 
         return _parse_cpu_from_iostat_output(lines, us_col_idx)
-    except (subprocess.TimeoutExpired, subprocess.SubprocessError, ValueError, OSError):  # policy_guard: allow-silent-handler
+    except (
+        subprocess.TimeoutExpired,
+        subprocess.SubprocessError,
+        ValueError,
+        OSError,
+    ):  # Best-effort cleanup operation  # policy_guard: allow-silent-handler
         logger.debug(f"Error reading iostat for CPU")
         return 0.0
 
@@ -251,7 +261,8 @@ def _parse_cpu_from_iostat_output(lines: list[str], us_col_idx: int) -> float:
                 system = float(parts[us_col_idx + 1])
                 idle = float(parts[us_col_idx + 2])
                 return _calculate_cpu_percentage(user, system, idle)
-            except (ValueError, IndexError):  # policy_guard: allow-silent-handler
+            except (ValueError, IndexError):  # Expected data validation or parsing failure  # policy_guard: allow-silent-handler
+                logger.warning("Expected data validation or parsing failure")
                 continue
     return 0.0
 

@@ -110,7 +110,7 @@ def _try_derive_from_timestamp(market_ticker: str, timestamp_value: Any, now_dt:
     # Parse timestamp value
     try:
         seconds = float(timestamp_value)
-    except (TypeError, ValueError) as exc:  # policy_guard: allow-silent-handler
+    except (TypeError, ValueError) as exc:
         raise RuntimeError(f"Invalid timestamp value for {market_ticker}: {timestamp_value}") from exc
 
     # Validate timestamp is positive

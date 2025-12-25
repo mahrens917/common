@@ -70,7 +70,7 @@ def normalise_strike_value(strike_value: Any) -> str:
     """Round numeric strikes to the nearest integer; reject non-numeric inputs."""
     try:
         numeric_value = float(strike_value)
-    except (TypeError, ValueError) as exc:  # policy_guard: allow-silent-handler
+    except (TypeError, ValueError) as exc:
         raise TypeError(f"Strike value {strike_value!r} must be numeric") from exc
 
     if math.isnan(numeric_value) or math.isinf(numeric_value):

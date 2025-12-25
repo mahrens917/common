@@ -36,9 +36,9 @@ class OperationExecutor:
         """
         try:
             return await operation()
-        except OrderMetadataError:  # policy_guard: allow-silent-handler
+        except OrderMetadataError:
             raise
-        except TradeStoreError:  # policy_guard: allow-silent-handler
+        except TradeStoreError:
             raise
         except RuntimeError as exc:
             self.logger.error("%s: runtime failure %s", context, exc, exc_info=True)

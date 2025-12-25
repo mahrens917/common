@@ -24,7 +24,7 @@ class OrderValidator:
 
         try:
             uuid.UUID(order_request.client_order_id)
-        except ValueError as exc:  # policy_guard: allow-silent-handler
+        except ValueError as exc:
             raise KalshiOrderValidationError(
                 f"Client order ID must be valid UUID: {order_request.client_order_id}",
                 operation_name="validate_order_request",

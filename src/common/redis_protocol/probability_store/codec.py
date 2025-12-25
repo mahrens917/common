@@ -37,7 +37,7 @@ def serialize_probability_payload(data: Dict[str, Any]) -> Tuple[str, bool]:
 
     try:
         value = orjson.dumps(normalized).decode()
-    except JSON_ERRORS as exc:  # policy_guard: allow-silent-handler
+    except JSON_ERRORS as exc:
         raise ProbabilityStoreError(f"Failed to serialise probability payload: {data}") from exc
 
     if has_confidence and '"confidence":' not in value:
@@ -61,7 +61,7 @@ def decode_probability_hash(raw_data: Dict[Any, Any], *, key_str: str, log_nan: 
 
         try:
             processed[field_name] = float(value_text)
-        except ValueError:  # policy_guard: allow-silent-handler
+        except ValueError:  # Expected data validation or parsing failure  # policy_guard: allow-silent-handler
             processed[field_name] = value_text
 
     return processed

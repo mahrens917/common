@@ -84,7 +84,7 @@ class AstronomicalCalculator:
                 vertical_lines=vertical_lines,
                 dawn_dusk_periods=dawn_dusk_periods or None,
             )
-        except (
+        except (  # policy_guard: allow-silent-handler
             RuntimeError,
             ValueError,
             TypeError,
@@ -107,7 +107,7 @@ class AstronomicalCalculator:
             timezone_name = get_timezone_from_coordinates(latitude, longitude)
             local_tz = pytz.timezone(timezone_name)
             logger.debug("Using local timezone %s for %s", timezone_name, station_icao)
-        except (
+        except (  # policy_guard: allow-silent-handler
             RuntimeError,
             ValueError,
             TypeError,

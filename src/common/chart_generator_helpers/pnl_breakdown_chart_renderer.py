@@ -72,5 +72,5 @@ class PnlBreakdownChartRenderer:
         finally:
             try:
                 plt.close(fig)
-            except (RuntimeError, ValueError, TypeError) as exc:  # pragma: no cover - log only
+            except (RuntimeError, ValueError, TypeError) as exc:  # pragma: no cover - log only  # policy_guard: allow-silent-handler
                 logger.warning("Error during matplotlib figure cleanup: %s", exc)

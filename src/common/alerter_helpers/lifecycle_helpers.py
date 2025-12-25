@@ -37,7 +37,7 @@ class LifecycleHelpers:
         try:
             asyncio.get_running_loop()
             asyncio.create_task(command_processor.start())
-        except RuntimeError:
+        except RuntimeError:  # Expected runtime failure in operation  # policy_guard: allow-silent-handler
             logger.debug("No running event loop, skipping command processor start")
 
     @staticmethod

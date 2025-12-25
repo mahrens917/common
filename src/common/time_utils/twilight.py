@@ -68,7 +68,7 @@ def _compute_hour_angle(latitude: float, declination: float, date_utc: datetime,
             message = f"Polar day prevents {event_name} calculation for lat={latitude}, lon={longitude}, date={date_utc.date()}"
             raise AstronomicalComputationError(message)
         return math.degrees(math.acos(cos_hour_angle))
-    except (ValueError, ZeroDivisionError) as exc:  # policy_guard: allow-silent-handler
+    except (ValueError, ZeroDivisionError) as exc:
         logger.exception(
             "Twilight calculation failed for lat=%s, lon=%s, date=%s",
             latitude,

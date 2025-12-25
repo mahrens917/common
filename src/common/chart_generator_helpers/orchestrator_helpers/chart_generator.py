@@ -47,12 +47,12 @@ async def generate_charts_for_stations(
                 city_name,
                 station_coordinates,
             )
-        except InsufficientDataError as exc:
+        except InsufficientDataError as exc:  # Expected exception in loop, continuing iteration  # policy_guard: allow-silent-handler
             logger.warning("Skipping %s: %s", station_icao, exc)
             continue
         except asyncio.CancelledError:
             raise
-        except (
+        except (  # policy_guard: allow-silent-handler
             IOError,
             OSError,
             ValueError,

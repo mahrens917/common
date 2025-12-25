@@ -2,9 +2,12 @@
 
 from __future__ import annotations
 
+import logging
 from typing import Any, Dict, List
 
 from common.truthy import pick_if
+
+logger = logging.getLogger(__name__)
 
 _DEFAULT_NUMERIC_ERROR_MESSAGE = "Expected numeric value"
 
@@ -20,7 +23,8 @@ def coerce_mapping(candidate: Any) -> Dict[str, Any]:
     if hasattr(candidate, "items"):
         try:
             return dict(candidate.items())
-        except (TypeError, ValueError, AttributeError):  # policy_guard: allow-silent-handler
+        except (TypeError, ValueError, AttributeError):  # Expected data validation or parsing failure  # policy_guard: allow-silent-handler
+            logger.warning("Expected data validation or parsing failure")
             return {}
     return {}
 
@@ -35,7 +39,8 @@ def coerce_sequence(candidate: Any) -> List[Any]:
     if hasattr(candidate, "__iter__"):
         try:
             return list(candidate)
-        except (TypeError, ValueError, AttributeError):  # policy_guard: allow-silent-handler
+        except (TypeError, ValueError, AttributeError):  # Expected data validation or parsing failure  # policy_guard: allow-silent-handler
+            logger.warning("Expected data validation or parsing failure")
             return []
     return []
 

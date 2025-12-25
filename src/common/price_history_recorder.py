@@ -79,7 +79,7 @@ class PriceHistoryRecorder:
 
             logger.debug(f"Recorded {currency} price history: ${price:.2f} at {datetime_str}")
 
-        except REDIS_ERRORS as exc:  # policy_guard: allow-silent-handler
+        except REDIS_ERRORS as exc:
             logger.exception(f"Failed to record  price history: ")
             raise RuntimeError(f"Failed to record {currency} price history") from exc
         else:

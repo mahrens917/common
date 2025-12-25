@@ -75,7 +75,12 @@ class WebSocketConnectionLifecycle:
                     await asyncio.wait_for(close_method(), timeout=5.0)
                 else:
                     self.logger.debug("WebSocket already closed (code: %s)", self.websocket_connection.close_code)
-            except (asyncio.TimeoutError, WebSocketException, OSError, RuntimeError):  # policy_guard: allow-silent-handler
+            except (
+                asyncio.TimeoutError,
+                WebSocketException,
+                OSError,
+                RuntimeError,
+            ):  # Transient network/connection failure  # policy_guard: allow-silent-handler
                 self.logger.warning("Error closing WebSocket")
             finally:
                 self.websocket_connection = None

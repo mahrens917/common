@@ -4,11 +4,13 @@ from common.truthy import pick_if
 
 """Key helpers for the probability store."""
 
-
+import logging
 from datetime import datetime
 from typing import Optional, Tuple, Union
 
 from .exceptions import ProbabilityStoreError
+
+logger = logging.getLogger(__name__)
 
 # Constants
 _CONST_5 = 5
@@ -35,7 +37,8 @@ def _try_parse_float(strike_key: str) -> Optional[float]:
     """Attempt to parse the strike as a plain float."""
     try:
         return float(strike_key)
-    except ValueError:  # policy_guard: allow-silent-handler
+    except ValueError:  # Expected data validation or parsing failure  # policy_guard: allow-silent-handler
+        logger.warning("Expected data validation or parsing failure")
         return None
 
 
@@ -47,7 +50,7 @@ def _parse_prefixed_key(strike_key: str) -> Optional[tuple[int, float]]:
 
     try:
         numeric_value = float(strike_key[1:])
-    except ValueError as exc:  # policy_guard: allow-silent-handler
+    except ValueError as exc:
         raise ProbabilityStoreError(f"Invalid strike key '{strike_key}'") from exc
 
     return (pick_if(prefix == ">", lambda: 1, lambda: -1), numeric_value)
@@ -61,7 +64,7 @@ def _parse_range_key(strike_key: str) -> Optional[tuple[int, float]]:
     start, _, _ = strike_key.partition("-")
     try:
         return (0, float(start))
-    except ValueError as exc:  # policy_guard: allow-silent-handler
+    except ValueError as exc:
         raise ProbabilityStoreError(f"Invalid strike range '{strike_key}'") from exc
 
 

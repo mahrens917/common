@@ -101,7 +101,7 @@ class MetadataStoreAutoUpdater:
         task.cancel()
         try:
             await asyncio.wait_for(task, timeout=5.0)
-        except (asyncio.CancelledError, asyncio.TimeoutError):  # policy_guard: allow-silent-handler
+        except (asyncio.CancelledError, asyncio.TimeoutError):  # Expected during task cancellation  # policy_guard: allow-silent-handler
             logger.warning("Task %s did not complete within timeout", self._resolve_task_name(task))
 
     @staticmethod
@@ -115,5 +115,11 @@ class MetadataStoreAutoUpdater:
     async def _cleanup_metadata_store(self) -> None:
         try:
             await self.metadata_store.cleanup()
-        except (RuntimeError, OSError, ValueError, AttributeError, ConnectionError) as exc:  # policy_guard: allow-silent-handler
+        except (
+            RuntimeError,
+            OSError,
+            ValueError,
+            AttributeError,
+            ConnectionError,
+        ) as exc:  # Transient network/connection failure  # policy_guard: allow-silent-handler
             logger.warning("Metadata store cleanup failed during stop: %s", exc)

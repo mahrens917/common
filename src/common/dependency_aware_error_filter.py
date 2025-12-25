@@ -85,7 +85,7 @@ class DependencyAwareErrorFilterMixin:
 
             else:
                 return False
-        except REDIS_ERRORS:  # policy_guard: allow-silent-handler
+        except REDIS_ERRORS:  # Expected exception, returning default value  # policy_guard: allow-silent-handler
             logger.exception("Error checking dependency status for %s", process_name)
             return False
 
@@ -134,7 +134,7 @@ class DependencyAwareErrorFilter(DependencyAwareErrorFilterMixin):
                 continue
             try:
                 pattern_config = DependencyErrorPattern(dependency_name=dep_name, error_patterns=patterns)
-            except PatternCompilationError as exc:  # policy_guard: allow-silent-handler
+            except PatternCompilationError as exc:  # Expected exception in operation  # policy_guard: allow-silent-handler
                 logger.warning(str(exc))
                 pattern_config = DependencyErrorPattern(dependency_name=dep_name, error_patterns=[], compiled_patterns=[])
             self.dependency_patterns[dep_name] = pattern_config

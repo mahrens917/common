@@ -65,7 +65,7 @@ class MonitoringLoop:
             self.monitoring_task.cancel()
             try:
                 await self.monitoring_task
-            except asyncio.CancelledError:  # policy_guard: allow-silent-handler
+            except asyncio.CancelledError:  # Expected during task cancellation  # policy_guard: allow-silent-handler
                 logger.debug("Memory monitoring task cancelled during shutdown")
 
         self.monitoring_task = None
@@ -97,10 +97,10 @@ class MonitoringLoop:
                 # Wait for next check
                 await asyncio.sleep(self.check_interval_seconds)
 
-            except asyncio.CancelledError:  # policy_guard: allow-silent-handler
+            except asyncio.CancelledError:  # Expected during task cancellation  # policy_guard: allow-silent-handler
                 logger.info("Memory monitoring loop cancelled")
                 break
-            except MONITOR_LOOP_ERRORS:  # policy_guard: allow-silent-handler
+            except MONITOR_LOOP_ERRORS:  # Expected exception in operation  # policy_guard: allow-silent-handler
                 # Error in monitoring - continue with next iteration
                 await asyncio.sleep(self.check_interval_seconds)
 
