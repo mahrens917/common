@@ -43,12 +43,16 @@ def _merge_prediction_series(
 ) -> tuple[np.ndarray, np.ndarray]:
     """Return numeric/time-aligned arrays that connect history with predictions."""
     prediction_array = np.asarray(prediction_values, dtype=float)
-    if anchor_numeric is None:
-        return prediction_numeric, prediction_array
 
-    seed_value = anchor_value if anchor_value is not None else float(prediction_values[0])
-    merged_numeric = np.concatenate(([anchor_numeric], prediction_numeric))
-    merged_values = np.concatenate(([seed_value], prediction_array))
+    # When no anchor, return unmerged prediction arrays
+    merged_numeric = prediction_numeric
+    merged_values = prediction_array
+
+    if anchor_numeric is not None:
+        seed_value = anchor_value if anchor_value is not None else float(prediction_values[0])
+        merged_numeric = np.concatenate(([anchor_numeric], prediction_numeric))
+        merged_values = np.concatenate(([seed_value], prediction_array))
+
     return merged_numeric, merged_values
 
 

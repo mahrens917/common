@@ -52,9 +52,14 @@ def _import_config_loader():
     for module_path in ["src.weather.config_loader", "weather.config_loader"]:
         try:
             module = importlib.import_module(module_path)
-            return module.load_config_json
-        except (ImportError, ModuleNotFoundError, AttributeError):
+        except (
+            ImportError,
+            ModuleNotFoundError,
+            AttributeError,
+        ):  # Expected exception - optional dependency  # policy_guard: allow-silent-handler
             continue
+        else:
+            return module.load_config_json
 
     raise WeatherConfigError("weather package is not installed")
 

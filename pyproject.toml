@@ -17,8 +17,15 @@ authors = [
 ]
 dependencies = [
     "redis",
-    "aioredis",
-    "python-dotenv",
+    "aiohttp",
+    "orjson",
+    "websockets",
+    "psutil",
+    "pytz",
+    "numpy",
+    "matplotlib",
+    "python-dateutil",
+    "timezonefinder",
 ]
 
 [tool.setuptools]

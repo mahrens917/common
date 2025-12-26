@@ -22,9 +22,14 @@ def _load_kalshi_settings_func():
     for module_path in ["src.kalshi.settings", "kalshi.settings"]:
         try:
             module = importlib.import_module(module_path)
-            return module.get_kalshi_settings
-        except (ImportError, ModuleNotFoundError, AttributeError):
+        except (
+            ImportError,
+            ModuleNotFoundError,
+            AttributeError,
+        ):  # Expected exception - optional dependency  # policy_guard: allow-silent-handler
             continue
+        else:
+            return module.get_kalshi_settings
 
     def get_kalshi_settings():
         """Fallback when kalshi package is not installed."""

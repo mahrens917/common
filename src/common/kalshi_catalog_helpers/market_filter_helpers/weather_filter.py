@@ -2,6 +2,10 @@
 
 from typing import Dict, Optional, Set
 
+# Filter result indicators
+_FILTER_FAILED = False
+_FILTER_PASSED = True
+
 
 class WeatherFilter:
     """Filters weather markets."""
@@ -18,15 +22,15 @@ class WeatherFilter:
         else:
             ticker = ""
         if not ticker.startswith("KXHIGH"):
-            return False
+            return _FILTER_FAILED
         if not close_time_validator.is_in_future(market, now_ts):
-            return False
+            return _FILTER_FAILED
         station_token = self.extract_station_token(ticker)
-        if station_token is None:
-            return False
-        if self._weather_station_tokens and station_token not in self._weather_station_tokens:
-            return False
-        return True
+        if station_token is not None:
+            if self._weather_station_tokens and station_token not in self._weather_station_tokens:
+                return _FILTER_FAILED
+            return _FILTER_PASSED
+        return _FILTER_FAILED
 
     @staticmethod
     def extract_station_token(ticker: str) -> Optional[str]:

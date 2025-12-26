@@ -6,6 +6,10 @@ from typing import Optional
 
 logger = logging.getLogger(__name__)
 
+# Return values for backoff status checks
+_NOT_BLOCKED = False
+_BLOCKED = True
+
 
 class TelegramNetworkBackoffManager:
     """Manages network backoff when Telegram API becomes unreachable."""
@@ -33,7 +37,7 @@ class TelegramNetworkBackoffManager:
             True if operation should be skipped
         """
         if self._block_until is None:
-            return False
+            return _NOT_BLOCKED
 
         remaining = self._block_until - time.time()
         if remaining > 0:
@@ -49,10 +53,10 @@ class TelegramNetworkBackoffManager:
                     reason,
                 )
                 self._logged = True
-            return True
+            return _BLOCKED
 
         self.clear_backoff()
-        return False
+        return _NOT_BLOCKED
 
     def record_failure(self, exception: Exception) -> None:
         """
@@ -80,6 +84,6 @@ class TelegramNetworkBackoffManager:
         if self._block_until is None:
             return
 
-        self._block_until = None
-        self._reason = None
+        self._block_until: Optional[float] = None
+        self._reason: Optional[str] = None
         self._logged = False

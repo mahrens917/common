@@ -223,13 +223,18 @@ class MarketEvaluator:
         if not MarketSelectionHelper.is_temperature_in_band(max_temp_f, floor, cap):
             return best_snapshot, best_cap, best_floor
 
-        if best_snapshot is None:
-            return snapshot, cap, floor
+        # When no previous best snapshot, use current snapshot
+        selected_snapshot = snapshot
+        selected_cap = cap
+        selected_floor = floor
 
-        current_width = MarketSelectionHelper.calculate_market_width(floor, cap)
-        best_width = MarketSelectionHelper.calculate_market_width(best_floor, best_cap)
+        if best_snapshot is not None:
+            current_width = MarketSelectionHelper.calculate_market_width(floor, cap)
+            best_width = MarketSelectionHelper.calculate_market_width(best_floor, best_cap)
 
-        if current_width is not None and best_width is not None and current_width < best_width:
-            return snapshot, cap, floor
+            if current_width is None or best_width is None or current_width >= best_width:
+                selected_snapshot = best_snapshot
+                selected_cap = best_cap
+                selected_floor = best_floor
 
-        return best_snapshot, best_cap, best_floor
+        return selected_snapshot, selected_cap, selected_floor

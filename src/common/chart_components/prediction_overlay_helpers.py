@@ -34,9 +34,15 @@ def select_numeric_and_values(
     merged_values: np.ndarray,
 ) -> tuple[np.ndarray, np.ndarray]:
     """Select appropriate numeric and value arrays based on anchor."""
-    if anchor_numeric is None:
-        return prediction_numeric, np.asarray(prediction_values, dtype=float)
-    return merged_numeric, merged_values
+    # Default to prediction arrays when no anchor
+    selected_numeric = prediction_numeric
+    selected_values = np.asarray(prediction_values, dtype=float)
+
+    if anchor_numeric is not None:
+        selected_numeric = merged_numeric
+        selected_values = merged_values
+
+    return selected_numeric, selected_values
 
 
 def draw_uncertainty_bands(

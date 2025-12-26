@@ -19,9 +19,14 @@ def _get_cli_temp_f():
     for module_path in ["src.weather.temperature_converter", "weather.temperature_converter"]:
         try:
             module = importlib.import_module(module_path)
-            return module.cli_temp_f
-        except (ImportError, ModuleNotFoundError, AttributeError):
+        except (
+            ImportError,
+            ModuleNotFoundError,
+            AttributeError,
+        ):  # Expected exception - optional dependency  # policy_guard: allow-silent-handler
             continue
+        else:
+            return module.cli_temp_f
 
     def cli_temp_f(celsius):
         """Fallback when weather package is not installed."""

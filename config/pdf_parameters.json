@@ -217,7 +217,7 @@
     "long_term_secondary_max_weight": 0.6,
     "long_term_gap_segment_years": 0.2,
     "long_term_secondary_gap_segment_years": 0.2,
-    "rationale": "Targets derived from Deribit BTC futures coverage as of Oct 2025. short_term_target_years is reduced to 1e-5 years (~8.8 minutes) so the curve builder always injects an ultra-short synthetic forward and keeps sub-hour Kalshi expiries inside the fitted training window. target_tolerance_years remains 0.01 for backward compatibility, while short_term_injection_tolerance_years=5e-6 forces a synthetic node unless real data already lands within ~3 minutes of the target. max_time_gap_warning_years stays at 0.26 to acknowledge the known 0.249-year quarter gap without masking larger issues. Tenor damping parameters (coefficient 12.0, reference 0.08 years, max factor 0.9) temper the instantaneous risk-free rate extracted from near-dated futures without hard cutoffs by applying a smooth decay toward zero while maintaining a 5% floor of the raw rate magnitude. spot_duplicate_tenor_threshold_years=0.002 retains true weekly contracts even when their prices match spot, preventing the short-tenor gap that previously inflated rate uncertainty. long_term_blend_* parameters activate a smooth exponential blend toward a synthetic 1-year node whenever the catalog stops more than 0.25 years short, and long_term_gap_segment_years=0.2 together with long_term_secondary_gap_segment_years=0.2 insert intermediate bridge nodes so no segment exceeds a quarter-year; the secondary target (1.35y) keeps probability extraction aligned with the latest Kalshi horizon while using the same segmentation controls."
+    "rationale": "Targets derived from Deribit BTC futures coverage as of Oct 2025. short_term_target_years is reduced to 1e-5 years (~8.8 minutes) so the curve builder always injects an ultra-short synthetic forward and keeps sub-hour Kalshi expiries inside the fitted training window. target_tolerance_years remains 0.01 for consistency, while short_term_injection_tolerance_years=5e-6 forces a synthetic node unless real data already lands within ~3 minutes of the target. max_time_gap_warning_years stays at 0.26 to acknowledge the known 0.249-year quarter gap without masking larger issues. Tenor damping parameters (coefficient 12.0, reference 0.08 years, max factor 0.9) temper the instantaneous risk-free rate extracted from near-dated futures without hard cutoffs by applying a smooth decay toward zero while maintaining a 5% floor of the raw rate magnitude. spot_duplicate_tenor_threshold_years=0.002 retains true weekly contracts even when their prices match spot, preventing the short-tenor gap that previously inflated rate uncertainty. long_term_blend_* parameters activate a smooth exponential blend toward a synthetic 1-year node whenever the catalog stops more than 0.25 years short, and long_term_gap_segment_years=0.2 together with long_term_secondary_gap_segment_years=0.2 insert intermediate bridge nodes so no segment exceeds a quarter-year; the secondary target (1.35y) keeps probability extraction aligned with the latest Kalshi horizon while using the same segmentation controls."
   },
   "bid_ask_constraints": {
     "enforcement_tolerance": 1e-08,
@@ -481,7 +481,7 @@
     "reference_time_source": "system",
     "reference_time_format": "iso8601",
     "utc_standardization": true,
-    "rationale": "Reference time methodology for temporal consistency across all calculations. UTC timezone eliminates daylight saving complications. ISO8601 format ensures unambiguous time representation. Crypto markets operate 24/7 so weekend/holiday handling adapted accordingly. timezone_handling parameter added for test compatibility. use_fixed_reference_time enables consistent temporal calculations. reference_time_source specifies system time as the authoritative source. reference_time_format ensures consistent time formatting. utc_standardization ensures all times are normalized to UTC."
+    "rationale": "Reference time methodology for temporal consistency across all calculations. UTC timezone eliminates daylight saving complications. ISO8601 format ensures unambiguous time representation. Crypto markets operate 24/7 so weekend/holiday handling adapted accordingly. timezone_handling parameter added for test integration. use_fixed_reference_time enables consistent temporal calculations. reference_time_source specifies system time as the authoritative source. reference_time_format ensures consistent time formatting. utc_standardization ensures all times are normalized to UTC."
   },
   "temporal_consistency": {
     "drift_detection_enabled": true,
@@ -495,12 +495,12 @@
     "probability_temporal_alignment": true,
     "extraction_reference_time_usage": "fixed",
     "temporal_consistency_validation": true,
-    "rationale": "Temporal consistency parameters ensuring synchronized time handling across all system components. Maximum drift of 5 minutes prevents temporal inconsistencies. Hourly synchronization maintains accuracy for long-running processes. Fixed reference time in GP ensures consistent temporal calculations across all surface fitting operations. Temporal stability threshold of 0.001 ensures GP surface stability across time. Time-dependent parameter handling uses fixed reference approach for consistency. Added probability temporal alignment and extraction reference time parameters for test compatibility."
+    "rationale": "Temporal consistency parameters ensuring synchronized time handling across all system components. Maximum drift of 5 minutes prevents temporal inconsistencies. Hourly synchronization maintains accuracy for long-running processes. Fixed reference time in GP ensures consistent temporal calculations across all surface fitting operations. Temporal stability threshold of 0.001 ensures GP surface stability across time. Time-dependent parameter handling uses fixed reference approach for consistency. Added probability temporal alignment and extraction reference time parameters for test integration."
   },
   "data_sources": {
     "primary_source": "deribit",
     "secondary_source": "kalshi",
-    "fallback_enabled": true,
+    "alternate_source_enabled": true,
     "cross_validation_enabled": true,
     "source_priority": [
       "deribit",
@@ -581,6 +581,6 @@
     "degrees_of_freedom": 5.0,
     "robust_iterations": 1,
     "max_iterations": 60,
-    "rationale": "Default optimization controls for Fast Student-T GP fitting. Degrees of freedom aligns with baseline likelihood assumptions, robust iterations provide outlier reweighting passes, and max_iterations caps L-BFGS steps for numerical stability."
+    "rationale": "Standard optimization controls for Fast Student-T GP fitting. Degrees of freedom aligns with baseline likelihood assumptions, robust iterations provide outlier reweighting passes, and max_iterations caps L-BFGS steps for numerical stability."
   }
 }

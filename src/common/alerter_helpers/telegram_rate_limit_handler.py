@@ -10,6 +10,10 @@ from .telegram_retry_after_parser import TelegramRetryAfterParser
 
 logger = logging.getLogger(__name__)
 
+# Rate limit status indicators
+_RATE_LIMIT_INACTIVE = False
+_RATE_LIMIT_ACTIVE = True
+
 
 class TelegramRateLimitHandler:
     """Handles Telegram API rate limiting (429 responses) with backoff."""
@@ -35,7 +39,7 @@ class TelegramRateLimitHandler:
             True if backoff is active
         """
         if self._last_429_time is None:
-            return False
+            return _RATE_LIMIT_INACTIVE
 
         backoff_time = self._last_429_backoff_seconds
         if backoff_time is None:
@@ -47,7 +51,7 @@ class TelegramRateLimitHandler:
                 "Telegram API backoff active, %.1fs remaining",
                 backoff_time - time_since_429,
             )
-            return True
+            return _RATE_LIMIT_ACTIVE
 
         logger.info(
             "Telegram API backoff period ended after %.1fs (waited %.1fs)",
@@ -57,7 +61,7 @@ class TelegramRateLimitHandler:
         self._last_429_time = None
         self._429_count = 0
         self._last_429_backoff_seconds = None
-        return False
+        return _RATE_LIMIT_INACTIVE
 
     async def handle_rate_limit(self, response: aiohttp.ClientResponse) -> None:
         """

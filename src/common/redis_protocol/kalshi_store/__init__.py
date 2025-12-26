@@ -41,5 +41,17 @@ __all__ = [
     "RedisFatalError",
     "Redis",
     "time",
+    "REDIS_HOST",
+    "REDIS_PORT",
+    "REDIS_PASSWORD",
+    "REDIS_DB",
+    "REDIS_SSL",
 ]
 import time as time
+
+# Re-export config values for test access and convenience
+REDIS_HOST = redis_config.REDIS_HOST
+REDIS_PORT = redis_config.REDIS_PORT
+REDIS_PASSWORD = redis_config.REDIS_PASSWORD
+REDIS_DB = redis_config.REDIS_DB
+REDIS_SSL = redis_config.REDIS_SSL

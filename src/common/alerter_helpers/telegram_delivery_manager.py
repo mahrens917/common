@@ -12,6 +12,8 @@ from ..alerting import Alert, TelegramDeliveryResult
 logger = logging.getLogger(__name__)
 
 ERR_NO_RECIPIENTS = "Telegram alert requires at least one recipient."
+TELEGRAM_METHOD_PHOTO = "sendPhoto"
+TELEGRAM_METHOD_DOCUMENT = "sendDocument"
 
 
 def _get_image_properties(image_path: str) -> tuple[str, bool]:
@@ -106,7 +108,7 @@ class TelegramDeliveryManager:
             return False
 
         chart_name, is_photo = _get_image_properties(image_path)
-        telegram_method = "sendPhoto" if is_photo else "sendDocument"
+        telegram_method = TELEGRAM_METHOD_PHOTO if is_photo else TELEGRAM_METHOD_DOCUMENT
 
         try:
             result = await self.media_sender.send_media(

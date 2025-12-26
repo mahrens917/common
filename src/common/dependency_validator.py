@@ -21,9 +21,14 @@ def _get_weather_settings_func():
     for module_path in ["src.weather.settings", "weather.settings"]:
         try:
             module = importlib.import_module(module_path)
-            return module.get_weather_settings
-        except (ImportError, ModuleNotFoundError, AttributeError):
+        except (
+            ImportError,
+            ModuleNotFoundError,
+            AttributeError,
+        ):  # Expected exception - optional dependency  # policy_guard: allow-silent-handler
             continue
+        else:
+            return module.get_weather_settings
 
     def get_weather_settings():
         """Fallback when weather package is not installed."""

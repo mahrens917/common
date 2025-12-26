@@ -26,6 +26,7 @@ from common.truthy import pick_truthy
 _config_lock = threading.Lock()
 _LOGS_CLEARED = False
 _MODULE_LOGGER = logging.getLogger(__name__)
+_UNKNOWN_LOGGER_NAME = "<unknown>"
 
 
 def _get_process_cmdline(proc: Any) -> str:
@@ -132,7 +133,7 @@ def _close_handlers(logger: logging.Logger, logger_name: Optional[str] = None) -
         try:
             handler.close()
         except OSError as e:  # Best-effort cleanup operation  # policy_guard: allow-silent-handler
-            safe_name = logger_name if logger_name else "<unknown>"
+            safe_name = logger_name if logger_name else _UNKNOWN_LOGGER_NAME
             _MODULE_LOGGER.debug("Handler close failed for logger '%s': %s", safe_name, e)
 
 
@@ -145,7 +146,7 @@ def _reset_handlers(root_logger: logging.Logger) -> None:
             target_logger.handlers = []
             target_logger.propagate = True
         except (AttributeError, RuntimeError) as exc:  # Expected data validation or parsing failure  # policy_guard: allow-silent-handler
-            safe_name = logger_name if logger_name else "<unknown>"
+            safe_name = logger_name if logger_name else _UNKNOWN_LOGGER_NAME
             _MODULE_LOGGER.debug("Failed to reset handlers for logger '%s': %s", safe_name, exc)
 
 

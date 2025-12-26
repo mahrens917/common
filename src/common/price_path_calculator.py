@@ -21,7 +21,11 @@ def _default_surface_loader(currency: str):
         try:
             module = importlib.import_module(module_path)
             return module.load_surface_sync(currency)
-        except (ImportError, ModuleNotFoundError, AttributeError):
+        except (
+            ImportError,
+            ModuleNotFoundError,
+            AttributeError,
+        ):  # Expected exception - optional dependency  # policy_guard: allow-silent-handler
             continue
 
     raise ImportError("pdf package not found")

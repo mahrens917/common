@@ -1,6 +1,7 @@
 .PHONY: format lint type policy check
 
 CI_SHARED_ROOT ?= $(HOME)/projects/ci_shared
+export CI_SHARED_ROOT
 export PYTHONPATH := $(CI_SHARED_ROOT)$(if $(PYTHONPATH),:$(PYTHONPATH))
 export PYTHONDONTWRITEBYTECODE := 1
 
