@@ -9,6 +9,11 @@ from common.chart_generator.contexts import ChartStatistics, ChartTimeContext
 from common.chart_generator_helpers.axes_limits_configurator import AxesLimitsConfigurator
 from common.chart_generator_helpers.config import AxesLimitsConfig
 
+# Test constants for chart statistics
+TEST_CHART_MIN_VALUE = 10.0
+TEST_CHART_MEAN_VALUE = 50.0
+TEST_CHART_MAX_VALUE = 90.0
+
 
 @pytest.fixture
 def mock_ax() -> MagicMock:
@@ -34,9 +39,9 @@ def mock_time_context() -> MagicMock:
 def mock_stats() -> MagicMock:
     """Create a mock ChartStatistics."""
     stats = MagicMock(spec=ChartStatistics)
-    stats.min_value = 10.0
-    stats.mean_value = 50.0
-    stats.max_value = 90.0
+    stats.min_value = TEST_CHART_MIN_VALUE
+    stats.mean_value = TEST_CHART_MEAN_VALUE
+    stats.max_value = TEST_CHART_MAX_VALUE
     return stats
 
 

@@ -6,6 +6,13 @@ import pytest
 
 from common.alerter_helpers.initialization import AlerterInitializer
 
+# Test constants for alerter configuration
+TEST_TELEGRAM_TIMEOUT_SECONDS = 30
+TEST_TELEGRAM_TIMEOUT_SECONDS_LONG = 100
+TEST_TELEGRAM_TIMEOUT_SECONDS_SHORT = 5
+TEST_THROTTLE_WINDOW_SECONDS = 60
+TEST_MAX_ALERTS_PER_WINDOW = 10
+
 
 @pytest.fixture
 def mock_settings_with_telegram() -> MagicMock:
@@ -13,9 +20,9 @@ def mock_settings_with_telegram() -> MagicMock:
     settings = MagicMock()
     settings.telegram.bot_token = "test_token_123"
     settings.telegram.chat_ids = [123, 456]
-    settings.alerting.telegram_timeout_seconds = 30
-    settings.alerting.throttle_window_seconds = 60
-    settings.alerting.max_alerts_per_window = 10
+    settings.alerting.telegram_timeout_seconds = TEST_TELEGRAM_TIMEOUT_SECONDS
+    settings.alerting.throttle_window_seconds = TEST_THROTTLE_WINDOW_SECONDS
+    settings.alerting.max_alerts_per_window = TEST_MAX_ALERTS_PER_WINDOW
     return settings
 
 
@@ -24,8 +31,8 @@ def mock_settings_without_telegram() -> MagicMock:
     """Create mock settings without Telegram."""
     settings = MagicMock()
     settings.telegram = None
-    settings.alerting.throttle_window_seconds = 60
-    settings.alerting.max_alerts_per_window = 10
+    settings.alerting.throttle_window_seconds = TEST_THROTTLE_WINDOW_SECONDS
+    settings.alerting.max_alerts_per_window = TEST_MAX_ALERTS_PER_WINDOW
     return settings
 
 
@@ -115,50 +122,42 @@ class TestAlerterInitializer:
         assert "price_validation_tracker" in result
         assert "alert_throttle" in result
 
-    @patch("common.alerter_helpers.initialization.asyncio")
-    @patch("common.alerter_helpers.initialization.CommandHandlerRegistry")
-    @patch("common.alerter_helpers.initialization.CommandAuthorizationChecker")
-    @patch("common.alerter_helpers.initialization.TelegramRateLimitHandler")
-    @patch("common.alerter_helpers.initialization.TelegramDeliveryManager")
-    @patch("common.alerter_helpers.initialization.TelegramMediaSender")
-    @patch("common.alerter_helpers.initialization.TelegramMessageSender")
-    @patch("common.alerter_helpers.initialization.TelegramNetworkBackoffManager")
-    def test_initialize_telegram_helpers(
-        self,
-        mock_backoff: MagicMock,
-        mock_msg_sender: MagicMock,
-        mock_media_sender: MagicMock,
-        mock_delivery: MagicMock,
-        mock_rate_limit: MagicMock,
-        mock_auth_checker: MagicMock,
-        mock_registry: MagicMock,
-        mock_asyncio: MagicMock,
-    ) -> None:
+    def test_initialize_telegram_helpers(self) -> None:
         """Test _initialize_telegram_helpers creates all components."""
-        settings = MagicMock()
-        initializer = AlerterInitializer(settings)
+        with (
+            patch("common.alerter_helpers.initialization.TelegramNetworkBackoffManager") as mock_backoff,
+            patch("common.alerter_helpers.initialization.TelegramMessageSender") as mock_msg_sender,
+            patch("common.alerter_helpers.initialization.TelegramMediaSender") as mock_media_sender,
+            patch("common.alerter_helpers.initialization.TelegramDeliveryManager") as mock_delivery,
+            patch("common.alerter_helpers.initialization.TelegramRateLimitHandler") as mock_rate_limit,
+            patch("common.alerter_helpers.initialization.CommandAuthorizationChecker") as mock_auth_checker,
+            patch("common.alerter_helpers.initialization.CommandHandlerRegistry") as mock_registry,
+            patch("common.alerter_helpers.initialization.asyncio") as mock_asyncio,
+        ):
+            settings = MagicMock()
+            initializer = AlerterInitializer(settings)
 
-        result = {
-            "telegram_client": MagicMock(),
-            "telegram_timeout_seconds": 30,
-            "alert_formatter": MagicMock(),
-            "authorized_user_ids": [123],
-        }
+            result = {
+                "telegram_client": MagicMock(),
+                "telegram_timeout_seconds": 30,
+                "alert_formatter": MagicMock(),
+                "authorized_user_ids": [123],
+            }
 
-        initializer._initialize_telegram_helpers(result)
+            initializer._initialize_telegram_helpers(result)
 
-        mock_backoff.assert_called_once_with(30)
-        mock_msg_sender.assert_called_once()
-        mock_media_sender.assert_called_once()
-        mock_delivery.assert_called_once()
-        mock_rate_limit.assert_called_once()
-        mock_auth_checker.assert_called_once_with([123])
-        mock_registry.assert_called_once()
-        mock_asyncio.Queue.assert_called_once()
-        assert result["command_processor"] is None
-        assert result["update_processor"] is None
-        assert result["polling_executor"] is None
-        assert result["polling_coordinator"] is None
+            mock_backoff.assert_called_once_with(30)
+            mock_msg_sender.assert_called_once()
+            mock_media_sender.assert_called_once()
+            mock_delivery.assert_called_once()
+            mock_rate_limit.assert_called_once()
+            mock_auth_checker.assert_called_once_with([123])
+            mock_registry.assert_called_once()
+            mock_asyncio.Queue.assert_called_once()
+            assert result["command_processor"] is None
+            assert result["update_processor"] is None
+            assert result["polling_executor"] is None
+            assert result["polling_coordinator"] is None
 
     @patch("common.alerter_helpers.initialization.TelegramClient")
     @patch("common.alerter_helpers.initialization.AlertThrottle")
@@ -175,7 +174,7 @@ class TestAlerterInitializer:
         mock_settings_with_telegram: MagicMock,
     ) -> None:
         """Test that long poll timeout is capped at 60."""
-        mock_settings_with_telegram.alerting.telegram_timeout_seconds = 100
+        mock_settings_with_telegram.alerting.telegram_timeout_seconds = TEST_TELEGRAM_TIMEOUT_SECONDS_LONG
         initializer = AlerterInitializer(mock_settings_with_telegram)
 
         with patch.object(initializer, "_initialize_telegram_helpers"):
@@ -198,7 +197,7 @@ class TestAlerterInitializer:
         mock_settings_with_telegram: MagicMock,
     ) -> None:
         """Test that long poll timeout has minimum of 25."""
-        mock_settings_with_telegram.alerting.telegram_timeout_seconds = 5
+        mock_settings_with_telegram.alerting.telegram_timeout_seconds = TEST_TELEGRAM_TIMEOUT_SECONDS_SHORT
         initializer = AlerterInitializer(mock_settings_with_telegram)
 
         with patch.object(initializer, "_initialize_telegram_helpers"):

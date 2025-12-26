@@ -220,9 +220,7 @@ class TestLiquidityFetcherGetMarketLiquidityStates:
                 "common.trade_visualizer_helpers.liquidity_fetcher.get_redis_connection",
                 return_value=mock_redis,
             ),
-            patch(
-                "common.trade_visualizer_helpers.liquidity_fetcher.parse_kalshi_market_key"
-            ) as mock_parse,
+            patch("common.trade_visualizer_helpers.liquidity_fetcher.parse_kalshi_market_key") as mock_parse,
         ):
             mock_parsed = MagicMock()
             mock_parsed.ticker = "KXMIA-25JAN01-100"
@@ -241,9 +239,7 @@ class TestLiquidityFetcherGetMarketLiquidityStates:
         end = datetime.now(timezone.utc)
 
         mock_redis = MagicMock()
-        mock_redis.keys = AsyncMock(
-            return_value=[b"kalshi_weather:trading_signal:test"]
-        )
+        mock_redis.keys = AsyncMock(return_value=[b"kalshi_weather:trading_signal:test"])
         mock_redis.aclose = AsyncMock()
 
         with patch(
@@ -274,9 +270,7 @@ class TestLiquidityFetcherLoadMarketHash:
         """Test decodes bytes to strings."""
         fetcher = LiquidityFetcher()
         mock_redis = MagicMock()
-        mock_redis.hgetall = AsyncMock(
-            return_value={b"key1": b"value1", b"key2": b"value2"}
-        )
+        mock_redis.hgetall = AsyncMock(return_value={b"key1": b"value1", b"key2": b"value2"})
 
         result = await fetcher._load_market_hash(mock_redis, "test_key")
 
@@ -290,9 +284,7 @@ class TestLiquidityFetcherParseMarketTicker:
         """Test returns ticker when parsing succeeds."""
         fetcher = LiquidityFetcher()
 
-        with patch(
-            "common.trade_visualizer_helpers.liquidity_fetcher.parse_kalshi_market_key"
-        ) as mock_parse:
+        with patch("common.trade_visualizer_helpers.liquidity_fetcher.parse_kalshi_market_key") as mock_parse:
             mock_result = MagicMock()
             mock_result.ticker = "KXMIA-25JAN01-100"
             mock_parse.return_value = mock_result

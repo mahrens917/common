@@ -351,9 +351,7 @@ class TestMarketEvaluator:
         mock_snapshot = MagicMock()
         mock_snapshot.data = {"cap_strike": "80.0", "floor_strike": "70.0"}
 
-        cap, floor = MarketEvaluator.extract_strike_values(
-            mock_snapshot, TemperatureCoercer
-        )
+        cap, floor = MarketEvaluator.extract_strike_values(mock_snapshot, TemperatureCoercer)
 
         assert cap == 80.0
         assert floor == 70.0

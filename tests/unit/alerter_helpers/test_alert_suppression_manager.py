@@ -100,9 +100,7 @@ class TestAlertSuppressionManager:
         manager = AlertSuppressionManager()
 
         with patch.dict(os.environ, {"SHUTDOWN_IN_PROGRESS": "false"}, clear=True):
-            with patch(
-                "common.alerter_helpers.alert_suppression_manager._get_shutdown_flag_path"
-            ) as mock_path:
+            with patch("common.alerter_helpers.alert_suppression_manager._get_shutdown_flag_path") as mock_path:
                 mock_path.return_value.exists.return_value = False
                 result = manager.is_shutdown_in_progress()
 
@@ -115,9 +113,7 @@ class TestAlertSuppressionManager:
         with patch.dict(os.environ, {}, clear=True):
             if "SHUTDOWN_IN_PROGRESS" in os.environ:
                 del os.environ["SHUTDOWN_IN_PROGRESS"]
-            with patch(
-                "common.alerter_helpers.alert_suppression_manager._get_shutdown_flag_path"
-            ) as mock_path:
+            with patch("common.alerter_helpers.alert_suppression_manager._get_shutdown_flag_path") as mock_path:
                 mock_path.return_value.exists.return_value = True
                 result = manager.is_shutdown_in_progress()
 
@@ -130,9 +126,7 @@ class TestAlertSuppressionManager:
         with patch.dict(os.environ, {}, clear=True):
             if "SHUTDOWN_IN_PROGRESS" in os.environ:
                 del os.environ["SHUTDOWN_IN_PROGRESS"]
-            with patch(
-                "common.alerter_helpers.alert_suppression_manager._get_shutdown_flag_path"
-            ) as mock_path:
+            with patch("common.alerter_helpers.alert_suppression_manager._get_shutdown_flag_path") as mock_path:
                 mock_path.return_value.exists.return_value = False
                 result = manager.is_shutdown_in_progress()
 

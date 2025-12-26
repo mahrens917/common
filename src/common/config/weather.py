@@ -90,8 +90,37 @@ def load_weather_trading_config(
     )
 
 
+def _get_weather_settings_func():
+    """Load weather settings loader with fallback for when package not installed."""
+    import importlib
+
+    for module_path in ["src.weather.settings", "weather.settings"]:
+        try:
+            module = importlib.import_module(module_path)
+        except (
+            ImportError,
+            ModuleNotFoundError,
+            AttributeError,
+        ):  # Expected exception - optional dependency  # policy_guard: allow-silent-handler
+            continue
+        else:
+            return module.get_weather_settings
+
+    def get_weather_settings():
+        """Fallback when weather package is not installed."""
+        from types import SimpleNamespace
+
+        return SimpleNamespace(sources=SimpleNamespace(asos_source=None, metar_source=None))
+
+    return get_weather_settings
+
+
+get_weather_settings = _get_weather_settings_func()
+
+
 __all__ = [
     "WeatherConfigError",
+    "get_weather_settings",
     "load_weather_station_mapping",
     "load_weather_trading_config",
 ]

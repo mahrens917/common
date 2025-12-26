@@ -32,18 +32,10 @@ class TestAstronomicalEventProcessor:
             local_tz=local_tz,
             vertical_lines=[],
             dawn_dusk_periods=[],
-            calculate_solar_noon_utc=MagicMock(
-                return_value=current_date.replace(hour=17, minute=0)
-            ),
-            calculate_local_midnight_utc=MagicMock(
-                return_value=current_date.replace(hour=5, minute=0)
-            ),
-            calculate_dawn_utc=MagicMock(
-                return_value=current_date.replace(hour=12, minute=0)
-            ),
-            calculate_dusk_utc=MagicMock(
-                return_value=current_date.replace(hour=22, minute=0)
-            ),
+            calculate_solar_noon_utc=MagicMock(return_value=current_date.replace(hour=17, minute=0)),
+            calculate_local_midnight_utc=MagicMock(return_value=current_date.replace(hour=5, minute=0)),
+            calculate_dawn_utc=MagicMock(return_value=current_date.replace(hour=12, minute=0)),
+            calculate_dusk_utc=MagicMock(return_value=current_date.replace(hour=22, minute=0)),
         )
 
     def test_process_day_adds_solar_noon(self) -> None:

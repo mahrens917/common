@@ -8,6 +8,11 @@ import pytest
 
 from common.alerter_helpers.telegram_rate_limit_handler import TelegramRateLimitHandler
 
+# Test constants for 429 retry count simulation
+TEST_429_COUNT_EXPONENTIAL = 2
+TEST_429_COUNT_MAX_BACKOFF = 4
+TEST_429_COUNT_CAPPED = 3
+
 
 class TestTelegramRateLimitHandler:
     """Tests for TelegramRateLimitHandler class."""
@@ -108,7 +113,7 @@ class TestTelegramRateLimitHandler:
     async def test_handle_rate_limit_exponential_backoff(self) -> None:
         """Test exponential backoff increases with each 429."""
         handler = TelegramRateLimitHandler()
-        handler._429_count = 2
+        handler._429_count = TEST_429_COUNT_EXPONENTIAL
         response = MagicMock(spec=aiohttp.ClientResponse)
 
         with patch.object(
@@ -126,7 +131,7 @@ class TestTelegramRateLimitHandler:
     async def test_handle_rate_limit_max_backoff(self) -> None:
         """Test backoff is capped at 300 seconds."""
         handler = TelegramRateLimitHandler(max_429_retries=5)
-        handler._429_count = 4
+        handler._429_count = TEST_429_COUNT_MAX_BACKOFF
         response = MagicMock(spec=aiohttp.ClientResponse)
 
         with patch.object(
@@ -142,8 +147,8 @@ class TestTelegramRateLimitHandler:
     @pytest.mark.asyncio
     async def test_handle_rate_limit_count_capped_at_max_retries(self) -> None:
         """Test 429 count is capped at max retries."""
-        handler = TelegramRateLimitHandler(max_429_retries=3)
-        handler._429_count = 3
+        handler = TelegramRateLimitHandler(max_429_retries=TEST_429_COUNT_CAPPED)
+        handler._429_count = TEST_429_COUNT_CAPPED
         response = MagicMock(spec=aiohttp.ClientResponse)
 
         with patch.object(

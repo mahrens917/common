@@ -200,9 +200,7 @@ class TestTelegramDeliveryManagerSendAlert:
         """Test handles failed delivery result."""
         mock_message_sender = MagicMock()
         mock_message_sender.send_message = AsyncMock(
-            return_value=TelegramDeliveryResult(
-                success=False, failed_recipients=["123456789"], queued_recipients=[]
-            )
+            return_value=TelegramDeliveryResult(success=False, failed_recipients=["123456789"], queued_recipients=[])
         )
         mock_media_sender = MagicMock()
         mock_formatter = MagicMock()
@@ -366,9 +364,7 @@ class TestTelegramDeliveryManagerSendChart:
         mock_message_sender = MagicMock()
         mock_media_sender = MagicMock()
         mock_media_sender.send_media = AsyncMock(
-            return_value=TelegramDeliveryResult(
-                success=False, failed_recipients=["123456789"], queued_recipients=[]
-            )
+            return_value=TelegramDeliveryResult(success=False, failed_recipients=["123456789"], queued_recipients=[])
         )
         mock_formatter = MagicMock()
 

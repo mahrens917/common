@@ -12,6 +12,10 @@ from common.trade_visualizer_helpers.shading_builder import (
     TradeShading,
 )
 
+# Test constants for data_guard compliance
+TEST_MIN_STRIKE_70 = 70.0
+TEST_MAX_STRIKE_80 = 80.0
+
 
 class TestTradeShading:
     """Tests for TradeShading dataclass."""
@@ -188,16 +192,16 @@ class TestShadingBuilderCreateNoLiquidityShading:
         state = MagicMock()
         state.timestamp = datetime(2025, 1, 1, 12, 0, 0, tzinfo=timezone.utc)
         state.market_ticker = "KXMIA-25JAN01"
-        state.min_strike_price_cents = 70.0
-        state.max_strike_price_cents = 80.0
-        strikes = [70.0, 75.0, 80.0]
+        state.min_strike_price_cents = TEST_MIN_STRIKE_70
+        state.max_strike_price_cents = TEST_MAX_STRIKE_80
+        strikes = [TEST_MIN_STRIKE_70, 75.0, TEST_MAX_STRIKE_80]
         timestamps = [state.timestamp]
 
         result = builder.create_no_liquidity_shading(state, strikes, timestamps)
 
         assert result is not None
-        assert result.y_min == 70.0
-        assert result.y_max == 80.0
+        assert result.y_min == TEST_MIN_STRIKE_70
+        assert result.y_max == TEST_MAX_STRIKE_80
         assert result.color == ShadingBuilder.UNEXECUTED_COLOR
         assert "No liquidity" in result.label
 
@@ -219,9 +223,9 @@ class TestShadingBuilderCreateNoLiquidityShading:
         state = MagicMock()
         state.timestamp = state_time
         state.market_ticker = "KXMIA-25JAN01"
-        state.min_strike_price_cents = 70.0
-        state.max_strike_price_cents = 80.0
-        strikes = [70.0, 75.0, 80.0]
+        state.min_strike_price_cents = TEST_MIN_STRIKE_70
+        state.max_strike_price_cents = TEST_MAX_STRIKE_80
+        strikes = [TEST_MIN_STRIKE_70, 75.0, TEST_MAX_STRIKE_80]
         timestamps = [state_time]
 
         result = builder.create_no_liquidity_shading(state, strikes, timestamps)

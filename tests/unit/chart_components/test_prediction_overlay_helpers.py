@@ -13,6 +13,15 @@ from common.chart_components.prediction_overlay_helpers import (
     select_numeric_and_values,
 )
 
+# Test data arrays for prediction overlay tests
+TEST_PREDICTION_NUMERIC = (1.0, 2.0)
+TEST_PREDICTION_VALUES = (10.0, 20.0)
+TEST_MERGED_NUMERIC = (0.0, 1.0, 2.0)
+TEST_MERGED_VALUES = (5.0, 10.0, 20.0)
+TEST_DRAW_NUMERIC = (1.0, 2.0, 3.0)
+TEST_DRAW_VALUES = (10.0, 15.0, 20.0)
+TEST_DRAW_SIGMA = (0.5, 1.0, 1.5)
+
 
 class TestPrepareSigmaArray:
     """Tests for prepare_sigma_array function."""
@@ -73,10 +82,10 @@ class TestSelectNumericAndValues:
 
     def test_with_anchor(self) -> None:
         """Test selects merged arrays when anchor present."""
-        prediction_numeric = np.array([1.0, 2.0])
-        prediction_values = [10.0, 20.0]
-        merged_numeric = np.array([0.0, 1.0, 2.0])
-        merged_values = np.array([5.0, 10.0, 20.0])
+        prediction_numeric = np.array(TEST_PREDICTION_NUMERIC)
+        prediction_values = list(TEST_PREDICTION_VALUES)
+        merged_numeric = np.array(TEST_MERGED_NUMERIC)
+        merged_values = np.array(TEST_MERGED_VALUES)
 
         numeric, values = select_numeric_and_values(
             anchor_numeric=0.0,
@@ -91,10 +100,10 @@ class TestSelectNumericAndValues:
 
     def test_without_anchor(self) -> None:
         """Test selects prediction arrays when no anchor."""
-        prediction_numeric = np.array([1.0, 2.0])
-        prediction_values = [10.0, 20.0]
-        merged_numeric = np.array([0.0, 1.0, 2.0])
-        merged_values = np.array([5.0, 10.0, 20.0])
+        prediction_numeric = np.array(TEST_PREDICTION_NUMERIC)
+        prediction_values = list(TEST_PREDICTION_VALUES)
+        merged_numeric = np.array(TEST_MERGED_NUMERIC)
+        merged_values = np.array(TEST_MERGED_VALUES)
 
         numeric, values = select_numeric_and_values(
             anchor_numeric=None,
@@ -114,9 +123,9 @@ class TestDrawUncertaintyBands:
     def test_draws_bands_and_lines(self) -> None:
         """Test draws fill_between and plot calls."""
         mock_ax = MagicMock()
-        numeric = np.array([1.0, 2.0, 3.0])
-        values = np.array([10.0, 15.0, 20.0])
-        sigma = np.array([0.5, 1.0, 1.5])
+        numeric = np.array(TEST_DRAW_NUMERIC)
+        values = np.array(TEST_DRAW_VALUES)
+        sigma = np.array(TEST_DRAW_SIGMA)
 
         draw_uncertainty_bands(
             mock_ax,

@@ -44,9 +44,7 @@ class TestTimeAxisConfiguratorConfigureTimeAxis:
         mock_mdates = MagicMock()
         mock_plt = MagicMock()
 
-        configurator.configure_time_axis_with_5_minute_alignment(
-            mock_ax, [], mdates=mock_mdates, plt=mock_plt
-        )
+        configurator.configure_time_axis_with_5_minute_alignment(mock_ax, [], mdates=mock_mdates, plt=mock_plt)
 
         mock_ax.xaxis.set_major_locator.assert_not_called()
 
@@ -80,9 +78,7 @@ class TestTimeAxisConfiguratorConfigureTimeAxis:
         # 30 minute range (< 1 hour)
         timestamps = [now, now + timedelta(minutes=30)]
 
-        configurator.configure_time_axis_with_5_minute_alignment(
-            mock_ax, timestamps, mdates=mock_mdates, plt=mock_plt
-        )
+        configurator.configure_time_axis_with_5_minute_alignment(mock_ax, timestamps, mdates=mock_mdates, plt=mock_plt)
 
         mock_mdates.MinuteLocator.assert_called()
 
@@ -96,9 +92,7 @@ class TestTimeAxisConfiguratorConfigureTimeAxis:
         # 2 hour range (> 1 hour, < 3 hours)
         timestamps = [now, now + timedelta(hours=2)]
 
-        configurator.configure_time_axis_with_5_minute_alignment(
-            mock_ax, timestamps, mdates=mock_mdates, plt=mock_plt
-        )
+        configurator.configure_time_axis_with_5_minute_alignment(mock_ax, timestamps, mdates=mock_mdates, plt=mock_plt)
 
         mock_mdates.MinuteLocator.assert_called()
 
@@ -112,9 +106,7 @@ class TestTimeAxisConfiguratorConfigureTimeAxis:
         # 6 hour range (> 3 hours, < 12 hours)
         timestamps = [now, now + timedelta(hours=6)]
 
-        configurator.configure_time_axis_with_5_minute_alignment(
-            mock_ax, timestamps, mdates=mock_mdates, plt=mock_plt
-        )
+        configurator.configure_time_axis_with_5_minute_alignment(mock_ax, timestamps, mdates=mock_mdates, plt=mock_plt)
 
         mock_mdates.MinuteLocator.assert_called()
 
@@ -128,9 +120,7 @@ class TestTimeAxisConfiguratorConfigureTimeAxis:
         # 24 hour range (> 12 hours)
         timestamps = [now, now + timedelta(hours=24)]
 
-        configurator.configure_time_axis_with_5_minute_alignment(
-            mock_ax, timestamps, mdates=mock_mdates, plt=mock_plt
-        )
+        configurator.configure_time_axis_with_5_minute_alignment(mock_ax, timestamps, mdates=mock_mdates, plt=mock_plt)
 
         mock_mdates.MinuteLocator.assert_called()
 
@@ -158,9 +148,7 @@ class TestTimeAxisConfiguratorConfigurePriceChartAxis:
         now = datetime.now(timezone.utc)
         timestamps = [now, now + timedelta(hours=12)]
 
-        configurator.configure_price_chart_axis(
-            mock_ax, timestamps, mdates=mock_mdates, plt=mock_plt
-        )
+        configurator.configure_price_chart_axis(mock_ax, timestamps, mdates=mock_mdates, plt=mock_plt)
 
         mock_mdates.HourLocator.assert_called()
         mock_ax.set_xlim.assert_called()
@@ -174,9 +162,7 @@ class TestTimeAxisConfiguratorConfigurePriceChartAxis:
         now = datetime.now(timezone.utc)
         timestamps = [now, now + timedelta(hours=48)]
 
-        configurator.configure_price_chart_axis(
-            mock_ax, timestamps, mdates=mock_mdates, plt=mock_plt
-        )
+        configurator.configure_price_chart_axis(mock_ax, timestamps, mdates=mock_mdates, plt=mock_plt)
 
         mock_mdates.HourLocator.assert_called()
 
@@ -189,9 +175,7 @@ class TestTimeAxisConfiguratorConfigurePriceChartAxis:
         now = datetime.now(timezone.utc)
         timestamps = [now, now + timedelta(hours=120)]
 
-        configurator.configure_price_chart_axis(
-            mock_ax, timestamps, mdates=mock_mdates, plt=mock_plt
-        )
+        configurator.configure_price_chart_axis(mock_ax, timestamps, mdates=mock_mdates, plt=mock_plt)
 
         mock_mdates.HourLocator.assert_called()
 
@@ -204,9 +188,7 @@ class TestTimeAxisConfiguratorConfigurePriceChartAxis:
         now = datetime.now(timezone.utc)
         timestamps = [now, now + timedelta(days=12)]
 
-        configurator.configure_price_chart_axis(
-            mock_ax, timestamps, mdates=mock_mdates, plt=mock_plt
-        )
+        configurator.configure_price_chart_axis(mock_ax, timestamps, mdates=mock_mdates, plt=mock_plt)
 
         mock_mdates.HourLocator.assert_called()
 
@@ -219,9 +201,7 @@ class TestTimeAxisConfiguratorConfigurePriceChartAxis:
         now = datetime.now(timezone.utc)
         timestamps = [now, now + timedelta(days=30)]
 
-        configurator.configure_price_chart_axis(
-            mock_ax, timestamps, mdates=mock_mdates, plt=mock_plt
-        )
+        configurator.configure_price_chart_axis(mock_ax, timestamps, mdates=mock_mdates, plt=mock_plt)
 
         mock_mdates.DayLocator.assert_called()
 
@@ -235,9 +215,7 @@ class TestTimeAxisConfiguratorConfigurePriceChartAxis:
         # Same timestamp for start and end
         timestamps = [now, now]
 
-        configurator.configure_price_chart_axis(
-            mock_ax, timestamps, mdates=mock_mdates, plt=mock_plt
-        )
+        configurator.configure_price_chart_axis(mock_ax, timestamps, mdates=mock_mdates, plt=mock_plt)
 
         # Should still configure the axis
         mock_ax.xaxis.set_major_locator.assert_called()

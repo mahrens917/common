@@ -25,14 +25,10 @@ class TestCreateExecutedTradeShading:
         expected_result = MagicMock()
         mock_builder.create_executed_trade_shading.return_value = expected_result
 
-        result = create_executed_trade_shading(
-            mock_builder, mock_trade, strikes, timestamps
-        )
+        result = create_executed_trade_shading(mock_builder, mock_trade, strikes, timestamps)
 
         assert result == expected_result
-        mock_builder.create_executed_trade_shading.assert_called_once_with(
-            mock_trade, strikes, timestamps
-        )
+        mock_builder.create_executed_trade_shading.assert_called_once_with(mock_trade, strikes, timestamps)
 
 
 class TestCreateNoLiquidityShading:
@@ -47,14 +43,10 @@ class TestCreateNoLiquidityShading:
         expected_result = MagicMock()
         mock_builder.create_no_liquidity_shading.return_value = expected_result
 
-        result = create_no_liquidity_shading(
-            mock_builder, mock_state, strikes, timestamps
-        )
+        result = create_no_liquidity_shading(mock_builder, mock_state, strikes, timestamps)
 
         assert result == expected_result
-        mock_builder.create_no_liquidity_shading.assert_called_once_with(
-            mock_state, strikes, timestamps
-        )
+        mock_builder.create_no_liquidity_shading.assert_called_once_with(mock_state, strikes, timestamps)
 
 
 class TestIsNoLiquidityState:

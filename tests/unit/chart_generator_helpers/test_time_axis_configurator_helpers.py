@@ -88,9 +88,7 @@ class TestConfigureDefaultAxis:
                 "time_limits": {"seconds_per_minute": 60},
             }
 
-            configure_default_axis(
-                mock_ax, timestamps, time_range_hours=0.5, mdates=mock_mdates, plt=mock_plt
-            )
+            configure_default_axis(mock_ax, timestamps, time_range_hours=0.5, mdates=mock_mdates, plt=mock_plt)
 
         mock_mdates.MinuteLocator.assert_called()
 
@@ -110,9 +108,7 @@ class TestConfigureDefaultAxis:
                 "time_limits": {"seconds_per_minute": 60},
             }
 
-            configure_default_axis(
-                mock_ax, timestamps, time_range_hours=2, mdates=mock_mdates, plt=mock_plt
-            )
+            configure_default_axis(mock_ax, timestamps, time_range_hours=2, mdates=mock_mdates, plt=mock_plt)
 
         mock_mdates.MinuteLocator.assert_called()
 
@@ -132,9 +128,7 @@ class TestConfigureDefaultAxis:
                 "time_limits": {"seconds_per_minute": 60},
             }
 
-            configure_default_axis(
-                mock_ax, timestamps, time_range_hours=6, mdates=mock_mdates, plt=mock_plt
-            )
+            configure_default_axis(mock_ax, timestamps, time_range_hours=6, mdates=mock_mdates, plt=mock_plt)
 
         mock_mdates.HourLocator.assert_called()
 
@@ -157,9 +151,7 @@ class TestConfigurePriceAxisLocators:
                 },
             }
 
-            major, formatter, minor = configure_price_axis_locators(
-                total_hours=12, start=start, end=end, mdates=mock_mdates
-            )
+            major, formatter, minor = configure_price_axis_locators(total_hours=12, start=start, end=end, mdates=mock_mdates)
 
         mock_mdates.HourLocator.assert_called()
 
@@ -178,9 +170,7 @@ class TestConfigurePriceAxisLocators:
                 },
             }
 
-            major, formatter, minor = configure_price_axis_locators(
-                total_hours=36, start=start, end=end, mdates=mock_mdates
-            )
+            major, formatter, minor = configure_price_axis_locators(total_hours=36, start=start, end=end, mdates=mock_mdates)
 
         mock_mdates.HourLocator.assert_called()
 
@@ -199,8 +189,6 @@ class TestConfigurePriceAxisLocators:
                 },
             }
 
-            major, formatter, minor = configure_price_axis_locators(
-                total_hours=744, start=start, end=end, mdates=mock_mdates
-            )
+            major, formatter, minor = configure_price_axis_locators(total_hours=744, start=start, end=end, mdates=mock_mdates)
 
         mock_mdates.DayLocator.assert_called()

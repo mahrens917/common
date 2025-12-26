@@ -8,6 +8,11 @@ from common.price_path_calculator_helpers.metrics_extractor import (
 )
 from common.price_path_calculator_helpers.timeline_builder import TimelineBuilder
 
+# Test constants for sigma timelines
+SIGMA_TIMELINE_SHORT = (0.0, 0.01, 0.02, 0.03)
+SIGMA_TIMELINE_LONG = (0.0, 1.0, 2.0, 3.0)
+SIGMA_TIMELINE_VERY_SHORT = (0.0, 0.001, 0.002)
+
 
 class TestTimelineBuilderInit:
     """Tests for TimelineBuilder initialization."""
@@ -56,7 +61,7 @@ class TestTimelineBuilderDerivePredictionTimeline:
     def test_constrains_to_metrics_range(self) -> None:
         """Test constrains timeline to metrics range."""
         builder = TimelineBuilder(min_horizon_days=0.1, timeline_points=100)
-        sigma_timeline = np.array([0.0, 0.01, 0.02, 0.03])  # Max 0.03 years
+        sigma_timeline = np.array(SIGMA_TIMELINE_SHORT)  # Max 0.03 years
 
         timeline_years, timeline_days = builder.derive_prediction_timeline(
             sigma_timeline=sigma_timeline,
@@ -71,7 +76,7 @@ class TestTimelineBuilderDerivePredictionTimeline:
     def test_constrains_to_training_range(self) -> None:
         """Test constrains timeline to training range."""
         builder = TimelineBuilder(min_horizon_days=0.1, timeline_points=100)
-        sigma_timeline = np.array([0.0, 1.0, 2.0, 3.0])  # Max 3 years
+        sigma_timeline = np.array(SIGMA_TIMELINE_LONG)  # Max 3 years
         training_range = [0.0, 0.5]  # Max 0.5 years
 
         timeline_years, timeline_days = builder.derive_prediction_timeline(
@@ -87,7 +92,7 @@ class TestTimelineBuilderDerivePredictionTimeline:
         """Test raises error when horizon exceeds metrics range."""
         builder = TimelineBuilder(min_horizon_days=1.0, timeline_points=100)
         # Very short sigma timeline that ends before any predictions
-        sigma_timeline = np.array([0.0, 0.001, 0.002])  # Ends at ~0.7 days
+        sigma_timeline = np.array(SIGMA_TIMELINE_VERY_SHORT)  # Ends at ~0.7 days
 
         with pytest.raises(PricePathComputationError) as exc_info:
             builder.derive_prediction_timeline(
@@ -103,7 +108,7 @@ class TestTimelineBuilderDerivePredictionTimeline:
     def test_raises_when_horizon_exceeds_training(self) -> None:
         """Test raises error when horizon exceeds training range."""
         builder = TimelineBuilder(min_horizon_days=1.0, timeline_points=100)
-        sigma_timeline = np.array([0.0, 1.0, 2.0, 3.0])
+        sigma_timeline = np.array(SIGMA_TIMELINE_LONG)
         training_range = [0.0, 0.001]  # Very short training range
 
         with pytest.raises(PricePathComputationError) as exc_info:
@@ -120,7 +125,7 @@ class TestTimelineBuilderDerivePredictionTimeline:
     def test_returns_matching_years_and_days(self) -> None:
         """Test returned years and days have matching lengths."""
         builder = TimelineBuilder(min_horizon_days=0.1, timeline_points=50)
-        sigma_timeline = np.array([0.0, 1.0, 2.0, 3.0])
+        sigma_timeline = np.array(SIGMA_TIMELINE_LONG)
 
         timeline_years, timeline_days = builder.derive_prediction_timeline(
             sigma_timeline=sigma_timeline,

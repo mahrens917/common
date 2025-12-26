@@ -8,6 +8,19 @@ from common.price_path_calculator_helpers.data_models import (
     PricePathPoint,
 )
 
+# Test constants for PathMetrics
+TEST_SIGMA_TIMELINE_TWO = (0.1, 0.2)
+TEST_SIGMA_TIMELINE_ONE = (0.1,)
+TEST_SIGMA_MID_MEAN = (0.15,)
+TEST_SIGMA_MID_P95 = (0.25,)
+TEST_MONEYNESS_GRID_THREE = (0.9, 1.0, 1.1)
+TEST_MONEYNESS_GRID_ONE = (1.0,)
+TEST_FORWARD_CURVE_TWO = (100.0, 101.0)
+TEST_FORWARD_CURVE_ONE = (100.0,)
+TEST_BID_SECOND_GRID = ((0.01,),)
+TEST_ASK_SECOND_GRID = ((0.02,),)
+TEST_SIGMA_TIMELINE_MODIFIED = (0.5,)
+
 
 class TestPricePathComputationError:
     """Tests for PricePathComputationError exception."""
@@ -55,13 +68,13 @@ class TestPathMetrics:
     def test_creation(self) -> None:
         """Test creating a PathMetrics instance."""
         metrics = PathMetrics(
-            sigma_timeline=np.array([0.1, 0.2]),
-            sigma_mid_mean=np.array([0.15]),
-            sigma_mid_p95=np.array([0.25]),
-            moneyness_grid=np.array([0.9, 1.0, 1.1]),
-            forward_curve=np.array([100.0, 101.0]),
-            bid_second_grid=np.array([[0.01]]),
-            ask_second_grid=np.array([[0.02]]),
+            sigma_timeline=np.array(TEST_SIGMA_TIMELINE_TWO),
+            sigma_mid_mean=np.array(TEST_SIGMA_MID_MEAN),
+            sigma_mid_p95=np.array(TEST_SIGMA_MID_P95),
+            moneyness_grid=np.array(TEST_MONEYNESS_GRID_THREE),
+            forward_curve=np.array(TEST_FORWARD_CURVE_TWO),
+            bid_second_grid=np.array(TEST_BID_SECOND_GRID),
+            ask_second_grid=np.array(TEST_ASK_SECOND_GRID),
         )
         assert len(metrics.sigma_timeline) == 2
         assert len(metrics.moneyness_grid) == 3
@@ -69,16 +82,16 @@ class TestPathMetrics:
     def test_frozen(self) -> None:
         """Test that PathMetrics is frozen (immutable)."""
         metrics = PathMetrics(
-            sigma_timeline=np.array([0.1]),
-            sigma_mid_mean=np.array([0.15]),
-            sigma_mid_p95=np.array([0.25]),
-            moneyness_grid=np.array([1.0]),
-            forward_curve=np.array([100.0]),
-            bid_second_grid=np.array([[0.01]]),
-            ask_second_grid=np.array([[0.02]]),
+            sigma_timeline=np.array(TEST_SIGMA_TIMELINE_ONE),
+            sigma_mid_mean=np.array(TEST_SIGMA_MID_MEAN),
+            sigma_mid_p95=np.array(TEST_SIGMA_MID_P95),
+            moneyness_grid=np.array(TEST_MONEYNESS_GRID_ONE),
+            forward_curve=np.array(TEST_FORWARD_CURVE_ONE),
+            bid_second_grid=np.array(TEST_BID_SECOND_GRID),
+            ask_second_grid=np.array(TEST_ASK_SECOND_GRID),
         )
         try:
-            metrics.sigma_timeline = np.array([0.5])
+            metrics.sigma_timeline = np.array(TEST_SIGMA_TIMELINE_MODIFIED)
             assert False, "Should have raised FrozenInstanceError"
         except AttributeError:
             pass

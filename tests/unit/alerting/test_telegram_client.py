@@ -40,10 +40,12 @@ class TestSendMessage:
             mock_session = MagicMock()
             mock_session.__aenter__ = AsyncMock(return_value=mock_session)
             mock_session.__aexit__ = AsyncMock(return_value=None)
-            mock_session.post = MagicMock(return_value=MagicMock(
-                __aenter__=AsyncMock(return_value=mock_response),
-                __aexit__=AsyncMock(return_value=None),
-            ))
+            mock_session.post = MagicMock(
+                return_value=MagicMock(
+                    __aenter__=AsyncMock(return_value=mock_response),
+                    __aexit__=AsyncMock(return_value=None),
+                )
+            )
             mock_session_cls.return_value = mock_session
 
             success, error = await client.send_message("123", "Hello")
@@ -63,10 +65,12 @@ class TestSendMessage:
             mock_session = MagicMock()
             mock_session.__aenter__ = AsyncMock(return_value=mock_session)
             mock_session.__aexit__ = AsyncMock(return_value=None)
-            mock_session.post = MagicMock(return_value=MagicMock(
-                __aenter__=AsyncMock(return_value=mock_response),
-                __aexit__=AsyncMock(return_value=None),
-            ))
+            mock_session.post = MagicMock(
+                return_value=MagicMock(
+                    __aenter__=AsyncMock(return_value=mock_response),
+                    __aexit__=AsyncMock(return_value=None),
+                )
+            )
             mock_session_cls.return_value = mock_session
 
             success, error = await client.send_message("123", "Hello")
@@ -111,10 +115,12 @@ class TestSendMedia:
                 mock_session = MagicMock()
                 mock_session.__aenter__ = AsyncMock(return_value=mock_session)
                 mock_session.__aexit__ = AsyncMock(return_value=None)
-                mock_session.post = MagicMock(return_value=MagicMock(
-                    __aenter__=AsyncMock(return_value=mock_response),
-                    __aexit__=AsyncMock(return_value=None),
-                ))
+                mock_session.post = MagicMock(
+                    return_value=MagicMock(
+                        __aenter__=AsyncMock(return_value=mock_response),
+                        __aexit__=AsyncMock(return_value=None),
+                    )
+                )
                 mock_session_cls.return_value = mock_session
 
                 success, error = await client.send_media(
@@ -146,10 +152,12 @@ class TestSendMedia:
                 mock_session = MagicMock()
                 mock_session.__aenter__ = AsyncMock(return_value=mock_session)
                 mock_session.__aexit__ = AsyncMock(return_value=None)
-                mock_session.post = MagicMock(return_value=MagicMock(
-                    __aenter__=AsyncMock(return_value=mock_response),
-                    __aexit__=AsyncMock(return_value=None),
-                ))
+                mock_session.post = MagicMock(
+                    return_value=MagicMock(
+                        __aenter__=AsyncMock(return_value=mock_response),
+                        __aexit__=AsyncMock(return_value=None),
+                    )
+                )
                 mock_session_cls.return_value = mock_session
 
                 success, error = await client.send_media(
@@ -182,10 +190,12 @@ class TestSendMedia:
                 mock_session = MagicMock()
                 mock_session.__aenter__ = AsyncMock(return_value=mock_session)
                 mock_session.__aexit__ = AsyncMock(return_value=None)
-                mock_session.post = MagicMock(return_value=MagicMock(
-                    __aenter__=AsyncMock(return_value=mock_response),
-                    __aexit__=AsyncMock(return_value=None),
-                ))
+                mock_session.post = MagicMock(
+                    return_value=MagicMock(
+                        __aenter__=AsyncMock(return_value=mock_response),
+                        __aexit__=AsyncMock(return_value=None),
+                    )
+                )
                 mock_session_cls.return_value = mock_session
 
                 success, error = await client.send_media(
@@ -218,10 +228,12 @@ class TestGetUpdates:
             mock_session = MagicMock()
             mock_session.__aenter__ = AsyncMock(return_value=mock_session)
             mock_session.__aexit__ = AsyncMock(return_value=None)
-            mock_session.get = MagicMock(return_value=MagicMock(
-                __aenter__=AsyncMock(return_value=mock_response),
-                __aexit__=AsyncMock(return_value=None),
-            ))
+            mock_session.get = MagicMock(
+                return_value=MagicMock(
+                    __aenter__=AsyncMock(return_value=mock_response),
+                    __aexit__=AsyncMock(return_value=None),
+                )
+            )
             mock_session_cls.return_value = mock_session
 
             result = await client.get_updates({"offset": 0})

@@ -38,9 +38,7 @@ class TestLoadChartsSenderSendLoadCharts:
 
         sender = LoadChartsSender(mock_generator, mock_send_image, mock_send_alert)
 
-        with patch(
-            "common.alerter_helpers.load_charts_sender.ChartBatchSender"
-        ) as mock_batch_sender_class:
+        with patch("common.alerter_helpers.load_charts_sender.ChartBatchSender") as mock_batch_sender_class:
             mock_batch_sender = MagicMock()
             mock_batch_sender.send_charts_batch = AsyncMock(return_value=2)
             mock_batch_sender_class.return_value = mock_batch_sender
@@ -86,9 +84,7 @@ class TestLoadChartsSenderSendLoadCharts:
 
         sender = LoadChartsSender(mock_generator, mock_send_image, mock_send_alert)
 
-        with patch(
-            "common.alerter_helpers.load_charts_sender.ChartBatchSender"
-        ) as mock_batch_sender_class:
+        with patch("common.alerter_helpers.load_charts_sender.ChartBatchSender") as mock_batch_sender_class:
             mock_batch_sender = MagicMock()
             mock_batch_sender.send_charts_batch = AsyncMock(return_value=1)  # Only 1 of 2
             mock_batch_sender_class.return_value = mock_batch_sender
@@ -195,9 +191,7 @@ class TestLoadChartsSenderSendLoadCharts:
 
         sender = LoadChartsSender(mock_generator, mock_send_image, mock_send_alert)
 
-        with patch(
-            "common.alerter_helpers.load_charts_sender.ChartBatchSender"
-        ) as mock_batch_sender_class:
+        with patch("common.alerter_helpers.load_charts_sender.ChartBatchSender") as mock_batch_sender_class:
             mock_batch_sender = MagicMock()
             mock_batch_sender.send_charts_batch = AsyncMock(return_value=1)
             mock_batch_sender_class.return_value = mock_batch_sender

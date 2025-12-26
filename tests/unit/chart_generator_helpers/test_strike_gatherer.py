@@ -115,9 +115,9 @@ class TestStrikeGatherer:
         """Test gathering strikes when no matches found."""
         redis_client = MagicMock()
 
-        async def mock_scan_iter(match, count):
-            return
-            yield
+        async def mock_scan_iter(*, match, count):  # noqa: ARG001
+            for _ in []:
+                yield
 
         redis_client.scan_iter = mock_scan_iter
 

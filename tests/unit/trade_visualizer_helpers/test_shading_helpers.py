@@ -12,6 +12,12 @@ from common.trade_visualizer_helpers.shading_helpers import (
     get_trade_color,
 )
 
+# Test constants for data_guard compliance
+TEST_MIN_STRIKE_65 = 65.0
+TEST_MIN_STRIKE_70 = 70.0
+TEST_MAX_STRIKE_74 = 74.0
+TEST_MAX_STRIKE_85 = 85.0
+
 
 class TestFindNextStrike:
     """Tests for find_next_strike function."""
@@ -85,38 +91,38 @@ class TestGetStrikeBounds:
     def test_uses_state_strikes_when_present(self) -> None:
         """Test uses state strike values when both present."""
         state = MagicMock()
-        state.min_strike_price_cents = 65.0
-        state.max_strike_price_cents = 85.0
-        strikes = [70.0, 72.0, 74.0]
+        state.min_strike_price_cents = TEST_MIN_STRIKE_65
+        state.max_strike_price_cents = TEST_MAX_STRIKE_85
+        strikes = [TEST_MIN_STRIKE_70, 72.0, TEST_MAX_STRIKE_74]
 
         y_min, y_max = get_strike_bounds(state, strikes)
 
-        assert y_min == 65.0
-        assert y_max == 85.0
+        assert y_min == TEST_MIN_STRIKE_65
+        assert y_max == TEST_MAX_STRIKE_85
 
     def test_uses_strikes_when_state_min_none(self) -> None:
         """Test uses strikes when state min is None."""
         state = MagicMock()
         state.min_strike_price_cents = None
-        state.max_strike_price_cents = 85.0
-        strikes = [70.0, 72.0, 74.0]
+        state.max_strike_price_cents = TEST_MAX_STRIKE_85
+        strikes = [TEST_MIN_STRIKE_70, 72.0, TEST_MAX_STRIKE_74]
 
         y_min, y_max = get_strike_bounds(state, strikes)
 
-        assert y_min == 70.0
-        assert y_max == 74.0
+        assert y_min == TEST_MIN_STRIKE_70
+        assert y_max == TEST_MAX_STRIKE_74
 
     def test_uses_strikes_when_state_max_none(self) -> None:
         """Test uses strikes when state max is None."""
         state = MagicMock()
-        state.min_strike_price_cents = 65.0
+        state.min_strike_price_cents = TEST_MIN_STRIKE_65
         state.max_strike_price_cents = None
-        strikes = [70.0, 72.0, 74.0]
+        strikes = [TEST_MIN_STRIKE_70, 72.0, TEST_MAX_STRIKE_74]
 
         y_min, y_max = get_strike_bounds(state, strikes)
 
-        assert y_min == 70.0
-        assert y_max == 74.0
+        assert y_min == TEST_MIN_STRIKE_70
+        assert y_max == TEST_MAX_STRIKE_74
 
 
 class TestApplySingleShading:
@@ -128,9 +134,7 @@ class TestApplySingleShading:
 
         apply_single_shading(mock_ax, 1, 70.0, 75.0, "#90EE90", 0.3)
 
-        mock_ax.axhspan.assert_called_once_with(
-            70.0, 75.0, alpha=0.3, color="#90EE90", zorder=5, label="Trade 1"
-        )
+        mock_ax.axhspan.assert_called_once_with(70.0, 75.0, alpha=0.3, color="#90EE90", zorder=5, label="Trade 1")
 
     def test_increments_label_index(self) -> None:
         """Test label includes index number."""

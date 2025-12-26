@@ -37,10 +37,9 @@ class TestAstronomicalCalculator:
         ]
         coordinates = (40.7128, -74.0060)
 
-        with patch.object(
-            calculator, "_get_local_timezone", return_value=None
-        ), patch.object(
-            calculator.event_processor, "process_day_astronomical_events"
+        with (
+            patch.object(calculator, "_get_local_timezone", return_value=None),
+            patch.object(calculator.event_processor, "process_day_astronomical_events"),
         ):
             result = calculator.compute_astronomical_features("KJFK", coordinates, timestamps)
 
@@ -55,9 +54,7 @@ class TestAstronomicalCalculator:
         ]
         coordinates = (40.7128, -74.0060)
 
-        with patch.object(
-            calculator, "_get_local_timezone", side_effect=RuntimeError("Test error")
-        ):
+        with patch.object(calculator, "_get_local_timezone", side_effect=RuntimeError("Test error")):
             result = calculator.compute_astronomical_features("KJFK", coordinates, timestamps)
 
         assert result.vertical_lines == []
@@ -71,10 +68,13 @@ class TestGetLocalTimezone:
         """Test returns timezone when lookup succeeds."""
         calculator = AstronomicalCalculator()
 
-        with patch(
-            "common.time_utils.get_timezone_from_coordinates",
-            return_value="America/New_York",
-        ), patch("pytz.timezone") as mock_pytz:
+        with (
+            patch(
+                "common.time_utils.get_timezone_from_coordinates",
+                return_value="America/New_York",
+            ),
+            patch("pytz.timezone") as mock_pytz,
+        ):
             mock_tz = MagicMock()
             mock_pytz.return_value = mock_tz
             result = calculator._get_local_timezone(40.7128, -74.0060, "KJFK")

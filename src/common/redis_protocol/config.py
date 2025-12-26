@@ -6,9 +6,23 @@ Uses lazy loading to avoid requiring Redis env vars at import time.
 
 from __future__ import annotations
 
-from typing import Any, cast
+from typing import TYPE_CHECKING, Any, cast
 
 from common.config import env_float
+
+# Type stubs for lazily-loaded variables (accessed via __getattr__)
+if TYPE_CHECKING:
+    REDIS_HOST: str
+    REDIS_PORT: int
+    REDIS_DB: int
+    REDIS_PASSWORD: str | None
+    REDIS_SSL: bool
+    REDIS_RETRY_ON_TIMEOUT: bool
+    REDIS_SOCKET_TIMEOUT: float
+    REDIS_SOCKET_CONNECT_TIMEOUT: float
+    REDIS_HEALTH_CHECK_INTERVAL: float
+    MARKET_KEY_PREFIX: str
+    KALSHI_MARKET_PREFIX: str
 
 DEFAULT_SOCKET_TIMEOUT_SECONDS = 10
 DEFAULT_CONNECT_TIMEOUT_SECONDS = 10
