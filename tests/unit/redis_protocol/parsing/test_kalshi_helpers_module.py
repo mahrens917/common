@@ -9,7 +9,7 @@ from pathlib import Path
 def test_kalshi_helpers_py_module_all():
     """Test that the kalshi_helpers.py __all__ export list is correct."""
     # Load the kalshi_helpers.py file directly
-    module_path = Path("/Users/mahrens917/common/src/common/redis_protocol/parsing/kalshi_helpers.py")
+    module_path = Path("/Users/mahrens917/projects/common/src/common/redis_protocol/parsing/kalshi_helpers.py")
     spec = importlib.util.spec_from_file_location("kalshi_helpers_py", module_path)
     assert spec is not None
     assert spec.loader is not None
@@ -29,7 +29,7 @@ def test_kalshi_helpers_py_module_all():
 def test_kalshi_helpers_py_module_exports_functions():
     """Test that kalshi_helpers.py exports all expected functions."""
     # Load the kalshi_helpers.py file directly
-    module_path = Path("/Users/mahrens917/common/src/common/redis_protocol/parsing/kalshi_helpers.py")
+    module_path = Path("/Users/mahrens917/projects/common/src/common/redis_protocol/parsing/kalshi_helpers.py")
     spec = importlib.util.spec_from_file_location("kalshi_helpers_py2", module_path)
     assert spec is not None
     assert spec.loader is not None

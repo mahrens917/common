@@ -8,13 +8,13 @@ SHARED_SCRIPT="${CI_SHARED_ROOT}/ci_tools/scripts/ci.sh"
 
 if [[ ! -x "${SHARED_SCRIPT}" ]]; then
   echo "Shared CI runner not found at ${SHARED_SCRIPT}." >&2
-  echo "Set CI_SHARED_ROOT or clone ci_shared to ${HOME}/ci_shared." >&2
+  echo "Set CI_SHARED_ROOT or clone ci_shared to ${HOME}/projects/ci_shared." >&2
   exit 1
 fi
 
 if [[ ! -d "${COMMON_ROOT}/src/common" ]]; then
   echo "Common library not found at ${COMMON_ROOT}/src/common." >&2
-  echo "Set COMMON_ROOT or clone common to ${HOME}/common." >&2
+  echo "Set COMMON_ROOT or clone common to ${HOME}/projects/common." >&2
   exit 1
 fi
 

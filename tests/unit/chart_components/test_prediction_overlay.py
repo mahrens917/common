@@ -41,10 +41,43 @@ TEST_PREDICTION_VALUES = [25.0, 30.0]
 TEST_PREDICTION_UNCERTAINTIES = [2.0, 3.0]
 TEST_PLOT_COLOR = "#FF0000"
 TEST_ANCHOR_NUMERIC = 738887.08333333337
-TEST_PREDICTION_NUMERIC = np.array([738887.125, 738887.16666666663])
-TEST_MERGED_NUMERIC = np.array([738887.08333333337, 738887.125, 738887.16666666663])
-TEST_MERGED_VALUES = np.array([20.0, 25.0, 30.0])
-TEST_SIGMA_ARRAY = np.array([0.0, 2.0, 3.0])
+TEST_PREDICTION_NUMERIC_DATA = (738887.125, 738887.16666666663)
+TEST_MERGED_NUMERIC_DATA = (738887.08333333337, 738887.125, 738887.16666666663)
+TEST_MERGED_VALUES_DATA = (20.0, 25.0, 30.0)
+TEST_SIGMA_ARRAY_DATA = (0.0, 2.0, 3.0)
+TEST_ANCHOR_NUMERIC_VALUE = 100.0
+TEST_ANCHOR_VALUE = 20.0
+TEST_PREDICTION_NUMERIC_101_102 = (101.0, 102.0)
+TEST_PREDICTION_NUMERIC_101 = (101.0,)
+TEST_MERGED_NUMERIC_100_101 = (100.0, 101.0)
+TEST_MERGED_VALUES_20_25 = (20.0, 25.0)
+TEST_PREDICTION_VALUES_25 = (25.0,)
+TEST_PREDICTION_VALUES_25_30 = (25.0, 30.0)
+TEST_UNCERTAINTIES_1_2 = (1.0, 2.0)
+TEST_NUMERIC_1_2_3 = (1.0, 2.0, 3.0)
+TEST_VALUES_10_20_30 = (10.0, 20.0, 30.0)
+TEST_VALUES_10_20 = (10.0, 20.0)
+TEST_SIGMA_1_2 = (1.0, 2.0)
+TEST_SIGMA_0_1_2 = (0.0, 1.0, 2.0)
+TEST_SIGMA_1_2_3 = (1.0, 2.0, 3.0)
+TEST_SIGMA1_UPPER = (11.0, 21.0, 31.0)
+TEST_SIGMA1_LOWER = (9.0, 19.0, 29.0)
+TEST_SIGMA2_UPPER = (12.0, 22.0, 32.0)
+TEST_SIGMA2_LOWER = (8.0, 18.0, 28.0)
+TEST_SIGMA1_FILL_COLOR = (0.7, 0.7, 0.7, 0.30)
+TEST_SIGMA2_FILL_COLOR = (0.3, 0.3, 0.4, 0.18)
+TEST_SIGMA2_LINE_COLOR = "#475569"
+TEST_BOUNDS_SIGMA1_UPPER = (11.0,)
+TEST_BOUNDS_SIGMA1_LOWER = (9.0,)
+TEST_BOUNDS_SIGMA2_UPPER = (12.0,)
+TEST_BOUNDS_SIGMA2_LOWER = (8.0,)
+TEST_MERGED_NUMERIC_100_101_102 = (100.0, 101.0, 102.0)
+TEST_MERGED_VALUES_10_20_30 = (10.0, 20.0, 30.0)
+TEST_PREDICTION_VALUES_20_30 = (20.0, 30.0)
+TEST_RESOLVE_VALUES_10_20 = (10.0, 20.0)
+TEST_DATE2NUM_LIST_RESULT = (738887.125, 738887.16666666663)
+TEST_DATE2NUM_SCALAR_RESULT = 738887.08333333337
+TEST_NUMERIC_1_2 = (1.0, 2.0)
 
 
 class TestPredictionOverlayResult:
@@ -103,20 +136,20 @@ class TestMergePredictionSeries:
     def test_with_anchor(self) -> None:
         """Test merging with anchor."""
         merged_numeric, merged_values = _merge_prediction_series(
-            anchor_numeric=100.0,
-            anchor_value=20.0,
-            prediction_numeric=np.array([101.0, 102.0]),
-            prediction_values=[25.0, 30.0],
+            anchor_numeric=TEST_ANCHOR_NUMERIC_VALUE,
+            anchor_value=TEST_ANCHOR_VALUE,
+            prediction_numeric=np.array(TEST_PREDICTION_NUMERIC_101_102),
+            prediction_values=list(TEST_PREDICTION_VALUES_25_30),
         )
-        assert merged_numeric[0] == 100.0
-        assert merged_values[0] == 20.0
+        assert merged_numeric[0] == TEST_ANCHOR_NUMERIC_VALUE
+        assert merged_values[0] == TEST_ANCHOR_VALUE
         assert len(merged_numeric) == 3
         assert len(merged_values) == 3
 
     def test_without_anchor(self) -> None:
         """Test merging without anchor."""
-        prediction_numeric = np.array([101.0, 102.0])
-        prediction_values = [25.0, 30.0]
+        prediction_numeric = np.array(TEST_PREDICTION_NUMERIC_101_102)
+        prediction_values = list(TEST_PREDICTION_VALUES_25_30)
         merged_numeric, merged_values = _merge_prediction_series(
             anchor_numeric=None,
             anchor_value=None,
@@ -129,10 +162,10 @@ class TestMergePredictionSeries:
     def test_with_anchor_no_value(self) -> None:
         """Test merging with anchor but no anchor value."""
         merged_numeric, merged_values = _merge_prediction_series(
-            anchor_numeric=100.0,
+            anchor_numeric=TEST_ANCHOR_NUMERIC_VALUE,
             anchor_value=None,
-            prediction_numeric=np.array([101.0, 102.0]),
-            prediction_values=[25.0, 30.0],
+            prediction_numeric=np.array(TEST_PREDICTION_NUMERIC_101_102),
+            prediction_values=list(TEST_PREDICTION_VALUES_25_30),
         )
         assert merged_values[0] == 25.0
 
@@ -143,8 +176,8 @@ class TestDrawPredictionLine:
     def test_draws_line(self) -> None:
         """Test that line is drawn."""
         mock_ax = MagicMock()
-        numeric = np.array([1.0, 2.0, 3.0])
-        values = np.array([10.0, 20.0, 30.0])
+        numeric = np.array(TEST_NUMERIC_1_2_3)
+        values = np.array(TEST_VALUES_10_20_30)
 
         _draw_prediction_line(mock_ax, numeric, values, TEST_PLOT_COLOR)
 
@@ -174,25 +207,25 @@ class TestUncertaintyEnvelopeParams:
     def test_initialization(self) -> None:
         """Test dataclass initialization."""
         params = UncertaintyEnvelopeParams(
-            anchor_numeric=100.0,
-            prediction_numeric=np.array([101.0]),
-            merged_numeric=np.array([100.0, 101.0]),
-            merged_values=np.array([20.0, 25.0]),
-            prediction_values=[25.0],
+            anchor_numeric=TEST_ANCHOR_NUMERIC_VALUE,
+            prediction_numeric=np.array(TEST_PREDICTION_NUMERIC_101),
+            merged_numeric=np.array(TEST_MERGED_NUMERIC_100_101),
+            merged_values=np.array(TEST_MERGED_VALUES_20_25),
+            prediction_values=list(TEST_PREDICTION_VALUES_25),
             prediction_uncertainties=[2.0],
             plot_color=TEST_PLOT_COLOR,
         )
-        assert params.anchor_numeric == 100.0
+        assert params.anchor_numeric == TEST_ANCHOR_NUMERIC_VALUE
         assert params.plot_color == TEST_PLOT_COLOR
 
     def test_frozen(self) -> None:
         """Test that dataclass is frozen."""
         params = UncertaintyEnvelopeParams(
-            anchor_numeric=100.0,
-            prediction_numeric=np.array([101.0]),
-            merged_numeric=np.array([100.0, 101.0]),
-            merged_values=np.array([20.0, 25.0]),
-            prediction_values=[25.0],
+            anchor_numeric=TEST_ANCHOR_NUMERIC_VALUE,
+            prediction_numeric=np.array(TEST_PREDICTION_NUMERIC_101),
+            merged_numeric=np.array(TEST_MERGED_NUMERIC_100_101),
+            merged_values=np.array(TEST_MERGED_VALUES_20_25),
+            prediction_values=list(TEST_PREDICTION_VALUES_25),
             prediction_uncertainties=[2.0],
             plot_color=TEST_PLOT_COLOR,
         )
@@ -205,15 +238,15 @@ class TestBuildSigmaArray:
 
     def test_with_anchor(self) -> None:
         """Test with anchor."""
-        result = _build_sigma_array(100.0, [1.0, 2.0, 3.0])
+        result = _build_sigma_array(TEST_ANCHOR_NUMERIC_VALUE, list(TEST_SIGMA_1_2_3))
         assert len(result) == 4
         assert result[0] == 0.0
 
     def test_without_anchor(self) -> None:
         """Test without anchor."""
-        result = _build_sigma_array(None, [1.0, 2.0, 3.0])
+        result = _build_sigma_array(None, list(TEST_SIGMA_1_2_3))
         assert len(result) == 3
-        np.testing.assert_array_equal(result, [1.0, 2.0, 3.0])
+        np.testing.assert_array_equal(result, list(TEST_SIGMA_1_2_3))
 
 
 class TestResolvePlotSeries:
@@ -221,27 +254,27 @@ class TestResolvePlotSeries:
 
     def test_with_anchor(self) -> None:
         """Test with anchor."""
-        merged_numeric = np.array([100.0, 101.0])
-        merged_values = np.array([20.0, 25.0])
+        merged_numeric = np.array(TEST_MERGED_NUMERIC_100_101)
+        merged_values = np.array(TEST_MERGED_VALUES_20_25)
         numeric, values = _resolve_plot_series(
-            anchor_numeric=100.0,
-            prediction_numeric=np.array([101.0]),
+            anchor_numeric=TEST_ANCHOR_NUMERIC_VALUE,
+            prediction_numeric=np.array(TEST_PREDICTION_NUMERIC_101),
             merged_numeric=merged_numeric,
             merged_values=merged_values,
-            prediction_values=[25.0],
+            prediction_values=list(TEST_PREDICTION_VALUES_25),
         )
         np.testing.assert_array_equal(numeric, merged_numeric)
         np.testing.assert_array_equal(values, merged_values)
 
     def test_without_anchor(self) -> None:
         """Test without anchor."""
-        prediction_numeric = np.array([101.0])
-        prediction_values = [25.0]
+        prediction_numeric = np.array(TEST_PREDICTION_NUMERIC_101)
+        prediction_values = list(TEST_PREDICTION_VALUES_25)
         numeric, values = _resolve_plot_series(
             anchor_numeric=None,
             prediction_numeric=prediction_numeric,
-            merged_numeric=np.array([100.0, 101.0]),
-            merged_values=np.array([20.0, 25.0]),
+            merged_numeric=np.array(TEST_MERGED_NUMERIC_100_101),
+            merged_values=np.array(TEST_MERGED_VALUES_20_25),
             prediction_values=prediction_values,
         )
         np.testing.assert_array_equal(numeric, prediction_numeric)
@@ -274,8 +307,8 @@ class TestComputeEnvelopeBounds:
 
     def test_computes_bounds(self) -> None:
         """Test computes all bounds."""
-        values = np.array([10.0, 20.0])
-        sigma = np.array([1.0, 2.0])
+        values = np.array(TEST_VALUES_10_20)
+        sigma = np.array(TEST_SIGMA_1_2)
         bounds = _compute_envelope_bounds(values, sigma)
 
         assert "sigma1_upper" in bounds
@@ -295,17 +328,17 @@ class TestPlotUncertaintyBands:
     def test_draws_bands_and_lines(self) -> None:
         """Test draws fill_between and plot calls."""
         mock_ax = MagicMock()
-        numeric = np.array([1.0, 2.0, 3.0])
+        numeric = np.array(TEST_NUMERIC_1_2_3)
         envelopes = {
-            "sigma1_upper": np.array([11.0, 21.0, 31.0]),
-            "sigma1_lower": np.array([9.0, 19.0, 29.0]),
-            "sigma2_upper": np.array([12.0, 22.0, 32.0]),
-            "sigma2_lower": np.array([8.0, 18.0, 28.0]),
+            "sigma1_upper": np.array(TEST_SIGMA1_UPPER),
+            "sigma1_lower": np.array(TEST_SIGMA1_LOWER),
+            "sigma2_upper": np.array(TEST_SIGMA2_UPPER),
+            "sigma2_lower": np.array(TEST_SIGMA2_LOWER),
         }
         colors = {
-            "sigma1_fill": (0.7, 0.7, 0.7, 0.30),
-            "sigma2_fill": (0.3, 0.3, 0.4, 0.18),
-            "sigma2_line": "#475569",
+            "sigma1_fill": TEST_SIGMA1_FILL_COLOR,
+            "sigma2_fill": TEST_SIGMA2_FILL_COLOR,
+            "sigma2_line": TEST_SIGMA2_LINE_COLOR,
         }
 
         _plot_uncertainty_bands(mock_ax, numeric, envelopes, colors, TEST_PLOT_COLOR)
@@ -345,27 +378,27 @@ class TestRenderUncertaintyEnvelopes:
     ) -> None:
         """Test renders uncertainty envelopes."""
         mock_ax = MagicMock()
-        mock_build_sigma.return_value = np.array([0.0, 1.0, 2.0])
-        mock_resolve.return_value = (np.array([1.0, 2.0]), np.array([10.0, 20.0]))
+        mock_build_sigma.return_value = np.array(TEST_SIGMA_0_1_2)
+        mock_resolve.return_value = (np.array(TEST_NUMERIC_1_2), np.array(TEST_VALUES_10_20))
         mock_colors.return_value = {
-            "sigma1_fill": (0.7, 0.7, 0.7, 0.30),
-            "sigma2_fill": (0.3, 0.3, 0.4, 0.18),
-            "sigma2_line": "#475569",
+            "sigma1_fill": TEST_SIGMA1_FILL_COLOR,
+            "sigma2_fill": TEST_SIGMA2_FILL_COLOR,
+            "sigma2_line": TEST_SIGMA2_LINE_COLOR,
         }
         mock_bounds.return_value = {
-            "sigma1_upper": np.array([11.0]),
-            "sigma1_lower": np.array([9.0]),
-            "sigma2_upper": np.array([12.0]),
-            "sigma2_lower": np.array([8.0]),
+            "sigma1_upper": np.array(TEST_BOUNDS_SIGMA1_UPPER),
+            "sigma1_lower": np.array(TEST_BOUNDS_SIGMA1_LOWER),
+            "sigma2_upper": np.array(TEST_BOUNDS_SIGMA2_UPPER),
+            "sigma2_lower": np.array(TEST_BOUNDS_SIGMA2_LOWER),
         }
 
         params = UncertaintyEnvelopeParams(
-            anchor_numeric=100.0,
-            prediction_numeric=np.array([101.0, 102.0]),
-            merged_numeric=np.array([100.0, 101.0, 102.0]),
-            merged_values=np.array([10.0, 20.0, 30.0]),
-            prediction_values=[20.0, 30.0],
-            prediction_uncertainties=[1.0, 2.0],
+            anchor_numeric=TEST_ANCHOR_NUMERIC_VALUE,
+            prediction_numeric=np.array(TEST_PREDICTION_NUMERIC_101_102),
+            merged_numeric=np.array(TEST_MERGED_NUMERIC_100_101_102),
+            merged_values=np.array(TEST_MERGED_VALUES_10_20_30),
+            prediction_values=list(TEST_PREDICTION_VALUES_20_30),
+            prediction_uncertainties=list(TEST_UNCERTAINTIES_1_2),
             plot_color=TEST_PLOT_COLOR,
         )
 
@@ -425,8 +458,8 @@ class TestRenderPredictionOverlay:
 
         def date2num_side_effect(arg):
             if isinstance(arg, list):
-                return np.array([738887.125, 738887.16666666663])
-            return 738887.08333333337
+                return np.array(TEST_DATE2NUM_LIST_RESULT)
+            return TEST_DATE2NUM_SCALAR_RESULT
 
         mock_mdates.date2num.side_effect = date2num_side_effect
 
@@ -457,8 +490,8 @@ class TestRenderPredictionOverlay:
 
         def date2num_side_effect(arg):
             if isinstance(arg, list):
-                return np.array([738887.125, 738887.16666666663])
-            return 738887.08333333337
+                return np.array(TEST_DATE2NUM_LIST_RESULT)
+            return TEST_DATE2NUM_SCALAR_RESULT
 
         mock_mdates.date2num.side_effect = date2num_side_effect
         mock_render_envelopes.return_value = [27.0, 23.0, 33.0, 27.0]

@@ -16,6 +16,7 @@ TEST_LONG_POLL_TIMEOUT_MIN = 25
 TEST_LONG_POLL_TIMEOUT_MAX = 60
 TEST_LONG_POLL_TIMEOUT_CALCULATED = 60
 TEST_LONG_POLL_TIMEOUT_CALCULATED_SHORT = 30
+TEST_TIMEOUT_SECONDS_MIN_CAP_TRIGGER = 10
 
 
 class TestBuildTelegramConfigEnabled:
@@ -81,7 +82,7 @@ class TestBuildTelegramConfigEnabled:
         mock_settings = MagicMock()
         mock_settings.telegram.bot_token = TEST_BOT_TOKEN
         mock_settings.telegram.chat_ids = [TEST_CHAT_ID_1]
-        mock_settings.alerting.telegram_timeout_seconds = 10
+        mock_settings.alerting.telegram_timeout_seconds = TEST_TIMEOUT_SECONDS_MIN_CAP_TRIGGER
 
         result = TelegramBuilder.build_telegram_config(mock_settings)
 

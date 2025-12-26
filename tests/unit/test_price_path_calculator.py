@@ -38,6 +38,30 @@ TEST_CURRENCY = "BTC"
 TEST_SIGMA_MIN_RATIO = 0.002
 TEST_SIGMA_MAX_RATIO = 0.10
 
+# Array data constants for np.array usage
+TEST_TIMELINE_YEARS_3 = (0.1, 0.2, 0.3)
+TEST_TIMELINE_DAYS_3 = (36.5, 73.0, 109.5)
+TEST_EXPECTED_PRICES_3 = (50000.0, 51000.0, 52000.0)
+TEST_UNCERTAINTIES_3 = (1000.0, 1100.0, 1200.0)
+TEST_INTEGRATION_RESULT_3 = (0.1, 0.2, 0.3)
+TEST_INTERPOLATION_RESULT_1 = (0.01, 0.02, 0.03)
+TEST_INTERPOLATION_RESULT_2 = (0.015, 0.025, 0.035)
+TEST_INTERPOLATION_RESULT_3 = (0.5, 0.6, 0.7)
+TEST_INTERPOLATION_RESULT_4 = (1.0, 1.0, 1.0)
+TEST_TIMELINE_YEARS_1 = (0.1,)
+TEST_TIMELINE_DAYS_1 = (36.5,)
+TEST_INTEGRATION_RESULT_1 = (0.1,)
+TEST_SINGLE_INTERP_1 = (0.01,)
+TEST_SINGLE_INTERP_2 = (0.015,)
+TEST_SINGLE_INTERP_3 = (0.5,)
+TEST_SINGLE_INTERP_4 = (1.0,)
+TEST_EXPECTED_PRICE_1 = (50000.0,)
+TEST_UNCERTAINTY_1 = (1000.0,)
+TEST_TIMELINE_DAYS_FOR_TIMESTAMPS = (1.0, 2.0, 3.0)
+TEST_TIMELINE_DAYS_ZERO = (0.0,)
+TEST_HORIZON_DAYS = 60.0
+TEST_GENERATE_TIMELINE_RESULT = (1.0, 2.0, 3.0)
+
 
 def _create_mock_dependencies(
     surface_loader=None,
@@ -322,10 +346,10 @@ class TestMostProbablePricePathCalculatorGeneratePricePath:
 
     def test_returns_price_path_with_timestamps_prices_uncertainties(self) -> None:
         """Test returns list of tuples with timestamps, prices, and uncertainties."""
-        test_timeline_years = np.array([0.1, 0.2, 0.3])
-        test_timeline_days = np.array([36.5, 73.0, 109.5])
-        test_expected_prices = np.array([50000.0, 51000.0, 52000.0])
-        test_uncertainties = np.array([1000.0, 1100.0, 1200.0])
+        test_timeline_years = np.array(TEST_TIMELINE_YEARS_3)
+        test_timeline_days = np.array(TEST_TIMELINE_DAYS_3)
+        test_expected_prices = np.array(TEST_EXPECTED_PRICES_3)
+        test_uncertainties = np.array(TEST_UNCERTAINTIES_3)
 
         mock_surface = MagicMock()
         mock_surface.futures_curve = MagicMock()
@@ -346,14 +370,14 @@ class TestMostProbablePricePathCalculatorGeneratePricePath:
         )
 
         mock_expectation_integrator = MagicMock()
-        mock_expectation_integrator.integrate_expectation.return_value = np.array([0.1, 0.2, 0.3])
+        mock_expectation_integrator.integrate_expectation.return_value = np.array(TEST_INTEGRATION_RESULT_3)
 
         mock_path_interpolator = MagicMock()
         mock_path_interpolator.interpolate_path_series.return_value = (
-            np.array([0.01, 0.02, 0.03]),
-            np.array([0.015, 0.025, 0.035]),
-            np.array([0.5, 0.6, 0.7]),
-            np.array([1.0, 1.0, 1.0]),
+            np.array(TEST_INTERPOLATION_RESULT_1),
+            np.array(TEST_INTERPOLATION_RESULT_2),
+            np.array(TEST_INTERPOLATION_RESULT_3),
+            np.array(TEST_INTERPOLATION_RESULT_4),
         )
 
         mock_expectation_scaler = MagicMock()
@@ -390,8 +414,8 @@ class TestMostProbablePricePathCalculatorGeneratePricePath:
 
     def test_calls_surface_loader_with_currency(self) -> None:
         """Test calls surface_loader.load_surface with currency."""
-        test_timeline_years = np.array([0.1])
-        test_timeline_days = np.array([36.5])
+        test_timeline_years = np.array(TEST_TIMELINE_YEARS_1)
+        test_timeline_days = np.array(TEST_TIMELINE_DAYS_1)
 
         mock_surface = MagicMock()
         mock_surface.futures_curve = MagicMock()
@@ -412,20 +436,20 @@ class TestMostProbablePricePathCalculatorGeneratePricePath:
         )
 
         mock_expectation_integrator = MagicMock()
-        mock_expectation_integrator.integrate_expectation.return_value = np.array([0.1])
+        mock_expectation_integrator.integrate_expectation.return_value = np.array(TEST_INTEGRATION_RESULT_1)
 
         mock_path_interpolator = MagicMock()
         mock_path_interpolator.interpolate_path_series.return_value = (
-            np.array([0.01]),
-            np.array([0.015]),
-            np.array([0.5]),
-            np.array([1.0]),
+            np.array(TEST_SINGLE_INTERP_1),
+            np.array(TEST_SINGLE_INTERP_2),
+            np.array(TEST_SINGLE_INTERP_3),
+            np.array(TEST_SINGLE_INTERP_4),
         )
 
         mock_expectation_scaler = MagicMock()
         mock_expectation_scaler.scale_expectations.return_value = (
-            np.array([50000.0]),
-            np.array([1000.0]),
+            np.array(TEST_EXPECTED_PRICE_1),
+            np.array(TEST_UNCERTAINTY_1),
         )
 
         mock_deps = _create_mock_dependencies(
@@ -454,8 +478,8 @@ class TestMostProbablePricePathCalculatorGeneratePricePath:
 
     def test_calls_emit_progress_with_timeline_length(self) -> None:
         """Test calls _emit_progress with timeline length."""
-        test_timeline_years = np.array([0.1, 0.2, 0.3])
-        test_timeline_days = np.array([36.5, 73.0, 109.5])
+        test_timeline_years = np.array(TEST_TIMELINE_YEARS_3)
+        test_timeline_days = np.array(TEST_TIMELINE_DAYS_3)
 
         mock_surface = MagicMock()
         mock_surface.futures_curve = MagicMock()
@@ -472,16 +496,16 @@ class TestMostProbablePricePathCalculatorGeneratePricePath:
             test_timeline_years,
             test_timeline_days,
         )
-        mock_deps.expectation_integrator.integrate_expectation.return_value = np.array([0.1, 0.2, 0.3])
+        mock_deps.expectation_integrator.integrate_expectation.return_value = np.array(TEST_INTEGRATION_RESULT_3)
         mock_deps.path_interpolator.interpolate_path_series.return_value = (
-            np.array([0.01, 0.02, 0.03]),
-            np.array([0.015, 0.025, 0.035]),
-            np.array([0.5, 0.6, 0.7]),
-            np.array([1.0, 1.0, 1.0]),
+            np.array(TEST_INTERPOLATION_RESULT_1),
+            np.array(TEST_INTERPOLATION_RESULT_2),
+            np.array(TEST_INTERPOLATION_RESULT_3),
+            np.array(TEST_INTERPOLATION_RESULT_4),
         )
         mock_deps.expectation_scaler.scale_expectations.return_value = (
-            np.array([50000.0, 51000.0, 52000.0]),
-            np.array([1000.0, 1100.0, 1200.0]),
+            np.array(TEST_EXPECTED_PRICES_3),
+            np.array(TEST_UNCERTAINTIES_3),
         )
 
         config = PricePathCalculatorConfig(
@@ -501,8 +525,8 @@ class TestMostProbablePricePathCalculatorGeneratePricePath:
 
     def test_uses_futures_curve_metadata_when_present(self) -> None:
         """Test uses futures_curve_metadata when available on surface."""
-        test_timeline_years = np.array([0.1])
-        test_timeline_days = np.array([36.5])
+        test_timeline_years = np.array(TEST_TIMELINE_YEARS_1)
+        test_timeline_days = np.array(TEST_TIMELINE_DAYS_1)
         test_metadata = {"training_time_range": (1000.0, 2000.0)}
 
         mock_surface = MagicMock()
@@ -519,16 +543,16 @@ class TestMostProbablePricePathCalculatorGeneratePricePath:
             test_timeline_years,
             test_timeline_days,
         )
-        mock_deps.expectation_integrator.integrate_expectation.return_value = np.array([0.1])
+        mock_deps.expectation_integrator.integrate_expectation.return_value = np.array(TEST_INTEGRATION_RESULT_1)
         mock_deps.path_interpolator.interpolate_path_series.return_value = (
-            np.array([0.01]),
-            np.array([0.015]),
-            np.array([0.5]),
-            np.array([1.0]),
+            np.array(TEST_SINGLE_INTERP_1),
+            np.array(TEST_SINGLE_INTERP_2),
+            np.array(TEST_SINGLE_INTERP_3),
+            np.array(TEST_SINGLE_INTERP_4),
         )
         mock_deps.expectation_scaler.scale_expectations.return_value = (
-            np.array([50000.0]),
-            np.array([1000.0]),
+            np.array(TEST_EXPECTED_PRICE_1),
+            np.array(TEST_UNCERTAINTY_1),
         )
 
         config = PricePathCalculatorConfig(
@@ -548,8 +572,8 @@ class TestMostProbablePricePathCalculatorGeneratePricePath:
 
     def test_uses_none_training_range_when_metadata_missing(self) -> None:
         """Test uses None for training_range when metadata is missing."""
-        test_timeline_years = np.array([0.1])
-        test_timeline_days = np.array([36.5])
+        test_timeline_years = np.array(TEST_TIMELINE_YEARS_1)
+        test_timeline_days = np.array(TEST_TIMELINE_DAYS_1)
 
         mock_surface = MagicMock()
         mock_surface.futures_curve = MagicMock()
@@ -565,16 +589,16 @@ class TestMostProbablePricePathCalculatorGeneratePricePath:
             test_timeline_years,
             test_timeline_days,
         )
-        mock_deps.expectation_integrator.integrate_expectation.return_value = np.array([0.1])
+        mock_deps.expectation_integrator.integrate_expectation.return_value = np.array(TEST_INTEGRATION_RESULT_1)
         mock_deps.path_interpolator.interpolate_path_series.return_value = (
-            np.array([0.01]),
-            np.array([0.015]),
-            np.array([0.5]),
-            np.array([1.0]),
+            np.array(TEST_SINGLE_INTERP_1),
+            np.array(TEST_SINGLE_INTERP_2),
+            np.array(TEST_SINGLE_INTERP_3),
+            np.array(TEST_SINGLE_INTERP_4),
         )
         mock_deps.expectation_scaler.scale_expectations.return_value = (
-            np.array([50000.0]),
-            np.array([1000.0]),
+            np.array(TEST_EXPECTED_PRICE_1),
+            np.array(TEST_UNCERTAINTY_1),
         )
 
         config = PricePathCalculatorConfig(
@@ -663,7 +687,7 @@ class TestBuildTimestamps:
 
     def test_converts_days_to_timestamps(self) -> None:
         """Test converts timeline_days to future timestamps."""
-        timeline_days = np.array([1.0, 2.0, 3.0])
+        timeline_days = np.array(TEST_TIMELINE_DAYS_FOR_TIMESTAMPS)
 
         with patch("common.price_path_calculator.time.time", return_value=1000000.0):
             result = MostProbablePricePathCalculator._build_timestamps(timeline_days)
@@ -673,7 +697,7 @@ class TestBuildTimestamps:
 
     def test_handles_zero_days(self) -> None:
         """Test handles zero days correctly."""
-        timeline_days = np.array([0.0])
+        timeline_days = np.array(TEST_TIMELINE_DAYS_ZERO)
 
         with patch("common.price_path_calculator.time.time", return_value=5000000.0):
             result = MostProbablePricePathCalculator._build_timestamps(timeline_days)
@@ -884,10 +908,10 @@ class TestGeneratePredictionTimeline:
 
     def test_delegates_to_timeline_builder(self) -> None:
         """Test delegates to timeline_builder.generate_timeline."""
-        test_horizon_days = 60.0
+        test_horizon_days = TEST_HORIZON_DAYS
 
         mock_deps = _create_mock_dependencies()
-        mock_deps.timeline_builder.generate_timeline.return_value = np.array([1.0, 2.0, 3.0])
+        mock_deps.timeline_builder.generate_timeline.return_value = np.array(TEST_GENERATE_TIMELINE_RESULT)
 
         config = PricePathCalculatorConfig(
             strike_count=TEST_STRIKE_COUNT,
