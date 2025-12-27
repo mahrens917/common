@@ -13,7 +13,7 @@ from common.exceptions import ConfigurationError
 
 logger = logging.getLogger(__name__)
 
-_RECOMMENDED_INT_VALUES = {
+_DEFAULT_INT_VALUES = {
     "CONNECTION_TIMEOUT_SECONDS": 30,
     "REQUEST_TIMEOUT_SECONDS": 15,
     "MAX_IDLE_SECONDS": 600,
@@ -27,7 +27,7 @@ _RECOMMENDED_INT_VALUES = {
     "SUBSCRIPTION_BACKOFF_MULTIPLIER_SECONDS": 5,
 }
 
-_RECOMMENDED_FLOAT_VALUES = {
+_DEFAULT_FLOAT_VALUES = {
     "RECONNECTION_BACKOFF_MULTIPLIER": 2.0,
     "SUBSCRIPTION_INITIAL_DELAY_SECONDS": 0.5,
     "SUBSCRIPTION_PROCESSING_DELAY_SECONDS": 0.5,
@@ -35,25 +35,23 @@ _RECOMMENDED_FLOAT_VALUES = {
 
 
 def require_env_int(name: str) -> int:
-    """Require an environment variable as integer."""
+    """Get an environment variable as integer, using default if available."""
     value = env_int(name, or_value=None, required=False)
     if value is not None:
         return value
-    message = f"Environment variable {name} must be defined"
-    if name in _RECOMMENDED_INT_VALUES:
-        message += f" (recommended {_RECOMMENDED_INT_VALUES[name]})"
-    raise ConfigurationError(message)
+    if name in _DEFAULT_INT_VALUES:
+        return _DEFAULT_INT_VALUES[name]
+    raise ConfigurationError(f"Environment variable {name} must be defined")
 
 
 def require_env_float(name: str) -> float:
-    """Require an environment variable as float."""
+    """Get an environment variable as float, using default if available."""
     value = env_float(name, or_value=None, required=False)
     if value is not None:
         return value
-    message = f"Environment variable {name} must be defined"
-    if name in _RECOMMENDED_FLOAT_VALUES:
-        message += f" (recommended {_RECOMMENDED_FLOAT_VALUES[name]})"
-    raise ConfigurationError(message)
+    if name in _DEFAULT_FLOAT_VALUES:
+        return _DEFAULT_FLOAT_VALUES[name]
+    raise ConfigurationError(f"Environment variable {name} must be defined")
 
 
 def resolve_cfb_setting(

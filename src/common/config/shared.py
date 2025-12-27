@@ -107,6 +107,57 @@ class TelegramSettings:
             raise ConfigurationError("TELEGRAM timeout must be a positive number of seconds")
 
 
+@dataclass(frozen=True)
+class AlertingSettings:
+    throttle_window_seconds: int
+    max_alerts_per_window: int
+    telegram_timeout_seconds: int
+
+
+@dataclass(frozen=True)
+class AlerterSettings:
+    telegram: Optional[TelegramSettings]
+    alerting: AlertingSettings
+
+
+def get_optional_telegram_settings(default_timeout: int = 10) -> Optional[TelegramSettings]:
+    """Get TelegramSettings if configured, otherwise return None."""
+    bot_token = env_str("TELEGRAM_BOT_TOKEN", or_value=None, allow_blank=True)
+    if not bot_token:
+        return None
+    chat_ids_value = env_list("TELEGRAM_AUTHORIZED_USERS", separator=",", required=False)
+    if not chat_ids_value:
+        return None
+    timeout_seconds = env_seconds("TELEGRAM_TIMEOUT_SECONDS")
+    if timeout_seconds is None:
+        timeout_seconds = default_timeout
+    return TelegramSettings(
+        bot_token=bot_token,
+        chat_ids=chat_ids_value,
+        timeout_seconds=timeout_seconds,
+    )
+
+
+DEFAULT_ALERT_THROTTLE_WINDOW_SECONDS = 300
+DEFAULT_ALERT_MAX_PER_WINDOW = 10
+DEFAULT_ALERT_TELEGRAM_TIMEOUT_SECONDS = 10
+
+
+@lru_cache(maxsize=1)
+def get_alerter_settings() -> AlerterSettings:
+    """Get AlerterSettings from environment variables with sensible defaults."""
+    telegram = get_optional_telegram_settings()
+    throttle_window = env_seconds("ALERT_THROTTLE_WINDOW")
+    max_alerts = env_int("ALERT_MAX_PER_WINDOW")
+    telegram_timeout = env_seconds("TELEGRAM_TIMEOUT_SECONDS")
+    alerting = AlertingSettings(
+        throttle_window_seconds=(throttle_window if throttle_window is not None else DEFAULT_ALERT_THROTTLE_WINDOW_SECONDS),
+        max_alerts_per_window=max_alerts if max_alerts is not None else DEFAULT_ALERT_MAX_PER_WINDOW,
+        telegram_timeout_seconds=(telegram_timeout if telegram_timeout is not None else DEFAULT_ALERT_TELEGRAM_TIMEOUT_SECONDS),
+    )
+    return AlerterSettings(telegram=telegram, alerting=alerting)
+
+
 @lru_cache(maxsize=1)
 def get_telegram_settings(default_timeout: int = 10) -> TelegramSettings:
     bot_token = env_str("TELEGRAM_BOT_TOKEN", required=True, strip=True)
@@ -129,10 +180,14 @@ def get_telegram_settings(default_timeout: int = 10) -> TelegramSettings:
 
 
 __all__ = [
+    "AlerterSettings",
+    "AlertingSettings",
     "KalshiCredentials",
     "RedisSettings",
     "TelegramSettings",
+    "get_alerter_settings",
     "get_kalshi_credentials",
+    "get_optional_telegram_settings",
     "get_redis_settings",
     "get_telegram_settings",
 ]

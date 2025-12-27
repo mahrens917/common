@@ -27,7 +27,7 @@ from .alerting.models import (
 )
 
 if TYPE_CHECKING:
-    from src.monitor.settings import MonitorSettings
+    from .config.shared import AlerterSettings
 
 logger = logging.getLogger(__name__)
 
@@ -219,18 +219,12 @@ class Alerter(
 ):
     """Minimal alerter - all logic delegated to helpers."""
 
-    def __init__(self, settings: MonitorSettings | None = None):
+    def __init__(self, settings: AlerterSettings | None = None):
         from .alerter_helpers.alerter_components_builder import AlerterComponentsBuilder
+        from .config.shared import get_alerter_settings
 
         if settings is None:
-            try:
-                from src.monitor.settings import get_monitor_settings
-
-                settings = get_monitor_settings()
-            except (ModuleNotFoundError, ImportError):  # pragma: no cover
-                # Monitor module not available; raise with helpful message
-                logger.debug("Monitor settings not available, Alerter requires monitor repo")
-                raise RuntimeError("Alerter requires monitor repository to be installed") from None
+            settings = get_alerter_settings()
         self.settings = settings
         self.rate_limit_handler: TelegramRateLimitHandler | None = None
         self.delivery_manager: Any | None = None

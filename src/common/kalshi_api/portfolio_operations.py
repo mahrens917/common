@@ -76,9 +76,9 @@ class PortfolioOperations:
 def _validate_positions_payload(payload: Any) -> List[Dict[str, Any]]:
     if payload is None:
         raise PortfolioPositionsEmptyError()
-    if "positions" not in payload:
+    if "market_positions" not in payload:
         raise PortfolioPositionsMissingFieldError(payload)
-    raw_positions = payload["positions"]
+    raw_positions = payload["market_positions"]
     if not isinstance(raw_positions, list):
         raise PortfolioPositionsNotListError()
     return raw_positions
