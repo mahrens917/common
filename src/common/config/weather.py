@@ -4,10 +4,14 @@ from __future__ import annotations
 
 import json
 import logging
+import os
 from pathlib import Path
 from typing import Any, Dict, Optional
 
 logger = logging.getLogger(__name__)
+
+# Base directory for all projects (configurable via env for flexibility)
+_PROJECTS_BASE = Path(os.environ.get("PROJECTS_BASE", Path.home() / "projects"))
 
 
 class WeatherConfigError(RuntimeError):
@@ -82,8 +86,24 @@ def load_weather_station_mapping(
 def load_weather_trading_config(
     *,
     config_dir: Optional[Path] = None,
+    package: Optional[str] = None,
 ) -> Dict[str, Any]:
-    """Return the weather trading configuration."""
+    """Return the weather trading configuration.
+
+    Args:
+        config_dir: Optional explicit config directory path.
+        package: Optional package name to load config from (e.g., 'weather').
+                 When specified, loads from ~/projects/{package}/config/.
+                 Takes precedence over config_dir when both are specified.
+
+    Returns:
+        Dictionary containing the weather trading configuration.
+    """
+    if package is not None:
+        resolved_dir = _PROJECTS_BASE / package / "config"
+        if not resolved_dir.exists():
+            raise WeatherConfigError(f"Config directory not found for package '{package}': {resolved_dir}")
+        return _load_from_directory("weather_trading_config.json", resolved_dir)
     return _resolve_config_json(
         "weather_trading_config.json",
         config_dir if config_dir is not None else None,

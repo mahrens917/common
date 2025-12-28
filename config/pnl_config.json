@@ -1,8 +1,41 @@
 {
+  "settlement_monitoring": {
+    "enabled": true,
+    "check_interval_seconds": 900,
+    "continuous_monitoring": true,
+    "settlement_detection_timeout_seconds": 30
+  },
   "trade_collection": {
-    "historical_start_date": "2024-01-01"
+    "enabled": true,
+    "historical_start_date": "2025-08-01",
+    "batch_size": 100,
+    "collection_interval_seconds": 900,
+    "max_retries": 3,
+    "retry_delay_seconds": 60
+  },
+  "telegram_notifications": {
+    "enabled": true,
+    "settlement_alerts": true,
+    "daily_reports": true,
+    "error_notifications": true
+  },
+  "redis_keys": {
+    "trade_prefix": "trades:",
+    "unsettled_set": "trades:unsettled",
+    "daily_summary_prefix": "trades:daily_summary:",
+    "station_prefix": "trades:by_station:",
+    "rule_prefix": "trades:by_rule:",
+    "date_prefix": "trades:by_date:"
+  },
+  "market_filters": {
+    "ticker_pattern": "KXHIGH",
+    "supported_rules": ["EMERGENCY_EXIT"],
+    "supported_categories": ["weather", "binary"],
+    "weather_stations": ["NYC", "CHI", "LAX", "MIA", "DFW", "DEN", "SEA", "BOS", "ATL", "PHX"]
   },
   "reporting": {
+    "default_historical_days": 30,
+    "max_historical_days": 365,
     "timezone": "America/New_York"
   }
 }

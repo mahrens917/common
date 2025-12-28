@@ -175,7 +175,7 @@ class _StubTradeStore:
 def bare_trading_client(monkeypatch, config_dict):
     fake_client = SimpleNamespace(attach_trade_store=lambda *_: None)
 
-    monkeypatch.setattr("common.kalshi_trading_client.load_pnl_config", lambda: config_dict)
+    monkeypatch.setattr("common.kalshi_trading_client.load_pnl_config", lambda package=None: config_dict)
 
     resolver = WeatherStationResolver(mapping={})
     trade_store = _StubTradeStore()
@@ -226,7 +226,7 @@ def configured_client(monkeypatch, config_dict, weather_mapping):
     )
     fake_client.attach_trade_store = lambda *_args, **_kwargs: None
 
-    monkeypatch.setattr("common.kalshi_trading_client.load_pnl_config", lambda: config_dict)
+    monkeypatch.setattr("common.kalshi_trading_client.load_pnl_config", lambda package=None: config_dict)
 
     resolver = WeatherStationResolver(mapping=weather_mapping)
     trade_store = _StubTradeStore()
@@ -247,7 +247,7 @@ def test_init_configures_attributes(configured_client, config_dict, weather_mapp
 
 def test_init_requires_trade_store(monkeypatch, config_dict):
     fake_client = SimpleNamespace(attach_trade_store=lambda *_args, **_kwargs: None)
-    monkeypatch.setattr("common.kalshi_trading_client.load_pnl_config", lambda: config_dict)
+    monkeypatch.setattr("common.kalshi_trading_client.load_pnl_config", lambda package=None: config_dict)
     resolver = WeatherStationResolver(mapping={})
 
     with pytest.raises(ValueError):
@@ -258,7 +258,7 @@ def test_resolve_trade_context_handles_city_alias(monkeypatch, config_dict):
     fake_client = SimpleNamespace(attach_trade_store=lambda *_args, **_kwargs: None)
     mapping = {"NY": {"icao": "KNYC", "aliases": ["NYC", "NEWYORK"]}}
 
-    monkeypatch.setattr("common.kalshi_trading_client.load_pnl_config", lambda: config_dict)
+    monkeypatch.setattr("common.kalshi_trading_client.load_pnl_config", lambda package=None: config_dict)
 
     resolver = WeatherStationResolver(mapping=mapping)
     client = KalshiTradingClient(

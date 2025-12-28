@@ -728,7 +728,7 @@ class TestAlerterInit:
                     assert alerter.alert_sender is None
 
     def test_init_without_settings_gets_default(self) -> None:
-        """Test initialization without settings gets default from monitor."""
+        """Test initialization without settings gets default from shared config."""
         mock_settings = MagicMock()
         mock_settings.alerting.throttle_window_seconds = TEST_THROTTLE_WINDOW
         mock_settings.alerting.max_alerts_per_window = TEST_MAX_ALERTS
@@ -745,7 +745,7 @@ class TestAlerterInit:
 
             with patch("common.alerter_helpers.chart_manager.ChartManager"):
                 with patch("common.alerter_helpers.command_coordinator.CommandCoordinator"):
-                    with patch("src.monitor.settings.get_monitor_settings", return_value=mock_settings):
+                    with patch("common.config.shared.get_alerter_settings", return_value=mock_settings):
                         alerter = Alerter(None)
 
                         assert alerter.settings is mock_settings

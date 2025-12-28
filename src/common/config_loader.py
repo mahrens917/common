@@ -14,6 +14,7 @@ All config loaders in the codebase should either:
 
 import json
 import logging
+import os
 from datetime import date
 from pathlib import Path
 from typing import Any, Dict, Optional
@@ -21,6 +22,28 @@ from typing import Any, Dict, Optional
 from common.exceptions import ConfigurationError
 
 logger = logging.getLogger(__name__)
+
+# Base directory for all projects (configurable via env for flexibility)
+_PROJECTS_BASE = Path(os.environ.get("PROJECTS_BASE", Path.home() / "projects"))
+
+
+def _resolve_package_config_dir(package: str) -> Path:
+    """
+    Resolve the config directory for a specific package.
+
+    Args:
+        package: Name of the package (e.g., 'weather', 'tracker', 'peak')
+
+    Returns:
+        Path to the package's config directory
+
+    Raises:
+        FileNotFoundError: If the package config directory doesn't exist
+    """
+    config_dir = _PROJECTS_BASE / package / "config"
+    if not config_dir.exists():
+        raise FileNotFoundError(f"Config directory not found for package '{package}': {config_dir}")
+    return config_dir
 
 
 def _resolve_config_dir() -> Path:
@@ -130,7 +153,7 @@ class BaseConfigLoader:
         return section[parameter_name]
 
 
-def load_config(filename: str) -> Dict[str, Any]:
+def load_config(filename: str, *, package: Optional[str] = None) -> Dict[str, Any]:
     """
     Load a configuration file from the config directory.
 
@@ -140,6 +163,9 @@ def load_config(filename: str) -> Dict[str, Any]:
 
     Args:
         filename: Name of the config file (e.g., 'validation_constants.json')
+        package: Optional package name to load config from (e.g., 'weather').
+                 When specified, loads from ~/projects/{package}/config/.
+                 When not specified, loads from current working directory's config/.
 
     Returns:
         Dictionary containing the configuration
@@ -148,13 +174,19 @@ def load_config(filename: str) -> Dict[str, Any]:
         FileNotFoundError: If config file doesn't exist
         ConfigurationError: If config file is invalid JSON
     """
-    loader = BaseConfigLoader(_CONFIG_DIR)
+    config_dir = _resolve_package_config_dir(package) if package else _CONFIG_DIR
+    loader = BaseConfigLoader(config_dir)
     return loader.load_json_file(filename)
 
 
-def load_pnl_config() -> Dict[str, Any]:
+def load_pnl_config(*, package: Optional[str] = None) -> Dict[str, Any]:
     """
     Load PnL configuration from config/pnl_config.json.
+
+    Args:
+        package: Optional package name to load config from (e.g., 'common').
+                 When specified, loads from ~/projects/{package}/config/.
+                 When not specified, loads from current working directory's config/.
 
     Returns:
         Dictionary containing PnL configuration
@@ -164,7 +196,8 @@ def load_pnl_config() -> Dict[str, Any]:
         json.JSONDecodeError: If config file is invalid JSON
         RuntimeError: If config is missing required fields
     """
-    config_path = _CONFIG_DIR / "pnl_config.json"
+    config_dir = _resolve_package_config_dir(package) if package else _CONFIG_DIR
+    config_path = config_dir / "pnl_config.json"
 
     if not config_path.exists():
         raise FileNotFoundError(f"PnL config file not found: {config_path}")
@@ -200,7 +233,7 @@ def get_historical_start_date() -> date:
         RuntimeError: If config is invalid or date cannot be parsed
     """
     try:
-        config = load_pnl_config()
+        config = load_pnl_config(package="common")
         date_str = config["trade_collection"]["historical_start_date"]
 
         # Parse the date string (expected format: YYYY-MM-DD)
@@ -230,7 +263,7 @@ def get_reporting_timezone() -> str:
         RuntimeError: If the timezone configuration is unavailable or invalid.
     """
     try:
-        config = load_pnl_config()
+        config = load_pnl_config(package="common")
     except (FileNotFoundError, RuntimeError, OSError) as exc:
         raise RuntimeError("Failed to load PnL config for timezone lookup") from exc
 

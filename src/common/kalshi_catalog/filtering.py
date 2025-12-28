@@ -7,6 +7,7 @@ from datetime import datetime, timezone
 from typing import Any, Dict, List
 
 from common.time_helpers.expiry_conversions import parse_expiry_datetime
+from common.truthy import pick_if
 
 from .types import DiscoveredMarket, StrikeValidationError
 
@@ -181,9 +182,9 @@ def convert_to_discovered_market(market: Dict[str, Any]) -> DiscoveredMarket:
         DiscoveredMarket instance
     """
     ticker_value = market.get("ticker")
-    ticker = str(ticker_value) if ticker_value is not None else ""
+    ticker = pick_if(ticker_value is not None, lambda: str(ticker_value), lambda: "")
     close_time_value = market.get("close_time")
-    close_time = str(close_time_value) if close_time_value is not None else ""
+    close_time = pick_if(close_time_value is not None, lambda: str(close_time_value), lambda: "")
     return DiscoveredMarket(
         ticker=ticker,
         close_time=close_time,

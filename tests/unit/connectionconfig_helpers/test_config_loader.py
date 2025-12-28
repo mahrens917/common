@@ -27,14 +27,15 @@ class TestRequireEnvInt:
 
         assert result == 42
 
-    def test_recommends_value_for_known_variable(self) -> None:
-        """Reports a recommended value when a known variable is missing."""
+    def test_returns_default_for_known_variable(self) -> None:
+        """Returns default value when a known variable is missing from env."""
         with patch(
             "common.connectionconfig_helpers.config_loader.env_int",
             return_value=None,
         ):
-            with pytest.raises(ConfigurationError, match="recommended"):
-                require_env_int("CONNECTION_TIMEOUT_SECONDS")
+            result = require_env_int("CONNECTION_TIMEOUT_SECONDS")
+
+        assert result == 30  # Default value from _DEFAULT_INT_VALUES
 
     def test_raises_for_unknown_variable(self) -> None:
         """Raises ConfigurationError for unknown variable when env not set."""
@@ -59,14 +60,15 @@ class TestRequireEnvFloat:
 
         assert result == 3.14
 
-    def test_recommends_value_for_known_variable(self) -> None:
-        """Reports a recommended value when a known variable is missing."""
+    def test_returns_default_for_known_variable(self) -> None:
+        """Returns default value when a known variable is missing from env."""
         with patch(
             "common.connectionconfig_helpers.config_loader.env_float",
             return_value=None,
         ):
-            with pytest.raises(ConfigurationError, match="recommended"):
-                require_env_float("RECONNECTION_BACKOFF_MULTIPLIER")
+            result = require_env_float("RECONNECTION_BACKOFF_MULTIPLIER")
+
+        assert result == 2.0  # Default value from _DEFAULT_FLOAT_VALUES
 
     def test_raises_for_unknown_variable(self) -> None:
         """Raises ConfigurationError for unknown variable when env not set."""

@@ -81,7 +81,7 @@ def test_load_pnl_config_success(monkeypatch: pytest.MonkeyPatch) -> None:
 
 def test_get_historical_start_date_success(monkeypatch: pytest.MonkeyPatch) -> None:
     fake_config: Dict[str, Any] = {"trade_collection": {"historical_start_date": "2024-02-29"}}
-    monkeypatch.setattr(config_loader, "load_pnl_config", lambda: fake_config)
+    monkeypatch.setattr(config_loader, "load_pnl_config", lambda package=None: fake_config)
 
     start_date = config_loader.get_historical_start_date()
 
@@ -90,7 +90,7 @@ def test_get_historical_start_date_success(monkeypatch: pytest.MonkeyPatch) -> N
 
 def test_get_historical_start_date_invalid_date(monkeypatch: pytest.MonkeyPatch) -> None:
     fake_config = {"trade_collection": {"historical_start_date": "2024-13-01"}}
-    monkeypatch.setattr(config_loader, "load_pnl_config", lambda: fake_config)
+    monkeypatch.setattr(config_loader, "load_pnl_config", lambda package=None: fake_config)
 
     with pytest.raises(RuntimeError) as err:
         config_loader.get_historical_start_date()
@@ -99,7 +99,7 @@ def test_get_historical_start_date_invalid_date(monkeypatch: pytest.MonkeyPatch)
 
 
 def test_get_historical_start_date_load_failure(monkeypatch: pytest.MonkeyPatch) -> None:
-    def raise_error() -> Dict[str, Any]:
+    def raise_error(package: Any = None) -> Dict[str, Any]:
         raise FileNotFoundError("missing config")
 
     monkeypatch.setattr(config_loader, "load_pnl_config", raise_error)
@@ -116,13 +116,13 @@ def test_get_reporting_timezone_from_config(monkeypatch: pytest.MonkeyPatch) -> 
         "trade_collection": {"historical_start_date": "2023-01-01"},
         "reporting": {"timezone": "Europe/Berlin"},
     }
-    monkeypatch.setattr(config_loader, "load_pnl_config", lambda: fake_config)
+    monkeypatch.setattr(config_loader, "load_pnl_config", lambda package=None: fake_config)
 
     assert config_loader.get_reporting_timezone() == "Europe/Berlin"
 
 
 def test_get_reporting_timezone_raises_on_error(monkeypatch: pytest.MonkeyPatch) -> None:
-    def raise_missing() -> Dict[str, Any]:
+    def raise_missing(package: Any = None) -> Dict[str, Any]:
         raise FileNotFoundError("missing config")
 
     monkeypatch.setattr(config_loader, "load_pnl_config", raise_missing)
@@ -156,3 +156,99 @@ def test_load_weather_trading_config_success(monkeypatch: pytest.MonkeyPatch) ->
     config = config_loader.load_weather_trading_config()
 
     assert config == {"trading": {"enabled": True}}
+
+
+def test_resolve_package_config_dir_not_found(tmp_path: pytest.MonkeyPatch) -> None:
+    import common.config_loader as loader
+
+    original_projects_base = loader._PROJECTS_BASE
+    try:
+        loader._PROJECTS_BASE = tmp_path
+
+        with pytest.raises(FileNotFoundError) as err:
+            loader._resolve_package_config_dir("nonexistent_package")
+
+        assert "nonexistent_package" in str(err.value)
+    finally:
+        loader._PROJECTS_BASE = original_projects_base
+
+
+def test_resolve_package_config_dir_success(tmp_path: pytest.TempPathFactory) -> None:
+    import common.config_loader as loader
+
+    original_projects_base = loader._PROJECTS_BASE
+    try:
+        loader._PROJECTS_BASE = tmp_path
+        package_config_dir = tmp_path / "my_package" / "config"
+        package_config_dir.mkdir(parents=True)
+
+        result = loader._resolve_package_config_dir("my_package")
+
+        assert result == package_config_dir
+    finally:
+        loader._PROJECTS_BASE = original_projects_base
+
+
+def test_load_config_with_package(tmp_path: pytest.TempPathFactory) -> None:
+    import common.config_loader as loader
+
+    original_projects_base = loader._PROJECTS_BASE
+    try:
+        loader._PROJECTS_BASE = tmp_path
+        package_config_dir = tmp_path / "test_pkg" / "config"
+        package_config_dir.mkdir(parents=True)
+        config_file = package_config_dir / "test_config.json"
+        config_file.write_text('{"key": "value"}')
+
+        result = loader.load_config("test_config.json", package="test_pkg")
+
+        assert result == {"key": "value"}
+    finally:
+        loader._PROJECTS_BASE = original_projects_base
+
+
+def test_load_config_with_package_not_found(tmp_path: pytest.TempPathFactory) -> None:
+    import common.config_loader as loader
+
+    original_projects_base = loader._PROJECTS_BASE
+    try:
+        loader._PROJECTS_BASE = tmp_path
+
+        with pytest.raises(FileNotFoundError):
+            loader.load_config("test_config.json", package="missing_pkg")
+    finally:
+        loader._PROJECTS_BASE = original_projects_base
+
+
+def test_get_reporting_timezone_missing_reporting_section(monkeypatch: pytest.MonkeyPatch) -> None:
+    fake_config: Dict[str, Any] = {
+        "trade_collection": {"historical_start_date": "2023-01-01"},
+    }
+    monkeypatch.setattr(config_loader, "load_pnl_config", lambda package=None: fake_config)
+
+    with pytest.raises(TypeError) as err:
+        config_loader.get_reporting_timezone()
+    assert "reporting" in str(err.value)
+
+
+def test_get_reporting_timezone_invalid_timezone_type(monkeypatch: pytest.MonkeyPatch) -> None:
+    fake_config: Dict[str, Any] = {
+        "trade_collection": {"historical_start_date": "2023-01-01"},
+        "reporting": {"timezone": 123},
+    }
+    monkeypatch.setattr(config_loader, "load_pnl_config", lambda package=None: fake_config)
+
+    with pytest.raises(TypeError):
+        config_loader.get_reporting_timezone()
+
+
+def test_get_reporting_timezone_empty_string(monkeypatch: pytest.MonkeyPatch) -> None:
+    fake_config: Dict[str, Any] = {
+        "trade_collection": {"historical_start_date": "2023-01-01"},
+        "reporting": {"timezone": "   "},
+    }
+    monkeypatch.setattr(config_loader, "load_pnl_config", lambda package=None: fake_config)
+
+    with pytest.raises(RuntimeError) as err:
+        config_loader.get_reporting_timezone()
+    assert "non-empty" in str(err.value)

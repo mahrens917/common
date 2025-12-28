@@ -192,36 +192,34 @@ class TestLoadPnlConfig:
 class TestGetHistoricalStartDate:
     """Tests for get_historical_start_date() function."""
 
-    def test_get_historical_start_date_returns_date(self, monkeypatch, tmp_path):
+    def test_get_historical_start_date_returns_date(self, monkeypatch):
         """get_historical_start_date returns parsed date from config."""
-        config_file = tmp_path / "pnl_config.json"
         test_config = {
             "trade_collection": {"historical_start_date": "2024-01-15"},
         }
-        config_file.write_text(json.dumps(test_config))
-
-        monkeypatch.setattr("common.config_loader._CONFIG_DIR", tmp_path)
+        monkeypatch.setattr("common.config_loader.load_pnl_config", lambda package=None: test_config)
 
         result = get_historical_start_date()
 
         assert result == date(2024, 1, 15)
 
-    def test_get_historical_start_date_raises_on_invalid_date_format(self, monkeypatch, tmp_path):
+    def test_get_historical_start_date_raises_on_invalid_date_format(self, monkeypatch):
         """get_historical_start_date raises RuntimeError on invalid date format."""
-        config_file = tmp_path / "pnl_config.json"
         test_config = {
             "trade_collection": {"historical_start_date": "not-a-date"},
         }
-        config_file.write_text(json.dumps(test_config))
-
-        monkeypatch.setattr("common.config_loader._CONFIG_DIR", tmp_path)
+        monkeypatch.setattr("common.config_loader.load_pnl_config", lambda package=None: test_config)
 
         with pytest.raises(RuntimeError, match="Invalid date format"):
             get_historical_start_date()
 
-    def test_get_historical_start_date_raises_on_config_error(self, monkeypatch, tmp_path):
+    def test_get_historical_start_date_raises_on_config_error(self, monkeypatch):
         """get_historical_start_date raises RuntimeError on config loading error."""
-        monkeypatch.setattr("common.config_loader._CONFIG_DIR", tmp_path)
+
+        def raise_error(package=None):
+            raise FileNotFoundError("Config not found")
+
+        monkeypatch.setattr("common.config_loader.load_pnl_config", raise_error)
 
         with pytest.raises(RuntimeError, match="Failed to load historical start date"):
             get_historical_start_date()
@@ -230,87 +228,69 @@ class TestGetHistoricalStartDate:
 class TestGetReportingTimezone:
     """Tests for get_reporting_timezone() function."""
 
-    def test_get_reporting_timezone_returns_timezone(self, monkeypatch, tmp_path):
+    def test_get_reporting_timezone_returns_timezone(self, monkeypatch):
         """get_reporting_timezone returns timezone string from config."""
-        config_file = tmp_path / "pnl_config.json"
         test_config = {
             "trade_collection": {"historical_start_date": "2024-01-01"},
             "reporting": {"timezone": "America/New_York"},
         }
-        config_file.write_text(json.dumps(test_config))
-
-        monkeypatch.setattr("common.config_loader._CONFIG_DIR", tmp_path)
+        monkeypatch.setattr("common.config_loader.load_pnl_config", lambda package=None: test_config)
 
         result = get_reporting_timezone()
 
         assert result == "America/New_York"
 
-    def test_get_reporting_timezone_strips_whitespace(self, monkeypatch, tmp_path):
+    def test_get_reporting_timezone_strips_whitespace(self, monkeypatch):
         """get_reporting_timezone strips whitespace from timezone value."""
-        config_file = tmp_path / "pnl_config.json"
         test_config = {
             "trade_collection": {"historical_start_date": "2024-01-01"},
             "reporting": {"timezone": "  UTC  "},
         }
-        config_file.write_text(json.dumps(test_config))
-
-        monkeypatch.setattr("common.config_loader._CONFIG_DIR", tmp_path)
+        monkeypatch.setattr("common.config_loader.load_pnl_config", lambda package=None: test_config)
 
         result = get_reporting_timezone()
 
         assert result == "UTC"
 
-    def test_get_reporting_timezone_raises_on_missing_reporting_section(self, monkeypatch, tmp_path):
+    def test_get_reporting_timezone_raises_on_missing_reporting_section(self, monkeypatch):
         """get_reporting_timezone raises RuntimeError when reporting section missing."""
-        config_file = tmp_path / "pnl_config.json"
         test_config = {
             "trade_collection": {"historical_start_date": "2024-01-01"},
         }
-        config_file.write_text(json.dumps(test_config))
-
-        monkeypatch.setattr("common.config_loader._CONFIG_DIR", tmp_path)
+        monkeypatch.setattr("common.config_loader.load_pnl_config", lambda package=None: test_config)
 
         with pytest.raises(TypeError, match="missing 'reporting' section"):
             get_reporting_timezone()
 
-    def test_get_reporting_timezone_raises_on_non_dict_reporting(self, monkeypatch, tmp_path):
+    def test_get_reporting_timezone_raises_on_non_dict_reporting(self, monkeypatch):
         """get_reporting_timezone raises RuntimeError when reporting is not a dict."""
-        config_file = tmp_path / "pnl_config.json"
         test_config = {
             "trade_collection": {"historical_start_date": "2024-01-01"},
             "reporting": "not_a_dict",
         }
-        config_file.write_text(json.dumps(test_config))
-
-        monkeypatch.setattr("common.config_loader._CONFIG_DIR", tmp_path)
+        monkeypatch.setattr("common.config_loader.load_pnl_config", lambda package=None: test_config)
 
         with pytest.raises(TypeError, match="missing 'reporting' section"):
             get_reporting_timezone()
 
-    def test_get_reporting_timezone_raises_on_missing_timezone_value(self, monkeypatch, tmp_path):
+    def test_get_reporting_timezone_raises_on_missing_timezone_value(self, monkeypatch):
         """get_reporting_timezone raises RuntimeError when timezone value missing."""
-        config_file = tmp_path / "pnl_config.json"
         test_config = {
             "trade_collection": {"historical_start_date": "2024-01-01"},
             "reporting": {},
         }
-        config_file.write_text(json.dumps(test_config))
-
-        monkeypatch.setattr("common.config_loader._CONFIG_DIR", tmp_path)
+        monkeypatch.setattr("common.config_loader.load_pnl_config", lambda package=None: test_config)
 
         with pytest.raises(TypeError, match="non-empty reporting timezone"):
             get_reporting_timezone()
 
-    def test_get_reporting_timezone_raises_on_empty_timezone_value(self, monkeypatch, tmp_path):
+    def test_get_reporting_timezone_raises_on_empty_timezone_value(self, monkeypatch):
         """get_reporting_timezone raises RuntimeError on empty timezone value."""
-        config_file = tmp_path / "pnl_config.json"
         test_config = {
             "trade_collection": {"historical_start_date": "2024-01-01"},
             "reporting": {"timezone": "   "},
         }
-        config_file.write_text(json.dumps(test_config))
-
-        monkeypatch.setattr("common.config_loader._CONFIG_DIR", tmp_path)
+        monkeypatch.setattr("common.config_loader.load_pnl_config", lambda package=None: test_config)
 
         with pytest.raises(RuntimeError, match="non-empty reporting timezone"):
             get_reporting_timezone()

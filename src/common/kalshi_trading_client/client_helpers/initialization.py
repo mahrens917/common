@@ -51,7 +51,7 @@ class ClientInitializer:
         """Load PnL configuration from common module."""
         module = importlib.import_module("common.kalshi_trading_client")
         loader = getattr(module, "load_pnl_config")
-        return loader()
+        return loader(package="common")
 
     @staticmethod
     def extract_config_values(config: Dict[str, Dict]) -> Dict[str, Any]:

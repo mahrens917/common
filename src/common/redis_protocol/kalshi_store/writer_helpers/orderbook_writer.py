@@ -139,7 +139,8 @@ class UserDataWriter:
         }
         """
         try:
-            data = msg.get("msg") if isinstance(msg.get("msg"), dict) else msg
+            inner_msg = msg.get("msg")
+            data = inner_msg if isinstance(inner_msg, dict) else msg
             ticker = data.get("ticker")
             trade_id = data.get("trade_id")
             if not ticker or not trade_id:
@@ -147,14 +148,14 @@ class UserDataWriter:
                 return False
 
             ts_value = data.get("ts")
-            ts_iso = self._normalizer.normalise_trade_timestamp(ts_value) if ts_value else ""
+            ts_iso = pick_if(ts_value, lambda: self._normalizer.normalise_trade_timestamp(ts_value), lambda: "")
 
             mapping = {
                 "ticker": str(ticker),
-                "side": str(data.get("side", "")),
-                "action": str(data.get("action", "")),
-                "count": str(data.get("count", 0)),
-                "price": str(data.get("price", 0)),
+                "side": str(pick_truthy(data.get("side"), "")),
+                "action": str(pick_truthy(data.get("action"), "")),
+                "count": str(pick_truthy(data.get("count"), 0)),
+                "price": str(pick_truthy(data.get("price"), 0)),
                 "trade_id": str(trade_id),
                 "ts": ts_iso,
             }
@@ -166,10 +167,10 @@ class UserDataWriter:
             await ensure_awaitable(self.redis.lpush(fills_list_key, trade_id))
             await ensure_awaitable(self.redis.ltrim(fills_list_key, 0, 99))
 
-        except (ValueError, TypeError) as exc:
+        except (ValueError, TypeError) as exc:  # Expected data validation or parsing failure  # policy_guard: allow-silent-handler
             logger.error("Invalid user fill payload: %s", exc, exc_info=True)
             return False
-        except REDIS_ERRORS as exc:
+        except REDIS_ERRORS as exc:  # Expected exception, returning default value  # policy_guard: allow-silent-handler
             logger.error("Redis error updating user fill: %s", exc, exc_info=True)
             return False
         else:
@@ -193,7 +194,8 @@ class UserDataWriter:
         }
         """
         try:
-            data = msg.get("msg") if isinstance(msg.get("msg"), dict) else msg
+            inner_msg = msg.get("msg")
+            data = inner_msg if isinstance(inner_msg, dict) else msg
             ticker = data.get("ticker")
             order_id = data.get("order_id")
             if not ticker or not order_id:
@@ -201,28 +203,28 @@ class UserDataWriter:
                 return False
 
             ts_value = data.get("ts")
-            ts_iso = self._normalizer.normalise_trade_timestamp(ts_value) if ts_value else ""
+            ts_iso = pick_if(ts_value, lambda: self._normalizer.normalise_trade_timestamp(ts_value), lambda: "")
 
             mapping = {
                 "ticker": str(ticker),
                 "order_id": str(order_id),
-                "status": str(data.get("status", "")),
-                "action": str(data.get("action", "")),
-                "side": str(data.get("side", "")),
-                "type": str(data.get("type", "")),
-                "count": str(data.get("count", 0)),
-                "remaining_count": str(data.get("remaining_count", 0)),
-                "price": str(data.get("price", 0)),
+                "status": str(pick_truthy(data.get("status"), "")),
+                "action": str(pick_truthy(data.get("action"), "")),
+                "side": str(pick_truthy(data.get("side"), "")),
+                "type": str(pick_truthy(data.get("type"), "")),
+                "count": str(pick_truthy(data.get("count"), 0)),
+                "remaining_count": str(pick_truthy(data.get("remaining_count"), 0)),
+                "price": str(pick_truthy(data.get("price"), 0)),
                 "ts": ts_iso,
             }
 
             order_key = f"kalshi:orders:{ticker}:{order_id}"
             await ensure_awaitable(self.redis.hset(order_key, mapping=mapping))
 
-        except (ValueError, TypeError) as exc:
+        except (ValueError, TypeError) as exc:  # Expected data validation or parsing failure  # policy_guard: allow-silent-handler
             logger.error("Invalid user order payload: %s", exc, exc_info=True)
             return False
-        except REDIS_ERRORS as exc:
+        except REDIS_ERRORS as exc:  # Expected exception, returning default value  # policy_guard: allow-silent-handler
             logger.error("Redis error updating user order: %s", exc, exc_info=True)
             return False
         else:

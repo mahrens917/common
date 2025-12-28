@@ -75,7 +75,7 @@ class TestPortfolioOperations:
     async def test_get_positions_success(self, portfolio_ops, mock_request_builder):
         mock_request_builder.execute_request = AsyncMock(
             return_value={
-                "positions": [
+                "market_positions": [
                     {
                         "ticker": "ABC",
                         "position": 10,
@@ -97,7 +97,7 @@ class TestPortfolioOperations:
 
 class TestValidatePositionsPayload:
     def test_success(self):
-        result = _validate_positions_payload({"positions": [{"ticker": "ABC"}]})
+        result = _validate_positions_payload({"market_positions": [{"ticker": "ABC"}]})
         assert result == [{"ticker": "ABC"}]
 
     def test_none_payload(self):
@@ -110,7 +110,7 @@ class TestValidatePositionsPayload:
 
     def test_positions_not_list(self):
         with pytest.raises(exceptions.PortfolioPositionsNotListError):
-            _validate_positions_payload({"positions": "not a list"})
+            _validate_positions_payload({"market_positions": "not a list"})
 
 
 class TestParsePositionEntry:
