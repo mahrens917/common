@@ -133,6 +133,18 @@ class OrderbookMixin:
         return await self._orderbook.update_trade_tick(msg, key_func, map_func, str_func)
 
 
+class UserDataMixin:
+    _user_data: Any
+
+    async def update_user_fill(self, msg: Dict) -> bool:
+        """Persist a user fill notification to Redis."""
+        return await self._user_data.update_user_fill(msg)
+
+    async def update_user_order(self, msg: Dict) -> bool:
+        """Persist a user order notification to Redis."""
+        return await self._user_data.update_user_order(msg)
+
+
 class KalshiMarketWriter(
     ValidationMixin,
     SubscriptionMixin,
@@ -140,6 +152,7 @@ class KalshiMarketWriter(
     MarketUpdaterMixin,
     BatchMixin,
     OrderbookMixin,
+    UserDataMixin,
 ):
     """Coordinates write operations for Kalshi market data in Redis."""
 
@@ -167,3 +180,4 @@ class KalshiMarketWriter(
         self._batch = deps.batch
         self._batch_reader = deps.batch_reader
         self._subscription = deps.subscription
+        self._user_data = deps.user_data

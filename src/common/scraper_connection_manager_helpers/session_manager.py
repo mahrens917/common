@@ -81,10 +81,6 @@ class ScraperSessionManager:
 
             if not self.session.closed:
                 self.logger.info("Closing HTTP session")
-                connector = getattr(self.session, "connector", None)
-                if connector:
-                    connector.close()
-                    self.logger.debug("Closed connector")
                 await asyncio.wait_for(self.session.close(), timeout=5.0)
             else:
                 self.logger.debug("HTTP session already closed")

@@ -1,4 +1,7 @@
 {
+  "market_catalog": {
+    "use_mutually_exclusive": true
+  },
   "notifications": {
     "max_price_cents_display": 100
   }

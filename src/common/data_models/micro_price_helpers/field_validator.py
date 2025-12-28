@@ -1,5 +1,7 @@
 """Field-level validation for micro price option data."""
 
+from typing import Optional
+
 from .validation_params import BasicOptionData
 
 
@@ -23,11 +25,11 @@ class FieldValidator:
             raise TypeError(f"Ask price ({best_ask}) must be >= bid price ({best_bid})")
 
     @staticmethod
-    def validate_sizes(best_bid_size: float, best_ask_size: float) -> None:
+    def validate_sizes(best_bid_size: Optional[float], best_ask_size: Optional[float]) -> None:
         """Validate bid and ask sizes."""
-        if best_bid_size < 0:
+        if best_bid_size is not None and best_bid_size < 0:
             raise ValueError(f"Bid size cannot be negative: {best_bid_size}")
-        if best_ask_size < 0:
+        if best_ask_size is not None and best_ask_size < 0:
             raise ValueError(f"Ask size cannot be negative: {best_ask_size}")
 
     @staticmethod

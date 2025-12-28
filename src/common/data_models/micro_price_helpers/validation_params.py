@@ -11,8 +11,8 @@ class BasicOptionData:
     strike: float
     best_bid: float
     best_ask: float
-    best_bid_size: float
-    best_ask_size: float
+    best_bid_size: Optional[float]
+    best_ask_size: Optional[float]
     option_type: str
     forward_price: Optional[float] = None
     discount_factor: Optional[float] = None
@@ -24,8 +24,8 @@ class MathematicalRelationships:
 
     best_bid: float
     best_ask: float
-    best_bid_size: float
-    best_ask_size: float
+    best_bid_size: Optional[float]
+    best_ask_size: Optional[float]
     absolute_spread: float
     relative_spread: float
     i_raw: float
@@ -40,8 +40,8 @@ class ValidationErrorParams:
 
     best_bid: float
     best_ask: float
-    best_bid_size: float
-    best_ask_size: float
+    best_bid_size: Optional[float]
+    best_ask_size: Optional[float]
     option_type: str
     absolute_spread: float
     i_raw: float
@@ -55,8 +55,8 @@ class PostInitValidationParams:
     strike: float
     best_bid: float
     best_ask: float
-    best_bid_size: float
-    best_ask_size: float
+    best_bid_size: Optional[float]
+    best_ask_size: Optional[float]
     option_type: str
     forward_price: float
     discount_factor: float

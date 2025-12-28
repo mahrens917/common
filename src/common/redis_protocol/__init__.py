@@ -13,6 +13,13 @@ from .persistence_manager import (
     ensure_redis_persistence,
     get_redis_persistence_status,
 )
+from .market_update_api import (
+    VALID_ALGOS,
+    MarketUpdateResult,
+    clear_algo_ownership,
+    get_market_algo,
+    request_market_update,
+)
 from .probability_store import ProbabilityStore
 from .subscription_store import SubscriptionStore
 
@@ -34,4 +41,9 @@ __all__ = [
     "decode_redis_value",
     "decode_redis_hash",
     "coerce_float",
+    "request_market_update",
+    "clear_algo_ownership",
+    "get_market_algo",
+    "MarketUpdateResult",
+    "VALID_ALGOS",
 ]

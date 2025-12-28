@@ -91,3 +91,11 @@ class WriteDelegator:
     async def store_optional_field(self, redis: Redis, market_key: str, field: str, value: Optional[Any]) -> None:
         """Persist a Redis hash field only when a value exists."""
         await self._writer.store_optional_field(redis, market_key, field, value)
+
+    async def update_user_fill(self, message: Dict) -> bool:
+        """Persist a user fill notification to Redis."""
+        return await self._writer.update_user_fill(message)
+
+    async def update_user_order(self, message: Dict) -> bool:
+        """Persist a user order notification to Redis."""
+        return await self._writer.update_user_order(message)

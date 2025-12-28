@@ -114,3 +114,116 @@ def _maybe_set_field(mapping: Dict[str, str], field_name: str, value: Any) -> No
     if value is None:
         return
     mapping[field_name] = str(value)
+
+
+class UserDataWriter:
+    """Handles user fill and order write operations."""
+
+    def __init__(self, redis_connection: Redis, logger_instance: logging.Logger):
+        self.redis = redis_connection
+        self.logger = logger_instance
+        self._normalizer = TimestampNormalizer()
+
+    async def update_user_fill(self, msg: Dict) -> bool:
+        """Persist a user fill notification to Redis.
+
+        Expected fill_data format:
+        {
+            "ticker": "...",
+            "side": "yes" or "no",
+            "action": "buy" or "sell",
+            "count": int,
+            "price": int (cents),
+            "trade_id": "...",
+            "ts": int (unix ms)
+        }
+        """
+        try:
+            data = msg.get("msg") if isinstance(msg.get("msg"), dict) else msg
+            ticker = data.get("ticker")
+            trade_id = data.get("trade_id")
+            if not ticker or not trade_id:
+                logger.error("User fill missing ticker or trade_id: %s", data)
+                return False
+
+            ts_value = data.get("ts")
+            ts_iso = self._normalizer.normalise_trade_timestamp(ts_value) if ts_value else ""
+
+            mapping = {
+                "ticker": str(ticker),
+                "side": str(data.get("side", "")),
+                "action": str(data.get("action", "")),
+                "count": str(data.get("count", 0)),
+                "price": str(data.get("price", 0)),
+                "trade_id": str(trade_id),
+                "ts": ts_iso,
+            }
+
+            fill_key = f"kalshi:fills:{ticker}:{trade_id}"
+            await ensure_awaitable(self.redis.hset(fill_key, mapping=mapping))
+
+            fills_list_key = f"kalshi:fills:{ticker}"
+            await ensure_awaitable(self.redis.lpush(fills_list_key, trade_id))
+            await ensure_awaitable(self.redis.ltrim(fills_list_key, 0, 99))
+
+        except (ValueError, TypeError) as exc:
+            logger.error("Invalid user fill payload: %s", exc, exc_info=True)
+            return False
+        except REDIS_ERRORS as exc:
+            logger.error("Redis error updating user fill: %s", exc, exc_info=True)
+            return False
+        else:
+            return True
+
+    async def update_user_order(self, msg: Dict) -> bool:
+        """Persist a user order notification to Redis.
+
+        Expected order_data format:
+        {
+            "order_id": "...",
+            "ticker": "...",
+            "status": "...",
+            "action": "buy" or "sell",
+            "side": "yes" or "no",
+            "type": "limit" or "market",
+            "count": int,
+            "remaining_count": int,
+            "price": int (cents),
+            "ts": int (unix ms)
+        }
+        """
+        try:
+            data = msg.get("msg") if isinstance(msg.get("msg"), dict) else msg
+            ticker = data.get("ticker")
+            order_id = data.get("order_id")
+            if not ticker or not order_id:
+                logger.error("User order missing ticker or order_id: %s", data)
+                return False
+
+            ts_value = data.get("ts")
+            ts_iso = self._normalizer.normalise_trade_timestamp(ts_value) if ts_value else ""
+
+            mapping = {
+                "ticker": str(ticker),
+                "order_id": str(order_id),
+                "status": str(data.get("status", "")),
+                "action": str(data.get("action", "")),
+                "side": str(data.get("side", "")),
+                "type": str(data.get("type", "")),
+                "count": str(data.get("count", 0)),
+                "remaining_count": str(data.get("remaining_count", 0)),
+                "price": str(data.get("price", 0)),
+                "ts": ts_iso,
+            }
+
+            order_key = f"kalshi:orders:{ticker}:{order_id}"
+            await ensure_awaitable(self.redis.hset(order_key, mapping=mapping))
+
+        except (ValueError, TypeError) as exc:
+            logger.error("Invalid user order payload: %s", exc, exc_info=True)
+            return False
+        except REDIS_ERRORS as exc:
+            logger.error("Redis error updating user order: %s", exc, exc_info=True)
+            return False
+        else:
+            return True

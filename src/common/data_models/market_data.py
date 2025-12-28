@@ -122,8 +122,8 @@ class MicroPriceOptionDataMixin:
     absolute_spread: float
     i_raw: float
     p_raw: float
-    best_bid_size: float
-    best_ask_size: float
+    best_bid_size: Optional[float]
+    best_ask_size: Optional[float]
     option_type: str
     strike: float
     expiry: datetime
@@ -207,15 +207,15 @@ class MicroPriceOptionDataMixin:
 class MicroPriceOptionData(MicroPriceOptionDataMixin):
     """Deribit options with micro price calculations (g, h transformations for GP)."""
 
-    instrument_name: str
+    instrument_name: Optional[str]
     underlying: str
     strike: float
     expiry: datetime
     option_type: str
     best_bid: float
     best_ask: float
-    best_bid_size: float
-    best_ask_size: float
+    best_bid_size: Optional[float]
+    best_ask_size: Optional[float]
     timestamp: datetime
     absolute_spread: float
     relative_spread: float

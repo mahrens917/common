@@ -1,6 +1,6 @@
 """Error collection for validation reporting."""
 
-from typing import List
+from typing import List, Optional
 
 from .validation_params import ValidationErrorParams
 
@@ -55,12 +55,12 @@ class ErrorCollector:
         return errors
 
     @staticmethod
-    def collect_basic_data_errors(best_bid_size: float, best_ask_size: float, option_type: str) -> List[str]:
+    def collect_basic_data_errors(best_bid_size: Optional[float], best_ask_size: Optional[float], option_type: str) -> List[str]:
         """Collect errors related to basic data constraints."""
         errors = []
-        if best_bid_size < 0:
+        if best_bid_size is not None and best_bid_size < 0:
             errors.append(f"Bid size cannot be negative: {best_bid_size}")
-        if best_ask_size < 0:
+        if best_ask_size is not None and best_ask_size < 0:
             errors.append(f"Ask size cannot be negative: {best_ask_size}")
         if option_type not in ["call", "put"]:
             errors.append(f"Option type must be 'call' or 'put': {option_type}")

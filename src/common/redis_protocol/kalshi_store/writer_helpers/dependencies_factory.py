@@ -19,6 +19,7 @@ from . import (
     SubscriptionWriter,
     ValidationWriter,
 )
+from .orderbook_writer import UserDataWriter
 
 
 @dataclass
@@ -32,6 +33,7 @@ class KalshiMarketWriterDependencies:
     batch: BatchWriter
     batch_reader: BatchReader
     subscription: SubscriptionWriter
+    user_data: UserDataWriter
 
 
 class KalshiMarketWriterDependenciesFactory:
@@ -68,6 +70,7 @@ class KalshiMarketWriterDependenciesFactory:
         batch = BatchWriter(redis_connection, logger_instance)
         batch_reader = BatchReader(redis_connection, logger_instance)
         subscription = SubscriptionWriter(redis_connection, logger_instance, metadata_adapter)
+        user_data = UserDataWriter(redis_connection, logger_instance)
 
         return KalshiMarketWriterDependencies(
             validation=validation,
@@ -77,4 +80,5 @@ class KalshiMarketWriterDependenciesFactory:
             batch=batch,
             batch_reader=batch_reader,
             subscription=subscription,
+            user_data=user_data,
         )

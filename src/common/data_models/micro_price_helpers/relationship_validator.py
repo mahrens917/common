@@ -1,6 +1,7 @@
 """Validation for mathematical relationships between micro price variables."""
 
 import math
+from typing import Optional
 
 # Constants
 _NUMERICAL_TOLERANCE = 1e-10
@@ -26,8 +27,10 @@ class RelationshipValidator:
             raise ValueError(f"Relative spread ({relative_spread}) must equal absolute_spread / p_raw ({expected_rel_spread})")
 
     @staticmethod
-    def validate_intensity_calculation(best_bid_size: float, best_ask_size: float, i_raw: float) -> None:
+    def validate_intensity_calculation(best_bid_size: Optional[float], best_ask_size: Optional[float], i_raw: float) -> None:
         """Validate intensity calculation from volumes."""
+        if best_bid_size is None or best_ask_size is None:
+            return
         total_volume = best_bid_size + best_ask_size
         if total_volume > 0:
             expected_i_raw = best_bid_size / total_volume
@@ -38,11 +41,13 @@ class RelationshipValidator:
     def validate_micro_price_calculation(
         best_bid: float,
         best_ask: float,
-        best_bid_size: float,
-        best_ask_size: float,
+        best_bid_size: Optional[float],
+        best_ask_size: Optional[float],
         p_raw: float,
     ) -> None:
         """Validate volume-weighted micro price calculation."""
+        if best_bid_size is None or best_ask_size is None:
+            return
         total_volume = best_bid_size + best_ask_size
         if total_volume > 0:
             expected_p_raw = (best_bid * best_ask_size + best_ask * best_bid_size) / total_volume
