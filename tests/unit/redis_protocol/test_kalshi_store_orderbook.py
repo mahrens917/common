@@ -66,8 +66,9 @@ async def test_process_orderbook_delta_rejects_invalid_numeric() -> None:
 async def test_process_orderbook_delta_inits_missing_json(monkeypatch) -> None:
     store = KalshiStore(redis=None, weather_resolver=MagicMock())
     redis = AsyncMock()
-    # First call returns corrupted JSON, second and third return bid/ask values
-    redis.hget = AsyncMock(side_effect=[b"not-json", b"51", b"49"])
+    # First call returns corrupted JSON, second and third return bid/ask values,
+    # fourth call returns event_ticker for market event update publishing
+    redis.hget = AsyncMock(side_effect=[b"not-json", b"51", b"49", b"TEST_EVENT"])
 
     # Mock the delta processor's methods
     store_optional_mock = AsyncMock()

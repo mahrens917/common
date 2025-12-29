@@ -23,7 +23,7 @@ def test_pdf_surface_key_renders_with_optional_grid_point():
         grid_point="ATM",
     ).key()
 
-    assert key == "analytics:pdf:usd:surface:intensity:2025-01-01t000000z:45000:atm"
+    assert key == "analytics:pdf:USD:surface:intensity:2025-01-01T000000Z:45000:ATM"
 
 
 def test_pdf_surface_key_without_grid_point():
@@ -34,13 +34,13 @@ def test_pdf_surface_key_without_grid_point():
         strike="5000",
     ).key()
 
-    assert key == "analytics:pdf:eur:surface:bid:2025-06-30:5000"
+    assert key == "analytics:pdf:EUR:surface:bid:2025-06-30:5000"
 
 
 def test_probability_slice_key_sanitizes_segments():
     key = ProbabilitySliceKey(currency="BTC Futures", expiry_iso="2025-01-01", slice_name="Bucket_42").key()
 
-    assert key == "analytics:probability:btc_futures:2025-01-01:bucket_42"
+    assert key == "analytics:probability:BTC_FUTURES:2025-01-01:BUCKET_42"
 
 
 def test_probability_slice_key_rejects_invalid_characters():

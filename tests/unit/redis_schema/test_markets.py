@@ -20,17 +20,17 @@ def _sample_timestamp() -> int:
 
 def test_deribit_instrument_key_renders_segments():
     key = DeribitInstrumentKey(DeribitInstrumentType.FUTURE, "BTC", expiry_iso="2025-01-02").key()
-    assert key.startswith("markets:deribit:future:btc:2025-01-02")
+    assert key.startswith("markets:deribit:future:BTC:2025-01-02")
 
 
 def test_kalshi_market_key_greenfield():
     key = KalshiMarketKey(KalshiMarketCategory.BINARY, "My Market").key()
-    assert key == "markets:kalshi:binary:my_market"
+    assert key == "markets:kalshi:binary:MY_MARKET"
 
 
 def test_reference_market_key_djatify():
     key = ReferenceMarketKey("Deribit", "BTC-123").key()
-    assert key == "reference:markets:deribit:btc-123"
+    assert key == "reference:markets:DERIBIT:BTC-123"
 
 
 def test_deribit_instrument_descriptor_spot():

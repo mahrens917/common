@@ -28,17 +28,22 @@ class DiscoveredEvent:
     markets: List[DiscoveredMarket]
 
 
+@dataclass
+class SkippedMarketsInfo:
+    """Information about markets skipped during discovery."""
+
+    total_skipped: int
+    by_strike_type: Dict[str, List[str]]
+    by_category: Dict[str, int]
+
+
 class CatalogDiscoveryError(RuntimeError):
     """Raised when catalog discovery fails."""
-
-
-class StrikeValidationError(ValueError):
-    """Raised when market strike validation fails."""
 
 
 __all__ = [
     "CatalogDiscoveryError",
     "DiscoveredEvent",
     "DiscoveredMarket",
-    "StrikeValidationError",
+    "SkippedMarketsInfo",
 ]

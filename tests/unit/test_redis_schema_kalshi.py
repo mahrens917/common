@@ -49,11 +49,12 @@ def test_parse_kalshi_market_key_invalid_formats(key: str) -> None:
         redis_kalshi.parse_kalshi_market_key(key)
 
 
-def test_parse_kalshi_market_key_rejects_mismatched_normalization() -> None:
+def test_parse_kalshi_market_key_handles_uppercase_ticker() -> None:
+    # With uppercase segment normalization, uppercase tickers are now valid
     key = "markets:kalshi:binary:KXBTC-OTHER"
-
-    with pytest.raises(ValueError):
-        redis_kalshi.parse_kalshi_market_key(key)
+    result = redis_kalshi.parse_kalshi_market_key(key)
+    assert result.ticker == "KXBTC-OTHER"
+    assert result.underlying == "KXBTC"
 
 
 def test_is_supported_kalshi_ticker() -> None:

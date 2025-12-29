@@ -2,21 +2,17 @@
 
 from datetime import datetime, timedelta, timezone
 from typing import Any, Dict
-from unittest.mock import patch
-
-import pytest
 
 from common.kalshi_catalog.filtering import (
+    compute_effective_strike,
     convert_to_discovered_market,
     filter_markets_for_window,
-    filter_markets_with_valid_strikes,
     filter_mutually_exclusive_events,
     group_markets_by_event,
-    has_valid_strikes,
     is_expiring_within_window,
-    validate_strikes,
+    sort_markets_by_strike,
 )
-from common.kalshi_catalog.types import StrikeValidationError
+from common.kalshi_catalog.types import DiscoveredMarket
 
 
 class TestIsExpiringWithinWindow:
@@ -47,56 +43,6 @@ class TestIsExpiringWithinWindow:
         past = datetime.now(timezone.utc) - timedelta(minutes=30)
         close_time = past.isoformat()
         assert is_expiring_within_window(close_time, 3600) is False
-
-
-class TestValidateStrikes:
-    """Tests for validate_strikes function."""
-
-    def test_returns_true_for_valid_cap_strike_only(self) -> None:
-        """Test returns True when only cap_strike is present."""
-        market: Dict[str, Any] = {"ticker": "TEST", "cap_strike": 100.0}
-        assert validate_strikes(market) is True
-
-    def test_returns_true_for_valid_floor_strike_only(self) -> None:
-        """Test returns True when only floor_strike is present."""
-        market: Dict[str, Any] = {"ticker": "TEST", "floor_strike": 50.0}
-        assert validate_strikes(market) is True
-
-    def test_returns_true_for_different_strikes(self) -> None:
-        """Test returns True when both strikes are different."""
-        market: Dict[str, Any] = {"ticker": "TEST", "cap_strike": 100.0, "floor_strike": 50.0}
-        assert validate_strikes(market) is True
-
-    def test_raises_for_missing_both_strikes(self) -> None:
-        """Test raises StrikeValidationError when both strikes missing."""
-        market: Dict[str, Any] = {"ticker": "TEST"}
-        with pytest.raises(StrikeValidationError, match="missing both"):
-            validate_strikes(market)
-
-    def test_raises_for_equal_strikes(self) -> None:
-        """Test raises StrikeValidationError when strikes are equal."""
-        market: Dict[str, Any] = {"ticker": "TEST", "cap_strike": 100.0, "floor_strike": 100.0}
-        with pytest.raises(StrikeValidationError, match="equal cap_strike and floor_strike"):
-            validate_strikes(market)
-
-
-class TestHasValidStrikes:
-    """Tests for has_valid_strikes function."""
-
-    def test_returns_true_for_valid_strikes(self) -> None:
-        """Test returns True for valid strike configuration."""
-        market: Dict[str, Any] = {"ticker": "TEST", "cap_strike": 100.0}
-        assert has_valid_strikes(market) is True
-
-    def test_returns_false_for_missing_strikes(self) -> None:
-        """Test returns False when both strikes missing."""
-        market: Dict[str, Any] = {"ticker": "TEST"}
-        assert has_valid_strikes(market) is False
-
-    def test_returns_false_for_equal_strikes(self) -> None:
-        """Test returns False when strikes are equal."""
-        market: Dict[str, Any] = {"cap_strike": 100.0, "floor_strike": 100.0}
-        assert has_valid_strikes(market) is False
 
 
 class TestGroupMarketsByEvent:
@@ -187,8 +133,8 @@ class TestFilterMarketsForWindow:
         far_future = datetime.now(timezone.utc) + timedelta(hours=2)
         far_close_time = far_future.isoformat()
         markets = [
-            {"close_time": close_time, "ticker": "M1"},
-            {"close_time": far_close_time, "ticker": "M2"},
+            {"close_time": close_time, "ticker": "M1", "strike_type": "greater"},
+            {"close_time": far_close_time, "ticker": "M2", "strike_type": "greater"},
         ]
         result = filter_markets_for_window(markets, 3600)
         assert len(result) == 1
@@ -199,35 +145,42 @@ class TestFilterMarketsForWindow:
         future = datetime.now(timezone.utc) + timedelta(minutes=30)
         close_time = future.isoformat()
         markets = [
-            {"close_time": close_time, "ticker": "M1"},
+            {"close_time": close_time, "ticker": "M1", "strike_type": "less"},
             "not a dict",
             None,
         ]
         result = filter_markets_for_window(markets, 3600)
         assert len(result) == 1
 
-
-class TestFilterMarketsWithValidStrikes:
-    """Tests for filter_markets_with_valid_strikes function."""
-
-    def test_keeps_markets_with_valid_strikes(self) -> None:
-        """Test keeps markets with valid strike configuration."""
+    def test_allows_all_supported_strike_types(self) -> None:
+        """Test allows all supported strike types including custom/functional/structured."""
+        future = datetime.now(timezone.utc) + timedelta(minutes=30)
+        close_time = future.isoformat()
         markets = [
-            {"ticker": "M1", "cap_strike": 100.0},
-            {"ticker": "M2", "floor_strike": 50.0},
-            {"ticker": "M3", "cap_strike": 100.0, "floor_strike": 50.0},
+            {"close_time": close_time, "ticker": "M1", "strike_type": "greater"},
+            {"close_time": close_time, "ticker": "M2", "strike_type": "custom"},
+            {"close_time": close_time, "ticker": "M3", "strike_type": "functional"},
+            {"close_time": close_time, "ticker": "M4", "strike_type": "structured"},
+            {"close_time": close_time, "ticker": "M5", "strike_type": "between"},
         ]
-        result = filter_markets_with_valid_strikes(markets)
-        assert len(result) == 3
+        result = filter_markets_for_window(markets, 3600)
+        assert len(result) == 5
+        tickers = [m["ticker"] for m in result]
+        assert "M1" in tickers
+        assert "M2" in tickers
+        assert "M3" in tickers
+        assert "M4" in tickers
+        assert "M5" in tickers
 
-    def test_filters_out_invalid_strikes(self) -> None:
-        """Test filters out markets with invalid strikes."""
+    def test_filters_out_missing_strike_type(self) -> None:
+        """Test filters out markets without strike_type field."""
+        future = datetime.now(timezone.utc) + timedelta(minutes=30)
+        close_time = future.isoformat()
         markets = [
-            {"ticker": "M1", "cap_strike": 100.0},
-            {"ticker": "M2"},  # Missing both strikes
-            {"ticker": "M3", "cap_strike": 100.0, "floor_strike": 100.0},  # Equal strikes
+            {"close_time": close_time, "ticker": "M1", "strike_type": "greater"},
+            {"close_time": close_time, "ticker": "M2"},
         ]
-        result = filter_markets_with_valid_strikes(markets)
+        result = filter_markets_for_window(markets, 3600)
         assert len(result) == 1
         assert result[0]["ticker"] == "M1"
 
@@ -268,3 +221,114 @@ class TestConvertToDiscoveredMarket:
         result = convert_to_discovered_market(market)
         assert result.cap_strike is None
         assert result.floor_strike is None
+
+
+class TestComputeEffectiveStrike:
+    """Tests for compute_effective_strike function."""
+
+    def test_returns_average_when_both_strikes_present(self) -> None:
+        """Test returns average of cap and floor when both present."""
+        market = DiscoveredMarket(
+            ticker="TEST",
+            close_time="2024-01-01T00:00:00Z",
+            cap_strike=100.0,
+            floor_strike=50.0,
+            raw_data={},
+        )
+        result = compute_effective_strike(market)
+        assert result == 75.0
+
+    def test_returns_cap_when_only_cap_present(self) -> None:
+        """Test returns cap strike when only cap is present."""
+        market = DiscoveredMarket(
+            ticker="TEST",
+            close_time="2024-01-01T00:00:00Z",
+            cap_strike=100.0,
+            floor_strike=None,
+            raw_data={},
+        )
+        result = compute_effective_strike(market)
+        assert result == 100.0
+
+    def test_returns_floor_when_only_floor_present(self) -> None:
+        """Test returns floor strike when only floor is present."""
+        market = DiscoveredMarket(
+            ticker="TEST",
+            close_time="2024-01-01T00:00:00Z",
+            cap_strike=None,
+            floor_strike=50.0,
+            raw_data={},
+        )
+        result = compute_effective_strike(market)
+        assert result == 50.0
+
+    def test_returns_inf_when_no_strikes(self) -> None:
+        """Test returns inf when neither strike is present."""
+        market = DiscoveredMarket(
+            ticker="TEST",
+            close_time="2024-01-01T00:00:00Z",
+            cap_strike=None,
+            floor_strike=None,
+            raw_data={},
+        )
+        result = compute_effective_strike(market)
+        assert result == float("inf")
+
+    def test_ignores_zero_cap_strike(self) -> None:
+        """Test treats zero cap strike as invalid."""
+        market = DiscoveredMarket(
+            ticker="TEST",
+            close_time="2024-01-01T00:00:00Z",
+            cap_strike=0,
+            floor_strike=50.0,
+            raw_data={},
+        )
+        result = compute_effective_strike(market)
+        assert result == 50.0
+
+    def test_ignores_zero_floor_strike(self) -> None:
+        """Test treats zero floor strike as invalid."""
+        market = DiscoveredMarket(
+            ticker="TEST",
+            close_time="2024-01-01T00:00:00Z",
+            cap_strike=100.0,
+            floor_strike=0,
+            raw_data={},
+        )
+        result = compute_effective_strike(market)
+        assert result == 100.0
+
+
+class TestSortMarketsByStrike:
+    """Tests for sort_markets_by_strike function."""
+
+    def test_sorts_by_effective_strike_ascending(self) -> None:
+        """Test markets are sorted by strike value ascending."""
+        markets = [
+            DiscoveredMarket(ticker="M3", close_time="", cap_strike=None, floor_strike=150.0, raw_data={}),
+            DiscoveredMarket(ticker="M1", close_time="", cap_strike=None, floor_strike=50.0, raw_data={}),
+            DiscoveredMarket(ticker="M2", close_time="", cap_strike=None, floor_strike=100.0, raw_data={}),
+        ]
+        result = sort_markets_by_strike(markets)
+        assert [m.ticker for m in result] == ["M1", "M2", "M3"]
+
+    def test_markets_without_strikes_sort_last(self) -> None:
+        """Test markets without valid strikes are placed at the end."""
+        markets = [
+            DiscoveredMarket(ticker="M2", close_time="", cap_strike=None, floor_strike=None, raw_data={}),
+            DiscoveredMarket(ticker="M1", close_time="", cap_strike=None, floor_strike=50.0, raw_data={}),
+        ]
+        result = sort_markets_by_strike(markets)
+        assert [m.ticker for m in result] == ["M1", "M2"]
+
+    def test_empty_list(self) -> None:
+        """Test handles empty list."""
+        result = sort_markets_by_strike([])
+        assert result == []
+
+    def test_single_market(self) -> None:
+        """Test handles single market."""
+        market = DiscoveredMarket(ticker="M1", close_time="", cap_strike=None, floor_strike=50.0, raw_data={})
+        result = sort_markets_by_strike([market])
+        assert len(result) == 1
+        assert result[0].ticker == "M1"

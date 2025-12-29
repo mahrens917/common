@@ -6,7 +6,6 @@ from common.kalshi_catalog.types import (
     CatalogDiscoveryError,
     DiscoveredEvent,
     DiscoveredMarket,
-    StrikeValidationError,
 )
 
 
@@ -78,18 +77,7 @@ class TestExceptions:
         assert isinstance(error, RuntimeError)
         assert str(error) == "test error"
 
-    def test_strike_validation_error_is_value_error(self) -> None:
-        """Test StrikeValidationError inherits from ValueError."""
-        error = StrikeValidationError("invalid strikes")
-        assert isinstance(error, ValueError)
-        assert str(error) == "invalid strikes"
-
     def test_catalog_discovery_error_can_be_raised(self) -> None:
         """Test CatalogDiscoveryError can be raised and caught."""
         with pytest.raises(CatalogDiscoveryError, match="discovery failed"):
             raise CatalogDiscoveryError("discovery failed")
-
-    def test_strike_validation_error_can_be_raised(self) -> None:
-        """Test StrikeValidationError can be raised and caught."""
-        with pytest.raises(StrikeValidationError, match="missing strikes"):
-            raise StrikeValidationError("missing strikes")

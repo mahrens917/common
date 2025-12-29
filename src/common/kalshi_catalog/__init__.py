@@ -13,46 +13,52 @@ Usage:
     )
 """
 
-from .discovery import discover_mutually_exclusive_markets
+from .discovery import (
+    DiscoveryResult,
+    discover_mutually_exclusive_markets,
+    discover_with_skipped_stats,
+)
 from .fetcher import (
     fetch_all_markets,
     fetch_event_details,
     fetch_event_details_batch,
 )
 from .filtering import (
+    SkippedMarketStats,
     filter_markets_for_window,
-    filter_markets_with_valid_strikes,
     filter_mutually_exclusive_events,
     group_markets_by_event,
-    has_valid_strikes,
     is_expiring_within_window,
-    validate_strikes,
 )
+from .skipped_stats_store import get_skipped_stats, store_skipped_stats
 from .types import (
     CatalogDiscoveryError,
     DiscoveredEvent,
     DiscoveredMarket,
-    StrikeValidationError,
+    SkippedMarketsInfo,
 )
 
 __all__ = [
-    # Main entry point
+    # Main entry points
+    "DiscoveryResult",
     "discover_mutually_exclusive_markets",
+    "discover_with_skipped_stats",
     # Types
     "CatalogDiscoveryError",
     "DiscoveredEvent",
     "DiscoveredMarket",
-    "StrikeValidationError",
+    "SkippedMarketStats",
+    "SkippedMarketsInfo",
     # Fetching
     "fetch_all_markets",
     "fetch_event_details",
     "fetch_event_details_batch",
     # Filtering
     "filter_markets_for_window",
-    "filter_markets_with_valid_strikes",
     "filter_mutually_exclusive_events",
     "group_markets_by_event",
-    "has_valid_strikes",
     "is_expiring_within_window",
-    "validate_strikes",
+    # Skipped stats storage
+    "get_skipped_stats",
+    "store_skipped_stats",
 ]

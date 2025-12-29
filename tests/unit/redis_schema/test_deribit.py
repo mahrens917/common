@@ -5,7 +5,7 @@ from common.redis_schema.markets import DeribitInstrumentType
 
 
 def test_parse_deribit_spot_key():
-    key = "markets:deribit:spot:btc:usd"
+    key = "markets:deribit:spot:BTC:USD"
     descriptor = parse_deribit_market_key(key)
 
     assert descriptor.instrument_type is DeribitInstrumentType.SPOT
@@ -15,7 +15,7 @@ def test_parse_deribit_spot_key():
 
 
 def test_parse_deribit_future_key():
-    key = "markets:deribit:future:eth:20240628"
+    key = "markets:deribit:future:ETH:20240628"
     descriptor = parse_deribit_market_key(key)
 
     assert descriptor.instrument_type is DeribitInstrumentType.FUTURE
@@ -24,12 +24,12 @@ def test_parse_deribit_future_key():
 
 
 def test_parse_deribit_option_key():
-    key = "markets:deribit:option:btc:20240119:25000:c"
+    key = "markets:deribit:option:BTC:20240119:25000:C"
     descriptor = parse_deribit_market_key(key)
 
     assert descriptor.instrument_type is DeribitInstrumentType.OPTION
     assert descriptor.strike == "25000"
-    assert descriptor.option_kind == "c"
+    assert descriptor.option_kind == "C"
     assert descriptor.expiry_token == "20240119"
 
 

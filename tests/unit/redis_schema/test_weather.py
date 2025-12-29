@@ -102,7 +102,7 @@ class TestWeatherAlertKey:
         result = key.key()
         assert "station_alerts" in result
         assert "KORD" in result
-        assert "temperature" in result
+        assert "TEMPERATURE" in result
 
     def test_key_validates_icao(self):
         """Key method validates the ICAO code."""

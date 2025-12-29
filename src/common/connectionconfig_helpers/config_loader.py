@@ -101,7 +101,7 @@ def load_weather_config() -> Dict[str, Any]:
         ConfigurationError: If config is invalid or missing required fields
     """
     try:
-        config = load_config("weather_config.json")
+        config = load_config("weather_config.json", package="weather")
     except FileNotFoundError as exc:
         raise FileNotFoundError("Weather config file not found") from exc
 

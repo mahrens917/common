@@ -11,7 +11,7 @@ from common.redis_schema.trades import (
 
 def test_trade_record_key_sanitizes_segments():
     key = TradeRecordKey(date(2024, 5, 17), "Order 123").key()
-    assert key == "trades:record:2024-05-17:order_123"
+    assert key == "trades:record:2024-05-17:ORDER_123"
 
 
 def test_trade_record_key_rejects_invalid_characters():
@@ -21,7 +21,7 @@ def test_trade_record_key_rejects_invalid_characters():
 
 def test_trade_index_key_sanitizes_type_and_value():
     key = TradeIndexKey("Station-Name", "Alpha Beta").key()
-    assert key == "trades:index:station-name:alpha_beta"
+    assert key == "trades:index:STATION-NAME:ALPHA_BETA"
 
 
 def test_trade_summary_key_serialises_date():

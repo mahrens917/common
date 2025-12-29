@@ -38,14 +38,14 @@ class KeyBuilder:
         return ":".join(parts)
 
 
-def sanitize_segment(segment: str, *, case: Literal["lower", "upper", "unchanged"] = "lower") -> str:
+def sanitize_segment(segment: str, *, case: Literal["lower", "upper", "unchanged"] = "upper") -> str:
     """Return a sanitized key segment, raising if it contains unsupported characters."""
 
     normalized = segment.strip().replace(" ", "_")
-    if case == "lower":
-        normalized = normalized.lower()
-    elif case == "upper":
+    if case == "upper":
         normalized = normalized.upper()
+    elif case == "lower":
+        normalized = normalized.lower()
     elif case == "unchanged":
         pass
     else:  # pragma: no cover - defensive branch

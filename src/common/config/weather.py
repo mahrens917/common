@@ -8,6 +8,8 @@ import os
 from pathlib import Path
 from typing import Any, Dict, Optional
 
+from common.config_loader import load_config
+
 logger = logging.getLogger(__name__)
 
 # Base directory for all projects (configurable via env for flexibility)
@@ -73,10 +75,10 @@ def load_weather_station_mapping(
     config_dir: Optional[Path] = None,
 ) -> Dict[str, Dict[str, Any]]:
     """Return the weather station mapping keyed by city code."""
-    data = _resolve_config_json(
-        "weather_station_mapping.json",
-        config_dir if config_dir is not None else None,
-    )
+    if config_dir is not None:
+        data = _load_from_directory("weather_station_mapping.json", config_dir)
+    else:
+        data = load_config("weather_station_mapping.json", package="weather")
     mappings = data.get("mappings")
     if not isinstance(mappings, dict):
         raise WeatherConfigError("weather_station_mapping.json missing 'mappings' object")
@@ -99,15 +101,14 @@ def load_weather_trading_config(
     Returns:
         Dictionary containing the weather trading configuration.
     """
+    if config_dir is not None:
+        return _load_from_directory("weather_trading_config.json", config_dir)
     if package is not None:
         resolved_dir = _PROJECTS_BASE / package / "config"
         if not resolved_dir.exists():
             raise WeatherConfigError(f"Config directory not found for package '{package}': {resolved_dir}")
         return _load_from_directory("weather_trading_config.json", resolved_dir)
-    return _resolve_config_json(
-        "weather_trading_config.json",
-        config_dir if config_dir is not None else None,
-    )
+    return load_config("weather_trading_config.json", package="weather")
 
 
 def _get_weather_settings_func():

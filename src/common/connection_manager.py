@@ -140,11 +140,11 @@ class BaseConnectionManager(ConnectionLifecycleMixin, PropertyAccessorsMixin, AB
         self.config = get_connection_config(service_name)
         if alerter is None:
             try:
-                from monitor.alerter import Alerter
+                from common.alerter import Alerter
 
                 self.alerter = Alerter()
             except ImportError:  # Optional module not available  # policy_guard: allow-silent-handler
-                # monitor.alerter is optional - use null object pattern if unavailable
+                # common.alerter is optional - use null object pattern if unavailable
                 self.alerter = None
         else:
             self.alerter = alerter

@@ -4,6 +4,7 @@ Snapshot processing for Kalshi orderbooks
 
 from __future__ import annotations
 
+import json
 import logging
 from typing import Any, Dict
 
@@ -11,6 +12,7 @@ from redis.asyncio import Redis
 
 from ....market_filters.kalshi import extract_best_ask, extract_best_bid
 from ...orderbook_utils import build_snapshot_sides
+from ...typing import ensure_awaitable
 from ..utils_coercion import coerce_mapping as _canonical_coerce_mapping
 from .snapshot_processor_helpers.price_formatting import normalize_price_formatting
 from .snapshot_processor_helpers.redis_storage import (
@@ -77,6 +79,22 @@ class SnapshotProcessor:
         await store_hash_fields(redis, market_key, hash_data, timestamp)
         await store_best_prices(redis, market_key, yes_bid_price, yes_ask_price, yes_bid_size, yes_ask_size)
 
+        await _publish_market_event_update(redis, market_key, market_ticker, timestamp)
+
         callback = self.get_update_callback()
         await callback(market_ticker, yes_bid_price, yes_ask_price)
         return True
+
+
+async def _publish_market_event_update(redis: Redis, market_key: str, market_ticker: str, timestamp: str) -> None:
+    """Publish market event update for peak/extreme algo processing."""
+    try:
+        event_ticker = await ensure_awaitable(redis.hget(market_key, "event_ticker"))
+        if event_ticker:
+            if isinstance(event_ticker, bytes):
+                event_ticker = event_ticker.decode("utf-8")
+            channel = f"market_event_updates:{event_ticker}"
+            payload = json.dumps({"market_ticker": market_ticker, "timestamp": timestamp})
+            await redis.publish(channel, payload)
+    except (RuntimeError, ConnectionError, OSError) as exc:  # policy_guard: allow-silent-handler
+        logger.debug("Failed to publish market event update for %s: %s", market_ticker, exc)

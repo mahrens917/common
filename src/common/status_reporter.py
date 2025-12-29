@@ -115,8 +115,7 @@ class StatusReporter:
         for helper in self._helpers:
             try:
                 return getattr(helper, name)
-            except AttributeError:  # Expected data validation or parsing failure  # policy_guard: allow-silent-handler
-                logger.warning("Expected data validation or parsing failure")
+            except AttributeError:  # Expected when helper doesn't have the method  # policy_guard: allow-silent-handler
                 continue
         raise AttributeError(f"{self.__class__.__name__} has no attribute {name}")
 

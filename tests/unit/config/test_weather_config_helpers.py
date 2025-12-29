@@ -7,6 +7,9 @@ import pytest
 
 from common.config.weather import (
     WeatherConfigError,
+    _get_weather_settings_func,
+    _import_config_loader,
+    _resolve_config_json,
     load_weather_station_mapping,
     load_weather_trading_config,
 )
@@ -97,3 +100,83 @@ def test_load_weather_trading_config_os_error(tmp_path: Path, monkeypatch: pytes
         load_weather_trading_config(config_dir=tmp_path)
 
     assert "Unable to read" in str(err.value)
+
+
+def test_resolve_config_json_with_explicit_directory(tmp_path: Path):
+    config_file = tmp_path / "test_config.json"
+    config_file.write_text(json.dumps({"key": "value"}))
+
+    result = _resolve_config_json("test_config.json", tmp_path)
+
+    assert result == {"key": "value"}
+
+
+def test_resolve_config_json_from_local_cwd(tmp_path: Path, monkeypatch: pytest.MonkeyPatch):
+    monkeypatch.chdir(tmp_path)
+    config_dir = tmp_path / "config"
+    config_dir.mkdir()
+    config_file = config_dir / "test_config.json"
+    config_file.write_text(json.dumps({"local": True}))
+
+    result = _resolve_config_json("test_config.json", None)
+
+    assert result == {"local": True}
+
+
+def test_import_config_loader_raises_when_not_installed(monkeypatch: pytest.MonkeyPatch):
+    import importlib
+    import sys
+
+    for mod in list(sys.modules.keys()):
+        if "weather" in mod and ("config_loader" in mod or "settings" in mod):
+            monkeypatch.delitem(sys.modules, mod, raising=False)
+
+    def mock_import_module(name):
+        raise ImportError(f"No module named '{name}'")
+
+    monkeypatch.setattr(importlib, "import_module", mock_import_module)
+
+    with pytest.raises(WeatherConfigError, match="weather package is not installed"):
+        _import_config_loader()
+
+
+def test_get_weather_settings_func_returns_fallback(monkeypatch: pytest.MonkeyPatch):
+    import importlib
+    import sys
+    from types import SimpleNamespace
+
+    for mod in list(sys.modules.keys()):
+        if "weather" in mod and "settings" in mod:
+            monkeypatch.delitem(sys.modules, mod, raising=False)
+
+    def mock_import_module(name):
+        raise ImportError(f"No module named '{name}'")
+
+    monkeypatch.setattr(importlib, "import_module", mock_import_module)
+
+    result = _get_weather_settings_func()()
+
+    assert result.sources.asos_source is None
+    assert result.sources.metar_source is None
+
+
+def test_load_weather_station_mapping_uses_load_config(monkeypatch: pytest.MonkeyPatch):
+    from common.config import weather as weather_module
+
+    mock_data = {"mappings": {"TEST": {"icao": "KTEST"}}}
+    monkeypatch.setattr(weather_module, "load_config", lambda *args, **kwargs: mock_data)
+
+    result = load_weather_station_mapping()
+
+    assert result == {"TEST": {"icao": "KTEST"}}
+
+
+def test_load_weather_trading_config_uses_load_config(monkeypatch: pytest.MonkeyPatch):
+    from common.config import weather as weather_module
+
+    mock_data = {"enabled": True, "rules": []}
+    monkeypatch.setattr(weather_module, "load_config", lambda *args, **kwargs: mock_data)
+
+    result = load_weather_trading_config()
+
+    assert result == {"enabled": True, "rules": []}

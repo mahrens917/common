@@ -35,8 +35,6 @@ _NUMERIC_FIELDS = {
     "previous_yes_bid": 0,
     "previous_yes_ask": 0,
     "risk_limit_cents": 0,
-    "functional_strike": 0,
-    "custom_strike": 0,
     "min_tick_size": 0,
     "max_tick_size": 0,
     "dollar_volume_24h": 0,
@@ -164,6 +162,14 @@ def _extract_strike_fields(
     if not isinstance(strike_type_raw, str):
         raise TypeError(f"strike_type must be provided for {ticker}")
     strike_type_key = strike_type_raw.lower()
+
+    # Handle custom/functional/structured strike types (no traditional floor/cap)
+    if strike_type_key in ("custom", "functional", "structured"):
+        return {
+            "strike_type": _stringify(strike_type_raw),
+            "floor_strike": "",
+            "cap_strike": "",
+        }
 
     if strike_type_key not in {"greater", "greater_or_equal", "less", "less_or_equal", "between"}:
         raise TypeError(f"Unsupported strike_type '{strike_type_raw}' in Kalshi payload")

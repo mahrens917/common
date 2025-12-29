@@ -33,11 +33,11 @@ def test_validate_registered_key(monkeypatch):
 
 def test_operations_key_builders():
     subscription = SubscriptionKey("Deribit")
-    assert subscription.key() == "ops:subscriptions:deribit"
-    assert subscription.field(SubscriptionType.PRICE_INDEX, "BTC_USD") == "price_index:btc_usd"
+    assert subscription.key() == "ops:subscriptions:DERIBIT"
+    assert subscription.field(SubscriptionType.PRICE_INDEX, "BTC_USD") == "price_index:BTC_USD"
 
     status = ServiceStatusKey("Tracker")
-    assert status.key() == "ops:status:tracker"
+    assert status.key() == "ops:status:TRACKER"
 
     metric = MetricStreamKey("Weather", "latency", "5m")
-    assert metric.key() == "ops:metrics:weather:latency:5m"
+    assert metric.key() == "ops:metrics:WEATHER:LATENCY:5M"

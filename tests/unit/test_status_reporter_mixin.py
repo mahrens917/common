@@ -36,7 +36,7 @@ def test_service(mock_redis):
 async def test_initialization(test_service):
     """Test that StatusReporterMixin initializes correctly."""
     assert test_service.service_name == "test_service"
-    assert test_service.status_key == "ops:status:test_service"
+    assert test_service.status_key == "ops:status:TEST_SERVICE"
     assert test_service._pid > 0
     assert test_service._start_time <= time.time()
 
@@ -49,15 +49,15 @@ async def test_report_status_writes_unified_pattern(test_service, mock_redis):
     # Should write to unified pattern
     assert mock_redis.hset.call_count >= 1
 
-    # Find the call to ops:status:test_service
+    # Find the call to ops:status:TEST_SERVICE
     calls = [call for call in mock_redis.hset.call_args_list]
     unified_call = None
     for call in calls:
-        if call[0][0] == "ops:status:test_service":  # First positional arg is the key
+        if call[0][0] == "ops:status:TEST_SERVICE":  # First positional arg is the key
             unified_call = call
             break
 
-    assert unified_call is not None, "Should write to ops:status:test_service"
+    assert unified_call is not None, "Should write to ops:status:TEST_SERVICE"
 
 
 @pytest.mark.asyncio
@@ -69,7 +69,7 @@ async def test_report_status_includes_required_fields(test_service, mock_redis):
     calls = [call for call in mock_redis.hset.call_args_list]
     unified_call = None
     for call in calls:
-        if call[0][0] == "ops:status:test_service":
+        if call[0][0] == "ops:status:TEST_SERVICE":
             unified_call = call
             break
 
@@ -98,7 +98,7 @@ async def test_report_status_includes_additional_fields(test_service, mock_redis
     calls = [call for call in mock_redis.hset.call_args_list]
     unified_call = None
     for call in calls:
-        if call[0][0] == "ops:status:test_service":
+        if call[0][0] == "ops:status:TEST_SERVICE":
             unified_call = call
             break
 
@@ -123,7 +123,7 @@ async def test_register_startup_sets_initializing(test_service, mock_redis):
     calls = [call for call in mock_redis.hset.call_args_list]
     unified_call = None
     for call in calls:
-        if call[0][0] == "ops:status:test_service":
+        if call[0][0] == "ops:status:TEST_SERVICE":
             unified_call = call
             break
 
@@ -141,7 +141,7 @@ async def test_register_ready(test_service, mock_redis):
     calls = [call for call in mock_redis.hset.call_args_list]
     unified_call = None
     for call in calls:
-        if call[0][0] == "ops:status:test_service":
+        if call[0][0] == "ops:status:TEST_SERVICE":
             unified_call = call
             break
 
@@ -161,7 +161,7 @@ async def test_register_ready_degraded(test_service, mock_redis):
     calls = [call for call in mock_redis.hset.call_args_list]
     unified_call = None
     for call in calls:
-        if call[0][0] == "ops:status:test_service":
+        if call[0][0] == "ops:status:TEST_SERVICE":
             unified_call = call
             break
 
@@ -183,7 +183,7 @@ async def test_register_error(test_service, mock_redis):
     calls = [call for call in mock_redis.hset.call_args_list]
     unified_call = None
     for call in calls:
-        if call[0][0] == "ops:status:test_service":
+        if call[0][0] == "ops:status:TEST_SERVICE":
             unified_call = call
             break
 
@@ -205,7 +205,7 @@ async def test_register_failed(test_service, mock_redis):
     calls = [call for call in mock_redis.hset.call_args_list]
     unified_call = None
     for call in calls:
-        if call[0][0] == "ops:status:test_service":
+        if call[0][0] == "ops:status:TEST_SERVICE":
             unified_call = call
             break
 
@@ -225,7 +225,7 @@ async def test_register_shutdown_sets_stopped(test_service, mock_redis):
 
     # Should have two calls: STOPPING and STOPPED
     calls = [call for call in mock_redis.hset.call_args_list]
-    unified_calls = [call for call in calls if call[0][0] == "ops:status:test_service"]
+    unified_calls = [call for call in calls if call[0][0] == "ops:status:TEST_SERVICE"]
 
     assert len(unified_calls) >= 2
 
@@ -244,7 +244,7 @@ async def test_register_starting(test_service, mock_redis):
     calls = [call for call in mock_redis.hset.call_args_list]
     unified_call = None
     for call in calls:
-        if call[0][0] == "ops:status:test_service":
+        if call[0][0] == "ops:status:TEST_SERVICE":
             unified_call = call
             break
 
@@ -264,7 +264,7 @@ async def test_register_restarting(test_service, mock_redis):
     calls = [call for call in mock_redis.hset.call_args_list]
     unified_call = None
     for call in calls:
-        if call[0][0] == "ops:status:test_service":
+        if call[0][0] == "ops:status:TEST_SERVICE":
             unified_call = call
             break
 
@@ -288,7 +288,7 @@ async def test_legacy_compatibility_dual_write(test_service, mock_redis):
     # Find unified pattern call
     unified_call = None
     for call in calls:
-        if call[0][0] == "ops:status:test_service":
+        if call[0][0] == "ops:status:TEST_SERVICE":
             unified_call = call
             break
 
@@ -329,7 +329,7 @@ async def test_service_name_property(test_service):
 @pytest.mark.asyncio
 async def test_status_key_property(test_service):
     """Verify status_key property works."""
-    assert test_service.status_key == "ops:status:test_service"
+    assert test_service.status_key == "ops:status:TEST_SERVICE"
     assert test_service.status_key == ServiceStatusKey(service="test_service").key()
 
 
@@ -361,8 +361,8 @@ async def test_multiple_services_different_keys():
     calls2 = [call for call in redis2.hset.call_args_list]
 
     # Find unified calls
-    unified1 = [call for call in calls1 if call[0][0] == "ops:status:kalshi"]
-    unified2 = [call for call in calls2 if call[0][0] == "ops:status:tracker"]
+    unified1 = [call for call in calls1 if call[0][0] == "ops:status:KALSHI"]
+    unified2 = [call for call in calls2 if call[0][0] == "ops:status:TRACKER"]
 
     assert len(unified1) > 0
     assert len(unified2) > 0
@@ -379,7 +379,7 @@ async def test_timestamp_field_is_current(test_service, mock_redis):
     calls = [call for call in mock_redis.hset.call_args_list]
     unified_call = None
     for call in calls:
-        if call[0][0] == "ops:status:test_service":
+        if call[0][0] == "ops:status:TEST_SERVICE":
             unified_call = call
             break
 

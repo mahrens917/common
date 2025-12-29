@@ -79,7 +79,7 @@ class InstrumentBuilder:
         strike_value = float(descriptor.strike) if descriptor.strike is not None else None
         option_type = None
         if descriptor.option_kind:
-            option_type = pick_if(descriptor.option_kind.startswith("c"), lambda: "call", lambda: "put")
+            option_type = pick_if(descriptor.option_kind.lower().startswith("c"), lambda: "call", lambda: "put")
 
         from ....data_models.instrument import Instrument
 

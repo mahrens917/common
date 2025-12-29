@@ -38,7 +38,6 @@ class ProbabilityValueError(ValueError):
 _CONST_2 = 2
 _CONST_4 = 4
 _CONST_5 = 5
-_DEFAULT_STRIKE_TYPE = "custom"
 
 
 def convert_numeric_field(value: Any) -> NumericField:
@@ -190,7 +189,7 @@ def _derive_between_fields(
 
 
 def _finalize_non_between_fields(
-    strike_type: Optional[str],
+    strike_type: str,
     floor_strike: Optional[float],
     cap_strike: Optional[float],
     strike_value: float,
@@ -199,8 +198,7 @@ def _finalize_non_between_fields(
         cap_strike = strike_value
     if strike_type == "greater" and floor_strike is None:
         floor_strike = strike_value
-    resolved_type = _DEFAULT_STRIKE_TYPE if strike_type is None else strike_type
-    return resolved_type, floor_strike, cap_strike, strike_value
+    return strike_type, floor_strike, cap_strike, strike_value
 
 
 __all__ = [

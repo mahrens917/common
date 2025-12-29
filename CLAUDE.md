@@ -8,7 +8,7 @@ Shared Python utilities library used across multiple trading system repositories
 - Formatting/type/lint: `make format`, `make type`, `make lint`.
 
 ## Code Hygiene
-- Avoid adding fallbacks, duplicate code, backward-compatibility risks, fail-fast gaps, or dead code; if you see existing issues, call them out and fix them.
+- Avoid adding fallbacks, duplicate code, or backward-compatibility shims (backward compatibility is not required); call out and fix fail-fast gaps or dead code when encountered.
 - Prefer config JSON files over new environment variables; only add ENV when required and document it.
 
 ## Duplicate Code Rule
