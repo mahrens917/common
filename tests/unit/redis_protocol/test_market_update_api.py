@@ -9,10 +9,39 @@ from common.redis_protocol.market_update_api import (
     VALID_ALGOS,
     MarketUpdateResult,
     clear_algo_ownership,
+    compute_direction,
     get_market_algo,
     get_rejection_stats,
     request_market_update,
 )
+
+
+class TestComputeDirection:
+    """Tests for compute_direction function."""
+
+    def test_buy_signal_when_kalshi_ask_below_theoretical(self):
+        result = compute_direction(t_yes_bid=None, t_yes_ask=92, kalshi_bid=1, kalshi_ask=11)
+        assert result == "BUY"
+
+    def test_sell_signal_when_kalshi_bid_above_theoretical(self):
+        result = compute_direction(t_yes_bid=10, t_yes_ask=None, kalshi_bid=15, kalshi_ask=20)
+        assert result == "SELL"
+
+    def test_none_when_both_conditions_true(self):
+        result = compute_direction(t_yes_bid=5, t_yes_ask=95, kalshi_bid=10, kalshi_ask=90)
+        assert result == "NONE"
+
+    def test_none_when_neither_condition_true(self):
+        result = compute_direction(t_yes_bid=10, t_yes_ask=50, kalshi_bid=5, kalshi_ask=55)
+        assert result == "NONE"
+
+    def test_none_when_no_theoretical_prices(self):
+        result = compute_direction(t_yes_bid=None, t_yes_ask=None, kalshi_bid=10, kalshi_ask=20)
+        assert result == "NONE"
+
+    def test_none_when_kalshi_ask_is_zero(self):
+        result = compute_direction(t_yes_bid=None, t_yes_ask=50, kalshi_bid=0, kalshi_ask=0)
+        assert result == "NONE"
 
 
 class TestRequestMarketUpdate:
@@ -23,6 +52,7 @@ class TestRequestMarketUpdate:
         redis = MagicMock()
         redis.hget = AsyncMock(return_value=None)
         redis.hset = AsyncMock()
+        redis.hmget = AsyncMock(return_value=[b"10", b"20"])  # yes_bid=10, yes_ask=20
         redis.hincrby = AsyncMock()
         redis.publish = AsyncMock()
         return redis
@@ -70,18 +100,35 @@ class TestRequestMarketUpdate:
         assert result.owning_algo == "weather"
 
     @pytest.mark.asyncio
-    async def test_update_with_only_bid(self, mock_redis):
+    async def test_update_with_only_bid_deletes_ask(self, mock_redis):
+        mock_redis.hdel = AsyncMock()
+
         result = await request_market_update(mock_redis, "market:key", "peak", 50.0, None)
 
         assert result.success is True
         mock_redis.hset.assert_called_once()
+        mock_redis.hdel.assert_called_once_with("market:key", "t_yes_ask")
 
     @pytest.mark.asyncio
-    async def test_update_with_only_ask(self, mock_redis):
+    async def test_update_with_only_ask_deletes_bid(self, mock_redis):
+        mock_redis.hdel = AsyncMock()
+
         result = await request_market_update(mock_redis, "market:key", "extreme", None, 55.0)
 
         assert result.success is True
         mock_redis.hset.assert_called_once()
+        mock_redis.hdel.assert_called_once_with("market:key", "t_yes_bid")
+
+    @pytest.mark.asyncio
+    async def test_update_with_both_prices_keeps_both(self, mock_redis):
+        mock_redis.hdel = AsyncMock()
+
+        result = await request_market_update(mock_redis, "market:key", "pdf", 50.0, 55.0)
+
+        assert result.success is True
+        mock_redis.hset.assert_called_once()
+        # When both prices provided, neither should be deleted
+        mock_redis.hdel.assert_not_called()
 
     @pytest.mark.asyncio
     async def test_ticker_extracted_from_key(self, mock_redis):

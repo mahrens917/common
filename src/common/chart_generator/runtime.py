@@ -212,8 +212,8 @@ class ChartHelperMixin:
     def _safe_float(value: str | float | int | None) -> Optional[float]:
         try:
             return _safe_float_value_impl(value)
-        except ValueError:  # Expected data validation or parsing failure  # policy_guard: allow-silent-handler
-            logger.warning("Expected data validation or parsing failure")
+        except ValueError as exc:  # Expected data validation or parsing failure  # policy_guard: allow-silent-handler
+            logger.warning("Failed to convert to float: value=%r, error=%s", value, exc)
             return None
 
 

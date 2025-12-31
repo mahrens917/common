@@ -151,8 +151,8 @@ def derive_strike_fields(
 
     try:
         strike_value = float(value_str)
-    except ValueError:  # Expected data validation or parsing failure  # policy_guard: allow-silent-handler
-        logger.warning("Expected data validation or parsing failure")
+    except ValueError as exc:  # Expected data validation or parsing failure  # policy_guard: allow-silent-handler
+        logger.warning("Failed to parse strike value from ticker: market_ticker=%r, value_str=%r, error=%s", market_ticker, value_str, exc)
         return None
 
     strike_type = "greater"

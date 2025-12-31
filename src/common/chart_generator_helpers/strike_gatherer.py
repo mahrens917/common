@@ -87,8 +87,8 @@ class StrikeGatherer:
             return False
         try:
             ticker = context.parse_fn(context.key_str).ticker
-        except ValueError:  # Expected data validation or parsing failure  # policy_guard: allow-silent-handler
-            logger.warning("Expected data validation or parsing failure")
+        except ValueError as exc:  # Expected data validation or parsing failure  # policy_guard: allow-silent-handler
+            logger.warning("Failed to parse ticker from key: key=%r, error=%s", context.key_str, exc)
             return False
         from common.redis_protocol.typing import ensure_awaitable
 

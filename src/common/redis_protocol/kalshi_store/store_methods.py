@@ -119,8 +119,8 @@ def _validate_market_for_interpolation(market_key_str: str, currency_upper: str,
     """Validate market key and extract ticker."""
     try:
         descriptor = parse_kalshi_market_key(market_key_str)
-    except ValueError:  # Expected data validation or parsing failure  # policy_guard: allow-silent-handler
-        logger.warning("Expected data validation or parsing failure")
+    except ValueError as exc:  # Expected data validation or parsing failure  # policy_guard: allow-silent-handler
+        logger.warning("Failed to parse market key for interpolation: market_key_str=%r, error=%s", market_key_str, exc)
         return None
     market_ticker = descriptor.ticker
     if currency_upper not in market_ticker.upper():
@@ -335,8 +335,13 @@ async def is_market_expired(store, market_ticker: str) -> bool:
         return False
     try:
         close_dt = datetime.fromisoformat(close_time_value.replace("Z", "+00:00"))
-    except ValueError:  # Expected data validation or parsing failure  # policy_guard: allow-silent-handler
-        logger.warning("Expected data validation or parsing failure")
+    except ValueError as exc:  # Expected data validation or parsing failure  # policy_guard: allow-silent-handler
+        logger.warning(
+            "Failed to parse close time as ISO format: market_ticker=%r, close_time_value=%r, error=%s",
+            market_ticker,
+            close_time_value,
+            exc,
+        )
         return False
     current_time = time_utils.get_current_utc()
     return close_dt < current_time

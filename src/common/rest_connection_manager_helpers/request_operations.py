@@ -65,8 +65,13 @@ class RESTRequestOperations:
         """Get authentication headers from handler."""
         try:
             return self.auth_handler(method, endpoint)
-        except TypeError:  # Expected data validation or parsing failure  # policy_guard: allow-silent-handler
-            logger.warning("Expected data validation or parsing failure")
+        except TypeError as exc:  # Expected data validation or parsing failure  # policy_guard: allow-silent-handler
+            logger.warning(
+                "Failed to get auth headers with method/endpoint args, retrying without: method=%r, endpoint=%r, error=%s",
+                method,
+                endpoint,
+                exc,
+            )
             return self.auth_handler()
 
     def _record_response_health(self, response: aiohttp.ClientResponse) -> None:

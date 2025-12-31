@@ -51,14 +51,14 @@ def extract_between_bounds(tokens: List[str]) -> Tuple[Optional[float], Optional
             return None
         try:
             return float(segment)
-        except (TypeError, ValueError):  # Expected data validation or parsing failure  # policy_guard: allow-silent-handler
-            logger.warning("Expected data validation or parsing failure")
+        except (TypeError, ValueError) as exc:  # Expected data validation or parsing failure  # policy_guard: allow-silent-handler
+            logger.warning("Failed to parse strike segment as float: segment=%r, error=%s", segment, exc)
             return None
 
     try:
         idx = tokens.index("BETWEEN")
-    except ValueError:  # Expected data validation or parsing failure  # policy_guard: allow-silent-handler
-        logger.warning("Expected data validation or parsing failure")
+    except ValueError as exc:  # Expected data validation or parsing failure  # policy_guard: allow-silent-handler
+        logger.warning("BETWEEN token not found in tokens: tokens=%r, error=%s", tokens, exc)
         return None, None
 
     floor_strike = _parse_float(tokens[idx + 1] if idx + 1 < len(tokens) else None)
@@ -126,6 +126,6 @@ def to_float(value: Any) -> Optional[float]:
         return None
     try:
         return float(value)
-    except (TypeError, ValueError):  # Expected data validation or parsing failure  # policy_guard: allow-silent-handler
-        logger.warning("Expected data validation or parsing failure")
+    except (TypeError, ValueError) as exc:  # Expected data validation or parsing failure  # policy_guard: allow-silent-handler
+        logger.warning("Failed to convert to float: value=%r, error=%s", value, exc)
         return None

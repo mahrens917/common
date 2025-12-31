@@ -14,6 +14,6 @@ def safe_float(value: Optional[str]) -> Optional[float]:
         return None
     try:
         return safe_float_parse(value, allow_nan_inf=False)
-    except ValueError:  # Expected data validation or parsing failure  # policy_guard: allow-silent-handler
-        logger.warning("Expected data validation or parsing failure")
+    except ValueError as exc:  # Expected data validation or parsing failure  # policy_guard: allow-silent-handler
+        logger.warning("Failed to parse float: value=%r, error=%s", value, exc)
         return None

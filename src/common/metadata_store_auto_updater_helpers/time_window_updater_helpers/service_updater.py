@@ -93,8 +93,8 @@ def _coerce_int(raw_value: Any) -> int:
     decoded = _decode_if_needed(raw_value)
     try:
         return int(decoded)
-    except (TypeError, ValueError):  # Expected data validation or parsing failure  # policy_guard: allow-silent-handler
-        logger.warning("Expected data validation or parsing failure")
+    except (TypeError, ValueError) as exc:  # Expected data validation or parsing failure  # policy_guard: allow-silent-handler
+        logger.warning("Failed to coerce to int: value=%r, error=%s", decoded, exc)
         return 0
 
 

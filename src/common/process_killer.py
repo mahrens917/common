@@ -326,6 +326,10 @@ def _safe_pid(proc) -> str:
         return _none_guard_value
     try:
         return str(pid)
-    except (ValueError, TypeError, AttributeError):  # Expected data validation or parsing failure  # policy_guard: allow-silent-handler
-        logger.warning("Expected data validation or parsing failure")
+    except (
+        ValueError,
+        TypeError,
+        AttributeError,
+    ) as exc:  # Expected data validation or parsing failure  # policy_guard: allow-silent-handler
+        logger.warning("Failed to convert PID to string: pid=%r, error=%s", pid, exc)
         return "unknown"

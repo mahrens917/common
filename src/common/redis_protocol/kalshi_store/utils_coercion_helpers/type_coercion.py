@@ -23,8 +23,12 @@ def coerce_mapping(candidate: Any) -> Dict[str, Any]:
     if hasattr(candidate, "items"):
         try:
             return dict(candidate.items())
-        except (TypeError, ValueError, AttributeError):  # Expected data validation or parsing failure  # policy_guard: allow-silent-handler
-            logger.warning("Expected data validation or parsing failure")
+        except (
+            TypeError,
+            ValueError,
+            AttributeError,
+        ) as exc:  # Expected data validation or parsing failure  # policy_guard: allow-silent-handler
+            logger.warning("Failed to coerce candidate to mapping: candidate_type=%r, error=%s", type(candidate).__name__, exc)
             return {}
     return {}
 
@@ -39,8 +43,12 @@ def coerce_sequence(candidate: Any) -> List[Any]:
     if hasattr(candidate, "__iter__"):
         try:
             return list(candidate)
-        except (TypeError, ValueError, AttributeError):  # Expected data validation or parsing failure  # policy_guard: allow-silent-handler
-            logger.warning("Expected data validation or parsing failure")
+        except (
+            TypeError,
+            ValueError,
+            AttributeError,
+        ) as exc:  # Expected data validation or parsing failure  # policy_guard: allow-silent-handler
+            logger.warning("Failed to coerce candidate to sequence: candidate_type=%r, error=%s", type(candidate).__name__, exc)
             return []
     return []
 

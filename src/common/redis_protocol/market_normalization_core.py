@@ -141,8 +141,8 @@ def _tokenize_ticker(market_ticker: str) -> List[str]:
 def _coerce_strike_value(value_str: str) -> Optional[float]:
     try:
         return float(value_str)
-    except ValueError:  # Expected data validation or parsing failure  # policy_guard: allow-silent-handler
-        logger.warning("Expected data validation or parsing failure")
+    except ValueError as exc:  # Expected data validation or parsing failure  # policy_guard: allow-silent-handler
+        logger.warning("Failed to coerce strike value to float: value_str=%r, error=%s", value_str, exc)
         return None
 
 

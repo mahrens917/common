@@ -97,8 +97,8 @@ class RedisFetcher:
             from common import trade_visualizer
 
             return trade_visualizer.parse_kalshi_market_key(key).ticker
-        except ValueError:  # Expected data validation or parsing failure  # policy_guard: allow-silent-handler
-            logger.warning("Expected data validation or parsing failure")
+        except ValueError as exc:  # Expected data validation or parsing failure  # policy_guard: allow-silent-handler
+            logger.warning("Failed to extract ticker from market key: key=%r, error=%s", key, exc)
             return None
 
     def _build_market_state(self, ticker: str, decoded: dict) -> MarketState:
@@ -120,6 +120,6 @@ class RedisFetcher:
         """Safely convert value to float."""
         try:
             return float(value) if value is not None else None
-        except (ValueError, TypeError):  # Expected data validation or parsing failure  # policy_guard: allow-silent-handler
-            logger.warning("Expected data validation or parsing failure")
+        except (ValueError, TypeError) as exc:  # Expected data validation or parsing failure  # policy_guard: allow-silent-handler
+            logger.warning("Failed to convert value to float: value=%r, error=%s", value, exc)
             return None

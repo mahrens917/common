@@ -45,15 +45,15 @@ class InstrumentNameBuilder:
             try:
                 dt = datetime.strptime(token, fmt)
                 return dt.strftime("%d%b%y").upper()
-            except ValueError:  # Expected data validation or parsing failure  # policy_guard: allow-silent-handler
-                logger.warning("Expected data validation or parsing failure")
+            except ValueError as exc:  # Expected data validation or parsing failure  # policy_guard: allow-silent-handler
+                logger.warning("Failed to parse expiry token with format: token=%r, fmt=%r, error=%s", token, fmt, exc)
                 continue
 
         try:
             dt = datetime.fromisoformat(token)
             return dt.strftime("%d%b%y").upper()
-        except ValueError:  # Expected data validation or parsing failure  # policy_guard: allow-silent-handler
-            logger.warning("Expected data validation or parsing failure")
+        except ValueError as exc:  # Expected data validation or parsing failure  # policy_guard: allow-silent-handler
+            logger.warning("Failed to parse expiry token as ISO format: token=%r, error=%s", token, exc)
             return uppercase
 
     @staticmethod

@@ -25,8 +25,8 @@ class TelegramRetryAfterParser:
         """Fetch JSON payload from response."""
         try:
             return await response.json()
-        except aiohttp.ContentTypeError:  # Expected data validation or parsing failure  # policy_guard: allow-silent-handler
-            logger.warning("Expected data validation or parsing failure")
+        except aiohttp.ContentTypeError as exc:  # Expected data validation or parsing failure  # policy_guard: allow-silent-handler
+            logger.warning("Failed to parse Telegram response as JSON: status=%s, error=%s", response.status, exc)
             return None
         except (  # policy_guard: allow-silent-handler
             aiohttp.ClientError,

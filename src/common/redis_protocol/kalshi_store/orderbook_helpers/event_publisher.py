@@ -20,7 +20,7 @@ if TYPE_CHECKING:
 logger = logging.getLogger(__name__)
 
 # Throttle window in seconds - only publish once per event within this window
-_THROTTLE_WINDOW_SECONDS = 0.1  # 100ms
+_THROTTLE_WINDOW_SECONDS = 0.25  # 250ms
 
 # Track last publish time per event_ticker
 _last_publish_time: Dict[str, float] = {}

@@ -44,8 +44,8 @@ def to_int_value(value: Any) -> Optional[int]:
         return result
     try:
         return int(float(decoded))
-    except (ValueError, TypeError):  # Expected data validation or parsing failure  # policy_guard: allow-silent-handler
-        logger.warning("Expected data validation or parsing failure")
+    except (ValueError, TypeError) as exc:  # Expected data validation or parsing failure  # policy_guard: allow-silent-handler
+        logger.warning("Failed to convert to int: value=%r, error=%s", decoded, exc)
         return None
 
 

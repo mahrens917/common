@@ -37,8 +37,8 @@ def _try_parse_float(strike_key: str) -> Optional[float]:
     """Attempt to parse the strike as a plain float."""
     try:
         return float(strike_key)
-    except ValueError:  # Expected data validation or parsing failure  # policy_guard: allow-silent-handler
-        logger.warning("Expected data validation or parsing failure")
+    except ValueError as exc:  # Expected data validation or parsing failure  # policy_guard: allow-silent-handler
+        logger.warning("Failed to parse strike key as float: strike_key=%r, error=%s", strike_key, exc)
         return None
 
 

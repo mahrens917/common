@@ -69,10 +69,13 @@ class SnapshotProcessor:
         hash_data = build_hash_data(orderbook_sides, timestamp)
         yes_bid_price, yes_ask_price, yes_bid_size, yes_ask_size = self._extract_best_prices(orderbook_sides)
 
-        logger.debug(
-            "MARKET_UPDATE: Ticker=%s, Fields=%s",
+        logger.info(
+            "SNAPSHOT: ticker=%s yes_bid=%s yes_ask=%s yes_bid_size=%s yes_ask_size=%s",
             market_ticker,
-            list(hash_data.keys()),
+            yes_bid_price,
+            yes_ask_price,
+            yes_bid_size,
+            yes_ask_size,
         )
 
         await store_hash_fields(redis, market_key, hash_data, timestamp)

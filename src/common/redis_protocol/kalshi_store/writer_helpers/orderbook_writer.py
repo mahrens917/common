@@ -74,8 +74,8 @@ class OrderbookWriter:
     def _derive_yes_price_from_raw(raw: Any, side: str) -> Any:
         try:
             val = float(raw)
-        except (TypeError, ValueError):  # Expected data validation or parsing failure  # policy_guard: allow-silent-handler
-            logger.warning("Expected data validation or parsing failure")
+        except (TypeError, ValueError) as exc:  # Expected data validation or parsing failure  # policy_guard: allow-silent-handler
+            logger.warning("Failed to parse raw price as float: raw=%r, side=%r, error=%s", raw, side, exc)
             return None
         return val if side == "yes" else (100 - val if side == "no" else None)
 

@@ -138,7 +138,7 @@ class HealthChecker:
         if isinstance(value, str):
             try:
                 return float(value)
-            except (TypeError, ValueError):  # Expected data validation or parsing failure  # policy_guard: allow-silent-handler
-                logger.warning("Expected data validation or parsing failure")
+            except (TypeError, ValueError) as exc:  # Expected data validation or parsing failure  # policy_guard: allow-silent-handler
+                logger.warning("Failed to parse health stat as float: value=%r, error=%s", value, exc)
                 return 0.0
         return 0.0

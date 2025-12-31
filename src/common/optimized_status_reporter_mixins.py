@@ -24,8 +24,8 @@ def _ensure_str_list(lines: Any) -> list[str]:
         return [str(item) for item in lines]
     try:
         return [str(item) for item in list(lines)]
-    except TypeError:  # Expected data validation or parsing failure  # policy_guard: allow-silent-handler
-        logger.warning("Expected data validation or parsing failure")
+    except TypeError as exc:  # Expected data validation or parsing failure  # policy_guard: allow-silent-handler
+        logger.warning("Failed to convert lines to list: lines=%r, type=%s, error=%s", lines, type(lines).__name__, exc)
         return [str(lines)]
 
 

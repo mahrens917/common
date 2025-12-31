@@ -65,8 +65,8 @@ class BatchReader:
     async def _extract_single_interpolation_result(self, key_str: str, curr: str, parser: Any, str_f: Any, int_f: Any, float_f: Any) -> Any:
         try:
             desc = parser(key_str)
-        except ValueError:  # Expected data validation or parsing failure  # policy_guard: allow-silent-handler
-            logger.warning("Expected data validation or parsing failure")
+        except ValueError as exc:  # Expected data validation or parsing failure  # policy_guard: allow-silent-handler
+            logger.warning("Failed to parse market key for interpolation: key_str=%r, error=%s", key_str, exc)
             return None
 
         ticker = desc.ticker

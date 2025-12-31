@@ -20,8 +20,8 @@ def parse_expiry(metadata: Mapping[str, Any]) -> tuple[Optional[str], Optional[d
     try:
         expiry_dt = parse_expiry_datetime(str(expiry_raw))
         return str(expiry_raw), expiry_dt
-    except ValueError:  # Expected data validation or parsing failure  # policy_guard: allow-silent-handler
-        logger.warning("Expected data validation or parsing failure")
+    except ValueError as exc:  # Expected data validation or parsing failure  # policy_guard: allow-silent-handler
+        logger.warning("Failed to parse expiry datetime: expiry=%r, error=%s", expiry_raw, exc)
         return str(expiry_raw), None
 
 

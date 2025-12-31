@@ -21,6 +21,39 @@ if TYPE_CHECKING:
 logger = logging.getLogger(__name__)
 
 VALID_ALGOS = frozenset({"weather", "pdf", "peak", "extreme"})
+
+
+def compute_direction(
+    t_yes_bid: int | None,
+    t_yes_ask: int | None,
+    kalshi_bid: int,
+    kalshi_ask: int,
+) -> str:
+    """Compute trading direction by comparing theoretical to Kalshi prices.
+
+    Args:
+        t_yes_bid: Theoretical YES bid (for SELL signals), None if not set
+        t_yes_ask: Theoretical YES ask (for BUY signals), None if not set
+        kalshi_bid: Current Kalshi YES bid price
+        kalshi_ask: Current Kalshi YES ask price
+
+    Returns:
+        "BUY" if kalshi_ask < t_yes_ask (undervalued)
+        "SELL" if kalshi_bid > t_yes_bid (overvalued)
+        "NONE" if both conditions true (conflict) or neither true
+    """
+    buy_edge = t_yes_ask is not None and 0 < kalshi_ask < t_yes_ask
+    sell_edge = t_yes_bid is not None and kalshi_bid > 0 and kalshi_bid > t_yes_bid
+
+    if buy_edge and sell_edge:
+        return "NONE"
+    if buy_edge:
+        return "BUY"
+    if sell_edge:
+        return "SELL"
+    return "NONE"
+
+
 REJECTION_KEY_PREFIX = "algo_rejections"
 
 
@@ -108,6 +141,15 @@ async def _check_ownership(
     return MarketUpdateResult(success=True, rejected=False, reason=None, owning_algo=requesting_algo)
 
 
+def _parse_int(value: object) -> int:
+    """Parse value to int, treating None/empty as 0."""
+    if value is None or value == "" or value == b"":
+        return 0
+    if isinstance(value, bytes):
+        value = value.decode("utf-8")
+    return int(float(value))
+
+
 async def _write_theoretical_prices(
     redis: "Redis",
     market_key: str,
@@ -116,9 +158,20 @@ async def _write_theoretical_prices(
     t_yes_ask: Optional[float],
     ticker: str,
 ) -> None:
-    """Write theoretical prices and algo ownership to Redis."""
-    mapping: dict[str, str | float] = {"algo": algo}
+    """Write theoretical prices, direction, and algo ownership to Redis."""
+    # Read current Kalshi prices to compute direction
+    kalshi_data = await ensure_awaitable(redis.hmget(market_key, "yes_bid", "yes_ask"))
+    kalshi_bid = _parse_int(kalshi_data[0])
+    kalshi_ask = _parse_int(kalshi_data[1])
 
+    # Compute direction from theoretical vs Kalshi prices
+    t_bid_int = int(t_yes_bid) if t_yes_bid is not None else None
+    t_ask_int = int(t_yes_ask) if t_yes_ask is not None else None
+    direction = compute_direction(t_bid_int, t_ask_int, kalshi_bid, kalshi_ask)
+
+    mapping: dict[str, str | float] = {"algo": algo, "direction": direction}
+
+    # Build mapping with provided prices
     if t_yes_bid is not None:
         mapping["t_yes_bid"] = t_yes_bid
     if t_yes_ask is not None:
@@ -126,12 +179,23 @@ async def _write_theoretical_prices(
 
     await ensure_awaitable(redis.hset(market_key, mapping=mapping))
 
+    # Delete stale opposite field only when writing a one-sided signal
+    # (signal flipped from BUY to SELL or vice versa)
+    # If both sides provided, keep both (e.g., PDF provides full probabilities)
+    both_provided = t_yes_bid is not None and t_yes_ask is not None
+    if not both_provided:
+        if t_yes_bid is not None:
+            await ensure_awaitable(redis.hdel(market_key, "t_yes_ask"))
+        elif t_yes_ask is not None:
+            await ensure_awaitable(redis.hdel(market_key, "t_yes_bid"))
+
     logger.debug(
-        "Updated market %s: algo=%s, t_yes_bid=%s, t_yes_ask=%s",
+        "Updated market %s: algo=%s, t_yes_bid=%s, t_yes_ask=%s, direction=%s",
         ticker,
         algo,
         t_yes_bid,
         t_yes_ask,
+        direction,
     )
 
     await _publish_market_event_update(redis, market_key, ticker)
@@ -244,6 +308,7 @@ async def get_market_algo(redis: "Redis", market_key: str) -> Optional[str]:
 
 
 __all__ = [
+    "compute_direction",
     "request_market_update",
     "clear_algo_ownership",
     "get_market_algo",

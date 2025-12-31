@@ -133,8 +133,8 @@ def _parse_price_level(price_level: Any, market_ticker: str) -> Tuple[Optional[s
 
     try:
         price_value = float(price)
-    except (TypeError, ValueError):  # Expected data validation or parsing failure  # policy_guard: allow-silent-handler
-        logger.warning("Expected data validation or parsing failure")
+    except (TypeError, ValueError) as exc:  # Expected data validation or parsing failure  # policy_guard: allow-silent-handler
+        logger.warning("Failed to parse orderbook price: price=%r, market_ticker=%r, error=%s", price, market_ticker, exc)
         return None, None
 
     price_str = f"{price_value:.1f}"

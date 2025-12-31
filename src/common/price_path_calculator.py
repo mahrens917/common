@@ -147,8 +147,8 @@ class MostProbablePricePathCalculator:
                     RuntimeError,
                     ValueError,
                     TypeError,
-                ):  # Expected data validation or parsing failure  # policy_guard: allow-silent-handler
-                    logger.warning("Expected data validation or parsing failure")
+                ) as exc:  # Expected data validation or parsing failure  # policy_guard: allow-silent-handler
+                    logger.warning("Failed to invoke progress callback: index=%r, total_steps=%r, error=%s", index, total_steps, exc)
                     break
 
     def _generate_prediction_timeline(self, horizon_days: float):

@@ -47,8 +47,8 @@ class LiquidityFetcher:
 
         try:
             return safe_float_parse(value)
-        except (ValueError, TypeError):  # Expected data validation or parsing failure  # policy_guard: allow-silent-handler
-            logger.warning("Expected data validation or parsing failure")
+        except (ValueError, TypeError) as exc:  # Expected data validation or parsing failure  # policy_guard: allow-silent-handler
+            logger.warning("Failed to parse value as float: value=%r, error=%s", value, exc)
             return None
 
     async def get_market_liquidity_states(
@@ -116,8 +116,8 @@ class LiquidityFetcher:
     def _parse_market_ticker(self, market_key: str) -> Optional[str]:
         try:
             return parse_kalshi_market_key(market_key).ticker
-        except ValueError:  # Expected data validation or parsing failure  # policy_guard: allow-silent-handler
-            logger.warning("Expected data validation or parsing failure")
+        except ValueError as exc:  # Expected data validation or parsing failure  # policy_guard: allow-silent-handler
+            logger.warning("Failed to parse market ticker from key: market_key=%r, error=%s", market_key, exc)
             return None
 
     def _build_market_state(self, decoded: Dict[str, str], market_ticker: str) -> MarketState:

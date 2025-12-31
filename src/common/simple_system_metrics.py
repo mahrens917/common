@@ -261,8 +261,8 @@ def _parse_cpu_from_iostat_output(lines: list[str], us_col_idx: int) -> float:
                 system = float(parts[us_col_idx + 1])
                 idle = float(parts[us_col_idx + 2])
                 return _calculate_cpu_percentage(user, system, idle)
-            except (ValueError, IndexError):  # Expected data validation or parsing failure  # policy_guard: allow-silent-handler
-                logger.warning("Expected data validation or parsing failure")
+            except (ValueError, IndexError) as exc:  # Expected data validation or parsing failure  # policy_guard: allow-silent-handler
+                logger.warning("Failed to parse CPU stats: parts=%r, error=%s", parts, exc)
                 continue
     return 0.0
 

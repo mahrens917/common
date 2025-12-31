@@ -55,8 +55,8 @@ class CloseTimeValidator:
         if isinstance(close_time, str):
             try:
                 return datetime.datetime.fromisoformat(close_time.replace("Z", "+00:00")).timestamp()
-            except ValueError:  # Expected data validation or parsing failure  # policy_guard: allow-silent-handler
-                logger.warning("Expected data validation or parsing failure")
+            except ValueError as exc:  # Expected data validation or parsing failure  # policy_guard: allow-silent-handler
+                logger.warning("Failed to parse close time string as ISO format: close_time=%r, error=%s", close_time, exc)
                 return None
 
         return None

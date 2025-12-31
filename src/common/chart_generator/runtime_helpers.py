@@ -92,8 +92,8 @@ async def create_system_chart(generator: "ChartGenerator", metric: str, hours: i
             ValueError,
             UnicodeDecodeError,
             TypeError,
-        ):  # Expected data validation or parsing failure  # policy_guard: allow-silent-handler
-            logger.warning("Expected data validation or parsing failure")
+        ) as exc:  # Expected data validation or parsing failure  # policy_guard: allow-silent-handler
+            logger.warning("Failed to parse metric data: datetime=%r, value=%r, error=%s", datetime_str, value_str, exc)
             continue
         if timestamp >= start_time and numeric_value > 0:
             timestamps.append(datetime.fromtimestamp(timestamp, tz=timezone.utc))
@@ -164,8 +164,8 @@ def safe_float_value(value: str | float | int | None) -> Optional[float]:
 def _coerce_into_float(value: Any) -> Optional[float]:
     try:
         return float(value)
-    except (TypeError, ValueError):  # Expected data validation or parsing failure  # policy_guard: allow-silent-handler
-        logger.warning("Expected data validation or parsing failure")
+    except (TypeError, ValueError) as exc:  # Expected data validation or parsing failure  # policy_guard: allow-silent-handler
+        logger.warning("Failed to coerce to float: value=%r, type=%s, error=%s", value, type(value).__name__, exc)
         return None
 
 
