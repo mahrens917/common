@@ -20,7 +20,7 @@ class RedisInstrumentScanner:
         try:
             logger.info("KEY_SCAN_DEBUG: Loading instruments for currency %s", currency)
             redis_client = await self._get_redis()
-            pattern = f"markets:deribit:*:{currency.lower()}*"
+            pattern = f"markets:deribit:*:{currency.upper()}*"
             keys = await self._scan_keys(redis_client, pattern)
             if not keys:
                 logger.warning("KEY_SCAN_DEBUG: No keys found for currency %s", currency)

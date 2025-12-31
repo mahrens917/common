@@ -69,7 +69,7 @@ class KalshiMarketKey:
     ticker: str
 
     def key(self) -> str:
-        segments = ["kalshi", self.category.value, sanitize_segment(self.ticker)]
+        segments = ["kalshi", self.category.value, sanitize_segment(self.ticker, case="upper")]
         builder = KeyBuilder(RedisNamespace.MARKETS, tuple(segments))
         return builder.render()
 

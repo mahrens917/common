@@ -65,10 +65,10 @@ def is_expiring_within_window(close_time_str: str, expiry_window_seconds: int) -
 
     Args:
         close_time_str: ISO format close time string
-        expiry_window_seconds: Maximum seconds from now for expiry
+        expiry_window_seconds: Maximum seconds from now for expiry (0 or negative means no limit)
 
     Returns:
-        True if market closes within window, False otherwise
+        True if market closes within window (or any future market if no limit), False otherwise
     """
     if not close_time_str:
         return False
@@ -78,6 +78,8 @@ def is_expiring_within_window(close_time_str: str, expiry_window_seconds: int) -
         return False
     now = datetime.now(timezone.utc)
     delta = (close_time - now).total_seconds()
+    if expiry_window_seconds <= 0:
+        return delta > 0
     return 0 < delta <= expiry_window_seconds
 
 

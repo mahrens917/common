@@ -53,7 +53,7 @@ async def discover_mutually_exclusive_markets(
         List of DiscoveredEvent objects with validated markets
     """
     now_ts = int(time.time())
-    max_ts = now_ts + expiry_window_seconds
+    max_ts = now_ts + expiry_window_seconds if expiry_window_seconds > 0 else None
 
     # Step 1: Fetch all open markets with time window
     logger.info("Fetching all open markets (window=%ss)...", expiry_window_seconds)
@@ -124,7 +124,7 @@ async def discover_with_skipped_stats(
         Tuple of (discovered events, skipped market info)
     """
     now_ts = int(time.time())
-    max_ts = now_ts + expiry_window_seconds
+    max_ts = now_ts + expiry_window_seconds if expiry_window_seconds > 0 else None
 
     logger.info("Fetching all open markets (window=%ss)...", expiry_window_seconds)
     _report_progress(progress, "phase=fetch_markets")

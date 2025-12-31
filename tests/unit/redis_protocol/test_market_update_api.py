@@ -24,6 +24,7 @@ class TestRequestMarketUpdate:
         redis.hget = AsyncMock(return_value=None)
         redis.hset = AsyncMock()
         redis.hincrby = AsyncMock()
+        redis.publish = AsyncMock()
         return redis
 
     @pytest.mark.asyncio
@@ -101,6 +102,29 @@ class TestRequestMarketUpdate:
         result = await request_market_update(mock_redis, "market:key", "weather", 50.0, 55.0)
 
         assert result.success is True
+
+    @pytest.mark.asyncio
+    async def test_publishes_market_event_update_when_event_ticker_exists(self, mock_redis):
+        def hget_side_effect(key, field):
+            if field == "event_ticker":
+                return b"KXHIGH-KDCA-20250101"
+            return None
+
+        mock_redis.hget = AsyncMock(side_effect=hget_side_effect)
+
+        result = await request_market_update(mock_redis, "market:key", "weather", 50.0, 55.0)
+
+        assert result.success is True
+        mock_redis.publish.assert_called_once()
+        call_args = mock_redis.publish.call_args
+        assert call_args[0][0] == "market_event_updates:KXHIGH-KDCA-20250101"
+
+    @pytest.mark.asyncio
+    async def test_skips_publish_when_no_event_ticker(self, mock_redis):
+        result = await request_market_update(mock_redis, "market:key", "weather", 50.0, 55.0)
+
+        assert result.success is True
+        mock_redis.publish.assert_not_called()
 
 
 class TestGetRejectionStats:

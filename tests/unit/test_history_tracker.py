@@ -317,3 +317,128 @@ async def test_get_temperature_history_validates_station():
     tracker = WeatherHistoryTracker()
     with pytest.raises(ValueError):
         await tracker.get_temperature_history("")
+
+
+# BalanceHistoryTracker -----------------------------------------------------------
+from common.history_tracker import BalanceHistoryTracker
+from common.redis_protocol.config import BALANCE_KEY_PREFIX
+
+
+def _make_balance_redis(
+    *,
+    zadd_result=1,
+    zrangebyscore_result: List[Tuple[str, float]] | None = None,
+    zrange_result: List[Tuple[str, float]] | None = None,
+) -> MagicMock:
+    redis = MagicMock()
+    redis.close = AsyncMock(return_value=None)
+    redis.zadd = AsyncMock(return_value=zadd_result)
+    redis.zrangebyscore = AsyncMock(return_value=zrangebyscore_result or [])
+    redis.zrange = AsyncMock(return_value=zrange_result or [])
+    return redis
+
+
+@pytest.mark.asyncio
+async def test_balance_record_success(monkeypatch):
+    redis = _make_balance_redis()
+    monkeypatch.setattr("common.history_tracker.get_redis_connection", AsyncMock(return_value=redis))
+    monkeypatch.setattr("common.history_tracker.time.time", lambda: 1_700_000_000)
+
+    tracker = BalanceHistoryTracker()
+    result = await tracker.record_balance("kalshi", 123456)
+
+    assert result is True
+    redis.zadd.assert_awaited_once_with(f"{BALANCE_KEY_PREFIX}kalshi", {"123456": 1_700_000_000})
+
+
+@pytest.mark.asyncio
+async def test_balance_record_handles_redis_error(monkeypatch):
+    redis = _make_balance_redis()
+    redis.zadd = AsyncMock(side_effect=RuntimeError("redis down"))
+
+    monkeypatch.setattr("common.history_tracker.get_redis_connection", AsyncMock(return_value=redis))
+    monkeypatch.setattr("common.history_tracker.time.time", lambda: 1_700_000_000)
+
+    tracker = BalanceHistoryTracker()
+    with pytest.raises(RuntimeError, match="Failed to record kalshi balance"):
+        await tracker.record_balance("kalshi", 100)
+
+
+@pytest.mark.asyncio
+async def test_balance_get_history_with_hours(monkeypatch):
+    redis = _make_balance_redis(
+        zrangebyscore_result=[
+            ("50000", 1_700_000_100),
+            ("60000", 1_700_000_200),
+        ]
+    )
+    monkeypatch.setattr("common.history_tracker.get_redis_connection", AsyncMock(return_value=redis))
+    monkeypatch.setattr("common.history_tracker.time.time", lambda: 1_700_000_300)
+
+    tracker = BalanceHistoryTracker()
+    history = await tracker.get_balance_history("kalshi", hours=1)
+
+    assert history == [(1_700_000_100, 50000), (1_700_000_200, 60000)]
+    redis.zrangebyscore.assert_awaited_once()
+
+
+@pytest.mark.asyncio
+async def test_balance_get_history_all(monkeypatch):
+    redis = _make_balance_redis(
+        zrange_result=[
+            ("40000", 1_600_000_000),
+            ("50000", 1_700_000_100),
+        ]
+    )
+    monkeypatch.setattr("common.history_tracker.get_redis_connection", AsyncMock(return_value=redis))
+    monkeypatch.setattr("common.history_tracker.time.time", lambda: 1_700_000_300)
+
+    tracker = BalanceHistoryTracker()
+    history = await tracker.get_balance_history("kalshi", hours=None)
+
+    assert history == [(1_600_000_000, 40000), (1_700_000_100, 50000)]
+    redis.zrange.assert_awaited_once_with(f"{BALANCE_KEY_PREFIX}kalshi", 0, -1, withscores=True)
+
+
+@pytest.mark.asyncio
+async def test_balance_get_history_handles_redis_error(monkeypatch):
+    redis = _make_balance_redis()
+    redis.zrangebyscore = AsyncMock(side_effect=RuntimeError("redis down"))
+
+    monkeypatch.setattr("common.history_tracker.get_redis_connection", AsyncMock(return_value=redis))
+    monkeypatch.setattr("common.history_tracker.time.time", lambda: 1_700_000_300)
+
+    tracker = BalanceHistoryTracker()
+    with pytest.raises(RuntimeError, match="Failed to load kalshi balance history"):
+        await tracker.get_balance_history("kalshi", hours=1)
+
+
+@pytest.mark.asyncio
+async def test_balance_ensure_client_raises_on_none(monkeypatch):
+    monkeypatch.setattr("common.history_tracker.get_redis_connection", AsyncMock(return_value=None))
+
+    tracker = BalanceHistoryTracker()
+    with pytest.raises(RuntimeError, match="Failed to record kalshi balance"):
+        await tracker.record_balance("kalshi", 100)
+
+
+@pytest.mark.asyncio
+async def test_history_tracker_ensure_client_raises_on_none(monkeypatch):
+    monkeypatch.setattr("common.history_tracker.get_redis_connection", AsyncMock(return_value=None))
+
+    tracker = HistoryTracker()
+    with pytest.raises(RuntimeError, match="Failed to record kalshi history"):
+        await tracker.record_service_update("kalshi", 10.0)
+
+
+@pytest.mark.asyncio
+async def test_get_service_history_handles_value_error(monkeypatch):
+    redis = MagicMock()
+    redis.zrangebyscore = AsyncMock(return_value=[("invalid", "not-a-number")])
+
+    monkeypatch.setattr("common.history_tracker.get_redis_connection", AsyncMock(return_value=redis))
+    monkeypatch.setattr("common.history_tracker.time.time", lambda: 1_700_000_200)
+
+    tracker = HistoryTracker()
+    with pytest.raises((ValueError, TypeError)):
+        await tracker.get_service_history("kalshi", hours=1)

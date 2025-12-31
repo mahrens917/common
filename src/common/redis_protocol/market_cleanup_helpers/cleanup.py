@@ -15,13 +15,13 @@ MIN_DERIBIT_KEY_PARTS = 5  # Minimum parts in deribit option key (markets:deribi
 class ExpiredMarketCleaner:
     """Clean up expired markets from Redis."""
 
-    def __init__(self, redis_client: RedisClient, *, grace_period_days: int = 1) -> None:
+    def __init__(self, redis_client: RedisClient, *, grace_period_days: int = 0) -> None:
         """
         Initialize cleaner.
 
         Args:
             redis_client: Redis client instance
-            grace_period_days: Days after expiration to keep markets (default: 1)
+            grace_period_days: Days after expiration to keep markets (default: 0)
         """
         self._redis = redis_client
         self._grace_period_days = grace_period_days
@@ -78,7 +78,28 @@ class ExpiredMarketCleaner:
         Returns:
             Number of options deleted
         """
-        pattern = "markets:deribit:option:*"
+        return await self._cleanup_deribit_instruments("option")
+
+    async def cleanup_deribit_futures(self) -> int:
+        """
+        Clean up expired Deribit futures (excludes perpetuals).
+
+        Returns:
+            Number of futures deleted
+        """
+        return await self._cleanup_deribit_instruments("future")
+
+    async def _cleanup_deribit_instruments(self, instrument_type: str) -> int:
+        """
+        Clean up expired Deribit instruments of the specified type.
+
+        Args:
+            instrument_type: "option" or "future"
+
+        Returns:
+            Number of instruments deleted
+        """
+        pattern = f"markets:deribit:{instrument_type}:*"
         deleted_count = 0
 
         cursor = 0
@@ -94,15 +115,19 @@ class ExpiredMarketCleaner:
 
                 expiry_str = parts[4]
 
+                # Skip perpetual futures (no expiry date)
+                if expiry_str.lower() == "perpetual":
+                    continue
+
                 if expiration_checker.is_expired_deribit(expiry_str, self._grace_period_days):
                     await ensure_awaitable(self._redis.delete(key_str))
                     deleted_count += 1
-                    logger.debug("Deleted expired Deribit option: %s", key_str)
+                    logger.debug("Deleted expired Deribit %s: %s", instrument_type, key_str)
 
             if cursor == 0:
                 break
 
         if deleted_count > 0:
-            logger.info("Cleaned up %d expired Deribit options", deleted_count)
+            logger.info("Cleaned up %d expired Deribit %ss", deleted_count, instrument_type)
 
         return deleted_count

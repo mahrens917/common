@@ -57,6 +57,7 @@ KALSHI_ORDERBOOK_PREFIX = "kalshi:orderbook:"
 KALSHI_CHANNEL = "kalshi:updates"
 HISTORY_KEY_PREFIX = "history:"
 HISTORY_TTL_SECONDS = 86400
+BALANCE_KEY_PREFIX = "balance:"
 
 
 # Lazy-loaded values cache
@@ -163,6 +164,7 @@ __all__ = [
     "API_TYPE_PRICE_INDEX",
     "API_TYPE_QUOTE",
     "API_TYPE_VOLATILITY_INDEX",
+    "BALANCE_KEY_PREFIX",
     "DERIBIT_SUBSCRIPTION_CHANNEL",
     "DERIBIT_SUBSCRIPTION_KEY",
     "HISTORY_KEY_PREFIX",

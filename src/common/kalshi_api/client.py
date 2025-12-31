@@ -7,6 +7,7 @@ from dataclasses import dataclass
 from typing import TYPE_CHECKING, Any, Optional
 
 from common.config.shared import get_kalshi_credentials
+from common.data_models.trading import PortfolioBalance
 
 from .client_bindings import bind_client_methods
 from .client_helpers import (
@@ -153,6 +154,10 @@ class KalshiClient:
 
     async def get_exchange_status(self) -> dict[str, bool]:
         """Get exchange status."""
+        raise NotImplementedError
+
+    async def get_portfolio_balance(self) -> PortfolioBalance:
+        """Get current portfolio balance."""
         raise NotImplementedError
 
     def attach_trade_store(self, trade_store: Optional[Any]) -> None:

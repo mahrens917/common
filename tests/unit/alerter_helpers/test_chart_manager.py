@@ -132,3 +132,23 @@ class TestChartManagerEnsurePnlReporter:
         result = await manager.ensure_pnl_reporter()
 
         assert result == mock_reporter
+
+    @pytest.mark.asyncio
+    async def test_raises_import_error_when_monitor_missing(self) -> None:
+        """Test raises ImportError when monitor package not installed."""
+        manager = ChartManager(telegram_enabled=True)
+
+        with patch("importlib.import_module", side_effect=ImportError("No module named 'src.monitor'")):
+            with pytest.raises(ImportError, match="monitor package must be installed"):
+                await manager.ensure_pnl_reporter()
+
+    @pytest.mark.asyncio
+    async def test_raises_import_error_when_pnl_reporter_missing(self) -> None:
+        """Test raises ImportError when PnlReporter class not in module."""
+        manager = ChartManager(telegram_enabled=True)
+
+        mock_module = MagicMock(spec=[])  # Module without PnlReporter
+
+        with patch("importlib.import_module", return_value=mock_module):
+            with pytest.raises(ImportError, match="monitor package must be installed"):
+                await manager.ensure_pnl_reporter()

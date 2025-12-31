@@ -3,15 +3,26 @@
 from __future__ import annotations
 
 import logging
-from typing import TYPE_CHECKING, Any, Optional
+from datetime import date
+from typing import Any, Dict, Optional, Protocol, Tuple
 
 from ..chart_generator import ChartGenerator
 
-if TYPE_CHECKING:
-    from src.monitor.optimized_history_metrics_recorder import OptimizedHistoryMetricsRecorder
-    from src.monitor.pnl_reporter import PnlReporter
-
 logger = logging.getLogger(__name__)
+
+
+class PnlReporterProtocol(Protocol):
+    """Protocol for PnlReporter from monitor package."""
+
+    async def initialize(self) -> None: ...
+
+    async def build_full_report(self, target_date: Optional[date] = None) -> Tuple[str, Dict[str, Any]]: ...
+
+
+class OptimizedHistoryMetricsRecorderProtocol(Protocol):
+    """Protocol for OptimizedHistoryMetricsRecorder from monitor package."""
+
+    ...
 
 
 class ChartManager:
@@ -21,10 +32,10 @@ class ChartManager:
         """Initialize chart manager."""
         self.telegram_enabled = telegram_enabled
         self.chart_generator: Optional[ChartGenerator] = None
-        self.history_metrics_recorder: Optional[OptimizedHistoryMetricsRecorder] = None
-        self.pnl_reporter: Optional[PnlReporter] = None
+        self.history_metrics_recorder: Optional[OptimizedHistoryMetricsRecorderProtocol] = None
+        self.pnl_reporter: Optional[PnlReporterProtocol] = None
 
-    def set_metrics_recorder(self, recorder: OptimizedHistoryMetricsRecorder) -> None:
+    def set_metrics_recorder(self, recorder: OptimizedHistoryMetricsRecorderProtocol) -> None:
         """Set metrics recorder instance."""
         self.history_metrics_recorder = recorder
 
@@ -39,11 +50,18 @@ class ChartManager:
             logger.exception("Failed to initialize chart generator")
             raise
 
-    async def ensure_pnl_reporter(self) -> PnlReporter:
+    async def ensure_pnl_reporter(self) -> PnlReporterProtocol:
         """Ensure PnL reporter is initialized."""
-        if self.pnl_reporter is None:
-            from src.monitor.pnl_reporter import PnlReporter as PnlReporterCls
+        reporter = self.pnl_reporter
+        if reporter is None:
+            try:
+                import importlib
 
-            self.pnl_reporter = PnlReporterCls()
-        await self.pnl_reporter.initialize()
-        return self.pnl_reporter
+                pnl_module = importlib.import_module("src.monitor.pnl_reporter")
+                pnl_cls = getattr(pnl_module, "PnlReporter")
+                reporter = pnl_cls()
+                self.pnl_reporter = reporter
+            except (ImportError, AttributeError) as exc:
+                raise ImportError("monitor package must be installed to use PnlReporter") from exc
+        await reporter.initialize()
+        return reporter

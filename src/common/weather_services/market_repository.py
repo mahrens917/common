@@ -66,7 +66,7 @@ class RedisWeatherMarketRepository(MarketRepository):
         *,
         day_code: Optional[str] = None,
     ) -> AsyncIterator[MarketSnapshot]:
-        pattern = f"{SCHEMA.kalshi_weather_prefix}:*{city_code.lower()}*"
+        pattern = f"{SCHEMA.kalshi_weather_prefix}:*{city_code.upper()}*"
 
         async for key in self._scan(pattern):
             key_str = key.decode() if isinstance(key, bytes) else str(key)

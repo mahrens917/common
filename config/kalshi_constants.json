@@ -1,5 +1,9 @@
 {
-  "market_catalog": {},
+  "market_catalog": {
+    "refresh_interval_seconds": 900,
+    "expiry_window_seconds": 604800,
+    "min_markets_per_event": 2
+  },
   "notifications": {
     "max_price_cents_display": 100
   }

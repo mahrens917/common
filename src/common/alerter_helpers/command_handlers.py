@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import logging
 from datetime import datetime
-from typing import TYPE_CHECKING, Any, Dict, List, Optional, Protocol, cast
+from typing import Any, Dict, List, Optional, Protocol, cast
 
 from common.price_path_calculator import (
     MostProbablePricePathCalculator,
@@ -13,9 +13,7 @@ from common.price_path_calculator import (
 
 from ..alerting import AlertSeverity
 from ..chart_generator import ChartGenerator, InsufficientDataError, ProgressNotificationError
-
-if TYPE_CHECKING:
-    from src.monitor.pnl_reporter import PnlReporter
+from .chart_manager import PnlReporterProtocol
 
 logger = logging.getLogger(__name__)
 
@@ -113,7 +111,7 @@ class PnlCommandHandler:
 
     def __init__(
         self,
-        pnl_reporter: Optional[PnlReporter],
+        pnl_reporter: Optional[PnlReporterProtocol],
         chart_generator: Optional[ChartGeneratorProtocol],
         send_alert_callback,
         send_chart_image_callback,

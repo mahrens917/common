@@ -18,7 +18,7 @@ from typing import List, Optional, Tuple
 from redis.exceptions import RedisError
 
 from common.exceptions import ValidationError
-from common.redis_protocol.config import HISTORY_KEY_PREFIX, HISTORY_TTL_SECONDS
+from common.redis_protocol.config import BALANCE_KEY_PREFIX, HISTORY_KEY_PREFIX, HISTORY_TTL_SECONDS
 from common.redis_protocol.typing import RedisClient, ensure_awaitable
 from common.redis_utils import RedisOperationError, get_redis_connection
 from common.time_utils import get_current_utc
@@ -262,3 +262,88 @@ class WeatherHistoryTracker:
             return await self._statistics_retriever.get_history(client, station_icao, hours)
         except ValidationError as exc:
             raise ValueError(str(exc)) from exc
+
+
+class BalanceHistoryTracker:
+    """
+    Tracker for account balance history.
+
+    Stores balance data in Redis sorted set with NO expiration for permanent history:
+    - balance:kalshi (sorted set with timestamp as score, balance_cents as member)
+    """
+
+    def __init__(self):
+        """Initialize balance history tracker."""
+        self.redis_client: Optional[RedisClient] = None
+
+    async def _ensure_client(self) -> RedisClient:
+        """Ensure Redis client is connected."""
+        if self.redis_client is None:
+            self.redis_client = await get_redis_connection()
+        if self.redis_client is None:
+            raise ConnectionError("Redis client not initialized for BalanceHistoryTracker")
+        return self.redis_client
+
+    async def record_balance(self, exchange: str, balance_cents: int) -> bool:
+        """
+        Record account balance in Redis sorted set.
+
+        Args:
+            exchange: Exchange name (e.g., 'kalshi')
+            balance_cents: Account balance in cents
+
+        Returns:
+            True if recorded successfully
+
+        Raises:
+            RuntimeError: If Redis operation fails
+        """
+        try:
+            client = await self._ensure_client()
+            current_timestamp = int(time.time())
+            redis_key = f"{BALANCE_KEY_PREFIX}{exchange}"
+            await ensure_awaitable(client.zadd(redis_key, {str(balance_cents): current_timestamp}))
+            logger.debug(
+                "Recorded %s balance: %d cents at %s",
+                exchange,
+                balance_cents,
+                current_timestamp,
+            )
+        except REDIS_ERRORS as exc:
+            logger.exception("Failed to record %s balance", exchange)
+            raise RuntimeError(f"Failed to record {exchange} balance in Redis") from exc
+        else:
+            return True
+
+    async def get_balance_history(self, exchange: str, hours: Optional[int] = None) -> List[Tuple[int, int]]:
+        """
+        Get balance history from Redis sorted set.
+
+        Args:
+            exchange: Exchange name (e.g., 'kalshi')
+            hours: Number of hours of history to retrieve (None for all history)
+
+        Returns:
+            List of (timestamp, balance_cents) tuples sorted by timestamp
+        """
+        try:
+            client = await self._ensure_client()
+            redis_key = f"{BALANCE_KEY_PREFIX}{exchange}"
+            current_time = int(time.time())
+
+            if hours is not None:
+                start_time = current_time - (hours * 3600)
+                data = await ensure_awaitable(client.zrangebyscore(redis_key, start_time, current_time, withscores=True))
+            else:
+                data = await ensure_awaitable(client.zrange(redis_key, 0, -1, withscores=True))
+
+            history_data = []
+            for member, score in data:
+                timestamp = int(score)
+                balance_cents = int(member)
+                history_data.append((timestamp, balance_cents))
+
+            return sorted(history_data, key=lambda x: x[0])
+        except REDIS_ERRORS as exc:
+            logger.exception("Failed to get %s balance history", exchange)
+            raise RuntimeError(f"Failed to load {exchange} balance history from Redis") from exc

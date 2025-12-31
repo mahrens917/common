@@ -240,6 +240,7 @@ class TestModuleExports:
             "API_TYPE_PRICE_INDEX",
             "API_TYPE_QUOTE",
             "API_TYPE_VOLATILITY_INDEX",
+            "BALANCE_KEY_PREFIX",
             "DERIBIT_SUBSCRIPTION_CHANNEL",
             "DERIBIT_SUBSCRIPTION_KEY",
             "HISTORY_KEY_PREFIX",

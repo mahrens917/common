@@ -2,6 +2,15 @@
 Redis protocol package
 """
 
+from .algo_stats_api import (
+    ALGO_STATS_KEY_PREFIX,
+    AlgoStatsData,
+    increment_algo_stats,
+    read_algo_stats,
+    read_all_algo_stats,
+    reset_algo_stats,
+    write_algo_stats,
+)
 from .batching import BatchManager
 from .connection import cleanup_redis_pool, get_redis_pool
 from .converters import coerce_float, decode_redis_hash, decode_redis_value
@@ -56,4 +65,11 @@ __all__ = [
     "is_trading_enabled",
     "set_trading_enabled",
     "toggle_trading",
+    "ALGO_STATS_KEY_PREFIX",
+    "AlgoStatsData",
+    "increment_algo_stats",
+    "read_algo_stats",
+    "read_all_algo_stats",
+    "reset_algo_stats",
+    "write_algo_stats",
 ]

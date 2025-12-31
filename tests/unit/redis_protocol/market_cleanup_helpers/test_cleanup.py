@@ -25,12 +25,12 @@ class TestExpiredMarketCleanerInit:
         assert cleaner._redis is mock_redis
 
     def test_init_default_grace_period(self) -> None:
-        """Sets default grace_period_days to 1."""
+        """Sets default grace_period_days to 0."""
         mock_redis = MagicMock()
 
         cleaner = ExpiredMarketCleaner(mock_redis)
 
-        assert cleaner._grace_period_days == 1
+        assert cleaner._grace_period_days == 0
 
     def test_init_custom_grace_period(self) -> None:
         """Sets custom grace_period_days."""
@@ -309,6 +309,116 @@ class TestCleanupDeribitOptions:
 
         assert result == 2
         assert mock_redis.scan.call_count == 2
+
+
+class TestCleanupDeribitFutures:
+    """Tests for ExpiredMarketCleaner.cleanup_deribit_futures method."""
+
+    @pytest.mark.asyncio
+    async def test_returns_zero_when_no_keys(self) -> None:
+        """Returns 0 when no keys match pattern."""
+        mock_redis = AsyncMock()
+        mock_redis.scan = AsyncMock(return_value=(0, []))
+
+        cleaner = ExpiredMarketCleaner(mock_redis)
+
+        result = await cleaner.cleanup_deribit_futures()
+
+        assert result == 0
+
+    @pytest.mark.asyncio
+    async def test_skips_keys_with_insufficient_parts(self) -> None:
+        """Skips keys with fewer than MIN_DERIBIT_KEY_PARTS parts."""
+        mock_redis = AsyncMock()
+        mock_redis.scan = AsyncMock(return_value=(0, [b"markets:deribit:future:BTC"]))
+        mock_redis.delete = AsyncMock()
+
+        cleaner = ExpiredMarketCleaner(mock_redis)
+
+        result = await cleaner.cleanup_deribit_futures()
+
+        assert result == 0
+        mock_redis.delete.assert_not_called()
+
+    @pytest.mark.asyncio
+    async def test_deletes_expired_futures(self) -> None:
+        """Deletes expired Deribit futures."""
+        mock_redis = AsyncMock()
+        old_date = (datetime.now(timezone.utc) - timedelta(days=10)).strftime("%Y-%m-%d")
+        key = f"markets:deribit:future:BTC:{old_date}".encode()
+        mock_redis.scan = AsyncMock(return_value=(0, [key]))
+        mock_redis.delete = AsyncMock()
+
+        cleaner = ExpiredMarketCleaner(mock_redis, grace_period_days=1)
+
+        with patch("common.redis_protocol.market_cleanup_helpers.cleanup.logger"):
+            result = await cleaner.cleanup_deribit_futures()
+
+        assert result == 1
+        mock_redis.delete.assert_called_once()
+
+    @pytest.mark.asyncio
+    async def test_does_not_delete_non_expired_futures(self) -> None:
+        """Does not delete futures not yet expired."""
+        mock_redis = AsyncMock()
+        future_date = (datetime.now(timezone.utc) + timedelta(days=10)).strftime("%Y-%m-%d")
+        key = f"markets:deribit:future:BTC:{future_date}".encode()
+        mock_redis.scan = AsyncMock(return_value=(0, [key]))
+        mock_redis.delete = AsyncMock()
+
+        cleaner = ExpiredMarketCleaner(mock_redis, grace_period_days=1)
+
+        result = await cleaner.cleanup_deribit_futures()
+
+        assert result == 0
+        mock_redis.delete.assert_not_called()
+
+    @pytest.mark.asyncio
+    async def test_skips_perpetual_futures(self) -> None:
+        """Skips perpetual futures (they never expire)."""
+        mock_redis = AsyncMock()
+        key = b"markets:deribit:future:BTC:perpetual"
+        mock_redis.scan = AsyncMock(return_value=(0, [key]))
+        mock_redis.delete = AsyncMock()
+
+        cleaner = ExpiredMarketCleaner(mock_redis, grace_period_days=1)
+
+        result = await cleaner.cleanup_deribit_futures()
+
+        assert result == 0
+        mock_redis.delete.assert_not_called()
+
+    @pytest.mark.asyncio
+    async def test_skips_perpetual_futures_case_insensitive(self) -> None:
+        """Skips perpetual futures regardless of case."""
+        mock_redis = AsyncMock()
+        key = b"markets:deribit:future:BTC:PERPETUAL"
+        mock_redis.scan = AsyncMock(return_value=(0, [key]))
+        mock_redis.delete = AsyncMock()
+
+        cleaner = ExpiredMarketCleaner(mock_redis, grace_period_days=1)
+
+        result = await cleaner.cleanup_deribit_futures()
+
+        assert result == 0
+        mock_redis.delete.assert_not_called()
+
+    @pytest.mark.asyncio
+    async def test_logs_info_when_futures_deleted(self) -> None:
+        """Logs info message when futures are deleted."""
+        mock_redis = AsyncMock()
+        old_date = (datetime.now(timezone.utc) - timedelta(days=10)).strftime("%Y-%m-%d")
+        key = f"markets:deribit:future:BTC:{old_date}".encode()
+        mock_redis.scan = AsyncMock(return_value=(0, [key]))
+        mock_redis.delete = AsyncMock()
+
+        cleaner = ExpiredMarketCleaner(mock_redis, grace_period_days=1)
+
+        with patch("common.redis_protocol.market_cleanup_helpers.cleanup.logger") as mock_logger:
+            await cleaner.cleanup_deribit_futures()
+
+        mock_logger.info.assert_called_once()
+        assert "Cleaned up" in mock_logger.info.call_args[0][0]
 
 
 class TestMinDeribitKeyParts:

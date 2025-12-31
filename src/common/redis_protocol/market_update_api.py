@@ -7,9 +7,10 @@ All algos (weather, pdf, peak, extreme) use this API to update theoretical price
 
 from __future__ import annotations
 
+import json
 import logging
 from dataclasses import dataclass
-from datetime import date
+from datetime import date, datetime, timezone
 from typing import TYPE_CHECKING, Dict, Optional
 
 from .typing import RedisClient, ensure_awaitable
@@ -90,7 +91,7 @@ async def _check_ownership(
             current_algo = current_algo.decode("utf-8")
 
         if current_algo != requesting_algo:
-            logger.warning(
+            logger.debug(
                 "Market %s owned by '%s', rejecting update from '%s'",
                 ticker,
                 current_algo,
@@ -132,6 +133,37 @@ async def _write_theoretical_prices(
         t_yes_bid,
         t_yes_ask,
     )
+
+    await _publish_market_event_update(redis, market_key, ticker)
+
+
+async def _publish_market_event_update(
+    redis: "Redis",
+    market_key: str,
+    ticker: str,
+) -> None:
+    """Publish market event update to notify tracker of theoretical price change."""
+    try:
+        event_ticker = await ensure_awaitable(redis.hget(market_key, "event_ticker"))
+        if not event_ticker:
+            logger.debug("No event_ticker for %s, skipping publish", ticker)
+            return
+
+        if isinstance(event_ticker, bytes):
+            event_ticker = event_ticker.decode("utf-8")
+
+        channel = f"market_event_updates:{event_ticker}"
+        payload = json.dumps(
+            {
+                "market_ticker": ticker,
+                "timestamp": datetime.now(timezone.utc).isoformat(),
+            }
+        )
+        await ensure_awaitable(redis.publish(channel, payload))
+        logger.debug("Published market event update for %s to %s", ticker, channel)
+    except (RuntimeError, ConnectionError, OSError) as exc:
+        logger.debug("Failed to publish market event update for %s: %s", ticker, exc)
+        raise
 
 
 async def _record_rejection(redis: "Redis", blocking_algo: str, requesting_algo: str) -> None:
