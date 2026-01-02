@@ -69,7 +69,7 @@ class TestSafeFloat:
         with caplog.at_level(logging.WARNING):
             result: Optional[float] = safe_float(TEST_INVALID_STRING)
             assert result is None
-            assert "Expected data validation or parsing failure" in caplog.text
+            assert "Failed to parse float" in caplog.text
 
     def test_safe_float_parse_called_with_correct_params(self) -> None:
         """Test that safe_float_parse is called with allow_nan_inf=False."""

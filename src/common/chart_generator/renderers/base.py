@@ -4,7 +4,7 @@ import logging
 from dataclasses import dataclass
 from datetime import datetime
 from importlib import import_module
-from typing import Callable, List, Optional, Tuple
+from typing import Any, Callable, List, Optional, Tuple
 
 from common.chart_generator_helpers.chart_axes_creator import ChartAxesCreator
 from common.chart_generator_helpers.unified_chart_renderer import UnifiedChartRenderer
@@ -39,9 +39,13 @@ class UnifiedChartParams:
 
 
 class UnifiedChartHelperMixin:
-    def _resolve_trade_visualizer_class(self):
+    trade_visualizer_cls: Optional[Any] = None
+
+    def _resolve_trade_visualizer_class(self) -> Any:
+        if self.trade_visualizer_cls is not None:
+            return self.trade_visualizer_cls
         trade_module = import_module("src.monitor.chart_generator")
-        return getattr(self, "trade_visualizer_cls", getattr(trade_module, "TradeVisualizer"))
+        return trade_module.TradeVisualizer
 
 
 class UnifiedChartStrikeMixin:

@@ -50,7 +50,7 @@ def test_parse_kalshi_market_key_invalid_formats(key: str) -> None:
 
 
 def test_parse_kalshi_market_key_handles_uppercase_ticker() -> None:
-    # Kalshi market keys use uppercase segment normalization
+    # Kalshi market keys use UPPERCASE segment normalization
     key = "markets:kalshi:binary:KXBTC-OTHER"
     result = redis_kalshi.parse_kalshi_market_key(key)
     assert result.ticker == "KXBTC-OTHER"

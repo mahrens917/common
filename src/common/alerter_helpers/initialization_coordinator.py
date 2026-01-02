@@ -2,13 +2,10 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, Callable, Dict
+from typing import Any, Callable, Dict
 
 from common.alerter_helpers.alert_sender import AlertSender, AlertSenderConfig
 from common.alerter_helpers.alerter_components_builder import AlerterComponentsBuilder
-
-if TYPE_CHECKING:
-    from src.monitor.settings import MonitorSettings
 
 
 class InitializationCoordinator:
@@ -16,7 +13,7 @@ class InitializationCoordinator:
 
     @staticmethod
     def initialize_components(
-        settings: MonitorSettings,
+        settings: Any,  # MonitorSettings from src.monitor.settings
         send_alert_callback: Callable,
         flush_callback: Callable,
         ensure_proc_callback: Callable,

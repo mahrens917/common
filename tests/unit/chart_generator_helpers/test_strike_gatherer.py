@@ -242,14 +242,21 @@ class TestStrikeGatherer:
     ) -> None:
         """Test returns False when market data is empty."""
         redis_client = MagicMock()
-        redis_client.hgetall = AsyncMock(return_value={})
+        # Use MagicMock instead of AsyncMock to avoid unawaited coroutine warnings
+        redis_client.hgetall = MagicMock(return_value={})
 
         parse_fn = MagicMock()
         parse_fn.return_value.ticker = "TEST"
 
         from common.chart_generator_helpers.config import StrikeCollectionContext
 
-        with patch("common.redis_protocol.typing.ensure_awaitable", new_callable=AsyncMock, return_value={}):
+        async def mock_ensure_awaitable(value):
+            # If value is awaitable, await it; otherwise return the value
+            if hasattr(value, "__await__"):
+                return await value
+            return value
+
+        with patch("common.redis_protocol.typing.ensure_awaitable", side_effect=mock_ensure_awaitable):
             context = StrikeCollectionContext(
                 redis_client=redis_client,
                 key_str="weather:market1",

@@ -143,11 +143,13 @@ async def _check_ownership(
 
 def _parse_int(value: object) -> int:
     """Parse value to int, treating None/empty as 0."""
-    if value is None or value == "" or value == b"":
+    if value is None or value in {"", b""}:
         return 0
     if isinstance(value, bytes):
         value = value.decode("utf-8")
-    return int(float(value))
+    if isinstance(value, str):
+        return int(float(value))
+    raise TypeError(f"Cannot parse {type(value).__name__} to int")
 
 
 async def _write_theoretical_prices(
@@ -160,7 +162,7 @@ async def _write_theoretical_prices(
 ) -> None:
     """Write theoretical prices, direction, and algo ownership to Redis."""
     # Read current Kalshi prices to compute direction
-    kalshi_data = await ensure_awaitable(redis.hmget(market_key, "yes_bid", "yes_ask"))
+    kalshi_data = await ensure_awaitable(redis.hmget(market_key, ["yes_bid", "yes_ask"]))
     kalshi_bid = _parse_int(kalshi_data[0])
     kalshi_ask = _parse_int(kalshi_data[1])
 

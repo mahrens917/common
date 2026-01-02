@@ -14,6 +14,7 @@ from .validators import register_namespace
 register_namespace("weather:station:", "Latest weather station snapshots")
 register_namespace("weather:station_history:", "Historical weather observations")
 register_namespace("weather:station_alerts:", "Active weather station alerts")
+register_namespace("weather:daily_high:", "Daily high temperatures by station and date")
 
 _ICAO_RE = re.compile(r"^[A-Z0-9_.\-]+$")
 
@@ -74,5 +75,19 @@ class WeatherAlertKey:
             sanitize_segment(icao, case="unchanged"),
             sanitize_segment(self.alert_type),
         ]
+        builder = KeyBuilder(RedisNamespace.WEATHER, tuple(segments))
+        return builder.render()
+
+
+@dataclass(frozen=True)
+class WeatherDailyHighKey:
+    """Key for daily high temperature storage."""
+
+    icao: str
+    date_str: str  # Format: YYYY-MM-DD
+
+    def key(self) -> str:
+        icao = ensure_uppercase_icao(self.icao)
+        segments = ["daily_high", sanitize_segment(icao, case="unchanged"), self.date_str]
         builder = KeyBuilder(RedisNamespace.WEATHER, tuple(segments))
         return builder.render()

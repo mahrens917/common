@@ -270,7 +270,7 @@ def test_weather_resolver_non_kxhigh():
 
 
 def test_get_market_key_uses_descriptor(monkeypatch, store: KalshiStore):
-    # The implementation uses build_kalshi_market_key which normalizes to uppercase
+    # The implementation uses KalshiMarketKey which normalizes to uppercase
     assert store.get_market_key("ticker") == "markets:kalshi:custom:TICKER"
 
 

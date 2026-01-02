@@ -71,7 +71,7 @@ class TestInitialize:
     async def test_with_session_manager(self):
         mock_manager = AsyncMock()
         mock_manager.initialize = AsyncMock()
-        mock_manager.get_session.return_value = MagicMock()
+        mock_manager.get_session = MagicMock(return_value=MagicMock())
 
         class MockClient:
             def __init__(self):

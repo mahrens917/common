@@ -65,7 +65,9 @@ class TestLifecycleHelpers:
 
         async def run_test():
             command_processor = MagicMock()
-            command_processor.start = AsyncMock()
+            # Use a regular MagicMock - the start() call returns a coroutine-like mock
+            # but we're mocking create_task so the coroutine is never actually used
+            command_processor.start = MagicMock()
 
             with patch("common.alerter_helpers.lifecycle_helpers.asyncio") as mock_asyncio:
                 mock_asyncio.get_running_loop.return_value = MagicMock()
