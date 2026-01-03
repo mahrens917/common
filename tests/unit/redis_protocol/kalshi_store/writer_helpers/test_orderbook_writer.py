@@ -9,6 +9,7 @@ from common.redis_protocol.kalshi_store.writer_helpers.orderbook_writer import (
     UserDataWriter,
     _build_trade_base_mapping,
     _maybe_set_field,
+    _resolve_fill_price,
 )
 
 
@@ -159,7 +160,7 @@ class TestUserDataWriter:
         return UserDataWriter(mock_redis, MagicMock())
 
     @pytest.mark.asyncio
-    async def test_update_user_fill_success(self, writer, mock_redis):
+    async def test_update_user_fill_success_yes_side(self, writer, mock_redis):
         msg = {
             "msg": {
                 "ticker": "ABC",
@@ -167,7 +168,7 @@ class TestUserDataWriter:
                 "side": "yes",
                 "action": "buy",
                 "count": 10,
-                "price": 50,
+                "yes_price": 50,
                 "ts": 1700000000000,
             }
         }
@@ -176,12 +177,37 @@ class TestUserDataWriter:
 
         assert result is True
         mock_redis.hset.assert_called_once()
+        call_args = mock_redis.hset.call_args
+        mapping = call_args.kwargs["mapping"]
+        assert mapping["price"] == "50"
         mock_redis.lpush.assert_called_once()
         mock_redis.ltrim.assert_called_once()
 
     @pytest.mark.asyncio
+    async def test_update_user_fill_success_no_side(self, writer, mock_redis):
+        msg = {
+            "msg": {
+                "ticker": "ABC",
+                "trade_id": "123",
+                "side": "no",
+                "action": "buy",
+                "count": 10,
+                "yes_price": 75,
+                "ts": 1700000000000,
+            }
+        }
+
+        result = await writer.update_user_fill(msg)
+
+        assert result is True
+        mock_redis.hset.assert_called_once()
+        call_args = mock_redis.hset.call_args
+        mapping = call_args.kwargs["mapping"]
+        assert mapping["price"] == "25"
+
+    @pytest.mark.asyncio
     async def test_update_user_fill_missing_ticker(self, writer):
-        msg = {"msg": {"trade_id": "123", "side": "yes"}}
+        msg = {"msg": {"trade_id": "123", "side": "yes", "yes_price": 50}}
 
         result = await writer.update_user_fill(msg)
 
@@ -189,7 +215,15 @@ class TestUserDataWriter:
 
     @pytest.mark.asyncio
     async def test_update_user_fill_missing_trade_id(self, writer):
-        msg = {"msg": {"ticker": "ABC", "side": "yes"}}
+        msg = {"msg": {"ticker": "ABC", "side": "yes", "yes_price": 50}}
+
+        result = await writer.update_user_fill(msg)
+
+        assert result is False
+
+    @pytest.mark.asyncio
+    async def test_update_user_fill_missing_yes_price(self, writer):
+        msg = {"msg": {"ticker": "ABC", "trade_id": "123", "side": "yes"}}
 
         result = await writer.update_user_fill(msg)
 
@@ -203,7 +237,7 @@ class TestUserDataWriter:
             "side": "yes",
             "action": "buy",
             "count": 10,
-            "price": 50,
+            "yes_price": 50,
         }
 
         result = await writer.update_user_fill(msg)
@@ -214,7 +248,7 @@ class TestUserDataWriter:
     async def test_update_user_fill_redis_error(self, writer, mock_redis):
         from redis import RedisError
 
-        msg = {"msg": {"ticker": "ABC", "trade_id": "123", "side": "yes"}}
+        msg = {"msg": {"ticker": "ABC", "trade_id": "123", "side": "yes", "yes_price": 50}}
         mock_redis.hset = AsyncMock(side_effect=RedisError("connection error"))
 
         result = await writer.update_user_fill(msg)
@@ -317,3 +351,26 @@ class TestHelperFunctions:
         _maybe_set_field(mapping, "test_field", None)
 
         assert "test_field" not in mapping
+
+    def test_resolve_fill_price_yes_side(self):
+        data = {"yes_price": 50, "side": "yes"}
+        assert _resolve_fill_price(data) == 50
+
+    def test_resolve_fill_price_no_side(self):
+        data = {"yes_price": 75, "side": "no"}
+        assert _resolve_fill_price(data) == 25
+
+    def test_resolve_fill_price_missing_yes_price(self):
+        data = {"side": "yes"}
+        with pytest.raises(ValueError, match="Fill missing yes_price field"):
+            _resolve_fill_price(data)
+
+    def test_resolve_fill_price_invalid_yes_price(self):
+        data = {"yes_price": "invalid", "side": "yes"}
+        with pytest.raises(ValueError, match="Invalid yes_price value"):
+            _resolve_fill_price(data)
+
+    def test_resolve_fill_price_invalid_side(self):
+        data = {"yes_price": 50, "side": "unknown"}
+        with pytest.raises(ValueError, match="Invalid fill side"):
+            _resolve_fill_price(data)

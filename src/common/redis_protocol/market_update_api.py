@@ -11,7 +11,7 @@ import json
 import logging
 from dataclasses import dataclass
 from datetime import date, datetime, timezone
-from typing import TYPE_CHECKING, Dict, Optional
+from typing import TYPE_CHECKING, Any, Dict, List, Optional
 
 from .typing import RedisClient, ensure_awaitable
 
@@ -309,12 +309,165 @@ async def get_market_algo(redis: "Redis", market_key: str) -> Optional[str]:
     return str(algo)
 
 
+@dataclass(frozen=True)
+class BatchUpdateResult:
+    """Result of a batch market update."""
+
+    succeeded: List[str]
+    rejected: List[str]
+    failed: List[str]
+
+
+@dataclass
+class _MarketSignal:
+    """Internal representation of a market signal for batch processing."""
+
+    ticker: str
+    market_key: str
+    t_yes_bid: Optional[float]
+    t_yes_ask: Optional[float]
+    algo: str
+
+
+async def batch_update_market_signals(
+    redis: "Redis",
+    signals: Dict[str, Dict[str, Any]],
+    algo: str,
+    key_builder: Any,
+) -> BatchUpdateResult:
+    """
+    Atomically update theoretical prices for multiple markets using Redis transactions.
+
+    This function ensures that all updates are applied atomically, preventing
+    the UI from seeing inconsistent state (e.g., two markets with BUY signals
+    when only one should have it).
+
+    Writes are ordered so that:
+    1. Markets with t_yes_bid (SELL/clearing signals) are written first
+    2. Markets with t_yes_ask (BUY signals) are written last
+
+    This ensures that when the peak market changes, the old peak's t_yes_ask
+    is deleted before the new peak's t_yes_ask is written.
+
+    Args:
+        redis: Redis client
+        signals: Dict of ticker -> {"t_yes_bid": float|None, "t_yes_ask": float|None}
+        algo: Algorithm name (weather, pdf, peak, extreme)
+        key_builder: Function to build Redis key from ticker (e.g., build_kalshi_market_key)
+
+    Returns:
+        BatchUpdateResult with lists of succeeded, rejected, and failed tickers
+    """
+    if algo not in VALID_ALGOS:
+        raise ValueError(f"Invalid algo '{algo}'. Must be one of: {sorted(VALID_ALGOS)}")
+
+    if not signals:
+        return BatchUpdateResult(succeeded=[], rejected=[], failed=[])
+
+    # Build market signal objects
+    market_signals = [
+        _MarketSignal(
+            ticker=ticker,
+            market_key=key_builder(ticker),
+            t_yes_bid=data.get("t_yes_bid"),
+            t_yes_ask=data.get("t_yes_ask"),
+            algo=algo,
+        )
+        for ticker, data in signals.items()
+    ]
+
+    # Check ownership for all markets first (before transaction)
+    succeeded: List[str] = []
+    rejected: List[str] = []
+    failed: List[str] = []
+    allowed_signals: List[_MarketSignal] = []
+
+    for sig in market_signals:
+        if sig.t_yes_bid is None and sig.t_yes_ask is None:
+            failed.append(sig.ticker)
+            continue
+
+        ownership = await _check_ownership(redis, sig.market_key, algo, sig.ticker)
+        if ownership.rejected:
+            rejected.append(sig.ticker)
+        else:
+            allowed_signals.append(sig)
+
+    if not allowed_signals:
+        return BatchUpdateResult(succeeded=succeeded, rejected=rejected, failed=failed)
+
+    # Sort signals: t_yes_bid first (these delete stale t_yes_ask), t_yes_ask last
+    sorted_signals = sorted(
+        allowed_signals,
+        key=lambda s: (s.t_yes_ask is not None, s.ticker),
+    )
+
+    # Fetch current Kalshi prices for all markets to compute directions
+    price_pipe = redis.pipeline()
+    for sig in sorted_signals:
+        price_pipe.hmget(sig.market_key, ["yes_bid", "yes_ask"])
+    price_results = await ensure_awaitable(price_pipe.execute())
+
+    # Build the atomic transaction
+    pipe = redis.pipeline(transaction=True)
+
+    for sig, prices in zip(sorted_signals, price_results):
+        kalshi_bid = _parse_int(prices[0])
+        kalshi_ask = _parse_int(prices[1])
+
+        t_bid_int = int(sig.t_yes_bid) if sig.t_yes_bid is not None else None
+        t_ask_int = int(sig.t_yes_ask) if sig.t_yes_ask is not None else None
+        direction = compute_direction(t_bid_int, t_ask_int, kalshi_bid, kalshi_ask)
+
+        # Build field mapping
+        mapping: Dict[str, Any] = {"algo": algo, "direction": direction}
+        if sig.t_yes_bid is not None:
+            mapping["t_yes_bid"] = sig.t_yes_bid
+        if sig.t_yes_ask is not None:
+            mapping["t_yes_ask"] = sig.t_yes_ask
+
+        pipe.hset(sig.market_key, mapping=mapping)
+
+        # Delete stale opposite field
+        both_provided = sig.t_yes_bid is not None and sig.t_yes_ask is not None
+        if not both_provided:
+            if sig.t_yes_bid is not None:
+                pipe.hdel(sig.market_key, "t_yes_ask")
+            elif sig.t_yes_ask is not None:
+                pipe.hdel(sig.market_key, "t_yes_bid")
+
+    # Execute transaction atomically
+    try:
+        await ensure_awaitable(pipe.execute())
+        succeeded = [sig.ticker for sig in sorted_signals]
+        logger.debug(
+            "Batch updated %d markets atomically for algo %s",
+            len(succeeded),
+            algo,
+        )
+    except (RuntimeError, ConnectionError, OSError) as exc:
+        logger.exception("Failed to execute batch update for algo %s: %s", algo, exc)
+        failed.extend(sig.ticker for sig in sorted_signals)
+        raise
+
+    # Publish event updates (outside transaction, non-critical)
+    for sig in sorted_signals:
+        try:
+            await _publish_market_event_update(redis, sig.market_key, sig.ticker)
+        except (RuntimeError, ConnectionError, OSError):
+            pass  # Non-critical, already logged in _publish_market_event_update
+
+    return BatchUpdateResult(succeeded=succeeded, rejected=rejected, failed=failed)
+
+
 __all__ = [
-    "compute_direction",
-    "request_market_update",
+    "batch_update_market_signals",
+    "BatchUpdateResult",
     "clear_algo_ownership",
+    "compute_direction",
     "get_market_algo",
     "get_rejection_stats",
     "MarketUpdateResult",
+    "request_market_update",
     "VALID_ALGOS",
 ]

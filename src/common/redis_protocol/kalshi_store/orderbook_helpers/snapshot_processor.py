@@ -14,6 +14,7 @@ from ...orderbook_utils import build_snapshot_sides
 from ..utils_coercion import coerce_mapping as _canonical_coerce_mapping
 from .event_publisher import publish_market_event_throttled
 from .snapshot_processor_helpers.price_formatting import normalize_price_formatting
+from .best_price_updater import BestPriceUpdater
 from .snapshot_processor_helpers.redis_storage import (
     build_hash_data,
     store_best_prices,
@@ -80,6 +81,7 @@ class SnapshotProcessor:
 
         await store_hash_fields(redis, market_key, hash_data, timestamp)
         await store_best_prices(redis, market_key, yes_bid_price, yes_ask_price, yes_bid_size, yes_ask_size)
+        await BestPriceUpdater._recompute_direction(redis, market_key)
 
         await publish_market_event_throttled(redis, market_key, market_ticker, timestamp)
 

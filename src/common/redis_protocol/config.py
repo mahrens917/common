@@ -58,6 +58,7 @@ KALSHI_CHANNEL = "kalshi:updates"
 HISTORY_KEY_PREFIX = "history:"
 HISTORY_TTL_SECONDS = 86400
 BALANCE_KEY_PREFIX = "balance:"
+KALSHI_BALANCE_KEY = "kalshi:account:balance"
 
 
 # Lazy-loaded values cache
@@ -169,6 +170,7 @@ __all__ = [
     "DERIBIT_SUBSCRIPTION_KEY",
     "HISTORY_KEY_PREFIX",
     "HISTORY_TTL_SECONDS",
+    "KALSHI_BALANCE_KEY",
     "KALSHI_CHANNEL",
     "KALSHI_MARKET_PREFIX",
     "KALSHI_ORDERBOOK_PREFIX",

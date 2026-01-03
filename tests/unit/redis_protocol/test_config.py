@@ -245,6 +245,7 @@ class TestModuleExports:
             "DERIBIT_SUBSCRIPTION_KEY",
             "HISTORY_KEY_PREFIX",
             "HISTORY_TTL_SECONDS",
+            "KALSHI_BALANCE_KEY",
             "KALSHI_CHANNEL",
             "KALSHI_MARKET_PREFIX",
             "KALSHI_ORDERBOOK_PREFIX",

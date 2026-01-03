@@ -247,7 +247,8 @@ def _populate_orderbook_fields(metadata: Dict[str, str], market_data: Mapping[st
 def _apply_descriptor_defaults(metadata: Dict[str, str], descriptor: KalshiMarketDescriptor) -> None:
     """Apply descriptor values for ticker/category/etc when not already set."""
     metadata.setdefault("ticker", descriptor.ticker)
-    metadata.setdefault("category", descriptor.category.value)
+    if not metadata.get("category"):
+        metadata["category"] = descriptor.category.value
     if descriptor.underlying and not metadata.get("underlying"):
         metadata["underlying"] = descriptor.underlying
     if descriptor.expiry_token:
@@ -259,12 +260,15 @@ def _populate_event_metadata(metadata: Dict[str, str], event_data: Optional[Mapp
     if not event_data:
         return
 
+    event_category = _stringify(event_data.get("category"))
+    metadata["category"] = event_category
+
     metadata.update(
         {
             "event_ticker": _stringify(event_data.get("ticker")),
             "event_title": _stringify(event_data.get("title")),
             "event_name": _stringify(event_data.get("name")),
-            "event_category": _stringify(event_data.get("category")),
+            "event_category": event_category,
             "series_ticker": _stringify(event_data.get("series_ticker")),
             "strike_date": _stringify(event_data.get("strike_date")),
             "event_type": _stringify(event_data.get("event_type")),

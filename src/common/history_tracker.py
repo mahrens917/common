@@ -302,7 +302,9 @@ class BalanceHistoryTracker:
             client = await self._ensure_client()
             current_timestamp = int(time.time())
             redis_key = f"{BALANCE_KEY_PREFIX}{exchange}"
-            await ensure_awaitable(client.zadd(redis_key, {str(balance_cents): current_timestamp}))
+            # Use timestamp:balance as member for unique entries, timestamp as score for time queries
+            member = f"{current_timestamp}:{balance_cents}"
+            await ensure_awaitable(client.zadd(redis_key, {member: current_timestamp}))
             logger.debug(
                 "Recorded %s balance: %d cents at %s",
                 exchange,
@@ -340,7 +342,9 @@ class BalanceHistoryTracker:
             history_data = []
             for member, score in data:
                 timestamp = int(score)
-                balance_cents = int(member)
+                # Parse member format: "timestamp:balance_cents"
+                member_str = member.decode() if isinstance(member, bytes) else str(member)
+                balance_cents = int(member_str.split(":")[1])
                 history_data.append((timestamp, balance_cents))
 
             return sorted(history_data, key=lambda x: x[0])

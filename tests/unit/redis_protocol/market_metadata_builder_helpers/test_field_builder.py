@@ -301,6 +301,19 @@ class TestAddDescriptorFields:
 
         assert metadata["category"] == "temperature"
 
+    def test_adds_category_when_empty_string(self) -> None:
+        """Adds category field when metadata has empty string."""
+        metadata = {"category": ""}
+        descriptor = MagicMock()
+        descriptor.ticker = "TICKER"
+        descriptor.category.value = "weather"
+        descriptor.underlying = None
+        descriptor.expiry_token = None
+
+        add_descriptor_fields(metadata, descriptor)
+
+        assert metadata["category"] == "weather"
+
     def test_adds_underlying_when_present(self) -> None:
         """Adds underlying when descriptor has it."""
         metadata = {}

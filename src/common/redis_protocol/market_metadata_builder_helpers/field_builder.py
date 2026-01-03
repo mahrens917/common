@@ -106,7 +106,7 @@ def add_descriptor_fields(metadata: Dict[str, str], descriptor: Any) -> None:
     """Add descriptor fields to metadata in-place."""
     if "ticker" not in metadata:
         metadata["ticker"] = descriptor.ticker
-    if "category" not in metadata:
+    if not metadata.get("category"):
         metadata["category"] = descriptor.category.value
     if descriptor.underlying and not metadata.get("underlying"):
         metadata["underlying"] = descriptor.underlying

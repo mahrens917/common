@@ -23,11 +23,9 @@ class PortfolioService:
 
     async def get_balance(self) -> PortfolioBalance:
         operation_name = "get_portfolio_balance"
-        logger.info(f"[{operation_name}] Retrieving portfolio balance")
 
         try:
             portfolio_balance = await self._client.get_portfolio_balance()
-            logger.info(f"[{operation_name}] Retrieved balance: ${portfolio_balance.balance_cents/100:.2f}")
         except CLIENT_API_ERRORS as exc:
             logger.exception(
                 "[%s] Error retrieving portfolio balance (%s)",

@@ -13,6 +13,7 @@ from redis.asyncio import Redis
 from ....market_filters.kalshi import extract_best_ask, extract_best_bid
 from ...error_types import REDIS_ERRORS
 from ...typing import ensure_awaitable
+from .best_price_updater import BestPriceUpdater
 from .event_publisher import publish_market_event_throttled
 from .field_converter import FieldConverter
 from .side_data_updater import SideDataUpdater
@@ -126,11 +127,12 @@ async def _update_top_of_book(
         best_price, best_size = extract_best_bid(side_data)
         await store_optional(redis, market_key, "yes_bid", best_price)
         await store_optional(redis, market_key, "yes_bid_size", best_size)
-        return
+    else:
+        best_price, best_size = extract_best_ask(side_data)
+        await store_optional(redis, market_key, "yes_ask", best_price)
+        await store_optional(redis, market_key, "yes_ask_size", best_size)
 
-    best_price, best_size = extract_best_ask(side_data)
-    await store_optional(redis, market_key, "yes_ask", best_price)
-    await store_optional(redis, market_key, "yes_ask_size", best_size)
+    await BestPriceUpdater._recompute_direction(redis, market_key)
 
 
 async def _update_trade_price_cache(processor: DeltaProcessor, redis: Redis, market_key: str, market_ticker: str) -> None:

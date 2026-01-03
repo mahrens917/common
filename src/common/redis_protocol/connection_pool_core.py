@@ -257,7 +257,13 @@ async def _disconnect_pool(pool: redis.asyncio.ConnectionPool, *, timeout: float
         else:
             return
 
-    await asyncio.wait_for(pool.disconnect(), timeout=timeout)
+    try:
+        await asyncio.wait_for(pool.disconnect(), timeout=timeout)
+    except RuntimeError as exc:  # Event loop closed during disconnect  # policy_guard: allow-silent-handler
+        if "Event loop is closed" in str(exc):
+            logger.debug("Event loop closed during Redis pool disconnect, skipping")
+        else:
+            raise
 
 
 async def perform_redis_health_check() -> bool:

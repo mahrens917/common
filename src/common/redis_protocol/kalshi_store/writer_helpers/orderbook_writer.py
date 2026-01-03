@@ -116,6 +116,29 @@ def _maybe_set_field(mapping: Dict[str, str], field_name: str, value: Any) -> No
     mapping[field_name] = str(value)
 
 
+def _resolve_fill_price(data: Dict) -> int:
+    """Resolve fill price from yes_price based on side.
+
+    Kalshi fill messages contain yes_price which is the YES side price.
+    For YES fills, we use yes_price directly.
+    For NO fills, we calculate 100 - yes_price.
+    """
+    yes_price = data.get("yes_price")
+    if yes_price is None:
+        raise ValueError("Fill missing yes_price field")
+    try:
+        yes_price_int = int(yes_price)
+    except (TypeError, ValueError) as exc:
+        raise ValueError(f"Invalid yes_price value: {yes_price}") from exc
+
+    side = str(data.get("side", "")).lower()
+    if side == "yes":
+        return yes_price_int
+    if side == "no":
+        return 100 - yes_price_int
+    raise ValueError(f"Invalid fill side: {side}")
+
+
 class UserDataWriter:
     """Handles user fill and order write operations."""
 
@@ -127,16 +150,20 @@ class UserDataWriter:
     async def update_user_fill(self, msg: Dict) -> bool:
         """Persist a user fill notification to Redis.
 
-        Expected fill_data format:
+        Expected fill_data format (from Kalshi websocket):
         {
             "ticker": "...",
             "side": "yes" or "no",
             "action": "buy" or "sell",
             "count": int,
-            "price": int (cents),
+            "yes_price": int (cents) - the actual fill price for YES side,
             "trade_id": "...",
             "ts": int (unix ms)
         }
+
+        The stored 'price' field is derived from yes_price based on side:
+        - For YES fills: price = yes_price
+        - For NO fills: price = 100 - yes_price
         """
         try:
             inner_msg = msg.get("msg")
@@ -147,6 +174,8 @@ class UserDataWriter:
                 logger.error("User fill missing ticker or trade_id: %s", data)
                 return False
 
+            fill_price = _resolve_fill_price(data)
+
             ts_value = data.get("ts")
             ts_iso = pick_if(ts_value, lambda: self._normalizer.normalise_trade_timestamp(ts_value), lambda: "")
 
@@ -155,7 +184,7 @@ class UserDataWriter:
                 "side": str(pick_truthy(data.get("side"), "")),
                 "action": str(pick_truthy(data.get("action"), "")),
                 "count": str(pick_truthy(data.get("count"), 0)),
-                "price": str(pick_truthy(data.get("price"), 0)),
+                "price": str(fill_price),
                 "trade_id": str(trade_id),
                 "ts": ts_iso,
             }
