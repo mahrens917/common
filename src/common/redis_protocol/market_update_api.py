@@ -54,7 +54,7 @@ def compute_direction(
     return "NONE"
 
 
-REJECTION_KEY_PREFIX = "algo_rejections"
+from .market_update_api_helpers.batch_processor import REJECTION_KEY_PREFIX, get_rejection_stats
 
 
 @dataclass(frozen=True)
@@ -240,41 +240,6 @@ async def _record_rejection(redis: "Redis", blocking_algo: str, requesting_algo:
     await ensure_awaitable(redis.hincrby(key, field, 1))
 
 
-async def get_rejection_stats(redis: "Redis", days: int = 1) -> Dict[str, Dict[str, int]]:
-    """
-    Get rejection statistics for the specified number of days.
-
-    Args:
-        redis: Redis client
-        days: Number of days to include (1 = today only)
-
-    Returns:
-        Dict mapping date strings to dicts of {blocking:requesting -> count}
-    """
-    from datetime import timedelta
-
-    stats: Dict[str, Dict[str, int]] = {}
-    today = date.today()
-
-    for i in range(days):
-        day = today - timedelta(days=i)
-        day_str = day.isoformat()
-        key = f"{REJECTION_KEY_PREFIX}:{day_str}"
-
-        data = await ensure_awaitable(redis.hgetall(key))
-        if data:
-            day_stats: Dict[str, int] = {}
-            for field, count in data.items():
-                if isinstance(field, bytes):
-                    field = field.decode("utf-8")
-                if isinstance(count, bytes):
-                    count = int(count.decode("utf-8"))
-                day_stats[field] = int(count)
-            stats[day_str] = day_stats
-
-    return stats
-
-
 async def clear_algo_ownership(redis: "Redis", market_key: str) -> bool:
     """
     Clear algo ownership from a market (used by --reset).
@@ -318,144 +283,78 @@ class BatchUpdateResult:
     failed: List[str]
 
 
-@dataclass
-class _MarketSignal:
-    """Internal representation of a market signal for batch processing."""
-
-    ticker: str
-    market_key: str
-    t_yes_bid: Optional[float]
-    t_yes_ask: Optional[float]
-    algo: str
-
-
 async def batch_update_market_signals(
     redis: "Redis",
     signals: Dict[str, Dict[str, Any]],
     algo: str,
     key_builder: Any,
 ) -> BatchUpdateResult:
-    """
-    Atomically update theoretical prices for multiple markets using Redis transactions.
+    """Atomically update theoretical prices for multiple markets using Redis transactions."""
+    from .market_update_api_helpers import (
+        add_signal_to_pipeline,
+        build_market_signals,
+        build_signal_mapping,
+        fetch_kalshi_prices,
+        filter_allowed_signals,
+    )
 
-    This function ensures that all updates are applied atomically, preventing
-    the UI from seeing inconsistent state (e.g., two markets with BUY signals
-    when only one should have it).
-
-    Writes are ordered so that:
-    1. Markets with t_yes_bid (SELL/clearing signals) are written first
-    2. Markets with t_yes_ask (BUY signals) are written last
-
-    This ensures that when the peak market changes, the old peak's t_yes_ask
-    is deleted before the new peak's t_yes_ask is written.
-
-    Args:
-        redis: Redis client
-        signals: Dict of ticker -> {"t_yes_bid": float|None, "t_yes_ask": float|None}
-        algo: Algorithm name (weather, pdf, peak, extreme)
-        key_builder: Function to build Redis key from ticker (e.g., build_kalshi_market_key)
-
-    Returns:
-        BatchUpdateResult with lists of succeeded, rejected, and failed tickers
-    """
     if algo not in VALID_ALGOS:
         raise ValueError(f"Invalid algo '{algo}'. Must be one of: {sorted(VALID_ALGOS)}")
 
     if not signals:
         return BatchUpdateResult(succeeded=[], rejected=[], failed=[])
 
-    # Build market signal objects
-    market_signals = [
-        _MarketSignal(
-            ticker=ticker,
-            market_key=key_builder(ticker),
-            t_yes_bid=data.get("t_yes_bid"),
-            t_yes_ask=data.get("t_yes_ask"),
-            algo=algo,
-        )
-        for ticker, data in signals.items()
-    ]
+    market_signals = build_market_signals(signals, algo, key_builder)
+    allowed, rejected, failed = await filter_allowed_signals(redis, market_signals, algo, _check_ownership)
 
-    # Check ownership for all markets first (before transaction)
-    succeeded: List[str] = []
-    rejected: List[str] = []
-    failed: List[str] = []
-    allowed_signals: List[_MarketSignal] = []
+    if not allowed:
+        return BatchUpdateResult(succeeded=[], rejected=rejected, failed=failed)
 
-    for sig in market_signals:
-        if sig.t_yes_bid is None and sig.t_yes_ask is None:
-            failed.append(sig.ticker)
-            continue
-
-        ownership = await _check_ownership(redis, sig.market_key, algo, sig.ticker)
-        if ownership.rejected:
-            rejected.append(sig.ticker)
-        else:
-            allowed_signals.append(sig)
-
-    if not allowed_signals:
-        return BatchUpdateResult(succeeded=succeeded, rejected=rejected, failed=failed)
-
-    # Sort signals: t_yes_bid first (these delete stale t_yes_ask), t_yes_ask last
-    sorted_signals = sorted(
-        allowed_signals,
-        key=lambda s: (s.t_yes_ask is not None, s.ticker),
-    )
-
-    # Fetch current Kalshi prices for all markets to compute directions
-    price_pipe = redis.pipeline()
-    for sig in sorted_signals:
-        price_pipe.hmget(sig.market_key, ["yes_bid", "yes_ask"])
-    price_results = await ensure_awaitable(price_pipe.execute())
-
-    # Build the atomic transaction
+    sorted_signals = sorted(allowed, key=lambda s: (s.t_yes_ask is not None, s.ticker))
+    price_results = await fetch_kalshi_prices(redis, sorted_signals)
     pipe = redis.pipeline(transaction=True)
 
     for sig, prices in zip(sorted_signals, price_results):
-        kalshi_bid = _parse_int(prices[0])
-        kalshi_ask = _parse_int(prices[1])
+        direction = _compute_direction_from_prices(sig, prices)
+        mapping = build_signal_mapping(sig, direction, algo)
+        add_signal_to_pipeline(pipe, sig, mapping)
 
-        t_bid_int = int(sig.t_yes_bid) if sig.t_yes_bid is not None else None
-        t_ask_int = int(sig.t_yes_ask) if sig.t_yes_ask is not None else None
-        direction = compute_direction(t_bid_int, t_ask_int, kalshi_bid, kalshi_ask)
+    return await _execute_batch_transaction(redis, pipe, sorted_signals, rejected, failed, algo)
 
-        # Build field mapping
-        mapping: Dict[str, Any] = {"algo": algo, "direction": direction}
-        if sig.t_yes_bid is not None:
-            mapping["t_yes_bid"] = sig.t_yes_bid
-        if sig.t_yes_ask is not None:
-            mapping["t_yes_ask"] = sig.t_yes_ask
 
-        pipe.hset(sig.market_key, mapping=mapping)
+def _compute_direction_from_prices(sig: Any, prices: List[Any]) -> str:
+    """Compute direction from signal and Kalshi prices."""
+    kalshi_bid = _parse_int(prices[0])
+    kalshi_ask = _parse_int(prices[1])
+    t_bid_int = int(sig.t_yes_bid) if sig.t_yes_bid is not None else None
+    t_ask_int = int(sig.t_yes_ask) if sig.t_yes_ask is not None else None
+    return compute_direction(t_bid_int, t_ask_int, kalshi_bid, kalshi_ask)
 
-        # Delete stale opposite field
-        both_provided = sig.t_yes_bid is not None and sig.t_yes_ask is not None
-        if not both_provided:
-            if sig.t_yes_bid is not None:
-                pipe.hdel(sig.market_key, "t_yes_ask")
-            elif sig.t_yes_ask is not None:
-                pipe.hdel(sig.market_key, "t_yes_bid")
 
-    # Execute transaction atomically
+async def _execute_batch_transaction(
+    redis: "Redis",
+    pipe: Any,
+    sorted_signals: List[Any],
+    rejected: List[str],
+    failed: List[str],
+    algo: str,
+) -> BatchUpdateResult:
+    """Execute the batch transaction and publish event updates."""
+    succeeded: List[str] = []
     try:
         await ensure_awaitable(pipe.execute())
         succeeded = [sig.ticker for sig in sorted_signals]
-        logger.debug(
-            "Batch updated %d markets atomically for algo %s",
-            len(succeeded),
-            algo,
-        )
-    except (RuntimeError, ConnectionError, OSError) as exc:
-        logger.exception("Failed to execute batch update for algo %s: %s", algo, exc)
+        logger.debug("Batch updated %d markets atomically for algo %s", len(succeeded), algo)
+    except (RuntimeError, ConnectionError, OSError):
+        logger.exception("Failed to execute batch update for algo %s", algo)
         failed.extend(sig.ticker for sig in sorted_signals)
         raise
 
-    # Publish event updates (outside transaction, non-critical)
     for sig in sorted_signals:
         try:
             await _publish_market_event_update(redis, sig.market_key, sig.ticker)
-        except (RuntimeError, ConnectionError, OSError):
-            pass  # Non-critical, already logged in _publish_market_event_update
+        except (RuntimeError, ConnectionError, OSError):  # Expected, non-critical  # policy_guard: allow-silent-handler
+            pass
 
     return BatchUpdateResult(succeeded=succeeded, rejected=rejected, failed=failed)
 

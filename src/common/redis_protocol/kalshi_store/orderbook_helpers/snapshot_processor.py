@@ -12,9 +12,9 @@ from redis.asyncio import Redis
 from ....market_filters.kalshi import extract_best_ask, extract_best_bid
 from ...orderbook_utils import build_snapshot_sides
 from ..utils_coercion import coerce_mapping as _canonical_coerce_mapping
+from .best_price_updater import BestPriceUpdater
 from .event_publisher import publish_market_event_throttled
 from .snapshot_processor_helpers.price_formatting import normalize_price_formatting
-from .best_price_updater import BestPriceUpdater
 from .snapshot_processor_helpers.redis_storage import (
     build_hash_data,
     store_best_prices,

@@ -348,7 +348,7 @@ async def test_balance_record_success(monkeypatch):
     result = await tracker.record_balance("kalshi", 123456)
 
     assert result is True
-    redis.zadd.assert_awaited_once_with(f"{BALANCE_KEY_PREFIX}kalshi", {"123456": 1_700_000_000})
+    redis.zadd.assert_awaited_once_with(f"{BALANCE_KEY_PREFIX}kalshi", {"1700000000:123456": 1_700_000_000})
 
 
 @pytest.mark.asyncio
@@ -368,8 +368,8 @@ async def test_balance_record_handles_redis_error(monkeypatch):
 async def test_balance_get_history_with_hours(monkeypatch):
     redis = _make_balance_redis(
         zrangebyscore_result=[
-            ("50000", 1_700_000_100),
-            ("60000", 1_700_000_200),
+            ("1700000100:50000", 1_700_000_100),
+            ("1700000200:60000", 1_700_000_200),
         ]
     )
     monkeypatch.setattr("common.history_tracker.get_redis_connection", AsyncMock(return_value=redis))
@@ -386,8 +386,8 @@ async def test_balance_get_history_with_hours(monkeypatch):
 async def test_balance_get_history_all(monkeypatch):
     redis = _make_balance_redis(
         zrange_result=[
-            ("40000", 1_600_000_000),
-            ("50000", 1_700_000_100),
+            ("1600000000:40000", 1_600_000_000),
+            ("1700000100:50000", 1_700_000_100),
         ]
     )
     monkeypatch.setattr("common.history_tracker.get_redis_connection", AsyncMock(return_value=redis))

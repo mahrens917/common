@@ -34,12 +34,12 @@ class TestIsNetworkUnreachableError:
 
     def test_aiohttp_connector_error(self) -> None:
         """Test detection of aiohttp.ClientConnectorError."""
-        error = aiohttp.ClientConnectorError(connection_key=None, os_error=OSError("Connection failed"))
+        error = aiohttp.ClientConnectorError(None, OSError("Connection failed"))
         assert is_network_unreachable_error(error) is True
 
     def test_aiohttp_proxy_connection_error(self) -> None:
         """Test detection of aiohttp.ClientProxyConnectionError."""
-        error = aiohttp.ClientProxyConnectionError(connection_key=None, os_error=OSError("Proxy connection failed"))
+        error = aiohttp.ClientProxyConnectionError(None, OSError("Proxy connection failed"))
         assert is_network_unreachable_error(error) is True
 
     def test_aiohttp_timeout_error(self) -> None:

@@ -7,13 +7,19 @@ import pytest
 
 from common.redis_protocol.market_update_api import (
     VALID_ALGOS,
+    BatchUpdateResult,
     MarketUpdateResult,
+    _compute_direction_from_prices,
+    _execute_batch_transaction,
+    _parse_int,
+    batch_update_market_signals,
     clear_algo_ownership,
     compute_direction,
     get_market_algo,
     get_rejection_stats,
     request_market_update,
 )
+from common.redis_protocol.market_update_api_helpers import MarketSignal
 
 
 class TestComputeDirection:
@@ -311,3 +317,222 @@ class TestValidAlgos:
 
     def test_is_frozenset(self):
         assert isinstance(VALID_ALGOS, frozenset)
+
+
+class TestParseInt:
+    """Tests for _parse_int helper function."""
+
+    def test_none_returns_zero(self):
+        assert _parse_int(None) == 0
+
+    def test_empty_string_returns_zero(self):
+        assert _parse_int("") == 0
+
+    def test_empty_bytes_returns_zero(self):
+        assert _parse_int(b"") == 0
+
+    def test_bytes_value(self):
+        assert _parse_int(b"42") == 42
+
+    def test_string_value(self):
+        assert _parse_int("42") == 42
+
+    def test_float_string_value(self):
+        assert _parse_int("42.5") == 42
+
+    def test_invalid_type_raises_error(self):
+        with pytest.raises(TypeError, match="Cannot parse float to int"):
+            _parse_int(42.5)
+
+
+class TestComputeDirectionFromPrices:
+    """Tests for _compute_direction_from_prices helper function."""
+
+    def test_with_bid_price(self):
+        sig = MarketSignal(
+            ticker="TEST",
+            market_key="markets:kalshi:test:TEST",
+            t_yes_bid=10.0,
+            t_yes_ask=None,
+            algo="weather",
+        )
+        prices = [b"15", b"20"]
+        result = _compute_direction_from_prices(sig, prices)
+        assert result == "SELL"
+
+    def test_with_ask_price(self):
+        sig = MarketSignal(
+            ticker="TEST",
+            market_key="markets:kalshi:test:TEST",
+            t_yes_bid=None,
+            t_yes_ask=92.0,
+            algo="weather",
+        )
+        prices = [b"10", b"11"]
+        result = _compute_direction_from_prices(sig, prices)
+        assert result == "BUY"
+
+    def test_with_both_prices(self):
+        sig = MarketSignal(
+            ticker="TEST",
+            market_key="markets:kalshi:test:TEST",
+            t_yes_bid=50.0,
+            t_yes_ask=55.0,
+            algo="weather",
+        )
+        prices = [b"45", b"60"]
+        result = _compute_direction_from_prices(sig, prices)
+        assert result == "NONE"
+
+
+class TestBatchUpdateMarketSignals:
+    """Tests for batch_update_market_signals function."""
+
+    @pytest.fixture
+    def mock_redis(self):
+        redis = MagicMock()
+        redis.hget = AsyncMock(return_value=None)
+        redis.hmget = AsyncMock(return_value=[b"10", b"20"])
+        redis.hincrby = AsyncMock()
+        redis.pipeline = MagicMock()
+        pipe = MagicMock()
+        pipe.hset = MagicMock()
+        pipe.hdel = MagicMock()
+        pipe.execute = AsyncMock(return_value=[])
+        redis.pipeline.return_value = pipe
+        redis.publish = AsyncMock()
+        return redis
+
+    @pytest.fixture
+    def mock_key_builder(self):
+        return lambda ticker: f"markets:kalshi:test:{ticker}"
+
+    @pytest.mark.asyncio
+    async def test_invalid_algo_raises_error(self, mock_redis, mock_key_builder):
+        with pytest.raises(ValueError, match="Invalid algo"):
+            await batch_update_market_signals(mock_redis, {"TEST": {"t_yes_bid": 50.0}}, "invalid", mock_key_builder)
+
+    @pytest.mark.asyncio
+    async def test_empty_signals_returns_empty_result(self, mock_redis, mock_key_builder):
+        result = await batch_update_market_signals(mock_redis, {}, "weather", mock_key_builder)
+        assert result.succeeded == []
+        assert result.rejected == []
+        assert result.failed == []
+
+    @pytest.mark.asyncio
+    async def test_all_rejected_returns_empty_succeeded(self, mock_redis, mock_key_builder):
+        mock_redis.hget = AsyncMock(return_value=b"pdf")
+        result = await batch_update_market_signals(mock_redis, {"TEST": {"t_yes_bid": 50.0}}, "weather", mock_key_builder)
+        assert result.succeeded == []
+        assert "TEST" in result.rejected
+
+    @pytest.mark.asyncio
+    async def test_successful_batch_update(self, mock_redis, mock_key_builder):
+        result = await batch_update_market_signals(
+            mock_redis,
+            {"TEST1": {"t_yes_bid": 50.0}, "TEST2": {"t_yes_ask": 55.0}},
+            "weather",
+            mock_key_builder,
+        )
+        assert "TEST1" in result.succeeded
+        assert "TEST2" in result.succeeded
+        assert mock_redis.pipeline.call_count >= 1
+
+
+class TestExecuteBatchTransaction:
+    """Tests for _execute_batch_transaction helper function."""
+
+    @pytest.fixture
+    def mock_redis(self):
+        redis = MagicMock()
+        redis.hget = AsyncMock(return_value=b"EVENT123")
+        redis.publish = AsyncMock()
+        return redis
+
+    @pytest.fixture
+    def mock_pipe(self):
+        pipe = MagicMock()
+        pipe.execute = AsyncMock(return_value=[])
+        return pipe
+
+    @pytest.fixture
+    def sample_signals(self):
+        return [
+            MarketSignal(
+                ticker="TEST1",
+                market_key="markets:kalshi:test:TEST1",
+                t_yes_bid=50.0,
+                t_yes_ask=None,
+                algo="weather",
+            ),
+            MarketSignal(
+                ticker="TEST2",
+                market_key="markets:kalshi:test:TEST2",
+                t_yes_bid=None,
+                t_yes_ask=55.0,
+                algo="weather",
+            ),
+        ]
+
+    @pytest.mark.asyncio
+    async def test_successful_execution(self, mock_redis, mock_pipe, sample_signals):
+        result = await _execute_batch_transaction(mock_redis, mock_pipe, sample_signals, [], [], "weather")
+        assert result.succeeded == ["TEST1", "TEST2"]
+        assert result.rejected == []
+        assert result.failed == []
+
+    @pytest.mark.asyncio
+    async def test_execution_with_rejections(self, mock_redis, mock_pipe, sample_signals):
+        result = await _execute_batch_transaction(mock_redis, mock_pipe, sample_signals, ["REJECTED1"], [], "weather")
+        assert result.succeeded == ["TEST1", "TEST2"]
+        assert result.rejected == ["REJECTED1"]
+
+    @pytest.mark.asyncio
+    async def test_execution_failure_raises(self, mock_redis, mock_pipe, sample_signals):
+        mock_pipe.execute = AsyncMock(side_effect=RuntimeError("Redis connection failed"))
+        with pytest.raises(RuntimeError):
+            await _execute_batch_transaction(mock_redis, mock_pipe, sample_signals, [], [], "weather")
+
+    @pytest.mark.asyncio
+    async def test_publish_failure_is_silent(self, mock_redis, mock_pipe, sample_signals):
+        mock_redis.publish = AsyncMock(side_effect=ConnectionError("publish failed"))
+        result = await _execute_batch_transaction(mock_redis, mock_pipe, sample_signals, [], [], "weather")
+        assert result.succeeded == ["TEST1", "TEST2"]
+
+
+class TestPublishMarketEventUpdate:
+    """Tests for _publish_market_event_update exception handling."""
+
+    @pytest.fixture
+    def mock_redis(self):
+        redis = MagicMock()
+        redis.hget = AsyncMock()
+        redis.hset = AsyncMock()
+        redis.hmget = AsyncMock(return_value=[b"10", b"20"])
+        redis.hincrby = AsyncMock()
+        redis.publish = AsyncMock()
+        redis.hdel = AsyncMock()
+        return redis
+
+    @pytest.mark.asyncio
+    async def test_publish_exception_is_raised(self, mock_redis):
+        def hget_side_effect(key, field):
+            if field == "event_ticker":
+                return b"EVENT123"
+            return None
+
+        mock_redis.hget = AsyncMock(side_effect=hget_side_effect)
+        mock_redis.publish = AsyncMock(side_effect=RuntimeError("publish failed"))
+
+        with pytest.raises(RuntimeError, match="publish failed"):
+            await request_market_update(mock_redis, "market:key", "weather", 50.0, 55.0)
+
+
+class TestBatchUpdateResult:
+    """Tests for BatchUpdateResult dataclass."""
+
+    def test_create_result(self):
+        result = BatchUpdateResult(succeeded=["A", "B"], rejected=["C"], failed=["D"])
+        assert result.succeeded == ["A", "B"]
+        assert result.rejected == ["C"]
+        assert result.failed == ["D"]

@@ -17,6 +17,9 @@ from .timestamp_normalizer import TimestampNormalizer
 
 logger = logging.getLogger(__name__)
 
+# Sentinel value for unspecified/missing side data (causes validation error)
+SIDE_UNSPECIFIED = ""
+
 
 class OrderbookWriter:
     """Handles orderbook and trade tick write operations."""
@@ -131,7 +134,8 @@ def _resolve_fill_price(data: Dict) -> int:
     except (TypeError, ValueError) as exc:
         raise ValueError(f"Invalid yes_price value: {yes_price}") from exc
 
-    side = str(data.get("side", "")).lower()
+    side_raw = data.get("side")
+    side = str(side_raw).lower() if side_raw is not None else SIDE_UNSPECIFIED
     if side == "yes":
         return yes_price_int
     if side == "no":
@@ -150,20 +154,7 @@ class UserDataWriter:
     async def update_user_fill(self, msg: Dict) -> bool:
         """Persist a user fill notification to Redis.
 
-        Expected fill_data format (from Kalshi websocket):
-        {
-            "ticker": "...",
-            "side": "yes" or "no",
-            "action": "buy" or "sell",
-            "count": int,
-            "yes_price": int (cents) - the actual fill price for YES side,
-            "trade_id": "...",
-            "ts": int (unix ms)
-        }
-
-        The stored 'price' field is derived from yes_price based on side:
-        - For YES fills: price = yes_price
-        - For NO fills: price = 100 - yes_price
+        Price field derived from yes_price: YES=yes_price, NO=100-yes_price.
         """
         try:
             inner_msg = msg.get("msg")
@@ -206,22 +197,7 @@ class UserDataWriter:
             return True
 
     async def update_user_order(self, msg: Dict) -> bool:
-        """Persist a user order notification to Redis.
-
-        Expected order_data format:
-        {
-            "order_id": "...",
-            "ticker": "...",
-            "status": "...",
-            "action": "buy" or "sell",
-            "side": "yes" or "no",
-            "type": "limit" or "market",
-            "count": int,
-            "remaining_count": int,
-            "price": int (cents),
-            "ts": int (unix ms)
-        }
-        """
+        """Persist a user order notification to Redis."""
         try:
             inner_msg = msg.get("msg")
             data = inner_msg if isinstance(inner_msg, dict) else msg

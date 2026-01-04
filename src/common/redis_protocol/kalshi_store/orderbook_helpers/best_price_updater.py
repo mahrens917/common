@@ -10,6 +10,9 @@ from ...typing import ensure_awaitable
 from .side_data_updater import SideDataUpdater
 from .snapshot_processor_helpers.redis_storage import store_optional_field as store_optional_field_core
 
+# Sentinel value for missing price data (used in direction computation)
+PRICE_UNAVAILABLE = 0
+
 
 def _parse_int_optional(value: object) -> Optional[int]:
     """Parse value to int, returning None for missing/empty."""
@@ -35,9 +38,7 @@ class BestPriceUpdater:
     @staticmethod
     async def _recompute_direction(redis: Redis, market_key: str) -> None:
         """Recompute and store direction based on current prices and theoretical values."""
-        fields = await ensure_awaitable(
-            redis.hmget(market_key, ["yes_bid", "yes_ask", "t_yes_bid", "t_yes_ask"])
-        )
+        fields = await ensure_awaitable(redis.hmget(market_key, ["yes_bid", "yes_ask", "t_yes_bid", "t_yes_ask"]))
         kalshi_bid = _parse_int_optional(fields[0])
         kalshi_ask = _parse_int_optional(fields[1])
         t_yes_bid = _parse_int_optional(fields[2])
@@ -49,8 +50,8 @@ class BestPriceUpdater:
         direction = compute_direction(
             t_yes_bid,
             t_yes_ask,
-            kalshi_bid if kalshi_bid is not None else 0,
-            kalshi_ask if kalshi_ask is not None else 0,
+            kalshi_bid if kalshi_bid is not None else PRICE_UNAVAILABLE,
+            kalshi_ask if kalshi_ask is not None else PRICE_UNAVAILABLE,
         )
         await ensure_awaitable(redis.hset(market_key, "direction", direction))
 
