@@ -106,8 +106,8 @@ omit = [
     "*helpers/__init__.py",
     "*/_module_references.py",
     "*/_path_init.py",
-    "*/peak_ui/*.py",
     "*/ui.py",
+    "*/peak_ui/**/*.py",
 ]
 
 [tool.coverage.run]
@@ -124,8 +124,8 @@ omit = [
     "*helpers/__init__.py",
     "*/_module_references.py",
     "*/_path_init.py",
-    "*/peak_ui/*.py",
     "*/ui.py",
+    "*/peak_ui/**/*.py",
 ]
 
 [tool.pylint]
@@ -188,6 +188,7 @@ disable = [
     "no-value-for-parameter",
     "invalid-overridden-method",
     "global-statement",
+    "redefined-builtin",
 ]
 
 [tool.pyright]
