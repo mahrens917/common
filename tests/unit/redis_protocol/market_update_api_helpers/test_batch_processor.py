@@ -78,6 +78,8 @@ class TestFilterAllowedSignals:
 
     @pytest.mark.asyncio
     async def test_filters_rejected_signals(self, mock_redis):
+        """Test that rejected signals are still allowed but with is_owner=False."""
+
         async def reject_ownership(redis, market_key, algo, ticker):
             return MagicMock(rejected=True)
 
@@ -93,8 +95,11 @@ class TestFilterAllowedSignals:
 
         allowed, rejected, failed = await filter_allowed_signals(mock_redis, signals, "weather", reject_ownership)
 
-        assert allowed == []
-        assert rejected == ["TEST1"]
+        # In the new model, all writes are allowed but is_owner=False for rejected
+        assert len(allowed) == 1
+        assert allowed[0].ticker == "TEST1"
+        assert allowed[0].is_owner is False
+        assert rejected == []
         assert failed == []
 
 
@@ -146,7 +151,8 @@ class TestBuildSignalMapping:
 
         result = build_signal_mapping(sig, "SELL", "weather")
 
-        assert result == {"algo": "weather", "direction": "SELL", "t_yes_bid": 50.0}
+        # Namespaced field format: {algo}:t_yes_bid
+        assert result == {"algo": "weather", "direction": "SELL", "weather:t_yes_bid": 50.0}
 
     def test_builds_mapping_with_ask(self):
         sig = MarketSignal(
@@ -159,7 +165,8 @@ class TestBuildSignalMapping:
 
         result = build_signal_mapping(sig, "BUY", "weather")
 
-        assert result == {"algo": "weather", "direction": "BUY", "t_yes_ask": 55.0}
+        # Namespaced field format: {algo}:t_yes_ask
+        assert result == {"algo": "weather", "direction": "BUY", "weather:t_yes_ask": 55.0}
 
     def test_builds_mapping_with_both_prices(self):
         sig = MarketSignal(
@@ -172,11 +179,12 @@ class TestBuildSignalMapping:
 
         result = build_signal_mapping(sig, "NONE", "weather")
 
+        # Namespaced field format: {algo}:t_yes_bid, {algo}:t_yes_ask
         assert result == {
             "algo": "weather",
             "direction": "NONE",
-            "t_yes_bid": 50.0,
-            "t_yes_ask": 55.0,
+            "weather:t_yes_bid": 50.0,
+            "weather:t_yes_ask": 55.0,
         }
 
 
@@ -192,12 +200,13 @@ class TestAddSignalToPipeline:
             t_yes_ask=None,
             algo="weather",
         )
-        mapping = {"algo": "weather", "direction": "SELL", "t_yes_bid": 50.0}
+        mapping = {"algo": "weather", "direction": "SELL", "weather:t_yes_bid": 50.0}
 
         add_signal_to_pipeline(mock_pipe, sig, mapping)
 
         mock_pipe.hset.assert_called_once_with("markets:test:TEST", mapping=mapping)
-        mock_pipe.hdel.assert_called_once_with("markets:test:TEST", "t_yes_ask")
+        # Namespaced field delete: {algo}:t_yes_ask
+        mock_pipe.hdel.assert_called_once_with("markets:test:TEST", "weather:t_yes_ask")
 
     def test_adds_signal_with_ask_deletes_bid(self):
         mock_pipe = MagicMock()
@@ -208,12 +217,13 @@ class TestAddSignalToPipeline:
             t_yes_ask=55.0,
             algo="weather",
         )
-        mapping = {"algo": "weather", "direction": "BUY", "t_yes_ask": 55.0}
+        mapping = {"algo": "weather", "direction": "BUY", "weather:t_yes_ask": 55.0}
 
         add_signal_to_pipeline(mock_pipe, sig, mapping)
 
         mock_pipe.hset.assert_called_once_with("markets:test:TEST", mapping=mapping)
-        mock_pipe.hdel.assert_called_once_with("markets:test:TEST", "t_yes_bid")
+        # Namespaced field delete: {algo}:t_yes_bid
+        mock_pipe.hdel.assert_called_once_with("markets:test:TEST", "weather:t_yes_bid")
 
     def test_adds_signal_with_both_prices_no_delete(self):
         mock_pipe = MagicMock()
@@ -224,7 +234,7 @@ class TestAddSignalToPipeline:
             t_yes_ask=55.0,
             algo="weather",
         )
-        mapping = {"algo": "weather", "direction": "NONE", "t_yes_bid": 50.0, "t_yes_ask": 55.0}
+        mapping = {"algo": "weather", "direction": "NONE", "weather:t_yes_bid": 50.0, "weather:t_yes_ask": 55.0}
 
         add_signal_to_pipeline(mock_pipe, sig, mapping)
 

@@ -34,62 +34,50 @@ class ServiceKeyRemover:
         self.subscription_ids_key = subscription_ids_key
 
     async def remove_service_keys(self) -> bool:
-        """
-        Remove all Redis keys for this service's namespace (e.g., kalshi:ws:* or kalshi:rest:*)
-        and clear subscription tracking for this service
-        """
+        """Remove all Redis keys for this service's namespace and clear subscription tracking."""
         try:
-            pattern = f"kalshi:{self.service_prefix}:*"
             redis = await self._get_redis()
-            keys = await redis.keys(pattern)
-
-            # Also get subscription tracking entries for this service
-            redis = await self._get_redis()
-            subscriptions = await redis.hgetall(self.subscriptions_key)
-            subscription_keys_to_remove = []
-            prefix = f"{self.service_prefix}:"
-            for key in subscriptions.keys():
-                normalized_key = key.decode("utf-8") if isinstance(key, bytes) else key
-                if isinstance(normalized_key, str) and normalized_key.startswith(prefix):
-                    subscription_keys_to_remove.append(key)
-
-            total_operations = len(keys) + len(subscription_keys_to_remove)
-            if total_operations == 0:
-                logger.info(f"No Kalshi keys or subscriptions to remove for service_prefix={self.service_prefix}")
-            else:
-                logger.info(
-                    f"Removing {len(keys)} Kalshi keys and {len(subscription_keys_to_remove)} subscription entries for service_prefix={self.service_prefix} from Redis"
-                )
-
-                redis = await self._get_redis()
-                pipe = redis.pipeline()
-
-                # Remove service-specific keys
-                for key in keys:
-                    pipe.delete(key)
-
-                # Remove subscription tracking entries for this service
-                for subscription_key in subscription_keys_to_remove:
-                    pipe.hdel(self.subscriptions_key, subscription_key)
-
-                await pipe.execute()
-
-                logger.info(
-                    f"Successfully removed all Kalshi keys and subscription entries for service_prefix={self.service_prefix} from Redis"
-                )
-
-            # Always clear subscription IDs hash for this service
-            redis = await self._get_redis()
-            deleted = await redis.delete(self.subscription_ids_key)
-            if deleted:
-                logger.info(f"Cleared subscription IDs hash {self.subscription_ids_key}")
-        except REDIS_ERRORS as exc:  # Expected exception, returning default value  # policy_guard: allow-silent-handler
-            logger.error(
-                "Error removing all Kalshi keys and subscriptions for service_prefix=%s: %s",
-                self.service_prefix,
-                exc,
-                exc_info=True,
-            )
+            keys = await redis.keys(f"kalshi:{self.service_prefix}:*")
+            subscription_keys = await self._get_subscription_keys_to_remove(redis)
+            await self._execute_removal(keys, subscription_keys)
+            await self._clear_subscription_ids()
+        except REDIS_ERRORS as exc:  # policy_guard: allow-silent-handler
+            logger.error("Error removing Kalshi keys for service_prefix=%s: %s", self.service_prefix, exc, exc_info=True)
             return False
         else:
             return True
+
+    async def _get_subscription_keys_to_remove(self, redis) -> list:
+        """Get subscription keys that match this service prefix."""
+        subscriptions = await redis.hgetall(self.subscriptions_key)
+        prefix = f"{self.service_prefix}:"
+        result = []
+        for key in subscriptions.keys():
+            normalized = key.decode("utf-8") if isinstance(key, bytes) else key
+            if isinstance(normalized, str) and normalized.startswith(prefix):
+                result.append(key)
+        return result
+
+    async def _execute_removal(self, keys: list, subscription_keys: list) -> None:
+        """Execute removal of keys and subscription entries via pipeline."""
+        total = len(keys) + len(subscription_keys)
+        if total == 0:
+            logger.info(f"No Kalshi keys or subscriptions to remove for service_prefix={self.service_prefix}")
+            return
+
+        logger.info(f"Removing {len(keys)} keys and {len(subscription_keys)} subscriptions for {self.service_prefix}")
+        redis = await self._get_redis()
+        pipe = redis.pipeline()
+        for key in keys:
+            pipe.delete(key)
+        for sub_key in subscription_keys:
+            pipe.hdel(self.subscriptions_key, sub_key)
+        await pipe.execute()
+        logger.info(f"Successfully removed Kalshi keys for service_prefix={self.service_prefix}")
+
+    async def _clear_subscription_ids(self) -> None:
+        """Clear the subscription IDs hash for this service."""
+        redis = await self._get_redis()
+        deleted = await redis.delete(self.subscription_ids_key)
+        if deleted:
+            logger.info(f"Cleared subscription IDs hash {self.subscription_ids_key}")

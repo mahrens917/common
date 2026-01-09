@@ -76,7 +76,6 @@ def _create_test_market_state(**overrides) -> MarketState:
         "timestamp": TEST_TRADE_TIMESTAMP,
         "yes_bid": 50,
         "yes_ask": 60,
-        "traded": False,
         "min_strike_price_cents": 50.0,
         "max_strike_price_cents": 70.0,
     }

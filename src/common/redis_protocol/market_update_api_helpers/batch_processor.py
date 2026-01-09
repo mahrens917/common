@@ -6,13 +6,14 @@ from dataclasses import dataclass
 from datetime import date, timedelta
 from typing import TYPE_CHECKING, Any, Dict, List, Tuple
 
-from ..market_update_api import algo_field
 from ..typing import ensure_awaitable
+
+REJECTION_KEY_PREFIX = "algo_rejections"
+
+from .ownership_helpers import algo_field
 
 if TYPE_CHECKING:
     from redis.asyncio import Redis
-
-REJECTION_KEY_PREFIX = "algo_rejections"
 
 
 @dataclass

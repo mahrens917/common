@@ -15,21 +15,22 @@ logger = logging.getLogger(__name__)
 def _get_cli_temp_f():
     """Get the cli_temp_f function from weather package."""
     import importlib
+    import importlib.util
 
     for module_path in ["src.weather.temperature_converter", "weather.temperature_converter"]:
+        # Check if module exists before attempting import
+        spec = importlib.util.find_spec(module_path.replace("src.", ""))
+        if spec is None:
+            continue
         try:
             module = importlib.import_module(module_path)
-        except (
-            ImportError,
-            ModuleNotFoundError,
-            AttributeError,
-        ):  # Expected exception - optional dependency  # policy_guard: allow-silent-handler
+        except (ImportError, ModuleNotFoundError, AttributeError, OSError):  # policy_guard: allow-silent-handler
             continue
         else:
             return module.cli_temp_f
 
     def cli_temp_f(celsius):
-        """Fallback when weather package is not installed."""
+        """Simple C to F conversion when weather package unavailable."""
         return int(celsius * 9 / 5 + 32)
 
     return cli_temp_f

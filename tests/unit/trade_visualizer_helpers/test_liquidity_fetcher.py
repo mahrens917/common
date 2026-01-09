@@ -12,7 +12,7 @@ from common.trade_visualizer_helpers.liquidity_fetcher import (
 
 
 class TestMarketState:
-    """Tests for MarketState dataclass."""
+    """Tests for MarketState class."""
 
     def test_init(self) -> None:
         """Test MarketState initialization."""
@@ -22,7 +22,6 @@ class TestMarketState:
             market_ticker="KXBTC-25JAN01-100000",
             yes_bid=0.45,
             yes_ask=0.55,
-            traded=True,
             min_strike_price_cents=100.0,
             max_strike_price_cents=200.0,
         )
@@ -31,7 +30,6 @@ class TestMarketState:
         assert state.market_ticker == "KXBTC-25JAN01-100000"
         assert state.yes_bid == 0.45
         assert state.yes_ask == 0.55
-        assert state.traded is True
         assert state.min_strike_price_cents == 100.0
         assert state.max_strike_price_cents == 200.0
 
@@ -43,14 +41,14 @@ class TestMarketState:
             market_ticker="KXBTC-25JAN01-100000",
             yes_bid=None,
             yes_ask=None,
-            traded=False,
             min_strike_price_cents=None,
             max_strike_price_cents=None,
         )
 
         assert state.yes_bid is None
         assert state.yes_ask is None
-        assert state.traded is False
+        assert state.min_strike_price_cents is None
+        assert state.max_strike_price_cents is None
 
 
 class TestLiquidityFetcherSafeFloat:
@@ -124,7 +122,6 @@ class TestLiquidityFetcherBuildMarketState:
         decoded = {
             "yes_bid": "0.45",
             "yes_ask": "0.55",
-            "traded": "true",
             "floor_strike": "100.0",
             "cap_strike": "200.0",
         }
@@ -134,27 +131,11 @@ class TestLiquidityFetcherBuildMarketState:
         assert state.market_ticker == "KXMIA-25JAN01-100"
         assert state.yes_bid == 0.45
         assert state.yes_ask == 0.55
-        assert state.traded is True
         assert state.min_strike_price_cents == 100.0
         assert state.max_strike_price_cents == 200.0
 
-    def test_builds_state_with_false_traded(self) -> None:
-        """Test building state with traded=false."""
-        fetcher = LiquidityFetcher()
-        decoded = {
-            "yes_bid": "0.30",
-            "yes_ask": "0.40",
-            "traded": "false",
-            "floor_strike": "50.0",
-            "cap_strike": "75.0",
-        }
-
-        state = fetcher._build_market_state(decoded, "KXMIA-25JAN01-50")
-
-        assert state.traded is False
-
-    def test_builds_state_missing_traded(self) -> None:
-        """Test building state with missing traded field."""
+    def test_builds_state_with_missing_strikes(self) -> None:
+        """Test building state with missing strike fields."""
         fetcher = LiquidityFetcher()
         decoded = {
             "yes_bid": "0.30",
@@ -163,7 +144,10 @@ class TestLiquidityFetcherBuildMarketState:
 
         state = fetcher._build_market_state(decoded, "KXMIA-25JAN01-50")
 
-        assert state.traded is False
+        assert state.yes_bid == 0.30
+        assert state.yes_ask == 0.40
+        assert state.min_strike_price_cents is None
+        assert state.max_strike_price_cents is None
 
 
 class TestLiquidityFetcherGetMarketLiquidityStates:

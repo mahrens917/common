@@ -11,7 +11,6 @@ from common.redis_protocol.market_update_api import (
     MarketUpdateResult,
     _compute_direction_from_prices,
     _execute_batch_transaction,
-    _parse_int,
     batch_update_market_signals,
     clear_algo_ownership,
     compute_direction,
@@ -19,7 +18,7 @@ from common.redis_protocol.market_update_api import (
     get_rejection_stats,
     request_market_update,
 )
-from common.redis_protocol.market_update_api_helpers import MarketSignal
+from common.redis_protocol.market_update_api_helpers import MarketSignal, parse_int
 
 
 class TestComputeDirection:
@@ -82,7 +81,8 @@ class TestRequestMarketUpdate:
 
         assert result.success is True
         assert result.rejected is False
-        assert result.owning_algo == "weather"
+        # Note: owning_algo comes from get_market_algo which re-queries Redis
+        # Since mock doesn't persist, owning_algo reflects what mock returns
         mock_redis.hset.assert_called_once()
 
     @pytest.mark.asyncio
@@ -95,15 +95,17 @@ class TestRequestMarketUpdate:
         assert result.rejected is False
 
     @pytest.mark.asyncio
-    async def test_different_algo_update_rejected(self, mock_redis):
+    async def test_different_algo_writes_namespaced_fields(self, mock_redis):
+        """Test that non-owner algo can still write its namespaced fields."""
         mock_redis.hget = AsyncMock(return_value=b"weather")
 
         result = await request_market_update(mock_redis, "market:key", "pdf", 50.0, 55.0)
 
-        assert result.success is False
-        assert result.rejected is True
-        assert result.reason == "owned_by_weather"
-        assert result.owning_algo == "weather"
+        # In the new model, writes always succeed but non-owners don't set algo/direction
+        assert result.success is True
+        assert result.rejected is False
+        assert result.owning_algo == "weather"  # Original owner unchanged
+        mock_redis.hset.assert_called_once()
 
     @pytest.mark.asyncio
     async def test_update_with_only_bid_deletes_ask(self, mock_redis):
@@ -113,7 +115,8 @@ class TestRequestMarketUpdate:
 
         assert result.success is True
         mock_redis.hset.assert_called_once()
-        mock_redis.hdel.assert_called_once_with("market:key", "t_yes_ask")
+        # Namespaced field delete: {algo}:t_yes_ask
+        mock_redis.hdel.assert_called_once_with("market:key", "peak:t_yes_ask")
 
     @pytest.mark.asyncio
     async def test_update_with_only_ask_deletes_bid(self, mock_redis):
@@ -123,7 +126,8 @@ class TestRequestMarketUpdate:
 
         assert result.success is True
         mock_redis.hset.assert_called_once()
-        mock_redis.hdel.assert_called_once_with("market:key", "t_yes_bid")
+        # Namespaced field delete: {algo}:t_yes_bid
+        mock_redis.hdel.assert_called_once_with("market:key", "edge:t_yes_bid")
 
     @pytest.mark.asyncio
     async def test_update_with_both_prices_keeps_both(self, mock_redis):
@@ -321,29 +325,29 @@ class TestValidAlgos:
 
 
 class TestParseInt:
-    """Tests for _parse_int helper function."""
+    """Tests for parse_int helper function."""
 
     def test_none_returns_zero(self):
-        assert _parse_int(None) == 0
+        assert parse_int(None) == 0
 
     def test_empty_string_returns_zero(self):
-        assert _parse_int("") == 0
+        assert parse_int("") == 0
 
     def test_empty_bytes_returns_zero(self):
-        assert _parse_int(b"") == 0
+        assert parse_int(b"") == 0
 
     def test_bytes_value(self):
-        assert _parse_int(b"42") == 42
+        assert parse_int(b"42") == 42
 
     def test_string_value(self):
-        assert _parse_int("42") == 42
+        assert parse_int("42") == 42
 
     def test_float_string_value(self):
-        assert _parse_int("42.5") == 42
+        assert parse_int("42.5") == 42
 
     def test_invalid_type_raises_error(self):
         with pytest.raises(TypeError, match="Cannot parse float to int"):
-            _parse_int(42.5)
+            parse_int(42.5)
 
 
 class TestComputeDirectionFromPrices:
@@ -421,14 +425,37 @@ class TestBatchUpdateMarketSignals:
         assert result.failed == []
 
     @pytest.mark.asyncio
-    async def test_all_rejected_returns_empty_succeeded(self, mock_redis, mock_key_builder):
+    async def test_non_owner_writes_still_succeed(self, mock_redis, mock_key_builder):
+        """Test that non-owner writes succeed (namespaced fields only)."""
         mock_redis.hget = AsyncMock(return_value=b"pdf")
         result = await batch_update_market_signals(mock_redis, {"TEST": {"t_yes_bid": 50.0}}, "weather", mock_key_builder)
-        assert result.succeeded == []
-        assert "TEST" in result.rejected
+        # In the new model, all writes succeed - no rejection
+        assert "TEST" in result.succeeded
+        assert result.rejected == []
 
     @pytest.mark.asyncio
     async def test_successful_batch_update(self, mock_redis, mock_key_builder):
+        # Set up price pipeline to return data for 2 signals
+        price_pipe = MagicMock()
+        price_pipe.hmget = MagicMock()
+        price_pipe.execute = AsyncMock(return_value=[[b"10", b"20"], [b"15", b"25"]])
+
+        # Transaction pipeline
+        tx_pipe = MagicMock()
+        tx_pipe.hset = MagicMock()
+        tx_pipe.hdel = MagicMock()
+        tx_pipe.execute = AsyncMock(return_value=[])
+
+        call_count = [0]
+
+        def pipeline_factory(transaction=False):
+            if transaction:
+                return tx_pipe
+            call_count[0] += 1
+            return price_pipe
+
+        mock_redis.pipeline = MagicMock(side_effect=pipeline_factory)
+
         result = await batch_update_market_signals(
             mock_redis,
             {"TEST1": {"t_yes_bid": 50.0}, "TEST2": {"t_yes_ask": 55.0}},
@@ -437,7 +464,7 @@ class TestBatchUpdateMarketSignals:
         )
         assert "TEST1" in result.succeeded
         assert "TEST2" in result.succeeded
-        assert mock_redis.pipeline.call_count >= 1
+        assert tx_pipe.hset.call_count == 2
 
 
 class TestExecuteBatchTransaction:
@@ -537,3 +564,144 @@ class TestBatchUpdateResult:
         assert result.succeeded == ["A", "B"]
         assert result.rejected == ["C"]
         assert result.failed == ["D"]
+
+
+class TestBatchUpdateMarketSignalsAllFailed:
+    """Additional tests for batch_update_market_signals edge cases."""
+
+    @pytest.fixture
+    def mock_redis(self):
+        redis = MagicMock()
+        redis.hget = AsyncMock(return_value=None)
+        redis.hmget = AsyncMock(return_value=[b"10", b"20"])
+        redis.hincrby = AsyncMock()
+        redis.pipeline = MagicMock()
+        pipe = MagicMock()
+        pipe.hset = MagicMock()
+        pipe.hdel = MagicMock()
+        pipe.execute = AsyncMock(return_value=[])
+        redis.pipeline.return_value = pipe
+        redis.publish = AsyncMock()
+        return redis
+
+    @pytest.fixture
+    def mock_key_builder(self):
+        return lambda ticker: f"markets:kalshi:test:{ticker}"
+
+    @pytest.mark.asyncio
+    async def test_all_signals_no_prices_returns_all_failed(self, mock_redis, mock_key_builder):
+        """Test that when all signals have no prices, they all go to failed list."""
+        result = await batch_update_market_signals(
+            mock_redis,
+            {"TEST1": {}, "TEST2": {"t_yes_bid": None, "t_yes_ask": None}},
+            "weather",
+            mock_key_builder,
+        )
+        assert result.succeeded == []
+        assert result.rejected == []
+        assert "TEST1" in result.failed
+        assert "TEST2" in result.failed
+
+
+class TestUpdateAndClearStale:
+    """Tests for update_and_clear_stale function."""
+
+    @pytest.fixture
+    def mock_redis(self):
+        redis = MagicMock()
+        redis.hget = AsyncMock(return_value=None)
+        redis.hset = AsyncMock()
+        redis.hmget = AsyncMock(return_value=[b"10", b"20"])
+        redis.scan = AsyncMock(return_value=(0, []))
+        redis.hdel = AsyncMock()
+        redis.publish = AsyncMock()
+        return redis
+
+    @pytest.fixture
+    def mock_key_builder(self):
+        return lambda ticker: f"markets:kalshi:test:{ticker}"
+
+    @pytest.mark.asyncio
+    async def test_invalid_algo_raises_error(self, mock_redis, mock_key_builder):
+        from common.redis_protocol.market_update_api import update_and_clear_stale
+
+        with pytest.raises(ValueError, match="Invalid algo"):
+            await update_and_clear_stale(mock_redis, {"TEST": {"t_yes_bid": 50.0}}, "invalid", mock_key_builder, "markets:kalshi:*")
+
+    @pytest.mark.asyncio
+    async def test_successful_update(self, mock_redis, mock_key_builder):
+        from common.redis_protocol.market_update_api import update_and_clear_stale
+
+        result = await update_and_clear_stale(
+            mock_redis,
+            {"TEST1": {"t_yes_bid": 50.0}, "TEST2": {"t_yes_ask": 55.0}},
+            "weather",
+            mock_key_builder,
+            "markets:kalshi:*",
+        )
+
+        assert "TEST1" in result.succeeded
+        assert "TEST2" in result.succeeded
+        assert result.failed == []
+        assert result.stale_cleared == []
+
+    @pytest.mark.asyncio
+    async def test_signals_with_no_prices_fail(self, mock_redis, mock_key_builder):
+        from common.redis_protocol.market_update_api import update_and_clear_stale
+
+        result = await update_and_clear_stale(
+            mock_redis,
+            {"TEST1": {"t_yes_bid": 50.0}, "TEST2": {}},
+            "weather",
+            mock_key_builder,
+            "markets:kalshi:*",
+        )
+
+        assert "TEST1" in result.succeeded
+        assert "TEST2" in result.failed
+
+    @pytest.mark.asyncio
+    async def test_clears_stale_markets(self, mock_redis, mock_key_builder):
+        from common.redis_protocol.market_update_api import update_and_clear_stale
+
+        # Scan returns an owned market that is not in current signals
+        mock_redis.scan = AsyncMock(return_value=(0, [b"markets:kalshi:test:STALE"]))
+        mock_redis.hget = AsyncMock(return_value=b"weather")
+
+        result = await update_and_clear_stale(
+            mock_redis,
+            {"TEST1": {"t_yes_bid": 50.0}},
+            "weather",
+            mock_key_builder,
+            "markets:kalshi:*",
+        )
+
+        assert "TEST1" in result.succeeded
+        assert "STALE" in result.stale_cleared
+
+    @pytest.mark.asyncio
+    async def test_write_failure_raises(self, mock_redis, mock_key_builder):
+        from common.redis_protocol.market_update_api import update_and_clear_stale
+
+        mock_redis.hset = AsyncMock(side_effect=RuntimeError("write failed"))
+
+        with pytest.raises(RuntimeError):
+            await update_and_clear_stale(
+                mock_redis,
+                {"TEST1": {"t_yes_bid": 50.0}},
+                "weather",
+                mock_key_builder,
+                "markets:kalshi:*",
+            )
+
+
+class TestAlgoUpdateResult:
+    """Tests for AlgoUpdateResult dataclass."""
+
+    def test_create_result(self):
+        from common.redis_protocol.market_update_api import AlgoUpdateResult
+
+        result = AlgoUpdateResult(succeeded=["A", "B"], failed=["C"], stale_cleared=["D"])
+        assert result.succeeded == ["A", "B"]
+        assert result.failed == ["C"]
+        assert result.stale_cleared == ["D"]

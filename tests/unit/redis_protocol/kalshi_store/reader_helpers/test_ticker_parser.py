@@ -7,8 +7,12 @@ def test_normalize_ticker_bytes_and_string():
 
 
 def test_is_market_for_currency_matches_patterns():
+    """Test that currency matching uses precise KXBTC/KXETH patterns."""
     assert TickerParser.is_market_for_currency("KXBTC-TEST", "btc") is True
-    assert TickerParser.is_market_for_currency("foo-BTC", "BTC") is True
+    assert TickerParser.is_market_for_currency("KXBTCD-DAILY", "BTC") is True
+    assert TickerParser.is_market_for_currency("KXETH-TICKER", "ETH") is True
+    # Non-KX prefixed tickers don't match (precise matching)
+    assert TickerParser.is_market_for_currency("foo-BTC", "BTC") is False
     assert TickerParser.is_market_for_currency("", "BTC") is False
 
 

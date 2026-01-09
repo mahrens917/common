@@ -271,6 +271,11 @@ async def test_ensure_redis_connection_recreates_client(monkeypatch):
 
 @pytest.mark.asyncio
 async def test_store_and_fetch_market_metadata_cycle(store):
+    """Test metadata store/fetch cycle.
+
+    Note: store_market_metadata only stores Kalshi API metadata fields.
+    Price fields like yes_bid are derived from orderbook (yes_bids) during snapshot retrieval.
+    """
     store_obj, redis_client = store
     ticker = "KXHIGHTEST-24JAN15-T100"
     market_data = {
@@ -278,15 +283,25 @@ async def test_store_and_fetch_market_metadata_cycle(store):
         "close_time": "",
         "strike_type": "greater",
         "floor_strike": 100,
-        "yes_bid": 45,
-        "yes_ask": 55,
         "yes_bids": {"45": 2},
         "yes_asks": {"55": 1},
     }
     await store_obj.store_market_metadata(ticker, market_data, event_data={"title": "Event"})
 
+    # Store orderbook as JSON (how it would be stored in production)
+    # yes_bid/yes_ask are derived from yes_bids/yes_asks during sync_top_of_book_fields
+    market_key = store_obj.get_market_key(ticker)
+    await redis_client.hset(
+        market_key,
+        mapping={
+            "yes_bids": orjson.dumps({"45": 2}).decode(),
+            "yes_asks": orjson.dumps({"55": 1}).decode(),
+        },
+    )
+
     snapshot = await store_obj.get_market_snapshot(ticker)
     assert snapshot["market_id"] == "mkt-1"
+    # yes_bid is derived from yes_bids orderbook (best bid price = 45)
     assert snapshot["yes_bid"] == "45.0"
     assert snapshot["event_title"] == "Event"
 
@@ -295,8 +310,8 @@ async def test_store_and_fetch_market_metadata_cycle(store):
 
     orderbook = await store_obj.get_orderbook(ticker)
     assert orderbook["yes_bids"] == {"45": 2}
-    yes_bid_field = await store_obj.get_market_field(ticker, "yes_bid")
-    assert float(yes_bid_field) == pytest.approx(45.0)
+    # Note: yes_bid is derived during snapshot retrieval, not stored directly
+    # So we verify it through the snapshot, not get_market_field
     side = await store_obj.get_orderbook_side(ticker, "yes_bids")
     assert side == {"45": 2}
 

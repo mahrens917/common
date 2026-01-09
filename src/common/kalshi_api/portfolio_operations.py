@@ -70,7 +70,9 @@ class PortfolioOperations:
         )
         payload = await self._request_builder.execute_request(method_upper, url, kwargs, "/trade-api/v2/portfolio/positions", op)
         raw_positions = _validate_positions_payload(payload)
-        return [_parse_position_entry(item) for item in raw_positions]
+        return [
+            _parse_position_entry(item) for item in raw_positions if not isinstance(item, dict) or item.get("position") not in (None, 0)
+        ]
 
 
 def _validate_positions_payload(payload: Any) -> List[Dict[str, Any]]:

@@ -284,20 +284,20 @@ class TestRedisFetcherSafeFloat:
 class TestRedisFetcherBuildMarketState:
     """Tests for _build_market_state method."""
 
-    def test_raises_for_missing_traded_field(self) -> None:
-        """Test raises ValueError when traded field is missing."""
+    def test_builds_market_state_with_empty_dict(self) -> None:
+        """Test builds MarketState with empty dict."""
         fetcher = RedisFetcher(MagicMock())
 
-        with pytest.raises(ValueError) as exc_info:
-            fetcher._build_market_state("TICKER-123", {})
+        result = fetcher._build_market_state("TICKER-123", {})
 
-        assert "missing 'traded' field" in str(exc_info.value)
+        assert result.market_ticker == "TICKER-123"
+        assert result.yes_bid is None
+        assert result.yes_ask is None
 
     def test_builds_market_state_with_all_fields(self) -> None:
         """Test builds MarketState with all fields."""
         fetcher = RedisFetcher(MagicMock())
         decoded = {
-            "traded": TEST_TRADED_TRUE,
             "yes_bid": TEST_YES_BID,
             "yes_ask": TEST_YES_ASK,
             "floor_strike": TEST_FLOOR_STRIKE,
@@ -309,16 +309,18 @@ class TestRedisFetcherBuildMarketState:
         assert result.market_ticker == TEST_TICKER
         assert result.yes_bid == 45.0
         assert result.yes_ask == 55.0
-        assert result.traded is True
+        assert result.min_strike_price_cents == 70.0
+        assert result.max_strike_price_cents == 75.0
 
-    def test_handles_false_traded(self) -> None:
-        """Test handles false traded value."""
+    def test_handles_partial_fields(self) -> None:
+        """Test handles partial field data."""
         fetcher = RedisFetcher(MagicMock())
-        decoded = {"traded": TEST_TRADED_FALSE}
+        decoded = {"yes_bid": TEST_YES_BID}
 
         result = fetcher._build_market_state(TEST_TICKER, decoded)
 
-        assert result.traded is False
+        assert result.yes_bid == 45.0
+        assert result.yes_ask is None
 
 
 class TestRedisFetcherProcessMarketKeys:
@@ -411,9 +413,7 @@ class TestRedisFetcherExtractMarketState:
     async def test_builds_market_state_on_success(self) -> None:
         """Test builds market state when all data is valid."""
         mock_redis = MagicMock()
-        mock_redis.hgetall = AsyncMock(
-            return_value={b"traded": b"true", b"yes_bid": b"45", b"yes_ask": b"55", b"floor_strike": b"70", b"cap_strike": b"75"}
-        )
+        mock_redis.hgetall = AsyncMock(return_value={b"yes_bid": b"45", b"yes_ask": b"55", b"floor_strike": b"70", b"cap_strike": b"75"})
 
         with patch("common.trade_visualizer.parse_kalshi_market_key") as mock_parse:
             mock_result = MagicMock()
@@ -425,7 +425,8 @@ class TestRedisFetcherExtractMarketState:
 
             assert result is not None
             assert result.market_ticker == TEST_TICKER
-            assert result.traded is True
+            assert result.yes_bid == 45.0
+            assert result.yes_ask == 55.0
 
 
 class TestRedisFetcherExtractTicker:
