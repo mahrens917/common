@@ -50,10 +50,6 @@ def test_build_market_metadata_populates_required_fields(monkeypatch):
         "latest_expiration_time": "2025-01-31T00:00:00Z",
         "fee_waiver_expiration_time": "2025-01-15T00:00:00Z",
         "tick_size": 3,
-        "yes_bid": 45,
-        "yes_bid_size": 10,
-        "yes_bids": [{"price": 45, "size": 10}],
-        "yes_asks": [{"price": 55, "size": 5}],
     }
     event_data = {"ticker": "EVT", "mutually_exclusive": True}
 
@@ -79,9 +75,12 @@ def test_build_market_metadata_populates_required_fields(monkeypatch):
     assert metadata["strike_type"] == "Greater"
     assert metadata["weather_station"] == "KNYC"
     assert metadata["timestamp"] == "123"
-    assert metadata["yes_bids"] == '[{"price":45,"size":10}]'
     assert metadata["event_ticker"] == "EVT"
     assert metadata["mutually_exclusive"] == "true"
+    # Orderbook fields (yes_bids, yes_asks, etc) are not set by REST -
+    # they come exclusively from websocket snapshots/deltas
+    assert "yes_bids" not in metadata
+    assert "yes_bid" not in metadata
 
 
 def test_build_market_metadata_requires_close_time():

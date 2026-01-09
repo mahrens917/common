@@ -10,12 +10,17 @@ class _DummyRedis:
         self.keys_values = keys or []
         self.subscriptions = subs or {}
         self.calls = []
+        self.deleted_keys = []
 
     async def keys(self, pattern):
         return self.keys_values
 
     async def hgetall(self, key):
         return self.subscriptions
+
+    async def delete(self, key):
+        self.deleted_keys.append(key)
+        return 1
 
     def pipeline(self):
         class _Pipe:
@@ -45,13 +50,15 @@ class _DummyGetter:
 @pytest.mark.asyncio
 async def test_remove_service_keys_skips_when_empty():
     redis = _DummyRedis(keys=[], subs={})
-    remover = ServiceKeyRemover(_DummyGetter(redis), "subs", "ws")
+    remover = ServiceKeyRemover(_DummyGetter(redis), "subs", "ws", "kalshi:subscription_ids:ws")
     assert await remover.remove_service_keys() is True
+    assert "kalshi:subscription_ids:ws" in redis.deleted_keys
 
 
 @pytest.mark.asyncio
 async def test_remove_service_keys_deletes_entries():
     redis = _DummyRedis(keys=["kalshi:ws:key"], subs={b"ws:TK": b"1"})
-    remover = ServiceKeyRemover(_DummyGetter(redis), "subs", "ws")
+    remover = ServiceKeyRemover(_DummyGetter(redis), "subs", "ws", "kalshi:subscription_ids:ws")
     assert await remover.remove_service_keys() is True
     assert any(call[0] == "delete" for call in redis.calls)
+    assert "kalshi:subscription_ids:ws" in redis.deleted_keys

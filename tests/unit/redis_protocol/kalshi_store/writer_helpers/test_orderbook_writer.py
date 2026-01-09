@@ -151,6 +151,7 @@ class TestUserDataWriter:
     def mock_redis(self):
         redis = MagicMock()
         redis.hset = AsyncMock()
+        redis.hget = AsyncMock(return_value=None)
         redis.lpush = AsyncMock()
         redis.ltrim = AsyncMock()
         return redis

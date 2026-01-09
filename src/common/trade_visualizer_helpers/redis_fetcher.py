@@ -103,15 +103,11 @@ class RedisFetcher:
 
     def _build_market_state(self, ticker: str, decoded: dict) -> MarketState:
         """Build MarketState from decoded data."""
-        traded_raw = decoded.get("traded")
-        if traded_raw is None:
-            raise ValueError(f"Market data for {ticker} missing 'traded' field")
         return MarketState(
             timestamp=datetime.now(timezone.utc),
             market_ticker=ticker,
             yes_bid=self._safe_float(decoded.get("yes_bid")),
             yes_ask=self._safe_float(decoded.get("yes_ask")),
-            traded=str(traded_raw).lower() == "true",
             min_strike_price_cents=self._safe_float(decoded.get("floor_strike")),
             max_strike_price_cents=self._safe_float(decoded.get("cap_strike")),
         )

@@ -555,16 +555,6 @@ def _build_market_data(strike_type: str) -> dict:
         "cap_strike": 120,
         "close_time": "2024-02-01T12:00:00Z",
         "open_time": "2024-01-01T09:00:00Z",
-        "yes_bids": {"0.45": 10},
-        "yes_asks": {"0.55": 5},
-        "yes_bid": 0.4,
-        "yes_ask": 0.6,
-        "yes_bid_size": 10,
-        "yes_ask_size": 5,
-        "no_bid": 0.4,
-        "no_ask": 0.6,
-        "no_bid_size": 10,
-        "no_ask_size": 5,
         "can_close_early": True,
         "tick_size": 1,
         "event_id": "event-1",
@@ -591,7 +581,9 @@ def test_build_kalshi_metadata_formats_fields(monkeypatch, store: KalshiStore):
     assert metadata["floor_strike"] == "0"
     assert metadata["cap_strike"] == "120"
     assert metadata["can_close_early"] == "true"
-    assert json.loads(metadata["yes_bids"]) == {"0.45": 10}
+    # Orderbook fields (yes_bids, yes_asks, etc) are not set by REST -
+    # they come exclusively from websocket snapshots/deltas
+    assert "yes_bids" not in metadata
     assert metadata["event_ticker"] == "EVT"
     assert metadata["event_tags"] == "['a', 'b']"
     assert metadata["weather_station"] == "KORD"

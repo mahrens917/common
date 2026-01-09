@@ -2,7 +2,7 @@
 Algo Stats API
 
 Provides centralized algo statistics storage in Redis.
-All algos (weather, pdf, peak, extreme) can write their stats here,
+All algos (whale, peak, edge, pdf, weather) can write their stats here,
 and tracker can read them for unified status reporting.
 """
 
@@ -84,7 +84,7 @@ async def write_algo_stats(
 
     Args:
         redis: Redis client
-        algo: Algorithm name (weather, pdf, peak, extreme)
+        algo: Algorithm name (whale, peak, edge, pdf, weather)
         events_processed: Number of events processed
         signals_generated: Number of signals generated
         signals_written: Number of signals successfully written
@@ -207,7 +207,7 @@ async def read_all_algo_stats(redis: "Redis") -> Dict[str, AlgoStatsData]:
     Returns:
         Dict mapping algo name to stats
     """
-    algos = ["weather", "pdf", "peak", "extreme"]
+    algos = ["whale", "peak", "edge", "pdf", "weather"]
     results: Dict[str, AlgoStatsData] = {}
 
     for algo in algos:

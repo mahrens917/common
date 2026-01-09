@@ -6,9 +6,6 @@ import logging
 import time
 from typing import Any, Dict, Mapping, Optional
 
-import orjson
-from orjson import JSONEncodeError
-
 from ..redis_schema import KalshiMarketDescriptor
 from .market_normalization import normalize_timestamp
 from .weather_station_resolver import WeatherStationResolver
@@ -32,8 +29,6 @@ _NUMERIC_FIELDS = {
     "open_interest": 0,
     "liquidity": 0,
     "notional_value": 0,
-    "previous_yes_bid": 0,
-    "previous_yes_ask": 0,
     "risk_limit_cents": 0,
     "min_tick_size": 0,
     "max_tick_size": 0,
@@ -66,24 +61,6 @@ _STRING_FIELDS = {
     "ranged_group_id": "",
 }
 
-_ORDER_BOOK_FIELDS = [
-    "yes_bid",
-    "yes_ask",
-    "no_bid",
-    "no_ask",
-    "yes_bid_size",
-    "yes_ask_size",
-    "no_bid_size",
-    "no_ask_size",
-]
-
-_ORDER_BOOK_JSON_FIELDS = [
-    "yes_bids",
-    "yes_asks",
-    "no_bids",
-    "no_asks",
-]
-
 
 def _stringify(value: Any) -> str:
     if value is None:
@@ -94,17 +71,6 @@ def _stringify(value: Any) -> str:
             return "true"
         return "false"
     return str(value)
-
-
-def _stringify_json(value: Any) -> str:
-    if value in (None, ""):
-        return ""
-    if isinstance(value, str):
-        return value
-    try:
-        return orjson.dumps(value).decode("utf-8")
-    except (JSONEncodeError, TypeError) as exc:
-        raise ValueError(f"Unable to serialise value to JSON: {value!r}") from exc
 
 
 def _value_or_default(mapping: Mapping[str, Any], key: str, alternate: Any) -> Any:
@@ -235,15 +201,6 @@ def _populate_string_fields(metadata: Dict[str, str], market_data: Mapping[str, 
         metadata[field] = _stringify(value)
 
 
-def _populate_orderbook_fields(metadata: Dict[str, str], market_data: Mapping[str, Any]) -> None:
-    """Inject orderbook price/size fields."""
-    for field in _ORDER_BOOK_FIELDS:
-        metadata[field] = _stringify(market_data.get(field))
-
-    for field in _ORDER_BOOK_JSON_FIELDS:
-        metadata[field] = _stringify_json(market_data.get(field))
-
-
 def _apply_descriptor_defaults(metadata: Dict[str, str], descriptor: KalshiMarketDescriptor) -> None:
     """Apply descriptor values for ticker/category/etc when not already set."""
     metadata.setdefault("ticker", descriptor.ticker)
@@ -321,7 +278,6 @@ def build_market_metadata(
 
     _populate_numeric_fields(metadata, market_data)
     _populate_string_fields(metadata, market_data)
-    _populate_orderbook_fields(metadata, market_data)
     _apply_descriptor_defaults(metadata, descriptor)
     _populate_event_metadata(metadata, event_data)
 

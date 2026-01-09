@@ -59,14 +59,16 @@ class KalshiMarketCatalog:
         get_kalshi_settings = _load_kalshi_settings_func()
         settings = get_kalshi_settings().market_catalog
 
-        self._refresh_interval_seconds = max(1, settings.refresh_interval_seconds)
+        refresh_seconds = getattr(settings, "refresh_interval_seconds", self._DEFAULT_REFRESH_INTERVAL_SECONDS)
+        self._refresh_interval_seconds = max(1, refresh_seconds)
 
-        if settings.categories is None:
+        categories = getattr(settings, "categories", None)
+        if categories is None:
             self._market_categories = None
         else:
-            self._market_categories = settings.categories
+            self._market_categories = categories
 
-        status_value = settings.status
+        status_value = getattr(settings, "status", None)
         if status_value:
             self._market_status = status_value
         else:

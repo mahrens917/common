@@ -48,16 +48,7 @@ class TickerParser:
         ticker_upper = market_ticker.upper()
         currency_upper = currency.upper()
 
-        if ticker_upper.startswith(f"KX{currency_upper}"):
-            return True
-
-        if f"{currency_upper}-" in ticker_upper:
-            return True
-
-        if ticker_upper.endswith(f"-{currency_upper}"):
-            return True
-
-        return False
+        return ticker_upper.startswith(f"KX{currency_upper}")
 
     @staticmethod
     def iter_currency_markets(markets: Any, currency: str):

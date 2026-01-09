@@ -82,6 +82,9 @@ class MicroPriceConverter:
             p_raw=p_raw,
             g=g,
             h=h,
+            implied_volatility=instrument.implied_volatility,
+            bid_iv=instrument.bid_iv,
+            ask_iv=instrument.ask_iv,
         )
 
     @staticmethod

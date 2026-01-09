@@ -66,11 +66,11 @@ class KalshiMarketWriterDependenciesFactory:
             ValidationWriter.format_probability_value,
             connection_manager,
         )
-        orderbook = OrderbookWriter(redis_connection, logger_instance)
+        orderbook = OrderbookWriter(redis_connection, logger_instance, connection_manager)
         batch = BatchWriter(redis_connection, logger_instance)
         batch_reader = BatchReader(redis_connection, logger_instance)
         subscription = SubscriptionWriter(redis_connection, logger_instance, metadata_adapter)
-        user_data = UserDataWriter(redis_connection, logger_instance)
+        user_data = UserDataWriter(redis_connection, logger_instance, connection_manager)
 
         return KalshiMarketWriterDependencies(
             validation=validation,

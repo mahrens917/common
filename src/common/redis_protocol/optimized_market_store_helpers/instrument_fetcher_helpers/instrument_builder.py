@@ -94,5 +94,7 @@ class InstrumentBuilder:
             best_ask=_coerce_number(normalized_data.get("best_ask")),
             best_bid_size=_coerce_number(normalized_data.get("best_bid_size")),
             best_ask_size=_coerce_number(normalized_data.get("best_ask_size")),
-            implied_volatility=_coerce_number(normalized_data.get("implied_volatility")),
+            implied_volatility=_coerce_number(normalized_data.get("mark_iv")),
+            bid_iv=_coerce_number(normalized_data.get("bid_iv")),
+            ask_iv=_coerce_number(normalized_data.get("ask_iv")),
         )

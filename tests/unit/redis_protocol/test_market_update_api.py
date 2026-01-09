@@ -119,7 +119,7 @@ class TestRequestMarketUpdate:
     async def test_update_with_only_ask_deletes_bid(self, mock_redis):
         mock_redis.hdel = AsyncMock()
 
-        result = await request_market_update(mock_redis, "market:key", "extreme", None, 55.0)
+        result = await request_market_update(mock_redis, "market:key", "edge", None, 55.0)
 
         assert result.success is True
         mock_redis.hset.assert_called_once()
@@ -310,10 +310,11 @@ class TestValidAlgos:
     """Tests for VALID_ALGOS constant."""
 
     def test_all_algos_present(self):
-        assert "weather" in VALID_ALGOS
-        assert "pdf" in VALID_ALGOS
+        assert "whale" in VALID_ALGOS
         assert "peak" in VALID_ALGOS
-        assert "extreme" in VALID_ALGOS
+        assert "edge" in VALID_ALGOS
+        assert "pdf" in VALID_ALGOS
+        assert "weather" in VALID_ALGOS
 
     def test_is_frozenset(self):
         assert isinstance(VALID_ALGOS, frozenset)

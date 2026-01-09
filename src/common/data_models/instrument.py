@@ -41,6 +41,8 @@ class Instrument:
     best_bid_size: Optional[float] = None
     best_ask_size: Optional[float] = None
     implied_volatility: Optional[float] = None
+    bid_iv: Optional[float] = None
+    ask_iv: Optional[float] = None
     quote_timestamp: Optional[datetime] = None
     mark_price_timestamp: Optional[datetime] = None
 

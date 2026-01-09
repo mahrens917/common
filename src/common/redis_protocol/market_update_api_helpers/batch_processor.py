@@ -6,6 +6,7 @@ from dataclasses import dataclass
 from datetime import date, timedelta
 from typing import TYPE_CHECKING, Any, Dict, List, Tuple
 
+from ..market_update_api import algo_field
 from ..typing import ensure_awaitable
 
 if TYPE_CHECKING:
@@ -23,6 +24,7 @@ class MarketSignal:
     t_yes_bid: float | None
     t_yes_ask: float | None
     algo: str
+    is_owner: bool = True  # Whether this algo owns (or will own) the market
 
 
 def build_market_signals(
@@ -49,9 +51,13 @@ async def filter_allowed_signals(
     algo: str,
     check_ownership_func: Any,
 ) -> Tuple[List[MarketSignal], List[str], List[str]]:
-    """Filter signals by ownership, returning allowed signals and rejection/failure lists."""
+    """Check ownership for signals and mark is_owner flag.
+
+    In the new model, all writes are allowed (no rejection).
+    The is_owner flag determines if algo/direction fields are set.
+    """
     allowed: List[MarketSignal] = []
-    rejected: List[str] = []
+    rejected: List[str] = []  # No longer used, kept for API compatibility
     failed: List[str] = []
 
     for sig in market_signals:
@@ -59,11 +65,18 @@ async def filter_allowed_signals(
             failed.append(sig.ticker)
             continue
 
+        # Check ownership but don't reject - just mark is_owner
         ownership = await check_ownership_func(redis, sig.market_key, algo, sig.ticker)
-        if ownership.rejected:
-            rejected.append(sig.ticker)
-        else:
-            allowed.append(sig)
+        # Create new signal with is_owner flag set
+        updated_sig = MarketSignal(
+            ticker=sig.ticker,
+            market_key=sig.market_key,
+            t_yes_bid=sig.t_yes_bid,
+            t_yes_ask=sig.t_yes_ask,
+            algo=sig.algo,
+            is_owner=not ownership.rejected,
+        )
+        allowed.append(updated_sig)
 
     return allowed, rejected, failed
 
@@ -84,12 +97,27 @@ def build_signal_mapping(
     direction: str,
     algo: str,
 ) -> Dict[str, Any]:
-    """Build the Redis hash mapping for a signal."""
-    mapping: Dict[str, Any] = {"algo": algo, "direction": direction}
+    """Build the Redis hash mapping for a signal using namespaced fields.
+
+    Namespaced fields ({algo}:t_yes_bid, {algo}:t_yes_ask) are always written.
+    Ownership fields (algo, direction) are only set if sig.is_owner is True.
+    """
+    bid_field = algo_field(algo, "t_yes_bid")
+    ask_field = algo_field(algo, "t_yes_ask")
+
+    mapping: Dict[str, Any] = {}
+
+    # Always write namespaced theoretical prices
     if sig.t_yes_bid is not None:
-        mapping["t_yes_bid"] = sig.t_yes_bid
+        mapping[bid_field] = sig.t_yes_bid
     if sig.t_yes_ask is not None:
-        mapping["t_yes_ask"] = sig.t_yes_ask
+        mapping[ask_field] = sig.t_yes_ask
+
+    # Only set ownership fields if this algo is the owner
+    if sig.is_owner:
+        mapping["algo"] = algo
+        mapping["direction"] = direction
+
     return mapping
 
 
@@ -98,15 +126,19 @@ def add_signal_to_pipeline(
     sig: MarketSignal,
     mapping: Dict[str, Any],
 ) -> None:
-    """Add a signal's updates to the Redis pipeline."""
+    """Add a signal's updates to the Redis pipeline using namespaced fields."""
     pipe.hset(sig.market_key, mapping=mapping)
+
+    # Delete stale opposite namespaced field when writing one-sided signal
+    bid_field = algo_field(sig.algo, "t_yes_bid")
+    ask_field = algo_field(sig.algo, "t_yes_ask")
 
     both_provided = sig.t_yes_bid is not None and sig.t_yes_ask is not None
     if not both_provided:
         if sig.t_yes_bid is not None:
-            pipe.hdel(sig.market_key, "t_yes_ask")
+            pipe.hdel(sig.market_key, ask_field)
         elif sig.t_yes_ask is not None:
-            pipe.hdel(sig.market_key, "t_yes_bid")
+            pipe.hdel(sig.market_key, bid_field)
 
 
 async def get_rejection_stats(redis: "Redis", days: int = 1) -> Dict[str, Dict[str, int]]:

@@ -228,6 +228,8 @@ class MicroPriceOptionData(MicroPriceOptionDataMixin):
     quote_age_seconds: Optional[float] = None
     index_price: Optional[float] = None
     implied_volatility: Optional[float] = None
+    bid_iv: Optional[float] = None
+    ask_iv: Optional[float] = None
     delta: Optional[float] = None
     gamma: Optional[float] = None
     theta: Optional[float] = None

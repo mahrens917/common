@@ -2,7 +2,12 @@
 Market Update API
 
 Provides algo-aware market update functionality with ownership checking.
-All algos (weather, pdf, peak, extreme) use this API to update theoretical prices.
+All algos (whale, peak, edge, pdf, weather) use this API to update theoretical prices.
+
+Field naming convention:
+  - {algo}:t_yes_bid, {algo}:t_yes_ask - namespaced theoretical prices per algo
+  - algo - which algo owns this market (first to write claims ownership)
+  - direction - computed from owner's theoretical prices vs Kalshi prices
 """
 
 from __future__ import annotations
@@ -11,7 +16,7 @@ import json
 import logging
 from dataclasses import dataclass
 from datetime import date, datetime, timezone
-from typing import TYPE_CHECKING, Any, Dict, List, Optional
+from typing import TYPE_CHECKING, Any, Callable, Dict, List, Optional, Set
 
 from .typing import RedisClient, ensure_awaitable
 
@@ -20,7 +25,20 @@ if TYPE_CHECKING:
 
 logger = logging.getLogger(__name__)
 
-VALID_ALGOS = frozenset({"weather", "pdf", "peak", "extreme"})
+VALID_ALGOS = frozenset({"whale", "peak", "edge", "pdf", "weather"})
+
+
+def algo_field(algo: str, field: str) -> str:
+    """Build namespaced field name for algo-specific data.
+
+    Args:
+        algo: Algorithm name (e.g., "pdf", "weather")
+        field: Field name (e.g., "t_yes_bid", "t_yes_ask")
+
+    Returns:
+        Namespaced field like "pdf:t_yes_bid"
+    """
+    return f"{algo}:{field}"
 
 
 def compute_direction(
@@ -76,22 +94,22 @@ async def request_market_update(
     ticker: Optional[str] = None,
 ) -> MarketUpdateResult:
     """
-    Request to update theoretical prices for a market.
+    Update theoretical prices for a market using namespaced fields.
 
-    Enforces algo ownership - first algo to touch a market owns it.
-    Subsequent updates from the same algo are allowed.
-    Updates from different algos are rejected with a warning.
+    All algos can write their {algo}:t_yes_* fields to any market.
+    First algo to write claims ownership (algo field).
+    Only the owner's theoretical prices are used for direction computation.
 
     Args:
         redis: Redis client
         market_key: Redis key for the market (e.g., markets:kalshi:weather:KXHIGH-KDCA-202501)
-        algo: Algorithm name (weather, pdf, peak, extreme)
+        algo: Algorithm name (whale, peak, edge, pdf, weather)
         t_yes_bid: Theoretical bid price (can be None to skip)
         t_yes_ask: Theoretical ask price (can be None to skip)
         ticker: Optional ticker for logging (extracted from key if not provided)
 
     Returns:
-        MarketUpdateResult with success/rejected status and reason
+        MarketUpdateResult with success status and owning algo
     """
     if algo not in VALID_ALGOS:
         raise ValueError(f"Invalid algo '{algo}'. Must be one of: {sorted(VALID_ALGOS)}")
@@ -101,13 +119,12 @@ async def request_market_update(
 
     display_ticker = ticker if ticker else market_key.split(":")[-1]
 
-    ownership_result = await _check_ownership(redis, market_key, algo, display_ticker)
-    if ownership_result.rejected:
-        return ownership_result
-
     await _write_theoretical_prices(redis, market_key, algo, t_yes_bid, t_yes_ask, display_ticker)
 
-    return MarketUpdateResult(success=True, rejected=False, reason=None, owning_algo=algo)
+    # Get current owner (may be this algo if we just claimed, or another algo)
+    current_owner = await get_market_algo(redis, market_key)
+
+    return MarketUpdateResult(success=True, rejected=False, reason=None, owning_algo=current_owner)
 
 
 async def _check_ownership(
@@ -160,44 +177,58 @@ async def _write_theoretical_prices(
     t_yes_ask: Optional[float],
     ticker: str,
 ) -> None:
-    """Write theoretical prices, direction, and algo ownership to Redis."""
-    # Read current Kalshi prices to compute direction
-    kalshi_data = await ensure_awaitable(redis.hmget(market_key, ["yes_bid", "yes_ask"]))
-    kalshi_bid = _parse_int(kalshi_data[0])
-    kalshi_ask = _parse_int(kalshi_data[1])
+    """Write theoretical prices to Redis using namespaced fields.
 
-    # Compute direction from theoretical vs Kalshi prices
-    t_bid_int = int(t_yes_bid) if t_yes_bid is not None else None
-    t_ask_int = int(t_yes_ask) if t_yes_ask is not None else None
-    direction = compute_direction(t_bid_int, t_ask_int, kalshi_bid, kalshi_ask)
+    All algos can write their own {algo}:t_yes_* fields.
+    Only the owner (or first writer) sets algo/direction fields.
+    """
+    # Build namespaced field names
+    bid_field = algo_field(algo, "t_yes_bid")
+    ask_field = algo_field(algo, "t_yes_ask")
 
-    mapping: dict[str, str | float] = {"algo": algo, "direction": direction}
-
-    # Build mapping with provided prices
+    # Always write this algo's namespaced theoretical prices
+    mapping: dict[str, str | float] = {}
     if t_yes_bid is not None:
-        mapping["t_yes_bid"] = t_yes_bid
+        mapping[bid_field] = t_yes_bid
     if t_yes_ask is not None:
-        mapping["t_yes_ask"] = t_yes_ask
+        mapping[ask_field] = t_yes_ask
+
+    # Check current ownership
+    current_algo = await get_market_algo(redis, market_key)
+    is_owner = current_algo is None or current_algo == algo
+
+    if is_owner:
+        # Claim or maintain ownership, compute direction
+        kalshi_data = await ensure_awaitable(redis.hmget(market_key, ["yes_bid", "yes_ask"]))
+        kalshi_bid = _parse_int(kalshi_data[0])
+        kalshi_ask = _parse_int(kalshi_data[1])
+
+        t_bid_int = int(t_yes_bid) if t_yes_bid is not None else None
+        t_ask_int = int(t_yes_ask) if t_yes_ask is not None else None
+        direction = compute_direction(t_bid_int, t_ask_int, kalshi_bid, kalshi_ask)
+
+        mapping["algo"] = algo
+        mapping["direction"] = direction
 
     await ensure_awaitable(redis.hset(market_key, mapping=mapping))
 
     # Delete stale opposite field only when writing a one-sided signal
-    # (signal flipped from BUY to SELL or vice versa)
-    # If both sides provided, keep both (e.g., PDF provides full probabilities)
     both_provided = t_yes_bid is not None and t_yes_ask is not None
     if not both_provided:
         if t_yes_bid is not None:
-            await ensure_awaitable(redis.hdel(market_key, "t_yes_ask"))
+            await ensure_awaitable(redis.hdel(market_key, ask_field))
         elif t_yes_ask is not None:
-            await ensure_awaitable(redis.hdel(market_key, "t_yes_bid"))
+            await ensure_awaitable(redis.hdel(market_key, bid_field))
 
     logger.debug(
-        "Updated market %s: algo=%s, t_yes_bid=%s, t_yes_ask=%s, direction=%s",
+        "Updated market %s: algo=%s, %s=%s, %s=%s, owner=%s",
         ticker,
         algo,
+        bid_field,
         t_yes_bid,
+        ask_field,
         t_yes_ask,
-        direction,
+        is_owner,
     )
 
     await _publish_market_event_update(redis, market_key, ticker)
@@ -359,14 +390,181 @@ async def _execute_batch_transaction(
     return BatchUpdateResult(succeeded=succeeded, rejected=rejected, failed=failed)
 
 
+@dataclass(frozen=True)
+class AlgoUpdateResult:
+    """Result of update_and_clear_stale operation."""
+
+    succeeded: List[str]
+    failed: List[str]
+    stale_cleared: List[str]
+
+
+async def scan_algo_owned_markets(
+    redis: "Redis",
+    scan_pattern: str,
+    algo: str,
+) -> Set[str]:
+    """Find all market tickers where algo field equals the specified algo.
+
+    Args:
+        redis: Redis client
+        scan_pattern: Pattern to scan (e.g., "markets:kalshi:*")
+        algo: Algorithm name to match
+
+    Returns:
+        Set of tickers owned by this algo
+    """
+    owned_tickers: Set[str] = set()
+    cursor = 0
+
+    while True:
+        cursor, keys = await ensure_awaitable(redis.scan(cursor, match=scan_pattern, count=1000))
+        for key in keys:
+            key_str = key.decode("utf-8") if isinstance(key, bytes) else str(key)
+            current_algo = await ensure_awaitable(redis.hget(key_str, "algo"))
+            if current_algo is None:
+                continue
+            algo_str = current_algo.decode("utf-8") if isinstance(current_algo, bytes) else str(current_algo)
+            if algo_str == algo:
+                ticker = key_str.split(":")[-1]
+                owned_tickers.add(ticker)
+        if cursor == 0:
+            break
+
+    logger.debug("Found %d markets owned by %s", len(owned_tickers), algo)
+    return owned_tickers
+
+
+async def clear_stale_markets(
+    redis: "Redis",
+    stale_tickers: Set[str],
+    algo: str,
+    key_builder: Callable[[str], str],
+) -> List[str]:
+    """Clear stale markets owned by this algo.
+
+    Removes {algo}:t_yes_bid, {algo}:t_yes_ask, algo, direction fields
+    and publishes event updates.
+
+    Args:
+        redis: Redis client
+        stale_tickers: Set of tickers to clear
+        algo: Algorithm name
+        key_builder: Function to build market key from ticker
+
+    Returns:
+        List of tickers that were cleared
+    """
+    cleared: List[str] = []
+    bid_field = algo_field(algo, "t_yes_bid")
+    ask_field = algo_field(algo, "t_yes_ask")
+
+    for ticker in stale_tickers:
+        market_key = key_builder(ticker)
+
+        # Verify this algo still owns it before clearing
+        current_algo = await get_market_algo(redis, market_key)
+        if current_algo != algo:
+            logger.debug("Skipping clear for %s: owned by %s, not %s", ticker, current_algo, algo)
+            continue
+
+        await ensure_awaitable(redis.hdel(market_key, bid_field, ask_field, "algo", "direction"))
+        cleared.append(ticker)
+
+        try:
+            await _publish_market_event_update(redis, market_key, ticker)
+        except (RuntimeError, ConnectionError, OSError):  # policy_guard: allow-silent-handler
+            pass
+
+    if cleared:
+        logger.info("Cleared %d stale markets for algo %s", len(cleared), algo)
+
+    return cleared
+
+
+async def update_and_clear_stale(
+    redis: "Redis",
+    signals: Dict[str, Dict[str, Any]],
+    algo: str,
+    key_builder: Callable[[str], str],
+    scan_pattern: str,
+) -> AlgoUpdateResult:
+    """Update theoretical prices and clear stale markets atomically.
+
+    This is the main entry point for algos to update their signals.
+
+    1. Write {algo}:t_yes_* for each signal
+    2. Claim ownership if unowned, compute direction if owner
+    3. Publish event updates
+    4. Scan for algo-owned markets
+    5. Clear stale (owned but not in signals)
+
+    Args:
+        redis: Redis client
+        signals: Dict of {ticker: {"t_yes_bid": X, "t_yes_ask": Y}}
+        algo: Algorithm name
+        key_builder: Function to build market key from ticker
+        scan_pattern: Pattern to scan for owned markets (e.g., "markets:kalshi:*")
+
+    Returns:
+        AlgoUpdateResult with succeeded, failed, and stale_cleared lists
+    """
+    if algo not in VALID_ALGOS:
+        raise ValueError(f"Invalid algo '{algo}'. Must be one of: {sorted(VALID_ALGOS)}")
+
+    succeeded: List[str] = []
+    failed: List[str] = []
+
+    # Step 1-3: Write signals
+    for ticker, data in signals.items():
+        t_yes_bid = data.get("t_yes_bid")
+        t_yes_ask = data.get("t_yes_ask")
+
+        if t_yes_bid is None and t_yes_ask is None:
+            failed.append(ticker)
+            continue
+
+        market_key = key_builder(ticker)
+        try:
+            await _write_theoretical_prices(redis, market_key, algo, t_yes_bid, t_yes_ask, ticker)
+            succeeded.append(ticker)
+        except (RuntimeError, ConnectionError, OSError):
+            logger.exception("Failed to write signal for %s", ticker)
+            failed.append(ticker)
+            raise
+
+    # Step 4: Scan for owned markets
+    owned_tickers = await scan_algo_owned_markets(redis, scan_pattern, algo)
+
+    # Step 5: Clear stale (owned but not in current signals)
+    current_tickers = set(signals.keys())
+    stale_tickers = owned_tickers - current_tickers
+    stale_cleared = await clear_stale_markets(redis, stale_tickers, algo, key_builder)
+
+    logger.info(
+        "Algo %s: updated %d, failed %d, cleared %d stale",
+        algo,
+        len(succeeded),
+        len(failed),
+        len(stale_cleared),
+    )
+
+    return AlgoUpdateResult(succeeded=succeeded, failed=failed, stale_cleared=stale_cleared)
+
+
 __all__ = [
+    "algo_field",
+    "AlgoUpdateResult",
     "batch_update_market_signals",
     "BatchUpdateResult",
     "clear_algo_ownership",
+    "clear_stale_markets",
     "compute_direction",
     "get_market_algo",
     "get_rejection_stats",
     "MarketUpdateResult",
     "request_market_update",
+    "scan_algo_owned_markets",
+    "update_and_clear_stale",
     "VALID_ALGOS",
 ]

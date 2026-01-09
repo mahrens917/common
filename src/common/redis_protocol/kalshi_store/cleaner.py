@@ -109,7 +109,8 @@ class KalshiMarketCleaner:
             _market_key_from_ticker,
             _snapshot_key_from_ticker,
         )
-        self._service_key_remover = ServiceKeyRemover(self._get_redis, self.SUBSCRIPTIONS_KEY, resolved_prefix)
+        subscription_ids_key = f"kalshi:subscription_ids:{resolved_prefix}"
+        self._service_key_remover = ServiceKeyRemover(self._get_redis, self.SUBSCRIPTIONS_KEY, resolved_prefix, subscription_ids_key)
         self._metadata_cleaner = MetadataCleaner(self._get_redis)
 
     async def _ensure_redis_connection(self) -> bool:

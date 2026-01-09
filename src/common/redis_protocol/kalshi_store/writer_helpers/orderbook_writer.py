@@ -4,30 +4,54 @@ Orderbook and trade tick write operations.
 This module handles writing trade tick data and trade price updates.
 """
 
+from __future__ import annotations
+
 import logging
-from typing import Any, Dict
+from typing import TYPE_CHECKING, Any, Dict, Optional
 
 from redis.asyncio import Redis
 
+from common.redis_schema import build_kalshi_market_key
 from common.truthy import pick_if, pick_truthy
 
 from ...error_types import REDIS_ERRORS
 from ...typing import ensure_awaitable
 from .timestamp_normalizer import TimestampNormalizer
 
+if TYPE_CHECKING:
+    from ..connection import RedisConnectionManager
+
 logger = logging.getLogger(__name__)
 
 # Sentinel value for unspecified/missing side data (causes validation error)
 SIDE_UNSPECIFIED = ""
 
+# Empty string constant for algo field when not set
+_NO_ALGO = str()
+
 
 class OrderbookWriter:
     """Handles orderbook and trade tick write operations."""
 
-    def __init__(self, redis_connection: Redis, logger_instance: logging.Logger):
+    def __init__(
+        self,
+        redis_connection: Optional[Redis],
+        logger_instance: logging.Logger,
+        connection_manager: Optional["RedisConnectionManager"] = None,
+    ):
         self.redis = redis_connection
         self.logger = logger_instance
+        self._connection_manager = connection_manager
         self._normalizer = TimestampNormalizer()
+
+    async def _ensure_redis(self) -> Redis:
+        redis_client = self.redis
+        if redis_client is None and self._connection_manager is not None:
+            redis_client = await self._connection_manager.get_redis()
+            self.redis = redis_client
+        if redis_client is None:
+            raise RuntimeError("Redis connection is not initialized for orderbook writes")
+        return redis_client
 
     async def update_trade_tick(self, msg: Dict, key_func: Any, map_func: Any, str_func: Any) -> bool:
         try:
@@ -39,7 +63,8 @@ class OrderbookWriter:
 
             side, yes, no, raw = self._extract_price_data(data, str_func)
             mapping = self._build_trade_mapping(data, side, yes, no, raw)
-            await ensure_awaitable(self.redis.hset(key_func(ticker), mapping=mapping))
+            redis_client = await self._ensure_redis()
+            await ensure_awaitable(redis_client.hset(key_func(ticker), mapping=mapping))
         except (ValueError, TypeError) as exc:  # Expected data validation or parsing failure  # policy_guard: allow-silent-handler
             logger.error("Invalid trade tick payload: %s", exc, exc_info=True)
             return False
@@ -146,10 +171,43 @@ def _resolve_fill_price(data: Dict) -> int:
 class UserDataWriter:
     """Handles user fill and order write operations."""
 
-    def __init__(self, redis_connection: Redis, logger_instance: logging.Logger):
+    def __init__(
+        self,
+        redis_connection: Optional[Redis],
+        logger_instance: logging.Logger,
+        connection_manager: Optional["RedisConnectionManager"] = None,
+    ):
         self.redis = redis_connection
         self.logger = logger_instance
+        self._connection_manager = connection_manager
         self._normalizer = TimestampNormalizer()
+
+    async def _ensure_redis(self) -> Redis:
+        redis_client = self.redis
+        if redis_client is None and self._connection_manager is not None:
+            redis_client = await self._connection_manager.get_redis()
+            self.redis = redis_client
+        if redis_client is None:
+            raise RuntimeError("Redis connection is not initialized for user data writes")
+        return redis_client
+
+    async def _fetch_market_algo(self, ticker: str) -> str:
+        """Fetch the current algo from the market's Redis hash.
+
+        Returns empty string if no algo is set or on error.
+        """
+        market_key = build_kalshi_market_key(ticker)
+        try:
+            redis_client = await self._ensure_redis()
+            algo = await ensure_awaitable(redis_client.hget(market_key, "algo"))
+            if algo is None:
+                return _NO_ALGO
+            if isinstance(algo, bytes):
+                return algo.decode("utf-8")
+            return str(algo)
+        except REDIS_ERRORS:  # policy_guard: allow-silent-handler
+            logger.debug("Failed to fetch algo for %s", ticker)
+            return _NO_ALGO
 
     async def update_user_fill(self, msg: Dict) -> bool:
         """Persist a user fill notification to Redis.
@@ -170,6 +228,8 @@ class UserDataWriter:
             ts_value = data.get("ts")
             ts_iso = pick_if(ts_value, lambda: self._normalizer.normalise_trade_timestamp(ts_value), lambda: "")
 
+            algo = await self._fetch_market_algo(str(ticker))
+
             mapping = {
                 "ticker": str(ticker),
                 "side": str(pick_truthy(data.get("side"), "")),
@@ -178,14 +238,16 @@ class UserDataWriter:
                 "price": str(fill_price),
                 "trade_id": str(trade_id),
                 "ts": ts_iso,
+                "algo": algo,
             }
 
             fill_key = f"kalshi:fills:{ticker}:{trade_id}"
-            await ensure_awaitable(self.redis.hset(fill_key, mapping=mapping))
+            redis_client = await self._ensure_redis()
+            await ensure_awaitable(redis_client.hset(fill_key, mapping=mapping))
 
             fills_list_key = f"kalshi:fills:{ticker}"
-            await ensure_awaitable(self.redis.lpush(fills_list_key, trade_id))
-            await ensure_awaitable(self.redis.ltrim(fills_list_key, 0, 99))
+            await ensure_awaitable(redis_client.lpush(fills_list_key, trade_id))
+            await ensure_awaitable(redis_client.ltrim(fills_list_key, 0, 99))
 
         except (ValueError, TypeError) as exc:  # Expected data validation or parsing failure  # policy_guard: allow-silent-handler
             logger.error("Invalid user fill payload: %s", exc, exc_info=True)
@@ -224,7 +286,8 @@ class UserDataWriter:
             }
 
             order_key = f"kalshi:orders:{ticker}:{order_id}"
-            await ensure_awaitable(self.redis.hset(order_key, mapping=mapping))
+            redis_client = await self._ensure_redis()
+            await ensure_awaitable(redis_client.hset(order_key, mapping=mapping))
 
         except (ValueError, TypeError) as exc:  # Expected data validation or parsing failure  # policy_guard: allow-silent-handler
             logger.error("Invalid user order payload: %s", exc, exc_info=True)
