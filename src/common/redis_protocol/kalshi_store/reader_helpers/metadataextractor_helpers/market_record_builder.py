@@ -33,7 +33,7 @@ class MarketRecordData:
     strike_value: float
     combined: Dict[str, Any]
     type_converter: Any
-    currency: str
+    currency: Optional[str]
 
 
 class MarketRecordBuilder:
@@ -54,7 +54,7 @@ class MarketRecordBuilder:
         market_ticker: str,
         raw_hash: Dict[str, Any],
         *,
-        currency: str,
+        currency: Optional[str],
         now: datetime,
     ) -> Dict[str, Any]:
         if not raw_hash:
@@ -166,6 +166,7 @@ def _resolve_strike_value(
 def _build_market_record(data: MarketRecordData) -> Dict[str, Any]:
     """Assemble the final market record dict."""
     strike_type = data.type_converter.string_or_default(data.combined.get("strike_type"), data.strike_type_text) or data.strike_type_text
+    currency_value = data.currency.upper() if data.currency else None
     return {
         "ticker": data.market_ticker,
         "market_ticker": data.market_ticker,
@@ -181,7 +182,7 @@ def _build_market_record(data: MarketRecordData) -> Dict[str, Any]:
         "event_type": data.type_converter.string_or_default(data.combined.get("event_type")),
         "yes_bid": data.combined.get("yes_bid"),
         "yes_ask": data.combined.get("yes_ask"),
-        "currency": data.currency.upper(),
+        "currency": currency_value,
         "yes_bid_size": data.combined.get("yes_bid_size"),
         "yes_ask_size": data.combined.get("yes_ask_size"),
         "yes_bids": data.combined.get("yes_bids"),

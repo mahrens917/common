@@ -48,6 +48,11 @@ class MarketQueryHandler:
         redis = await self._conn.ensure_or_raise(f"get_markets_by_currency {currency}")
         return await self._market_lookup.get_markets_by_currency(redis, currency, self._market_filter, self._get_key)
 
+    async def get_all(self) -> List[Dict]:
+        """Get all markets."""
+        redis = await self._conn.ensure_or_raise("get_all_markets")
+        return await self._market_lookup.get_all_markets(redis, self._market_filter, self._get_key)
+
     async def get_strikes_and_expiries(self, currency: str) -> Dict[str, List[Dict]]:
         """Get active strikes and expiries for currency."""
         markets = await self.get_by_currency(currency)

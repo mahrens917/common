@@ -15,10 +15,11 @@ from .store_helpers.attribute_resolution import kalshi_store_getattr
 from .store_helpers.property_management import setup_kalshi_store_properties
 from .store_helpers.scanner import scan_market_keys
 from .store_helpers.static_methods import setup_kalshi_store_static_methods
-from .store_helpers.ticker_finder import find_currency_market_tickers
+from .store_helpers.ticker_finder import find_all_market_tickers, find_currency_market_tickers
 from .store_initializer import initialize_kalshi_store
 from .store_methods import (
     get_active_strikes_and_expiries,
+    get_all_markets,
     get_interpolation_results,
     get_market_data_for_strike_expiry,
     get_markets_by_currency,
@@ -159,11 +160,17 @@ class KalshiStore:
     async def _find_currency_market_tickers(self, currency: str) -> List[str]:
         return await find_currency_market_tickers(self, currency)
 
+    async def _find_all_market_tickers(self) -> List[str]:
+        return await find_all_market_tickers(self)
+
     async def _scan_market_keys(self, patterns: Optional[List[str]] = None) -> List[str]:
         return await scan_market_keys(self, patterns)
 
     async def get_markets_by_currency(self, currency: str) -> List[Dict[str, Any]]:
         return await get_markets_by_currency(self, currency)
+
+    async def get_all_markets(self) -> List[Dict[str, Any]]:
+        return await get_all_markets(self)
 
     async def get_active_strikes_and_expiries(self, currency: str) -> Dict[str, List[Dict]]:
         return await get_active_strikes_and_expiries(self, currency)

@@ -7,6 +7,7 @@ from common.redis_protocol.kalshi_store.store_helpers.scanner import (
     scan_single_pattern,
 )
 from common.redis_protocol.kalshi_store.store_helpers.ticker_finder import (
+    find_all_market_tickers,
     find_currency_market_tickers,
 )
 
@@ -119,3 +120,39 @@ async def test_ticker_finder_depends_on_reader():
 
     with pytest.raises(RuntimeError):
         await find_currency_market_tickers(_StoreWithReaderOnly(_ReaderMissingDeps()), "usd")
+
+
+@pytest.mark.asyncio
+async def test_find_all_market_tickers_depends_on_reader():
+    class _Reader:
+        def __init__(self):
+            self._market_filter = self
+            self.calls = 0
+
+        async def find_all_market_tickers(self, redis):
+            self.calls += 1
+            return ["ticker1", "ticker2"]
+
+    class _StoreWithReaderOnly:
+        def __init__(self, reader):
+            self._reader = reader
+
+        async def _get_redis(self):
+            return object()
+
+    reader = _Reader()
+    store = _StoreWithReaderOnly(reader)
+    tickers = await find_all_market_tickers(store)
+    assert tickers == ["ticker1", "ticker2"]
+    assert reader.calls == 1
+
+    store_missing_reader = _Store(reader=None, redis=None)
+    with pytest.raises(RuntimeError):
+        await find_all_market_tickers(store_missing_reader)
+
+    class _ReaderMissingFilter:
+        def __init__(self):
+            self._market_filter = None
+
+    with pytest.raises(RuntimeError):
+        await find_all_market_tickers(_StoreWithReaderOnly(_ReaderMissingFilter()))

@@ -34,6 +34,46 @@ async def test_get_markets_by_currency_invokes_build(monkeypatch):
 
 
 @pytest.mark.asyncio
+async def test_get_all_markets_invokes_build(monkeypatch):
+    async def fake_build(*args, **kwargs):
+        return (["market"], Counter())
+
+    monkeypatch.setattr(
+        "common.redis_protocol.kalshi_store.reader_helpers.market_lookup.build_market_records",
+        fake_build,
+    )
+
+    class DummyFilter:
+        async def find_all_market_tickers(self, redis):
+            return ["TK1", "TK2"]
+
+    class DummyTickerParser:
+        pass
+
+    lookup = market_lookup.MarketLookup("logger", "metadata", DummyFilter(), DummyTickerParser())
+    result = await market_lookup.MarketLookup.get_all_markets(lookup, "redis", DummyFilter(), lambda x: x)
+    assert result == ["market"]
+
+
+@pytest.mark.asyncio
+async def test_get_all_markets_returns_empty_when_no_tickers(monkeypatch):
+    class DummyFilter:
+        async def find_all_market_tickers(self, redis):
+            return []
+
+    class DummyTickerParser:
+        pass
+
+    class DummyLogger:
+        def warning(self, *args, **kwargs):
+            pass
+
+    lookup = market_lookup.MarketLookup(DummyLogger(), "metadata", DummyFilter(), DummyTickerParser())
+    result = await market_lookup.MarketLookup.get_all_markets(lookup, "redis", DummyFilter(), lambda x: x)
+    assert result == []
+
+
+@pytest.mark.asyncio
 async def test_get_market_data_for_strike_expiry_uses_strike_matcher(monkeypatch):
     async def fake_find(*args, **kwargs):
         return {"market_ticker": "TK"}

@@ -74,6 +74,10 @@ class IMarketReader(Protocol):
         """Get all markets for a currency."""
         ...
 
+    async def get_all_markets(self) -> List[Dict[str, Any]]:
+        """Get all markets."""
+        ...
+
     async def get_active_strikes_and_expiries(self, currency: str) -> Dict[str, List[Dict[str, Any]]]:
         """Get active strikes and expiries for a currency."""
         ...
@@ -220,6 +224,10 @@ class IMarketQueryDelegator(Protocol):
 
     async def get_markets_by_currency(self, currency: str) -> List[Dict[str, Any]]:
         """Get markets by currency."""
+        ...
+
+    async def get_all_markets(self) -> List[Dict[str, Any]]:
+        """Get all markets."""
         ...
 
     async def get_active_strikes_and_expiries(self, currency: str) -> Dict[str, List[Dict[str, Any]]]:

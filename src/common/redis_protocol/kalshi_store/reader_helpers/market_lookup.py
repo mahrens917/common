@@ -60,6 +60,32 @@ class MarketLookup:
         )
         return results
 
+    async def get_all_markets(
+        self,
+        redis: Redis,
+        market_filter,
+        get_market_key_func,
+    ) -> List[Dict]:
+        market_tickers = await market_filter.find_all_market_tickers(redis)
+        if not market_tickers:
+            self.logger.warning("No Kalshi market data found in Redis")
+            return []
+
+        results, skip_reasons = await build_market_records(
+            redis=redis,
+            market_tickers=market_tickers,
+            currency=None,
+            ticker_parser=self._ticker_parser,
+            metadata_extractor=self._metadata_extractor,
+            get_market_key_func=get_market_key_func,
+            logger_instance=self.logger,
+        )
+
+        if skip_reasons:
+            for reason, count in skip_reasons.most_common(5):
+                self.logger.debug("Skipped %s markets due to %s", count, reason)
+        return results
+
     async def get_market_data_for_strike_expiry(
         self,
         redis: Redis,

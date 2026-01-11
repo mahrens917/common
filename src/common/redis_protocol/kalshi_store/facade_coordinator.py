@@ -283,6 +283,10 @@ class MarketQueryDelegator:
         """Get all markets for a currency."""
         return await self._reader.get_markets_by_currency(currency)
 
+    async def get_all_markets(self) -> List[Dict]:
+        """Get all markets."""
+        return await self._reader.get_all_markets()
+
     async def get_active_strikes_and_expiries(self, currency: str) -> Dict[str, List[Dict]]:
         """Get active strikes and expiries for a currency."""
         return await self._reader.get_active_strikes_and_expiries(currency)

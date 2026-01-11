@@ -22,6 +22,10 @@ class KalshiMarketReaderAsyncMethodsMixin:
         """Get markets by currency."""
         raise NotImplementedError
 
+    async def get_all_markets(self) -> List[Dict[str, Any]]:
+        """Get all markets."""
+        raise NotImplementedError
+
     async def get_active_strikes_and_expiries(self, currency: str) -> Dict[str, List[Dict[str, Any]]]:
         """Get active strikes and expiries for currency."""
         raise NotImplementedError

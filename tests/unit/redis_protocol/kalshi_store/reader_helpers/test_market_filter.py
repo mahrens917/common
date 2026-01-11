@@ -36,3 +36,15 @@ async def test_find_currency_market_tickers_filters_by_currency(monkeypatch):
 def test_log_market_summary_skips_zero():
     filt = market_filter.MarketFilter(logger_instance=logging.getLogger("test"))
     filt.log_market_summary(currency="BTC", total=0, processed=0, skip_reasons={})
+
+
+@pytest.mark.asyncio
+async def test_find_all_market_tickers_returns_all_tickers(monkeypatch):
+    redis = _DummyRedis()
+    monkeypatch.setattr(
+        "common.redis_protocol.kalshi_store.reader_helpers.market_filter.parse_kalshi_market_key",
+        lambda key: SimpleNamespace(ticker="KXBTC-TK1"),
+    )
+    filt = market_filter.MarketFilter(logger_instance=logging.getLogger("test"))
+    markets = await filt.find_all_market_tickers(redis)
+    assert markets == ["KXBTC-TK1"]

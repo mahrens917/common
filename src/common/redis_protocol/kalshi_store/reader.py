@@ -48,6 +48,11 @@ async def _get_markets_by_currency(store: "KalshiMarketReader", currency: str) -
     return await query_handler.get_by_currency(currency)
 
 
+async def _get_all_markets(store: "KalshiMarketReader") -> List[Dict[str, Any]]:
+    query_handler = getattr(store, "_query_handler")
+    return await query_handler.get_all()
+
+
 async def _get_active_strikes_and_expiries(store: "KalshiMarketReader", currency: str) -> Dict[str, List[Dict[str, Any]]]:
     query_handler = getattr(store, "_query_handler")
     return await query_handler.get_strikes_and_expiries(currency)
@@ -221,6 +226,7 @@ _ASYNC_HELPERS = [
     ("get_subscribed_markets", _get_subscribed_markets),
     ("is_market_tracked", _is_market_tracked),
     ("get_markets_by_currency", _get_markets_by_currency),
+    ("get_all_markets", _get_all_markets),
     ("get_active_strikes_and_expiries", _get_active_strikes_and_expiries),
     ("get_market_data_for_strike_expiry", _get_market_data_for_strike_expiry),
     ("is_market_expired", _is_market_expired),

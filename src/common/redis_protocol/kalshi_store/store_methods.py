@@ -59,6 +59,39 @@ async def get_markets_by_currency(store, currency: str) -> List[Dict[str, Any]]:
     return results
 
 
+async def get_all_markets(store) -> List[Dict[str, Any]]:
+    """Return all market records."""
+    if not await store._ensure_redis_connection():
+        raise RuntimeError("Failed to ensure Redis connection for get_all_markets")
+
+    tickers = await store._find_all_market_tickers()
+    if not tickers:
+        store.logger.debug("No Kalshi market data found in Redis")
+        return []
+
+    metadata_extractor = getattr(store._reader, "_metadata_extractor", None)
+    ticker_parser = getattr(store._reader, "_ticker_parser", None)
+    if metadata_extractor is None or ticker_parser is None:
+        raise RuntimeError("KalshiStore reader missing metadata extraction helpers")
+
+    redis = await store._get_redis()
+    from .reader_helpers.market_record_builder import build_market_records
+
+    results, skip_reasons = await build_market_records(
+        redis=redis,
+        market_tickers=tickers,
+        currency=None,
+        ticker_parser=ticker_parser,
+        metadata_extractor=metadata_extractor,
+        get_market_key_func=store.get_market_key,
+        logger_instance=store.logger,
+    )
+    if skip_reasons:
+        for reason, count in skip_reasons.most_common(5):
+            store.logger.debug("Skipped %s markets due to %s", count, reason)
+    return results
+
+
 async def get_active_strikes_and_expiries(store, currency: str) -> Dict[str, List[Dict]]:
     """Group active markets by expiry/strike for a currency."""
     from .store_initializer import KalshiStoreError

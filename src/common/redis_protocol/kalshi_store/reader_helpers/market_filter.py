@@ -78,6 +78,36 @@ class MarketFilter:
 
         return collected
 
+    async def find_all_market_tickers(self, redis: Redis) -> List[str]:
+        """
+        Scan Redis for all Kalshi market tickers.
+
+        Args:
+            redis: Redis connection
+
+        Returns:
+            List of all market tickers
+        """
+        pattern = f"{SCHEMA.kalshi_market_prefix}:*"
+        cursor = 0
+        collected: List[str] = []
+        seen: Set[str] = set()
+
+        while True:
+            cursor, keys = await redis.scan(cursor, match=pattern, count=500)
+            for raw_key in keys:
+                key_str = decode_redis_key(raw_key)
+                ticker = self._extract_ticker_from_key(key_str)
+                if ticker is None or ticker in seen:
+                    continue
+                seen.add(ticker)
+                collected.append(ticker)
+
+            if cursor == 0:
+                break
+
+        return collected
+
     def log_market_summary(
         self,
         *,

@@ -8,7 +8,7 @@ from __future__ import annotations
 
 import logging
 from collections import Counter
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Optional
 
 from redis.asyncio import Redis
 
@@ -22,7 +22,7 @@ logger = logging.getLogger(__name__)
 async def build_market_records(
     redis: Redis,
     market_tickers: List[str],
-    currency: str,
+    currency: Optional[str],
     ticker_parser,
     metadata_extractor,
     get_market_key_func,
@@ -34,7 +34,7 @@ async def build_market_records(
     Args:
         redis: Redis connection
         market_tickers: List of market ticker strings
-        currency: Currency to filter by
+        currency: Currency to filter by (optional)
         ticker_parser: TickerParser instance
         metadata_extractor: MetadataExtractor instance
         get_market_key_func: Function to get market key from ticker

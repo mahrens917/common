@@ -73,7 +73,7 @@ class MetadataExtractor:
         market_ticker: str,
         raw_hash: Dict[str, Any],
         *,
-        currency: str,
+        currency: Optional[str],
         now: datetime,
     ) -> Dict[str, Any]:
         """
@@ -82,7 +82,7 @@ class MetadataExtractor:
         Args:
             market_ticker: Market ticker
             raw_hash: Raw Redis hash
-            currency: Currency symbol
+            currency: Currency symbol (optional)
             now: Current time
 
         Returns:
