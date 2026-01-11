@@ -79,15 +79,7 @@ class MarketFilter:
         return collected
 
     async def find_all_market_tickers(self, redis: Redis) -> List[str]:
-        """
-        Scan Redis for all Kalshi market tickers.
-
-        Args:
-            redis: Redis connection
-
-        Returns:
-            List of all market tickers
-        """
+        """Scan Redis for all Kalshi market tickers."""
         pattern = f"{SCHEMA.kalshi_market_prefix}:*"
         cursor = 0
         collected: List[str] = []
