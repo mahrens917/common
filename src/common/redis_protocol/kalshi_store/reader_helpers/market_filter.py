@@ -18,7 +18,6 @@ from ....redis_schema import parse_kalshi_market_key
 
 logger = logging.getLogger(__name__)
 SCHEMA = get_schema_config()
-_WEATHER_PREFIX = f"{SCHEMA.kalshi_weather_prefix}:"
 
 
 class MarketFilter:
@@ -35,8 +34,6 @@ class MarketFilter:
 
     def _extract_ticker_from_key(self, key_str: str) -> str | None:
         """Extract ticker from a Redis market key, returning None if invalid."""
-        if key_str.startswith(_WEATHER_PREFIX):
-            return None
         try:
             descriptor = parse_kalshi_market_key(key_str)
         except ValueError as exc:  # Expected data validation or parsing failure  # policy_guard: allow-silent-handler
