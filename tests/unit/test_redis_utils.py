@@ -13,7 +13,7 @@ async def test_get_redis_connection_uses_pool(monkeypatch):
     async def fake_get_pool():
         return pool_sentinel
 
-    def fake_async_redis(*, connection_pool):
+    def fake_async_redis(*, connection_pool, **kwargs):
         assert connection_pool is pool_sentinel
         return fresh_client
 

@@ -20,6 +20,7 @@ from .connection_pool_helpers.connection_management import acquire_thread_lock a
 from .connection_pool_helpers.connection_management import create_pool_if_needed as _create_pool_helper
 from .connection_pool_helpers.connection_management import initialize_pool as _initialize_pool_helper
 from .connection_pool_helpers.connection_management import should_recycle_pool as _should_recycle_pool_helper
+from .connection_pool_helpers.retry_config import RETRY_ON_CONNECTION_ERROR, create_async_retry, create_sync_retry
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.WARNING)  # Only show WARNING and above
@@ -184,9 +185,17 @@ async def _initialize_pool(current_loop: asyncio.AbstractEventLoop) -> None:
 
 
 async def get_redis_client() -> redis.asyncio.Redis:
-    """Get a Redis client backed by the unified async connection pool."""
+    """Get a Redis client backed by the unified async connection pool.
+
+    The client is configured with automatic retry on connection drops
+    using exponential backoff.
+    """
     pool = await get_redis_pool()
-    return redis.asyncio.Redis(connection_pool=pool)
+    return redis.asyncio.Redis(
+        connection_pool=pool,
+        retry=create_async_retry(),
+        retry_on_error=list(RETRY_ON_CONNECTION_ERROR),
+    )
 
 
 async def cleanup_redis_pool():
@@ -385,6 +394,9 @@ def get_sync_redis_client() -> redis.Redis:
     Note: Most code should use async clients (get_redis_client). This is only for
     special cases where async operations are not possible.
 
+    The client is configured with automatic retry on connection drops
+    using exponential backoff.
+
     Returns:
         Synchronous Redis client from connection pool
 
@@ -395,4 +407,8 @@ def get_sync_redis_client() -> redis.Redis:
         >>> client.close()  # Return connection to pool
     """
     pool = get_sync_redis_pool()
-    return redis.Redis(connection_pool=pool)
+    return redis.Redis(
+        connection_pool=pool,
+        retry=create_sync_retry(),
+        retry_on_error=list(RETRY_ON_CONNECTION_ERROR),
+    )

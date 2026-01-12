@@ -352,7 +352,7 @@ def test_get_sync_redis_client_returns_client_from_pool(monkeypatch):
             self.kwargs = kwargs
 
     class FakeSyncRedis:
-        def __init__(self, connection_pool=None):
+        def __init__(self, connection_pool=None, **kwargs):
             self.connection_pool = connection_pool
 
     fake_pool = FakeSyncPool()
