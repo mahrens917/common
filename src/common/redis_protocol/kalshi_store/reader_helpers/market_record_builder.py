@@ -64,17 +64,6 @@ async def build_market_records(
         pipe.hgetall(market_key)
     raw_hashes = await pipe.execute()
 
-    # Debug: check first result
-    if raw_hashes and market_keys:
-        first_hash = raw_hashes[0]
-        logger.warning("[DEBUG] First key: %s", market_keys[0])
-        if first_hash:
-            logger.warning("[DEBUG] First hash keys: %s", list(first_hash.keys())[:10])
-            yes_ask_str = first_hash.get("yes_ask")
-            logger.warning("[DEBUG] yes_ask in hash: %r", yes_ask_str)
-        else:
-            logger.warning("[DEBUG] First hash is empty")
-
     # Process results
     for market_ticker, raw_hash in zip(normalized_tickers, raw_hashes):
         try:

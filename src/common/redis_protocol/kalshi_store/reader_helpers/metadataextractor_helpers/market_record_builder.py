@@ -64,15 +64,6 @@ class MarketRecordBuilder:
         metadata = _decode_metadata_payload(snapshot.get("metadata"), market_ticker)
         combined = _merge_snapshot_with_metadata(metadata, snapshot)
 
-        # Debug: trace yes_ask through the flow
-        if market_ticker.startswith("KXBTC") and "yes_ask" in str(raw_hash):
-            logger.warning("[DEBUG-MRB] ticker=%s", market_ticker)
-            yes_ask_str = raw_hash.get("yes_ask")
-            logger.warning("[DEBUG-MRB] raw_hash yes_ask=%r", yes_ask_str)
-            logger.warning("[DEBUG-MRB] snapshot yes_ask=%r", snapshot.get("yes_ask"))
-            logger.warning("[DEBUG-MRB] metadata yes_ask=%r", metadata.get("yes_ask"))
-            logger.warning("[DEBUG-MRB] combined yes_ask=%r", combined.get("yes_ask"))
-
         status_value = self.type_converter.string_or_default(combined.get("status"))
         _ensure_market_open(status_value, market_ticker)
 
@@ -189,6 +180,7 @@ def _build_market_record(data: MarketRecordData) -> Dict[str, Any]:
         "cap_strike": data.type_converter.string_or_default(data.combined.get("cap_strike")),
         "event_ticker": data.type_converter.string_or_default(data.combined.get("event_ticker")),
         "event_type": data.type_converter.string_or_default(data.combined.get("event_type")),
+        "category": data.type_converter.string_or_default(data.combined.get("category")),
         "yes_bid": data.combined.get("yes_bid"),
         "yes_ask": data.combined.get("yes_ask"),
         "currency": currency_value,
@@ -197,9 +189,4 @@ def _build_market_record(data: MarketRecordData) -> Dict[str, Any]:
         "yes_bids": data.combined.get("yes_bids"),
         "yes_asks": data.combined.get("yes_asks"),
     }
-    # Debug: verify yes_ask is in result
-    if data.market_ticker == "KXBTC-26JAN1617-B90250":
-        logger.warning(
-            "[DEBUG-RESULT] ticker=%s yes_ask=%r combined=%r", data.market_ticker, result.get("yes_ask"), data.combined.get("yes_ask")
-        )
     return result
