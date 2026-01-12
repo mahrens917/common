@@ -329,6 +329,11 @@ class FakeRedisPipeline:
         self.commands.append(("hget", (key, field)))
         return self
 
+    def hgetall(self, key: str) -> "FakeRedisPipeline":
+        """Pipeline hgetall."""
+        self.commands.append(("hgetall", (key,)))
+        return self
+
     def hincrby(self, key: str, field: str, increment: int) -> "FakeRedisPipeline":
         """Pipeline hincrby."""
         self.commands.append(("hincrby", (key, field, increment)))
@@ -371,6 +376,7 @@ class FakeRedisPipeline:
             "sadd": lambda: self.fake_redis.sadd(args[0], *args[1]),
             "hset": lambda: self.fake_redis.hset(args[0], args[1]),
             "hget": lambda: self.fake_redis.hget(args[0], args[1]),
+            "hgetall": lambda: self.fake_redis.hgetall(args[0]),
             "hincrby": lambda: self.fake_redis.hincrby(args[0], args[1], args[2]),
             "expire": lambda: self.fake_redis.expire(args[0], args[1]),
             "hdel": lambda: self.fake_redis.hdel(args[0], *args[1]),

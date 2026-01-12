@@ -47,11 +47,37 @@ async def build_market_records(
     results: List[Dict[str, Any]] = []
     skip_reasons: Counter = Counter()
 
+    if not market_tickers:
+        return results, skip_reasons
+
+    # Normalize tickers and build keys upfront
+    normalized_tickers: List[str] = []
+    market_keys: List[str] = []
     for raw_ticker in market_tickers:
         market_ticker = ticker_parser.normalize_ticker(raw_ticker)
+        normalized_tickers.append(market_ticker)
+        market_keys.append(get_market_key_func(market_ticker))
+
+    # Pipeline all hgetall calls into a single Redis round trip
+    pipe = redis.pipeline()
+    for market_key in market_keys:
+        pipe.hgetall(market_key)
+    raw_hashes = await pipe.execute()
+
+    # Debug: check first result
+    if raw_hashes and market_keys:
+        first_hash = raw_hashes[0]
+        logger.warning("[DEBUG] First key: %s", market_keys[0])
+        if first_hash:
+            logger.warning("[DEBUG] First hash keys: %s", list(first_hash.keys())[:10])
+            yes_ask_str = first_hash.get("yes_ask")
+            logger.warning("[DEBUG] yes_ask in hash: %r", yes_ask_str)
+        else:
+            logger.warning("[DEBUG] First hash is empty")
+
+    # Process results
+    for market_ticker, raw_hash in zip(normalized_tickers, raw_hashes):
         try:
-            market_key = get_market_key_func(market_ticker)
-            raw_hash = await ensure_awaitable(redis.hgetall(market_key))
             record = metadata_extractor.create_market_record(market_ticker, raw_hash, currency=currency, now=current_time)
         except MarketSkip as skip:  # Expected exception in loop, continuing iteration  # policy_guard: allow-silent-handler
             skip_reasons[skip.reason] += 1
