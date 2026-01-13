@@ -6,6 +6,7 @@ from dataclasses import dataclass
 from datetime import date, timedelta
 from typing import TYPE_CHECKING, Any, Dict, List, Tuple
 
+from ..retry import with_redis_retry
 from ..typing import ensure_awaitable
 
 REJECTION_KEY_PREFIX = "algo_rejections"
@@ -90,7 +91,10 @@ async def fetch_kalshi_prices(
     price_pipe = redis.pipeline()
     for sig in signals:
         price_pipe.hmget(sig.market_key, ["yes_bid", "yes_ask"])
-    return await ensure_awaitable(price_pipe.execute())
+    return await with_redis_retry(
+        lambda: ensure_awaitable(price_pipe.execute()),
+        context="pipeline_fetch_kalshi_prices",
+    )
 
 
 def build_signal_mapping(
@@ -152,7 +156,10 @@ async def get_rejection_stats(redis: "Redis", days: int = 1) -> Dict[str, Dict[s
         day_str = day.isoformat()
         key = f"{REJECTION_KEY_PREFIX}:{day_str}"
 
-        data = await ensure_awaitable(redis.hgetall(key))
+        data = await with_redis_retry(
+            lambda k=key: ensure_awaitable(redis.hgetall(k)),
+            context=f"hgetall_rejection_stats:{day_str}",
+        )
         if data:
             day_stats: Dict[str, int] = {}
             for field, count in data.items():

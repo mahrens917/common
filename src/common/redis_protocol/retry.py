@@ -149,10 +149,49 @@ async def _maybe_await(result: Optional[Awaitable[None]]) -> None:
     await result
 
 
+_DEFAULT_OP_POLICY = RedisRetryPolicy()
+_op_logger = logging.getLogger(__name__)
+
+
+async def with_redis_retry(
+    coro_func: Callable[[], Awaitable[_ResultT]],
+    *,
+    context: str = "redis_op",
+    policy: Optional[RedisRetryPolicy] = None,
+) -> _ResultT:
+    """Execute a Redis operation with retry logic.
+
+    This is a convenience wrapper around execute_with_retry for simple Redis operations.
+
+    Args:
+        coro_func: Zero-argument callable that returns an awaitable (e.g., lambda: redis.hget(...))
+        context: Label describing the operation (used in logs)
+        policy: Optional retry policy; uses default if not provided
+
+    Returns:
+        The result of the Redis operation
+
+    Raises:
+        RedisRetryError: When all retry attempts are exhausted
+    """
+    effective_policy = policy if policy is not None else _DEFAULT_OP_POLICY
+
+    async def _operation(_attempt: int) -> _ResultT:
+        return await coro_func()
+
+    return await execute_with_retry(
+        _operation,
+        policy=effective_policy,
+        logger=_op_logger,
+        context=context,
+    )
+
+
 __all__ = [
     "RedisFatalError",
     "RedisRetryContext",
     "RedisRetryError",
     "RedisRetryPolicy",
     "execute_with_retry",
+    "with_redis_retry",
 ]

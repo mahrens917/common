@@ -1040,6 +1040,7 @@ async def test_get_markets_by_currency_filters_records(monkeypatch, fake_redis, 
 
     # Use proper __init__ to ensure _attr_resolver and all delegators are initialized
     store = KalshiStore(redis=fake_redis, service_prefix="ws", weather_resolver=weather_resolver)
+    store.logger = Mock(spec=logging.Logger)
 
     # Override specific methods for testing
     async def ensure_connection() -> bool:

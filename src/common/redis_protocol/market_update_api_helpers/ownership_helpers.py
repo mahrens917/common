@@ -7,6 +7,7 @@ from dataclasses import dataclass
 from datetime import date
 from typing import TYPE_CHECKING, Callable, List, Optional, Set
 
+from ..retry import with_redis_retry
 from ..typing import ensure_awaitable
 from .batch_processor import REJECTION_KEY_PREFIX
 
@@ -33,7 +34,10 @@ async def check_ownership(
     ticker: str,
 ) -> OwnershipCheckResult:
     """Check if the requesting algo can update this market."""
-    current_algo = await ensure_awaitable(redis.hget(market_key, "algo"))
+    current_algo = await with_redis_retry(
+        lambda: ensure_awaitable(redis.hget(market_key, "algo")),
+        context=f"hget_algo:{ticker}",
+    )
 
     if current_algo is not None:
         if isinstance(current_algo, bytes):
@@ -62,12 +66,18 @@ async def record_rejection(redis: "Redis", blocking_algo: str, requesting_algo: 
     today = date.today().isoformat()
     key = f"{REJECTION_KEY_PREFIX}:{today}"
     field = f"{blocking_algo}:{requesting_algo}"
-    await ensure_awaitable(redis.hincrby(key, field, 1))
+    await with_redis_retry(
+        lambda: ensure_awaitable(redis.hincrby(key, field, 1)),
+        context="hincrby_rejection",
+    )
 
 
 async def get_market_algo(redis: "Redis", market_key: str) -> Optional[str]:
     """Get the owning algo for a market."""
-    algo = await ensure_awaitable(redis.hget(market_key, "algo"))
+    algo = await with_redis_retry(
+        lambda: ensure_awaitable(redis.hget(market_key, "algo")),
+        context="hget_market_algo",
+    )
     if algo is None:
         return None
     if isinstance(algo, bytes):
@@ -94,10 +104,16 @@ async def scan_algo_owned_markets(
     cursor = 0
 
     while True:
-        cursor, keys = await ensure_awaitable(redis.scan(cursor, match=scan_pattern, count=1000))
+        cursor, keys = await with_redis_retry(
+            lambda c=cursor: ensure_awaitable(redis.scan(c, match=scan_pattern, count=1000)),
+            context=f"scan:{scan_pattern}",
+        )
         for key in keys:
             key_str = key.decode("utf-8") if isinstance(key, bytes) else str(key)
-            current_algo = await ensure_awaitable(redis.hget(key_str, "algo"))
+            current_algo = await with_redis_retry(
+                lambda k=key_str: ensure_awaitable(redis.hget(k, "algo")),
+                context=f"hget_algo:{key_str}",
+            )
             if current_algo is None:
                 continue
             algo_str = current_algo.decode("utf-8") if isinstance(current_algo, bytes) else str(current_algo)
@@ -139,7 +155,10 @@ async def clear_stale_markets(
             logger.debug("Skipping clear for %s: owned by %s, not %s", ticker, current_algo, algo)
             continue
 
-        await ensure_awaitable(redis.hdel(market_key, bid_field, ask_field, "algo", "direction"))
+        await with_redis_retry(
+            lambda mk=market_key: ensure_awaitable(redis.hdel(mk, bid_field, ask_field, "algo", "direction")),
+            context=f"hdel_stale:{ticker}",
+        )
         cleared.append(ticker)
 
     if cleared:
@@ -150,5 +169,8 @@ async def clear_stale_markets(
 
 async def clear_algo_ownership(redis: "Redis", market_key: str) -> bool:
     """Clear algo ownership from a market (used by --reset)."""
-    result = await ensure_awaitable(redis.hdel(market_key, "algo"))
+    result = await with_redis_retry(
+        lambda: ensure_awaitable(redis.hdel(market_key, "algo")),
+        context="hdel_algo_ownership",
+    )
     return result > 0

@@ -544,6 +544,8 @@ class TestPublishMarketEventUpdate:
 
     @pytest.mark.asyncio
     async def test_publish_exception_is_raised(self, mock_redis):
+        from common.redis_protocol.retry import RedisRetryError
+
         def hget_side_effect(key, field):
             if field == "event_ticker":
                 return b"EVENT123"
@@ -552,7 +554,7 @@ class TestPublishMarketEventUpdate:
         mock_redis.hget = AsyncMock(side_effect=hget_side_effect)
         mock_redis.publish = AsyncMock(side_effect=RuntimeError("publish failed"))
 
-        with pytest.raises(RuntimeError, match="publish failed"):
+        with pytest.raises(RedisRetryError, match="failed after 3 attempt"):
             await request_market_update(mock_redis, "market:key", "weather", 50.0, 55.0)
 
 

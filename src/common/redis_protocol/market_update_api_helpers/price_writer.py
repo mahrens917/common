@@ -7,6 +7,7 @@ import logging
 from datetime import datetime, timezone
 from typing import TYPE_CHECKING, Dict, Optional
 
+from ..retry import with_redis_retry
 from ..typing import ensure_awaitable
 from .ownership_helpers import algo_field, get_market_algo
 
@@ -79,7 +80,10 @@ async def add_ownership_fields(
     is_owner = current_algo is None or current_algo == algo
 
     if is_owner:
-        kalshi_data = await ensure_awaitable(redis.hmget(market_key, ["yes_bid", "yes_ask"]))
+        kalshi_data = await with_redis_retry(
+            lambda: ensure_awaitable(redis.hmget(market_key, ["yes_bid", "yes_ask"])),
+            context="hmget_kalshi_prices",
+        )
         kalshi_bid = parse_int(kalshi_data[0])
         kalshi_ask = parse_int(kalshi_data[1])
 
@@ -109,9 +113,15 @@ async def delete_stale_opposite_field(
         return
 
     if t_yes_bid is not None:
-        await ensure_awaitable(redis.hdel(market_key, ask_field))
+        await with_redis_retry(
+            lambda: ensure_awaitable(redis.hdel(market_key, ask_field)),
+            context="hdel_stale_ask",
+        )
     elif t_yes_ask is not None:
-        await ensure_awaitable(redis.hdel(market_key, bid_field))
+        await with_redis_retry(
+            lambda: ensure_awaitable(redis.hdel(market_key, bid_field)),
+            context="hdel_stale_bid",
+        )
 
 
 async def write_theoretical_prices(
@@ -130,7 +140,10 @@ async def write_theoretical_prices(
     mapping = build_price_mapping(algo, t_yes_bid, t_yes_ask)
     is_owner = await add_ownership_fields(redis, market_key, mapping, algo, t_yes_bid, t_yes_ask)
 
-    await ensure_awaitable(redis.hset(market_key, mapping=mapping))
+    await with_redis_retry(
+        lambda: ensure_awaitable(redis.hset(market_key, mapping=mapping)),
+        context=f"hset_prices:{ticker}",
+    )
     await delete_stale_opposite_field(redis, market_key, algo, t_yes_bid, t_yes_ask)
 
     logger.debug(
@@ -154,7 +167,10 @@ async def publish_market_event_update(
 ) -> None:
     """Publish market event update to notify tracker of theoretical price change."""
     try:
-        event_ticker = await ensure_awaitable(redis.hget(market_key, "event_ticker"))
+        event_ticker = await with_redis_retry(
+            lambda: ensure_awaitable(redis.hget(market_key, "event_ticker")),
+            context=f"hget_event_ticker:{ticker}",
+        )
         if not event_ticker:
             logger.debug("No event_ticker for %s, skipping publish", ticker)
             return
@@ -169,7 +185,10 @@ async def publish_market_event_update(
                 "timestamp": datetime.now(timezone.utc).isoformat(),
             }
         )
-        await ensure_awaitable(redis.publish(channel, payload))
+        await with_redis_retry(
+            lambda: ensure_awaitable(redis.publish(channel, payload)),
+            context=f"publish_event:{ticker}",
+        )
         logger.debug("Published market event update for %s to %s", ticker, channel)
     except (RuntimeError, ConnectionError, OSError) as exc:
         logger.debug("Failed to publish market event update for %s: %s", ticker, exc)

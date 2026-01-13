@@ -34,6 +34,7 @@ from .market_update_api_helpers import (
     scan_algo_owned_markets,
     write_theoretical_prices,
 )
+from .retry import with_redis_retry
 from .typing import ensure_awaitable
 
 if TYPE_CHECKING:
@@ -157,7 +158,10 @@ async def _execute_batch_transaction(
     """Execute the batch transaction and publish event updates."""
     succeeded: List[str] = []
     try:
-        await ensure_awaitable(pipe.execute())
+        await with_redis_retry(
+            lambda: ensure_awaitable(pipe.execute()),
+            context=f"pipeline_batch_update:{algo}",
+        )
         succeeded = [sig.ticker for sig in sorted_signals]
         logger.debug("Batch updated %d markets atomically for algo %s", len(succeeded), algo)
     except (RuntimeError, ConnectionError, OSError):
