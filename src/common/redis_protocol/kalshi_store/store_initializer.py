@@ -6,7 +6,6 @@ This module contains the initialization and setup functions for KalshiStore.
 
 import logging
 from typing import TYPE_CHECKING, Optional
-from unittest.mock import Mock
 
 from redis.asyncio import Redis
 
@@ -77,7 +76,6 @@ def _assign_base_store_attributes(
 ) -> None:
     object.__setattr__(store, "service_prefix", service_prefix)
     object.__setattr__(store, "logger", logger)
-    _wrap_logger_debug(store)
     weather_loader = getattr(
         store_module,
         "_default_weather_station_loader",
@@ -88,12 +86,6 @@ def _assign_base_store_attributes(
         "weather_resolver",
         weather_resolver or build_weather_resolver(weather_loader, logger),
     )
-
-
-def _wrap_logger_debug(store: "KalshiStore") -> None:
-    debug_method = getattr(store.logger, "debug", None)
-    if debug_method and not hasattr(debug_method, "assert_called"):
-        store.logger.debug = Mock(wraps=debug_method)
 
 
 def _apply_core_components(
