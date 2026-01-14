@@ -161,80 +161,45 @@ class TestGetRedisPool:
 
     @pytest.mark.asyncio
     async def test_get_redis_pool_creates_pool_when_none(self) -> None:
-        """Creates pool when unified pool is None."""
+        """Creates thread-local pool when none exists."""
         mock_pool = MagicMock(spec=redis.asyncio.ConnectionPool)
+        current_loop = asyncio.get_running_loop()
 
         with (
-            patch.object(connection_pool_core, "_unified_pool", None),
             patch.object(
                 connection_pool_core,
-                "_create_pool_if_needed",
+                "_create_thread_local_pool",
                 new_callable=AsyncMock,
+                return_value=mock_pool,
             ) as mock_create,
-            patch.object(
-                connection_pool_core,
-                "_should_recycle_pool",
-                new_callable=AsyncMock,
-                return_value=False,
-            ),
             patch.object(connection_pool_core, "_redis_health_monitor") as mock_monitor,
+            patch.object(connection_pool_core, "_thread_local", threading.local()),
         ):
-            # Simulate pool creation by setting _unified_pool after call
-            async def set_pool(_loop):
-                connection_pool_core._unified_pool = mock_pool
-
-            mock_create.side_effect = set_pool
-
             result = await connection_pool_core.get_redis_pool()
 
             assert result is mock_pool
-            mock_create.assert_awaited_once()
+            mock_create.assert_awaited_once_with(current_loop)
             mock_monitor.record_pool_get.assert_called_once()
 
     @pytest.mark.asyncio
-    async def test_get_redis_pool_recycles_on_loop_change(self) -> None:
-        """Cleans up pool when event loop changes."""
+    async def test_get_redis_pool_reuses_existing_pool(self) -> None:
+        """Reuses existing thread-local pool for same event loop."""
         mock_pool = MagicMock(spec=redis.asyncio.ConnectionPool)
+        current_loop = asyncio.get_running_loop()
+        mock_pool_loop_ref = weakref.ref(current_loop)
+
+        thread_local = threading.local()
+        thread_local.pool = mock_pool
+        thread_local.pool_loop = mock_pool_loop_ref
 
         with (
-            patch.object(connection_pool_core, "_unified_pool", mock_pool),
-            patch.object(
-                connection_pool_core,
-                "_should_recycle_pool",
-                new_callable=AsyncMock,
-                return_value=True,
-            ),
-            patch.object(
-                connection_pool_core,
-                "cleanup_redis_pool",
-                new_callable=AsyncMock,
-            ) as mock_cleanup,
-            patch.object(
-                connection_pool_core,
-                "_create_pool_if_needed",
-                new_callable=AsyncMock,
-            ),
-            patch.object(connection_pool_core, "_redis_health_monitor"),
+            patch.object(connection_pool_core, "_thread_local", thread_local),
+            patch.object(connection_pool_core, "_redis_health_monitor") as mock_monitor,
         ):
-            await connection_pool_core.get_redis_pool()
+            result = await connection_pool_core.get_redis_pool()
 
-            mock_cleanup.assert_awaited_once()
-
-
-class TestShouldRecyclePool:
-    """Tests for _should_recycle_pool function."""
-
-    @pytest.mark.asyncio
-    async def test_returns_false_when_pool_loop_is_none(self) -> None:
-        """Returns False when pool_loop is None."""
-        current_loop = asyncio.get_event_loop()
-
-        result = await connection_pool_core._should_recycle_pool(current_loop)
-
-        # With _pool_loop as None (default), should not recycle
-        with patch.object(connection_pool_core, "_pool_loop", None):
-            result = await connection_pool_core._should_recycle_pool(current_loop)
-            assert result is False
+            assert result is mock_pool
+            mock_monitor.record_pool_get.assert_called_once()
 
 
 class TestGetRedisClient:
@@ -262,89 +227,48 @@ class TestCleanupRedisPool:
 
     @pytest.mark.asyncio
     async def test_cleanup_when_pool_is_none(self) -> None:
-        """Handles cleanup when pool is None."""
-        with (
-            patch.object(connection_pool_core, "_unified_pool", None),
-            patch.object(connection_pool_core, "_pool_guard", threading.Lock()),
-            patch.object(
-                connection_pool_core,
-                "_acquire_thread_lock",
-                new_callable=AsyncMock,
-            ),
-        ):
+        """Handles cleanup when thread-local pool is None."""
+        thread_local = threading.local()
+        # No pool attribute set
+
+        with patch.object(connection_pool_core, "_thread_local", thread_local):
             # Should not raise
             await connection_pool_core.cleanup_redis_pool()
 
     @pytest.mark.asyncio
     async def test_cleanup_disconnects_pool(self) -> None:
-        """Disconnects pool during cleanup."""
+        """Disconnects thread-local pool during cleanup."""
         mock_pool = MagicMock(spec=redis.asyncio.ConnectionPool)
         mock_pool.disconnect = AsyncMock()
 
+        thread_local = threading.local()
+        thread_local.pool = mock_pool
+        thread_local.pool_loop = weakref.ref(asyncio.get_running_loop())
+
         with (
-            patch.object(connection_pool_core, "_unified_pool", mock_pool),
-            patch.object(connection_pool_core, "_pool_loop", None),
-            patch.object(connection_pool_core, "_pool_guard", threading.Lock()),
-            patch.object(
-                connection_pool_core,
-                "_acquire_thread_lock",
-                new_callable=AsyncMock,
-            ),
-            patch.object(
-                connection_pool_core,
-                "_disconnect_pool",
-                new_callable=AsyncMock,
-            ) as mock_disconnect,
+            patch.object(connection_pool_core, "_thread_local", thread_local),
             patch.object(connection_pool_core, "_redis_health_monitor") as mock_monitor,
         ):
             await connection_pool_core.cleanup_redis_pool()
 
-            mock_disconnect.assert_awaited_once()
+            mock_pool.disconnect.assert_awaited_once()
             mock_monitor.record_pool_cleanup.assert_called_once()
-
-    @pytest.mark.asyncio
-    async def test_cleanup_handles_closed_event_loop(self) -> None:
-        """Handles closed event loop during cleanup."""
-        mock_pool = MagicMock(spec=redis.asyncio.ConnectionPool)
-
-        with (
-            patch.object(connection_pool_core, "_unified_pool", mock_pool),
-            patch.object(connection_pool_core, "_pool_guard", threading.Lock()),
-            patch.object(
-                connection_pool_core,
-                "_acquire_thread_lock",
-                new_callable=AsyncMock,
-            ),
-            patch(
-                "asyncio.get_running_loop",
-                side_effect=[MagicMock(is_closed=lambda: True)],
-            ),
-        ):
-            # Should not raise
-            await connection_pool_core.cleanup_redis_pool()
 
     @pytest.mark.asyncio
     async def test_cleanup_handles_disconnect_timeout(self) -> None:
         """Handles timeout during pool disconnect."""
         mock_pool = MagicMock(spec=redis.asyncio.ConnectionPool)
+        mock_pool.disconnect = AsyncMock(side_effect=asyncio.TimeoutError())
+
+        thread_local = threading.local()
+        thread_local.pool = mock_pool
+        thread_local.pool_loop = weakref.ref(asyncio.get_running_loop())
 
         with (
-            patch.object(connection_pool_core, "_unified_pool", mock_pool),
-            patch.object(connection_pool_core, "_pool_loop", None),
-            patch.object(connection_pool_core, "_pool_guard", threading.Lock()),
-            patch.object(
-                connection_pool_core,
-                "_acquire_thread_lock",
-                new_callable=AsyncMock,
-            ),
-            patch.object(
-                connection_pool_core,
-                "_disconnect_pool",
-                new_callable=AsyncMock,
-                side_effect=asyncio.TimeoutError(),
-            ),
+            patch.object(connection_pool_core, "_thread_local", thread_local),
             patch.object(connection_pool_core, "_redis_health_monitor"),
             patch.object(connection_pool_core, "logger"),
+            patch("asyncio.wait_for", new_callable=AsyncMock, side_effect=asyncio.TimeoutError()),
         ):
             # Should not raise
             await connection_pool_core.cleanup_redis_pool()
@@ -353,113 +277,20 @@ class TestCleanupRedisPool:
     async def test_cleanup_handles_redis_error_during_disconnect(self) -> None:
         """Handles Redis error during disconnect."""
         mock_pool = MagicMock(spec=redis.asyncio.ConnectionPool)
+        mock_pool.disconnect = AsyncMock(side_effect=RedisError("Disconnect error"))
+
+        thread_local = threading.local()
+        thread_local.pool = mock_pool
+        thread_local.pool_loop = weakref.ref(asyncio.get_running_loop())
 
         with (
-            patch.object(connection_pool_core, "_unified_pool", mock_pool),
-            patch.object(connection_pool_core, "_pool_loop", None),
-            patch.object(connection_pool_core, "_pool_guard", threading.Lock()),
-            patch.object(
-                connection_pool_core,
-                "_acquire_thread_lock",
-                new_callable=AsyncMock,
-            ),
-            patch.object(
-                connection_pool_core,
-                "_disconnect_pool",
-                new_callable=AsyncMock,
-                side_effect=RedisError("Disconnect error"),
-            ),
+            patch.object(connection_pool_core, "_thread_local", thread_local),
             patch.object(connection_pool_core, "_redis_health_monitor"),
             patch.object(connection_pool_core, "logger"),
+            patch("asyncio.wait_for", new_callable=AsyncMock, side_effect=RedisError("error")),
         ):
             # Should not raise
             await connection_pool_core.cleanup_redis_pool()
-
-    @pytest.mark.asyncio
-    async def test_cleanup_handles_outer_redis_error(self) -> None:
-        """Handles Redis error in outer try block."""
-        mock_pool = MagicMock(spec=redis.asyncio.ConnectionPool)
-
-        with (
-            patch.object(connection_pool_core, "_unified_pool", mock_pool),
-            patch.object(connection_pool_core, "_pool_loop", None),
-            patch.object(connection_pool_core, "_pool_guard", threading.Lock()),
-            patch.object(
-                connection_pool_core,
-                "_acquire_thread_lock",
-                new_callable=AsyncMock,
-            ),
-            patch(
-                "asyncio.get_running_loop",
-                side_effect=RedisError("Outer error"),
-            ),
-            patch.object(connection_pool_core, "_redis_health_monitor") as mock_monitor,
-            patch.object(connection_pool_core, "logger"),
-        ):
-            # Should not raise
-            await connection_pool_core.cleanup_redis_pool()
-            mock_monitor.record_connection_error.assert_called_once()
-
-
-class TestDisconnectPool:
-    """Tests for _disconnect_pool function."""
-
-    @pytest.mark.asyncio
-    async def test_disconnect_pool_in_current_loop(self) -> None:
-        """Disconnects pool in current event loop."""
-        mock_pool = MagicMock(spec=redis.asyncio.ConnectionPool)
-        mock_pool.disconnect = AsyncMock()
-
-        with patch.object(connection_pool_core, "_pool_loop", None):
-            await connection_pool_core._disconnect_pool(mock_pool, timeout=5.0)
-
-            mock_pool.disconnect.assert_awaited_once()
-
-    @pytest.mark.asyncio
-    async def test_disconnect_pool_handles_event_loop_closed_error(self) -> None:
-        """Handles event loop closed error during disconnect."""
-        mock_pool = MagicMock(spec=redis.asyncio.ConnectionPool)
-        mock_pool.disconnect = AsyncMock(side_effect=RuntimeError("Event loop is closed"))
-
-        with patch.object(connection_pool_core, "_pool_loop", None):
-            # Should not raise
-            await connection_pool_core._disconnect_pool(mock_pool, timeout=5.0)
-
-    @pytest.mark.asyncio
-    async def test_disconnect_pool_reraises_other_runtime_errors(self) -> None:
-        """Re-raises non-event-loop RuntimeErrors."""
-        mock_pool = MagicMock(spec=redis.asyncio.ConnectionPool)
-        mock_pool.disconnect = AsyncMock(side_effect=RuntimeError("Other error"))
-
-        with (
-            patch.object(connection_pool_core, "_pool_loop", None),
-            pytest.raises(RuntimeError, match="Other error"),
-        ):
-            await connection_pool_core._disconnect_pool(mock_pool, timeout=5.0)
-
-    @pytest.mark.asyncio
-    async def test_disconnect_pool_with_different_loop(self) -> None:
-        """Uses pool's original loop when different from current."""
-        mock_pool = MagicMock(spec=redis.asyncio.ConnectionPool)
-        mock_pool.disconnect = AsyncMock()
-
-        mock_other_loop = MagicMock()
-        mock_other_loop.is_closed.return_value = False
-
-        pool_loop_ref = MagicMock(return_value=mock_other_loop)
-
-        with (
-            patch.object(connection_pool_core, "_pool_loop", pool_loop_ref),
-            patch("asyncio.run_coroutine_threadsafe") as mock_threadsafe,
-            patch("asyncio.wrap_future", new_callable=AsyncMock) as mock_wrap,
-            patch("asyncio.wait_for", new_callable=AsyncMock),
-        ):
-            mock_future = MagicMock()
-            mock_threadsafe.return_value = mock_future
-
-            await connection_pool_core._disconnect_pool(mock_pool, timeout=5.0)
-
-            mock_threadsafe.assert_called_once()
 
 
 class TestPerformRedisHealthCheck:
@@ -725,55 +556,33 @@ class TestGetSyncRedisClient:
             mock_redis_class.assert_called_once()
 
 
-class TestCreatePoolIfNeeded:
-    """Tests for _create_pool_if_needed function."""
+class TestCreateThreadLocalPool:
+    """Tests for _create_thread_local_pool function."""
 
     @pytest.mark.asyncio
-    async def test_creates_pool_when_unified_pool_is_none(self) -> None:
-        """Creates pool when unified_pool is None."""
-        current_loop = asyncio.get_event_loop()
+    async def test_creates_pool_and_stores_in_thread_local(self) -> None:
+        """Creates pool and stores in thread-local storage."""
+        current_loop = asyncio.get_running_loop()
         mock_pool = MagicMock(spec=redis.asyncio.ConnectionPool)
         mock_pool_loop = weakref.ref(current_loop)
 
+        thread_local = threading.local()
+
         with (
-            patch.object(connection_pool_core, "_unified_pool", None),
-            patch.object(connection_pool_core, "_pool_guard", threading.Lock()),
-            patch.object(
-                connection_pool_core,
-                "_acquire_thread_lock",
-                new_callable=AsyncMock,
-            ),
+            patch.object(connection_pool_core, "_thread_local", thread_local),
             patch.object(
                 connection_pool_core,
                 "_initialize_pool_helper",
                 new_callable=AsyncMock,
                 return_value=(mock_pool, mock_pool_loop),
             ),
-            patch.object(connection_pool_core, "_redis_health_monitor"),
+            patch.object(connection_pool_core, "logger"),
         ):
-            await connection_pool_core._create_pool_if_needed(current_loop)
+            result = await connection_pool_core._create_thread_local_pool(current_loop)
 
-
-class TestInitializePool:
-    """Tests for _initialize_pool function."""
-
-    @pytest.mark.asyncio
-    async def test_initializes_pool(self) -> None:
-        """Initializes pool and sets module-level variables."""
-        current_loop = asyncio.get_event_loop()
-        mock_pool = MagicMock(spec=redis.asyncio.ConnectionPool)
-        mock_pool_loop = weakref.ref(current_loop)
-
-        with (
-            patch.object(
-                connection_pool_core,
-                "_initialize_pool_helper",
-                new_callable=AsyncMock,
-                return_value=(mock_pool, mock_pool_loop),
-            ),
-            patch.object(connection_pool_core, "_redis_health_monitor"),
-        ):
-            await connection_pool_core._initialize_pool(current_loop)
+            assert result is mock_pool
+            assert thread_local.pool is mock_pool
+            assert thread_local.pool_loop is mock_pool_loop
 
 
 class TestModuleConstants:

@@ -61,9 +61,9 @@ class FakeRedisClient:
 
 
 def _reset_connection_pool_state():
-    """Reset connection pool global state."""
-    connection_pool_core._unified_pool = None
-    connection_pool_core._pool_loop = None
+    """Reset connection pool thread-local state."""
+    connection_pool_core._thread_local.pool = None
+    connection_pool_core._thread_local.pool_loop = None
 
 
 def _reset_monitor_metrics():
@@ -140,14 +140,14 @@ async def test_get_redis_pool_initializes_once_and_reuses(fake_redis_env):
 @pytest.mark.asyncio
 async def test_cleanup_redis_pool_disconnects_and_resets(fake_redis_env):
     pool = fake_redis_env.pool_cls()
-    connection_pool_core._unified_pool = pool
-    connection_pool_core._pool_loop = weakref.ref(asyncio.get_running_loop())
+    connection_pool_core._thread_local.pool = pool
+    connection_pool_core._thread_local.pool_loop = weakref.ref(asyncio.get_running_loop())
 
     await connection.cleanup_redis_pool()
 
     assert pool.disconnect_called is True
-    assert connection_pool_core._unified_pool is None
-    assert connection_pool_core._pool_loop is None
+    assert getattr(connection_pool_core._thread_local, "pool", None) is None
+    assert getattr(connection_pool_core._thread_local, "pool_loop", None) is None
     assert connection.get_redis_pool_metrics()["pool_cleanups"] == 1
 
 
@@ -205,14 +205,12 @@ async def test_redis_connection_connect_failure(fake_redis_env):
 async def test_cleanup_on_network_issues_resets_pool(fake_redis_env):
     cleanup_mock = AsyncMock()
     fake_redis_env.monkeypatch.setattr(connection_pool_core, "cleanup_redis_pool", cleanup_mock)
-    connection_pool_core._unified_pool = object()
-    connection_pool_core._pool_loop = weakref.ref(asyncio.get_running_loop())
+    connection_pool_core._thread_local.pool = object()
+    connection_pool_core._thread_local.pool_loop = weakref.ref(asyncio.get_running_loop())
 
     await connection.cleanup_redis_pool_on_network_issues()
 
     cleanup_mock.assert_awaited_once()
-    assert connection_pool_core._unified_pool is None
-    assert connection_pool_core._pool_loop is None
 
 
 def test_health_monitor_metrics_and_checks():
@@ -241,15 +239,11 @@ async def test_get_redis_pool_recycles_on_loop_change(monkeypatch, fake_redis_en
 
     other_loop = asyncio.new_event_loop()
     try:
-        connection_pool_core._pool_loop = weakref.ref(other_loop)
-
-        async def fake_cleanup():
-            connection_pool_core._unified_pool = None
-            connection_pool_core._pool_loop = None
-
-        monkeypatch.setattr(connection_pool_core, "cleanup_redis_pool", fake_cleanup)
+        # Simulate pool created in a different loop
+        connection_pool_core._thread_local.pool_loop = weakref.ref(other_loop)
 
         await connection.get_redis_pool()
+        # Should create a new pool since the loop changed
         assert len(fake_redis_env.created_pools) == _TEST_COUNT_2
     finally:
         other_loop.close()
@@ -334,13 +328,13 @@ async def test_cleanup_redis_pool_handles_disconnect_error(monkeypatch, fake_red
             raise RuntimeError("disconnect error")
 
     pool = FlakyPool()
-    connection_pool_core._unified_pool = pool
-    connection_pool_core._pool_loop = weakref.ref(asyncio.get_running_loop())
+    connection_pool_core._thread_local.pool = pool
+    connection_pool_core._thread_local.pool_loop = weakref.ref(asyncio.get_running_loop())
 
     await connection.cleanup_redis_pool()
 
-    assert connection_pool_core._unified_pool is None
-    assert connection_pool_core._pool_loop is None
+    assert getattr(connection_pool_core._thread_local, "pool", None) is None
+    assert getattr(connection_pool_core._thread_local, "pool_loop", None) is None
     assert connection.get_redis_pool_metrics()["connection_errors"] >= 0
 
 

@@ -258,15 +258,15 @@ async def _cleanup_redis_pools_between_tests():
     except Exception:
         return
 
-    pool = getattr(connection_pool_core, "_unified_pool", None)
+    pool = getattr(connection_pool_core._thread_local, "pool", None)
     if pool is not None:
         try:
             await asyncio.wait_for(pool.disconnect(), timeout=1.0)
         except Exception:
             pass
 
-    connection_pool_core._unified_pool = None
-    connection_pool_core._pool_loop = None
+    connection_pool_core._thread_local.pool = None
+    connection_pool_core._thread_local.pool_loop = None
 
     sync_pool = getattr(connection_pool_core, "_sync_pool", None)
     if sync_pool is not None:

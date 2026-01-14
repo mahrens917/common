@@ -16,10 +16,7 @@ import redis.asyncio
 from redis.exceptions import RedisError
 
 from . import config
-from .connection_pool_helpers.connection_management import acquire_thread_lock as _acquire_thread_lock
-from .connection_pool_helpers.connection_management import create_pool_if_needed as _create_pool_helper
 from .connection_pool_helpers.connection_management import initialize_pool as _initialize_pool_helper
-from .connection_pool_helpers.connection_management import should_recycle_pool as _should_recycle_pool_helper
 from .connection_pool_helpers.retry_config import RETRY_ON_CONNECTION_ERROR, create_async_retry, create_sync_retry
 
 logger = logging.getLogger(__name__)
@@ -35,12 +32,12 @@ REDIS_SETUP_ERRORS = (
     ValueError,
 )
 
-# Single unified connection pool for all Redis operations
-_unified_pool: Optional[redis.asyncio.ConnectionPool] = None
-_pool_guard = threading.Lock()  # Thread-aware guard for cross-loop safety
-_pool_loop: Optional[weakref.ReferenceType[asyncio.AbstractEventLoop]] = None
+# Thread-local storage for Redis connection pools
+# Each thread gets its own pool tied to its own event loop
+_thread_local = threading.local()
 
 # Synchronous Redis connection pool (for rare sync operations)
+# This remains global since sync operations don't have event loop issues
 _sync_pool: Optional[redis.ConnectionPool] = None
 _sync_pool_guard = threading.Lock()
 
@@ -121,67 +118,60 @@ _redis_health_monitor = RedisConnectionHealthMonitor()
 
 async def get_redis_pool() -> redis.asyncio.ConnectionPool:
     """
-    Get unified Redis connection pool for all operations
+    Get thread-local Redis connection pool for all operations.
+
+    Each thread gets its own pool tied to its event loop, avoiding
+    cross-thread cleanup issues that cause connection timeouts.
 
     Returns:
-        Redis connection pool
+        Redis connection pool for the current thread
     """
-    global _unified_pool, _pool_loop
-
     current_loop = asyncio.get_running_loop()
 
-    # Check if pool needs rebuilding due to event loop changes
-    if await _should_recycle_pool(current_loop):
-        await cleanup_redis_pool()
+    # Get thread-local pool state
+    pool: Optional[redis.asyncio.ConnectionPool] = getattr(_thread_local, "pool", None)
+    pool_loop_ref: Optional[weakref.ReferenceType] = getattr(_thread_local, "pool_loop", None)
 
-    # Create pool if needed (with double-checked locking)
-    if _unified_pool is None:
-        await _create_pool_if_needed(current_loop)
+    # Check if this thread's pool needs recycling (rare: same thread, different loop)
+    if pool is not None and pool_loop_ref is not None:
+        pool_loop = pool_loop_ref()
+        if pool_loop is None or pool_loop is not current_loop:
+            await _cleanup_thread_local_pool()
+            pool = None
 
-    # Record pool access for reuse tracking
+    # Create pool for this thread if needed
+    if pool is None:
+        pool = await _create_thread_local_pool(current_loop)
+
     _redis_health_monitor.record_pool_get()
-    assert _unified_pool is not None
-    return _unified_pool
+    return pool
 
 
-async def _should_recycle_pool(current_loop: asyncio.AbstractEventLoop) -> bool:
-    """
-    Determine if the existing pool was created by a different event loop.
-    """
-    return await _should_recycle_pool_helper(_pool_loop, current_loop)
-
-
-async def _create_pool_if_needed(current_loop: asyncio.AbstractEventLoop) -> None:
-    """
-    Create Redis pool if it doesn't exist (with thread-safe double-check).
-
-    Args:
-        current_loop: Currently running event loop
-    """
-    global _unified_pool, _pool_loop
-
-    pool, pool_loop = await _create_pool_helper(
-        _unified_pool,
-        _pool_guard,
-        _acquire_thread_lock,
-        current_loop,
-        UNIFIED_REDIS_CONFIG,
-        _redis_health_monitor,
-    )
-    if pool is not None:
-        _unified_pool = pool
-        _pool_loop = pool_loop
-
-
-async def _initialize_pool(current_loop: asyncio.AbstractEventLoop) -> None:
-    """
-    Initialize the unified Redis connection pool.
-    """
-    global _unified_pool, _pool_loop
-
+async def _create_thread_local_pool(
+    current_loop: asyncio.AbstractEventLoop,
+) -> redis.asyncio.ConnectionPool:
+    """Create a new pool for the current thread."""
     pool, pool_loop = await _initialize_pool_helper(current_loop, UNIFIED_REDIS_CONFIG, _redis_health_monitor)
-    _unified_pool = pool
-    _pool_loop = pool_loop
+    _thread_local.pool = pool
+    _thread_local.pool_loop = pool_loop
+    logger.info("Created thread-local Redis pool for thread %s", threading.current_thread().name)
+    return pool
+
+
+async def _cleanup_thread_local_pool() -> None:
+    """Clean up the current thread's pool (same-thread, safe operation)."""
+    pool: Optional[redis.asyncio.ConnectionPool] = getattr(_thread_local, "pool", None)
+    if pool is not None:
+        try:
+            await asyncio.wait_for(pool.disconnect(), timeout=5.0)
+            logger.info("Cleaned up thread-local Redis pool")
+        except asyncio.TimeoutError:  # Transient network/connection failure  # policy_guard: allow-silent-handler
+            logger.warning("Thread-local pool cleanup timed out")
+        except REDIS_SETUP_ERRORS as exc:  # Expected exception in operation  # policy_guard: allow-silent-handler
+            logger.warning("Error during thread-local pool cleanup: %s", type(exc).__name__)
+        _thread_local.pool = None
+        _thread_local.pool_loop = None
+        _redis_health_monitor.record_pool_cleanup()
 
 
 async def get_redis_client() -> redis.asyncio.Redis:
@@ -199,80 +189,12 @@ async def get_redis_client() -> redis.asyncio.Redis:
 
 
 async def cleanup_redis_pool():
-    """Clean up unified Redis connection pool"""
-    global _unified_pool, _pool_loop
+    """Clean up the current thread's Redis connection pool.
 
-    await _acquire_thread_lock(_pool_guard)
-    try:
-        if _unified_pool is not None:
-            try:
-                # Check if event loop is still running before attempting cleanup
-                try:
-                    loop = asyncio.get_running_loop()
-                    if loop.is_closed():
-                        logger.warning("Event loop is closed, skipping Redis pool cleanup")
-                        _unified_pool = None
-                        return
-                except RuntimeError:  # Expected runtime failure in operation  # policy_guard: allow-silent-handler
-                    # No running loop, safe to proceed
-                    pass
-
-                # Attempt graceful disconnect with timeout
-                try:
-                    await _disconnect_pool(_unified_pool, timeout=5.0)
-                    logger.info("Cleaned up unified Redis connection pool")
-                except asyncio.TimeoutError:  # Transient network/connection failure  # policy_guard: allow-silent-handler
-                    logger.warning("Redis pool cleanup timed out after 5 seconds")
-                except REDIS_SETUP_ERRORS as disconnect_error:  # Expected exception in operation  # policy_guard: allow-silent-handler
-                    logger.exception(
-                        "Error during Redis pool disconnect (%s)",
-                        type(disconnect_error).__name__,
-                    )
-                    # Continue with cleanup despite disconnect error
-
-                _unified_pool = None
-                _redis_health_monitor.record_pool_cleanup()
-                _pool_loop = None
-
-            except REDIS_SETUP_ERRORS as exc:  # Expected exception in operation  # policy_guard: allow-silent-handler
-                # Don't raise on cleanup errors during teardown, but log them
-                logger.exception(
-                    "Error during Redis pool cleanup (%s)",
-                    type(exc).__name__,
-                )
-                _redis_health_monitor.record_connection_error()
-                _unified_pool = None  # Still clear the pool reference to prevent memory leaks
-    finally:
-        if _pool_guard.locked():
-            _pool_guard.release()
-
-
-async def _disconnect_pool(pool: redis.asyncio.ConnectionPool, *, timeout: float) -> None:
-    """Disconnect pool cleanly, favoring the loop that created it."""
-
-    pool_loop = _pool_loop() if _pool_loop else None
-    try:
-        current_loop = asyncio.get_running_loop()
-    except RuntimeError:  # Expected runtime failure in operation  # policy_guard: allow-silent-handler
-        current_loop = None
-
-    if pool_loop and pool_loop is not current_loop and not pool_loop.is_closed():
-        try:
-            future = asyncio.run_coroutine_threadsafe(pool.disconnect(), pool_loop)
-            await asyncio.wait_for(asyncio.wrap_future(future), timeout=timeout)
-        except (RuntimeError, asyncio.CancelledError):  # Expected during task cancellation  # policy_guard: allow-silent-handler
-            logger.debug("Expected during task cancellation")
-            pass
-        else:
-            return
-
-    try:
-        await asyncio.wait_for(pool.disconnect(), timeout=timeout)
-    except RuntimeError as exc:  # Event loop closed during disconnect  # policy_guard: allow-silent-handler
-        if "Event loop is closed" in str(exc):
-            logger.debug("Event loop closed during Redis pool disconnect, skipping")
-        else:
-            raise
+    With thread-local pools, this only affects the calling thread's pool.
+    No cross-thread cleanup is needed, avoiding timeout issues.
+    """
+    await _cleanup_thread_local_pool()
 
 
 async def perform_redis_health_check() -> bool:
@@ -332,18 +254,11 @@ def record_pool_returned() -> None:
 
 
 async def cleanup_redis_pool_on_network_issues():
-    """Clean up Redis connection pool during network issues"""
+    """Clean up current thread's Redis pool during network issues."""
     try:
-        logger.info("Cleaning up Redis connection pool due to network issues")
+        logger.info("Cleaning up thread-local Redis pool due to network issues")
         await cleanup_redis_pool()
-
-        # Force recreation of pool on next access
-        global _unified_pool, _pool_loop
-        _unified_pool = None
-        _pool_loop = None
-
-        logger.info("Redis connection pool cleanup completed")
-
+        logger.info("Thread-local Redis pool cleanup completed")
     except REDIS_SETUP_ERRORS as exc:  # Expected exception in operation  # policy_guard: allow-silent-handler
         logger.exception(
             "Error during network-triggered Redis pool cleanup (%s)",
