@@ -13,11 +13,6 @@ import os
 # Check if module referencing is enabled
 if os.environ.get("REFERENCE_UNUSED_MODULES") in ("1", "true"):
     # Import all the modules that should be available even if not directly used
-    # Alerter helper modules
-    import common.alerter_helpers.component_manager
-    import common.alerter_helpers.load_charts_sender
-    import common.alerter_helpers.telegram_media_sender_helpers.media_send_parameters
-    import common.alerter_helpers.telegram_polling_coordinator_helpers.polling_dependencies
     import common.backoff_manager_helpers.delay_calculator
     import common.backoff_manager_helpers.retry_checker
 
