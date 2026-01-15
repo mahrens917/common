@@ -12,6 +12,12 @@ from .algo_stats_api import (
     write_algo_stats,
 )
 from .batching import BatchManager
+from .close_positions_command import (
+    CLOSE_POSITIONS_COMMAND_KEY,
+    clear_close_positions_command,
+    get_close_positions_command,
+    request_close_all_positions,
+)
 from .connection import cleanup_redis_pool, get_redis_pool
 from .converters import coerce_float, decode_redis_hash, decode_redis_value
 from .kalshi_store import KalshiStore
@@ -65,6 +71,10 @@ __all__ = [
     "is_trading_enabled",
     "set_trading_enabled",
     "toggle_trading",
+    "CLOSE_POSITIONS_COMMAND_KEY",
+    "clear_close_positions_command",
+    "get_close_positions_command",
+    "request_close_all_positions",
     "ALGO_STATS_KEY_PREFIX",
     "AlgoStatsData",
     "increment_algo_stats",

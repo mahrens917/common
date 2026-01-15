@@ -166,9 +166,9 @@ async def _cleanup_thread_local_pool() -> None:
             await asyncio.wait_for(pool.disconnect(), timeout=5.0)
             logger.info("Cleaned up thread-local Redis pool")
         except asyncio.TimeoutError:  # Transient network/connection failure  # policy_guard: allow-silent-handler
-            logger.warning("Thread-local pool cleanup timed out")
+            logger.debug("Pool cleanup timed out, state reset")
         except REDIS_SETUP_ERRORS as exc:  # Expected exception in operation  # policy_guard: allow-silent-handler
-            logger.warning("Error during thread-local pool cleanup: %s", type(exc).__name__)
+            logger.debug("Pool cleanup error (%s), state reset", type(exc).__name__)
         _thread_local.pool = None
         _thread_local.pool_loop = None
         _redis_health_monitor.record_pool_cleanup()
@@ -228,10 +228,7 @@ async def perform_redis_health_check() -> bool:
             logger.warning("Redis health check failed - value mismatch")
 
     except REDIS_SETUP_ERRORS as exc:  # Expected exception, returning default value  # policy_guard: allow-silent-handler
-        logger.exception(
-            "Redis health check failed (%s)",
-            type(exc).__name__,
-        )
+        logger.debug("Health check failed (%s)", type(exc).__name__)
         _redis_health_monitor.record_connection_error()
         return False
     else:
@@ -260,10 +257,7 @@ async def cleanup_redis_pool_on_network_issues():
         await cleanup_redis_pool()
         logger.info("Thread-local Redis pool cleanup completed")
     except REDIS_SETUP_ERRORS as exc:  # Expected exception in operation  # policy_guard: allow-silent-handler
-        logger.exception(
-            "Error during network-triggered Redis pool cleanup (%s)",
-            type(exc).__name__,
-        )
+        logger.debug("Network cleanup error (%s), pool reset", type(exc).__name__)
 
 
 def get_sync_redis_pool() -> redis.ConnectionPool:

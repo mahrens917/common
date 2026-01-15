@@ -46,11 +46,8 @@ class RedisConnection:
                 record_pool_acquired()
                 logger.info("RedisConnection established connection using unified pool")
             except REDIS_SETUP_ERRORS as exc:
-                logger.exception(
-                    "Failed to establish Redis connection (%s)",
-                    type(exc).__name__,
-                )
-                raise ConnectionError(f"Redis connection failed") from exc
+                logger.debug("Redis connect failed (%s)", type(exc).__name__)
+                raise ConnectionError("Redis connection failed") from exc
 
         assert self._client is not None, "Redis client should be initialized after connect()"
         return self._client
@@ -76,11 +73,7 @@ class RedisConnection:
                 record_pool_returned()  # Track connection return
                 logger.info("RedisConnection closed connection")
             except REDIS_SETUP_ERRORS as exc:  # Expected exception in operation  # policy_guard: allow-silent-handler
-                logger.warning(
-                    "Error closing Redis connection (%s): %s",
-                    type(exc).__name__,
-                    exc,
-                )
+                logger.debug("Close error (%s)", type(exc).__name__)
             finally:
                 self._client = None
 
@@ -115,11 +108,8 @@ class RedisConnectionManager:
                 record_pool_acquired()
                 logger.info("Redis connection manager established connection using unified pool")
             except REDIS_SETUP_ERRORS as exc:
-                logger.exception(
-                    "Failed to establish Redis connection (%s)",
-                    type(exc).__name__,
-                )
-                raise ConnectionError(f"Redis connection failed") from exc
+                logger.debug("Redis connect failed (%s)", type(exc).__name__)
+                raise ConnectionError("Redis connection failed") from exc
 
         assert self._connection is not None, "Redis connection should be initialized after get_connection()"
         return self._connection
@@ -137,10 +127,6 @@ class RedisConnectionManager:
                 record_pool_returned()
                 logger.info("Redis connection manager closed connection")
             except REDIS_SETUP_ERRORS as exc:  # Expected exception in operation  # policy_guard: allow-silent-handler
-                logger.warning(
-                    "Error closing Redis connection (%s): %s",
-                    type(exc).__name__,
-                    exc,
-                )
+                logger.debug("Close error (%s)", type(exc).__name__)
             finally:
                 self._connection = None
