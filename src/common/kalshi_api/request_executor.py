@@ -2,7 +2,8 @@
 
 import asyncio
 import logging
-from typing import Any, Dict, Optional
+from dataclasses import dataclass
+from typing import Any, Dict
 
 import aiohttp
 
@@ -11,6 +12,24 @@ from .client_helpers.errors import KalshiClientError
 logger = logging.getLogger(__name__)
 
 HTTP_TOO_MANY_REQUESTS = 429
+HTTP_RETRYABLE_SERVER_ERRORS = (500, 502, 503, 504)
+
+
+@dataclass
+class _AttemptContext:
+    """Context for a single request attempt."""
+
+    path: str
+    op: str
+    attempt: int
+    max_attempts: int
+
+
+@dataclass
+class _RetryResult:
+    """Result indicating a retry is needed."""
+
+    delay: float
 
 
 class RequestExecutor:
@@ -37,30 +56,55 @@ class RequestExecutor:
         self, session: aiohttp.ClientSession, method_upper: str, url: str, request_kwargs: Dict[str, Any], path: str, op: str
     ) -> Dict[str, Any]:
         max_attempts = max(1, self._max_retries)
-        last_exception: Optional[BaseException] = None
         for attempt in range(1, max_attempts + 1):
-            try:
-                async with session.request(method_upper, url, **request_kwargs) as response:
-                    if response.status == HTTP_TOO_MANY_REQUESTS:
-                        if attempt < max_attempts:
-                            delay = self._compute_retry_delay(attempt)
-                            logger.debug("Kalshi rate limited %s (%d/%d); retrying in %.1fs", op, attempt, max_attempts, delay)
-                            await asyncio.sleep(delay)
-                            continue
-                        raise KalshiClientError(f"Kalshi rate limit exceeded for {op} after {max_attempts} attempts")
-                    return await self._parse_json_response(response, await response.text(), path=path)
-            except aiohttp.ClientError as exc:
-                last_exception = exc
-                if attempt < max_attempts:
-                    delay = self._compute_retry_delay(attempt)
-                    logger.warning("Kalshi request %s failed (%d/%d): %s; retrying in %.1fs", op, attempt, max_attempts, exc, delay)
-                    await asyncio.sleep(delay)
-                else:
-                    logger.exception("Kalshi request %s failed after %d attempts", op, max_attempts)
-                    raise
-        if last_exception is not None:
-            raise KalshiClientError(f"Kalshi request failed for {op}: {last_exception}") from last_exception
-        raise KalshiClientError(f"Kalshi request failed for {op} without exception")
+            ctx = _AttemptContext(path=path, op=op, attempt=attempt, max_attempts=max_attempts)
+            result = await self._execute_single_attempt(session, method_upper, url, request_kwargs, ctx)
+            if isinstance(result, _RetryResult):
+                await asyncio.sleep(result.delay)
+                continue
+            return result
+        raise AssertionError("Unreachable: retry loop exited without returning or raising")
+
+    async def _execute_single_attempt(
+        self, session: aiohttp.ClientSession, method_upper: str, url: str, request_kwargs: Dict[str, Any], ctx: _AttemptContext
+    ) -> Dict[str, Any] | _RetryResult:
+        try:
+            async with session.request(method_upper, url, **request_kwargs) as response:
+                return await self._handle_response(response, ctx)
+        except aiohttp.ClientError as exc:
+            result = self._handle_client_error(exc, ctx)
+            if isinstance(result, _RetryResult):
+                return result
+            raise result from exc
+
+    async def _handle_response(self, response: aiohttp.ClientResponse, ctx: _AttemptContext) -> Dict[str, Any] | _RetryResult:
+        if response.status == HTTP_TOO_MANY_REQUESTS:
+            return self._handle_rate_limit(ctx)
+        if response.status in HTTP_RETRYABLE_SERVER_ERRORS:
+            return self._handle_server_error(response.status, ctx)
+        return await self._parse_json_response(response, await response.text(), path=ctx.path)
+
+    def _handle_rate_limit(self, ctx: _AttemptContext) -> _RetryResult:
+        if ctx.attempt >= ctx.max_attempts:
+            raise KalshiClientError(f"Kalshi rate limit exceeded for {ctx.op} after {ctx.max_attempts} attempts")
+        delay = self._compute_retry_delay(ctx.attempt)
+        logger.debug("Kalshi rate limited %s (%d/%d); retrying in %.1fs", ctx.op, ctx.attempt, ctx.max_attempts, delay)
+        return _RetryResult(delay)
+
+    def _handle_server_error(self, status: int, ctx: _AttemptContext) -> _RetryResult:
+        if ctx.attempt >= ctx.max_attempts:
+            raise KalshiClientError(f"Kalshi server error {status} for {ctx.op} after {ctx.max_attempts} attempts")
+        delay = self._compute_retry_delay(ctx.attempt)
+        logger.warning("Kalshi server error %d for %s (%d/%d); retrying in %.1fs", status, ctx.op, ctx.attempt, ctx.max_attempts, delay)
+        return _RetryResult(delay)
+
+    def _handle_client_error(self, exc: aiohttp.ClientError, ctx: _AttemptContext) -> KalshiClientError | _RetryResult:
+        if ctx.attempt >= ctx.max_attempts:
+            logger.exception("Kalshi request %s failed after %d attempts", ctx.op, ctx.max_attempts)
+            return KalshiClientError(f"Kalshi request failed for {ctx.op}: {exc}")
+        delay = self._compute_retry_delay(ctx.attempt)
+        logger.warning("Kalshi request %s failed (%d/%d): %s; retrying in %.1fs", ctx.op, ctx.attempt, ctx.max_attempts, exc, delay)
+        return _RetryResult(delay)
 
     def _compute_retry_delay(self, attempt: int) -> float:
         if attempt < 1:

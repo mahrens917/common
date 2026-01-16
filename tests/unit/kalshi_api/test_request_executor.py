@@ -255,7 +255,7 @@ async def test_execute_request_client_error_retry(mock_session_manager, mock_aut
     mock_session.request.return_value = mock_cm
     mock_session_manager.get_session.return_value = mock_session
 
-    with pytest.raises(aiohttp.ClientError):
+    with pytest.raises(KalshiClientError) as exc_info:
         await executor.execute_request(
             method_upper="GET",
             url="https://api.kalshi.com/test",
@@ -264,6 +264,7 @@ async def test_execute_request_client_error_retry(mock_session_manager, mock_aut
             operation_name="test_op",
         )
 
+    assert "Connection failed" in str(exc_info.value)
     assert mock_session.request.call_count == 2
 
 
@@ -304,3 +305,78 @@ async def test_execute_request_client_error_then_success(mock_session_manager, m
 
     assert result == {"success": True}
     assert mock_session.request.call_count == 2
+
+
+@pytest.mark.asyncio
+async def test_execute_request_server_error_then_success(mock_session_manager, mock_auth_helper):
+    executor = RequestExecutor(
+        session_manager=mock_session_manager,
+        auth_helper=mock_auth_helper,
+        max_retries=3,
+        backoff_base=0.001,
+        backoff_max=0.01,
+    )
+
+    mock_server_error_response = MagicMock()
+    mock_server_error_response.status = 500
+
+    mock_success_response = MagicMock()
+    mock_success_response.status = 200
+    mock_success_response.text = AsyncMock(return_value='{"success": true}')
+    mock_success_response.json = AsyncMock(return_value={"success": True})
+
+    mock_cm_500 = MagicMock()
+    mock_cm_500.__aenter__ = AsyncMock(return_value=mock_server_error_response)
+    mock_cm_500.__aexit__ = AsyncMock(return_value=None)
+
+    mock_cm_200 = MagicMock()
+    mock_cm_200.__aenter__ = AsyncMock(return_value=mock_success_response)
+    mock_cm_200.__aexit__ = AsyncMock(return_value=None)
+
+    mock_session = MagicMock()
+    mock_session.request.side_effect = [mock_cm_500, mock_cm_200]
+    mock_session_manager.get_session.return_value = mock_session
+
+    result = await executor.execute_request(
+        method_upper="GET",
+        url="https://api.kalshi.com/test",
+        request_kwargs={},
+        path="/test",
+        operation_name="test_op",
+    )
+
+    assert result == {"success": True}
+    assert mock_session.request.call_count == 2
+
+
+@pytest.mark.asyncio
+async def test_execute_request_server_error_max_retries(mock_session_manager, mock_auth_helper):
+    executor = RequestExecutor(
+        session_manager=mock_session_manager,
+        auth_helper=mock_auth_helper,
+        max_retries=2,
+        backoff_base=0.001,
+        backoff_max=0.01,
+    )
+
+    mock_response = MagicMock()
+    mock_response.status = 503
+
+    mock_cm = MagicMock()
+    mock_cm.__aenter__ = AsyncMock(return_value=mock_response)
+    mock_cm.__aexit__ = AsyncMock(return_value=None)
+
+    mock_session = MagicMock()
+    mock_session.request.return_value = mock_cm
+    mock_session_manager.get_session.return_value = mock_session
+
+    with pytest.raises(KalshiClientError) as exc_info:
+        await executor.execute_request(
+            method_upper="GET",
+            url="https://api.kalshi.com/test",
+            request_kwargs={},
+            path="/test",
+            operation_name="test_op",
+        )
+
+    assert "server error 503" in str(exc_info.value)
