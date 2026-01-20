@@ -41,7 +41,7 @@ def _classify_kalshi_ticker(
     prefix, category = prefix_match
     parts = display.split("-")
     if len(parts) >= _CONST_2:
-        if prefix == "KXHIGH":
+        if prefix in ("KXHIGH", "KXLOW"):
             underlying = parts[0].replace(prefix, "") or None
             expiry_token = parts[1]
         else:
@@ -53,6 +53,7 @@ def _classify_kalshi_ticker(
 
 SUPPORTED_PREFIX_CATEGORIES: Dict[str, KalshiMarketCategory] = {
     "KXHIGH": KalshiMarketCategory.WEATHER,
+    "KXLOW": KalshiMarketCategory.WEATHER,
     "KXBTC": KalshiMarketCategory.BINARY,
     "KXETH": KalshiMarketCategory.BINARY,
     "BTC-": KalshiMarketCategory.BINARY,
