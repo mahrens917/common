@@ -6,6 +6,7 @@ from typing import Any, Dict
 from common.exceptions import DataError
 
 from ....redis_schema import DeribitInstrumentKey, DeribitInstrumentType
+from ...atomic_redis_operations_helpers.data_fetcher import RedisDataValidationError
 from ...error_types import REDIS_ERRORS
 
 logger = logging.getLogger(__name__)
@@ -91,6 +92,9 @@ class MarketDataRetriever:
 
             else:
                 return market_data
+        except RedisDataValidationError as exc:
+            logger.debug("USDC market data not available for %s: %s", currency, exc)
+            raise
         except REDIS_ERRORS as exc:
             logger.error("Error getting USDC market data for %s: %s", currency, exc, exc_info=True)
             raise

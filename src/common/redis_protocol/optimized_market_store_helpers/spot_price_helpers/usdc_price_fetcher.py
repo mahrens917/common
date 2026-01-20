@@ -6,6 +6,7 @@ import logging
 
 from ....redis_schema import DeribitInstrumentKey, DeribitInstrumentType
 from ....utils.pricing import validate_usdc_bid_ask_prices
+from ...atomic_redis_operations_helpers.data_fetcher import RedisDataValidationError
 from ...error_types import REDIS_ERRORS
 
 logger = logging.getLogger(__name__)
@@ -63,6 +64,9 @@ class UsdcPriceFetcher:
 
         except ValueError:
             logger.exception("Invalid USDC bid/ask data for %s: %s")
+            raise
+        except RedisDataValidationError as exc:
+            logger.debug("USDC bid/ask prices not available for %s: %s", currency, exc)
             raise
         except REDIS_ERRORS as exc:
             logger.error("Error getting USDC bid/ask prices for %s: %s", currency, exc, exc_info=True)
