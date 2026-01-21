@@ -198,9 +198,12 @@ def convert_to_discovered_market(market: Dict[str, Any]) -> DiscoveredMarket:
     ticker = pick_if(ticker_value is not None, lambda: str(ticker_value), lambda: "")
     close_time_value = market.get("close_time")
     close_time = pick_if(close_time_value is not None, lambda: str(close_time_value), lambda: "")
+    subtitle_value = market.get("subtitle")
+    subtitle = pick_if(subtitle_value is not None, lambda: str(subtitle_value), lambda: "")
     return DiscoveredMarket(
         ticker=ticker,
         close_time=close_time,
+        subtitle=subtitle,
         cap_strike=market.get("cap_strike"),
         floor_strike=market.get("floor_strike"),
         raw_data=market,

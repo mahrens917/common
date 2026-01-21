@@ -11,7 +11,7 @@ class FieldResetApplicator:
     """Applies local midnight reset logic to specific fields."""
 
     # Fields that should be cleared (set to None/empty) on reset
-    CLEAR_ON_RESET_FIELDS = {"t_yes_bid", "t_yes_ask", "weather_explanation", "last_rule_applied"}
+    CLEAR_ON_RESET_FIELDS = {"weather_explanation", "last_rule_applied"}
 
     def __init__(self, reset_evaluator):
         """

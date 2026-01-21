@@ -12,6 +12,7 @@ class DiscoveredMarket:
 
     ticker: str
     close_time: str
+    subtitle: str
     cap_strike: float | None
     floor_strike: float | None
     raw_data: Dict[str, Any] = field(repr=False)

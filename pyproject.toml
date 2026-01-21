@@ -26,6 +26,8 @@ dependencies = [
     "matplotlib",
     "python-dateutil",
     "timezonefinder",
+    "torch",
+    "transformers",
 ]
 
 [tool.setuptools]
