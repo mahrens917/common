@@ -11,7 +11,6 @@ from .filtering import (
     SkippedMarketStats,
     convert_to_discovered_market,
     filter_markets_for_window,
-    filter_mutually_exclusive_events,
     group_markets_by_event,
     sort_markets_by_strike,
 )
@@ -26,22 +25,21 @@ DEFAULT_CATEGORY = "Unknown"
 MAX_TICKERS_TO_DISPLAY = 5
 
 
-async def discover_mutually_exclusive_markets(
+async def discover_all_markets(
     client: Any,
     *,
     expiry_window_seconds: int,
     min_markets_per_event: int = 2,
     progress: Callable[[str], None] | None = None,
 ) -> List[DiscoveredEvent]:
-    """Discover all mutually exclusive events with valid markets.
+    """Discover all events with valid markets.
 
     This is the main entry point for market discovery. It:
     1. Fetches all open markets within the expiry window
     2. Groups markets by event_ticker
     3. Fetches event details for each unique event
-    4. Filters to only mutually_exclusive events
-    5. Filters markets within the time window
-    6. Validates minimum markets per event
+    4. Filters markets within the time window
+    5. Validates minimum markets per event
 
     Args:
         client: Kalshi API client with api_request method
@@ -76,18 +74,10 @@ async def discover_mutually_exclusive_markets(
     event_details = await fetch_event_details_batch(client, unique_events, progress=progress)
     logger.info("Fetched details for %d events", len(event_details))
 
-    # Step 4: Filter to only mutually_exclusive events
-    mutually_exclusive_events = filter_mutually_exclusive_events(event_details)
-    logger.info(
-        "Found %d mutually exclusive events (filtered from %d)",
-        len(mutually_exclusive_events),
-        len(event_details),
-    )
-
-    # Step 5-6: Process each event
+    # Step 4-5: Process each event
     skipped_stats = SkippedMarketStats()
     discovered = _process_all_events(
-        mutually_exclusive_events,
+        event_details,
         expiry_window_seconds,
         min_markets_per_event,
         skipped_stats,
@@ -96,7 +86,7 @@ async def discover_mutually_exclusive_markets(
     # Final summary
     market_count = sum(len(event.markets) for event in discovered)
     _report_progress(progress, f"phase=done events={len(discovered)} markets={market_count}")
-    logger.info("Total: %d mutually exclusive events with %d valid markets", len(discovered), market_count)
+    logger.info("Total: %d events with %d valid markets", len(discovered), market_count)
 
     _log_skipped_stats(skipped_stats)
     return discovered
@@ -111,7 +101,7 @@ async def discover_with_skipped_stats(
 ) -> DiscoveryResult:
     """Discover markets and return both events and skipped market stats.
 
-    Same as discover_mutually_exclusive_markets but also returns information
+    Same as discover_all_markets but also returns information
     about markets that were skipped due to unsupported strike types.
 
     Args:
@@ -144,16 +134,9 @@ async def discover_with_skipped_stats(
     event_details = await fetch_event_details_batch(client, unique_events, progress=progress)
     logger.info("Fetched details for %d events", len(event_details))
 
-    mutually_exclusive_events = filter_mutually_exclusive_events(event_details)
-    logger.info(
-        "Found %d mutually exclusive events (filtered from %d)",
-        len(mutually_exclusive_events),
-        len(event_details),
-    )
-
     skipped_stats = SkippedMarketStats()
     discovered = _process_all_events(
-        mutually_exclusive_events,
+        event_details,
         expiry_window_seconds,
         min_markets_per_event,
         skipped_stats,
@@ -161,7 +144,7 @@ async def discover_with_skipped_stats(
 
     market_count = sum(len(event.markets) for event in discovered)
     _report_progress(progress, f"phase=done events={len(discovered)} markets={market_count}")
-    logger.info("Total: %d mutually exclusive events with %d valid markets", len(discovered), market_count)
+    logger.info("Total: %d events with %d valid markets", len(discovered), market_count)
 
     _log_skipped_stats(skipped_stats)
 
@@ -189,7 +172,7 @@ def _process_all_events(
             logger.debug("Skipping event %s: %s", event_ticker, exc)
             continue
         discovered.append(event)
-        logger.info("Discovered mutually exclusive event: %s (%d markets)", event_ticker, len(event.markets))
+        logger.info("Discovered event: %s (%d markets, ME=%s)", event_ticker, len(event.markets), event.mutually_exclusive)
     return discovered
 
 
@@ -214,13 +197,10 @@ def _process_event(
 
     Raises:
         TypeError: If event details are invalid
-        ValueError: If event doesn't meet criteria
+        ValueError: If event doesn't have enough markets
     """
     if not isinstance(details, dict):
         raise TypeError(f"Event details for {event_ticker} is not a dict: {type(details).__name__}")
-
-    if details.get("mutually_exclusive") is not True:
-        raise ValueError(f"Event {event_ticker} is not mutually exclusive")
 
     title_value = details.get("title")
     if title_value is None:
@@ -248,7 +228,7 @@ def _process_event(
         event_ticker=event_ticker,
         title=title,
         category=category,
-        mutually_exclusive=True,
+        mutually_exclusive=details.get("mutually_exclusive") is True,
         markets=discovered_markets,
     )
 
@@ -281,6 +261,6 @@ def _log_skipped_stats(skipped_stats: SkippedMarketStats) -> None:
 
 __all__ = [
     "DiscoveryResult",
-    "discover_mutually_exclusive_markets",
+    "discover_all_markets",
     "discover_with_skipped_stats",
 ]

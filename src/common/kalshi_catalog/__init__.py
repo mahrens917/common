@@ -1,12 +1,12 @@
 """Kalshi market catalog discovery.
 
-This module provides utilities for discovering mutually exclusive markets
-from the Kalshi API with proper filtering and validation.
+This module provides utilities for discovering markets from the Kalshi API
+with proper filtering and validation.
 
 Usage:
-    from common.kalshi_catalog import discover_mutually_exclusive_markets
+    from common.kalshi_catalog import discover_all_markets
 
-    events = await discover_mutually_exclusive_markets(
+    events = await discover_all_markets(
         client,
         expiry_window_seconds=3600,
         min_markets_per_event=2,
@@ -15,7 +15,7 @@ Usage:
 
 from .discovery import (
     DiscoveryResult,
-    discover_mutually_exclusive_markets,
+    discover_all_markets,
     discover_with_skipped_stats,
 )
 from .fetcher import (
@@ -41,7 +41,7 @@ from .types import (
 __all__ = [
     # Main entry points
     "DiscoveryResult",
-    "discover_mutually_exclusive_markets",
+    "discover_all_markets",
     "discover_with_skipped_stats",
     # Types
     "CatalogDiscoveryError",

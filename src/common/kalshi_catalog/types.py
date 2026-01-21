@@ -19,7 +19,7 @@ class DiscoveredMarket:
 
 @dataclass
 class DiscoveredEvent:
-    """A discovered mutually exclusive event with its markets."""
+    """A discovered event with its markets."""
 
     event_ticker: str
     title: str

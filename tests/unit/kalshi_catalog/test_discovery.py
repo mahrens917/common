@@ -11,7 +11,7 @@ from common.kalshi_catalog.discovery import (
     _process_all_events,
     _process_event,
     _report_progress,
-    discover_mutually_exclusive_markets,
+    discover_all_markets,
     discover_with_skipped_stats,
 )
 from common.kalshi_catalog.filtering import SkippedMarketStats
@@ -35,7 +35,7 @@ class TestReportProgress:
 class TestProcessEvent:
     """Tests for _process_event function."""
 
-    def test_processes_valid_event(self) -> None:
+    def test_processes_valid_me_event(self) -> None:
         """Test processes a valid mutually exclusive event."""
         future = datetime.now(timezone.utc) + timedelta(minutes=30)
         close_time = future.isoformat()
@@ -56,22 +56,34 @@ class TestProcessEvent:
         assert result.mutually_exclusive is True
         assert len(result.markets) == 2
 
+    def test_processes_valid_non_me_event(self) -> None:
+        """Test processes a valid non-mutually exclusive event."""
+        future = datetime.now(timezone.utc) + timedelta(minutes=30)
+        close_time = future.isoformat()
+        details: Dict[str, Any] = {
+            "mutually_exclusive": False,
+            "title": "Test Event",
+            "category": "Crypto",
+            "markets": [
+                {"ticker": "M1", "close_time": close_time, "cap_strike": 100.0, "strike_type": "less"},
+                {"ticker": "M2", "close_time": close_time, "floor_strike": 50.0, "strike_type": "greater"},
+            ],
+        }
+        stats = SkippedMarketStats()
+        result = _process_event("E1", details, 3600, 2, stats)
+        assert result.event_ticker == "E1"
+        assert result.mutually_exclusive is False
+        assert len(result.markets) == 2
+
     def test_raises_for_non_dict_details(self) -> None:
         """Test raises TypeError for non-dict details."""
         stats = SkippedMarketStats()
         with pytest.raises(TypeError, match="is not a dict"):
             _process_event("E1", "not a dict", 3600, 2, stats)
 
-    def test_raises_for_non_mutually_exclusive(self) -> None:
-        """Test raises ValueError for non-mutually exclusive event."""
-        details: Dict[str, Any] = {"mutually_exclusive": False, "title": "Test"}
-        stats = SkippedMarketStats()
-        with pytest.raises(ValueError, match="not mutually exclusive"):
-            _process_event("E1", details, 3600, 2, stats)
-
     def test_raises_for_missing_title(self) -> None:
         """Test raises CatalogDiscoveryError for missing title."""
-        details: Dict[str, Any] = {"mutually_exclusive": True}
+        details: Dict[str, Any] = {}
         stats = SkippedMarketStats()
         with pytest.raises(CatalogDiscoveryError, match="missing title"):
             _process_event("E1", details, 3600, 2, stats)
@@ -128,8 +140,8 @@ class TestProcessAllEvents:
         assert len(result) == 1
         assert result[0].event_ticker == "E1"
 
-    def test_skips_invalid_events(self) -> None:
-        """Test skips events that fail validation."""
+    def test_skips_events_with_insufficient_markets(self) -> None:
+        """Test skips events that fail validation due to insufficient markets."""
         future = datetime.now(timezone.utc) + timedelta(minutes=30)
         close_time = future.isoformat()
         events = {
@@ -141,7 +153,11 @@ class TestProcessAllEvents:
                     {"ticker": "M2", "close_time": close_time, "floor_strike": 50.0, "strike_type": "greater"},
                 ],
             },
-            "E2": {"mutually_exclusive": False, "title": "Event 2"},
+            "E2": {
+                "mutually_exclusive": False,
+                "title": "Event 2",
+                "markets": [{"ticker": "M3", "close_time": close_time, "strike_type": "less"}],
+            },
         }
         stats = SkippedMarketStats()
         result = _process_all_events(events, 3600, 2, stats)
@@ -149,12 +165,12 @@ class TestProcessAllEvents:
         assert result[0].event_ticker == "E1"
 
 
-class TestDiscoverMutuallyExclusiveMarkets:
-    """Tests for discover_mutually_exclusive_markets function."""
+class TestDiscoverAllMarkets:
+    """Tests for discover_all_markets function."""
 
     @pytest.mark.asyncio
-    async def test_discovers_mutually_exclusive_markets(self) -> None:
-        """Test discovers mutually exclusive markets end-to-end."""
+    async def test_discovers_markets(self) -> None:
+        """Test discovers markets end-to-end."""
         future = datetime.now(timezone.utc) + timedelta(minutes=30)
         close_time = future.isoformat()
         client = AsyncMock()
@@ -178,7 +194,7 @@ class TestDiscoverMutuallyExclusiveMarkets:
                 },
             },
         ]
-        result = await discover_mutually_exclusive_markets(
+        result = await discover_all_markets(
             client,
             expiry_window_seconds=3600,
             min_markets_per_event=2,
@@ -188,24 +204,38 @@ class TestDiscoverMutuallyExclusiveMarkets:
         assert len(result[0].markets) == 2
 
     @pytest.mark.asyncio
-    async def test_filters_non_mutually_exclusive_events(self) -> None:
-        """Test filters out non-mutually exclusive events."""
+    async def test_includes_non_mutually_exclusive_events(self) -> None:
+        """Test includes non-mutually exclusive events."""
         future = datetime.now(timezone.utc) + timedelta(minutes=30)
         close_time = future.isoformat()
         client = AsyncMock()
         client.api_request.side_effect = [
             {
-                "markets": [{"ticker": "M1", "event_ticker": "E1", "close_time": close_time, "strike_type": "less"}],
+                "markets": [
+                    {"ticker": "M1", "event_ticker": "E1", "close_time": close_time, "strike_type": "less"},
+                    {"ticker": "M2", "event_ticker": "E1", "close_time": close_time, "strike_type": "greater"},
+                ],
                 "cursor": None,
             },
-            {"event": {"event_ticker": "E1", "mutually_exclusive": False, "title": "Test"}},
+            {
+                "event": {
+                    "event_ticker": "E1",
+                    "mutually_exclusive": False,
+                    "title": "Test",
+                    "markets": [
+                        {"ticker": "M1", "close_time": close_time, "strike_type": "less"},
+                        {"ticker": "M2", "close_time": close_time, "strike_type": "greater"},
+                    ],
+                },
+            },
         ]
-        result = await discover_mutually_exclusive_markets(
+        result = await discover_all_markets(
             client,
             expiry_window_seconds=3600,
             min_markets_per_event=1,
         )
-        assert len(result) == 0
+        assert len(result) == 1
+        assert result[0].mutually_exclusive is False
 
     @pytest.mark.asyncio
     async def test_calls_progress_callback(self) -> None:
@@ -213,7 +243,7 @@ class TestDiscoverMutuallyExclusiveMarkets:
         client = AsyncMock()
         client.api_request.return_value = {"markets": [], "cursor": None}
         progress = MagicMock()
-        await discover_mutually_exclusive_markets(
+        await discover_all_markets(
             client,
             expiry_window_seconds=3600,
             progress=progress,
@@ -225,7 +255,7 @@ class TestDiscoverMutuallyExclusiveMarkets:
         """Test returns empty list when no markets found."""
         client = AsyncMock()
         client.api_request.return_value = {"markets": [], "cursor": None}
-        result = await discover_mutually_exclusive_markets(
+        result = await discover_all_markets(
             client,
             expiry_window_seconds=3600,
         )
