@@ -18,12 +18,14 @@ class TestDiscoveredMarket:
         market = DiscoveredMarket(
             ticker="TEST-123",
             close_time="2024-01-01T00:00:00Z",
+            subtitle="Test subtitle",
             cap_strike=100.0,
             floor_strike=50.0,
             raw_data=raw,
         )
         assert market.ticker == "TEST-123"
         assert market.close_time == "2024-01-01T00:00:00Z"
+        assert market.subtitle == "Test subtitle"
         assert market.cap_strike == 100.0
         assert market.floor_strike == 50.0
         assert market.raw_data == raw
@@ -33,6 +35,7 @@ class TestDiscoveredMarket:
         market = DiscoveredMarket(
             ticker="TEST",
             close_time="2024-01-01T00:00:00Z",
+            subtitle="",
             cap_strike=None,
             floor_strike=100.0,
             raw_data={},
@@ -49,6 +52,7 @@ class TestDiscoveredEvent:
         market = DiscoveredMarket(
             ticker="M1",
             close_time="2024-01-01T00:00:00Z",
+            subtitle="",
             cap_strike=100.0,
             floor_strike=None,
             raw_data={},

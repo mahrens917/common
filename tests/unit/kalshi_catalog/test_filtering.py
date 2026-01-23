@@ -231,6 +231,7 @@ class TestComputeEffectiveStrike:
         market = DiscoveredMarket(
             ticker="TEST",
             close_time="2024-01-01T00:00:00Z",
+            subtitle="",
             cap_strike=100.0,
             floor_strike=50.0,
             raw_data={},
@@ -243,6 +244,7 @@ class TestComputeEffectiveStrike:
         market = DiscoveredMarket(
             ticker="TEST",
             close_time="2024-01-01T00:00:00Z",
+            subtitle="",
             cap_strike=100.0,
             floor_strike=None,
             raw_data={},
@@ -255,6 +257,7 @@ class TestComputeEffectiveStrike:
         market = DiscoveredMarket(
             ticker="TEST",
             close_time="2024-01-01T00:00:00Z",
+            subtitle="",
             cap_strike=None,
             floor_strike=50.0,
             raw_data={},
@@ -267,6 +270,7 @@ class TestComputeEffectiveStrike:
         market = DiscoveredMarket(
             ticker="TEST",
             close_time="2024-01-01T00:00:00Z",
+            subtitle="",
             cap_strike=None,
             floor_strike=None,
             raw_data={},
@@ -279,6 +283,7 @@ class TestComputeEffectiveStrike:
         market = DiscoveredMarket(
             ticker="TEST",
             close_time="2024-01-01T00:00:00Z",
+            subtitle="",
             cap_strike=0,
             floor_strike=50.0,
             raw_data={},
@@ -291,6 +296,7 @@ class TestComputeEffectiveStrike:
         market = DiscoveredMarket(
             ticker="TEST",
             close_time="2024-01-01T00:00:00Z",
+            subtitle="",
             cap_strike=100.0,
             floor_strike=0,
             raw_data={},
@@ -305,9 +311,9 @@ class TestSortMarketsByStrike:
     def test_sorts_by_effective_strike_ascending(self) -> None:
         """Test markets are sorted by strike value ascending."""
         markets = [
-            DiscoveredMarket(ticker="M3", close_time="", cap_strike=None, floor_strike=150.0, raw_data={}),
-            DiscoveredMarket(ticker="M1", close_time="", cap_strike=None, floor_strike=50.0, raw_data={}),
-            DiscoveredMarket(ticker="M2", close_time="", cap_strike=None, floor_strike=100.0, raw_data={}),
+            DiscoveredMarket(ticker="M3", close_time="", subtitle="", cap_strike=None, floor_strike=150.0, raw_data={}),
+            DiscoveredMarket(ticker="M1", close_time="", subtitle="", cap_strike=None, floor_strike=50.0, raw_data={}),
+            DiscoveredMarket(ticker="M2", close_time="", subtitle="", cap_strike=None, floor_strike=100.0, raw_data={}),
         ]
         result = sort_markets_by_strike(markets)
         assert [m.ticker for m in result] == ["M1", "M2", "M3"]
@@ -315,8 +321,8 @@ class TestSortMarketsByStrike:
     def test_markets_without_strikes_sort_last(self) -> None:
         """Test markets without valid strikes are placed at the end."""
         markets = [
-            DiscoveredMarket(ticker="M2", close_time="", cap_strike=None, floor_strike=None, raw_data={}),
-            DiscoveredMarket(ticker="M1", close_time="", cap_strike=None, floor_strike=50.0, raw_data={}),
+            DiscoveredMarket(ticker="M2", close_time="", subtitle="", cap_strike=None, floor_strike=None, raw_data={}),
+            DiscoveredMarket(ticker="M1", close_time="", subtitle="", cap_strike=None, floor_strike=50.0, raw_data={}),
         ]
         result = sort_markets_by_strike(markets)
         assert [m.ticker for m in result] == ["M1", "M2"]
@@ -328,7 +334,7 @@ class TestSortMarketsByStrike:
 
     def test_single_market(self) -> None:
         """Test handles single market."""
-        market = DiscoveredMarket(ticker="M1", close_time="", cap_strike=None, floor_strike=50.0, raw_data={})
+        market = DiscoveredMarket(ticker="M1", close_time="", subtitle="", cap_strike=None, floor_strike=50.0, raw_data={})
         result = sort_markets_by_strike([market])
         assert len(result) == 1
         assert result[0].ticker == "M1"

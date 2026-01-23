@@ -351,3 +351,216 @@ class TestFindRunningServices:
 
         # psutil is available so we'll get some set back, can't easily mock import
         assert isinstance(result, set)
+
+    def test_returns_running_services_with_matching_patterns(self, logging_module, monkeypatch) -> None:
+        """Returns matched services from running processes."""
+        from unittest.mock import MagicMock
+
+        mock_proc = MagicMock()
+        mock_proc.info = {"cmdline": ["python", "-m", "src.kalshi"], "name": "python"}
+
+        mock_psutil = MagicMock()
+        mock_psutil.process_iter.return_value = [mock_proc]
+        monkeypatch.setattr(logging_module, "psutil", mock_psutil, raising=False)
+
+        # Patch psutil import
+        import sys
+
+        sys.modules["psutil"] = mock_psutil
+
+        import importlib
+
+        importlib.reload(logging_module)
+
+        result = logging_module._find_running_services()
+        assert isinstance(result, set)
+
+    def test_handles_oserror_during_iteration(self, logging_module, monkeypatch) -> None:
+        """Handles OSError during process iteration."""
+        from unittest.mock import MagicMock
+
+        mock_psutil = MagicMock()
+        mock_psutil.process_iter.side_effect = OSError("Access denied")
+
+        import sys
+
+        sys.modules["psutil"] = mock_psutil
+
+        import importlib
+
+        importlib.reload(logging_module)
+
+        result = logging_module._find_running_services()
+        assert result == set()
+
+
+class TestGetConfiguredLogDirectory:
+    """Tests for _get_configured_log_directory function."""
+
+    def test_returns_none_when_config_not_exists(self, logging_module, monkeypatch, tmp_path) -> None:
+        """Returns None when config file doesn't exist."""
+        nonexistent_path = tmp_path / "nonexistent" / "logging_config.json"
+        monkeypatch.setattr(logging_module, "_LOGGING_CONFIG_PATH", nonexistent_path)
+
+        result = logging_module._get_configured_log_directory()
+
+        assert result is None
+
+    def test_returns_none_when_log_directory_empty(self, logging_module, monkeypatch, tmp_path) -> None:
+        """Returns None when log_directory is empty in config."""
+        config_path = tmp_path / "logging_config.json"
+        config_path.write_text('{"log_directory": ""}')
+        monkeypatch.setattr(logging_module, "_LOGGING_CONFIG_PATH", config_path)
+
+        result = logging_module._get_configured_log_directory()
+
+        assert result is None
+
+    def test_returns_expanded_path_when_configured(self, logging_module, monkeypatch, tmp_path) -> None:
+        """Returns expanded path when log_directory is configured."""
+        config_path = tmp_path / "logging_config.json"
+        config_path.write_text('{"log_directory": "~/logs"}')
+        monkeypatch.setattr(logging_module, "_LOGGING_CONFIG_PATH", config_path)
+
+        result = logging_module._get_configured_log_directory()
+
+        assert result is not None
+        assert "~" not in str(result)
+
+
+class TestClearLogsDirectoryEdgeCases:
+    """Tests for _clear_logs_directory edge cases."""
+
+    def test_removes_subdirectory(self, logging_module, tmp_path) -> None:
+        """Removes subdirectories in log directory."""
+        log_dir = tmp_path / "logs"
+        log_dir.mkdir()
+        sub_dir = log_dir / "old_subdir"
+        sub_dir.mkdir()
+        (sub_dir / "file.log").write_text("content")
+
+        logging_module._LOGS_CLEARED = False
+        logging_module._clear_logs_directory(log_dir)
+
+        assert not sub_dir.exists()
+
+    def test_handles_file_not_found_during_unlink(self, logging_module, monkeypatch, tmp_path) -> None:
+        """Handles FileNotFoundError during file removal."""
+        from pathlib import Path
+        from unittest.mock import MagicMock
+
+        log_dir = tmp_path / "logs"
+        log_dir.mkdir()
+        test_file = log_dir / "test.log"
+        test_file.write_text("content")
+
+        original_unlink = Path.unlink
+        call_count = [0]
+
+        def mock_unlink(self, missing_ok=False):
+            call_count[0] += 1
+            if call_count[0] == 1:
+                raise FileNotFoundError("File vanished")
+            return original_unlink(self, missing_ok=missing_ok)
+
+        monkeypatch.setattr(Path, "unlink", mock_unlink)
+
+        logging_module._LOGS_CLEARED = False
+        # Should not raise, continues iteration
+        logging_module._clear_logs_directory(log_dir)
+        assert logging_module._LOGS_CLEARED is True
+
+    def test_raises_runtime_error_on_oserror(self, logging_module, monkeypatch, tmp_path) -> None:
+        """Raises RuntimeError when OSError occurs during removal."""
+        from pathlib import Path
+
+        log_dir = tmp_path / "logs"
+        log_dir.mkdir()
+        test_file = log_dir / "test.log"
+        test_file.write_text("content")
+
+        def mock_unlink(self, missing_ok=False):
+            raise OSError("Permission denied")
+
+        monkeypatch.setattr(Path, "unlink", mock_unlink)
+
+        logging_module._LOGS_CLEARED = False
+        with pytest.raises(RuntimeError, match="Failed to clear log entry"):
+            logging_module._clear_logs_directory(log_dir)
+
+
+class TestShouldSkipLoggingConfiguration:
+    """Tests for _should_skip_logging_configuration function."""
+
+    def test_returns_false_when_no_handlers(self, logging_module) -> None:
+        """Returns False when root logger has no handlers."""
+        root_logger = logging.getLogger("test_root_no_handlers")
+        root_logger.handlers = []
+
+        result = logging_module._should_skip_logging_configuration(root_logger, False, None)
+
+        assert result is False
+
+    def test_returns_false_when_managed_with_service(self, logging_module) -> None:
+        """Returns False when managed by monitor with service name."""
+        root_logger = logging.getLogger("test_root_managed")
+        root_logger.addHandler(logging.StreamHandler())
+
+        result = logging_module._should_skip_logging_configuration(root_logger, True, "kalshi")
+
+        assert result is False
+
+    def test_returns_false_for_monitor_service(self, logging_module) -> None:
+        """Returns False for monitor service."""
+        root_logger = logging.getLogger("test_root_monitor")
+        root_logger.addHandler(logging.StreamHandler())
+
+        result = logging_module._should_skip_logging_configuration(root_logger, False, "monitor")
+
+        assert result is False
+
+
+class TestCloseHandlers:
+    """Tests for _close_handlers function."""
+
+    def test_handles_oserror_during_close(self, logging_module) -> None:
+        """Handles OSError when closing handler."""
+        from unittest.mock import MagicMock
+
+        mock_handler = MagicMock()
+        mock_handler.close.side_effect = OSError("Close failed")
+
+        test_logger = logging.getLogger("test_close_error")
+        test_logger.handlers = [mock_handler]
+
+        # Should not raise
+        logging_module._close_handlers(test_logger, "test_close_error")
+
+        mock_handler.close.assert_called_once()
+
+
+class TestSetupLoggingSkip:
+    """Tests for setup_logging skip behavior."""
+
+    def test_skips_when_already_configured(self, logging_module, monkeypatch) -> None:
+        """Skips configuration when already properly set up."""
+        from unittest.mock import MagicMock
+
+        root_logger = logging.getLogger()
+        # Add both console and file handlers to trigger skip
+        console = logging.StreamHandler()
+        root_logger.addHandler(console)
+
+        # Mock DummyFileHandler as FileHandler
+        file_handler = MagicMock(spec=logging.FileHandler)
+        file_handler.__class__ = logging.FileHandler
+        root_logger.addHandler(file_handler)
+
+        monkeypatch.delenv("MANAGED_BY_MONITOR", raising=False)
+
+        # This should skip and return early
+        logging_module.setup_logging(service_name="kalshi")
+
+        # Cleanup
+        root_logger.removeHandler(console)
+        root_logger.removeHandler(file_handler)

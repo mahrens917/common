@@ -1,33 +1,44 @@
-"""Embedding service using Qwen3-Embedding-0.6B model with Redis caching."""
+"""Embedding service using Novita AI's Qwen3-Embedding-8B API with Redis caching."""
 
 from __future__ import annotations
 
 import hashlib
 import logging
+from pathlib import Path
 from typing import TYPE_CHECKING, Sequence
 
+import aiohttp
 import numpy as np
-import torch
 from numpy.typing import NDArray
-from transformers import AutoModel, AutoTokenizer
 
 if TYPE_CHECKING:
     from redis.asyncio import Redis
 
 logger = logging.getLogger(__name__)
 
-_MODEL_NAME = "Qwen/Qwen3-Embedding-0.6B"
-_EMBEDDING_KEY_PREFIX = "embedding:qwen3"
-_EMBEDDING_DIM = 1024  # Qwen3-Embedding-0.6B dimension
+_NOVITA_API_URL = "https://api.novita.ai/v3/openai/embeddings"
+_MODEL_NAME = "qwen/qwen3-embedding-8b"
+_EMBEDDING_KEY_PREFIX = "embedding:qwen3-8b"
+_OLD_EMBEDDING_KEY_PREFIX = "embedding:qwen3"  # Old 0.6B model prefix
+_EMBEDDING_DIM = 4096  # Qwen3-Embedding-8B dimension
+_API_BATCH_SIZE = 50  # Max texts per API call (smaller batches for reliability)
+_API_TIMEOUT_SECONDS = 300  # 5 minutes per batch
+_ENV_FILE_PATH = Path.home() / ".env"
 
 
-def _resolve_device() -> str:
-    """Resolve the best available device for inference."""
-    if torch.cuda.is_available():
-        return "cuda"
-    if torch.backends.mps.is_available():
-        return "mps"
-    return "cpu"
+def _load_api_key_from_env_file() -> str | None:
+    """Load NOVITA_API_KEY from ~/.env file."""
+    if not _ENV_FILE_PATH.exists():
+        return None
+    for line in _ENV_FILE_PATH.read_text().splitlines():
+        line = line.strip()
+        if line.startswith("NOVITA_API_KEY="):
+            value = line.split("=", 1)[1].strip()
+            # Remove quotes if present
+            if (value.startswith('"') and value.endswith('"')) or (value.startswith("'") and value.endswith("'")):
+                value = value[1:-1]
+            return value
+    return None
 
 
 def _text_to_cache_key(text: str) -> str:
@@ -37,34 +48,26 @@ def _text_to_cache_key(text: str) -> str:
 
 
 class EmbeddingService:
-    """Service for computing text embeddings using Qwen3-Embedding-0.6B."""
+    """Service for computing text embeddings using Novita AI's Qwen3-Embedding-8B."""
 
-    def __init__(self, device: str = "auto") -> None:
+    def __init__(self, api_key: str | None = None) -> None:
         """Initialize the embedding service.
 
         Args:
-            device: Device to use for inference. "auto" selects the best available.
+            api_key: Novita API key. If not provided, reads from ~/.env file.
         """
-        self._device = _resolve_device() if device == "auto" else device
-        logger.info("Initializing EmbeddingService on device: %s", self._device)
-        logger.info("Loading model: %s", _MODEL_NAME)
-
-        self._tokenizer = AutoTokenizer.from_pretrained(_MODEL_NAME, trust_remote_code=True)
-        self._model = AutoModel.from_pretrained(_MODEL_NAME, trust_remote_code=True)
-        self._model.to(self._device)
-        self._model.eval()
-
-        # Log model info to confirm it loaded
-        num_params = sum(p.numel() for p in self._model.parameters())
-        logger.info("Model loaded: %s (%.1fM parameters)", _MODEL_NAME, num_params / 1e6)
+        self._api_key = api_key or _load_api_key_from_env_file()
+        if not self._api_key:
+            raise ValueError("NOVITA_API_KEY not found in ~/.env")
+        logger.info("Initialized EmbeddingService with Novita API (model: %s)", _MODEL_NAME)
 
     @property
     def device(self) -> str:
-        """Return the device being used."""
-        return self._device
+        """Return the device being used (API-based)."""
+        return "novita-api"
 
-    def embed(self, texts: Sequence[str]) -> NDArray[np.float32]:
-        """Compute embeddings for a batch of texts.
+    async def embed(self, texts: Sequence[str]) -> NDArray[np.float32]:
+        """Compute embeddings for a batch of texts via Novita API.
 
         Args:
             texts: Sequence of texts to embed.
@@ -73,23 +76,45 @@ class EmbeddingService:
             Array of shape (n_texts, embedding_dim) with L2-normalized embeddings.
         """
         if not texts:
-            return np.array([], dtype=np.float32)
+            return np.array([], dtype=np.float32).reshape(0, _EMBEDDING_DIM)
 
-        inputs = self._tokenizer(
-            list(texts),
-            padding=True,
-            truncation=True,
-            max_length=512,
-            return_tensors="pt",
-        )
-        inputs = {k: v.to(self._device) for k, v in inputs.items()}
+        texts_list = list(texts)
+        embeddings = np.zeros((len(texts_list), _EMBEDDING_DIM), dtype=np.float32)
+        headers = {
+            "Authorization": f"Bearer {self._api_key}",
+            "Content-Type": "application/json",
+        }
 
-        with torch.no_grad():
-            outputs = self._model(**inputs)
-            embeddings = outputs.last_hidden_state[:, 0, :]
-            embeddings = torch.nn.functional.normalize(embeddings, p=2, dim=1)
+        timeout = aiohttp.ClientTimeout(total=_API_TIMEOUT_SECONDS)
+        async with aiohttp.ClientSession(timeout=timeout) as session:
+            # Process in batches to avoid API limits and timeouts
+            for batch_start in range(0, len(texts_list), _API_BATCH_SIZE):
+                batch_end = min(batch_start + _API_BATCH_SIZE, len(texts_list))
+                batch_texts = texts_list[batch_start:batch_end]
 
-        return embeddings.cpu().numpy().astype(np.float32)
+                payload = {
+                    "model": _MODEL_NAME,
+                    "input": batch_texts,
+                }
+
+                async with session.post(_NOVITA_API_URL, json=payload, headers=headers) as resp:
+                    resp.raise_for_status()
+                    result = await resp.json()
+
+                # Extract embeddings in order within this batch
+                for item in result["data"]:
+                    idx = batch_start + item["index"]
+                    embeddings[idx] = np.array(item["embedding"], dtype=np.float32)
+
+                if batch_end < len(texts_list):
+                    logger.info("Embedded %d/%d texts...", batch_end, len(texts_list))
+
+        # L2 normalize
+        norms = np.linalg.norm(embeddings, axis=1, keepdims=True)
+        norms = np.where(norms == 0, 1, norms)  # avoid division by zero
+        embeddings = embeddings / norms
+
+        return embeddings
 
     async def embed_with_cache(
         self,
@@ -106,7 +131,7 @@ class EmbeddingService:
             Array of shape (n_texts, embedding_dim) with L2-normalized embeddings.
         """
         if not texts:
-            return np.array([], dtype=np.float32)
+            return np.array([], dtype=np.float32).reshape(0, _EMBEDDING_DIM)
 
         texts_list = list(texts)
         n_texts = len(texts_list)
@@ -130,7 +155,7 @@ class EmbeddingService:
         # Compute missing embeddings
         if texts_to_compute:
             indices, uncached_texts = zip(*texts_to_compute)
-            new_embeddings = self.embed(uncached_texts)
+            new_embeddings = await self.embed(uncached_texts)
 
             # Store in cache and result array
             pipe = redis.pipeline()
@@ -160,4 +185,23 @@ class EmbeddingService:
         return np.dot(embeddings_a, embeddings_b.T)
 
 
-__all__ = ["EmbeddingService"]
+async def clear_old_embedding_cache(redis: "Redis") -> int:
+    """Clear old 0.6B model embeddings from Redis.
+
+    Args:
+        redis: Redis connection.
+
+    Returns:
+        Number of keys deleted.
+    """
+    pattern = f"{_OLD_EMBEDDING_KEY_PREFIX}:*"
+    deleted = 0
+    async for key in redis.scan_iter(match=pattern):
+        await redis.delete(key)
+        deleted += 1
+    if deleted > 0:
+        logger.info("Cleared %d old embedding cache entries", deleted)
+    return deleted
+
+
+__all__ = ["EmbeddingService", "clear_old_embedding_cache"]

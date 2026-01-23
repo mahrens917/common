@@ -9,6 +9,7 @@ logging consistently across all services with:
 - User-friendly mode for tracker output
 """
 
+import json
 import logging
 import logging.handlers
 import os
@@ -27,6 +28,19 @@ _config_lock = threading.Lock()
 _LOGS_CLEARED = False
 _MODULE_LOGGER = logging.getLogger(__name__)
 _UNKNOWN_LOGGER_NAME = "<unknown>"
+_LOGGING_CONFIG_PATH = Path(__file__).resolve().parents[2] / "config" / "logging_config.json"
+
+
+def _get_configured_log_directory() -> Optional[Path]:
+    """Load log directory from logging_config.json if available."""
+    if not _LOGGING_CONFIG_PATH.exists():
+        return None
+    with _LOGGING_CONFIG_PATH.open() as f:
+        config = json.load(f)
+    log_dir = config.get("log_directory")
+    if not log_dir:
+        return None
+    return Path(log_dir).expanduser()
 
 
 def _get_process_cmdline(proc: Any) -> str:
@@ -183,7 +197,8 @@ def _configure_file_handler(service_name: Optional[str], project_root: Path) -> 
     if not service_name:
         return None
 
-    logs_dir = project_root / "logs"
+    configured_dir = _get_configured_log_directory()
+    logs_dir = configured_dir if configured_dir else project_root / "logs"
     if service_name == "monitor":
         _clear_logs_directory(logs_dir)
 

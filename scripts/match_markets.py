@@ -4,11 +4,8 @@
 Usage:
     python -m scripts.match_markets
 
-Requirements:
-    pip install torch transformers
-
-Environment:
-    KALSHI_API_KEY - Kalshi API key (or use existing auth)
+Requires:
+    NOVITA_API_KEY in ~/.env
 """
 
 from __future__ import annotations
@@ -58,11 +55,10 @@ async def fetch_poly_markets(service):
     return markets
 
 
-def run_matching(kalshi_events, poly_markets, similarity_threshold: float = 0.75):
+async def run_matching(kalshi_events, poly_markets, similarity_threshold: float = 0.75):
     """Run the matching algorithm."""
-    logger.info("Initializing embedding service...")
-    embedding_service = EmbeddingService(device="cpu")
-    logger.info("Using device: %s", embedding_service.device)
+    logger.info("Initializing embedding service (Novita API)...")
+    embedding_service = EmbeddingService()
 
     matcher = MarketMatcher(
         embedding_service,
@@ -83,7 +79,7 @@ def run_matching(kalshi_events, poly_markets, similarity_threshold: float = 0.75
         len(poly_candidates),
     )
 
-    matches = matcher.match_with_strike_filter(kalshi_candidates, poly_candidates)
+    matches = await matcher.match_with_strike_filter(kalshi_candidates, poly_candidates)
     return matches
 
 
@@ -128,7 +124,7 @@ async def main_async(kalshi_client, poly_service, similarity_threshold: float):
         logger.warning("No Poly markets found")
         return
 
-    matches = run_matching(kalshi_events, poly_markets, similarity_threshold)
+    matches = await run_matching(kalshi_events, poly_markets, similarity_threshold)
     print_matches(matches, kalshi_events, poly_markets)
 
 
@@ -150,14 +146,16 @@ def main():
 
     if args.dry_run:
         logger.info("Dry run mode - showing embedding service initialization only")
-        embedding_service = EmbeddingService(device="cpu")
-        logger.info("Device: %s", embedding_service.device)
-        logger.info("Model loaded successfully")
+        embedding_service = EmbeddingService()
+        logger.info("Using Novita API")
 
-        test_texts = ["Bitcoin price above 100k", "BTC will exceed $100,000"]
-        embeddings = embedding_service.embed(test_texts)
-        similarity = embedding_service.compute_similarity_matrix(embeddings, embeddings)
-        logger.info("Test similarity between sample texts: %.2f", similarity[0, 1])
+        async def test_embeddings():
+            test_texts = ["Bitcoin price above 100k", "BTC will exceed $100,000"]
+            embeddings = await embedding_service.embed(test_texts)
+            similarity = embedding_service.compute_similarity_matrix(embeddings, embeddings)
+            logger.info("Test similarity between sample texts: %.2f", similarity[0, 1])
+
+        asyncio.run(test_embeddings())
         return
 
     # For actual usage, you need to set up clients:

@@ -181,6 +181,9 @@ def _build_market_record(data: MarketRecordData) -> Dict[str, Any]:
         "event_ticker": data.type_converter.string_or_default(data.combined.get("event_ticker")),
         "event_type": data.type_converter.string_or_default(data.combined.get("event_type")),
         "category": data.type_converter.string_or_default(data.combined.get("category")),
+        "title": data.type_converter.string_or_default(data.combined.get("title")),
+        "subtitle": data.type_converter.string_or_default(data.combined.get("subtitle")),
+        "event_title": data.type_converter.string_or_default(data.combined.get("event_title")),
         "yes_bid": data.combined.get("yes_bid"),
         "yes_ask": data.combined.get("yes_ask"),
         "currency": currency_value,
@@ -188,5 +191,6 @@ def _build_market_record(data: MarketRecordData) -> Dict[str, Any]:
         "yes_ask_size": data.combined.get("yes_ask_size"),
         "yes_bids": data.combined.get("yes_bids"),
         "yes_asks": data.combined.get("yes_asks"),
+        "mutually_exclusive": data.combined.get("mutually_exclusive"),
     }
     return result
