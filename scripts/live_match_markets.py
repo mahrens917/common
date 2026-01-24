@@ -50,7 +50,7 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-EXPIRY_WINDOW_HOURS = 24.0
+EXPIRY_WINDOW_MINUTES = 1.0
 
 
 def _parse_iso_datetime(dt_str: str) -> datetime:
@@ -212,7 +212,7 @@ async def run_matching(
     matcher = MarketMatcher(
         embedding_service,
         similarity_threshold=similarity_threshold,
-        expiry_window_hours=EXPIRY_WINDOW_HOURS,
+        expiry_window_hours=EXPIRY_WINDOW_MINUTES / 60.0,
     )
 
     kalshi_candidates = [kalshi_redis_to_candidate(m) for m in kalshi_markets]
@@ -240,7 +240,7 @@ def print_results(matches, kalshi_markets: list[dict], poly_markets: list[dict])
     poly_lookup = {m.get("condition_id", ""): m for m in poly_markets}
 
     print("\n" + "=" * 80)
-    print(f"TOP {len(matches)} MATCHES (exact strike + expiry ±24h)")
+    print(f"TOP {len(matches)} MATCHES (exact strike + expiry ±1min)")
     print("=" * 80)
 
     for i, match in enumerate(matches, 1):
@@ -298,7 +298,7 @@ def _strikes_overlap(
     k_cap: float | None,
     p_floor: float | None,
     p_cap: float | None,
-    tolerance: float = 0.01,
+    tolerance: float = 0.001,
 ) -> bool:
     """Check if Kalshi and Poly strikes match within tolerance.
 
@@ -313,7 +313,7 @@ def _strikes_overlap(
         k_cap: Kalshi cap strike (may be inf)
         p_floor: Poly floor strike
         p_cap: Poly cap strike (None treated as inf when floor exists)
-        tolerance: Relative tolerance for strike comparison (default 1%)
+        tolerance: Relative tolerance for strike comparison (default 0.1%)
     """
     # Normalize inf/None caps for both sides
     if k_cap is not None and (k_cap == float("inf") or k_cap > 1e10):
@@ -417,8 +417,8 @@ def match_by_category_and_strike(
             poly_expiry = _parse_iso_datetime(poly_market.get("end_date", ""))
             if poly_expiry.tzinfo is None:
                 poly_expiry = poly_expiry.replace(tzinfo=timezone.utc)
-            expiry_delta = abs((kalshi_expiry - poly_expiry).total_seconds()) / 3600.0
-            if expiry_delta > EXPIRY_WINDOW_HOURS:
+            expiry_delta = abs((kalshi_expiry - poly_expiry).total_seconds()) / 60.0
+            if expiry_delta > EXPIRY_WINDOW_MINUTES:
                 continue
 
             # Normalize Poly cap: None means inf for "above X" markets
@@ -477,7 +477,7 @@ def print_field_match_results(
     print(f"FIELD-BASED MATCHES: {len(matches)}")
     print("=" * 80)
 
-    for i, (kalshi, fields, poly) in enumerate(matches[:20], 1):
+    for i, (kalshi, fields, poly) in enumerate(matches, 1):
         kalshi_title = kalshi.get("event_title", kalshi.get("title", "N/A"))
         poly_title = poly.get("title", "N/A")
 

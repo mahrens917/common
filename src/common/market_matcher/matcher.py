@@ -284,6 +284,17 @@ class MarketMatcher:
         all_matches = await self.match(kalshi_markets, poly_markets)
         return [m for m in all_matches if m.strike_match]
 
+    async def match_with_cache_and_strike_filter(
+        self,
+        kalshi_markets: Sequence[MatchCandidate],
+        poly_markets: Sequence[MatchCandidate],
+        redis: "Redis",
+        top_n: int = 10,
+    ) -> list[MarketMatch]:
+        """Find matching markets using cached embeddings, filtering by strike match."""
+        all_matches = await self.match_with_cache(kalshi_markets, poly_markets, redis, top_n, skip_strike_filter=False)
+        return [m for m in all_matches if m.strike_match]
+
     async def match_with_cache(
         self,
         kalshi_markets: Sequence[MatchCandidate],

@@ -112,9 +112,9 @@ class EmbeddingService:
         # L2 normalize
         norms = np.linalg.norm(embeddings, axis=1, keepdims=True)
         norms = np.where(norms == 0, 1, norms)  # avoid division by zero
-        embeddings = embeddings / norms
+        normalized = embeddings / norms
 
-        return embeddings
+        return normalized.astype(np.float32)
 
     async def embed_with_cache(
         self,

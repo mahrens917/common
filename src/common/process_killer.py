@@ -65,6 +65,7 @@ SERVICE_PROCESS_PATTERNS = {
     "price_alert": ["-m src.price_alert", "src.price_alert", "src/price_alert/"],
     "pdf": ["-m src.pdf", "src.pdf", "src/pdf/"],
     "poly": ["-m src.poly", "src.poly", "src/poly/"],
+    "structure": ["-m src.structure", "src.structure", "src/structure/"],
     "web": ["-m src.web", "src.web"],
 }
 
