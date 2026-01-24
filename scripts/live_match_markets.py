@@ -298,7 +298,7 @@ def _strikes_overlap(
     k_cap: float | None,
     p_floor: float | None,
     p_cap: float | None,
-    tolerance: float = 1.0,
+    tolerance: float = 0.01,
 ) -> bool:
     """Check if Kalshi and Poly strikes match within tolerance.
 
@@ -313,7 +313,7 @@ def _strikes_overlap(
         k_cap: Kalshi cap strike (may be inf)
         p_floor: Poly floor strike
         p_cap: Poly cap strike (None treated as inf when floor exists)
-        tolerance: Absolute tolerance for strike comparison (default 1.0)
+        tolerance: Relative tolerance for strike comparison (default 1%)
     """
     # Normalize inf/None caps for both sides
     if k_cap is not None and (k_cap == float("inf") or k_cap > 1e10):
@@ -337,12 +337,14 @@ def _strikes_overlap(
 
     # Compare floor strikes if both have them
     if k_has_floor and p_has_floor:
-        if abs(k_floor - p_floor) > tolerance:
+        ref = max(abs(k_floor), abs(p_floor), 1.0)
+        if abs(k_floor - p_floor) / ref > tolerance:
             return False
 
     # Compare cap strikes if both have them
     if k_has_cap and p_has_cap:
-        if abs(k_cap - p_cap) > tolerance:
+        ref = max(abs(k_cap), abs(p_cap), 1.0)
+        if abs(k_cap - p_cap) / ref > tolerance:
             return False
 
     return True
@@ -400,12 +402,25 @@ def match_by_category_and_strike(
         kalshi_underlying = _get_kalshi_underlying(kalshi)
         kalshi_floor = _parse_float(kalshi.get("floor_strike"))
         kalshi_cap = _parse_float(kalshi.get("cap_strike"))
+        kalshi_expiry = _parse_iso_datetime(kalshi.get("close_time", ""))
+        if kalshi_expiry.tzinfo is None:
+            kalshi_expiry = kalshi_expiry.replace(tzinfo=timezone.utc)
 
         # Only check poly markets with same category AND underlying
         key = (kalshi_category, kalshi_underlying)
         matching_poly = poly_by_key.get(key, [])
 
         for fields in matching_poly:
+            poly_market = poly_lookup.get(fields.condition_id, {})
+
+            # Check expiry within 24 hours
+            poly_expiry = _parse_iso_datetime(poly_market.get("end_date", ""))
+            if poly_expiry.tzinfo is None:
+                poly_expiry = poly_expiry.replace(tzinfo=timezone.utc)
+            expiry_delta = abs((kalshi_expiry - poly_expiry).total_seconds()) / 3600.0
+            if expiry_delta > EXPIRY_WINDOW_HOURS:
+                continue
+
             # Normalize Poly cap: None means inf for "above X" markets
             p_cap = fields.cap_strike
             if p_cap is None and fields.floor_strike is not None:
@@ -415,7 +430,6 @@ def match_by_category_and_strike(
             if not _strikes_overlap(kalshi_floor, kalshi_cap, fields.floor_strike, p_cap):
                 continue
 
-            poly_market = poly_lookup.get(fields.condition_id, {})
             matches.append((kalshi, fields, poly_market))
 
     logger.info("Found %d field-based matches", len(matches))
@@ -472,9 +486,11 @@ def print_field_match_results(
         print(f"KALSHI: {kalshi_title}")
         print(f"  Ticker: {kalshi.get('market_ticker', kalshi.get('ticker', ''))}")
         print(f"  Strike: floor={kalshi.get('floor_strike')}, cap={kalshi.get('cap_strike')}")
+        print(f"  Expiry: {kalshi.get('close_time')}")
         print(f"POLY: {poly_title}")
         print(f"  Underlying: {fields.underlying}")
         print(f"  Strike: floor={fields.floor_strike}, cap={fields.cap_strike}")
+        print(f"  Expiry: {poly.get('end_date')}")
 
 
 async def main(
