@@ -9,10 +9,12 @@ import asyncio
 import json
 import logging
 from dataclasses import dataclass
-from pathlib import Path
 from typing import TYPE_CHECKING, Sequence
 
 import aiohttp
+
+from ._field_parser import parse_batch_response, parse_llm_response
+from ._utils import load_api_key_from_env_file
 
 if TYPE_CHECKING:
     from redis.asyncio import Redis
@@ -21,7 +23,6 @@ logger = logging.getLogger(__name__)
 
 _OPENAI_API_URL = "https://api.openai.com/v1/chat/completions"
 _MODEL_NAME = "gpt-4o-mini"
-_ENV_FILE_PATH = Path.home() / ".env"
 _POLY_EXTRACTED_PREFIX = "poly:extracted"
 _API_TIMEOUT_SECONDS = 180
 _BATCH_SIZE = 20
@@ -95,69 +96,9 @@ class ExtractedFields:
     cap_strike: float | None
 
 
-def _load_api_key_from_env_file() -> str | None:
-    """Load OPENAI_API_KEY from ~/.env file."""
-    if not _ENV_FILE_PATH.exists():
-        return None
-    for line in _ENV_FILE_PATH.read_text().splitlines():
-        line = line.strip()
-        if line.startswith("OPENAI_API_KEY="):
-            value = line.split("=", 1)[1].strip()
-            if (value.startswith('"') and value.endswith('"')) or (value.startswith("'") and value.endswith("'")):
-                value = value[1:-1]
-            return value
-    return None
-
-
 def _get_redis_key(condition_id: str) -> str:
     """Generate Redis key for extracted fields."""
     return f"{_POLY_EXTRACTED_PREFIX}:{condition_id}"
-
-
-def _parse_strike_value(value: object) -> float | None:
-    """Parse a strike value to float, handling strings and nulls."""
-    if value is None:
-        return None
-    if not isinstance(value, (int, float, str)):
-        raise TypeError(f"Strike value must be int, float, or str, got {type(value).__name__}")
-    return float(value)
-
-
-def _parse_llm_response(response_text: str, condition_id: str) -> ExtractedFields | None:
-    """Parse LLM response into ExtractedFields."""
-    try:
-        text = response_text.strip()
-        if text.startswith("```"):
-            lines = text.split("\n")
-            text = "\n".join(lines[1:-1])
-
-        data = json.loads(text)
-
-        category = data["category"] if "category" in data and data["category"] in KALSHI_CATEGORIES else "Entertainment"
-        if "category" not in data or data["category"] not in KALSHI_CATEGORIES:
-            logger.warning("Invalid category for %s, using Entertainment", condition_id)
-
-        if "underlying" not in data:
-            logger.warning("Missing underlying for %s", condition_id)
-            raise KeyError("underlying field is required")
-        underlying = data["underlying"]
-        if not isinstance(underlying, str) or not underlying:
-            logger.warning("Invalid underlying for %s: %s", condition_id, underlying)
-            raise ValueError(f"Invalid underlying: {underlying}")
-
-        floor_strike = _parse_strike_value(data["floor_strike"]) if "floor_strike" in data else None
-        cap_strike = _parse_strike_value(data["cap_strike"]) if "cap_strike" in data else None
-
-        return ExtractedFields(
-            condition_id=condition_id,
-            category=category,
-            underlying=underlying.upper(),
-            floor_strike=floor_strike,
-            cap_strike=cap_strike,
-        )
-    except (json.JSONDecodeError, KeyError, TypeError, ValueError):
-        logger.exception("Failed to parse LLM response for %s", condition_id)
-        raise
 
 
 def _build_market_text(market: dict) -> str:
@@ -170,14 +111,20 @@ def _build_market_text(market: dict) -> str:
         raise KeyError(f"title is required for market {condition_id}")
     title = market["title"]
 
-    description = market["description"][:500] if "description" in market else ""
+    if "description" not in market:
+        raise KeyError(f"description is required for market {condition_id}")
+    description = market["description"][:500]
 
     if "tokens" not in market:
         raise KeyError(f"tokens is required for market {condition_id}")
     tokens_str = market["tokens"]
 
     tokens = json.loads(tokens_str) if isinstance(tokens_str, str) else tokens_str
-    outcomes = [t["outcome"] if "outcome" in t else "" for t in tokens]
+    outcomes = []
+    for t in tokens:
+        if "outcome" not in t:
+            raise KeyError(f"outcome field is required in token: {t}")
+        outcomes.append(t["outcome"])
 
     return f"[ID: {condition_id}]\nTitle: {title}\nDescription: {description}\nOutcomes: {outcomes}"
 
@@ -190,54 +137,12 @@ def _handle_rate_limit(extractor: "FieldExtractor", resp: aiohttp.ClientResponse
         logger.warning("Rate limit hit, reducing concurrency to %d", extractor._current_concurrency)
 
     retry_after = resp.headers.get("Retry-After")
-    wait_time = float(retry_after) if retry_after else backoff
+    if retry_after:
+        wait_time = float(retry_after)
+    else:
+        wait_time = backoff
     logger.warning("Rate limited (429), waiting %.1fs before retry %d/%d", wait_time, attempt + 1, _MAX_RETRIES)
     return wait_time
-
-
-def _parse_batch_response(response_text: str) -> dict[str, ExtractedFields]:
-    """Parse batch LLM response into ExtractedFields dict."""
-    text = response_text.strip()
-    if text.startswith("```"):
-        lines = text.split("\n")
-        text = "\n".join(lines[1:-1])
-
-    data = json.loads(text)
-    if "markets" not in data:
-        raise KeyError("markets field is required in batch response")
-    markets_data = data["markets"]
-
-    results: dict[str, ExtractedFields] = {}
-    for item in markets_data:
-        if "id" not in item or not item["id"]:
-            logger.warning("Skipping market with missing or empty id")
-            continue
-        condition_id = item["id"]
-
-        category = item["category"] if "category" in item and item["category"] in KALSHI_CATEGORIES else "Entertainment"
-        if "category" not in item or item["category"] not in KALSHI_CATEGORIES:
-            logger.warning("Invalid category for %s, using Entertainment", condition_id)
-
-        if "underlying" not in item or not item["underlying"]:
-            logger.warning("Invalid underlying for %s", condition_id)
-            continue
-        underlying = item["underlying"]
-        if not isinstance(underlying, str):
-            logger.warning("Non-string underlying for %s: %s", condition_id, underlying)
-            continue
-
-        floor_strike = _parse_strike_value(item["floor_strike"]) if "floor_strike" in item else None
-        cap_strike = _parse_strike_value(item["cap_strike"]) if "cap_strike" in item else None
-
-        results[condition_id] = ExtractedFields(
-            condition_id=condition_id,
-            category=category,
-            underlying=underlying.upper(),
-            floor_strike=floor_strike,
-            cap_strike=cap_strike,
-        )
-
-    return results
 
 
 async def _store_extracted_fields(fields_list: list[ExtractedFields], redis: "Redis") -> None:
@@ -309,8 +214,7 @@ async def _load_batch_cached_fields(markets: Sequence[dict], redis: "Redis") -> 
             continue
         condition_id = market["condition_id"]
         redis_key = _get_redis_key(condition_id)
-        existing_result = redis.hgetall(redis_key)
-        existing = await existing_result
+        existing = await redis.hgetall(redis_key)
 
         if existing:
             cached_count += 1
@@ -367,16 +271,24 @@ class FieldExtractor:
 
     def __init__(self, api_key: str | None = None) -> None:
         """Initialize the field extractor."""
-        self._api_key = api_key if api_key else _load_api_key_from_env_file()
-        if not self._api_key:
-            raise ValueError("OPENAI_API_KEY not found in ~/.env")
+        if api_key:
+            self._api_key = api_key
+        else:
+            loaded_key = load_api_key_from_env_file("OPENAI_API_KEY")
+            if not loaded_key:
+                raise ValueError("OPENAI_API_KEY not found in ~/.env")
+            self._api_key = loaded_key
         self._current_concurrency = _CONCURRENT_REQUESTS
         self._rate_limit_hits = 0
         logger.info("Initialized FieldExtractor with OpenAI API (model: %s)", _MODEL_NAME)
 
     async def extract_fields(self, condition_id: str, title: str, description: str, tokens: list[dict]) -> ExtractedFields | None:
         """Extract structured fields from a single Poly market."""
-        outcomes = [t["outcome"] if "outcome" in t else "" for t in tokens]
+        outcomes = []
+        for t in tokens:
+            if "outcome" not in t:
+                raise KeyError(f"outcome field is required in token: {t}")
+            outcomes.append(t["outcome"])
         market_text = f"Title: {title}\nDescription: {description}\nOutcomes: {outcomes}"
 
         payload = {
@@ -391,7 +303,7 @@ class FieldExtractor:
 
         result = await _call_openai_api(self._api_key, payload)
         response_text = result["choices"][0]["message"]["content"]
-        return _parse_llm_response(response_text, condition_id)
+        return parse_llm_response(response_text, condition_id, KALSHI_CATEGORIES)
 
     async def extract_and_store(
         self, condition_id: str, title: str, description: str, tokens: list[dict], redis: "Redis"
@@ -399,8 +311,7 @@ class FieldExtractor:
         """Extract fields and store in Redis if not already present."""
         redis_key = _get_redis_key(condition_id)
 
-        existing_result = redis.hgetall(redis_key)
-        existing = await existing_result
+        existing = await redis.hgetall(redis_key)
         if existing:
             logger.debug("Using cached extracted fields for %s", condition_id)
             return _parse_cached_fields(condition_id, existing)
@@ -410,8 +321,7 @@ class FieldExtractor:
             return None
 
         field_map = _build_field_map(fields)
-        hset_result = redis.hset(redis_key, mapping=field_map)
-        await hset_result
+        await redis.hset(redis_key, mapping=field_map)
         logger.info("Stored extracted fields for %s: category=%s, underlying=%s", condition_id, fields.category, fields.underlying)
 
         return fields
@@ -435,7 +345,7 @@ class FieldExtractor:
         try:
             result = await _make_api_request(session, payload, headers, self)
             response_text = result["choices"][0]["message"]["content"]
-            return _parse_batch_response(response_text)
+            return parse_batch_response(response_text, KALSHI_CATEGORIES)
         except (RuntimeError, KeyError, json.JSONDecodeError):
             logger.exception("Batch API call failed")
             raise
@@ -472,7 +382,9 @@ class FieldExtractor:
 
         await _store_extracted_fields(extracted_fields_list, redis)
 
-        logger.info("Field extraction complete: %d cached, %d newly extracted, %d total", cached_count, len(extracted_fields_list), len(results))
+        logger.info(
+            "Field extraction complete: %d cached, %d newly extracted, %d total", cached_count, len(extracted_fields_list), len(results)
+        )
         return results
 
 

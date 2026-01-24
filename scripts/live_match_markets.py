@@ -583,6 +583,7 @@ async def main(
     extract_fields: bool = False,
     match_by_fields: bool = False,
     extract_limit: int | None = None,
+    exclude_crypto: bool = False,
 ):
     """Main entry point."""
     redis = Redis.from_url(redis_url)
@@ -612,6 +613,10 @@ async def main(
         if match_by_fields:
             extractor = FieldExtractor()
             fields = await extractor.extract_batch(poly_markets, redis)
+            if exclude_crypto:
+                kalshi_markets = [m for m in kalshi_markets if m.get("category", "").lower() != "crypto"]
+                fields = [f for f in fields if f.category.lower() != "crypto"]
+                logger.info("Excluded crypto: %d Kalshi, %d Poly fields remain", len(kalshi_markets), len(fields))
             matches, near_misses = match_by_category_and_strike(kalshi_markets, fields, poly_markets)
             print_field_match_results(matches)
             print_near_misses(near_misses)
@@ -655,6 +660,11 @@ if __name__ == "__main__":
         help="Match markets using extracted fields instead of embeddings",
     )
     parser.add_argument(
+        "--exclude-crypto",
+        action="store_true",
+        help="Exclude crypto markets from matching",
+    )
+    parser.add_argument(
         "--extract-limit",
         type=int,
         help="Limit number of markets to extract (for testing)",
@@ -669,5 +679,6 @@ if __name__ == "__main__":
             args.extract_fields,
             args.match_by_fields,
             args.extract_limit,
+            args.exclude_crypto,
         )
     )

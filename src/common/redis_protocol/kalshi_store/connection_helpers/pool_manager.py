@@ -36,10 +36,10 @@ class PoolManager:
     @staticmethod
     async def close_redis_client(redis_client: Any) -> None:
         """Close Redis client connection"""
-        close_fn = getattr(redis_client, "close", None)
-        if callable(close_fn):
+        aclose_fn = getattr(redis_client, "aclose", None)
+        if callable(aclose_fn):
             try:
-                await ensure_awaitable(close_fn())
+                await ensure_awaitable(aclose_fn())
             except REDIS_ERRORS:  # Expected exception in operation  # policy_guard: allow-silent-handler
                 logger.debug("Failed to close Redis client cleanly", exc_info=True)
 

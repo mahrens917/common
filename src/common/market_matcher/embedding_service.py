@@ -4,12 +4,13 @@ from __future__ import annotations
 
 import hashlib
 import logging
-from pathlib import Path
 from typing import TYPE_CHECKING, Sequence
 
 import aiohttp
 import numpy as np
 from numpy.typing import NDArray
+
+from ._utils import load_api_key_from_env_file
 
 if TYPE_CHECKING:
     from redis.asyncio import Redis
@@ -23,22 +24,6 @@ _OLD_EMBEDDING_KEY_PREFIX = "embedding:qwen3"  # Old 0.6B model prefix
 _EMBEDDING_DIM = 4096  # Qwen3-Embedding-8B dimension
 _API_BATCH_SIZE = 50  # Max texts per API call (smaller batches for reliability)
 _API_TIMEOUT_SECONDS = 300  # 5 minutes per batch
-_ENV_FILE_PATH = Path.home() / ".env"
-
-
-def _load_api_key_from_env_file() -> str | None:
-    """Load NOVITA_API_KEY from ~/.env file."""
-    if not _ENV_FILE_PATH.exists():
-        return None
-    for line in _ENV_FILE_PATH.read_text().splitlines():
-        line = line.strip()
-        if line.startswith("NOVITA_API_KEY="):
-            value = line.split("=", 1)[1].strip()
-            # Remove quotes if present
-            if (value.startswith('"') and value.endswith('"')) or (value.startswith("'") and value.endswith("'")):
-                value = value[1:-1]
-            return value
-    return None
 
 
 def _text_to_cache_key(text: str) -> str:
@@ -47,9 +32,7 @@ def _text_to_cache_key(text: str) -> str:
     return f"{_EMBEDDING_KEY_PREFIX}:{text_hash}"
 
 
-async def _load_cached_embeddings(
-    texts_list: list[str], redis: "Redis"
-) -> tuple[NDArray[np.float32], list[tuple[int, str]], list[str]]:
+async def _load_cached_embeddings(texts_list: list[str], redis: "Redis") -> tuple[NDArray[np.float32], list[tuple[int, str]], list[str]]:
     """Load cached embeddings from Redis.
 
     Returns:
@@ -101,7 +84,7 @@ class EmbeddingService:
         Args:
             api_key: Novita API key. If not provided, reads from ~/.env file.
         """
-        self._api_key = api_key or _load_api_key_from_env_file()
+        self._api_key = api_key or load_api_key_from_env_file("NOVITA_API_KEY")
         if not self._api_key:
             raise ValueError("NOVITA_API_KEY not found in ~/.env")
         logger.info("Initialized EmbeddingService with Novita API (model: %s)", _MODEL_NAME)

@@ -198,7 +198,10 @@ def _find_filtered_matches(
                 )
             )
 
-    filter_desc = "expiry only" if skip_strike_filter else "expiry + strike"
+    if skip_strike_filter:
+        filter_desc = "expiry only"
+    else:
+        filter_desc = "expiry + strike"
     logger.info(
         "Filter results (%s): %d total pairs | %d failed expiry (>%.0fh) | %d failed strike | %d passed",
         filter_desc,
@@ -314,7 +317,10 @@ class MarketMatcher:
         )
 
         # Log filter settings
-        strike_mode = "disabled" if skip_strike_filter else "exact (if numeric)"
+        if skip_strike_filter:
+            strike_mode = "disabled"
+        else:
+            strike_mode = "exact (if numeric)"
         logger.info(
             "Match filters: expiry_window=±%.0fh, strike_match=%s",
             self._expiry_window_hours,
