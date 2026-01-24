@@ -298,7 +298,7 @@ def _strikes_overlap(
     k_cap: float | None,
     p_floor: float | None,
     p_cap: float | None,
-    tolerance: float = 0.02,
+    tolerance: float = 1.0,
 ) -> bool:
     """Check if Kalshi and Poly strikes match within tolerance.
 
@@ -312,12 +312,14 @@ def _strikes_overlap(
         k_floor: Kalshi floor strike
         k_cap: Kalshi cap strike (may be inf)
         p_floor: Poly floor strike
-        p_cap: Poly cap strike
-        tolerance: Relative tolerance for strike comparison (default 2%)
+        p_cap: Poly cap strike (None treated as inf when floor exists)
+        tolerance: Absolute tolerance for strike comparison (default 1.0)
     """
-    # Normalize inf to None for comparison
+    # Normalize inf/None caps for both sides
     if k_cap is not None and (k_cap == float("inf") or k_cap > 1e10):
         k_cap = None
+    if p_cap is not None and (p_cap == float("inf") or p_cap > 1e10):
+        p_cap = None
 
     # Determine market "shape" for each side
     k_has_floor = k_floor is not None
@@ -335,14 +337,12 @@ def _strikes_overlap(
 
     # Compare floor strikes if both have them
     if k_has_floor and p_has_floor:
-        ref = max(abs(k_floor), abs(p_floor), 1.0)
-        if abs(k_floor - p_floor) / ref > tolerance:
+        if abs(k_floor - p_floor) > tolerance:
             return False
 
     # Compare cap strikes if both have them
     if k_has_cap and p_has_cap:
-        ref = max(abs(k_cap), abs(p_cap), 1.0)
-        if abs(k_cap - p_cap) / ref > tolerance:
+        if abs(k_cap - p_cap) > tolerance:
             return False
 
     return True
@@ -406,8 +406,13 @@ def match_by_category_and_strike(
         matching_poly = poly_by_key.get(key, [])
 
         for fields in matching_poly:
+            # Normalize Poly cap: None means inf for "above X" markets
+            p_cap = fields.cap_strike
+            if p_cap is None and fields.floor_strike is not None:
+                p_cap = float("inf")
+
             # Check strike ranges overlap
-            if not _strikes_overlap(kalshi_floor, kalshi_cap, fields.floor_strike, fields.cap_strike):
+            if not _strikes_overlap(kalshi_floor, kalshi_cap, fields.floor_strike, p_cap):
                 continue
 
             poly_market = poly_lookup.get(fields.condition_id, {})
