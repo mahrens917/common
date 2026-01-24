@@ -74,12 +74,14 @@ def parse_llm_response(response_text: str, condition_id: str, valid_categories: 
 
         category = validate_category_field(data, valid_categories)
         underlying = validate_underlying_field(data, condition_id)
+        subject = data.get("subject", underlying).upper() if data.get("subject") else underlying.upper()
         floor_strike, cap_strike = extract_strike_values(data)
 
         return ExtractedFields(
             condition_id=condition_id,
             category=category,
             underlying=underlying.upper(),
+            subject=subject,
             floor_strike=floor_strike,
             cap_strike=cap_strike,
         )
@@ -135,12 +137,14 @@ def parse_batch_item(item: dict, valid_categories: tuple[str, ...]) -> "Extracte
     if not underlying:
         return None
 
+    subject = item.get("subject", underlying).upper() if item.get("subject") else underlying.upper()
     floor_strike, cap_strike = extract_strike_values(item)
 
     return ExtractedFields(
         condition_id=condition_id,
         category=category,
         underlying=underlying.upper(),
+        subject=subject,
         floor_strike=floor_strike,
         cap_strike=cap_strike,
     )

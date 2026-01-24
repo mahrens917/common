@@ -366,12 +366,34 @@ def _get_kalshi_underlying(market: dict) -> str:
     return ""
 
 
+def _get_kalshi_subject(market: dict) -> str:
+    """Extract subject code from Kalshi ticker.
+
+    For tickers like KXRT-MER-35, the subject is MER (specific movie).
+    For crypto tickers like KXETHD-26JAN2123-T3509.99, the second segment
+    is a date, so the subject defaults to the underlying.
+    """
+    ticker = market.get("market_ticker", market.get("ticker", ""))
+    if not ticker.startswith("KX"):
+        return _get_kalshi_underlying(market)
+    parts = ticker.split("-")
+    if len(parts) < 2:
+        return _get_kalshi_underlying(market)
+    second = parts[1]
+    # Date segments contain digits mixed with month abbreviations (e.g., 26JAN2123)
+    # or start with T followed by digits (strike values like T3509.99)
+    has_digit = any(c.isdigit() for c in second)
+    if has_digit:
+        return _get_kalshi_underlying(market)
+    return second.upper()
+
+
 def match_by_category_and_strike(
     kalshi_markets: list[dict],
     poly_fields: list[ExtractedFields],
     poly_markets: list[dict],
 ) -> tuple[list[tuple[dict, ExtractedFields, dict]], list[dict]]:
-    """Match markets based on category, underlying, and strike ranges.
+    """Match markets based on category, underlying, subject, and strike ranges.
 
     Args:
         kalshi_markets: List of Kalshi market dicts.
@@ -385,10 +407,10 @@ def match_by_category_and_strike(
     near_misses: list[dict] = []
     poly_lookup = {m.get("condition_id", ""): m for m in poly_markets}
 
-    # Group poly fields by (category, underlying) for faster lookup
-    poly_by_key: dict[tuple[str, str], list[ExtractedFields]] = {}
+    # Group poly fields by (category, underlying, subject) for faster lookup
+    poly_by_key: dict[tuple[str, str, str], list[ExtractedFields]] = {}
     for fields in poly_fields:
-        key = (fields.category.lower(), fields.underlying.upper())
+        key = (fields.category.lower(), fields.underlying.upper(), fields.subject.upper())
         poly_by_key.setdefault(key, []).append(fields)
 
     logger.info(
@@ -396,19 +418,20 @@ def match_by_category_and_strike(
         len(kalshi_markets),
         len(poly_fields),
     )
-    logger.info("Poly (category, underlying) groups: %d unique", len(poly_by_key))
+    logger.info("Poly (category, underlying, subject) groups: %d unique", len(poly_by_key))
 
     for kalshi in kalshi_markets:
         kalshi_category = kalshi.get("category", "").lower()
         kalshi_underlying = _get_kalshi_underlying(kalshi)
+        kalshi_subject = _get_kalshi_subject(kalshi)
         kalshi_floor = _parse_float(kalshi.get("floor_strike"))
         kalshi_cap = _parse_float(kalshi.get("cap_strike"))
         kalshi_expiry = _parse_iso_datetime(kalshi.get("close_time", ""))
         if kalshi_expiry.tzinfo is None:
             kalshi_expiry = kalshi_expiry.replace(tzinfo=timezone.utc)
 
-        # Only check poly markets with same category AND underlying
-        key = (kalshi_category, kalshi_underlying)
+        # Only check poly markets with same category, underlying, AND subject
+        key = (kalshi_category, kalshi_underlying, kalshi_subject)
         matching_poly = poly_by_key.get(key, [])
 
         for fields in matching_poly:
@@ -519,7 +542,7 @@ def print_field_match_results(
         poly_title = poly.get("title", "N/A")
 
         print(f"\n--- Match {i} ---")
-        print(f"Category: {fields.category} | Underlying: {fields.underlying}")
+        print(f"Category: {fields.category} | Underlying: {fields.underlying} | Subject: {fields.subject}")
         print(f"KALSHI: {kalshi_title}")
         print(f"  Ticker: {kalshi.get('market_ticker', kalshi.get('ticker', ''))}")
         print(f"  Strike: floor={kalshi.get('floor_strike')}, cap={kalshi.get('cap_strike')}")
@@ -564,7 +587,7 @@ def print_near_misses(near_misses: list[dict]) -> None:
             parts.append(f"cap delta={nm['cap_pct'] * 100:.2f}%")
 
         print(f"\n--- Near Miss {i} ---")
-        print(f"Category: {fields.category} | Underlying: {fields.underlying}")
+        print(f"Category: {fields.category} | Underlying: {fields.underlying} | Subject: {fields.subject}")
         print(f"Deltas: {' | '.join(parts)}")
         print(f"KALSHI: {kalshi_title}")
         print(f"  Ticker: {kalshi.get('market_ticker', kalshi.get('ticker', ''))}")

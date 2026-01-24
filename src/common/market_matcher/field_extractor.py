@@ -9,15 +9,13 @@ import asyncio
 import json
 import logging
 from dataclasses import dataclass
-from typing import TYPE_CHECKING, Sequence
+from typing import Sequence, cast
 
 import aiohttp
+from redis.asyncio import Redis
 
 from ._field_parser import parse_batch_response, parse_llm_response
 from ._utils import load_api_key_from_env_file
-
-if TYPE_CHECKING:
-    from redis.asyncio import Redis
 
 logger = logging.getLogger(__name__)
 
@@ -61,10 +59,15 @@ Extract these fields:
    - Sports: team abbreviations like "NYK", "LAL", "KC", "BUF"
    - Weather: station codes like "KORD", "KJFK"
    - Other: short descriptive code
-3. floor_strike: Lower bound number, or null if none. For "above $3500" → 3500. For "between $3500 and $3600" → 3500.
-4. cap_strike: Upper bound number, or null if none. For "below $3600" → 3600. For "between $3500 and $3600" → 3600.
+3. subject: Short uppercase code identifying the specific entity within the underlying. Examples:
+   - For Rotten Tomatoes (RT): movie abbreviation like "MER" (Mercy), "RSH" (Return to Silent Hill)
+   - For sports: player or event code like "MAHOMES", "SB"
+   - For crypto: same as underlying (e.g., "BTC", "ETH")
+   - For economics: specific metric like "RATE", "PCE"
+4. floor_strike: Lower bound number, or null if none. For "above $3500" → 3500. For "between $3500 and $3600" → 3500.
+5. cap_strike: Upper bound number, or null if none. For "below $3600" → 3600. For "between $3500 and $3600" → 3600.
 
-Return JSON with these exact fields: category (string), underlying (string), floor_strike (number or null), cap_strike (number or null)."""
+Return JSON with these exact fields: category (string), underlying (string), subject (string), floor_strike (number or null), cap_strike (number or null)."""
 
 _EXTRACTION_PROMPT_BATCH = f"""You are a market data analyst. Extract Kalshi-style structured fields from multiple Polymarket markets.
 
@@ -77,10 +80,14 @@ For EACH market, extract:
   - Economics: "FED", "GDP", "CPI", "FOMC"
   - Sports: "NYK", "LAL", "KC", "BUF"
   - Weather: "KORD", "KJFK"
+- subject: Short uppercase code for the specific entity within the underlying (string). Examples:
+  - Rotten Tomatoes: movie abbreviation like "MER" (Mercy), "RSH" (Return to Silent Hill)
+  - Sports: player or event code
+  - Crypto: same as underlying (e.g., "BTC")
 - floor_strike: Lower bound number or null. "above $3500" → 3500, "between $3500-$3600" → 3500
 - cap_strike: Upper bound number or null. "below $3600" → 3600, "between $3500-$3600" → 3600
 
-Return JSON: {{"markets": [{{"id": "...", "category": "...", "underlying": "...", "floor_strike": number|null, "cap_strike": number|null}}]}}
+Return JSON: {{"markets": [{{"id": "...", "category": "...", "underlying": "...", "subject": "...", "floor_strike": number|null, "cap_strike": number|null}}]}}
 
 IMPORTANT: floor_strike and cap_strike must be numbers or null, never strings."""
 
@@ -92,6 +99,7 @@ class ExtractedFields:
     condition_id: str
     category: str
     underlying: str
+    subject: str
     floor_strike: float | None
     cap_strike: float | None
 
@@ -145,16 +153,11 @@ def _handle_rate_limit(extractor: "FieldExtractor", resp: aiohttp.ClientResponse
     return wait_time
 
 
-async def _store_extracted_fields(fields_list: list[ExtractedFields], redis: "Redis") -> None:
+async def _store_extracted_fields(fields_list: list[ExtractedFields], redis: Redis) -> None:
     """Store extracted fields in Redis."""
     pipe = redis.pipeline()
     for fields in fields_list:
-        field_map: dict[str, str] = {"category": fields.category, "underlying": fields.underlying}
-        if fields.floor_strike is not None:
-            field_map["floor_strike"] = str(fields.floor_strike)
-        if fields.cap_strike is not None:
-            field_map["cap_strike"] = str(fields.cap_strike)
-
+        field_map = _build_field_map(fields)
         redis_key = _get_redis_key(fields.condition_id)
         pipe.hset(redis_key, mapping=field_map)
 
@@ -163,7 +166,7 @@ async def _store_extracted_fields(fields_list: list[ExtractedFields], redis: "Re
 
 def _build_field_map(fields: ExtractedFields) -> dict[str, str]:
     """Build Redis field map from extracted fields."""
-    field_map: dict[str, str] = {"category": fields.category, "underlying": fields.underlying}
+    field_map: dict[str, str] = {"category": fields.category, "underlying": fields.underlying, "subject": fields.subject}
     if fields.floor_strike is not None:
         field_map["floor_strike"] = str(fields.floor_strike)
     if fields.cap_strike is not None:
@@ -180,6 +183,7 @@ def _parse_cached_fields(condition_id: str, existing: dict) -> ExtractedFields:
 
     category = existing[b"category"].decode()
     underlying = existing[b"underlying"].decode()
+    subject = existing[b"subject"].decode() if b"subject" in existing and existing[b"subject"] else underlying
     floor_strike = float(existing[b"floor_strike"].decode()) if b"floor_strike" in existing and existing[b"floor_strike"] else None
     cap_strike = float(existing[b"cap_strike"].decode()) if b"cap_strike" in existing and existing[b"cap_strike"] else None
 
@@ -187,6 +191,7 @@ def _parse_cached_fields(condition_id: str, existing: dict) -> ExtractedFields:
         condition_id=condition_id,
         category=category,
         underlying=underlying,
+        subject=subject,
         floor_strike=floor_strike,
         cap_strike=cap_strike,
     )
@@ -202,7 +207,7 @@ async def _call_openai_api(api_key: str, payload: dict) -> dict:
             return await resp.json()
 
 
-async def _load_batch_cached_fields(markets: Sequence[dict], redis: "Redis") -> tuple[list[ExtractedFields], list[dict], int]:
+async def _load_batch_cached_fields(markets: Sequence[dict], redis: Redis) -> tuple[list[ExtractedFields], list[dict], int]:
     """Load cached fields for batch processing."""
     results: list[ExtractedFields] = []
     to_extract: list[dict] = []
@@ -306,7 +311,7 @@ class FieldExtractor:
         return parse_llm_response(response_text, condition_id, KALSHI_CATEGORIES)
 
     async def extract_and_store(
-        self, condition_id: str, title: str, description: str, tokens: list[dict], redis: "Redis"
+        self, condition_id: str, title: str, description: str, tokens: list[dict], redis: Redis
     ) -> ExtractedFields | None:
         """Extract fields and store in Redis if not already present."""
         redis_key = _get_redis_key(condition_id)
@@ -350,7 +355,7 @@ class FieldExtractor:
             logger.exception("Batch API call failed")
             raise
 
-    async def extract_batch(self, markets: Sequence[dict], redis: "Redis") -> list[ExtractedFields]:
+    async def extract_batch(self, markets: Sequence[dict], redis: Redis) -> list[ExtractedFields]:
         """Extract fields for multiple markets with batching and concurrency."""
         results, to_extract, cached_count = await _load_batch_cached_fields(markets, redis)
 

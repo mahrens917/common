@@ -5,10 +5,10 @@ from unittest.mock import AsyncMock, MagicMock, patch
 import numpy as np
 import pytest
 
+from common.market_matcher._utils import _ENV_FILE_PATH, load_api_key_from_env_file
 from common.market_matcher.embedding_service import (
     _EMBEDDING_DIM,
     EmbeddingService,
-    _load_api_key_from_env_file,
     _text_to_cache_key,
 )
 
@@ -18,36 +18,36 @@ class TestLoadApiKeyFromEnvFile:
 
     def test_returns_none_when_file_missing(self, tmp_path) -> None:
         """Test returns None when ~/.env doesn't exist."""
-        with patch("common.market_matcher.embedding_service._ENV_FILE_PATH", tmp_path / "nonexistent"):
-            assert _load_api_key_from_env_file() is None
+        with patch("common.market_matcher._utils._ENV_FILE_PATH", tmp_path / "nonexistent"):
+            assert load_api_key_from_env_file("NOVITA_API_KEY") is None
 
     def test_returns_none_when_key_not_present(self, tmp_path) -> None:
         """Test returns None when key not in file."""
         env_file = tmp_path / ".env"
         env_file.write_text("OTHER_KEY=value\n")
-        with patch("common.market_matcher.embedding_service._ENV_FILE_PATH", env_file):
-            assert _load_api_key_from_env_file() is None
+        with patch("common.market_matcher._utils._ENV_FILE_PATH", env_file):
+            assert load_api_key_from_env_file("NOVITA_API_KEY") is None
 
     def test_loads_unquoted_key(self, tmp_path) -> None:
         """Test loads unquoted API key."""
         env_file = tmp_path / ".env"
         env_file.write_text("NOVITA_API_KEY=test-key-123\n")
-        with patch("common.market_matcher.embedding_service._ENV_FILE_PATH", env_file):
-            assert _load_api_key_from_env_file() == "test-key-123"
+        with patch("common.market_matcher._utils._ENV_FILE_PATH", env_file):
+            assert load_api_key_from_env_file("NOVITA_API_KEY") == "test-key-123"
 
     def test_loads_double_quoted_key(self, tmp_path) -> None:
         """Test loads double-quoted API key."""
         env_file = tmp_path / ".env"
         env_file.write_text('NOVITA_API_KEY="test-key-123"\n')
-        with patch("common.market_matcher.embedding_service._ENV_FILE_PATH", env_file):
-            assert _load_api_key_from_env_file() == "test-key-123"
+        with patch("common.market_matcher._utils._ENV_FILE_PATH", env_file):
+            assert load_api_key_from_env_file("NOVITA_API_KEY") == "test-key-123"
 
     def test_loads_single_quoted_key(self, tmp_path) -> None:
         """Test loads single-quoted API key."""
         env_file = tmp_path / ".env"
         env_file.write_text("NOVITA_API_KEY='test-key-123'\n")
-        with patch("common.market_matcher.embedding_service._ENV_FILE_PATH", env_file):
-            assert _load_api_key_from_env_file() == "test-key-123"
+        with patch("common.market_matcher._utils._ENV_FILE_PATH", env_file):
+            assert load_api_key_from_env_file("NOVITA_API_KEY") == "test-key-123"
 
 
 class TestTextToCacheKey:
@@ -83,7 +83,7 @@ class TestEmbeddingServiceInit:
         """Test initialization raises when no API key available."""
         env_file = tmp_path / ".env"
         env_file.write_text("OTHER_KEY=value\n")
-        with patch("common.market_matcher.embedding_service._ENV_FILE_PATH", env_file):
+        with patch("common.market_matcher._utils._ENV_FILE_PATH", env_file):
             with pytest.raises(ValueError, match="NOVITA_API_KEY not found"):
                 EmbeddingService()
 
