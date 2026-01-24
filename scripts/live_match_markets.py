@@ -370,7 +370,7 @@ def match_by_category_and_strike(
     kalshi_markets: list[dict],
     poly_fields: list[ExtractedFields],
     poly_markets: list[dict],
-) -> list[tuple[dict, ExtractedFields, dict]]:
+) -> tuple[list[tuple[dict, ExtractedFields, dict]], list[dict]]:
     """Match markets based on category, underlying, and strike ranges.
 
     Args:
@@ -379,9 +379,10 @@ def match_by_category_and_strike(
         poly_markets: List of Poly market dicts.
 
     Returns:
-        List of (kalshi_market, poly_fields, poly_market) tuples.
+        Tuple of (matches, near_misses).
     """
     matches: list[tuple[dict, ExtractedFields, dict]] = []
+    near_misses: list[dict] = []
     poly_lookup = {m.get("condition_id", ""): m for m in poly_markets}
 
     # Group poly fields by (category, underlying) for faster lookup
@@ -413,27 +414,63 @@ def match_by_category_and_strike(
         for fields in matching_poly:
             poly_market = poly_lookup.get(fields.condition_id, {})
 
-            # Check expiry within 24 hours
+            # Check expiry
             poly_expiry = _parse_iso_datetime(poly_market.get("end_date", ""))
             if poly_expiry.tzinfo is None:
                 poly_expiry = poly_expiry.replace(tzinfo=timezone.utc)
-            expiry_delta = abs((kalshi_expiry - poly_expiry).total_seconds()) / 60.0
-            if expiry_delta > EXPIRY_WINDOW_MINUTES:
-                continue
+            expiry_delta_min = abs((kalshi_expiry - poly_expiry).total_seconds()) / 60.0
 
             # Normalize Poly cap: None means inf for "above X" markets
             p_cap = fields.cap_strike
             if p_cap is None and fields.floor_strike is not None:
                 p_cap = float("inf")
 
-            # Check strike ranges overlap
-            if not _strikes_overlap(kalshi_floor, kalshi_cap, fields.floor_strike, p_cap):
-                continue
+            # Compute strike deltas
+            floor_pct = _strike_pct_delta(kalshi_floor, fields.floor_strike)
+            cap_pct = _strike_pct_delta(kalshi_cap, p_cap)
 
-            matches.append((kalshi, fields, poly_market))
+            # Determine rejection reason
+            rejected_expiry = expiry_delta_min > EXPIRY_WINDOW_MINUTES
+            rejected_strike = not _strikes_overlap(kalshi_floor, kalshi_cap, fields.floor_strike, p_cap)
 
-    logger.info("Found %d field-based matches", len(matches))
-    return matches
+            if not rejected_expiry and not rejected_strike:
+                matches.append((kalshi, fields, poly_market))
+            elif not rejected_expiry and rejected_strike:
+                # Near miss: expiry matched but strikes didn't
+                near_misses.append({
+                    "kalshi": kalshi,
+                    "fields": fields,
+                    "poly": poly_market,
+                    "expiry_delta_min": expiry_delta_min,
+                    "floor_pct": floor_pct,
+                    "cap_pct": cap_pct,
+                })
+            elif rejected_expiry and not rejected_strike and expiry_delta_min <= 1440.0:
+                # Near miss: strikes matched but expiry within 24h didn't
+                near_misses.append({
+                    "kalshi": kalshi,
+                    "fields": fields,
+                    "poly": poly_market,
+                    "expiry_delta_min": expiry_delta_min,
+                    "floor_pct": floor_pct,
+                    "cap_pct": cap_pct,
+                })
+
+    logger.info("Found %d field-based matches, %d near-misses", len(matches), len(near_misses))
+    return matches, near_misses
+
+
+def _strike_pct_delta(a: float | None, b: float | None) -> float | None:
+    """Compute percentage delta between two strike values."""
+    if a is None or b is None:
+        return None
+    # Normalize inf
+    if (a == float("inf") or a > 1e10) and (b == float("inf") or b > 1e10):
+        return 0.0
+    if a == float("inf") or a > 1e10 or b == float("inf") or b > 1e10:
+        return None
+    ref = max(abs(a), abs(b), 1.0)
+    return abs(a - b) / ref
 
 
 def print_field_extraction_results(fields: list[ExtractedFields]) -> None:
@@ -493,6 +530,52 @@ def print_field_match_results(
         print(f"  Expiry: {poly.get('end_date')}")
 
 
+def print_near_misses(near_misses: list[dict]) -> None:
+    """Print near-miss diagnostics sorted by closest to matching."""
+    if not near_misses:
+        return
+
+    # Sort by total "distance" - prioritize pairs closest to matching
+    def sort_key(nm: dict) -> float:
+        expiry_score = nm["expiry_delta_min"] / 60.0  # hours
+        floor_score = (nm["floor_pct"] or 0.0) * 100  # percent
+        cap_score = (nm["cap_pct"] or 0.0) * 100
+        return expiry_score + floor_score + cap_score
+
+    sorted_misses = sorted(near_misses, key=sort_key)
+
+    print("\n" + "=" * 80)
+    print(f"NEAR MISSES (matched category+underlying, failed expiry/strike): {len(sorted_misses)}")
+    print("=" * 80)
+
+    for i, nm in enumerate(sorted_misses, 1):
+        kalshi = nm["kalshi"]
+        fields = nm["fields"]
+        poly = nm["poly"]
+
+        kalshi_title = kalshi.get("event_title", kalshi.get("title", "N/A"))
+        poly_title = poly.get("title", "N/A")
+
+        parts = []
+        parts.append(f"expiry delta={nm['expiry_delta_min']:.1f}min")
+        if nm["floor_pct"] is not None:
+            parts.append(f"floor delta={nm['floor_pct'] * 100:.2f}%")
+        if nm["cap_pct"] is not None:
+            parts.append(f"cap delta={nm['cap_pct'] * 100:.2f}%")
+
+        print(f"\n--- Near Miss {i} ---")
+        print(f"Category: {fields.category} | Underlying: {fields.underlying}")
+        print(f"Deltas: {' | '.join(parts)}")
+        print(f"KALSHI: {kalshi_title}")
+        print(f"  Ticker: {kalshi.get('market_ticker', kalshi.get('ticker', ''))}")
+        print(f"  Strike: floor={kalshi.get('floor_strike')}, cap={kalshi.get('cap_strike')}")
+        print(f"  Expiry: {kalshi.get('close_time')}")
+        print(f"POLY: {poly_title}")
+        print(f"  Underlying: {fields.underlying}")
+        print(f"  Strike: floor={fields.floor_strike}, cap={fields.cap_strike}")
+        print(f"  Expiry: {poly.get('end_date')}")
+
+
 async def main(
     threshold: float,
     redis_url: str,
@@ -529,8 +612,9 @@ async def main(
         if match_by_fields:
             extractor = FieldExtractor()
             fields = await extractor.extract_batch(poly_markets, redis)
-            matches = match_by_category_and_strike(kalshi_markets, fields, poly_markets)
+            matches, near_misses = match_by_category_and_strike(kalshi_markets, fields, poly_markets)
             print_field_match_results(matches)
+            print_near_misses(near_misses)
             return
 
         # Embedding-based matching (original behavior)

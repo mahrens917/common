@@ -319,6 +319,9 @@ class TestValidAlgos:
         assert "edge" in VALID_ALGOS
         assert "pdf" in VALID_ALGOS
         assert "weather" in VALID_ALGOS
+        assert "dutch" in VALID_ALGOS
+        assert "strike" in VALID_ALGOS
+        assert "total" in VALID_ALGOS
 
     def test_is_frozenset(self):
         assert isinstance(VALID_ALGOS, frozenset)

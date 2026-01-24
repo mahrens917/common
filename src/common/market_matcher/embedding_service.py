@@ -47,6 +47,51 @@ def _text_to_cache_key(text: str) -> str:
     return f"{_EMBEDDING_KEY_PREFIX}:{text_hash}"
 
 
+async def _load_cached_embeddings(
+    texts_list: list[str], redis: "Redis"
+) -> tuple[NDArray[np.float32], list[tuple[int, str]], list[str]]:
+    """Load cached embeddings from Redis.
+
+    Returns:
+        Tuple of (embeddings array, list of (index, text) to compute, cache keys).
+    """
+    n_texts = len(texts_list)
+    embeddings = np.zeros((n_texts, _EMBEDDING_DIM), dtype=np.float32)
+    texts_to_compute: list[tuple[int, str]] = []
+
+    cache_keys = [_text_to_cache_key(t) for t in texts_list]
+    cached_values = await redis.mget(cache_keys)
+
+    for i, (text, cached) in enumerate(zip(texts_list, cached_values)):
+        if cached is not None:
+            embeddings[i] = np.frombuffer(cached, dtype=np.float32)
+        else:
+            texts_to_compute.append((i, text))
+
+    cache_hits = n_texts - len(texts_to_compute)
+    if cache_hits > 0:
+        logger.info("Embedding cache: %d hits, %d misses", cache_hits, len(texts_to_compute))
+
+    return embeddings, texts_to_compute, cache_keys
+
+
+async def _store_embeddings_in_cache(
+    indices: tuple[int, ...],
+    embeddings_array: NDArray[np.float32],
+    new_embeddings: NDArray[np.float32],
+    cache_keys: list[str],
+    redis: "Redis",
+) -> None:
+    """Store newly computed embeddings in Redis cache."""
+    pipe = redis.pipeline()
+    for idx, emb in zip(indices, new_embeddings):
+        embeddings_array[idx] = emb
+        cache_key = cache_keys[idx]
+        pipe.set(cache_key, emb.tobytes())
+    await pipe.execute()
+    logger.info("Cached %d new embeddings", len(indices))
+
+
 class EmbeddingService:
     """Service for computing text embeddings using Novita AI's Qwen3-Embedding-8B."""
 
@@ -134,37 +179,12 @@ class EmbeddingService:
             return np.array([], dtype=np.float32).reshape(0, _EMBEDDING_DIM)
 
         texts_list = list(texts)
-        n_texts = len(texts_list)
-        embeddings = np.zeros((n_texts, _EMBEDDING_DIM), dtype=np.float32)
-        texts_to_compute: list[tuple[int, str]] = []
+        embeddings, texts_to_compute, cache_keys = await _load_cached_embeddings(texts_list, redis)
 
-        # Check cache for each text
-        cache_keys = [_text_to_cache_key(t) for t in texts_list]
-        cached_values = await redis.mget(cache_keys)
-
-        for i, (text, cached) in enumerate(zip(texts_list, cached_values)):
-            if cached is not None:
-                embeddings[i] = np.frombuffer(cached, dtype=np.float32)
-            else:
-                texts_to_compute.append((i, text))
-
-        cache_hits = n_texts - len(texts_to_compute)
-        if cache_hits > 0:
-            logger.info("Embedding cache: %d hits, %d misses", cache_hits, len(texts_to_compute))
-
-        # Compute missing embeddings
         if texts_to_compute:
             indices, uncached_texts = zip(*texts_to_compute)
             new_embeddings = await self.embed(uncached_texts)
-
-            # Store in cache and result array
-            pipe = redis.pipeline()
-            for idx, emb in zip(indices, new_embeddings):
-                embeddings[idx] = emb
-                cache_key = cache_keys[idx]
-                pipe.set(cache_key, emb.tobytes())
-            await pipe.execute()
-            logger.info("Cached %d new embeddings", len(texts_to_compute))
+            await _store_embeddings_in_cache(indices, embeddings, new_embeddings, cache_keys, redis)
 
         return embeddings
 
