@@ -35,8 +35,8 @@ class MarketFilter:
     def _extract_ticker_from_key(self, key_str: str) -> str | None:
         """Extract ticker from a Redis market key, returning None if invalid."""
         # Skip sub-keys (more than 4 parts) without logging - they're expected
-        # Expected format: "kalshi:market:TICKER" has 2 colons, sub-keys have more
-        expected_colon_count = "kalshi:market:TICKER".count(":")
+        # Expected format: "markets:kalshi:category:TICKER" has 3 colons, sub-keys have more
+        expected_colon_count = f"{SCHEMA.kalshi_market_prefix}:category:TICKER".count(":")
         if key_str.count(":") > expected_colon_count:
             return None
         try:
