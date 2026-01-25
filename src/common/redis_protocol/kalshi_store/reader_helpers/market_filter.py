@@ -35,7 +35,8 @@ class MarketFilter:
     def _extract_ticker_from_key(self, key_str: str) -> str | None:
         """Extract ticker from a Redis market key, returning None if invalid."""
         # Skip sub-keys (more than 4 parts) without logging - they're expected
-        if key_str.count(":") > 3:
+        max_colon_count = 3
+        if key_str.count(":") > max_colon_count:
             return None
         try:
             descriptor = parse_kalshi_market_key(key_str)

@@ -12,7 +12,7 @@ from ._api_key import load_api_key_from_env_file
 logger = logging.getLogger(__name__)
 
 _ANTHROPIC_API_URL = "https://api.anthropic.com/v1/messages"
-_MODEL = "claude-opus-4"
+_MODEL = "claude-sonnet-4-20250514"
 _API_TIMEOUT_SECONDS = 180
 _MAX_RETRIES = 5
 _INITIAL_BACKOFF_SECONDS = 1.0

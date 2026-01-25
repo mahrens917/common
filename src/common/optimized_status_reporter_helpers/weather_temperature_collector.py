@@ -6,10 +6,15 @@ Gathers current temperatures for all weather stations.
 
 from __future__ import annotations
 
+import logging
 from typing import Any, Dict, List
+
+from redis.exceptions import RedisError
 
 from common.redis_protocol.converters import decode_redis_hash
 from common.redis_schema import WeatherStationKey
+
+logger = logging.getLogger(__name__)
 
 DEFAULT_WEATHER_EMOJI = "🌡️"
 
@@ -22,12 +27,16 @@ class WeatherTemperatureCollector:
 
     async def collect_weather_temperatures(self) -> Dict[str, Dict[str, str]]:
         """Collect temperature data for all weather stations."""
-        weather_keys, station_codes = await _discover_weather_keys(self.redis_client)
-        if not weather_keys:
-            return {}
+        try:
+            weather_keys, station_codes = await _discover_weather_keys(self.redis_client)
+            if not weather_keys:
+                return {}
 
-        weather_results = await _fetch_weather_hashes(self.redis_client, weather_keys)
-        return _build_temperature_map(station_codes, weather_results)
+            weather_results = await _fetch_weather_hashes(self.redis_client, weather_keys)
+            return _build_temperature_map(station_codes, weather_results)
+        except RedisError as e:
+            logger.warning("Redis error collecting weather temperatures: %s", e)
+            return {}
 
 
 async def _discover_weather_keys(redis_client) -> tuple[List[Any], List[str]]:

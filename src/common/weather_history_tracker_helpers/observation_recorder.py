@@ -9,7 +9,6 @@ import logging
 from redis.exceptions import RedisError
 
 from common.exceptions import ValidationError
-from common.redis_protocol.config import HISTORY_TTL_SECONDS
 from common.redis_protocol.typing import RedisClient, ensure_awaitable
 from common.redis_schema import WeatherHistoryKey, ensure_uppercase_icao
 from common.redis_utils import RedisOperationError
@@ -90,15 +89,9 @@ class WeatherObservationRecorder:
             # Build payload
             datetime_str, timestamp, payload = WeatherObservationRecorder.build_observation_payload(temp_f)
 
-            # Store in Redis
+            # Store in Redis (retention handled by weather service)
             redis_key = WeatherHistoryKey(icao=station_icao).key()
             await ensure_awaitable(client.zadd(redis_key, {payload: timestamp}))
-
-            # Clean up old entries (keep only last 24 hours)
-            await ensure_awaitable(client.zremrangebyscore(redis_key, "-inf", timestamp - HISTORY_TTL_SECONDS))
-
-            # Set TTL for automatic cleanup
-            await ensure_awaitable(client.expire(redis_key, HISTORY_TTL_SECONDS))
 
             logger.debug(f"Recorded {station_icao} temperature history: {temp_f:.1f}°F at {datetime_str}")
 

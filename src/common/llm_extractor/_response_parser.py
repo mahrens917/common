@@ -127,6 +127,14 @@ def _safe_parse_item(item: dict, platform: str) -> MarketExtraction | None:
     return parse_single_item(item, str(item_id), platform)
 
 
+def _validate_string_field(item: dict, field: str) -> str | None:
+    """Validate a single string field. Returns error message or None."""
+    value = item.get(field)
+    if not value or not isinstance(value, str):
+        return f"missing or invalid {field}: {value}"
+    return None
+
+
 def _validate_item_fields(item: dict, item_id: str) -> str | None:
     """Validate required fields exist and have correct types. Returns error message or None."""
     category = item.get("category")
@@ -135,21 +143,10 @@ def _validate_item_fields(item: dict, item_id: str) -> str | None:
     if category not in KALSHI_CATEGORIES:
         return f"invalid category: {category}"
 
-    underlying = item.get("underlying")
-    if not underlying or not isinstance(underlying, str):
-        return f"missing or invalid underlying: {underlying}"
-
-    subject = item.get("subject")
-    if not subject or not isinstance(subject, str):
-        return f"missing or invalid subject: {subject}"
-
-    entity = item.get("entity")
-    if not entity or not isinstance(entity, str):
-        return f"missing or invalid entity: {entity}"
-
-    scope = item.get("scope")
-    if not scope or not isinstance(scope, str):
-        return f"missing or invalid scope: {scope}"
+    for field in ("underlying", "subject", "entity", "scope"):
+        error = _validate_string_field(item, field)
+        if error:
+            return error
 
     return None
 
