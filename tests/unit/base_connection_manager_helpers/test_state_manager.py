@@ -69,11 +69,11 @@ class TestConnectionStateManagerTransitionState:
         mock_schedule.assert_not_called()
 
     def test_logs_state_transition(self) -> None:
-        """Logs state transition."""
+        """Logs state transition at debug level."""
         manager = ConnectionStateManager(service_name="test_service")
 
         with patch("common.base_connection_manager_helpers.state_manager.safely_schedule_coroutine"):
-            with patch.object(manager.logger, "info") as mock_log:
+            with patch.object(manager.logger, "debug") as mock_log:
                 manager.transition_state(ConnectionState.READY)
 
         mock_log.assert_called_once()

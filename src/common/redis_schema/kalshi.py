@@ -88,14 +88,20 @@ def describe_kalshi_ticker(ticker: str) -> KalshiMarketDescriptor:
 
 
 def parse_kalshi_market_key(key: str) -> KalshiMarketDescriptor:
-    """Convert a unified Kalshi Redis key into a structured descriptor."""
+    """Convert a unified Kalshi Redis key into a structured descriptor.
 
+    Only parses 4-part market keys (markets:kalshi:category:ticker).
+    Raises ValueError for sub-keys with additional parts (e.g. :position_state).
+    """
     if not key or not key.strip():
         raise TypeError("Key must be a non-empty string")
 
     parts = key.split(":")
-    if len(parts) != _CONST_4:
-        raise ValueError(f"Unexpected Kalshi key format: {key!r}")
+    if len(parts) > _CONST_4:
+        # Sub-key (e.g. markets:kalshi:weather:TICKER:position_state) - skip silently
+        raise ValueError(f"Sub-key with {len(parts)} parts, expected 4: {key!r}")
+    if len(parts) < _CONST_4:
+        raise ValueError(f"Incomplete key with {len(parts)} parts, expected 4: {key!r}")
 
     if parts[0] != "markets" or parts[1] != "kalshi":
         raise ValueError(f"Key is not within the Kalshi markets namespace: {key!r}")

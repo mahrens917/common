@@ -25,7 +25,7 @@ class ConnectionStateManager:
             previous_state = self.state
             self.state = new_state
             self.state_change_time = time.time()
-            self.logger.info(f"State transition: {previous_state.value} -> {new_state.value}")
+            self.logger.debug(f"State transition: {previous_state.value} -> {new_state.value}")
             broadcast_factory = lambda: self._broadcast_state_change(new_state, error_context)
             safely_schedule_coroutine(broadcast_factory)
 
