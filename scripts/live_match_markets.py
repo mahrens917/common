@@ -2,14 +2,13 @@
 """Live matching of Kalshi and Polymarket markets from Redis.
 
 Usage:
-    python -m scripts.live_match_markets [--threshold 0.75]
-    python -m scripts.live_match_markets --extract-fields  # Extract structured fields using LLM
-    python -m scripts.live_match_markets --match-by-fields  # Match using extracted fields
+    python -m scripts.live_match_markets                        # Match using extracted fields (default)
+    python -m scripts.live_match_markets --extract-fields       # Extract structured fields using LLM
+    python -m scripts.live_match_markets --exclude-crypto       # Exclude crypto markets
 
 Requires:
     - Redis running with Kalshi and Poly market data
-    - NOVITA_API_KEY in ~/.env (for embeddings)
-    - OPENAI_API_KEY in ~/.env (for field extraction)
+    - ANTHROPIC_API_KEY in ~/.env (for field extraction via Claude Opus)
 """
 
 from __future__ import annotations
@@ -27,14 +26,7 @@ sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
 
 from redis.asyncio import Redis
 
-from common.market_matcher import (
-    EmbeddingService,
-    ExtractedFields,
-    FieldExtractor,
-    MarketMatcher,
-    MatchCandidate,
-    clear_old_embedding_cache,
-)
+from common.llm_extractor import MarketExtraction, MarketExtractor
 from common.redis_protocol.kalshi_store import KalshiStore
 
 # Add poly to path for PolyStore
@@ -73,99 +65,26 @@ def _parse_float(value) -> float | None:
         return None
 
 
-def kalshi_redis_to_candidate(market: dict) -> MatchCandidate:
-    """Convert a Kalshi market dict from Redis to MatchCandidate."""
-    ticker = market.get("market_ticker", market.get("ticker", ""))
-    title = market.get("event_title", market.get("title", ""))
-    subtitle = market.get("subtitle", "")
-    close_time = market.get("close_time", "")
-
-    expiry = _parse_iso_datetime(close_time)
-    if expiry.tzinfo is None:
-        expiry = expiry.replace(tzinfo=timezone.utc)
-
-    return MatchCandidate(
-        market_id=ticker,
-        title=title,
-        description=subtitle,
-        expiry=expiry,
-        floor_strike=_parse_float(market.get("floor_strike")),
-        cap_strike=_parse_float(market.get("cap_strike")),
-        source="kalshi",
-    )
-
-
-def poly_redis_to_candidate(market: dict) -> MatchCandidate:
-    """Convert a Poly market dict from Redis to MatchCandidate."""
+def _poly_market_to_extractor_input(market: dict) -> dict:
+    """Convert a Poly market dict from Redis into the format expected by MarketExtractor."""
     condition_id = market.get("condition_id", "")
     title = market.get("title", "")
-    description = market.get("description", "")
-    end_date_str = market.get("end_date", "")
+    result: dict = {"id": condition_id, "title": title}
 
-    expiry = _parse_iso_datetime(end_date_str)
-    if expiry.tzinfo is None:
-        expiry = expiry.replace(tzinfo=timezone.utc)
+    description = market.get("description")
+    if description:
+        result["description"] = description
 
-    # Try to extract strikes from tokens
-    floor_strike = None
-    cap_strike = None
-    tokens_str = market.get("tokens", "")
+    tokens_str = market.get("tokens")
     if tokens_str:
         try:
             tokens = orjson.loads(tokens_str)
-            floor_strike, cap_strike = _extract_strikes_from_tokens(tokens)
+            outcomes = [t.get("outcome", "") for t in tokens]
+            result["tokens"] = str(outcomes)
         except (orjson.JSONDecodeError, TypeError):
             pass
 
-    return MatchCandidate(
-        market_id=condition_id,
-        title=title,
-        description=description,
-        expiry=expiry,
-        floor_strike=floor_strike,
-        cap_strike=cap_strike,
-        source="poly",
-    )
-
-
-def _extract_strikes_from_tokens(tokens: list[dict]) -> tuple[float | None, float | None]:
-    """Extract strike prices from token outcomes."""
-    import re
-
-    floor_strike = None
-    cap_strike = None
-
-    patterns_above = [
-        r"(?:above|over|greater than|>=?)\s*\$?([\d,]+\.?\d*)",
-        r"\$?([\d,]+\.?\d*)\s*(?:or more|\+)",
-    ]
-    patterns_below = [
-        r"(?:below|under|less than|<=?)\s*\$?([\d,]+\.?\d*)",
-        r"\$?([\d,]+\.?\d*)\s*(?:or less|-)",
-    ]
-
-    for token in tokens:
-        outcome = token.get("outcome", "")
-        if not isinstance(outcome, str):
-            continue
-
-        for pattern in patterns_above:
-            match = re.search(pattern, outcome, re.IGNORECASE)
-            if match:
-                try:
-                    floor_strike = float(match.group(1).replace(",", ""))
-                except ValueError:
-                    continue
-
-        for pattern in patterns_below:
-            match = re.search(pattern, outcome, re.IGNORECASE)
-            if match:
-                try:
-                    cap_strike = float(match.group(1).replace(",", ""))
-                except ValueError:
-                    continue
-
-    return floor_strike, cap_strike
+    return result
 
 
 async def fetch_kalshi_from_redis(redis: Redis) -> list[dict]:
@@ -183,114 +102,30 @@ async def fetch_poly_from_redis(redis: Redis) -> list[dict]:
     store = PolyStore(redis)
     markets = await store.get_markets_by_volume(0)  # 0 = all markets
     logger.info("Found %d Poly markets in Redis", len(markets))
-
-    # Log sample tokens for debugging strike extraction
-    samples_with_tokens = [m for m in markets[:50] if m.get("tokens")][:3]
-    for m in samples_with_tokens:
-        tokens_str = m.get("tokens", "")
-        try:
-            tokens = orjson.loads(tokens_str)
-            outcomes = [t.get("outcome", "") for t in tokens]
-            logger.info("Sample Poly tokens - title: %s, outcomes: %s", m.get("title", "")[:50], outcomes)
-        except (orjson.JSONDecodeError, TypeError):
-            pass
-
     return markets
 
 
-async def run_matching(
-    kalshi_markets: list[dict],
-    poly_markets: list[dict],
-    similarity_threshold: float,
-    redis: Redis,
-    no_strike_filter: bool = False,
-):
-    """Run embedding-based matching with Redis caching."""
-    logger.info("Initializing embedding service (Novita API)...")
-    embedding_service = EmbeddingService()
-
-    matcher = MarketMatcher(
-        embedding_service,
-        similarity_threshold=similarity_threshold,
-        expiry_window_hours=EXPIRY_WINDOW_MINUTES / 60.0,
-    )
-
-    kalshi_candidates = [kalshi_redis_to_candidate(m) for m in kalshi_markets]
-    poly_candidates = [poly_redis_to_candidate(m) for m in poly_markets]
-
-    logger.info(
-        "Matching %d Kalshi markets against %d Poly markets...",
-        len(kalshi_candidates),
-        len(poly_candidates),
-    )
-
-    if not kalshi_candidates or not poly_candidates:
-        return [], kalshi_candidates, poly_candidates
-
-    # Use cached matching
-    matches = await matcher.match_with_cache(
-        kalshi_candidates, poly_candidates, redis, skip_strike_filter=no_strike_filter
-    )
-    return matches, kalshi_candidates, poly_candidates
-
-
-def print_results(matches, kalshi_markets: list[dict], poly_markets: list[dict]):
-    """Print match results."""
-    kalshi_lookup = {m.get("market_ticker", m.get("ticker", "")): m for m in kalshi_markets}
-    poly_lookup = {m.get("condition_id", ""): m for m in poly_markets}
-
-    print("\n" + "=" * 80)
-    print(f"TOP {len(matches)} MATCHES (exact strike + expiry ±1min)")
-    print("=" * 80)
-
-    for i, match in enumerate(matches, 1):
-        kalshi_market = kalshi_lookup.get(match.kalshi_market_id, {})
-        poly_market = poly_lookup.get(match.poly_market_id, {})
-
-        print(f"\n--- Match {i} (combined similarity: {match.title_similarity:.2%}) ---")
-
-        if kalshi_market:
-            title = kalshi_market.get("event_title", kalshi_market.get("title", "N/A"))
-            subtitle = kalshi_market.get("subtitle", "")
-            print(f"KALSHI: {title}")
-            print(f"  Ticker: {match.kalshi_market_id}")
-            if subtitle:
-                sub_preview = subtitle[:80] + "..." if len(subtitle) > 80 else subtitle
-                print(f"  Description: {sub_preview}")
-            print(f"  Strike: floor={kalshi_market.get('floor_strike')}, cap={kalshi_market.get('cap_strike')}")
-            print(f"  Expiry: {kalshi_market.get('close_time')}")
-
-        if poly_market:
-            title = poly_market.get("title", "N/A")
-            description = poly_market.get("description", "")
-            print(f"POLY: {title}")
-            print(f"  ID: {match.poly_market_id}")
-            if description:
-                desc_preview = description[:80] + "..." if len(description) > 80 else description
-                print(f"  Description: {desc_preview}")
-            print(f"  Expiry: {poly_market.get('end_date')}")
-
-        print(f"Expiry delta: {match.expiry_delta_hours:.1f}h")
-
-
-async def extract_poly_fields(poly_markets: list[dict], redis: Redis, limit: int | None = None) -> list[ExtractedFields]:
-    """Extract structured fields from Poly markets using LLM.
+async def extract_poly_fields(
+    poly_markets: list[dict], redis: Redis, limit: int | None = None
+) -> list[MarketExtraction]:
+    """Extract structured fields from Poly markets using Claude Opus.
 
     Args:
-        poly_markets: List of Poly market dicts.
+        poly_markets: List of Poly market dicts from Redis.
         redis: Redis connection.
         limit: Optional limit on number of markets to extract.
 
     Returns:
-        List of extracted fields.
+        List of MarketExtraction results.
     """
-    logger.info("Initializing field extractor (OpenAI API)...")
-    extractor = FieldExtractor()
+    logger.info("Initializing field extractor (Claude Opus)...")
+    extractor = MarketExtractor(platform="poly")
 
     markets_to_extract = poly_markets[:limit] if limit else poly_markets
-    logger.info("Extracting fields for %d Poly markets...", len(markets_to_extract))
+    extractor_inputs = [_poly_market_to_extractor_input(m) for m in markets_to_extract]
+    logger.info("Extracting fields for %d Poly markets...", len(extractor_inputs))
 
-    return await extractor.extract_batch(markets_to_extract, redis)
+    return await extractor.extract_batch(extractor_inputs, redis)
 
 
 def _strikes_overlap(
@@ -307,13 +142,6 @@ def _strikes_overlap(
         - Both "below X" (cap only): caps must be within tolerance
         - Both "between X and Y" (floor and cap): both must be within tolerance
         - Both binary (no strikes): match on category/underlying only
-
-    Args:
-        k_floor: Kalshi floor strike
-        k_cap: Kalshi cap strike (may be inf)
-        p_floor: Poly floor strike
-        p_cap: Poly cap strike (None treated as inf when floor exists)
-        tolerance: Relative tolerance for strike comparison (default 0.1%)
     """
     # Normalize inf/None caps for both sides
     if k_cap is not None and (k_cap == float("inf") or k_cap > 1e10):
@@ -390,25 +218,25 @@ def _get_kalshi_subject(market: dict) -> str:
 
 def match_by_category_and_strike(
     kalshi_markets: list[dict],
-    poly_fields: list[ExtractedFields],
+    poly_fields: list[MarketExtraction],
     poly_markets: list[dict],
-) -> tuple[list[tuple[dict, ExtractedFields, dict]], list[dict]]:
+) -> tuple[list[tuple[dict, MarketExtraction, dict]], list[dict]]:
     """Match markets based on category, underlying, subject, and strike ranges.
 
     Args:
         kalshi_markets: List of Kalshi market dicts.
-        poly_fields: List of extracted fields from Poly markets.
+        poly_fields: List of MarketExtraction results from Poly markets.
         poly_markets: List of Poly market dicts.
 
     Returns:
         Tuple of (matches, near_misses).
     """
-    matches: list[tuple[dict, ExtractedFields, dict]] = []
+    matches: list[tuple[dict, MarketExtraction, dict]] = []
     near_misses: list[dict] = []
     poly_lookup = {m.get("condition_id", ""): m for m in poly_markets}
 
     # Group poly fields by (category, underlying, subject) for faster lookup
-    poly_by_key: dict[tuple[str, str, str], list[ExtractedFields]] = {}
+    poly_by_key: dict[tuple[str, str, str], list[MarketExtraction]] = {}
     for fields in poly_fields:
         key = (fields.category.lower(), fields.underlying.upper(), fields.subject.upper())
         poly_by_key.setdefault(key, []).append(fields)
@@ -421,73 +249,78 @@ def match_by_category_and_strike(
     logger.info("Poly (category, underlying, subject) groups: %d unique", len(poly_by_key))
 
     for kalshi in kalshi_markets:
-        kalshi_category = kalshi.get("category", "").lower()
-        kalshi_underlying = _get_kalshi_underlying(kalshi)
-        kalshi_subject = _get_kalshi_subject(kalshi)
-        kalshi_floor = _parse_float(kalshi.get("floor_strike"))
-        kalshi_cap = _parse_float(kalshi.get("cap_strike"))
-        kalshi_expiry = _parse_iso_datetime(kalshi.get("close_time", ""))
-        if kalshi_expiry.tzinfo is None:
-            kalshi_expiry = kalshi_expiry.replace(tzinfo=timezone.utc)
-
-        # Only check poly markets with same category, underlying, AND subject
-        key = (kalshi_category, kalshi_underlying, kalshi_subject)
-        matching_poly = poly_by_key.get(key, [])
-
-        for fields in matching_poly:
-            poly_market = poly_lookup.get(fields.condition_id, {})
-
-            # Check expiry
-            poly_expiry = _parse_iso_datetime(poly_market.get("end_date", ""))
-            if poly_expiry.tzinfo is None:
-                poly_expiry = poly_expiry.replace(tzinfo=timezone.utc)
-            expiry_delta_min = abs((kalshi_expiry - poly_expiry).total_seconds()) / 60.0
-
-            # Normalize Poly cap: None means inf for "above X" markets
-            p_cap = fields.cap_strike
-            if p_cap is None and fields.floor_strike is not None:
-                p_cap = float("inf")
-
-            # Compute strike deltas
-            floor_pct = _strike_pct_delta(kalshi_floor, fields.floor_strike)
-            cap_pct = _strike_pct_delta(kalshi_cap, p_cap)
-
-            # Determine rejection reason
-            rejected_expiry = expiry_delta_min > EXPIRY_WINDOW_MINUTES
-            rejected_strike = not _strikes_overlap(kalshi_floor, kalshi_cap, fields.floor_strike, p_cap)
-
-            if not rejected_expiry and not rejected_strike:
-                matches.append((kalshi, fields, poly_market))
-            elif not rejected_expiry and rejected_strike:
-                # Near miss: expiry matched but strikes didn't
-                near_misses.append({
-                    "kalshi": kalshi,
-                    "fields": fields,
-                    "poly": poly_market,
-                    "expiry_delta_min": expiry_delta_min,
-                    "floor_pct": floor_pct,
-                    "cap_pct": cap_pct,
-                })
-            elif rejected_expiry and not rejected_strike and expiry_delta_min <= 1440.0:
-                # Near miss: strikes matched but expiry within 24h didn't
-                near_misses.append({
-                    "kalshi": kalshi,
-                    "fields": fields,
-                    "poly": poly_market,
-                    "expiry_delta_min": expiry_delta_min,
-                    "floor_pct": floor_pct,
-                    "cap_pct": cap_pct,
-                })
+        _match_single_kalshi(kalshi, poly_by_key, poly_lookup, matches, near_misses)
 
     logger.info("Found %d field-based matches, %d near-misses", len(matches), len(near_misses))
     return matches, near_misses
+
+
+def _match_single_kalshi(
+    kalshi: dict,
+    poly_by_key: dict[tuple[str, str, str], list[MarketExtraction]],
+    poly_lookup: dict[str, dict],
+    matches: list[tuple[dict, MarketExtraction, dict]],
+    near_misses: list[dict],
+) -> None:
+    """Match a single Kalshi market against all poly groups."""
+    kalshi_category = kalshi.get("category", "").lower()
+    kalshi_underlying = _get_kalshi_underlying(kalshi)
+    kalshi_subject = _get_kalshi_subject(kalshi)
+    kalshi_floor = _parse_float(kalshi.get("floor_strike"))
+    kalshi_cap = _parse_float(kalshi.get("cap_strike"))
+    kalshi_expiry = _parse_iso_datetime(kalshi.get("close_time", ""))
+    if kalshi_expiry.tzinfo is None:
+        kalshi_expiry = kalshi_expiry.replace(tzinfo=timezone.utc)
+
+    key = (kalshi_category, kalshi_underlying, kalshi_subject)
+    matching_poly = poly_by_key.get(key, [])
+
+    for fields in matching_poly:
+        poly_market = poly_lookup.get(fields.market_id, {})
+        _evaluate_match(kalshi, fields, poly_market, kalshi_floor, kalshi_cap, kalshi_expiry, matches, near_misses)
+
+
+def _evaluate_match(
+    kalshi: dict,
+    fields: MarketExtraction,
+    poly_market: dict,
+    kalshi_floor: float | None,
+    kalshi_cap: float | None,
+    kalshi_expiry: datetime,
+    matches: list[tuple[dict, MarketExtraction, dict]],
+    near_misses: list[dict],
+) -> None:
+    """Evaluate a single Kalshi-Poly pair for matching."""
+    poly_expiry = _parse_iso_datetime(poly_market.get("end_date", ""))
+    if poly_expiry.tzinfo is None:
+        poly_expiry = poly_expiry.replace(tzinfo=timezone.utc)
+    expiry_delta_min = abs((kalshi_expiry - poly_expiry).total_seconds()) / 60.0
+
+    # Normalize Poly cap: None means inf for "above X" markets
+    p_cap = fields.cap_strike
+    if p_cap is None and fields.floor_strike is not None:
+        p_cap = float("inf")
+
+    floor_pct = _strike_pct_delta(kalshi_floor, fields.floor_strike)
+    cap_pct = _strike_pct_delta(kalshi_cap, p_cap)
+
+    rejected_expiry = expiry_delta_min > EXPIRY_WINDOW_MINUTES
+    rejected_strike = not _strikes_overlap(kalshi_floor, kalshi_cap, fields.floor_strike, p_cap)
+
+    if not rejected_expiry and not rejected_strike:
+        matches.append((kalshi, fields, poly_market))
+    elif not rejected_expiry and rejected_strike:
+        near_misses.append({"kalshi": kalshi, "fields": fields, "poly": poly_market,
+                            "expiry_delta_min": expiry_delta_min, "floor_pct": floor_pct, "cap_pct": cap_pct})
+    elif rejected_expiry and not rejected_strike and expiry_delta_min <= 1440.0:
+        near_misses.append({"kalshi": kalshi, "fields": fields, "poly": poly_market,
+                            "expiry_delta_min": expiry_delta_min, "floor_pct": floor_pct, "cap_pct": cap_pct})
 
 
 def _strike_pct_delta(a: float | None, b: float | None) -> float | None:
     """Compute percentage delta between two strike values."""
     if a is None or b is None:
         return None
-    # Normalize inf
     if (a == float("inf") or a > 1e10) and (b == float("inf") or b > 1e10):
         return 0.0
     if a == float("inf") or a > 1e10 or b == float("inf") or b > 1e10:
@@ -496,7 +329,7 @@ def _strike_pct_delta(a: float | None, b: float | None) -> float | None:
     return abs(a - b) / ref
 
 
-def print_field_extraction_results(fields: list[ExtractedFields]) -> None:
+def print_field_extraction_results(fields: list[MarketExtraction]) -> None:
     """Print field extraction summary."""
     print("\n" + "=" * 80)
     print(f"EXTRACTED FIELDS FOR {len(fields)} POLY MARKETS")
@@ -530,7 +363,7 @@ def print_field_extraction_results(fields: list[ExtractedFields]) -> None:
 
 
 def print_field_match_results(
-    matches: list[tuple[dict, ExtractedFields, dict]],
+    matches: list[tuple[dict, MarketExtraction, dict]],
 ) -> None:
     """Print field-based match results."""
     print("\n" + "=" * 80)
@@ -558,10 +391,9 @@ def print_near_misses(near_misses: list[dict]) -> None:
     if not near_misses:
         return
 
-    # Sort by total "distance" - prioritize pairs closest to matching
     def sort_key(nm: dict) -> float:
-        expiry_score = nm["expiry_delta_min"] / 60.0  # hours
-        floor_score = (nm["floor_pct"] or 0.0) * 100  # percent
+        expiry_score = nm["expiry_delta_min"] / 60.0
+        floor_score = (nm["floor_pct"] or 0.0) * 100
         cap_score = (nm["cap_pct"] or 0.0) * 100
         return expiry_score + floor_score + cap_score
 
@@ -577,10 +409,8 @@ def print_near_misses(near_misses: list[dict]) -> None:
         poly = nm["poly"]
 
         kalshi_title = kalshi.get("event_title", kalshi.get("title", "N/A"))
-        poly_title = poly.get("title", "N/A")
 
-        parts = []
-        parts.append(f"expiry delta={nm['expiry_delta_min']:.1f}min")
+        parts = [f"expiry delta={nm['expiry_delta_min']:.1f}min"]
         if nm["floor_pct"] is not None:
             parts.append(f"floor delta={nm['floor_pct'] * 100:.2f}%")
         if nm["cap_pct"] is not None:
@@ -593,18 +423,15 @@ def print_near_misses(near_misses: list[dict]) -> None:
         print(f"  Ticker: {kalshi.get('market_ticker', kalshi.get('ticker', ''))}")
         print(f"  Strike: floor={kalshi.get('floor_strike')}, cap={kalshi.get('cap_strike')}")
         print(f"  Expiry: {kalshi.get('close_time')}")
-        print(f"POLY: {poly_title}")
+        print(f"POLY: {poly.get('title', 'N/A')}")
         print(f"  Underlying: {fields.underlying}")
         print(f"  Strike: floor={fields.floor_strike}, cap={fields.cap_strike}")
         print(f"  Expiry: {poly.get('end_date')}")
 
 
 async def main(
-    threshold: float,
     redis_url: str,
-    no_strike_filter: bool = False,
     extract_fields: bool = False,
-    match_by_fields: bool = False,
     extract_limit: int | None = None,
     exclude_crypto: bool = False,
 ):
@@ -612,9 +439,6 @@ async def main(
     redis = Redis.from_url(redis_url)
 
     try:
-        # Clear old 0.6B model embeddings if any exist
-        await clear_old_embedding_cache(redis)
-
         kalshi_markets = await fetch_kalshi_from_redis(redis)
         poly_markets = await fetch_poly_from_redis(redis)
 
@@ -626,28 +450,23 @@ async def main(
             logger.warning("No Poly markets found in Redis")
             return
 
-        # Field extraction mode
+        # Field extraction only mode
         if extract_fields:
             fields = await extract_poly_fields(poly_markets, redis, extract_limit)
             print_field_extraction_results(fields)
             return
 
-        # Field-based matching mode
-        if match_by_fields:
-            extractor = FieldExtractor()
-            fields = await extractor.extract_batch(poly_markets, redis)
-            if exclude_crypto:
-                kalshi_markets = [m for m in kalshi_markets if m.get("category", "").lower() != "crypto"]
-                fields = [f for f in fields if f.category.lower() != "crypto"]
-                logger.info("Excluded crypto: %d Kalshi, %d Poly fields remain", len(kalshi_markets), len(fields))
-            matches, near_misses = match_by_category_and_strike(kalshi_markets, fields, poly_markets)
-            print_field_match_results(matches)
-            print_near_misses(near_misses)
-            return
-
-        # Embedding-based matching (original behavior)
-        matches, _, _ = await run_matching(kalshi_markets, poly_markets, threshold, redis, no_strike_filter)
-        print_results(matches, kalshi_markets, poly_markets)
+        # Field-based matching (default mode)
+        extractor = MarketExtractor(platform="poly")
+        extractor_inputs = [_poly_market_to_extractor_input(m) for m in poly_markets]
+        fields = await extractor.extract_batch(extractor_inputs, redis)
+        if exclude_crypto:
+            kalshi_markets = [m for m in kalshi_markets if m.get("category", "").lower() != "crypto"]
+            fields = [f for f in fields if f.category.lower() != "crypto"]
+            logger.info("Excluded crypto: %d Kalshi, %d Poly fields remain", len(kalshi_markets), len(fields))
+        matches, near_misses = match_by_category_and_strike(kalshi_markets, fields, poly_markets)
+        print_field_match_results(matches)
+        print_near_misses(near_misses)
 
     finally:
         await redis.aclose()
@@ -656,31 +475,15 @@ async def main(
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Match Kalshi and Polymarket markets from Redis")
     parser.add_argument(
-        "--threshold",
-        type=float,
-        default=0.75,
-        help="Minimum similarity threshold (default: 0.75)",
-    )
-    parser.add_argument(
         "--redis-url",
         type=str,
         default="redis://localhost:6379",
         help="Redis URL (default: redis://localhost:6379)",
     )
     parser.add_argument(
-        "--no-strike-filter",
-        action="store_true",
-        help="Disable strike matching filter (match by embedding similarity only)",
-    )
-    parser.add_argument(
         "--extract-fields",
         action="store_true",
         help="Extract structured fields from Poly markets using LLM (stores in Redis)",
-    )
-    parser.add_argument(
-        "--match-by-fields",
-        action="store_true",
-        help="Match markets using extracted fields instead of embeddings",
     )
     parser.add_argument(
         "--exclude-crypto",
@@ -696,11 +499,8 @@ if __name__ == "__main__":
 
     asyncio.run(
         main(
-            args.threshold,
             args.redis_url,
-            args.no_strike_filter,
             args.extract_fields,
-            args.match_by_fields,
             args.extract_limit,
             args.exclude_crypto,
         )

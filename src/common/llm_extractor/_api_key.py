@@ -1,4 +1,4 @@
-"""Internal utilities for market matcher modules."""
+"""API key loading utility for LLM extractor."""
 
 from __future__ import annotations
 
@@ -11,7 +11,7 @@ def load_api_key_from_env_file(key_name: str) -> str | None:
     """Load an API key from ~/.env file.
 
     Args:
-        key_name: The environment variable name (e.g., 'OPENAI_API_KEY', 'NOVITA_API_KEY').
+        key_name: The environment variable name (e.g., 'ANTHROPIC_API_KEY').
 
     Returns:
         The API key value, or None if not found.
@@ -22,7 +22,6 @@ def load_api_key_from_env_file(key_name: str) -> str | None:
         line = line.strip()
         if line.startswith(f"{key_name}="):
             value = line.split("=", 1)[1].strip()
-            # Remove quotes if present
             if (value.startswith('"') and value.endswith('"')) or (value.startswith("'") and value.endswith("'")):
                 value = value[1:-1]
             return value
