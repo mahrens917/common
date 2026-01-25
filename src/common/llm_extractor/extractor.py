@@ -21,7 +21,7 @@ logger = logging.getLogger(__name__)
 
 _BATCH_SIZE = 10
 _CONCURRENT_REQUESTS = 5
-_TTL_KALSHI_SECONDS = 86400  # 24 hours
+_TTL_KALSHI_SECONDS = 604800  # 7 days
 _TTL_POLY_SECONDS = 604800  # 7 days
 _REDIS_PREFIX_KALSHI = "market:extracted:kalshi"
 _REDIS_PREFIX_POLY = "market:extracted:poly"
