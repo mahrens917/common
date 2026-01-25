@@ -76,12 +76,17 @@ def load_weather_station_mapping(
 ) -> Dict[str, Dict[str, Any]]:
     """Return the weather station mapping keyed by city code."""
     if config_dir is not None:
-        data = _load_from_directory("weather_station_mapping.json", config_dir)
+        data = _load_from_directory("stations.json", config_dir)
     else:
-        data = load_config("weather_station_mapping.json", package="weather")
-    mappings = data.get("mappings")
-    if not isinstance(mappings, dict):
-        raise WeatherConfigError("weather_station_mapping.json missing 'mappings' object")
+        data = load_config("stations.json", package="common")
+    stations = data.get("stations")
+    if not isinstance(stations, dict):
+        raise WeatherConfigError("stations.json missing 'stations' object")
+    mappings: Dict[str, Dict[str, Any]] = {}
+    for icao, station_info in stations.items():
+        city_code = station_info.get("city_code")
+        if city_code:
+            mappings[city_code] = station_info
     return mappings
 
 

@@ -55,9 +55,8 @@ class TestCollectWeatherTemperatures:
         redis_client = MagicMock()
 
         async def empty_iter(*args, **kwargs):
-            # Make it an async generator that yields nothing
-            if False:
-                yield
+            return
+            yield  # Make it an async generator but don't yield anything
 
         redis_client.scan_iter = empty_iter
         collector = WeatherTemperatureCollector(redis_client)
