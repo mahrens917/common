@@ -106,6 +106,7 @@ def test_setup_logging_user_friendly_configures_warning_console(logging_module, 
 def test_setup_logging_adds_file_handler_and_resets_child_loggers(logging_module, monkeypatch, tmp_path):
     fake_root = _set_fake_project_root(logging_module, tmp_path)
     monkeypatch.delenv("MANAGED_BY_MONITOR", raising=False)
+    monkeypatch.setattr(logging_module, "_get_configured_log_directory", lambda: None)
 
     child_logger = logging.getLogger("test.child")
     child_logger.addHandler(logging.NullHandler())
@@ -169,6 +170,7 @@ def test_setup_logging_monitor_clears_logs_and_appends_when_child(logging_module
     fake_root = _set_fake_project_root(logging_module, tmp_path)
     monkeypatch.delenv("MANAGED_BY_MONITOR", raising=False)
     monkeypatch.setenv("PDF_PIPELINE_CHILD", "1")
+    monkeypatch.setattr(logging_module, "_get_configured_log_directory", lambda: None)
 
     cleared_paths = {}
 

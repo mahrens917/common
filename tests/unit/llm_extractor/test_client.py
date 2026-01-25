@@ -14,7 +14,7 @@ class TestAnthropicClientInit:
     def test_raises_when_no_key_available(self) -> None:
         """Test that ValueError is raised when no API key is found."""
         with patch("common.llm_extractor.client.load_api_key_from_env_file", return_value=None):
-            with pytest.raises(ValueError, match="ANTHROPIC_API_KEY"):
+            with pytest.raises(ValueError, match="LLM_PROVIDER_KEY"):
                 AnthropicClient()
 
     def test_uses_provided_key(self) -> None:
@@ -55,7 +55,7 @@ class TestAnthropicClientSendMessage:
         assert result == "response text"
         call_kwargs = mock_session.post.call_args
         payload = call_kwargs.kwargs["json"]
-        assert payload["model"] == "claude-opus-4"
+        assert payload["model"] == "claude-sonnet-4-20250514"
         assert payload["system"] == "system prompt"
         assert payload["messages"][0]["content"] == "user content"
 

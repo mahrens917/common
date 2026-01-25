@@ -12,6 +12,7 @@ from common.memory_monitor import (
 _TEST_COUNT_3 = 3
 _TEST_COUNT_4 = 4
 _TEST_COUNT_5 = 5
+_TEST_COUNT_50 = 50
 DEFAULT_MEMORY_GROWTH_THRESHOLD_MB = 20
 DEFAULT_TASK_COUNT_THRESHOLD = 2
 
@@ -33,6 +34,7 @@ class FakeVirtualMemory:
 def patch_psutil(monkeypatch):
     fake_process = FakeProcess()
     monkeypatch.setattr("psutil.Process", lambda: fake_process)
+    monkeypatch.setattr("common.memory_monitor_helpers.factory.psutil.Process", lambda: fake_process)
     monkeypatch.setattr(
         "psutil.virtual_memory",
         lambda: FakeVirtualMemory(percent=42.0),

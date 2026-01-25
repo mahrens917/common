@@ -16,15 +16,15 @@ from common.config.weather import (
 
 
 def test_load_weather_station_mapping_from_directory(tmp_path: Path):
-    mapping_path = tmp_path / "weather_station_mapping.json"
-    mapping_path.write_text(json.dumps({"mappings": {"NYC": {"icao": "KJFK"}}}))
+    mapping_path = tmp_path / "stations.json"
+    mapping_path.write_text(json.dumps({"stations": {"KJFK": {"city_code": "NYC", "icao": "KJFK"}}}))
 
     result = load_weather_station_mapping(config_dir=tmp_path)
-    assert result == {"NYC": {"icao": "KJFK"}}
+    assert result == {"NYC": {"city_code": "NYC", "icao": "KJFK"}}
 
 
 def test_load_weather_station_mapping_requires_mappings_key(tmp_path: Path):
-    mapping_path = tmp_path / "weather_station_mapping.json"
+    mapping_path = tmp_path / "stations.json"
     mapping_path.write_text(json.dumps({"invalid": {}}))
 
     with pytest.raises(WeatherConfigError):
@@ -163,12 +163,12 @@ def test_get_weather_settings_func_returns_fallback(monkeypatch: pytest.MonkeyPa
 def test_load_weather_station_mapping_uses_load_config(monkeypatch: pytest.MonkeyPatch):
     from common.config import weather as weather_module
 
-    mock_data = {"mappings": {"TEST": {"icao": "KTEST"}}}
+    mock_data = {"stations": {"KTEST": {"city_code": "TEST", "icao": "KTEST"}}}
     monkeypatch.setattr(weather_module, "load_config", lambda *args, **kwargs: mock_data)
 
     result = load_weather_station_mapping()
 
-    assert result == {"TEST": {"icao": "KTEST"}}
+    assert result == {"TEST": {"city_code": "TEST", "icao": "KTEST"}}
 
 
 def test_load_weather_trading_config_uses_load_config(monkeypatch: pytest.MonkeyPatch):

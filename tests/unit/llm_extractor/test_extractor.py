@@ -30,9 +30,9 @@ class TestGetRedisKey:
 class TestGetTtl:
     """Tests for _get_ttl."""
 
-    def test_kalshi_ttl_is_24h(self) -> None:
-        """Test that Kalshi TTL is 24 hours."""
-        assert _get_ttl("kalshi") == 86400
+    def test_kalshi_ttl_is_7d(self) -> None:
+        """Test that Kalshi TTL is 7 days."""
+        assert _get_ttl("kalshi") == 604800
 
     def test_poly_ttl_is_7d(self) -> None:
         """Test that Poly TTL is 7 days."""

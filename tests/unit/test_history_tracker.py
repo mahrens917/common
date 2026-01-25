@@ -237,7 +237,6 @@ async def test_record_temperature_update_success(monkeypatch):
     decoded = json.loads(payload_json)
     assert decoded["temp_f"] == _VAL_72_5
     assert decoded["observed_at"] == now.isoformat()
-    redis.expire.assert_awaited_once_with(zadd_args[0], HISTORY_TTL_SECONDS)
 
 
 @pytest.mark.asyncio

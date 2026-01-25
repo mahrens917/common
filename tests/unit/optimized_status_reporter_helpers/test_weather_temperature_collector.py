@@ -54,8 +54,9 @@ class TestCollectWeatherTemperatures:
         """collect_weather_temperatures should return empty dict when no keys exist."""
         redis_client = MagicMock()
 
-        async def empty_iter(*args, **kwargs):
-            yield  # Make it an async generator but don't yield anything
+        async def empty_iter(*_args, **_kwargs):
+            for _ in []:  # Empty async generator - never yields anything
+                yield
 
         redis_client.scan_iter = empty_iter
         collector = WeatherTemperatureCollector(redis_client)
@@ -67,7 +68,7 @@ class TestCollectWeatherTemperatures:
         """collect_weather_temperatures should return temperature data on success."""
         redis_client = MagicMock()
 
-        async def mock_scan_iter(*args, **kwargs):
+        async def mock_scan_iter(*_args, **_kwargs):
             yield b"station:KJFK"
 
         redis_client.scan_iter = mock_scan_iter

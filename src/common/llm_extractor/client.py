@@ -31,9 +31,9 @@ class AnthropicClient:
         if api_key:
             self._api_key = api_key
         else:
-            loaded_key = load_api_key_from_env_file("ANTHROPIC_API_KEY")
+            loaded_key = load_api_key_from_env_file("LLM_PROVIDER_KEY")
             if not loaded_key:
-                raise ValueError("ANTHROPIC_API_KEY not found in ~/.env")
+                raise ValueError("LLM_PROVIDER_KEY not found in ~/.env")
             self._api_key = loaded_key
         logger.info("Initialized AnthropicClient (model: %s)", _MODEL)
 
