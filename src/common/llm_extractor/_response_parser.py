@@ -112,7 +112,7 @@ def parse_batch_response(response_text: str, platform: str) -> dict[str, MarketE
 
 
 def _safe_parse_item(item: dict, platform: str) -> MarketExtraction | None:
-    """Parse a single item, returning None if invalid or unparseable."""
+    """Parse a single item, returning None if invalid or unparsable."""
     item_id = item.get("id")
     if not item_id:
         logger.warning("Skipping market with missing id in batch response")
