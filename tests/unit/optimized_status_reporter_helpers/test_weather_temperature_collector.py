@@ -32,22 +32,22 @@ class TestCollectWeatherTemperatures:
     """Tests for collect_weather_temperatures method."""
 
     @pytest.mark.asyncio
-    async def test_returns_empty_dict_on_redis_timeout(self):
-        """collect_weather_temperatures should return empty dict on Redis timeout."""
+    async def test_raises_on_redis_timeout(self):
+        """collect_weather_temperatures should raise on Redis timeout."""
         redis_client = MagicMock()
         redis_client.scan_iter = MagicMock(side_effect=RedisTimeoutError("Timeout"))
         collector = WeatherTemperatureCollector(redis_client)
-        result = await collector.collect_weather_temperatures()
-        assert result == {}
+        with pytest.raises(RedisTimeoutError):
+            await collector.collect_weather_temperatures()
 
     @pytest.mark.asyncio
-    async def test_returns_empty_dict_on_redis_error(self):
-        """collect_weather_temperatures should return empty dict on RedisError."""
+    async def test_raises_on_redis_error(self):
+        """collect_weather_temperatures should raise on RedisError."""
         redis_client = MagicMock()
         redis_client.scan_iter = MagicMock(side_effect=RedisError("Connection lost"))
         collector = WeatherTemperatureCollector(redis_client)
-        result = await collector.collect_weather_temperatures()
-        assert result == {}
+        with pytest.raises(RedisError):
+            await collector.collect_weather_temperatures()
 
     @pytest.mark.asyncio
     async def test_returns_empty_dict_when_no_keys_found(self):
@@ -55,8 +55,9 @@ class TestCollectWeatherTemperatures:
         redis_client = MagicMock()
 
         async def empty_iter(*args, **kwargs):
-            return
-            yield  # Make it an async generator that yields nothing
+            # Make it an async generator that yields nothing
+            if False:
+                yield
 
         redis_client.scan_iter = empty_iter
         collector = WeatherTemperatureCollector(redis_client)

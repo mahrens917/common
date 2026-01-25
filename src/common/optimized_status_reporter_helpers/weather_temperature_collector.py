@@ -36,7 +36,7 @@ class WeatherTemperatureCollector:
             return _build_temperature_map(station_codes, weather_results)
         except RedisError as e:
             logger.warning("Redis error collecting weather temperatures: %s", e)
-            return {}
+            raise
 
 
 async def _discover_weather_keys(redis_client) -> tuple[List[Any], List[str]]:

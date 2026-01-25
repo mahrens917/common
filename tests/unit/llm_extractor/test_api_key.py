@@ -57,7 +57,7 @@ class TestLoadApiKeyFromEnvFile:
     def test_handles_value_with_equals_sign(self, tmp_path) -> None:
         """Test loading a value that contains an equals sign."""
         env_file = tmp_path / ".env"
-        env_file.write_text("ANTHROPIC_API_KEY=sk-ant=with=equals\n")
+        env_file.write_text("ANTHROPIC_API_KEY=test-key=with=equals\n")
         with patch("common.llm_extractor._api_key._ENV_FILE_PATH", env_file):
             result = load_api_key_from_env_file("ANTHROPIC_API_KEY")
-        assert result == "sk-ant=with=equals"
+        assert result == "test-key=with=equals"
