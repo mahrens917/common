@@ -94,9 +94,26 @@ def parse_single_item(item: dict, market_id: str, platform: str) -> MarketExtrac
     )
 
 
-def parse_batch_response(
-    response_text: str, platform: str, original_ids: list[str] | None = None
-) -> dict[str, MarketExtraction]:
+def _parse_json_with_recovery(text: str) -> dict:
+    """Parse JSON with recovery for common LLM response issues.
+
+    Handles:
+    - Extra data after valid JSON (LLM sometimes appends commentary)
+    - Standard JSON parsing
+    """
+    try:
+        return json.loads(text)
+    except json.JSONDecodeError as e:
+        if "Extra data" in str(e):
+            # LLM returned extra content after the JSON - use raw_decode to parse just the first object
+            decoder = json.JSONDecoder()
+            data, _ = decoder.raw_decode(text)
+            logger.warning("LLM response contained extra data after JSON, recovered successfully")
+            return data
+        raise
+
+
+def parse_batch_response(response_text: str, platform: str, original_ids: list[str] | None = None) -> dict[str, MarketExtraction]:
     """Parse a batch Claude response into a dict of market_id -> MarketExtraction.
 
     Args:
@@ -106,7 +123,7 @@ def parse_batch_response(
             any ID mismatches from LLM response (LLMs don't reliably echo exact strings).
     """
     text = strip_markdown_json(response_text)
-    data = json.loads(text)
+    data = _parse_json_with_recovery(text)
     if "markets" not in data:
         raise KeyError("'markets' field is required in batch response")
     markets_data = data["markets"]
@@ -131,9 +148,7 @@ def parse_batch_response(
     return results
 
 
-def _safe_parse_item(
-    item: dict, platform: str, id_correction: dict[str, str] | None = None
-) -> MarketExtraction | None:
+def _safe_parse_item(item: dict, platform: str, id_correction: dict[str, str] | None = None) -> MarketExtraction | None:
     """Parse a single item, returning None if invalid or unparsable."""
     item_id = item.get("id")
     if not item_id:

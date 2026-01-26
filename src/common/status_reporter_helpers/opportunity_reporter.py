@@ -76,14 +76,14 @@ def _extract_value_in_parentheses(text: str) -> str:
 
 def _is_sell_yes_ask_rule(reason: str, action_upper: str) -> bool:
     """Return True for SELL conditions comparing theoretical vs market ask."""
-    return "t_yes_ask" in reason and "yes_ask" in reason and action_upper == "SELL"
+    return "t_ask" in reason and "yes_ask" in reason and action_upper == "SELL"
 
 
 def _is_sell_yes_bid_rule(reason: str, action_upper: str) -> bool:
     """Return True for SELL conditions comparing theoretical vs market bid."""
-    return "t_yes_bid" in reason and "yes_bid" in reason and action_upper == "SELL"
+    return "t_bid" in reason and "yes_bid" in reason and action_upper == "SELL"
 
 
 def _is_buy_yes_ask_rule(reason: str, action_upper: str) -> bool:
     """Return True for BUY conditions comparing theoretical vs market ask."""
-    return "t_yes_ask" in reason and "yes_ask" in reason and action_upper == "BUY"
+    return "t_ask" in reason and "yes_ask" in reason and action_upper == "BUY"

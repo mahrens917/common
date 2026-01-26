@@ -11,8 +11,8 @@ class FieldResetApplicator:
 
     # Fields that should be cleared (set to None/empty) on reset
     CLEAR_ON_RESET_FIELDS: Set[str] = {
-        "t_yes_bid",
-        "t_yes_ask",
+        "t_bid",
+        "t_ask",
         "weather_explanation",
         "last_rule_applied",
         "maxT",

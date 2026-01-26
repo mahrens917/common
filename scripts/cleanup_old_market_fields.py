@@ -3,7 +3,7 @@
 
 This is a one-time migration script for the transition to namespaced fields.
 Old fields: t_yes_bid, t_yes_ask (non-namespaced)
-New fields: {algo}:t_yes_bid, {algo}:t_yes_ask (namespaced by algo)
+New fields: {algo}:t_bid, {algo}:t_ask (namespaced by algo)
 
 Usage:
     python -m scripts.cleanup_old_market_fields [--dry-run]

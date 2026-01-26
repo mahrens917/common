@@ -196,8 +196,8 @@ async def _process_market_for_interpolation(
     if not market_data:
         return None
 
-    yes_bid = market_data.get("t_yes_bid")
-    yes_ask = market_data.get("t_yes_ask")
+    yes_bid = market_data.get("t_bid")
+    yes_ask = market_data.get("t_ask")
     price_result = _parse_bid_ask_prices(yes_bid, yes_ask, market_ticker, module_logger)
     if price_result is None:
         return None
@@ -210,8 +210,8 @@ async def _process_market_for_interpolation(
         return None
 
     return market_ticker, {
-        "t_yes_bid": yes_bid_float,
-        "t_yes_ask": yes_ask_float,
+        "t_bid": yes_bid_float,
+        "t_ask": yes_ask_float,
         **interpolation_fields,
     }
 

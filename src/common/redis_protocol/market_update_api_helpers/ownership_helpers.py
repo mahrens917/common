@@ -140,12 +140,12 @@ async def clear_stale_markets(
 ) -> List[str]:
     """Clear stale markets owned by this algo.
 
-    Removes {algo}:t_yes_bid, {algo}:t_yes_ask, algo, direction fields
+    Removes {algo}:t_bid, {algo}:t_ask, algo, direction fields
     and publishes event updates.
     """
     cleared: List[str] = []
-    bid_field = algo_field(algo, "t_yes_bid")
-    ask_field = algo_field(algo, "t_yes_ask")
+    bid_field = algo_field(algo, "t_bid")
+    ask_field = algo_field(algo, "t_ask")
 
     for ticker in stale_tickers:
         market_key = key_builder(ticker)

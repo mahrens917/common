@@ -37,15 +37,15 @@ class BatchWriter:
 
     def _add_interpolation_fields_to_pipeline(self, pipe: Any, market_key: str, result: Dict[str, Any]) -> None:
         """Add interpolation result fields to pipeline."""
-        t_yes_bid = result.get("t_yes_bid")
-        t_yes_ask = result.get("t_yes_ask")
+        t_bid = result.get("t_bid")
+        t_ask = result.get("t_ask")
 
-        if t_yes_bid is not None:
-            pipe.hset(market_key, "t_yes_bid", str(float(t_yes_bid)))
-        if t_yes_ask is not None:
-            pipe.hset(market_key, "t_yes_ask", str(float(t_yes_ask)))
+        if t_bid is not None:
+            pipe.hset(market_key, "t_bid", str(float(t_bid)))
+        if t_ask is not None:
+            pipe.hset(market_key, "t_ask", str(float(t_ask)))
 
-        pipe.hdel(market_key, "t_yes_bids", "t_yes_asks", "t_no_bids", "t_no_asks")
+        pipe.hdel(market_key, "t_bids", "t_asks", "t_no_bids", "t_no_asks")
         pipe.hset(market_key, "interpolation_method", str(result["interpolation_method"]))
         pipe.hset(market_key, "deribit_points_used", str(int(result["deribit_points_used"])))
         pipe.hset(

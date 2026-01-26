@@ -30,17 +30,23 @@ For EACH market, extract ALL of the following fields:
 5. scope: The condition or threshold (e.g., "above 100000", "cut 25bp", "win championship").
 6. floor_strike: Lower bound number, or null. "above $3500" -> 3500. "between $3500 and $3600" -> 3500.
 7. cap_strike: Upper bound number, or null. "below $3600" -> 3600. "between $3500 and $3600" -> 3600.
-8. parent_entity: If this market implies a broader event, the parent entity. Otherwise null.
-   Example: "Lakers beat Celtics in Game 7" implies "Lakers win series" -> parent_entity = "LAL series".
-9. parent_scope: The scope of the parent event if parent_entity is set. Otherwise null.
-10. is_conjunction: true if the market requires MULTIPLE independent conditions to ALL be true.
-    Example: "BTC above 100k AND ETH above 5k" -> true.
-11. conjunction_scopes: If is_conjunction is true, list each independent condition scope. Otherwise empty array.
-    Example: ["BTC above 100000", "ETH above 5000"].
-12. is_union: true if the market is satisfied by ANY of multiple conditions.
-    Example: "BTC or ETH above 100k" -> true.
-13. union_scopes: If is_union is true, list each alternative scope. Otherwise empty array.
-    Example: ["BTC above 100000", "ETH above 100000"].
+8. parent_entity: If this market implies a broader/easier condition, the parent entity. Otherwise null.
+   - Strike implication: "BTC above 150000" implies "BTC above 100000" -> parent_entity = "BTC price", parent_scope = "above 100000"
+   - Sports: "Lakers beat Celtics in Game 7" implies "Lakers win series" -> parent_entity = "LAL series", parent_scope = "win"
+   - A market at a HIGHER threshold implies all LOWER threshold markets for the same underlying will also resolve Yes.
+9. parent_scope: The scope of the parent (implied) market. Required if parent_entity is set.
+10. is_conjunction: true if the market requires MULTIPLE conditions to ALL be true simultaneously.
+    - Range markets: "between 100000 and 110000" requires BOTH above 100000 AND below 110000 -> is_conjunction = true
+    - Combo markets: "BTC above 100k AND ETH above 5k" -> is_conjunction = true
+11. conjunction_scopes: If is_conjunction is true, list each condition as a separate scope. Otherwise empty array.
+    - Range: ["above 100000", "below 110000"]
+    - Combo: ["BTC above 100000", "ETH above 5000"]
+12. is_union: true if the market is satisfied by ANY ONE of multiple conditions.
+    - "BTC or ETH above 100k" -> is_union = true
+    - "Rain in NYC or Boston" -> is_union = true
+13. union_scopes: If is_union is true, list each alternative condition. Otherwise empty array.
+    - ["BTC above 100000", "ETH above 100000"]
+    - ["rain NYC", "rain Boston"]
 
 Return JSON: {{"markets": [{{"id": "...", "category": "...", "underlying": "...", "subject": "...", "entity": "...", "scope": "...", "floor_strike": number|null, "cap_strike": number|null, "parent_entity": string|null, "parent_scope": string|null, "is_conjunction": boolean, "conjunction_scopes": [...], "is_union": boolean, "union_scopes": [...]}}]}}
 

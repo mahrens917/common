@@ -29,14 +29,14 @@ def parse_int(value: object) -> int:
 
 
 def compute_direction(
-    t_yes_bid: int | None,
-    t_yes_ask: int | None,
+    t_bid: int | None,
+    t_ask: int | None,
     kalshi_bid: int,
     kalshi_ask: int,
 ) -> str:
     """Compute trading direction by comparing theoretical to Kalshi prices."""
-    buy_edge = t_yes_ask is not None and 0 < kalshi_ask < t_yes_ask
-    sell_edge = t_yes_bid is not None and kalshi_bid > 0 and kalshi_bid > t_yes_bid
+    buy_edge = t_ask is not None and 0 < kalshi_ask < t_ask
+    sell_edge = t_bid is not None and kalshi_bid > 0 and kalshi_bid > t_bid
 
     if buy_edge and sell_edge:
         return "NONE"
@@ -49,18 +49,18 @@ def compute_direction(
 
 def build_price_mapping(
     algo: str,
-    t_yes_bid: Optional[float],
-    t_yes_ask: Optional[float],
+    t_bid: Optional[float],
+    t_ask: Optional[float],
 ) -> Dict[str, float | str]:
     """Build the namespaced price mapping."""
-    bid_field = algo_field(algo, "t_yes_bid")
-    ask_field = algo_field(algo, "t_yes_ask")
+    bid_field = algo_field(algo, "t_bid")
+    ask_field = algo_field(algo, "t_ask")
 
     mapping: Dict[str, float | str] = {}
-    if t_yes_bid is not None:
-        mapping[bid_field] = t_yes_bid
-    if t_yes_ask is not None:
-        mapping[ask_field] = t_yes_ask
+    if t_bid is not None:
+        mapping[bid_field] = t_bid
+    if t_ask is not None:
+        mapping[ask_field] = t_ask
     return mapping
 
 
@@ -69,8 +69,8 @@ async def add_ownership_fields(
     market_key: str,
     mapping: Dict[str, float | str],
     algo: str,
-    t_yes_bid: Optional[float],
-    t_yes_ask: Optional[float],
+    t_bid: Optional[float],
+    t_ask: Optional[float],
 ) -> bool:
     """Add ownership fields (algo, direction) to mapping if this algo is owner.
 
@@ -87,8 +87,8 @@ async def add_ownership_fields(
         kalshi_bid = parse_int(kalshi_data[0])
         kalshi_ask = parse_int(kalshi_data[1])
 
-        t_bid_int = int(t_yes_bid) if t_yes_bid is not None else None
-        t_ask_int = int(t_yes_ask) if t_yes_ask is not None else None
+        t_bid_int = int(t_bid) if t_bid is not None else None
+        t_ask_int = int(t_ask) if t_ask is not None else None
         direction = compute_direction(t_bid_int, t_ask_int, kalshi_bid, kalshi_ask)
 
         mapping["algo"] = algo
@@ -101,23 +101,23 @@ async def delete_stale_opposite_field(
     redis: "Redis",
     market_key: str,
     algo: str,
-    t_yes_bid: Optional[float],
-    t_yes_ask: Optional[float],
+    t_bid: Optional[float],
+    t_ask: Optional[float],
 ) -> None:
     """Delete stale opposite namespaced field when writing one-sided signal."""
-    bid_field = algo_field(algo, "t_yes_bid")
-    ask_field = algo_field(algo, "t_yes_ask")
+    bid_field = algo_field(algo, "t_bid")
+    ask_field = algo_field(algo, "t_ask")
 
-    both_provided = t_yes_bid is not None and t_yes_ask is not None
+    both_provided = t_bid is not None and t_ask is not None
     if both_provided:
         return
 
-    if t_yes_bid is not None:
+    if t_bid is not None:
         await with_redis_retry(
             lambda: ensure_awaitable(redis.hdel(market_key, ask_field)),
             context="hdel_stale_ask",
         )
-    elif t_yes_ask is not None:
+    elif t_ask is not None:
         await with_redis_retry(
             lambda: ensure_awaitable(redis.hdel(market_key, bid_field)),
             context="hdel_stale_bid",
@@ -128,32 +128,32 @@ async def write_theoretical_prices(
     redis: "Redis",
     market_key: str,
     algo: str,
-    t_yes_bid: Optional[float],
-    t_yes_ask: Optional[float],
+    t_bid: Optional[float],
+    t_ask: Optional[float],
     ticker: str,
 ) -> None:
     """Write theoretical prices to Redis using namespaced fields.
 
-    All algos can write their own {algo}:t_yes_* fields.
+    All algos can write their own {algo}:t_* fields.
     Only the owner (or first writer) sets algo/direction fields.
     """
-    mapping = build_price_mapping(algo, t_yes_bid, t_yes_ask)
-    is_owner = await add_ownership_fields(redis, market_key, mapping, algo, t_yes_bid, t_yes_ask)
+    mapping = build_price_mapping(algo, t_bid, t_ask)
+    is_owner = await add_ownership_fields(redis, market_key, mapping, algo, t_bid, t_ask)
 
     await with_redis_retry(
         lambda: ensure_awaitable(redis.hset(market_key, mapping=mapping)),
         context=f"hset_prices:{ticker}",
     )
-    await delete_stale_opposite_field(redis, market_key, algo, t_yes_bid, t_yes_ask)
+    await delete_stale_opposite_field(redis, market_key, algo, t_bid, t_ask)
 
     logger.debug(
-        "Updated market %s: algo=%s, %s:t_yes_bid=%s, %s:t_yes_ask=%s, owner=%s",
+        "Updated market %s: algo=%s, %s:t_bid=%s, %s:t_ask=%s, owner=%s",
         ticker,
         algo,
         algo,
-        t_yes_bid,
+        t_bid,
         algo,
-        t_yes_ask,
+        t_ask,
         is_owner,
     )
 

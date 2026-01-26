@@ -304,13 +304,14 @@ def _force_kill(proc, psutil, service_name: str) -> bool:
 
     try:
         proc.wait(timeout=FORCE_KILL_TIMEOUT_SECONDS)
-        _console(f"✅ Process {_safe_pid(proc)} force killed")
-        return True
     except psutil.TimeoutExpired:  # Expected exception in operation  # policy_guard: allow-silent-handler
         _console(f"⏱️ Process {_safe_pid(proc)} still alive after force kill timeout")
         return False
     except psutil.NoSuchProcess:  # Expected exception in operation  # policy_guard: allow-silent-handler
         _console(f"✅ Process {_safe_pid(proc)} no longer exists")
+        return True
+    else:
+        _console(f"✅ Process {_safe_pid(proc)} force killed")
         return True
 
 

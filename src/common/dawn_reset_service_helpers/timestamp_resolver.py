@@ -26,8 +26,8 @@ class TimestampResolver:
         "minT",
         "maxT24",
         "minT24",
-        "t_yes_bid",
-        "t_yes_ask",
+        "t_bid",
+        "t_ask",
         "weather_explanation",
         "last_rule_applied",
     }
@@ -73,8 +73,8 @@ class TimestampResolver:
             "max_start_time": "max_start_time",
             "daily_max_c": "max_start_time",
             "hourly_max_temp_f": "max_start_time",
-            "t_yes_bid": "last_updated",
-            "t_yes_ask": "last_updated",
+            "t_bid": "last_updated",
+            "t_ask": "last_updated",
             "weather_explanation": "last_updated",
             "last_rule_applied": "last_updated",
         }

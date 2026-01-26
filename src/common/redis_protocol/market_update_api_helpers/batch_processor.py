@@ -23,8 +23,8 @@ class MarketSignal:
 
     ticker: str
     market_key: str
-    t_yes_bid: float | None
-    t_yes_ask: float | None
+    t_bid: float | None
+    t_ask: float | None
     algo: str
     is_owner: bool = True  # Whether this algo owns (or will own) the market
 
@@ -39,8 +39,8 @@ def build_market_signals(
         MarketSignal(
             ticker=ticker,
             market_key=key_builder(ticker),
-            t_yes_bid=data.get("t_yes_bid"),
-            t_yes_ask=data.get("t_yes_ask"),
+            t_bid=data.get("t_bid"),
+            t_ask=data.get("t_ask"),
             algo=algo,
         )
         for ticker, data in signals.items()
@@ -63,7 +63,7 @@ async def filter_allowed_signals(
     failed: List[str] = []
 
     for sig in market_signals:
-        if sig.t_yes_bid is None and sig.t_yes_ask is None:
+        if sig.t_bid is None and sig.t_ask is None:
             failed.append(sig.ticker)
             continue
 
@@ -73,8 +73,8 @@ async def filter_allowed_signals(
         updated_sig = MarketSignal(
             ticker=sig.ticker,
             market_key=sig.market_key,
-            t_yes_bid=sig.t_yes_bid,
-            t_yes_ask=sig.t_yes_ask,
+            t_bid=sig.t_bid,
+            t_ask=sig.t_ask,
             algo=sig.algo,
             is_owner=not ownership.rejected,
         )
@@ -104,19 +104,19 @@ def build_signal_mapping(
 ) -> Dict[str, Any]:
     """Build the Redis hash mapping for a signal using namespaced fields.
 
-    Namespaced fields ({algo}:t_yes_bid, {algo}:t_yes_ask) are always written.
+    Namespaced fields ({algo}:t_bid, {algo}:t_ask) are always written.
     Ownership fields (algo, direction) are only set if sig.is_owner is True.
     """
-    bid_field = algo_field(algo, "t_yes_bid")
-    ask_field = algo_field(algo, "t_yes_ask")
+    bid_field = algo_field(algo, "t_bid")
+    ask_field = algo_field(algo, "t_ask")
 
     mapping: Dict[str, Any] = {}
 
     # Always write namespaced theoretical prices
-    if sig.t_yes_bid is not None:
-        mapping[bid_field] = sig.t_yes_bid
-    if sig.t_yes_ask is not None:
-        mapping[ask_field] = sig.t_yes_ask
+    if sig.t_bid is not None:
+        mapping[bid_field] = sig.t_bid
+    if sig.t_ask is not None:
+        mapping[ask_field] = sig.t_ask
 
     # Only set ownership fields if this algo is the owner
     if sig.is_owner:
@@ -135,14 +135,14 @@ def add_signal_to_pipeline(
     pipe.hset(sig.market_key, mapping=mapping)
 
     # Delete stale opposite namespaced field when writing one-sided signal
-    bid_field = algo_field(sig.algo, "t_yes_bid")
-    ask_field = algo_field(sig.algo, "t_yes_ask")
+    bid_field = algo_field(sig.algo, "t_bid")
+    ask_field = algo_field(sig.algo, "t_ask")
 
-    both_provided = sig.t_yes_bid is not None and sig.t_yes_ask is not None
+    both_provided = sig.t_bid is not None and sig.t_ask is not None
     if not both_provided:
-        if sig.t_yes_bid is not None:
+        if sig.t_bid is not None:
             pipe.hdel(sig.market_key, ask_field)
-        elif sig.t_yes_ask is not None:
+        elif sig.t_ask is not None:
             pipe.hdel(sig.market_key, bid_field)
 
 

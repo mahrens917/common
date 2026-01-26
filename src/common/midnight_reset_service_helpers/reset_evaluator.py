@@ -15,8 +15,8 @@ class ResetEvaluator:
         "max_temp_f",
         "max_start_time",
         "daily_max_state",  # New bounds-based state tracking
-        "t_yes_bid",
-        "t_yes_ask",
+        "t_bid",
+        "t_ask",
         "weather_explanation",
         "last_rule_applied",
     }

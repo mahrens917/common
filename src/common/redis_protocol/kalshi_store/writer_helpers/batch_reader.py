@@ -74,8 +74,8 @@ class BatchReader:
         if not data or curr.upper() not in ticker.upper():
             return None
 
-        yes_bid = data.get("t_yes_bid")
-        yes_ask = data.get("t_yes_ask")
+        yes_bid = data.get("t_bid")
+        yes_ask = data.get("t_ask")
         if yes_bid is None and yes_ask is None:
             return None
 
@@ -83,8 +83,8 @@ class BatchReader:
             return (
                 ticker,
                 {
-                    "t_yes_bid": float(yes_bid) if yes_bid is not None else None,
-                    "t_yes_ask": float(yes_ask) if yes_ask is not None else None,
+                    "t_bid": float(yes_bid) if yes_bid is not None else None,
+                    "t_ask": float(yes_ask) if yes_ask is not None else None,
                     "interpolation_method": str_f(data.get("interpolation_method")),
                     "deribit_points_used": int_f(data.get("deribit_points_used"), None),
                     "interpolation_quality_score": float_f(data.get("interpolation_quality_score"), 0.0),

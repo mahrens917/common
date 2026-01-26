@@ -118,17 +118,20 @@ class TestRedisMapToExtraction:
     """Tests for _redis_map_to_extraction."""
 
     def test_reconstructs_extraction_from_map(self) -> None:
-        """Test round-trip: extraction -> redis map -> extraction."""
+        """Test round-trip: extraction -> redis map -> extraction.
+
+        Note: Redis returns strings when decode_responses=True (our standard config).
+        """
         data = {
-            b"category": b"Crypto",
-            b"underlying": b"BTC",
-            b"subject": b"BTC",
-            b"entity": b"BTC price",
-            b"scope": b"above 100000",
-            b"platform": b"poly",
-            b"is_conjunction": b"False",
-            b"is_union": b"False",
-            b"floor_strike": b"100000.0",
+            "category": "Crypto",
+            "underlying": "BTC",
+            "subject": "BTC",
+            "entity": "BTC price",
+            "scope": "above 100000",
+            "platform": "poly",
+            "is_conjunction": "False",
+            "is_union": "False",
+            "floor_strike": "100000.0",
         }
         result = _redis_map_to_extraction("cond-1", "poly", data)
         assert result.market_id == "cond-1"
@@ -140,17 +143,20 @@ class TestRedisMapToExtraction:
         assert result.is_conjunction is False
 
     def test_handles_conjunction_and_union(self) -> None:
-        """Test parsing conjunction and union fields from Redis."""
+        """Test parsing conjunction and union fields from Redis.
+
+        Note: Redis returns strings when decode_responses=True (our standard config).
+        """
         data = {
-            b"category": b"Crypto",
-            b"underlying": b"BTC",
-            b"subject": b"BTC",
-            b"entity": b"BTC and ETH",
-            b"scope": b"both above",
-            b"platform": b"poly",
-            b"is_conjunction": b"True",
-            b"conjunction_scopes": b'["BTC above 100000", "ETH above 5000"]',
-            b"is_union": b"False",
+            "category": "Crypto",
+            "underlying": "BTC",
+            "subject": "BTC",
+            "entity": "BTC and ETH",
+            "scope": "both above",
+            "platform": "poly",
+            "is_conjunction": "True",
+            "conjunction_scopes": '["BTC above 100000", "ETH above 5000"]',
+            "is_union": "False",
         }
         result = _redis_map_to_extraction("m1", "poly", data)
         assert result.is_conjunction is True
@@ -179,19 +185,22 @@ class TestMarketExtractorBatch:
 
     @pytest.mark.asyncio
     async def test_returns_cached_when_all_cached(self) -> None:
-        """Test that cached results are returned without API calls."""
+        """Test that cached results are returned without API calls.
+
+        Note: Redis returns strings when decode_responses=True (our standard config).
+        """
         extractor = MarketExtractor(platform="poly", api_key="sk-ant-test")
         markets = [{"id": "cond-1", "title": "BTC above 100k"}]
 
         cached_data = {
-            b"category": b"Crypto",
-            b"underlying": b"BTC",
-            b"subject": b"BTC",
-            b"entity": b"BTC price",
-            b"scope": b"above 100000",
-            b"platform": b"poly",
-            b"is_conjunction": b"False",
-            b"is_union": b"False",
+            "category": "Crypto",
+            "underlying": "BTC",
+            "subject": "BTC",
+            "entity": "BTC price",
+            "scope": "above 100000",
+            "platform": "poly",
+            "is_conjunction": "False",
+            "is_union": "False",
         }
 
         mock_redis = AsyncMock()

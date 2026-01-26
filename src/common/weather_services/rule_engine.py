@@ -106,7 +106,7 @@ class WeatherRuleEngine:
         await self._repository.set_market_fields(
             target_snapshot.key,
             {
-                "t_yes_ask": "99",
+                "t_ask": "99",
                 "weather_explanation": explanation,
                 "last_rule_applied": "rule_4",
                 "intended_action": "BUY",

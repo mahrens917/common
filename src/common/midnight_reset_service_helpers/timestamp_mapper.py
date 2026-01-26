@@ -19,8 +19,8 @@ class TimestampMapper:
             "max_temp_f": "max_start_time",
             "max_start_time": "max_start_time",
             "daily_max_state": "max_start_time",  # Bounds state tied to max temp timing
-            "t_yes_bid": "last_updated",
-            "t_yes_ask": "last_updated",
+            "t_bid": "last_updated",
+            "t_ask": "last_updated",
             "weather_explanation": "last_updated",
             "last_rule_applied": "last_updated",
         }

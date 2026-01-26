@@ -29,14 +29,14 @@ class MidnightResetService:
         "max_temp_f",
         "max_start_time",
         "daily_max_state",
-        "t_yes_bid",
-        "t_yes_ask",
+        "t_bid",
+        "t_ask",
         "weather_explanation",
         "last_rule_applied",
     }
 
     # Fields that should be cleared (set to None/empty) on reset
-    CLEAR_ON_RESET_FIELDS = {"t_yes_bid", "t_yes_ask", "weather_explanation", "last_rule_applied"}
+    CLEAR_ON_RESET_FIELDS = {"t_bid", "t_ask", "weather_explanation", "last_rule_applied"}
 
     def __init__(self):
         """Initialize the midnight reset service."""

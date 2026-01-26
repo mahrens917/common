@@ -68,28 +68,31 @@ def _extraction_to_redis_map(extraction: MarketExtraction) -> dict[str, str]:
     return field_map
 
 
-def _redis_map_to_extraction(market_id: str, platform: str, data: dict[bytes, bytes]) -> MarketExtraction:
-    """Convert a Redis hash map back to a MarketExtraction."""
-    category = data[b"category"].decode()
-    underlying = data[b"underlying"].decode()
-    subject = data[b"subject"].decode()
-    entity = data[b"entity"].decode()
-    scope = data[b"scope"].decode()
+def _redis_map_to_extraction(market_id: str, platform: str, data: dict[str, str]) -> MarketExtraction:
+    """Convert a Redis hash map back to a MarketExtraction.
 
-    floor_strike = float(data[b"floor_strike"].decode()) if b"floor_strike" in data else None
-    cap_strike = float(data[b"cap_strike"].decode()) if b"cap_strike" in data else None
-    parent_entity = data[b"parent_entity"].decode() if b"parent_entity" in data else None
-    parent_scope = data[b"parent_scope"].decode() if b"parent_scope" in data else None
+    Note: Redis returns strings when decode_responses=True (our standard config).
+    """
+    category = data["category"]
+    underlying = data["underlying"]
+    subject = data["subject"]
+    entity = data["entity"]
+    scope = data["scope"]
 
-    is_conjunction = b"is_conjunction" in data and data[b"is_conjunction"].decode() == "True"
+    floor_strike = float(data["floor_strike"]) if "floor_strike" in data else None
+    cap_strike = float(data["cap_strike"]) if "cap_strike" in data else None
+    parent_entity = data["parent_entity"] if "parent_entity" in data else None
+    parent_scope = data["parent_scope"] if "parent_scope" in data else None
+
+    is_conjunction = "is_conjunction" in data and data["is_conjunction"] == "True"
     conjunction_scopes: tuple[str, ...] = ()
-    if b"conjunction_scopes" in data:
-        conjunction_scopes = tuple(json.loads(data[b"conjunction_scopes"].decode()))
+    if "conjunction_scopes" in data:
+        conjunction_scopes = tuple(json.loads(data["conjunction_scopes"]))
 
-    is_union = b"is_union" in data and data[b"is_union"].decode() == "True"
+    is_union = "is_union" in data and data["is_union"] == "True"
     union_scopes: tuple[str, ...] = ()
-    if b"union_scopes" in data:
-        union_scopes = tuple(json.loads(data[b"union_scopes"].decode()))
+    if "union_scopes" in data:
+        union_scopes = tuple(json.loads(data["union_scopes"]))
 
     return MarketExtraction(
         market_id=market_id,
@@ -122,16 +125,19 @@ async def _store_extractions(extractions: list[MarketExtraction], redis: Redis) 
 
 
 async def _load_cached(markets: Sequence[dict], platform: str, redis: Redis) -> tuple[list[MarketExtraction], list[dict]]:
-    """Load cached extractions; return (cached_results, uncached_markets)."""
+    """Load cached extractions; return (cached_results, uncached_markets).
+
+    Note: Redis returns strings when decode_responses=True (our standard config).
+    """
     cached: list[MarketExtraction] = []
     uncached: list[dict] = []
 
     for market in markets:
         market_id = market["id"]
         redis_key = _get_redis_key(market_id, platform)
-        coro = cast("Coroutine[Any, Any, dict[Any, Any]]", redis.hgetall(redis_key))
+        coro = cast("Coroutine[Any, Any, dict[str, str]]", redis.hgetall(redis_key))
         existing = await coro
-        if existing and b"category" in existing and b"entity" in existing:
+        if existing and "category" in existing and "entity" in existing:
             extraction = _redis_map_to_extraction(market_id, platform, existing)
             cached.append(extraction)
         else:

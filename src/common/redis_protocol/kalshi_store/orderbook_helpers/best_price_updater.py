@@ -38,18 +38,18 @@ class BestPriceUpdater:
     @staticmethod
     async def _recompute_direction(redis: Redis, market_key: str) -> None:
         """Recompute and store direction based on current prices and theoretical values."""
-        fields = await ensure_awaitable(redis.hmget(market_key, ["yes_bid", "yes_ask", "t_yes_bid", "t_yes_ask"]))
+        fields = await ensure_awaitable(redis.hmget(market_key, ["yes_bid", "yes_ask", "t_bid", "t_ask"]))
         kalshi_bid = _parse_int_optional(fields[0])
         kalshi_ask = _parse_int_optional(fields[1])
-        t_yes_bid = _parse_int_optional(fields[2])
-        t_yes_ask = _parse_int_optional(fields[3])
+        t_bid = _parse_int_optional(fields[2])
+        t_ask = _parse_int_optional(fields[3])
 
-        if t_yes_bid is None and t_yes_ask is None:
+        if t_bid is None and t_ask is None:
             return
 
         direction = compute_direction(
-            t_yes_bid,
-            t_yes_ask,
+            t_bid,
+            t_ask,
             kalshi_bid if kalshi_bid is not None else PRICE_UNAVAILABLE,
             kalshi_ask if kalshi_ask is not None else PRICE_UNAVAILABLE,
         )
