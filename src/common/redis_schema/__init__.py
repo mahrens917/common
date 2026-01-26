@@ -31,6 +31,7 @@ from .validators import register_namespace, validate_registered_key
 from .weather import (
     WeatherAlertKey,
     WeatherDailyHighKey,
+    WeatherDailyLowKey,
     WeatherHistoryKey,
     WeatherStationKey,
     ensure_uppercase_icao,
@@ -60,6 +61,7 @@ __all__ = [
     "WeatherHistoryKey",
     "WeatherAlertKey",
     "WeatherDailyHighKey",
+    "WeatherDailyLowKey",
     "ensure_uppercase_icao",
     "TradeRecordKey",
     "TradeIndexKey",

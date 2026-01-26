@@ -321,6 +321,7 @@ class TestValidAlgos:
         assert "weather" in VALID_ALGOS
         assert "dutch" in VALID_ALGOS
         assert "strike" in VALID_ALGOS
+        assert "strikearb" in VALID_ALGOS
         assert "total" in VALID_ALGOS
 
     def test_is_frozenset(self):

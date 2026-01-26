@@ -15,6 +15,7 @@ register_namespace("weather:station:", "Latest weather station snapshots")
 register_namespace("weather:station_history:", "Historical weather observations")
 register_namespace("weather:station_alerts:", "Active weather station alerts")
 register_namespace("weather:daily_high:", "Daily high temperatures by station and date")
+register_namespace("weather:daily_low:", "Daily low temperatures by station and date")
 
 _ICAO_RE = re.compile(r"^[A-Z0-9_.\-]+$")
 
@@ -89,5 +90,19 @@ class WeatherDailyHighKey:
     def key(self) -> str:
         icao = ensure_uppercase_icao(self.icao)
         segments = ["daily_high", sanitize_segment(icao, case="unchanged"), self.date_str]
+        builder = KeyBuilder(RedisNamespace.WEATHER, tuple(segments))
+        return builder.render()
+
+
+@dataclass(frozen=True)
+class WeatherDailyLowKey:
+    """Key for daily low temperature storage."""
+
+    icao: str
+    date_str: str  # Format: YYYY-MM-DD
+
+    def key(self) -> str:
+        icao = ensure_uppercase_icao(self.icao)
+        segments = ["daily_low", sanitize_segment(icao, case="unchanged"), self.date_str]
         builder = KeyBuilder(RedisNamespace.WEATHER, tuple(segments))
         return builder.render()
