@@ -43,7 +43,7 @@ _sync_pool_guard = threading.Lock()
 
 # Unified connection pooling configuration
 UNIFIED_REDIS_CONFIG = {
-    "max_connections": 120,  # Optimized for 95%+ pool reuse rate
+    "max_connections": 50,  # Reduced from 120 to limit connection overhead
     "dns_cache_ttl": 300,  # 5 minutes
     "dns_cache_size": 1000,
 }
