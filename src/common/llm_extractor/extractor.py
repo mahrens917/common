@@ -161,6 +161,11 @@ class MarketExtractor:
         self._platform = platform
         self._client = AnthropicClient(api_key=api_key)
 
+    @property
+    def client(self) -> AnthropicClient:
+        """Access the underlying Anthropic client for usage stats."""
+        return self._client
+
     async def extract_batch(self, markets: Sequence[dict], redis: Redis) -> list[MarketExtraction]:
         """Extract fields for multiple markets with batching, concurrency, and caching.
 

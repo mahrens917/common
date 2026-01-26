@@ -42,9 +42,7 @@ if TYPE_CHECKING:
 
 logger = logging.getLogger(__name__)
 
-VALID_ALGOS = frozenset(
-    {"whale", "peak", "edge", "pdf", "weather", "dutch", "strike", "strikearb", "total", "implication", "conjunction", "union"}
-)
+VALID_ALGOS = frozenset({"whale", "peak", "edge", "pdf", "weather", "dutch", "strike", "total", "conjunction"})
 
 
 @dataclass(frozen=True)
