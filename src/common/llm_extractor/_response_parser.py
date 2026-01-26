@@ -94,37 +94,64 @@ def parse_single_item(item: dict, market_id: str, platform: str) -> MarketExtrac
     )
 
 
-def parse_batch_response(response_text: str, platform: str) -> dict[str, MarketExtraction]:
-    """Parse a batch Claude response into a dict of market_id -> MarketExtraction."""
+def parse_batch_response(
+    response_text: str, platform: str, original_ids: list[str] | None = None
+) -> dict[str, MarketExtraction]:
+    """Parse a batch Claude response into a dict of market_id -> MarketExtraction.
+
+    Args:
+        response_text: Raw JSON response from Claude.
+        platform: "kalshi" or "poly".
+        original_ids: Original market IDs from input. If provided, used to correct
+            any ID mismatches from LLM response (LLMs don't reliably echo exact strings).
+    """
     text = strip_markdown_json(response_text)
     data = json.loads(text)
     if "markets" not in data:
         raise KeyError("'markets' field is required in batch response")
     markets_data = data["markets"]
 
+    # Build case-insensitive lookup from LLM ID -> original ID
+    id_correction: dict[str, str] = {}
+    if original_ids:
+        original_lookup = {oid.upper(): oid for oid in original_ids}
+        for item in markets_data:
+            llm_id = item.get("id")
+            if llm_id:
+                llm_upper = str(llm_id).upper()
+                if llm_upper in original_lookup:
+                    id_correction[str(llm_id)] = original_lookup[llm_upper]
+
     results: dict[str, MarketExtraction] = {}
     for item in markets_data:
-        extraction = _safe_parse_item(item, platform)
+        extraction = _safe_parse_item(item, platform, id_correction)
         if extraction is not None:
             results[extraction.market_id] = extraction
 
     return results
 
 
-def _safe_parse_item(item: dict, platform: str) -> MarketExtraction | None:
+def _safe_parse_item(
+    item: dict, platform: str, id_correction: dict[str, str] | None = None
+) -> MarketExtraction | None:
     """Parse a single item, returning None if invalid or unparsable."""
     item_id = item.get("id")
     if not item_id:
         logger.warning("Skipping market with missing id in batch response")
         return None
 
+    # Use corrected ID if available (fixes LLM not echoing exact IDs)
+    market_id = str(item_id)
+    if id_correction and market_id in id_correction:
+        market_id = id_correction[market_id]
+
     # Pre-validate required fields to avoid exceptions
-    validation_error = _validate_item_fields(item, str(item_id))
+    validation_error = _validate_item_fields(item, market_id)
     if validation_error:
-        logger.warning("Failed to parse market %s: %s", item_id, validation_error)
+        logger.warning("Failed to parse market %s: %s", market_id, validation_error)
         return None
 
-    return parse_single_item(item, str(item_id), platform)
+    return parse_single_item(item, market_id, platform)
 
 
 def _validate_string_field(item: dict, field: str) -> str | None:

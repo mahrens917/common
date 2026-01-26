@@ -17,7 +17,6 @@ from __future__ import annotations
 import asyncio
 import logging
 import os
-import signal
 from typing import List, Optional
 
 from common.config import env_bool
@@ -293,42 +292,26 @@ def _wait_graceful(proc, psutil, service_name: str) -> bool:
 
 
 def _force_kill(proc, psutil, service_name: str) -> bool:
-    """Force kill process after graceful shutdown fails. Retries with SIGKILL until dead."""
-    pid = getattr(proc, "pid", None)
-    if pid is None:
-        _console(f"Could not kill process: missing pid")
+    """Force kill process after graceful shutdown fails."""
+    try:
+        proc.kill()
+    except psutil.NoSuchProcess:  # Expected exception, process race condition  # policy_guard: allow-silent-handler
+        _console(f"✅ Process {_safe_pid(proc)} no longer exists")
+        return True
+    except psutil.AccessDenied:  # Expected exception, returning default value  # policy_guard: allow-silent-handler
+        _console(f"Could not kill process {_safe_pid(proc)}: permission denied")
         return False
 
-    max_attempts = 5
-    for attempt in range(max_attempts):
-        # Check if already dead
-        if not psutil.pid_exists(pid):
-            _console(f"✅ Process {pid} is dead")
-            return True
-
-        # Send SIGKILL directly via os.kill
-        try:
-            os.kill(pid, signal.SIGKILL)
-        except ProcessLookupError:  # Expected exception, returning default value  # policy_guard: allow-silent-handler
-            _console(f"✅ Process {pid} no longer exists")
-            return True
-        except PermissionError:  # Expected exception, returning default value  # policy_guard: allow-silent-handler
-            _console(f"Could not kill process {pid}: permission denied")
-            return False
-
-        # Wait for process to die
-        try:
-            proc.wait(timeout=FORCE_KILL_TIMEOUT_SECONDS)
-            _console(f"✅ Process {pid} force killed")
-            return True
-        except psutil.TimeoutExpired:  # Expected exception in operation  # policy_guard: allow-silent-handler
-            _console(f"⏱️ Process {pid} still alive after SIGKILL attempt {attempt + 1}/{max_attempts}")
-        except psutil.NoSuchProcess:  # Expected exception in operation  # policy_guard: allow-silent-handler
-            _console(f"✅ Process {pid} no longer exists")
-            return True
-
-    _console(f"❌ Process {pid} survived {max_attempts} SIGKILL attempts")
-    return False
+    try:
+        proc.wait(timeout=FORCE_KILL_TIMEOUT_SECONDS)
+        _console(f"✅ Process {_safe_pid(proc)} force killed")
+        return True
+    except psutil.TimeoutExpired:  # Expected exception in operation  # policy_guard: allow-silent-handler
+        _console(f"⏱️ Process {_safe_pid(proc)} still alive after force kill timeout")
+        return False
+    except psutil.NoSuchProcess:  # Expected exception in operation  # policy_guard: allow-silent-handler
+        _console(f"✅ Process {_safe_pid(proc)} no longer exists")
+        return True
 
 
 def _safe_pid(proc) -> str:

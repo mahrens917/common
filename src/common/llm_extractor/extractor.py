@@ -195,7 +195,9 @@ class MarketExtractor:
         """Make a single API call to extract fields for a batch of markets."""
         user_content = build_user_content(batch)
         response_text = await self._client.send_message(EXTRACTION_PROMPT, user_content)
-        return parse_batch_response(response_text, self._platform)
+        # Pass original IDs so parser doesn't rely on LLM echoing IDs exactly
+        original_ids = [m["id"] for m in batch]
+        return parse_batch_response(response_text, self._platform, original_ids)
 
 
 __all__ = ["MarketExtractor"]
