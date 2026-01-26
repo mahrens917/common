@@ -15,7 +15,12 @@ from common.optimized_status_reporter_helpers.tracker_status_collector import (
 
 @pytest.mark.asyncio
 async def test_collect_tracker_status_updates_info_when_running(monkeypatch):
-    tracker_info = SimpleNamespace(status=None, pid=None)
+    """Test status dict is updated when tracker running.
+
+    NOTE: tracker_info.status and pid are NOT modified by the collector.
+    ProcessInfo should only be modified by ProcessManager.
+    """
+    tracker_info = SimpleNamespace(status=ProcessStatus.RUNNING, pid=123)
     process_manager = SimpleNamespace(process_info={"tracker": tracker_info})
     tracker_controller = MagicMock()
     tracker_controller.get_tracker_status = AsyncMock(return_value={"running": True, "pid": 123, "enabled": True})
@@ -25,13 +30,19 @@ async def test_collect_tracker_status_updates_info_when_running(monkeypatch):
     status = await collector.collect_tracker_status()
 
     assert status["running"] is True
+    # Verify tracker_info was NOT modified (no-op behavior)
     assert tracker_info.status == ProcessStatus.RUNNING
     assert tracker_info.pid == 123
 
 
 @pytest.mark.asyncio
 async def test_collect_tracker_status_handles_disabled_and_updates_stopped(monkeypatch):
-    tracker_info = SimpleNamespace(status=None, pid=321)
+    """Test status dict is updated when tracker stopped.
+
+    NOTE: tracker_info.status and pid are NOT modified by the collector.
+    ProcessInfo should only be modified by ProcessManager.
+    """
+    tracker_info = SimpleNamespace(status=ProcessStatus.STOPPED, pid=None)
     process_manager = SimpleNamespace(process_info={"tracker": tracker_info})
     tracker_controller = MagicMock()
     tracker_controller.get_tracker_status = AsyncMock(return_value={"running": False, "pid": None, "enabled": False})
@@ -41,6 +52,7 @@ async def test_collect_tracker_status_handles_disabled_and_updates_stopped(monke
     status = await collector.collect_tracker_status()
 
     assert status["running"] is False
+    # Verify tracker_info was NOT modified (no-op behavior)
     assert tracker_info.status == ProcessStatus.STOPPED
     assert tracker_info.pid is None
 

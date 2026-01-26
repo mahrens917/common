@@ -1,12 +1,19 @@
-"""Service info update utilities."""
+"""Service info update utilities.
+
+NOTE: These methods are intentionally no-ops. ProcessInfo should only be
+modified by the ProcessManager via psutil probing, not by status reporters.
+Status reporters are read-only collectors that gather info for display purposes.
+"""
 
 from typing import Any, Optional
 
-from common.monitoring import ProcessStatus
-
 
 class ServiceInfoUpdater:
-    """Updates service info based on process state."""
+    """Updates service info based on process state.
+
+    NOTE: All methods are no-ops. ProcessInfo must only be modified by
+    the ProcessManager to avoid race conditions and spurious restarts.
+    """
 
     @staticmethod
     def update_from_handle(
@@ -16,34 +23,34 @@ class ServiceInfoUpdater:
         """
         Update info from process handle.
 
+        NOTE: No-op. ProcessInfo should only be modified by ProcessManager.
+
         Args:
             info: Process info to update
             process_handle: Process handle
         """
-        if info.pid != process_handle.pid:
-            info.pid = process_handle.pid
-        if info.status != ProcessStatus.RUNNING:
-            info.status = ProcessStatus.RUNNING
+        # Do NOT modify ProcessInfo here - causes race conditions with ProcessManager
 
     @staticmethod
     def clear_stopped_process(info: Any) -> None:
         """
         Clear PID and update status for stopped process.
 
+        NOTE: No-op. ProcessInfo should only be modified by ProcessManager.
+
         Args:
             info: Process info to update
         """
-        info.pid = None
-        if info.status == ProcessStatus.RUNNING:
-            info.status = ProcessStatus.STOPPED
+        # Do NOT modify ProcessInfo here - causes race conditions with ProcessManager
 
     @staticmethod
     def mark_as_running(info: Optional[Any]) -> None:
         """
         Mark service as running.
 
+        NOTE: No-op. ProcessInfo should only be modified by ProcessManager.
+
         Args:
             info: Process info to update
         """
-        if info and info.status != ProcessStatus.RUNNING:
-            info.status = ProcessStatus.RUNNING
+        # Do NOT modify ProcessInfo here - causes race conditions with ProcessManager

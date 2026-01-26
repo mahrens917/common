@@ -79,17 +79,12 @@ class TrackerStatusCollector:
         """Update tracker info based on status."""
         from .tracker_status_collector_helpers import SummaryBuilder
 
+        # NOTE: Do NOT modify tracker_info.status or tracker_info.pid here.
+        # ProcessInfo should only be modified by the process manager.
         if tracker_running:
-            tracker_info.status = ProcessStatus.RUNNING
-            if tracker_pid:
-                tracker_info.pid = tracker_pid
-
             summary = SummaryBuilder.build_running_summary(tracker_enabled, tracker_info.pid)
             SummaryBuilder.update_status_dict(tracker_status, True, tracker_info.pid, summary)
         else:
-            tracker_info.status = ProcessStatus.STOPPED
-            tracker_info.pid = None
-
             summary = SummaryBuilder.build_stopped_summary(tracker_enabled)
             SummaryBuilder.update_status_dict(tracker_status, False, None, summary)
 
