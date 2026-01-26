@@ -161,9 +161,12 @@ def run_async_service(
                     logger.warning("Failed to ignore SIGHUP for %s", service_name)
 
             try:
+                logger.debug("DEBUG: run_async_service - about to call asyncio.run(factory())")
                 asyncio.run(factory())
+                logger.warning("DEBUG: run_async_service - asyncio.run(factory()) returned normally! service=%s", service_name)
             except KeyboardInterrupt:  # Expected exception in operation  # policy_guard: allow-silent-handler
                 # CTRL+C translates into a friendly shutdown log
+                logger.warning("DEBUG: run_async_service - KeyboardInterrupt received for %s", service_name)
                 if shutdown_message:
                     logger.info(shutdown_message)
                 else:

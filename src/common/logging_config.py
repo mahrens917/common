@@ -206,6 +206,8 @@ def _configure_file_handler(service_name: Optional[str], project_root: Path) -> 
     log_path = logs_dir / f"{service_name}.log"
     if os.getenv("PDF_PIPELINE_CHILD") == "1":
         file_mode = "a"
+    elif os.getenv("LOG_APPEND") == "1":
+        file_mode = "a"
     else:
         file_mode = "w"
 
