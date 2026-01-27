@@ -163,7 +163,7 @@ def run_async_service(
             try:
                 logger.debug("DEBUG: run_async_service - about to call asyncio.run(factory())")
                 asyncio.run(factory())
-                logger.warning("DEBUG: run_async_service - asyncio.run(factory()) returned normally! service=%s", service_name)
+                logger.info("%s service exited normally (graceful shutdown)", service_name)
             except KeyboardInterrupt:  # Expected exception in operation  # policy_guard: allow-silent-handler
                 # CTRL+C translates into a friendly shutdown log
                 logger.warning("DEBUG: run_async_service - KeyboardInterrupt received for %s", service_name)

@@ -68,7 +68,7 @@ def _parse_json_with_recovery(text: str, *, allow_extra_data: bool = False) -> d
             data, end_idx = decoder.raw_decode(text)
             extra = text[end_idx:].strip()
             if allow_extra_data:
-                logger.warning(
+                logger.debug(
                     "LLM response contained extra data after JSON, recovered. Extra text: %r",
                     extra[:200] if len(extra) > 200 else extra,
                 )
@@ -88,15 +88,16 @@ def parse_kalshi_underlying_response(response_text: str) -> str | None:
     """
     try:
         text = strip_markdown_json(response_text)
-        data = _parse_json_with_recovery(text)
+        # Single-market extraction is used for retries, so allow extra data recovery
+        data = _parse_json_with_recovery(text, allow_extra_data=True)
         underlying = data.get("underlying")
         if underlying and isinstance(underlying, str):
             return underlying.upper()
-        logger.warning("Missing or invalid underlying in response: %s", data)
+        logger.debug("Missing or invalid underlying in response: %s", data)
         return None
-    except (json.JSONDecodeError, KeyError) as e:
-        logger.warning("Failed to parse Kalshi underlying response: %s", e)
-        raise
+    except json.JSONDecodeError as e:
+        logger.debug("Failed to parse Kalshi underlying response: %s", e)
+        return None
 
 
 def parse_kalshi_underlying_batch_response(
@@ -280,7 +281,11 @@ def parse_poly_extraction_response(
         Tuple of (extraction or None, error_message).
     """
     text = strip_markdown_json(response_text)
-    data = _parse_json_with_recovery(text)
+    # Single-market extraction is used for retries, so handle errors gracefully
+    try:
+        data = _parse_json_with_recovery(text, allow_extra_data=True)
+    except json.JSONDecodeError as e:
+        return None, f"malformed JSON: {e}"
 
     is_valid, error = validate_poly_extraction(data, valid_categories, valid_underlyings)
     if not is_valid:

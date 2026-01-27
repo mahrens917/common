@@ -123,9 +123,18 @@ class KalshiUnderlyingExtractor:
                     accumulated_underlyings.add(underlying)
 
             processed = min(chunk_end * _BATCH_SIZE, len(uncached))
-            logger.info("Progress: %d/%d Kalshi markets extracted", processed, len(uncached))
+            logger.info(
+                "Progress: %d/%d Kalshi markets extracted (total: $%.4f)",
+                processed,
+                len(uncached),
+                self._client.get_cost(),
+            )
 
-        logger.info("Kalshi extraction complete: %d total", len(results))
+        logger.info(
+            "Kalshi extraction complete: %d total (total: $%.4f)",
+            len(results),
+            self._client.get_cost(),
+        )
         return results
 
     async def _extract_batch_with_retry(
@@ -262,6 +271,7 @@ class KalshiDedupExtractor:
         for mapping in results:
             all_mappings.update(mapping)
 
+        logger.info("Dedup complete: %d aliases found (total: $%.4f)", len(all_mappings), self._client.get_cost())
         return all_mappings
 
     async def _dedup_category_with_cache(
@@ -347,9 +357,19 @@ class PolyExtractor:
                 results.extend(batch_results)
 
             processed = min(chunk_end * _BATCH_SIZE, len(uncached))
-            logger.info("Progress: %d/%d Poly markets extracted", processed, len(uncached))
+            logger.info(
+                "Progress: %d/%d Poly markets extracted (total: $%.4f)",
+                processed,
+                len(uncached),
+                self._client.get_cost(),
+            )
 
-        logger.info("Poly extraction complete: %d cached, %d new", len(cached), len(results) - len(cached))
+        logger.info(
+            "Poly extraction complete: %d cached, %d new (total: $%.4f)",
+            len(cached),
+            len(results) - len(cached),
+            self._client.get_cost(),
+        )
         return results
 
     async def _extract_batch_with_retry(
@@ -381,6 +401,7 @@ class PolyExtractor:
                 failed_ids = original_ids
 
         results = list(extractions.values())
+        no_match_ids: list[str] = []
 
         # Retry failed items individually
         if failed_ids:
@@ -390,9 +411,15 @@ class PolyExtractor:
                 extraction = await self._extract_single_with_retry(market, valid_categories, valid_underlyings)
                 if extraction:
                     results.append(extraction)
+                else:
+                    no_match_ids.append(market["id"])
 
         # Store successful extractions in cache
         await self._store_cached_batch(results, redis)
+
+        # Cache failed extractions so we don't retry them
+        if no_match_ids:
+            await self._store_no_match_batch(no_match_ids, redis)
 
         return results
 
@@ -439,29 +466,43 @@ class PolyExtractor:
         """
         cached: list[MarketExtraction] = []
         uncached: list[dict] = []
+        skipped_no_match = 0
 
         for market in markets:
             market_id = market["id"]
             key = _get_redis_key(market_id, "poly")
             data = await ensure_awaitable(redis.hgetall(key))
 
-            if data and "category" in data and "underlying" in data:
-                extraction = MarketExtraction(
-                    market_id=market_id,
-                    platform="poly",
-                    category=data["category"],
-                    underlying=data["underlying"],
-                    strike_type=data.get("strike_type"),
-                    floor_strike=float(data["floor_strike"]) if data.get("floor_strike") else None,
-                    cap_strike=float(data["cap_strike"]) if data.get("cap_strike") else None,
-                    close_time=data.get("close_time"),
-                )
-                cached.append(extraction)
-            else:
-                uncached.append(market)
+            if data:
+                # Check if this was marked as no match
+                if data.get("status") == "no_match":
+                    # Skip - already tried and failed, don't retry
+                    skipped_no_match += 1
+                    continue
 
-        if cached:
-            logger.info("Poly cache hits: %d, need to extract: %d", len(cached), len(uncached))
+                if "category" in data and "underlying" in data:
+                    extraction = MarketExtraction(
+                        market_id=market_id,
+                        platform="poly",
+                        category=data["category"],
+                        underlying=data["underlying"],
+                        strike_type=data.get("strike_type"),
+                        floor_strike=float(data["floor_strike"]) if data.get("floor_strike") else None,
+                        cap_strike=float(data["cap_strike"]) if data.get("cap_strike") else None,
+                        close_time=data.get("close_time"),
+                    )
+                    cached.append(extraction)
+                    continue
+
+            uncached.append(market)
+
+        if cached or skipped_no_match:
+            logger.info(
+                "Poly cache: %d matched, %d no-match skipped, %d to extract",
+                len(cached),
+                skipped_no_match,
+                len(uncached),
+            )
 
         return cached, uncached
 
@@ -490,6 +531,20 @@ class PolyExtractor:
             pipe.expire(key, _get_ttl())
 
         await pipe.execute()
+
+    async def _store_no_match_batch(self, market_ids: list[str], redis: Redis) -> None:
+        """Store no-match markers in Redis cache so we don't retry these markets."""
+        if not market_ids:
+            return
+
+        pipe = redis.pipeline()
+        for market_id in market_ids:
+            key = _get_redis_key(market_id, "poly")
+            pipe.hset(key, mapping={"status": "no_match"})
+            pipe.expire(key, _get_ttl())
+
+        await pipe.execute()
+        logger.debug("Cached %d no-match Poly markets", len(market_ids))
 
 
 __all__ = [

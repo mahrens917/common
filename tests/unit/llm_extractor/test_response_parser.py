@@ -95,11 +95,10 @@ class TestParseKalshiUnderlyingResponse:
         response = '{"other": "value"}'
         assert parse_kalshi_underlying_response(response) is None
 
-    def test_raises_for_invalid_json(self) -> None:
-        """Test that invalid JSON raises JSONDecodeError."""
+    def test_returns_none_for_invalid_json(self) -> None:
+        """Test that invalid JSON returns None gracefully."""
         response = "not json"
-        with pytest.raises(json.JSONDecodeError):
-            parse_kalshi_underlying_response(response)
+        assert parse_kalshi_underlying_response(response) is None
 
 
 class TestParseKalshiUnderlyingBatchResponse:
@@ -357,10 +356,11 @@ class TestParsePolyExtractionResponse:
         assert extraction is None
         assert "invalid category" in error
 
-    def test_raises_for_invalid_json(self) -> None:
-        """Test that invalid JSON raises JSONDecodeError."""
-        with pytest.raises(json.JSONDecodeError):
-            parse_poly_extraction_response("not json", "m1", {"Crypto"}, {"BTC"})
+    def test_returns_none_for_invalid_json(self) -> None:
+        """Test that invalid JSON returns None with error gracefully."""
+        extraction, error = parse_poly_extraction_response("not json", "m1", {"Crypto"}, {"BTC"})
+        assert extraction is None
+        assert "malformed JSON" in error
 
 
 class TestParsePolyBatchResponse:
