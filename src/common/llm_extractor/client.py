@@ -43,12 +43,20 @@ class AnthropicClient:
         self._total_output_tokens = 0
         logger.info("Initialized AnthropicClient (model: %s)", _MODEL)
 
-    async def send_message(self, system_prompt: str, user_content: str) -> str:
+    async def send_message(
+        self,
+        system_prompt: str,
+        user_content: str,
+        *,
+        json_prefill: str | None = "{",
+    ) -> str:
         """Send a message to Claude and return the text response.
 
         Args:
             system_prompt: The system prompt.
             user_content: The user message content.
+            json_prefill: Assistant prefill to force JSON structure. Use '{"markets": ['
+                for batch responses. Set to None to disable prefill.
 
         Returns:
             The text content from Claude's response.
@@ -56,18 +64,29 @@ class AnthropicClient:
         Raises:
             RuntimeError: If the API call fails after all retries.
         """
+        messages = [{"role": "user", "content": user_content}]
+        if json_prefill:
+            # Assistant prefill forces Claude to continue from the given prefix
+            messages.append({"role": "assistant", "content": json_prefill})
+
         payload = {
             "model": _MODEL,
             "max_tokens": _MAX_TOKENS,
             "system": system_prompt,
-            "messages": [{"role": "user", "content": user_content}],
+            "messages": messages,
         }
         headers = {
             "x-api-key": self._api_key,
             "anthropic-version": _ANTHROPIC_VERSION,
             "content-type": "application/json",
         }
-        return await self._request_with_retries(payload, headers)
+        response = await self._request_with_retries(payload, headers)
+
+        # Prepend the prefill that was used
+        if json_prefill:
+            return json_prefill + response
+
+        return response
 
     async def _request_with_retries(self, payload: dict, headers: dict) -> str:
         """Execute the API request with exponential backoff retry logic."""

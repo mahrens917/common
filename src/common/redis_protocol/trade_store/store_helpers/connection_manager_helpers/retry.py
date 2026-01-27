@@ -59,8 +59,8 @@ class ConnectionRetryHelper(ConnectionHelperBase):
         except RedisFatalError:  # Expected exception, returning default value  # policy_guard: allow-silent-handler
             logger.debug("Expected exception, returning default value")
             return False
-        except RedisRetryError as exc:  # Expected exception, returning default value  # policy_guard: allow-silent-handler
-            _log_retry_exhausted(self.logger, config.context, exc)
+        except RedisRetryError:  # Expected exception, returning default value  # policy_guard: allow-silent-handler
+            _log_retry_exhausted(self.logger, config.context)
             return False
         else:
             return True
@@ -99,5 +99,5 @@ def _retry_logger(logger: logging.Logger, context: str):
     return create_retry_callback(context, logger)
 
 
-def _log_retry_exhausted(logger: logging.Logger, context: str, exc: RedisRetryError) -> None:
-    logger.exception("%s: Redis connection retry exhausted (%s)", context, exc)
+def _log_retry_exhausted(log: logging.Logger, context: str) -> None:
+    log.exception("%s: Redis connection retry exhausted", context)

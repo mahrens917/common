@@ -73,16 +73,20 @@ class TestKalshiUnderlyingExtractor:
 
         mock_redis = AsyncMock()
         mock_redis.hgetall = AsyncMock(return_value={})
-        mock_redis.hset = AsyncMock()
-        mock_redis.expire = AsyncMock()
+        mock_pipe = MagicMock()
+        mock_pipe.hset = MagicMock(return_value=mock_pipe)
+        mock_pipe.expire = MagicMock(return_value=mock_pipe)
+        mock_pipe.execute = AsyncMock(return_value=[])
+        mock_redis.pipeline = MagicMock(return_value=mock_pipe)
 
-        api_response = '{"underlying": "ETH"}'
+        # Batch response format
+        api_response = json.dumps({"markets": [{"id": "m1", "underlying": "ETH"}]})
 
         with patch.object(extractor._client, "send_message", new_callable=AsyncMock, return_value=api_response):
             results = await extractor.extract_underlyings(markets, mock_redis)
 
         assert results == {"m1": "ETH"}
-        mock_redis.hset.assert_called_once()
+        mock_pipe.hset.assert_called_once()
 
 
 class TestKalshiDedupExtractorInit:
@@ -189,16 +193,20 @@ class TestPolyExtractor:
         mock_pipe.execute = AsyncMock(return_value=[])
         mock_redis.pipeline = MagicMock(return_value=mock_pipe)
 
-        api_response = json.dumps({
-            "markets": [{
-                "id": "cond-new",
-                "category": "Crypto",
-                "underlying": "ETH",
-                "strike_type": "greater",
-                "floor_strike": 5000,
-                "cap_strike": None,
-            }]
-        })
+        api_response = json.dumps(
+            {
+                "markets": [
+                    {
+                        "id": "cond-new",
+                        "category": "Crypto",
+                        "underlying": "ETH",
+                        "strike_type": "greater",
+                        "floor_strike": 5000,
+                        "cap_strike": None,
+                    }
+                ]
+            }
+        )
 
         with patch.object(extractor._client, "send_message", new_callable=AsyncMock, return_value=api_response):
             results = await extractor.extract_batch(markets, {"Crypto"}, {"ETH"}, mock_redis)
@@ -223,25 +231,31 @@ class TestPolyExtractor:
         mock_redis.pipeline = MagicMock(return_value=mock_pipe)
 
         # First call returns invalid, retry returns valid
-        invalid_response = json.dumps({
-            "markets": [{
-                "id": "m1",
-                "category": "Invalid",  # Invalid category
+        invalid_response = json.dumps(
+            {
+                "markets": [
+                    {
+                        "id": "m1",
+                        "category": "Invalid",  # Invalid category
+                        "underlying": "BTC",
+                        "strike_type": "greater",
+                    }
+                ]
+            }
+        )
+        valid_response = json.dumps(
+            {
+                "category": "Crypto",
                 "underlying": "BTC",
                 "strike_type": "greater",
-            }]
-        })
-        valid_response = json.dumps({
-            "category": "Crypto",
-            "underlying": "BTC",
-            "strike_type": "greater",
-            "floor_strike": 100000,
-            "cap_strike": None,
-        })
+                "floor_strike": 100000,
+                "cap_strike": None,
+            }
+        )
 
         call_count = 0
 
-        async def mock_send(*args):
+        async def mock_send(*args, **kwargs):
             nonlocal call_count
             call_count += 1
             if call_count == 1:

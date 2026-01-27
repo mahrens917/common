@@ -5,7 +5,10 @@ import json
 import pytest
 
 from common.llm_extractor._response_parser import (
+    ExtraDataInResponse,
+    _parse_json_with_recovery,
     parse_kalshi_dedup_response,
+    parse_kalshi_underlying_batch_response,
     parse_kalshi_underlying_response,
     parse_poly_batch_response,
     parse_poly_extraction_response,
@@ -92,10 +95,71 @@ class TestParseKalshiUnderlyingResponse:
         response = '{"other": "value"}'
         assert parse_kalshi_underlying_response(response) is None
 
-    def test_returns_none_for_invalid_json(self) -> None:
-        """Test that invalid JSON returns None."""
-        response = 'not json'
-        assert parse_kalshi_underlying_response(response) is None
+    def test_raises_for_invalid_json(self) -> None:
+        """Test that invalid JSON raises JSONDecodeError."""
+        response = "not json"
+        with pytest.raises(json.JSONDecodeError):
+            parse_kalshi_underlying_response(response)
+
+
+class TestParseKalshiUnderlyingBatchResponse:
+    """Tests for parse_kalshi_underlying_batch_response."""
+
+    def test_parses_valid_batch(self) -> None:
+        """Test parsing a valid batch response."""
+        response = json.dumps(
+            {
+                "markets": [
+                    {"id": "m1", "underlying": "BTC"},
+                    {"id": "m2", "underlying": "ETH"},
+                ]
+            }
+        )
+        results, failed = parse_kalshi_underlying_batch_response(response, ["m1", "m2"])
+        assert results == {"m1": "BTC", "m2": "ETH"}
+        assert failed == []
+
+    def test_uppercases_underlyings(self) -> None:
+        """Test that underlyings are uppercased."""
+        response = json.dumps({"markets": [{"id": "m1", "underlying": "btc"}]})
+        results, _ = parse_kalshi_underlying_batch_response(response, ["m1"])
+        assert results["m1"] == "BTC"
+
+    def test_returns_failed_ids_for_missing(self) -> None:
+        """Test that missing IDs are returned as failed."""
+        response = json.dumps({"markets": [{"id": "m1", "underlying": "BTC"}]})
+        results, failed = parse_kalshi_underlying_batch_response(response, ["m1", "m2"])
+        assert "m1" in results
+        assert "m2" in failed
+
+    def test_handles_id_correction(self) -> None:
+        """Test that ID correction works for case differences."""
+        response = json.dumps({"markets": [{"id": "M1", "underlying": "BTC"}]})  # LLM uppercased
+        results, failed = parse_kalshi_underlying_batch_response(response, ["m1"])  # Original lowercase
+        assert "m1" in results
+        assert results["m1"] == "BTC"
+        assert failed == []
+
+    def test_returns_empty_for_missing_markets_key(self) -> None:
+        """Test that missing 'markets' key returns all IDs as failed."""
+        response = json.dumps({"data": []})
+        results, failed = parse_kalshi_underlying_batch_response(response, ["m1", "m2"])
+        assert results == {}
+        assert failed == ["m1", "m2"]
+
+    def test_skips_items_without_underlying(self) -> None:
+        """Test that items without underlying are skipped."""
+        response = json.dumps(
+            {
+                "markets": [
+                    {"id": "m1", "underlying": "BTC"},
+                    {"id": "m2"},  # Missing underlying
+                ]
+            }
+        )
+        results, failed = parse_kalshi_underlying_batch_response(response, ["m1", "m2"])
+        assert results == {"m1": "BTC"}
+        assert "m2" in failed
 
 
 class TestParseKalshiDedupResponse:
@@ -103,12 +167,14 @@ class TestParseKalshiDedupResponse:
 
     def test_parses_valid_response_with_groups(self) -> None:
         """Test parsing a valid response with duplicate groups."""
-        response = json.dumps({
-            "groups": [
-                {"canonical": "BTC", "aliases": ["BITCOIN", "XBT"]},
-                {"canonical": "ETH", "aliases": ["ETHEREUM"]},
-            ]
-        })
+        response = json.dumps(
+            {
+                "groups": [
+                    {"canonical": "BTC", "aliases": ["BITCOIN", "XBT"]},
+                    {"canonical": "ETH", "aliases": ["ETHEREUM"]},
+                ]
+            }
+        )
         mapping = parse_kalshi_dedup_response(response)
         assert mapping["BITCOIN"] == "BTC"
         assert mapping["XBT"] == "BTC"
@@ -121,15 +187,14 @@ class TestParseKalshiDedupResponse:
 
     def test_uppercases_all_values(self) -> None:
         """Test that all values are uppercased."""
-        response = json.dumps({
-            "groups": [{"canonical": "btc", "aliases": ["bitcoin"]}]
-        })
+        response = json.dumps({"groups": [{"canonical": "btc", "aliases": ["bitcoin"]}]})
         mapping = parse_kalshi_dedup_response(response)
         assert mapping["BITCOIN"] == "BTC"
 
-    def test_returns_empty_dict_for_invalid_json(self) -> None:
-        """Test that invalid JSON returns empty dict."""
-        assert parse_kalshi_dedup_response("not json") == {}
+    def test_raises_for_invalid_json(self) -> None:
+        """Test that invalid JSON raises JSONDecodeError."""
+        with pytest.raises(json.JSONDecodeError):
+            parse_kalshi_dedup_response("not json")
 
 
 class TestValidatePolyExtraction:
@@ -183,29 +248,27 @@ class TestValidatePolyExtraction:
         assert not is_valid
         assert "invalid strike_type" in error
 
-    def test_non_numeric_floor_strike_fails(self) -> None:
-        """Test that non-numeric floor_strike fails validation."""
+    def test_non_numeric_floor_strike_raises(self) -> None:
+        """Test that non-numeric floor_strike raises ValueError."""
         extraction = {
             "category": "Crypto",
             "underlying": "BTC",
             "strike_type": "greater",
             "floor_strike": "not a number",
         }
-        is_valid, error = validate_poly_extraction(extraction, {"Crypto"}, {"BTC"})
-        assert not is_valid
-        assert "floor_strike not numeric" in error
+        with pytest.raises(ValueError, match="floor_strike not numeric"):
+            validate_poly_extraction(extraction, {"Crypto"}, {"BTC"})
 
-    def test_non_numeric_cap_strike_fails(self) -> None:
-        """Test that non-numeric cap_strike fails validation."""
+    def test_non_numeric_cap_strike_raises(self) -> None:
+        """Test that non-numeric cap_strike raises ValueError."""
         extraction = {
             "category": "Crypto",
             "underlying": "BTC",
             "strike_type": "less",
             "cap_strike": "not a number",
         }
-        is_valid, error = validate_poly_extraction(extraction, {"Crypto"}, {"BTC"})
-        assert not is_valid
-        assert "cap_strike not numeric" in error
+        with pytest.raises(ValueError, match="cap_strike not numeric"):
+            validate_poly_extraction(extraction, {"Crypto"}, {"BTC"})
 
     def test_cap_not_greater_than_floor_fails(self) -> None:
         """Test that cap <= floor fails validation."""
@@ -263,16 +326,16 @@ class TestParsePolyExtractionResponse:
 
     def test_parses_valid_response(self) -> None:
         """Test parsing a valid response."""
-        response = json.dumps({
-            "category": "Crypto",
-            "underlying": "BTC",
-            "strike_type": "greater",
-            "floor_strike": 100000,
-            "cap_strike": None,
-        })
-        extraction, error = parse_poly_extraction_response(
-            response, "m1", {"Crypto"}, {"BTC"}
+        response = json.dumps(
+            {
+                "category": "Crypto",
+                "underlying": "BTC",
+                "strike_type": "greater",
+                "floor_strike": 100000,
+                "cap_strike": None,
+            }
         )
+        extraction, error = parse_poly_extraction_response(response, "m1", {"Crypto"}, {"BTC"})
         assert extraction is not None
         assert extraction.market_id == "m1"
         assert extraction.category == "Crypto"
@@ -283,24 +346,21 @@ class TestParsePolyExtractionResponse:
 
     def test_returns_none_for_invalid_category(self) -> None:
         """Test that invalid category returns None."""
-        response = json.dumps({
-            "category": "Invalid",
-            "underlying": "BTC",
-            "strike_type": "greater",
-        })
-        extraction, error = parse_poly_extraction_response(
-            response, "m1", {"Crypto"}, {"BTC"}
+        response = json.dumps(
+            {
+                "category": "Invalid",
+                "underlying": "BTC",
+                "strike_type": "greater",
+            }
         )
+        extraction, error = parse_poly_extraction_response(response, "m1", {"Crypto"}, {"BTC"})
         assert extraction is None
         assert "invalid category" in error
 
-    def test_returns_none_for_invalid_json(self) -> None:
-        """Test that invalid JSON returns None."""
-        extraction, error = parse_poly_extraction_response(
-            "not json", "m1", {"Crypto"}, {"BTC"}
-        )
-        assert extraction is None
-        assert "JSON parse error" in error
+    def test_raises_for_invalid_json(self) -> None:
+        """Test that invalid JSON raises JSONDecodeError."""
+        with pytest.raises(json.JSONDecodeError):
+            parse_poly_extraction_response("not json", "m1", {"Crypto"}, {"BTC"})
 
 
 class TestParsePolyBatchResponse:
@@ -308,29 +368,29 @@ class TestParsePolyBatchResponse:
 
     def test_parses_valid_batch(self) -> None:
         """Test parsing a valid batch response."""
-        response = json.dumps({
-            "markets": [
-                {
-                    "id": "m1",
-                    "category": "Crypto",
-                    "underlying": "BTC",
-                    "strike_type": "greater",
-                    "floor_strike": 100000,
-                    "cap_strike": None,
-                },
-                {
-                    "id": "m2",
-                    "category": "Sports",
-                    "underlying": "NFL",
-                    "strike_type": "between",
-                    "floor_strike": 10,
-                    "cap_strike": 20,
-                },
-            ]
-        })
-        extractions, failed = parse_poly_batch_response(
-            response, {"Crypto", "Sports"}, {"BTC", "NFL"}
+        response = json.dumps(
+            {
+                "markets": [
+                    {
+                        "id": "m1",
+                        "category": "Crypto",
+                        "underlying": "BTC",
+                        "strike_type": "greater",
+                        "floor_strike": 100000,
+                        "cap_strike": None,
+                    },
+                    {
+                        "id": "m2",
+                        "category": "Sports",
+                        "underlying": "NFL",
+                        "strike_type": "between",
+                        "floor_strike": 10,
+                        "cap_strike": 20,
+                    },
+                ]
+            }
         )
+        extractions, failed = parse_poly_batch_response(response, {"Crypto", "Sports"}, {"BTC", "NFL"})
         assert len(extractions) == 2
         assert "m1" in extractions
         assert "m2" in extractions
@@ -338,50 +398,92 @@ class TestParsePolyBatchResponse:
 
     def test_separates_valid_and_invalid(self) -> None:
         """Test that valid and invalid items are separated."""
-        response = json.dumps({
-            "markets": [
-                {
-                    "id": "valid",
-                    "category": "Crypto",
-                    "underlying": "BTC",
-                    "strike_type": "greater",
-                },
-                {
-                    "id": "invalid",
-                    "category": "Invalid",
-                    "underlying": "BTC",
-                    "strike_type": "greater",
-                },
-            ]
-        })
-        extractions, failed = parse_poly_batch_response(
-            response, {"Crypto"}, {"BTC"}
+        response = json.dumps(
+            {
+                "markets": [
+                    {
+                        "id": "valid",
+                        "category": "Crypto",
+                        "underlying": "BTC",
+                        "strike_type": "greater",
+                    },
+                    {
+                        "id": "invalid",
+                        "category": "Invalid",
+                        "underlying": "BTC",
+                        "strike_type": "greater",
+                    },
+                ]
+            }
         )
+        extractions, failed = parse_poly_batch_response(response, {"Crypto"}, {"BTC"})
         assert len(extractions) == 1
         assert "valid" in extractions
         assert "invalid" in failed
 
-    def test_returns_empty_for_invalid_json(self) -> None:
-        """Test that invalid JSON returns empty results."""
-        extractions, failed = parse_poly_batch_response(
-            "not json", {"Crypto"}, {"BTC"}, ["m1", "m2"]
-        )
-        assert len(extractions) == 0
-        assert failed == ["m1", "m2"]
+    def test_raises_for_invalid_json(self) -> None:
+        """Test that invalid JSON raises JSONDecodeError."""
+        with pytest.raises(json.JSONDecodeError):
+            parse_poly_batch_response("not json", {"Crypto"}, {"BTC"}, ["m1", "m2"])
 
     def test_handles_id_correction(self) -> None:
         """Test that ID correction works."""
-        response = json.dumps({
-            "markets": [
-                {
-                    "id": "COND-1",  # LLM uppercased it
-                    "category": "Crypto",
-                    "underlying": "BTC",
-                    "strike_type": "greater",
-                },
-            ]
-        })
-        extractions, _ = parse_poly_batch_response(
-            response, {"Crypto"}, {"BTC"}, ["cond-1"]  # Original was lowercase
+        response = json.dumps(
+            {
+                "markets": [
+                    {
+                        "id": "COND-1",  # LLM uppercased it
+                        "category": "Crypto",
+                        "underlying": "BTC",
+                        "strike_type": "greater",
+                    },
+                ]
+            }
         )
+        extractions, _ = parse_poly_batch_response(response, {"Crypto"}, {"BTC"}, ["cond-1"])  # Original was lowercase
         assert "cond-1" in extractions
+
+
+class TestExtraDataInResponse:
+    """Tests for ExtraDataInResponse exception."""
+
+    def test_raises_on_extra_data(self) -> None:
+        """Test that extra data raises ExtraDataInResponse by default."""
+        text = '{"key": "value"}Wait, I need to reconsider...'
+        with pytest.raises(ExtraDataInResponse) as exc_info:
+            _parse_json_with_recovery(text)
+        assert "Wait" in exc_info.value.extra_text
+
+    def test_allows_extra_data_when_enabled(self) -> None:
+        """Test that extra data is recovered when allow_extra_data=True."""
+        text = '{"key": "value"}Some extra text'
+        result = _parse_json_with_recovery(text, allow_extra_data=True)
+        assert result == {"key": "value"}
+
+
+class TestDedupValidation:
+    """Tests for dedup response validation with original underlyings."""
+
+    def test_filters_invalid_canonical(self) -> None:
+        """Test that invalid canonical is filtered out."""
+        response = json.dumps({"groups": [{"canonical": "INVALID", "aliases": ["BTC"]}]})
+        result = parse_kalshi_dedup_response(response, original_underlyings={"BTC", "ETH"})
+        assert result == {}
+
+    def test_filters_invalid_alias(self) -> None:
+        """Test that invalid aliases are filtered out."""
+        response = json.dumps({"groups": [{"canonical": "BTC", "aliases": ["BITCOIN", "INVALID"]}]})
+        result = parse_kalshi_dedup_response(response, original_underlyings={"BTC", "BITCOIN"})
+        assert result == {"BITCOIN": "BTC"}
+
+    def test_keeps_valid_mappings(self) -> None:
+        """Test that valid mappings are kept."""
+        response = json.dumps({"groups": [{"canonical": "BTC", "aliases": ["BITCOIN"]}]})
+        result = parse_kalshi_dedup_response(response, original_underlyings={"BTC", "BITCOIN"})
+        assert result == {"BITCOIN": "BTC"}
+
+    def test_no_validation_without_original(self) -> None:
+        """Test that no validation happens without original_underlyings."""
+        response = json.dumps({"groups": [{"canonical": "BTC", "aliases": ["BITCOIN", "XBT"]}]})
+        result = parse_kalshi_dedup_response(response)
+        assert result == {"BITCOIN": "BTC", "XBT": "BTC"}

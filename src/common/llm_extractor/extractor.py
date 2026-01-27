@@ -8,11 +8,15 @@ from typing import TYPE_CHECKING
 
 from redis.asyncio import Redis
 
+from ..redis_protocol.typing import ensure_awaitable
+
 if TYPE_CHECKING:
     pass
 
 from ._response_parser import (
+    ExtraDataInResponse,
     parse_kalshi_dedup_response,
+    parse_kalshi_underlying_batch_response,
     parse_kalshi_underlying_response,
     parse_poly_batch_response,
     parse_poly_extraction_response,
@@ -21,6 +25,8 @@ from .client import AnthropicClient
 from .models import MarketExtraction
 from .prompts import (
     build_kalshi_dedup_prompt,
+    build_kalshi_underlying_batch_prompt,
+    build_kalshi_underlying_batch_user_content,
     build_kalshi_underlying_prompt,
     build_kalshi_underlying_user_content,
     build_poly_batch_user_content,
@@ -51,7 +57,7 @@ def _get_ttl() -> int:
 
 
 class KalshiUnderlyingExtractor:
-    """Extract underlyings from Kalshi markets one at a time with caching."""
+    """Extract underlyings from Kalshi markets with batching and caching."""
 
     def __init__(self, api_key: str | None = None) -> None:
         """Initialize the extractor.
@@ -71,7 +77,7 @@ class KalshiUnderlyingExtractor:
         markets: list[dict],
         redis: Redis,
     ) -> dict[str, str]:
-        """Extract underlyings for Kalshi markets one at a time.
+        """Extract underlyings for Kalshi markets with batching.
 
         Args:
             markets: List of market dicts with 'id', 'title', 'rules_primary', 'category'.
@@ -98,23 +104,73 @@ class KalshiUnderlyingExtractor:
 
         logger.info("Extracting underlyings for %d uncached Kalshi markets", len(uncached))
 
-        for i, market in enumerate(uncached):
-            market_id = market["id"]
-            underlying = await self._extract_single(market, list(accumulated_underlyings))
+        # Process in batches with concurrency
+        batches = [uncached[i : i + _BATCH_SIZE] for i in range(0, len(uncached), _BATCH_SIZE)]
 
-            if underlying:
-                results[market_id] = underlying
-                accumulated_underlyings.add(underlying)
-                await self._store_cached(market_id, underlying, redis)
+        for chunk_start in range(0, len(batches), _CONCURRENT_REQUESTS):
+            chunk_end = min(chunk_start + _CONCURRENT_REQUESTS, len(batches))
+            chunk = batches[chunk_start:chunk_end]
 
-            if (i + 1) % 50 == 0:
-                logger.info("Progress: %d/%d Kalshi markets extracted", i + 1, len(uncached))
+            # All batches in this chunk share the same existing underlyings
+            existing = list(accumulated_underlyings)
+            tasks = [self._extract_batch_with_retry(batch, existing, redis) for batch in chunk]
+            chunk_results = await asyncio.gather(*tasks)
+
+            # Merge results and accumulate new underlyings
+            for batch_results in chunk_results:
+                for market_id, underlying in batch_results.items():
+                    results[market_id] = underlying
+                    accumulated_underlyings.add(underlying)
+
+            processed = min(chunk_end * _BATCH_SIZE, len(uncached))
+            logger.info("Progress: %d/%d Kalshi markets extracted", processed, len(uncached))
 
         logger.info("Kalshi extraction complete: %d total", len(results))
         return results
 
+    async def _extract_batch_with_retry(
+        self,
+        batch: list[dict],
+        existing_underlyings: list[str],
+        redis: Redis,
+    ) -> dict[str, str]:
+        """Extract underlyings for a batch with retry for failed items."""
+        prompt = build_kalshi_underlying_batch_prompt(existing_underlyings)
+        user_content = build_kalshi_underlying_batch_user_content(batch)
+        original_ids = [m["id"] for m in batch]
+
+        # Use batch prefill to force {"markets": [...]} structure
+        # Retry once if LLM adds extra data after JSON
+        for attempt in range(2):
+            response = await self._client.send_message(prompt, user_content, json_prefill='{"markets": [')
+            try:
+                results, failed_ids = parse_kalshi_underlying_batch_response(response, original_ids)
+                break
+            except ExtraDataInResponse as e:
+                if attempt == 0:
+                    logger.debug("Extra data in Kalshi batch response, retrying: %s", e.extra_text[:100])
+                    continue
+                # Second attempt also had extra data, fall back to individual extraction
+                logger.warning("Extra data persisted after retry, falling back to individual extraction")
+                results = {}
+                failed_ids = original_ids
+
+        # Retry failed items individually
+        if failed_ids:
+            logger.debug("Retrying %d failed Kalshi extractions", len(failed_ids))
+            failed_markets = [m for m in batch if m["id"] in failed_ids]
+            for market in failed_markets:
+                underlying = await self._extract_single(market, existing_underlyings)
+                if underlying:
+                    results[market["id"]] = underlying
+
+        # Store successful extractions in cache
+        await self._store_cached_batch(results, redis)
+
+        return results
+
     async def _extract_single(self, market: dict, existing_underlyings: list[str]) -> str | None:
-        """Extract underlying for a single market."""
+        """Extract underlying for a single market (used for retries)."""
         prompt = build_kalshi_underlying_prompt(existing_underlyings)
         user_content = build_kalshi_underlying_user_content(
             title=market.get("title", ""),
@@ -127,16 +183,23 @@ class KalshiUnderlyingExtractor:
     async def _load_cached(self, market_id: str, redis: Redis) -> str | None:
         """Load cached underlying from Redis."""
         key = _get_redis_key(market_id, "kalshi")
-        data = await redis.hgetall(key)
+        data = await ensure_awaitable(redis.hgetall(key))
         if data and "underlying" in data:
             return data["underlying"]
         return None
 
-    async def _store_cached(self, market_id: str, underlying: str, redis: Redis) -> None:
-        """Store underlying in Redis cache."""
-        key = _get_redis_key(market_id, "kalshi")
-        await redis.hset(key, mapping={"underlying": underlying})
-        await redis.expire(key, _get_ttl())
+    async def _store_cached_batch(self, results: dict[str, str], redis: Redis) -> None:
+        """Store batch of underlyings in Redis cache."""
+        if not results:
+            return
+
+        pipe = redis.pipeline()
+        for market_id, underlying in results.items():
+            key = _get_redis_key(market_id, "kalshi")
+            pipe.hset(key, mapping={"underlying": underlying})
+            pipe.expire(key, _get_ttl())
+
+        await pipe.execute()
 
 
 class KalshiDedupExtractor:
@@ -169,43 +232,59 @@ class KalshiDedupExtractor:
         Returns:
             Dict mapping alias -> canonical for all duplicates found.
         """
-        all_mappings: dict[str, str] = {}
+        import json as json_module
 
+        all_mappings: dict[str, str] = {}
+        uncached_categories: list[tuple[str, list[str]]] = []
+
+        # Check cache for all categories first
         for category, underlyings in underlyings_by_category.items():
             if len(underlyings) < 2:
                 continue
 
-            # Check cache first
             cache_key = f"{_REDIS_PREFIX_DEDUP}:{category}"
             cached = await redis.get(cache_key)
             if cached:
-                import json
+                cached_mapping = json_module.loads(cached)
+                all_mappings.update(cached_mapping)
+                logger.info("Loaded cached dedup mapping for %s", category)
+            else:
+                uncached_categories.append((category, list(underlyings)))
 
-                try:
-                    cached_mapping = json.loads(cached)
-                    all_mappings.update(cached_mapping)
-                    logger.info("Loaded cached dedup mapping for %s", category)
-                    continue
-                except (ValueError, TypeError):
-                    pass
+        if not uncached_categories:
+            return all_mappings
 
-            # Run dedup for this category
-            mapping = await self._dedup_category(category, list(underlyings))
-            if mapping:
-                all_mappings.update(mapping)
-                # Cache the result
-                import json
+        # Process uncached categories concurrently
+        logger.info("Deduplicating %d categories", len(uncached_categories))
+        tasks = [self._dedup_category_with_cache(cat, underlyings, redis) for cat, underlyings in uncached_categories]
+        results = await asyncio.gather(*tasks)
 
-                await redis.set(cache_key, json.dumps(mapping), ex=_get_ttl())
-                logger.info("Deduped %s: found %d aliases", category, len(mapping))
+        for mapping in results:
+            all_mappings.update(mapping)
 
         return all_mappings
+
+    async def _dedup_category_with_cache(
+        self,
+        category: str,
+        underlyings: list[str],
+        redis: Redis,
+    ) -> dict[str, str]:
+        """Run dedup for a single category and cache result."""
+        import json as json_module
+
+        mapping = await self._dedup_category(category, underlyings)
+        if mapping:
+            cache_key = f"{_REDIS_PREFIX_DEDUP}:{category}"
+            await redis.set(cache_key, json_module.dumps(mapping), ex=_get_ttl())
+            logger.info("Deduped %s: found %d aliases", category, len(mapping))
+        return mapping
 
     async def _dedup_category(self, category: str, underlyings: list[str]) -> dict[str, str]:
         """Run dedup for a single category."""
         prompt = build_kalshi_dedup_prompt(category, underlyings)
         response = await self._client.send_message(prompt, "Please identify any duplicates.")
-        return parse_kalshi_dedup_response(response)
+        return parse_kalshi_dedup_response(response, original_underlyings=set(underlyings))
 
 
 class PolyExtractor:
@@ -261,9 +340,7 @@ class PolyExtractor:
             chunk_end = min(chunk_start + _CONCURRENT_REQUESTS, len(batches))
             chunk = batches[chunk_start:chunk_end]
 
-            tasks = [
-                self._extract_batch_with_retry(batch, valid_categories, valid_underlyings, redis) for batch in chunk
-            ]
+            tasks = [self._extract_batch_with_retry(batch, valid_categories, valid_underlyings, redis) for batch in chunk]
             chunk_results = await asyncio.gather(*tasks)
 
             for batch_results in chunk_results:
@@ -287,21 +364,30 @@ class PolyExtractor:
         user_content = build_poly_batch_user_content(batch)
         original_ids = [m["id"] for m in batch]
 
-        response = await self._client.send_message(prompt, user_content)
-        extractions, failed_ids = parse_poly_batch_response(
-            response, valid_categories, valid_underlyings, original_ids
-        )
+        # Use batch prefill to force {"markets": [...]} structure
+        # Retry once if LLM adds extra data after JSON
+        for attempt in range(2):
+            response = await self._client.send_message(prompt, user_content, json_prefill='{"markets": [')
+            try:
+                extractions, failed_ids = parse_poly_batch_response(response, valid_categories, valid_underlyings, original_ids)
+                break
+            except ExtraDataInResponse as e:
+                if attempt == 0:
+                    logger.debug("Extra data in Poly batch response, retrying: %s", e.extra_text[:100])
+                    continue
+                # Second attempt also had extra data, fall back to individual extraction
+                logger.warning("Extra data persisted after retry, falling back to individual extraction")
+                extractions = {}
+                failed_ids = original_ids
 
         results = list(extractions.values())
 
         # Retry failed items individually
         if failed_ids:
-            logger.info("Retrying %d failed Poly extractions", len(failed_ids))
+            logger.debug("Retrying %d failed Poly extractions", len(failed_ids))
             failed_markets = [m for m in batch if m["id"] in failed_ids]
             for market in failed_markets:
-                extraction = await self._extract_single_with_retry(
-                    market, valid_categories, valid_underlyings
-                )
+                extraction = await self._extract_single_with_retry(market, valid_categories, valid_underlyings)
                 if extraction:
                     results.append(extraction)
 
@@ -325,23 +411,20 @@ class PolyExtractor:
 
         # First attempt
         response = await self._client.send_message(prompt, user_content)
-        extraction, error = parse_poly_extraction_response(
-            response, market["id"], valid_categories, valid_underlyings
-        )
+        extraction, error = parse_poly_extraction_response(response, market["id"], valid_categories, valid_underlyings)
         if extraction:
             return extraction
 
-        logger.warning("First attempt failed for %s: %s, retrying", market["id"], error)
+        # Debug level since many Poly markets don't match Kalshi coverage
+        logger.debug("First attempt failed for %s: %s, retrying", market["id"], error)
 
         # Retry once
         response = await self._client.send_message(prompt, user_content)
-        extraction, error = parse_poly_extraction_response(
-            response, market["id"], valid_categories, valid_underlyings
-        )
+        extraction, error = parse_poly_extraction_response(response, market["id"], valid_categories, valid_underlyings)
         if extraction:
             return extraction
 
-        logger.warning("Retry failed for %s: %s, skipping", market["id"], error)
+        logger.debug("Retry failed for %s: %s, skipping", market["id"], error)
         return None
 
     async def _load_cached_batch(
@@ -360,7 +443,7 @@ class PolyExtractor:
         for market in markets:
             market_id = market["id"]
             key = _get_redis_key(market_id, "poly")
-            data = await redis.hgetall(key)
+            data = await ensure_awaitable(redis.hgetall(key))
 
             if data and "category" in data and "underlying" in data:
                 extraction = MarketExtraction(

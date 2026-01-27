@@ -31,7 +31,7 @@ Extract the underlying - a short uppercase code for the asset/entity being measu
 
 If an existing underlying matches, use it exactly. Only create a new code if none fit.
 
-Return JSON:
+Output ONLY valid JSON. Do NOT add any text, explanations, or reasoning.
 {{"underlying": "..."}}"""
 
 
@@ -52,6 +52,59 @@ def build_kalshi_underlying_user_content(title: str, rules_primary: str, categor
     return "\n".join(lines)
 
 
+def build_kalshi_underlying_batch_prompt(existing_underlyings: list[str]) -> str:
+    """Build prompt for batch extracting underlyings from Kalshi markets.
+
+    Args:
+        existing_underlyings: List of already-extracted underlyings to prefer.
+
+    Returns:
+        System prompt string.
+    """
+    underlyings_json = json.dumps(sorted(existing_underlyings)) if existing_underlyings else "[]"
+
+    return f"""You are a market data analyst. Extract the underlying asset code from multiple Kalshi prediction markets.
+
+EXISTING UNDERLYINGS (use one of these if it matches, only create new if none fit):
+{underlyings_json}
+
+Extract the underlying - a short uppercase code for the asset/entity being measured:
+  - Crypto: "BTC", "ETH", "SOL", "DOGE", "SHIB"
+  - Forex: "USDJPY", "EURUSD", "GBPUSD"
+  - Weather: "NYC", "CHI", "SEA", "LAX", "DEN"
+  - Sports: "NFL", "NBA", "MLB", "UCL"
+  - Economics: "FED", "CPI", "GDP"
+  - Entertainment: "SPOTIFY", "BILLBOARD"
+
+If an existing underlying matches, use it exactly. Only create a new code if none fit.
+
+Output ONLY valid JSON. Do NOT add any text, explanations, or reasoning after the JSON.
+Return a single JSON object with a "markets" array containing one object per market:
+{{"markets": [{{"id": "market_id_1", "underlying": "CODE1"}}, {{"id": "market_id_2", "underlying": "CODE2"}}]}}"""
+
+
+def build_kalshi_underlying_batch_user_content(markets: list[dict]) -> str:
+    """Build user message for batch Kalshi underlying extraction.
+
+    Args:
+        markets: List of market dicts with 'id', 'title', 'rules_primary', 'category'.
+
+    Returns:
+        User message string with all markets.
+    """
+    parts: list[str] = []
+    for market in markets:
+        market_id = market["id"]
+        title = market.get("title", "")
+        category = market.get("category", "")
+        lines = [f"[ID: {market_id}]", f"Title: {title}", f"Category: {category}"]
+        rules = market.get("rules_primary", "")
+        if rules:
+            lines.append(f"Rules: {rules[:300]}")
+        parts.append("\n".join(lines))
+    return "\n\n---\n\n".join(parts)
+
+
 def build_kalshi_dedup_prompt(category: str, underlyings: list[str]) -> str:
     """Build prompt for deduplicating underlyings within a category.
 
@@ -64,16 +117,28 @@ def build_kalshi_dedup_prompt(category: str, underlyings: list[str]) -> str:
     """
     underlyings_json = json.dumps(sorted(underlyings))
 
-    return f"""You are a market data analyst. Review these underlyings extracted from {category} markets and identify any that refer to the same asset.
+    return f"""You are a market data analyst. Review these underlyings from {category} markets and identify ONLY those that refer to the EXACT SAME asset.
 
 Underlyings: {underlyings_json}
 
-Group any duplicates. Pick the best canonical name for each group (prefer shorter, standard codes like "BTC" over "BITCOIN").
+CRITICAL: Only group codes that are TRULY IDENTICAL assets with different names/tickers.
 
-Return JSON:
-{{"groups": [{{"canonical": "BTC", "aliases": ["BITCOIN", "XBT"]}}, {{"canonical": "ETH", "aliases": ["ETHEREUM"]}}]}}
+CORRECT groupings (same asset, different names):
+- BTC, BITCOIN, XBT -> all refer to Bitcoin
+- ETH, ETHEREUM -> both refer to Ethereum
+- NDX, NASDAQ100 -> both refer to NASDAQ-100 index
 
-If no duplicates found, return: {{"groups": []}}"""
+INCORRECT groupings (different assets, do NOT group):
+- SPX and NDX -> S&P 500 vs NASDAQ-100 are DIFFERENT indices
+- BTC and ETH -> different cryptocurrencies
+- NYC and CHI -> different cities
+
+Pick the canonical name (prefer standard ticker codes like "BTC" over "BITCOIN").
+
+Output ONLY valid JSON. Do NOT add any text or explanations.
+{{"groups": [{{"canonical": "BTC", "aliases": ["BITCOIN", "XBT"]}}]}}
+
+If no duplicates found: {{"groups": []}}"""
 
 
 def build_poly_prompt(
@@ -125,11 +190,18 @@ Extract:
    - "between $3500 and $3600" -> 3600
    - No threshold -> null
 
-Return JSON:
+For SINGLE market, output:
 {{"category": "...", "underlying": "...", "strike_type": "...", "floor_strike": <number|null>, "cap_strike": <number|null>}}
 
-IMPORTANT: floor_strike and cap_strike must be numbers or null, never strings.
-IMPORTANT: category, underlying, and strike_type MUST be from the provided lists."""
+For MULTIPLE markets, output a "markets" array:
+{{"markets": [{{"id": "...", "category": "...", "underlying": "...", "strike_type": "...", "floor_strike": <number|null>, "cap_strike": <number|null>}}, ...]}}
+
+CRITICAL RULES:
+- Output ONLY valid JSON. Do NOT add any text, explanations, or reasoning.
+- Do NOT write "Wait, I need to reconsider" or any other commentary.
+- floor_strike and cap_strike must be numbers or null, never strings.
+- category, underlying, and strike_type MUST be from the provided lists.
+- If a market doesn't fit the valid lists, use null for that field."""
 
 
 def build_poly_user_content(title: str, description: str) -> str:
@@ -172,6 +244,8 @@ def build_poly_batch_user_content(markets: list[dict]) -> str:
 __all__ = [
     "build_kalshi_underlying_prompt",
     "build_kalshi_underlying_user_content",
+    "build_kalshi_underlying_batch_prompt",
+    "build_kalshi_underlying_batch_user_content",
     "build_kalshi_dedup_prompt",
     "build_poly_prompt",
     "build_poly_user_content",

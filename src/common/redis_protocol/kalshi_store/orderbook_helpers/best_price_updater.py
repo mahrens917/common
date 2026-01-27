@@ -1,23 +1,58 @@
 """Update best bid/ask prices from orderbook data."""
 
+from typing import Optional
+
 from redis.asyncio import Redis
 
 from ....market_filters.kalshi import extract_best_ask, extract_best_bid
+from ...market_update_api import compute_direction
 from ...typing import ensure_awaitable
 from .side_data_updater import SideDataUpdater
 from .snapshot_processor_helpers.redis_storage import store_optional_field as store_optional_field_core
 
+PRICE_UNAVAILABLE = 0
+
+
+def _parse_int_optional(value: object) -> Optional[int]:
+    """Parse value to int, returning None for missing/empty."""
+    if value is None or value in {"", b""}:
+        return None
+    if isinstance(value, int):
+        return value
+    if isinstance(value, bytes):
+        value = value.decode("utf-8")
+    if isinstance(value, str):
+        return int(float(value))
+    return None
+
 
 class BestPriceUpdater:
-    """Updates best bid/ask prices from orderbook sides.
-
-    Note: Tracker is responsible for computing and setting direction.
-    """
+    """Updates best bid/ask prices from orderbook sides."""
 
     @staticmethod
     async def store_optional_field(redis: Redis, market_key: str, field: str, value: object) -> None:
         """Backward-compatible wrapper for storing optional hash fields."""
         await store_optional_field_core(redis, market_key, field, value)
+
+    @staticmethod
+    async def _recompute_direction(redis: Redis, market_key: str) -> None:
+        """Recompute and store direction based on current prices and theoretical values."""
+        fields = await ensure_awaitable(redis.hmget(market_key, ["yes_bid", "yes_ask", "t_bid", "t_ask"]))
+        kalshi_bid = _parse_int_optional(fields[0])
+        kalshi_ask = _parse_int_optional(fields[1])
+        t_bid = _parse_int_optional(fields[2])
+        t_ask = _parse_int_optional(fields[3])
+
+        if t_bid is None and t_ask is None:
+            return
+
+        direction = compute_direction(
+            t_bid,
+            t_ask,
+            kalshi_bid if kalshi_bid is not None else PRICE_UNAVAILABLE,
+            kalshi_ask if kalshi_ask is not None else PRICE_UNAVAILABLE,
+        )
+        await ensure_awaitable(redis.hset(market_key, "direction", direction))
 
     @staticmethod
     async def update_from_side(redis: Redis, market_key: str, side_field: str) -> None:

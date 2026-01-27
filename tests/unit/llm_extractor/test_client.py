@@ -33,8 +33,44 @@ class TestAnthropicClientSendMessage:
     """Tests for AnthropicClient.send_message."""
 
     @pytest.mark.asyncio
-    async def test_sends_correct_payload(self) -> None:
-        """Test that the correct payload and headers are sent."""
+    async def test_sends_correct_payload_with_json_mode(self) -> None:
+        """Test that the correct payload with assistant prefill is sent in json_mode."""
+        client = AnthropicClient(api_key="sk-ant-test")
+
+        mock_response = MagicMock()
+        mock_response.status = 200
+        mock_response.raise_for_status = MagicMock()
+        # Response without leading brace (prefill provides it)
+        mock_response.json = AsyncMock(return_value={"content": [{"type": "text", "text": '"key": "value"}'}]})
+        mock_response.__aenter__ = AsyncMock(return_value=mock_response)
+        mock_response.__aexit__ = AsyncMock(return_value=False)
+
+        mock_session = MagicMock()
+        mock_session.post = MagicMock(return_value=mock_response)
+        mock_session.__aenter__ = AsyncMock(return_value=mock_session)
+        mock_session.__aexit__ = AsyncMock(return_value=False)
+
+        with patch("aiohttp.ClientSession", return_value=mock_session):
+            result = await client.send_message("system prompt", "user content")
+
+        # Result should have opening brace prepended
+        assert result == '{"key": "value"}'
+        call_kwargs = mock_session.post.call_args
+        payload = call_kwargs.kwargs["json"]
+        assert payload["model"] == "claude-haiku-4-5"
+        assert payload["system"] == "system prompt"
+        assert payload["messages"][0]["content"] == "user content"
+        # Check assistant prefill message
+        assert payload["messages"][1]["role"] == "assistant"
+        assert payload["messages"][1]["content"] == "{"
+
+        headers = call_kwargs.kwargs["headers"]
+        assert headers["x-api-key"] == "sk-ant-test"
+        assert headers["anthropic-version"] == "2023-06-01"
+
+    @pytest.mark.asyncio
+    async def test_sends_correct_payload_without_prefill(self) -> None:
+        """Test that no prefill is added when json_prefill=None."""
         client = AnthropicClient(api_key="sk-ant-test")
 
         mock_response = MagicMock()
@@ -50,18 +86,14 @@ class TestAnthropicClientSendMessage:
         mock_session.__aexit__ = AsyncMock(return_value=False)
 
         with patch("aiohttp.ClientSession", return_value=mock_session):
-            result = await client.send_message("system prompt", "user content")
+            result = await client.send_message("system prompt", "user content", json_prefill=None)
 
         assert result == "response text"
         call_kwargs = mock_session.post.call_args
         payload = call_kwargs.kwargs["json"]
-        assert payload["model"] == "claude-sonnet-4-20250514"
-        assert payload["system"] == "system prompt"
+        # Only one message (user), no assistant prefill
+        assert len(payload["messages"]) == 1
         assert payload["messages"][0]["content"] == "user content"
-
-        headers = call_kwargs.kwargs["headers"]
-        assert headers["x-api-key"] == "sk-ant-test"
-        assert headers["anthropic-version"] == "2023-06-01"
 
     @pytest.mark.asyncio
     async def test_extracts_text_from_response(self) -> None:
@@ -93,7 +125,8 @@ class TestAnthropicClientSendMessage:
         success_resp = MagicMock()
         success_resp.status = 200
         success_resp.raise_for_status = MagicMock()
-        success_resp.json = AsyncMock(return_value={"content": [{"type": "text", "text": "ok"}]})
+        # Response without leading brace (json_mode prefill provides it)
+        success_resp.json = AsyncMock(return_value={"content": [{"type": "text", "text": '"status": "ok"}'}]})
         success_resp.__aenter__ = AsyncMock(return_value=success_resp)
         success_resp.__aexit__ = AsyncMock(return_value=False)
 
@@ -114,6 +147,7 @@ class TestAnthropicClientSendMessage:
         with patch("aiohttp.ClientSession", return_value=mock_session):
             result = await client.send_message("sys", "user")
 
-        assert result == "ok"
+        # Result has opening brace prepended due to json_mode
+        assert result == '{"status": "ok"}'
         expected_calls = 1 + 1  # Initial rate-limited call + successful retry
         assert call_count == expected_calls
