@@ -12,7 +12,7 @@ from ._api_key import load_api_key_from_env_file
 logger = logging.getLogger(__name__)
 
 _ANTHROPIC_API_URL = "https://api.anthropic.com/v1/messages"
-_MODEL = "claude-opus-4-5"
+_MODEL = "claude-haiku-4-5"
 _API_TIMEOUT_SECONDS = 180
 _MAX_RETRIES = 5
 _INITIAL_BACKOFF_SECONDS = 1.0
@@ -26,9 +26,9 @@ _MAX_TOKENS = 4096
 class AnthropicClient:
     """Client for the Anthropic Messages API."""
 
-    # Claude Opus 4.5 pricing per million tokens
-    INPUT_COST_PER_MTOK = 15.0
-    OUTPUT_COST_PER_MTOK = 75.0
+    # Claude Haiku 4.5 pricing per million tokens
+    INPUT_COST_PER_MTOK = 1.0
+    OUTPUT_COST_PER_MTOK = 5.0
 
     def __init__(self, api_key: str | None = None) -> None:
         """Initialize the client with an API key."""

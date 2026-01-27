@@ -149,7 +149,7 @@ async def _load_cached(markets: Sequence[dict], platform: str, redis: Redis) -> 
 
 
 class MarketExtractor:
-    """Batch market extraction service using Claude Opus with Redis caching."""
+    """Batch market extraction service using Claude Haiku with Redis caching."""
 
     def __init__(self, platform: str, api_key: str | None = None) -> None:
         """Initialize the extractor for a given platform.
