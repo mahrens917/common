@@ -26,7 +26,6 @@ class MarketSignal:
     t_bid: float | None
     t_ask: float | None
     algo: str
-    is_owner: bool = True  # Whether this algo owns (or will own) the market
 
 
 def build_market_signals(
@@ -47,81 +46,43 @@ def build_market_signals(
     ]
 
 
-async def filter_allowed_signals(
-    redis: "Redis",
+def filter_valid_signals(
     market_signals: List[MarketSignal],
-    algo: str,
-    check_ownership_func: Any,
-) -> Tuple[List[MarketSignal], List[str], List[str]]:
-    """Check ownership for signals and mark is_owner flag.
+) -> Tuple[List[MarketSignal], List[str]]:
+    """Filter out signals with no prices.
 
-    In the new model, all writes are allowed (no rejection).
-    The is_owner flag determines if algo/direction fields are set.
+    Returns (valid_signals, failed_tickers).
     """
-    allowed: List[MarketSignal] = []
-    rejected: List[str] = []  # No longer used, kept for API compatibility
+    valid: List[MarketSignal] = []
     failed: List[str] = []
 
     for sig in market_signals:
         if sig.t_bid is None and sig.t_ask is None:
             failed.append(sig.ticker)
             continue
+        valid.append(sig)
 
-        # Check ownership but don't reject - just mark is_owner
-        ownership = await check_ownership_func(redis, sig.market_key, algo, sig.ticker)
-        # Create new signal with is_owner flag set
-        updated_sig = MarketSignal(
-            ticker=sig.ticker,
-            market_key=sig.market_key,
-            t_bid=sig.t_bid,
-            t_ask=sig.t_ask,
-            algo=sig.algo,
-            is_owner=not ownership.rejected,
-        )
-        allowed.append(updated_sig)
-
-    return allowed, rejected, failed
-
-
-async def fetch_kalshi_prices(
-    redis: "Redis",
-    signals: List[MarketSignal],
-) -> List[Any]:
-    """Fetch current Kalshi prices for all signals using pipeline."""
-    price_pipe = redis.pipeline()
-    for sig in signals:
-        price_pipe.hmget(sig.market_key, ["yes_bid", "yes_ask"])
-    return await with_redis_retry(
-        lambda: ensure_awaitable(price_pipe.execute()),
-        context="pipeline_fetch_kalshi_prices",
-    )
+    return valid, failed
 
 
 def build_signal_mapping(
     sig: MarketSignal,
-    direction: str,
     algo: str,
 ) -> Dict[str, Any]:
     """Build the Redis hash mapping for a signal using namespaced fields.
 
-    Namespaced fields ({algo}:t_bid, {algo}:t_ask) are always written.
-    Ownership fields (algo, direction) are only set if sig.is_owner is True.
+    Writes {algo}:t_bid and {algo}:t_ask fields only.
+    Tracker is responsible for setting algo/direction fields.
     """
     bid_field = algo_field(algo, "t_bid")
     ask_field = algo_field(algo, "t_ask")
 
     mapping: Dict[str, Any] = {}
 
-    # Always write namespaced theoretical prices
     if sig.t_bid is not None:
         mapping[bid_field] = sig.t_bid
     if sig.t_ask is not None:
         mapping[ask_field] = sig.t_ask
-
-    # Only set ownership fields if this algo is the owner
-    if sig.is_owner:
-        mapping["algo"] = algo
-        mapping["direction"] = direction
 
     return mapping
 

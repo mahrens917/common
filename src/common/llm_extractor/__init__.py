@@ -1,12 +1,20 @@
 """Unified LLM-based market extraction service.
 
 Exports:
-    MarketExtraction: Unified extraction result dataclass.
-    MarketExtractor: Batch extraction service with Redis caching.
-    KALSHI_CATEGORIES: Valid category tuple for market classification.
+    MarketExtraction: Extraction result dataclass.
+    VALID_POLY_STRIKE_TYPES: Valid strike types for Poly markets.
+    KalshiUnderlyingExtractor: Extract underlyings from Kalshi markets.
+    KalshiDedupExtractor: Deduplicate underlyings within categories.
+    PolyExtractor: Extract fields from Poly markets with validation.
 """
 
-from .extractor import MarketExtractor
-from .models import KALSHI_CATEGORIES, MarketExtraction
+from .extractor import KalshiDedupExtractor, KalshiUnderlyingExtractor, PolyExtractor
+from .models import VALID_POLY_STRIKE_TYPES, MarketExtraction
 
-__all__ = ["KALSHI_CATEGORIES", "MarketExtraction", "MarketExtractor"]
+__all__ = [
+    "KalshiDedupExtractor",
+    "KalshiUnderlyingExtractor",
+    "MarketExtraction",
+    "PolyExtractor",
+    "VALID_POLY_STRIKE_TYPES",
+]

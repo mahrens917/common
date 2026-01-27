@@ -4,8 +4,9 @@ from __future__ import annotations
 
 import json
 import logging
+from typing import Any
 
-from .models import KALSHI_CATEGORIES, MarketExtraction
+from .models import VALID_POLY_STRIKE_TYPES, MarketExtraction
 
 logger = logging.getLogger(__name__)
 
@@ -20,78 +21,23 @@ def strip_markdown_json(text: str) -> str:
 
 
 def parse_strike_value(value: object) -> float | None:
-    """Parse a strike value to float, handling strings and nulls."""
+    """Parse a strike value to float, handling strings and nulls.
+
+    Args:
+        value: The value to parse (int, float, str, or None).
+
+    Returns:
+        Float value or None.
+
+    Raises:
+        TypeError: If value is not a valid type.
+        ValueError: If string value cannot be converted to float.
+    """
     if value is None:
         return None
     if not isinstance(value, (int, float, str)):
         raise TypeError(f"Strike value must be int, float, or str, got {type(value).__name__}")
     return float(value)
-
-
-def _validate_category(category: object) -> str:
-    """Validate category is a valid string from KALSHI_CATEGORIES."""
-    if not isinstance(category, str):
-        raise TypeError(f"category must be str, got {type(category).__name__}")
-    if category not in KALSHI_CATEGORIES:
-        raise ValueError(f"Invalid category: {category}")
-    return category
-
-
-def _parse_string_field(item: dict, field_name: str) -> str:
-    """Extract and validate a required string field."""
-    value = item.get(field_name)
-    if not value or not isinstance(value, str):
-        raise ValueError(f"Missing or invalid {field_name}: {value}")
-    return value.upper() if field_name in ("underlying", "subject") else value
-
-
-def _parse_scopes(item: dict, field_name: str) -> tuple[str, ...]:
-    """Parse a scopes array field into a tuple of strings."""
-    raw = item.get(field_name)
-    if not raw or not isinstance(raw, list):
-        return ()
-    return tuple(str(s) for s in raw if s)
-
-
-def parse_single_item(item: dict, market_id: str, platform: str) -> MarketExtraction:
-    """Parse a single market item dict into a MarketExtraction."""
-    category = _validate_category(item.get("category"))
-    underlying = _parse_string_field(item, "underlying")
-    subject = _parse_string_field(item, "subject")
-    entity = _parse_string_field(item, "entity")
-    scope = _parse_string_field(item, "scope")
-    floor_strike = parse_strike_value(item.get("floor_strike"))
-    cap_strike = parse_strike_value(item.get("cap_strike"))
-
-    parent_entity = item.get("parent_entity")
-    if parent_entity and not isinstance(parent_entity, str):
-        parent_entity = str(parent_entity)
-    parent_scope = item.get("parent_scope")
-    if parent_scope and not isinstance(parent_scope, str):
-        parent_scope = str(parent_scope)
-
-    is_conjunction = bool(item.get("is_conjunction"))
-    conjunction_scopes = _parse_scopes(item, "conjunction_scopes")
-    is_union = bool(item.get("is_union"))
-    union_scopes = _parse_scopes(item, "union_scopes")
-
-    return MarketExtraction(
-        market_id=market_id,
-        platform=platform,
-        category=category,
-        underlying=underlying,
-        subject=subject,
-        entity=entity,
-        scope=scope,
-        floor_strike=floor_strike,
-        cap_strike=cap_strike,
-        parent_entity=parent_entity if parent_entity else None,
-        parent_scope=parent_scope if parent_scope else None,
-        is_conjunction=is_conjunction,
-        conjunction_scopes=conjunction_scopes,
-        is_union=is_union,
-        union_scopes=union_scopes,
-    )
 
 
 def _parse_json_with_recovery(text: str) -> dict:
@@ -105,7 +51,6 @@ def _parse_json_with_recovery(text: str) -> dict:
         return json.loads(text)
     except json.JSONDecodeError as e:
         if "Extra data" in str(e):
-            # LLM returned extra content after the JSON - use raw_decode to parse just the first object
             decoder = json.JSONDecoder()
             data, _ = decoder.raw_decode(text)
             logger.warning("LLM response contained extra data after JSON, recovered successfully")
@@ -113,22 +58,178 @@ def _parse_json_with_recovery(text: str) -> dict:
         raise
 
 
-def parse_batch_response(response_text: str, platform: str, original_ids: list[str] | None = None) -> dict[str, MarketExtraction]:
-    """Parse a batch Claude response into a dict of market_id -> MarketExtraction.
+def parse_kalshi_underlying_response(response_text: str) -> str | None:
+    """Parse Kalshi underlying extraction response.
 
     Args:
         response_text: Raw JSON response from Claude.
-        platform: "kalshi" or "poly".
-        original_ids: Original market IDs from input. If provided, used to correct
-            any ID mismatches from LLM response (LLMs don't reliably echo exact strings).
+
+    Returns:
+        Extracted underlying string (uppercased), or None if parsing fails.
     """
-    text = strip_markdown_json(response_text)
-    data = _parse_json_with_recovery(text)
+    try:
+        text = strip_markdown_json(response_text)
+        data = _parse_json_with_recovery(text)
+        underlying = data.get("underlying")
+        if underlying and isinstance(underlying, str):
+            return underlying.upper()
+        logger.warning("Missing or invalid underlying in response: %s", data)
+        return None
+    except (json.JSONDecodeError, KeyError) as e:
+        logger.warning("Failed to parse Kalshi underlying response: %s", e)
+        return None
+
+
+def parse_kalshi_dedup_response(response_text: str) -> dict[str, str]:
+    """Parse Kalshi dedup response into alias -> canonical mapping.
+
+    Args:
+        response_text: Raw JSON response from Claude.
+
+    Returns:
+        Dict mapping aliases to their canonical form.
+    """
+    try:
+        text = strip_markdown_json(response_text)
+        data = _parse_json_with_recovery(text)
+        groups = data.get("groups", [])
+        mapping: dict[str, str] = {}
+        for group in groups:
+            canonical = group.get("canonical", "").upper()
+            aliases = group.get("aliases", [])
+            for alias in aliases:
+                if isinstance(alias, str):
+                    mapping[alias.upper()] = canonical
+        return mapping
+    except (json.JSONDecodeError, KeyError) as e:
+        logger.warning("Failed to parse Kalshi dedup response: %s", e)
+        return {}
+
+
+def validate_poly_extraction(
+    extraction: dict[str, Any],
+    valid_categories: set[str],
+    valid_underlyings: set[str],
+) -> tuple[bool, str]:
+    """Validate Poly extraction against constraints.
+
+    Args:
+        extraction: Parsed extraction dict from LLM.
+        valid_categories: Set of valid category strings.
+        valid_underlyings: Set of valid underlying strings.
+
+    Returns:
+        Tuple of (is_valid, error_message). error_message is empty if valid.
+    """
+    category = extraction.get("category")
+    if category not in valid_categories:
+        return False, f"invalid category: {category}"
+
+    underlying = extraction.get("underlying")
+    if underlying not in valid_underlyings:
+        return False, f"invalid underlying: {underlying}"
+
+    strike_type = extraction.get("strike_type")
+    if strike_type not in VALID_POLY_STRIKE_TYPES:
+        return False, f"invalid strike_type: {strike_type}"
+
+    floor_strike = extraction.get("floor_strike")
+    cap_strike = extraction.get("cap_strike")
+
+    if floor_strike is not None:
+        try:
+            floor_strike = float(floor_strike)
+        except (ValueError, TypeError):
+            return False, f"floor_strike not numeric: {floor_strike}"
+
+    if cap_strike is not None:
+        try:
+            cap_strike = float(cap_strike)
+        except (ValueError, TypeError):
+            return False, f"cap_strike not numeric: {cap_strike}"
+
+    if floor_strike is not None and cap_strike is not None and cap_strike <= floor_strike:
+        return False, f"cap_strike ({cap_strike}) must be > floor_strike ({floor_strike})"
+
+    return True, ""
+
+
+def parse_poly_extraction_response(
+    response_text: str,
+    market_id: str,
+    valid_categories: set[str],
+    valid_underlyings: set[str],
+) -> tuple[MarketExtraction | None, str]:
+    """Parse single Poly extraction response with validation.
+
+    Args:
+        response_text: Raw JSON response from Claude.
+        market_id: Market ID for the extraction.
+        valid_categories: Set of valid categories.
+        valid_underlyings: Set of valid underlyings.
+
+    Returns:
+        Tuple of (extraction or None, error_message).
+    """
+    try:
+        text = strip_markdown_json(response_text)
+        data = _parse_json_with_recovery(text)
+    except (json.JSONDecodeError, KeyError) as e:
+        return None, f"JSON parse error: {e}"
+
+    is_valid, error = validate_poly_extraction(data, valid_categories, valid_underlyings)
+    if not is_valid:
+        return None, error
+
+    try:
+        floor_strike = parse_strike_value(data.get("floor_strike"))
+        cap_strike = parse_strike_value(data.get("cap_strike"))
+    except (TypeError, ValueError) as e:
+        return None, f"strike parse error: {e}"
+
+    extraction = MarketExtraction(
+        market_id=market_id,
+        platform="poly",
+        category=data["category"],
+        underlying=data["underlying"].upper(),
+        strike_type=data["strike_type"],
+        floor_strike=floor_strike,
+        cap_strike=cap_strike,
+    )
+    return extraction, ""
+
+
+def parse_poly_batch_response(
+    response_text: str,
+    valid_categories: set[str],
+    valid_underlyings: set[str],
+    original_ids: list[str] | None = None,
+) -> tuple[dict[str, MarketExtraction], list[str]]:
+    """Parse batch Poly extraction response with validation.
+
+    Args:
+        response_text: Raw JSON response from Claude.
+        valid_categories: Set of valid categories.
+        valid_underlyings: Set of valid underlyings.
+        original_ids: Original market IDs for ID correction.
+
+    Returns:
+        Tuple of (valid extractions dict, list of failed market IDs).
+    """
+    try:
+        text = strip_markdown_json(response_text)
+        data = _parse_json_with_recovery(text)
+    except (json.JSONDecodeError, KeyError) as e:
+        logger.warning("Failed to parse batch response: %s", e)
+        return {}, original_ids or []
+
     if "markets" not in data:
-        raise KeyError("'markets' field is required in batch response")
+        logger.warning("Missing 'markets' key in batch response")
+        return {}, original_ids or []
+
     markets_data = data["markets"]
 
-    # Build case-insensitive lookup from LLM ID -> original ID
+    # Build ID correction lookup
     id_correction: dict[str, str] = {}
     if original_ids:
         original_lookup = {oid.upper(): oid for oid in original_ids}
@@ -140,57 +241,51 @@ def parse_batch_response(response_text: str, platform: str, original_ids: list[s
                     id_correction[str(llm_id)] = original_lookup[llm_upper]
 
     results: dict[str, MarketExtraction] = {}
+    failed_ids: list[str] = []
+
     for item in markets_data:
-        extraction = _safe_parse_item(item, platform, id_correction)
-        if extraction is not None:
-            results[extraction.market_id] = extraction
+        item_id = item.get("id")
+        if not item_id:
+            continue
 
-    return results
+        market_id = str(item_id)
+        if id_correction and market_id in id_correction:
+            market_id = id_correction[market_id]
 
+        is_valid, error = validate_poly_extraction(item, valid_categories, valid_underlyings)
+        if not is_valid:
+            logger.warning("Validation failed for %s: %s", market_id, error)
+            failed_ids.append(market_id)
+            continue
 
-def _safe_parse_item(item: dict, platform: str, id_correction: dict[str, str] | None = None) -> MarketExtraction | None:
-    """Parse a single item, returning None if invalid or unparsable."""
-    item_id = item.get("id")
-    if not item_id:
-        logger.warning("Skipping market with missing id in batch response")
-        return None
+        try:
+            floor_strike = parse_strike_value(item.get("floor_strike"))
+            cap_strike = parse_strike_value(item.get("cap_strike"))
+        except (TypeError, ValueError) as e:
+            logger.warning("Strike parse failed for %s: %s", market_id, e)
+            failed_ids.append(market_id)
+            continue
 
-    # Use corrected ID if available (fixes LLM not echoing exact IDs)
-    market_id = str(item_id)
-    if id_correction and market_id in id_correction:
-        market_id = id_correction[market_id]
+        extraction = MarketExtraction(
+            market_id=market_id,
+            platform="poly",
+            category=item["category"],
+            underlying=item["underlying"].upper(),
+            strike_type=item["strike_type"],
+            floor_strike=floor_strike,
+            cap_strike=cap_strike,
+        )
+        results[market_id] = extraction
 
-    # Pre-validate required fields to avoid exceptions
-    validation_error = _validate_item_fields(item, market_id)
-    if validation_error:
-        logger.warning("Failed to parse market %s: %s", market_id, validation_error)
-        return None
-
-    return parse_single_item(item, market_id, platform)
-
-
-def _validate_string_field(item: dict, field: str) -> str | None:
-    """Validate a single string field. Returns error message or None."""
-    value = item.get(field)
-    if not value or not isinstance(value, str):
-        return f"missing or invalid {field}: {value}"
-    return None
-
-
-def _validate_item_fields(item: dict, item_id: str) -> str | None:
-    """Validate required fields exist and have correct types. Returns error message or None."""
-    category = item.get("category")
-    if not category or not isinstance(category, str):
-        return f"missing or invalid category: {category}"
-    if category not in KALSHI_CATEGORIES:
-        return f"invalid category: {category}"
-
-    for field in ("underlying", "subject", "entity", "scope"):
-        error = _validate_string_field(item, field)
-        if error:
-            return error
-
-    return None
+    return results, failed_ids
 
 
-__all__ = ["parse_batch_response", "parse_single_item", "parse_strike_value", "strip_markdown_json"]
+__all__ = [
+    "parse_kalshi_underlying_response",
+    "parse_kalshi_dedup_response",
+    "parse_poly_extraction_response",
+    "parse_poly_batch_response",
+    "parse_strike_value",
+    "strip_markdown_json",
+    "validate_poly_extraction",
+]

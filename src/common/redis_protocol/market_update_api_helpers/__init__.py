@@ -6,8 +6,7 @@ from .batch_processor import (
     add_signal_to_pipeline,
     build_market_signals,
     build_signal_mapping,
-    fetch_kalshi_prices,
-    filter_allowed_signals,
+    filter_valid_signals,
     get_rejection_stats,
 )
 from .ownership_helpers import (
@@ -39,8 +38,7 @@ __all__ = [
     "clear_algo_ownership",
     "clear_stale_markets",
     "compute_direction",
-    "fetch_kalshi_prices",
-    "filter_allowed_signals",
+    "filter_valid_signals",
     "get_market_algo",
     "get_rejection_stats",
     "parse_int",

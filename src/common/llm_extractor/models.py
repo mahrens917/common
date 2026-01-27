@@ -2,44 +2,34 @@
 
 from __future__ import annotations
 
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 
-KALSHI_CATEGORIES = (
-    "Crypto",
-    "Climate and Weather",
-    "Economics",
-    "Politics",
-    "Sports",
-    "Entertainment",
-    "Science",
-    "Technology",
-    "Finance",
-    "Company",
-)
+VALID_POLY_STRIKE_TYPES = frozenset({"greater", "less", "between"})
 
 
 @dataclass(frozen=True)
 class MarketExtraction:
-    """Unified extraction result for a single market.
+    """Extraction result for cross-platform matching.
 
-    All fields are LLM-generated and serve poly matching, logical consistency, and union bounds.
+    Fields:
+        market_id: Unique identifier for the market.
+        platform: "kalshi" or "poly".
+        category: Market category (from Kalshi API for kalshi, LLM for poly).
+        underlying: Asset/entity code (LLM-extracted for both platforms).
+        strike_type: Type of strike condition (greater, less, between).
+        floor_strike: Lower bound threshold, or None.
+        cap_strike: Upper bound threshold, or None.
+        close_time: ISO datetime string for market expiry.
     """
 
     market_id: str
     platform: str
     category: str
     underlying: str
-    subject: str
-    entity: str
-    scope: str
+    strike_type: str | None = None
     floor_strike: float | None = None
     cap_strike: float | None = None
-    parent_entity: str | None = None
-    parent_scope: str | None = None
-    is_conjunction: bool = False
-    conjunction_scopes: tuple[str, ...] = field(default_factory=tuple)
-    is_union: bool = False
-    union_scopes: tuple[str, ...] = field(default_factory=tuple)
+    close_time: str | None = None
 
 
-__all__ = ["KALSHI_CATEGORIES", "MarketExtraction"]
+__all__ = ["MarketExtraction", "VALID_POLY_STRIKE_TYPES"]

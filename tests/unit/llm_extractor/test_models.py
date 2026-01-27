@@ -1,91 +1,85 @@
-"""Tests for llm_extractor models."""
+"""Tests for llm_extractor models module."""
 
 import pytest
 
-from common.llm_extractor.models import KALSHI_CATEGORIES, MarketExtraction
+from common.llm_extractor.models import VALID_POLY_STRIKE_TYPES, MarketExtraction
+
+
+class TestValidPolyStrikeTypes:
+    """Tests for VALID_POLY_STRIKE_TYPES constant."""
+
+    def test_contains_greater(self) -> None:
+        """Test that 'greater' is a valid strike type."""
+        assert "greater" in VALID_POLY_STRIKE_TYPES
+
+    def test_contains_less(self) -> None:
+        """Test that 'less' is a valid strike type."""
+        assert "less" in VALID_POLY_STRIKE_TYPES
+
+    def test_contains_between(self) -> None:
+        """Test that 'between' is a valid strike type."""
+        assert "between" in VALID_POLY_STRIKE_TYPES
+
+    def test_is_frozenset(self) -> None:
+        """Test that VALID_POLY_STRIKE_TYPES is immutable."""
+        assert isinstance(VALID_POLY_STRIKE_TYPES, frozenset)
+
+    def test_has_exactly_three_types(self) -> None:
+        """Test that there are exactly 3 valid strike types."""
+        assert len(VALID_POLY_STRIKE_TYPES) == 3
 
 
 class TestMarketExtraction:
     """Tests for MarketExtraction dataclass."""
 
     def test_creates_with_required_fields(self) -> None:
-        """Test creating MarketExtraction with required fields."""
+        """Test creating extraction with only required fields."""
         extraction = MarketExtraction(
-            market_id="TEST-123",
+            market_id="m1",
             platform="poly",
             category="Crypto",
             underlying="BTC",
-            subject="BTC",
-            entity="BTC price",
-            scope="above 100000",
         )
-        assert extraction.market_id == "TEST-123"
+        assert extraction.market_id == "m1"
         assert extraction.platform == "poly"
         assert extraction.category == "Crypto"
         assert extraction.underlying == "BTC"
-        assert extraction.subject == "BTC"
-        assert extraction.entity == "BTC price"
-        assert extraction.scope == "above 100000"
-
-    def test_optional_fields_are_none_by_default(self) -> None:
-        """Test that optional fields default to None/False/empty."""
-        extraction = MarketExtraction(
-            market_id="X",
-            platform="kalshi",
-            category="Finance",
-            underlying="SPY",
-            subject="SPY",
-            entity="SPY price",
-            scope="above 500",
-        )
+        assert extraction.strike_type is None
         assert extraction.floor_strike is None
         assert extraction.cap_strike is None
-        assert extraction.parent_entity is None
-        assert extraction.parent_scope is None
-        assert extraction.is_conjunction is False
-        assert extraction.conjunction_scopes == ()
-        assert extraction.is_union is False
-        assert extraction.union_scopes == ()
+        assert extraction.close_time is None
 
     def test_creates_with_all_fields(self) -> None:
-        """Test creating MarketExtraction with all fields populated."""
+        """Test creating extraction with all fields."""
         extraction = MarketExtraction(
-            market_id="KXETHD-26JAN",
+            market_id="m1",
             platform="kalshi",
             category="Crypto",
             underlying="ETH",
-            subject="ETH",
-            entity="ETH price",
-            scope="between 3500 and 3600",
+            strike_type="between",
             floor_strike=3500.0,
             cap_strike=3600.0,
-            parent_entity="ETH daily close",
-            parent_scope="above 3000",
-            is_conjunction=True,
-            conjunction_scopes=("ETH above 3500", "BTC above 100000"),
-            is_union=False,
-            union_scopes=(),
+            close_time="2026-01-27T20:00:00+00:00",
         )
+        assert extraction.market_id == "m1"
+        assert extraction.platform == "kalshi"
+        assert extraction.category == "Crypto"
+        assert extraction.underlying == "ETH"
+        assert extraction.strike_type == "between"
         assert extraction.floor_strike == 3500.0
         assert extraction.cap_strike == 3600.0
-        assert extraction.parent_entity == "ETH daily close"
-        assert extraction.parent_scope == "above 3000"
-        assert extraction.is_conjunction is True
-        assert extraction.conjunction_scopes == ("ETH above 3500", "BTC above 100000")
+        assert extraction.close_time == "2026-01-27T20:00:00+00:00"
 
     def test_is_frozen(self) -> None:
         """Test that MarketExtraction is immutable."""
         extraction = MarketExtraction(
-            market_id="X",
+            market_id="m1",
             platform="poly",
             category="Crypto",
             underlying="BTC",
-            subject="BTC",
-            entity="BTC price",
-            scope="above 100000",
         )
         with pytest.raises(AttributeError):
-            extraction.market_id = "Y"  # type: ignore[misc]
+            extraction.category = "Sports"  # type: ignore[misc]
 
     def test_is_hashable(self) -> None:
         """Test that MarketExtraction is hashable (frozen dataclass)."""
@@ -94,27 +88,19 @@ class TestMarketExtraction:
             platform="poly",
             category="Crypto",
             underlying="BTC",
-            subject="BTC",
-            entity="BTC price",
-            scope="above 100000",
         )
         assert hash(extraction) is not None
 
-
-class TestKalshiCategories:
-    """Tests for KALSHI_CATEGORIES constant."""
-
-    def test_is_tuple(self) -> None:
-        """Test that KALSHI_CATEGORIES is a tuple."""
-        assert isinstance(KALSHI_CATEGORIES, tuple)
-
-    def test_contains_expected_categories(self) -> None:
-        """Test that key categories are present."""
-        assert "Crypto" in KALSHI_CATEGORIES
-        assert "Politics" in KALSHI_CATEGORIES
-        assert "Sports" in KALSHI_CATEGORIES
-        assert "Finance" in KALSHI_CATEGORIES
-
-    def test_has_ten_categories(self) -> None:
-        """Test that there are exactly 10 categories."""
-        assert len(KALSHI_CATEGORIES) == 10
+    def test_negative_strikes_allowed(self) -> None:
+        """Test that negative strike values are allowed."""
+        extraction = MarketExtraction(
+            market_id="m1",
+            platform="poly",
+            category="Economics",
+            underlying="FED",
+            strike_type="less",
+            floor_strike=-0.5,
+            cap_strike=0.0,
+        )
+        assert extraction.floor_strike == -0.5
+        assert extraction.cap_strike == 0.0

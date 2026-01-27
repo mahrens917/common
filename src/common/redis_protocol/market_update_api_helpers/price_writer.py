@@ -9,7 +9,7 @@ from typing import TYPE_CHECKING, Dict, Optional
 
 from ..retry import with_redis_retry
 from ..typing import ensure_awaitable
-from .ownership_helpers import algo_field, get_market_algo
+from .ownership_helpers import algo_field
 
 if TYPE_CHECKING:
     from redis.asyncio import Redis
@@ -64,39 +64,6 @@ def build_price_mapping(
     return mapping
 
 
-async def add_ownership_fields(
-    redis: "Redis",
-    market_key: str,
-    mapping: Dict[str, float | str],
-    algo: str,
-    t_bid: Optional[float],
-    t_ask: Optional[float],
-) -> bool:
-    """Add ownership fields (algo, direction) to mapping if this algo is owner.
-
-    Returns True if this algo is the owner.
-    """
-    current_algo = await get_market_algo(redis, market_key)
-    is_owner = current_algo is None or current_algo == algo
-
-    if is_owner:
-        kalshi_data = await with_redis_retry(
-            lambda: ensure_awaitable(redis.hmget(market_key, ["yes_bid", "yes_ask"])),
-            context="hmget_kalshi_prices",
-        )
-        kalshi_bid = parse_int(kalshi_data[0])
-        kalshi_ask = parse_int(kalshi_data[1])
-
-        t_bid_int = int(t_bid) if t_bid is not None else None
-        t_ask_int = int(t_ask) if t_ask is not None else None
-        direction = compute_direction(t_bid_int, t_ask_int, kalshi_bid, kalshi_ask)
-
-        mapping["algo"] = algo
-        mapping["direction"] = direction
-
-    return is_owner
-
-
 async def delete_stale_opposite_field(
     redis: "Redis",
     market_key: str,
@@ -134,11 +101,10 @@ async def write_theoretical_prices(
 ) -> None:
     """Write theoretical prices to Redis using namespaced fields.
 
-    All algos can write their own {algo}:t_* fields.
-    Only the owner (or first writer) sets algo/direction fields.
+    Algos write their own {algo}:t_bid and {algo}:t_ask fields.
+    Tracker is responsible for setting algo/direction fields.
     """
     mapping = build_price_mapping(algo, t_bid, t_ask)
-    is_owner = await add_ownership_fields(redis, market_key, mapping, algo, t_bid, t_ask)
 
     await with_redis_retry(
         lambda: ensure_awaitable(redis.hset(market_key, mapping=mapping)),
@@ -147,14 +113,12 @@ async def write_theoretical_prices(
     await delete_stale_opposite_field(redis, market_key, algo, t_bid, t_ask)
 
     logger.debug(
-        "Updated market %s: algo=%s, %s:t_bid=%s, %s:t_ask=%s, owner=%s",
+        "Updated market %s: %s:t_bid=%s, %s:t_ask=%s",
         ticker,
-        algo,
         algo,
         t_bid,
         algo,
         t_ask,
-        is_owner,
     )
 
     await publish_market_event_update(redis, market_key, ticker)

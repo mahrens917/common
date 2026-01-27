@@ -1,20 +1,21 @@
 """
 Market Update API
 
-Provides algo-aware market update functionality with ownership checking.
+Provides algo-aware market update functionality.
 All algos (whale, peak, edge, pdf, weather) use this API to update theoretical prices.
 
 Field naming convention:
   - {algo}:t_bid, {algo}:t_ask - namespaced theoretical prices per algo
-  - algo - which algo owns this market (first to write claims ownership)
-  - direction - computed from owner's theoretical prices vs Kalshi prices
+
+Note: Tracker is responsible for setting algo/direction fields based on
+which algo wins ownership and the computed trading direction.
 """
 
 from __future__ import annotations
 
 import logging
 from dataclasses import dataclass
-from typing import TYPE_CHECKING, Any, Callable, Dict, List, Optional, Set
+from typing import TYPE_CHECKING, Any, Callable, Dict, List, Optional
 
 from .market_update_api_helpers import (
     REJECTION_KEY_PREFIX,
@@ -22,14 +23,12 @@ from .market_update_api_helpers import (
     algo_field,
     build_market_signals,
     build_signal_mapping,
-    check_ownership,
     clear_algo_ownership,
     clear_stale_markets,
     compute_direction,
-    fetch_kalshi_prices,
+    filter_valid_signals,
     get_market_algo,
     get_rejection_stats,
-    parse_int,
     publish_market_event_update,
     scan_algo_owned_markets,
     write_theoretical_prices,
@@ -66,9 +65,8 @@ async def request_market_update(
     """
     Update theoretical prices for a market using namespaced fields.
 
-    All algos can write their {algo}:t_* fields to any market.
-    First algo to write claims ownership (algo field).
-    Only the owner's theoretical prices are used for direction computation.
+    Writes {algo}:t_bid and {algo}:t_ask fields only.
+    Tracker is responsible for setting algo/direction fields.
 
     Args:
         redis: Redis client
@@ -79,7 +77,7 @@ async def request_market_update(
         ticker: Optional ticker for logging (extracted from key if not provided)
 
     Returns:
-        MarketUpdateResult with success status and owning algo
+        MarketUpdateResult with success status
     """
     if algo not in VALID_ALGOS:
         raise ValueError(f"Invalid algo '{algo}'. Must be one of: {sorted(VALID_ALGOS)}")
@@ -91,9 +89,7 @@ async def request_market_update(
 
     await write_theoretical_prices(redis, market_key, algo, t_bid, t_ask, display_ticker)
 
-    current_owner = await get_market_algo(redis, market_key)
-
-    return MarketUpdateResult(success=True, rejected=False, reason=None, owning_algo=current_owner)
+    return MarketUpdateResult(success=True, rejected=False, reason=None, owning_algo=None)
 
 
 @dataclass(frozen=True)
@@ -111,40 +107,31 @@ async def batch_update_market_signals(
     algo: str,
     key_builder: Any,
 ) -> BatchUpdateResult:
-    """Atomically update theoretical prices for multiple markets using Redis transactions."""
+    """Atomically update theoretical prices for multiple markets using Redis transactions.
+
+    Writes {algo}:t_bid and {algo}:t_ask fields only.
+    Tracker is responsible for setting algo/direction fields.
+    """
     if algo not in VALID_ALGOS:
         raise ValueError(f"Invalid algo '{algo}'. Must be one of: {sorted(VALID_ALGOS)}")
 
     if not signals:
         return BatchUpdateResult(succeeded=[], rejected=[], failed=[])
 
-    from .market_update_api_helpers import filter_allowed_signals
-
     market_signals = build_market_signals(signals, algo, key_builder)
-    allowed, rejected, failed = await filter_allowed_signals(redis, market_signals, algo, check_ownership)
+    valid_signals, failed = filter_valid_signals(market_signals)
 
-    if not allowed:
-        return BatchUpdateResult(succeeded=[], rejected=rejected, failed=failed)
+    if not valid_signals:
+        return BatchUpdateResult(succeeded=[], rejected=[], failed=failed)
 
-    sorted_signals = sorted(allowed, key=lambda s: (s.t_ask is not None, s.ticker))
-    price_results = await fetch_kalshi_prices(redis, sorted_signals)
+    sorted_signals = sorted(valid_signals, key=lambda s: (s.t_ask is not None, s.ticker))
     pipe = redis.pipeline(transaction=True)
 
-    for sig, prices in zip(sorted_signals, price_results):
-        direction = _compute_direction_from_prices(sig, prices)
-        mapping = build_signal_mapping(sig, direction, algo)
+    for sig in sorted_signals:
+        mapping = build_signal_mapping(sig, algo)
         add_signal_to_pipeline(pipe, sig, mapping)
 
-    return await _execute_batch_transaction(redis, pipe, sorted_signals, rejected, failed, algo)
-
-
-def _compute_direction_from_prices(sig: Any, prices: List[Any]) -> str:
-    """Compute direction from signal and Kalshi prices."""
-    kalshi_bid = parse_int(prices[0])
-    kalshi_ask = parse_int(prices[1])
-    t_bid_int = int(sig.t_bid) if sig.t_bid is not None else None
-    t_ask_int = int(sig.t_ask) if sig.t_ask is not None else None
-    return compute_direction(t_bid_int, t_ask_int, kalshi_bid, kalshi_ask)
+    return await _execute_batch_transaction(redis, pipe, sorted_signals, [], failed, algo)
 
 
 async def _execute_batch_transaction(
@@ -166,7 +153,7 @@ async def _execute_batch_transaction(
         logger.debug("Batch updated %d markets atomically for algo %s", len(succeeded), algo)
     except (RuntimeError, ConnectionError, OSError):
         logger.exception("Failed to execute batch update for algo %s", algo)
-        failed.extend(sig.ticker for sig in sorted_signals)
+        failed = list(failed) + [sig.ticker for sig in sorted_signals]
         raise
 
     for sig in sorted_signals:
@@ -175,7 +162,7 @@ async def _execute_batch_transaction(
         except (RuntimeError, ConnectionError, OSError):  # Expected, non-critical  # policy_guard: allow-silent-handler
             pass
 
-    return BatchUpdateResult(succeeded=succeeded, rejected=rejected, failed=failed)
+    return BatchUpdateResult(succeeded=succeeded, rejected=[], failed=failed)
 
 
 @dataclass(frozen=True)
@@ -194,15 +181,16 @@ async def update_and_clear_stale(
     key_builder: Callable[[str], str],
     scan_pattern: str,
 ) -> AlgoUpdateResult:
-    """Update theoretical prices and clear stale markets atomically.
+    """Update theoretical prices and clear stale markets.
 
     This is the main entry point for algos to update their signals.
 
-    1. Write {algo}:t_* for each signal
-    2. Claim ownership if unowned, compute direction if owner
-    3. Publish event updates
-    4. Scan for algo-owned markets
-    5. Clear stale (owned but not in signals)
+    1. Write {algo}:t_bid and {algo}:t_ask for each signal
+    2. Publish event updates to notify tracker
+    3. Scan for algo-owned markets
+    4. Clear stale (owned but not in signals)
+
+    Note: Tracker is responsible for setting algo/direction fields.
 
     Args:
         redis: Redis client
