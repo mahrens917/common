@@ -15,6 +15,7 @@ if TYPE_CHECKING:
 
 from ._response_parser import (
     ExtraDataInResponse,
+    parse_expiry_alignment_response,
     parse_kalshi_dedup_response,
     parse_kalshi_underlying_batch_response,
     parse_kalshi_underlying_response,
@@ -24,6 +25,8 @@ from ._response_parser import (
 from .client import AnthropicClient
 from .models import MarketExtraction
 from .prompts import (
+    build_expiry_alignment_prompt,
+    build_expiry_alignment_user_content,
     build_kalshi_dedup_prompt,
     build_kalshi_underlying_batch_prompt,
     build_kalshi_underlying_batch_user_content,
@@ -550,10 +553,71 @@ class PolyExtractor:
         logger.debug("Cached %d no-match Poly markets", len(market_ids))
 
 
+class ExpiryAligner:
+    """Align Poly expiry with Kalshi expiry for near-miss pairs.
+
+    Used in phase 2 to determine if markets with matching category/underlying/strikes
+    but different expiries are actually the same event.
+    """
+
+    def __init__(self) -> None:
+        self._client = AnthropicClient()
+
+    @property
+    def client(self) -> AnthropicClient:
+        """Get the underlying Anthropic client for usage stats."""
+        return self._client
+
+    async def align_expiry(
+        self,
+        kalshi_title: str,
+        kalshi_expiry: str,
+        poly_title: str,
+        poly_expiry: str,
+    ) -> str | None:
+        """Determine if markets are the same event and return aligned expiry.
+
+        Args:
+            kalshi_title: Kalshi market title.
+            kalshi_expiry: Kalshi expiry in ISO format.
+            poly_title: Poly market title.
+            poly_expiry: Poly API expiry in ISO format.
+
+        Returns:
+            Aligned event_date ISO string if same event, None if different events.
+        """
+        prompt = build_expiry_alignment_prompt()
+        user_content = build_expiry_alignment_user_content(
+            kalshi_title, kalshi_expiry, poly_title, poly_expiry
+        )
+
+        response = await self._client.send_message(prompt, user_content)
+        return parse_expiry_alignment_response(response)
+
+    async def align_batch(
+        self,
+        pairs: list[tuple[str, str, str, str]],
+    ) -> list[str | None]:
+        """Align expiries for multiple pairs concurrently.
+
+        Args:
+            pairs: List of (kalshi_title, kalshi_expiry, poly_title, poly_expiry) tuples.
+
+        Returns:
+            List of aligned event_date strings or None for each pair.
+        """
+        tasks = [
+            self.align_expiry(k_title, k_expiry, p_title, p_expiry)
+            for k_title, k_expiry, p_title, p_expiry in pairs
+        ]
+        return await asyncio.gather(*tasks)
+
+
 __all__ = [
     "KalshiUnderlyingExtractor",
     "KalshiDedupExtractor",
     "PolyExtractor",
+    "ExpiryAligner",
     "_get_redis_key",
     "_get_ttl",
 ]

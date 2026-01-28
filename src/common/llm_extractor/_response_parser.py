@@ -393,6 +393,32 @@ def parse_poly_batch_response(
     return results, failed_ids
 
 
+def parse_expiry_alignment_response(response_text: str) -> str | None:
+    """Parse expiry alignment response.
+
+    Args:
+        response_text: Raw JSON response from Claude.
+
+    Returns:
+        Aligned event_date ISO string if same event, None otherwise.
+    """
+    try:
+        text = strip_markdown_json(response_text)
+        data = _parse_json_with_recovery(text, allow_extra_data=True)
+
+        if not data.get("same_event"):
+            return None
+
+        event_date = data.get("event_date")
+        if event_date and isinstance(event_date, str):
+            return event_date
+
+        return None
+    except (json.JSONDecodeError, KeyError) as e:
+        logger.debug("Failed to parse expiry alignment response: %s", e)
+        return None
+
+
 __all__ = [
     "ExtraDataInResponse",
     "parse_kalshi_underlying_response",
@@ -400,6 +426,7 @@ __all__ = [
     "parse_kalshi_dedup_response",
     "parse_poly_extraction_response",
     "parse_poly_batch_response",
+    "parse_expiry_alignment_response",
     "parse_strike_value",
     "strip_markdown_json",
     "validate_poly_extraction",

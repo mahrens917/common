@@ -249,6 +249,71 @@ def build_poly_batch_user_content(markets: list[dict]) -> str:
     return "\n\n---\n\n".join(parts)
 
 
+def build_expiry_alignment_prompt() -> str:
+    """Build prompt for aligning Poly expiry with Kalshi expiry.
+
+    Used in phase 2 to determine if near-miss pairs are the same event.
+
+    Returns:
+        System prompt string.
+    """
+    return """You are a market data analyst. Determine if two prediction markets are for the SAME EVENT.
+
+You will be given:
+- Kalshi market title and expiry time
+- Poly market title and API expiry time
+
+Rules:
+1. PERIOD EVENTS (daily high, monthly max, weekly close): If both markets are betting on the same period outcome, they are the same event. Use the Kalshi expiry as the canonical time.
+
+2. POINT-IN-TIME EVENTS (specific price at a specific moment): Only match if the times are actually the same.
+
+3. DIFFERENT EVENTS: If they are clearly different events (different days, different periods), output null.
+
+Examples of SAME EVENT:
+- Kalshi: "Highest temperature in Miami on Jan 28" (expiry Jan 28 23:59 ET)
+- Poly: "highest temperature in Miami between 66-67°F on January 29" (expiry Jan 29 07:00 ET)
+- These are the SAME daily high event. Output Kalshi's expiry.
+
+- Kalshi: "How high will XRP get in January?" (expiry Feb 1 00:00 ET)
+- Poly: "Will XRP reach $2.30 in January?" (expiry Feb 1 12:00 ET)
+- These are the SAME monthly max event. Output Kalshi's expiry.
+
+Examples of DIFFERENT EVENTS:
+- Kalshi: "BTC price at 4pm ET on Jan 28"
+- Poly: "BTC price at 5pm ET on Jan 28"
+- Different times for point-in-time event. Output null.
+
+Output ONLY valid JSON:
+{"same_event": true, "event_date": "<ISO8601>"} or {"same_event": false, "event_date": null}"""
+
+
+def build_expiry_alignment_user_content(
+    kalshi_title: str,
+    kalshi_expiry: str,
+    poly_title: str,
+    poly_expiry: str,
+) -> str:
+    """Build user message for expiry alignment.
+
+    Args:
+        kalshi_title: Kalshi market title.
+        kalshi_expiry: Kalshi expiry in ISO format.
+        poly_title: Poly market title.
+        poly_expiry: Poly API expiry in ISO format.
+
+    Returns:
+        User message string.
+    """
+    return f"""KALSHI:
+Title: {kalshi_title}
+Expiry: {kalshi_expiry}
+
+POLY:
+Title: {poly_title}
+Expiry: {poly_expiry}"""
+
+
 __all__ = [
     "build_kalshi_underlying_prompt",
     "build_kalshi_underlying_user_content",
@@ -257,5 +322,7 @@ __all__ = [
     "build_kalshi_dedup_prompt",
     "build_poly_prompt",
     "build_poly_user_content",
+    "build_expiry_alignment_prompt",
+    "build_expiry_alignment_user_content",
     "build_poly_batch_user_content",
 ]
