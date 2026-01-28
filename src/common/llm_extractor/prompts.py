@@ -190,16 +190,24 @@ Extract:
    - "between $3500 and $3600" -> 3600
    - No threshold -> null
 
+6. event_date: The specific date/time when the event occurs, as ISO 8601 UTC.
+   - Extract the date from the title if mentioned (e.g., "on January 28" -> "2025-01-28T00:00:00Z")
+   - For daily markets, use midnight UTC on that date
+   - For hourly markets, include the hour
+   - If no specific date is mentioned, use null
+   - Use the current year (2025) for dates without a year, unless context suggests otherwise
+
 For SINGLE market, output:
-{{"category": "...", "underlying": "...", "strike_type": "...", "floor_strike": <number|null>, "cap_strike": <number|null>}}
+{{"category": "...", "underlying": "...", "strike_type": "...", "floor_strike": <number|null>, "cap_strike": <number|null>, "event_date": "<ISO8601|null>"}}
 
 For MULTIPLE markets, output a "markets" array:
-{{"markets": [{{"id": "...", "category": "...", "underlying": "...", "strike_type": "...", "floor_strike": <number|null>, "cap_strike": <number|null>}}, ...]}}
+{{"markets": [{{"id": "...", "category": "...", "underlying": "...", "strike_type": "...", "floor_strike": <number|null>, "cap_strike": <number|null>, "event_date": "<ISO8601|null>"}}, ...]}}
 
 CRITICAL RULES:
 - Output ONLY valid JSON. Do NOT add any text, explanations, or reasoning.
 - Do NOT write "Wait, I need to reconsider" or any other commentary.
 - floor_strike and cap_strike must be numbers or null, never strings.
+- event_date must be an ISO 8601 string or null, never a plain date.
 - category, underlying, and strike_type MUST be from the provided lists.
 - If a market doesn't fit the valid lists, use null for that field."""
 

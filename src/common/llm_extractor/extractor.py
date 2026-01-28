@@ -251,21 +251,23 @@ class KalshiDedupExtractor:
             if len(underlyings) < 2:
                 continue
 
-            cache_key = f"{_REDIS_PREFIX_DEDUP}:{category}"
+            # Include hash of underlyings in cache key so cache invalidates when underlyings change
+            underlyings_hash = hash(tuple(sorted(underlyings)))
+            cache_key = f"{_REDIS_PREFIX_DEDUP}:{category}:{underlyings_hash}"
             cached = await redis.get(cache_key)
             if cached:
                 cached_mapping = json_module.loads(cached)
                 all_mappings.update(cached_mapping)
                 logger.info("Loaded cached dedup mapping for %s", category)
             else:
-                uncached_categories.append((category, list(underlyings)))
+                uncached_categories.append((category, list(underlyings), cache_key))
 
         if not uncached_categories:
             return all_mappings
 
         # Process uncached categories concurrently
         logger.info("Deduplicating %d categories", len(uncached_categories))
-        tasks = [self._dedup_category_with_cache(cat, underlyings, redis) for cat, underlyings in uncached_categories]
+        tasks = [self._dedup_category_with_cache(cat, underlyings, cache_key, redis) for cat, underlyings, cache_key in uncached_categories]
         results = await asyncio.gather(*tasks)
 
         for mapping in results:
@@ -278,15 +280,16 @@ class KalshiDedupExtractor:
         self,
         category: str,
         underlyings: list[str],
+        cache_key: str,
         redis: Redis,
     ) -> dict[str, str]:
         """Run dedup for a single category and cache result."""
         import json as json_module
 
         mapping = await self._dedup_category(category, underlyings)
+        # Always cache result (even empty) to avoid re-running LLM
+        await redis.set(cache_key, json_module.dumps(mapping), ex=_get_ttl())
         if mapping:
-            cache_key = f"{_REDIS_PREFIX_DEDUP}:{category}"
-            await redis.set(cache_key, json_module.dumps(mapping), ex=_get_ttl())
             logger.info("Deduped %s: found %d aliases", category, len(mapping))
         return mapping
 
