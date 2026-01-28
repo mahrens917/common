@@ -2,7 +2,11 @@
 
 import pytest
 
-from common.redis_protocol.market_ownership import can_algo_own_market, get_required_owner
+from common.redis_protocol.market_ownership import (
+    can_algo_own_market,
+    can_algo_own_market_type,
+    get_required_owner,
+)
 
 
 class TestGetRequiredOwner:
@@ -64,8 +68,44 @@ class TestGetRequiredOwner:
         assert result == "weather"
 
 
+class TestCanAlgoOwnMarketType:
+    """Tests for can_algo_own_market_type function."""
+
+    def test_weather_can_own_weather_market(self):
+        """Weather algo can own weather market."""
+        result = can_algo_own_market_type("weather", "KXHIGHNY-25DEC28-T44")
+        assert result is True
+
+    def test_peak_cannot_own_weather_market(self):
+        """Peak algo cannot own weather market."""
+        result = can_algo_own_market_type("peak", "KXHIGHNY-25DEC28-T44")
+        assert result is False
+
+    def test_pdf_can_own_pdf_market(self):
+        """PDF algo can own PDF market."""
+        result = can_algo_own_market_type("pdf", "KXBTCD-25JAN28-T100000")
+        assert result is True
+
+    def test_weather_cannot_own_pdf_market(self):
+        """Weather algo cannot own PDF market."""
+        result = can_algo_own_market_type("weather", "KXBTCD-25JAN28-T100000")
+        assert result is False
+
+    def test_any_algo_can_own_generic_market(self):
+        """Any algo can own generic markets."""
+        assert can_algo_own_market_type("peak", "INXD-25JAN28-T20000") is True
+        assert can_algo_own_market_type("weather", "INXD-25JAN28-T20000") is True
+        assert can_algo_own_market_type("pdf", "INXD-25JAN28-T20000") is True
+
+    def test_non_me_weather_market_any_algo(self):
+        """Non-ME weather market can be owned by any algo."""
+        market_data = {"mutually_exclusive": False}
+        result = can_algo_own_market_type("peak", "KXHIGHNY-25DEC28-T44", market_data)
+        assert result is True
+
+
 class TestCanAlgoOwnMarket:
-    """Tests for can_algo_own_market function."""
+    """Tests for can_algo_own_market function (backward compatibility wrapper)."""
 
     def test_weather_can_own_weather_market(self):
         """Weather algo can own weather market."""
@@ -77,44 +117,14 @@ class TestCanAlgoOwnMarket:
         result = can_algo_own_market("peak", "KXHIGHNY-25DEC28-T44")
         assert result is False
 
-    def test_pdf_can_own_pdf_market(self):
-        """PDF algo can own PDF market."""
-        result = can_algo_own_market("pdf", "KXBTCD-25JAN28-T100000")
+    def test_current_owner_ignored(self):
+        """Current owner is ignored (ownership is now dynamic)."""
+        # Even with different current owner, returns True for market type check
+        result = can_algo_own_market("peak", "INXD-25JAN28-T20000", current_owner="edge")
         assert result is True
-
-    def test_weather_cannot_own_pdf_market(self):
-        """Weather algo cannot own PDF market."""
-        result = can_algo_own_market("weather", "KXBTCD-25JAN28-T100000")
-        assert result is False
 
     def test_any_algo_can_own_generic_market(self):
         """Any algo can own generic markets."""
         assert can_algo_own_market("peak", "INXD-25JAN28-T20000") is True
         assert can_algo_own_market("weather", "INXD-25JAN28-T20000") is True
         assert can_algo_own_market("pdf", "INXD-25JAN28-T20000") is True
-
-    def test_first_algo_wins_speed_rule(self):
-        """First algo to claim wins (speed rule)."""
-        result = can_algo_own_market("peak", "INXD-25JAN28-T20000", current_owner="edge")
-        assert result is False
-
-    def test_same_algo_can_update(self):
-        """Same algo can update its own market."""
-        result = can_algo_own_market("peak", "INXD-25JAN28-T20000", current_owner="peak")
-        assert result is True
-
-    def test_no_owner_allows_claim(self):
-        """Market with no owner can be claimed."""
-        result = can_algo_own_market("peak", "INXD-25JAN28-T20000", current_owner=None)
-        assert result is True
-
-    def test_non_me_weather_market_any_algo(self):
-        """Non-ME weather market can be owned by any algo."""
-        market_data = {"mutually_exclusive": False}
-        result = can_algo_own_market("peak", "KXHIGHNY-25DEC28-T44", market_data=market_data)
-        assert result is True
-
-    def test_required_owner_takes_precedence_over_speed(self):
-        """Required owner constraint takes precedence even with no current owner."""
-        result = can_algo_own_market("peak", "KXHIGHNY-25DEC28-T44", current_owner=None)
-        assert result is False

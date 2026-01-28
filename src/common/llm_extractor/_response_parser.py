@@ -126,6 +126,8 @@ def parse_kalshi_underlying_batch_response(
     original_lookup = {oid.upper(): oid for oid in original_ids}
     id_correction: dict[str, str] = {}
     for item in markets_data:
+        if item is None:
+            continue
         llm_id = item.get("id")
         if llm_id:
             llm_upper = str(llm_id).upper()
@@ -136,6 +138,8 @@ def parse_kalshi_underlying_batch_response(
     processed_ids: set[str] = set()
 
     for item in markets_data:
+        if item is None:
+            continue
         item_id = item.get("id")
         if not item_id:
             continue
@@ -337,6 +341,8 @@ def parse_poly_batch_response(
     if original_ids:
         original_lookup = {oid.upper(): oid for oid in original_ids}
         for item in markets_data:
+            if item is None:
+                continue
             llm_id = item.get("id")
             if llm_id:
                 llm_upper = str(llm_id).upper()
@@ -347,6 +353,8 @@ def parse_poly_batch_response(
     failed_ids: list[str] = []
 
     for item in markets_data:
+        if item is None:
+            continue
         item_id = item.get("id")
         if not item_id:
             continue
