@@ -553,6 +553,9 @@ class PolyExtractor:
         logger.debug("Cached %d no-match Poly markets", len(market_ids))
 
 
+_REDIS_PREFIX_EXPIRY_ALIGN = "crossarb:expiry_align"
+
+
 class ExpiryAligner:
     """Align Poly expiry with Kalshi expiry for near-miss pairs.
 
@@ -560,57 +563,117 @@ class ExpiryAligner:
     but different expiries are actually the same event.
     """
 
-    def __init__(self) -> None:
+    def __init__(self, redis: Redis) -> None:
         self._client = AnthropicClient()
+        self._redis = redis
 
     @property
     def client(self) -> AnthropicClient:
         """Get the underlying Anthropic client for usage stats."""
         return self._client
 
+    @staticmethod
+    def _get_cache_key(kalshi_id: str, poly_id: str) -> str:
+        """Generate cache key for expiry alignment."""
+        return f"{_REDIS_PREFIX_EXPIRY_ALIGN}:{kalshi_id}:{poly_id}"
+
+    async def _get_cached(self, kalshi_id: str, poly_id: str) -> tuple[bool, str | None]:
+        """Check cache for alignment result.
+
+        Returns:
+            Tuple of (found_in_cache, aligned_expiry_or_none).
+        """
+        key = self._get_cache_key(kalshi_id, poly_id)
+        data = await ensure_awaitable(self._redis.hgetall(key))
+        if not data:
+            return False, None
+
+        # "no_match" means we checked and they're different events
+        if data.get("status") == "no_match":
+            return True, None
+
+        return True, data.get("aligned_expiry")
+
+    async def _store_cached(self, kalshi_id: str, poly_id: str, aligned_expiry: str | None) -> None:
+        """Store alignment result in cache."""
+        key = self._get_cache_key(kalshi_id, poly_id)
+        if aligned_expiry:
+            await self._redis.hset(key, mapping={"aligned_expiry": aligned_expiry})
+        else:
+            await self._redis.hset(key, mapping={"status": "no_match"})
+        await self._redis.expire(key, _get_ttl())
+
     async def align_expiry(
         self,
+        kalshi_id: str,
         kalshi_title: str,
         kalshi_expiry: str,
+        poly_id: str,
         poly_title: str,
         poly_expiry: str,
     ) -> str | None:
         """Determine if markets are the same event and return aligned expiry.
 
         Args:
+            kalshi_id: Kalshi market ID for caching.
             kalshi_title: Kalshi market title.
             kalshi_expiry: Kalshi expiry in ISO format.
+            poly_id: Poly market ID for caching.
             poly_title: Poly market title.
             poly_expiry: Poly API expiry in ISO format.
 
         Returns:
             Aligned event_date ISO string if same event, None if different events.
         """
+        # Check cache first
+        found, cached_result = await self._get_cached(kalshi_id, poly_id)
+        if found:
+            return cached_result
+
         prompt = build_expiry_alignment_prompt()
-        user_content = build_expiry_alignment_user_content(
-            kalshi_title, kalshi_expiry, poly_title, poly_expiry
-        )
+        user_content = build_expiry_alignment_user_content(kalshi_title, kalshi_expiry, poly_title, poly_expiry)
 
         response = await self._client.send_message(prompt, user_content)
-        return parse_expiry_alignment_response(response)
+        result = parse_expiry_alignment_response(response)
+
+        # Cache the result
+        await self._store_cached(kalshi_id, poly_id, result)
+
+        return result
 
     async def align_batch(
         self,
-        pairs: list[tuple[str, str, str, str]],
+        pairs: list[tuple[str, str, str, str, str, str]],
     ) -> list[str | None]:
-        """Align expiries for multiple pairs concurrently.
+        """Align expiries for multiple pairs with limited concurrency.
 
         Args:
-            pairs: List of (kalshi_title, kalshi_expiry, poly_title, poly_expiry) tuples.
+            pairs: List of (kalshi_id, kalshi_title, kalshi_expiry, poly_id, poly_title, poly_expiry) tuples.
 
         Returns:
             List of aligned event_date strings or None for each pair.
         """
-        tasks = [
-            self.align_expiry(k_title, k_expiry, p_title, p_expiry)
-            for k_title, k_expiry, p_title, p_expiry in pairs
-        ]
-        return await asyncio.gather(*tasks)
+        results: list[str | None] = []
+
+        # Process in chunks to avoid too many concurrent connections
+        for chunk_start in range(0, len(pairs), _CONCURRENT_REQUESTS):
+            chunk = pairs[chunk_start : chunk_start + _CONCURRENT_REQUESTS]
+            tasks = [
+                self.align_expiry(k_id, k_title, k_expiry, p_id, p_title, p_expiry)
+                for k_id, k_title, k_expiry, p_id, p_title, p_expiry in chunk
+            ]
+            chunk_results = await asyncio.gather(*tasks)
+            results.extend(chunk_results)
+
+            if chunk_start + _CONCURRENT_REQUESTS < len(pairs):
+                logger.info(
+                    "Expiry alignment progress: %d/%d (total: $%.4f)",
+                    min(chunk_start + _CONCURRENT_REQUESTS, len(pairs)),
+                    len(pairs),
+                    self._client.get_cost(),
+                )
+
+        return results
 
 
 __all__ = [

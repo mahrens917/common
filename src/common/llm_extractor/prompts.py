@@ -21,13 +21,18 @@ def build_kalshi_underlying_prompt(existing_underlyings: list[str]) -> str:
 EXISTING UNDERLYINGS (use one of these if it matches, only create new if none fit):
 {underlyings_json}
 
-Extract the underlying - a short uppercase code for the asset/entity being measured:
-  - Crypto: "BTC", "ETH", "SOL", "DOGE", "SHIB"
+Extract the underlying - a short uppercase code for the SPECIFIC asset/entity being measured:
+  - Crypto: "BTC", "ETH", "SOL", "DOGE", "SHIB", "XRP"
   - Forex: "USDJPY", "EURUSD", "GBPUSD"
-  - Weather: "NYC", "CHI", "SEA", "LAX", "DEN"
-  - Sports: "NFL", "NBA", "MLB", "UCL"
+  - Weather: "NYC", "CHI", "SEA", "LAX", "DEN", "MIA"
+  - Sports teams/leagues: "NFL", "NBA", "MLB", "UCL"
+  - Esports teams: "FAZE", "G2", "SENTINELS", "FNATIC"
   - Economics: "FED", "CPI", "GDP"
-  - Entertainment: "SPOTIFY", "BILLBOARD"
+  - Entertainment: "SPOTIFY_USA", "BILLBOARD_HOT100"
+
+CRITICAL: Underlyings must identify SPECIFIC entities, not broad categories.
+  - WRONG: "ENTERTAINMENT", "CRYPTO", "SPORTS", "WEATHER", "ESPORTS"
+  - RIGHT: "SPOTIFY_USA", "BTC", "NFL", "CHI", "FAZE"
 
 If an existing underlying matches, use it exactly. Only create a new code if none fit.
 
@@ -68,13 +73,18 @@ def build_kalshi_underlying_batch_prompt(existing_underlyings: list[str]) -> str
 EXISTING UNDERLYINGS (use one of these if it matches, only create new if none fit):
 {underlyings_json}
 
-Extract the underlying - a short uppercase code for the asset/entity being measured:
-  - Crypto: "BTC", "ETH", "SOL", "DOGE", "SHIB"
+Extract the underlying - a short uppercase code for the SPECIFIC asset/entity being measured:
+  - Crypto: "BTC", "ETH", "SOL", "DOGE", "SHIB", "XRP"
   - Forex: "USDJPY", "EURUSD", "GBPUSD"
-  - Weather: "NYC", "CHI", "SEA", "LAX", "DEN"
-  - Sports: "NFL", "NBA", "MLB", "UCL"
+  - Weather: "NYC", "CHI", "SEA", "LAX", "DEN", "MIA"
+  - Sports teams/leagues: "NFL", "NBA", "MLB", "UCL"
+  - Esports teams: "FAZE", "G2", "SENTINELS", "FNATIC"
   - Economics: "FED", "CPI", "GDP"
-  - Entertainment: "SPOTIFY", "BILLBOARD"
+  - Entertainment: "SPOTIFY_USA", "BILLBOARD_HOT100"
+
+CRITICAL: Underlyings must identify SPECIFIC entities, not broad categories.
+  - WRONG: "ENTERTAINMENT", "CRYPTO", "SPORTS", "WEATHER", "ESPORTS"
+  - RIGHT: "SPOTIFY_USA", "BTC", "NFL", "CHI", "FAZE"
 
 If an existing underlying matches, use it exactly. Only create a new code if none fit.
 
