@@ -95,8 +95,8 @@ def parse_kalshi_underlying_response(response_text: str) -> str | None:
             return underlying.upper()
         logger.debug("Missing or invalid underlying in response: %s", data)
         return None
-    except json.JSONDecodeError as e:
-        logger.debug("Failed to parse Kalshi underlying response: %s", e)
+    except json.JSONDecodeError:
+        logger.debug("Failed to parse Kalshi underlying response")
         return None
 
 
@@ -210,8 +210,8 @@ def parse_kalshi_dedup_response(
                     mapping[alias_upper] = canonical
 
         return mapping
-    except (json.JSONDecodeError, KeyError) as e:
-        logger.warning("Failed to parse Kalshi dedup response: %s", e)
+    except (json.JSONDecodeError, KeyError):
+        logger.warning("Failed to parse Kalshi dedup response", exc_info=True)
         raise
 
 
@@ -412,8 +412,8 @@ def parse_expiry_alignment_response(response_text: str) -> str | None:
             return event_date
 
         return None
-    except (json.JSONDecodeError, KeyError) as e:
-        logger.debug("Failed to parse expiry alignment response: %s", e)
+    except (json.JSONDecodeError, KeyError):
+        logger.debug("Failed to parse expiry alignment response", exc_info=True)
         return None
 
 

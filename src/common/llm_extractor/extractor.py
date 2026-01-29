@@ -247,7 +247,7 @@ class KalshiDedupExtractor:
         import json as json_module
 
         all_mappings: dict[str, str] = {}
-        uncached_categories: list[tuple[str, list[str]]] = []
+        uncached_categories: list[tuple[str, list[str], str]] = []
 
         # Check cache for all categories first
         for category, underlyings in underlyings_by_category.items():
@@ -598,9 +598,9 @@ class ExpiryAligner:
         """Store alignment result in cache."""
         key = self._get_cache_key(kalshi_id, poly_id)
         if aligned_expiry:
-            await self._redis.hset(key, mapping={"aligned_expiry": aligned_expiry})
+            await ensure_awaitable(self._redis.hset(key, mapping={"aligned_expiry": aligned_expiry}))
         else:
-            await self._redis.hset(key, mapping={"status": "no_match"})
+            await ensure_awaitable(self._redis.hset(key, mapping={"status": "no_match"}))
         await self._redis.expire(key, _get_ttl())
 
     async def align_expiry(
