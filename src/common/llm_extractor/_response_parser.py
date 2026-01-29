@@ -297,8 +297,7 @@ def parse_poly_extraction_response(
 
     floor_strike = parse_strike_value(data.get("floor_strike"))
     cap_strike = parse_strike_value(data.get("cap_strike"))
-    event_date = data.get("event_date")
-    close_time = event_date if isinstance(event_date, str) else None
+    # close_time is set from API's end_date in crossarb, not from LLM extraction
 
     extraction = MarketExtraction(
         market_id=market_id,
@@ -308,7 +307,7 @@ def parse_poly_extraction_response(
         strike_type=data["strike_type"],
         floor_strike=floor_strike,
         cap_strike=cap_strike,
-        close_time=close_time,
+        close_time=None,
     )
     return extraction, ""
 
@@ -375,8 +374,7 @@ def parse_poly_batch_response(
 
         floor_strike = parse_strike_value(item.get("floor_strike"))
         cap_strike = parse_strike_value(item.get("cap_strike"))
-        event_date = item.get("event_date")
-        close_time = event_date if isinstance(event_date, str) else None
+        # close_time is set from API's end_date in crossarb, not from LLM extraction
 
         extraction = MarketExtraction(
             market_id=market_id,
@@ -386,7 +384,7 @@ def parse_poly_batch_response(
             strike_type=item["strike_type"],
             floor_strike=floor_strike,
             cap_strike=cap_strike,
-            close_time=close_time,
+            close_time=None,
         )
         results[market_id] = extraction
 
