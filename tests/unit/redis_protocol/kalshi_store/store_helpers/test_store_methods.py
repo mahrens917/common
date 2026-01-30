@@ -69,7 +69,7 @@ async def test_process_market_for_interpolation_returns_when_data_present(monkey
     )
 
     redis = MagicMock()
-    redis.hgetall = AsyncMock(return_value={"t_yes_bid": "1", "t_yes_ask": "2"})
+    redis.hgetall = AsyncMock(return_value={"t_bid": "1", "t_ask": "2"})
 
     def stub_extract(store, data):
         return {"extra": 1}
@@ -83,8 +83,8 @@ async def test_process_market_for_interpolation_returns_when_data_present(monkey
     result = await _process_market_for_interpolation(store, "key", "USD", redis, MagicMock())
 
     assert result[0] == "USD-ABC"
-    assert result[1]["t_yes_bid"] == 1.0
-    assert result[1]["t_yes_ask"] == 2.0
+    assert result[1]["t_bid"] == 1.0
+    assert result[1]["t_ask"] == 2.0
     assert result[1]["extra"] == 1
 
 
@@ -163,3 +163,141 @@ async def test_get_all_markets_raises_when_no_connection():
 
     with pytest.raises(RuntimeError, match="Failed to ensure Redis connection"):
         await get_all_markets(_NoConnStore())
+
+
+def test_extract_interpolation_fields_extracts_values():
+    """Test extracting interpolation fields from market data."""
+
+    class _DummyStore:
+        def _string_or_default(self, val, default=""):
+            return val if val else default
+
+        def _int_or_default(self, val, default=None):
+            return int(val) if val is not None else default
+
+        def _float_or_default(self, val, default=0.0):
+            return float(val) if val is not None else default
+
+    store = _DummyStore()
+    market_data = {
+        "interpolation_method": "linear",
+        "deribit_points_used": "5",
+        "interpolation_quality_score": "0.95",
+        "interpolation_timestamp": "2024-01-15T10:00:00Z",
+        "interp_error_bid": "0.01",
+        "interp_error_ask": "0.02",
+    }
+
+    result = _extract_interpolation_fields(store, market_data)
+
+    assert result["interpolation_method"] == "linear"
+    assert result["deribit_points_used"] == 5
+    assert result["interpolation_quality_score"] == 0.95
+    assert result["interpolation_timestamp"] == "2024-01-15T10:00:00Z"
+    assert result["interp_error_bid"] == 0.01
+    assert result["interp_error_ask"] == 0.02
+
+
+def test_extract_interpolation_fields_handles_missing():
+    """Test extracting interpolation fields with missing data."""
+
+    class _DummyStore:
+        def _string_or_default(self, val, default=""):
+            return val if val else default
+
+        def _int_or_default(self, val, default=None):
+            return int(val) if val is not None else default
+
+        def _float_or_default(self, val, default=0.0):
+            return float(val) if val is not None else default
+
+    store = _DummyStore()
+    market_data = {}
+
+    result = _extract_interpolation_fields(store, market_data)
+
+    assert result["interpolation_method"] == ""
+    assert result["deribit_points_used"] is None
+    assert result["interpolation_quality_score"] == 0.0
+
+
+def test_parse_bid_ask_prices_returns_floats():
+    """Test parsing valid bid/ask prices returns floats."""
+    logger = MagicMock()
+    result = _parse_bid_ask_prices("45.5", "55.5", "TICKER", logger)
+    assert result == (45.5, 55.5)
+
+
+def test_parse_bid_ask_prices_handles_partial_values():
+    """Test parsing when only one price is present."""
+    logger = MagicMock()
+    result = _parse_bid_ask_prices("45.5", None, "TICKER", logger)
+    assert result == (45.5, None)
+
+
+@pytest.mark.asyncio
+async def test_process_market_for_interpolation_skips_when_no_prices(monkeypatch):
+    """Test that processing skips markets without bid/ask prices."""
+
+    class Descriptor:
+        ticker = "USD-ABC"
+
+    monkeypatch.setattr(
+        "common.redis_protocol.kalshi_store.store_methods.parse_kalshi_market_key",
+        lambda key: Descriptor(),
+    )
+
+    redis = MagicMock()
+    redis.hgetall = AsyncMock(return_value={"other_field": "value"})
+
+    store = DummyStore()
+    result = await _process_market_for_interpolation(store, "key", "USD", redis, MagicMock())
+    assert result is None
+
+
+@pytest.mark.asyncio
+async def test_process_market_for_interpolation_skips_wrong_currency(monkeypatch):
+    """Test that processing skips markets with wrong currency."""
+
+    class Descriptor:
+        ticker = "EUR-ABC"
+
+    monkeypatch.setattr(
+        "common.redis_protocol.kalshi_store.store_methods.parse_kalshi_market_key",
+        lambda key: Descriptor(),
+    )
+
+    redis = MagicMock()
+    store = DummyStore()
+    result = await _process_market_for_interpolation(store, "key", "USD", redis, MagicMock())
+    assert result is None
+
+
+@pytest.mark.asyncio
+async def test_process_market_for_interpolation_handles_extraction_error(monkeypatch):
+    """Test that processing handles extraction errors gracefully."""
+
+    class Descriptor:
+        ticker = "USD-ABC"
+
+    monkeypatch.setattr(
+        "common.redis_protocol.kalshi_store.store_methods.parse_kalshi_market_key",
+        lambda key: Descriptor(),
+    )
+
+    redis = MagicMock()
+    redis.hgetall = AsyncMock(return_value={"t_bid": "1", "t_ask": "2"})
+
+    def bad_extract(store, data):
+        raise ValueError("Bad data")
+
+    monkeypatch.setattr(
+        "common.redis_protocol.kalshi_store.store_methods._extract_interpolation_fields",
+        bad_extract,
+    )
+
+    store = DummyStore()
+    logger = MagicMock()
+    result = await _process_market_for_interpolation(store, "key", "USD", redis, logger)
+    assert result is None
+    logger.warning.assert_called_once()

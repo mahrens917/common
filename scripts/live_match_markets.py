@@ -8,7 +8,7 @@ Usage:
 
 Requires:
     - Redis running with Kalshi and Poly market data
-    - LLM_PROVIDER_KEY in ~/.env (for field extraction via Claude Opus)
+    - ANTHROPIC_API_KEY in ~/.env (for field extraction via Claude Opus)
 """
 
 from __future__ import annotations

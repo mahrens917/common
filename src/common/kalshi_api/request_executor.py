@@ -71,7 +71,7 @@ class RequestExecutor:
         try:
             async with session.request(method_upper, url, **request_kwargs) as response:
                 return await self._handle_response(response, ctx)
-        except aiohttp.ClientError as exc:
+        except (aiohttp.ClientError, TimeoutError) as exc:
             result = self._handle_client_error(exc, ctx)
             if isinstance(result, _RetryResult):
                 return result
@@ -98,7 +98,7 @@ class RequestExecutor:
         logger.warning("Kalshi server error %d for %s (%d/%d); retrying in %.1fs", status, ctx.op, ctx.attempt, ctx.max_attempts, delay)
         return _RetryResult(delay)
 
-    def _handle_client_error(self, exc: aiohttp.ClientError, ctx: _AttemptContext) -> KalshiClientError | _RetryResult:
+    def _handle_client_error(self, exc: Exception, ctx: _AttemptContext) -> KalshiClientError | _RetryResult:
         if ctx.attempt >= ctx.max_attempts:
             logger.exception("Kalshi request %s failed after %d attempts", ctx.op, ctx.max_attempts)
             return KalshiClientError(f"Kalshi request failed for {ctx.op}: {exc}")

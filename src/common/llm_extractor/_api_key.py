@@ -11,7 +11,7 @@ def load_api_key_from_env_file(key_name: str) -> str | None:
     """Load an API key from ~/.env file.
 
     Args:
-        key_name: The environment variable name (e.g., 'LLM_PROVIDER_KEY').
+        key_name: The environment variable name (e.g., 'ANTHROPIC_API_KEY').
 
     Returns:
         The API key value, or None if not found.

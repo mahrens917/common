@@ -13,7 +13,7 @@ class TestFieldResetApplicatorApplyResetLogic:
         applicator = FieldResetApplicator()
 
         with patch("common.dawn_reset_service_helpers.field_reset_applicator.logger"):
-            result = applicator.apply_reset_logic("t_yes_bid", 50.0, {"t_yes_bid": 45.0}, was_reset=True)
+            result = applicator.apply_reset_logic("t_bid", 50.0, {"t_bid": 45.0}, was_reset=True)
 
         assert result is None
 
@@ -48,21 +48,21 @@ class TestFieldResetApplicatorApplyResetLogic:
 class TestFieldResetApplicatorApplyResetValue:
     """Tests for FieldResetApplicator._apply_reset_value."""
 
-    def test_clears_t_yes_bid(self) -> None:
-        """Clears t_yes_bid field."""
+    def test_clears_t_bid(self) -> None:
+        """Clears t_bid field."""
         applicator = FieldResetApplicator()
 
         with patch("common.dawn_reset_service_helpers.field_reset_applicator.logger"):
-            result = applicator._apply_reset_value("t_yes_bid", 50.0)
+            result = applicator._apply_reset_value("t_bid", 50.0)
 
         assert result is None
 
-    def test_clears_t_yes_ask(self) -> None:
-        """Clears t_yes_ask field."""
+    def test_clears_t_ask(self) -> None:
+        """Clears t_ask field."""
         applicator = FieldResetApplicator()
 
         with patch("common.dawn_reset_service_helpers.field_reset_applicator.logger"):
-            result = applicator._apply_reset_value("t_yes_ask", 55.0)
+            result = applicator._apply_reset_value("t_ask", 55.0)
 
         assert result is None
 
@@ -158,8 +158,8 @@ class TestFieldResetApplicatorClearOnResetFields:
     def test_contains_expected_fields(self) -> None:
         """Contains expected fields."""
         expected_fields = {
-            "t_yes_bid",
-            "t_yes_ask",
+            "t_bid",
+            "t_ask",
             "weather_explanation",
             "last_rule_applied",
             "maxT",

@@ -87,14 +87,14 @@ def can_algo_own_market(
 ) -> bool:
     """Check if algo can claim ownership of market.
 
-    DEPRECATED: Use can_algo_own_market_type() instead.
-    This function is kept for backward compatibility but the
+    Legacy function: Use can_algo_own_market_type() instead.
+    This function is kept for external callers but the
     current_owner check is no longer used (ownership is dynamic).
 
     Args:
         algo: Algorithm name (e.g., "peak", "weather", "pdf")
         ticker: Market ticker
-        current_owner: Ignored (kept for backward compatibility)
+        current_owner: Ignored (kept for external callers)
         market_data: Optional market data dict for additional checks
 
     Returns:

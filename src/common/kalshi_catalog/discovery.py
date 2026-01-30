@@ -250,13 +250,13 @@ def _log_skipped_stats(skipped_stats: SkippedMarketStats) -> None:
     """Log summary of skipped markets."""
     if skipped_stats.total_skipped == 0:
         return
-    logger.warning("Skipped %d markets with unsupported strike types", skipped_stats.total_skipped)
+    logger.info("Skipped %d markets with unsupported strike types", skipped_stats.total_skipped)
     for strike_type, tickers in sorted(skipped_stats.by_strike_type.items()):
         display = ", ".join(tickers[:MAX_TICKERS_TO_DISPLAY])
         suffix = _get_ellipsis_suffix(tickers)
-        logger.warning("  strike_type='%s': %d markets (%s%s)", strike_type, len(tickers), display, suffix)
+        logger.info("  strike_type='%s': %d markets (%s%s)", strike_type, len(tickers), display, suffix)
     for category, count in sorted(skipped_stats.by_category.items(), key=lambda x: -x[1]):
-        logger.warning("  category='%s': %d markets skipped", category, count)
+        logger.info("  category='%s': %d markets skipped", category, count)
 
 
 __all__ = [

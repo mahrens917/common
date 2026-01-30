@@ -6,33 +6,34 @@ from unittest.mock import AsyncMock, MagicMock, patch
 import pytest
 
 from common.llm_extractor.extractor import (
+    ExpiryAligner,
     KalshiDedupExtractor,
     KalshiUnderlyingExtractor,
     PolyExtractor,
-    _get_redis_key,
-    _get_ttl,
+    get_redis_key,
+    get_ttl,
 )
 from common.llm_extractor.models import MarketExtraction
 
 
 class TestGetRedisKey:
-    """Tests for _get_redis_key."""
+    """Tests for get_redis_key."""
 
     def test_kalshi_key_format(self) -> None:
         """Test Redis key format for Kalshi markets."""
-        assert _get_redis_key("KXETHD-26JAN", "kalshi") == "market:extracted:kalshi:KXETHD-26JAN"
+        assert get_redis_key("KXETHD-26JAN", "kalshi") == "market:extracted:kalshi:KXETHD-26JAN"
 
     def test_poly_key_format(self) -> None:
         """Test Redis key format for Poly markets."""
-        assert _get_redis_key("cond-123", "poly") == "market:extracted:poly:cond-123"
+        assert get_redis_key("cond-123", "poly") == "market:extracted:poly:cond-123"
 
 
 class TestGetTtl:
-    """Tests for _get_ttl."""
+    """Tests for get_ttl."""
 
     def test_returns_7_days(self) -> None:
         """Test that TTL is 7 days."""
-        assert _get_ttl() == 604800
+        assert get_ttl() == 604800
 
 
 class TestKalshiUnderlyingExtractorInit:
@@ -268,3 +269,119 @@ class TestPolyExtractor:
         # Should have retried and succeeded
         assert len(results) == 1
         assert results[0].category == "Crypto"
+
+
+class TestExpiryAlignerInit:
+    """Tests for ExpiryAligner initialization."""
+
+    def test_creates_with_redis(self) -> None:
+        """Test creating aligner with Redis connection."""
+        mock_redis = AsyncMock()
+        aligner = ExpiryAligner(redis=mock_redis)
+        assert aligner.client is not None
+
+
+class TestExpiryAligner:
+    """Tests for ExpiryAligner."""
+
+    @pytest.mark.asyncio
+    async def test_returns_cached_alignment(self) -> None:
+        """Test that cached alignment results are returned."""
+        mock_redis = AsyncMock()
+        mock_redis.hgetall = AsyncMock(return_value={"aligned_expiry": "2024-01-15"})
+
+        aligner = ExpiryAligner(redis=mock_redis)
+
+        result = await aligner.align_expiry(
+            kalshi_id="k1",
+            kalshi_title="BTC above 100k by Jan 15",
+            kalshi_expiry="2024-01-15T00:00:00Z",
+            poly_id="p1",
+            poly_title="Bitcoin over 100k",
+            poly_expiry="2024-01-14T23:00:00Z",
+        )
+        assert result == "2024-01-15"
+
+    @pytest.mark.asyncio
+    async def test_returns_none_for_no_match_cached(self) -> None:
+        """Test that None is returned when no_match is cached."""
+        mock_redis = AsyncMock()
+        mock_redis.hgetall = AsyncMock(return_value={"status": "no_match"})
+
+        aligner = ExpiryAligner(redis=mock_redis)
+
+        result = await aligner.align_expiry(
+            kalshi_id="k1",
+            kalshi_title="BTC event",
+            kalshi_expiry="2024-01-15T00:00:00Z",
+            poly_id="p1",
+            poly_title="Different event",
+            poly_expiry="2024-02-15T00:00:00Z",
+        )
+        assert result is None
+
+    @pytest.mark.asyncio
+    async def test_calls_api_for_uncached(self) -> None:
+        """Test that API is called when not cached."""
+        mock_redis = AsyncMock()
+        mock_redis.hgetall = AsyncMock(return_value={})
+        mock_redis.hset = AsyncMock()
+        mock_redis.expire = AsyncMock()
+
+        aligner = ExpiryAligner(redis=mock_redis)
+
+        api_response = json.dumps({"same_event": True, "event_date": "2024-01-15"})
+
+        with patch.object(aligner._client, "send_message", new_callable=AsyncMock, return_value=api_response):
+            result = await aligner.align_expiry(
+                kalshi_id="k1",
+                kalshi_title="BTC above 100k by Jan 15",
+                kalshi_expiry="2024-01-15T00:00:00Z",
+                poly_id="p1",
+                poly_title="Bitcoin over 100k",
+                poly_expiry="2024-01-14T23:00:00Z",
+            )
+
+        assert result == "2024-01-15"
+
+    @pytest.mark.asyncio
+    async def test_stores_no_match_when_different_events(self) -> None:
+        """Test that no_match is stored when events are different."""
+        mock_redis = AsyncMock()
+        mock_redis.hgetall = AsyncMock(return_value={})
+        mock_redis.hset = AsyncMock()
+        mock_redis.expire = AsyncMock()
+
+        aligner = ExpiryAligner(redis=mock_redis)
+
+        api_response = json.dumps({"same_event": False})
+
+        with patch.object(aligner._client, "send_message", new_callable=AsyncMock, return_value=api_response):
+            result = await aligner.align_expiry(
+                kalshi_id="k1",
+                kalshi_title="BTC event",
+                kalshi_expiry="2024-01-15T00:00:00Z",
+                poly_id="p1",
+                poly_title="ETH event",
+                poly_expiry="2024-02-15T00:00:00Z",
+            )
+
+        assert result is None
+
+    @pytest.mark.asyncio
+    async def test_align_batch(self) -> None:
+        """Test batch alignment of multiple pairs."""
+        mock_redis = AsyncMock()
+        mock_redis.hgetall = AsyncMock(return_value={"aligned_expiry": "2024-01-15"})
+
+        aligner = ExpiryAligner(redis=mock_redis)
+
+        pairs = [
+            ("k1", "BTC event", "2024-01-15T00:00:00Z", "p1", "BTC event", "2024-01-14T23:00:00Z"),
+            ("k2", "ETH event", "2024-02-15T00:00:00Z", "p2", "ETH event", "2024-02-14T23:00:00Z"),
+        ]
+
+        results = await aligner.align_batch(pairs)
+        assert len(results) == 2
+        assert results[0] == "2024-01-15"
+        assert results[1] == "2024-01-15"
