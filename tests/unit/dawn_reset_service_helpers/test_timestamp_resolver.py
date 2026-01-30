@@ -104,19 +104,19 @@ class TestTimestampResolverGetTimestampFieldForResetField:
 
         assert result == "max_start_time"
 
-    def test_returns_last_updated_for_t_yes_bid(self) -> None:
-        """Returns last_updated for t_yes_bid field."""
+    def test_returns_last_updated_for_t_bid(self) -> None:
+        """Returns last_updated for t_bid field."""
         resolver = TimestampResolver()
 
-        result = resolver.get_timestamp_field_for_reset_field("t_yes_bid")
+        result = resolver.get_timestamp_field_for_reset_field("t_bid")
 
         assert result == "last_updated"
 
-    def test_returns_last_updated_for_t_yes_ask(self) -> None:
-        """Returns last_updated for t_yes_ask field."""
+    def test_returns_last_updated_for_t_ask(self) -> None:
+        """Returns last_updated for t_ask field."""
         resolver = TimestampResolver()
 
-        result = resolver.get_timestamp_field_for_reset_field("t_yes_ask")
+        result = resolver.get_timestamp_field_for_reset_field("t_ask")
 
         assert result == "last_updated"
 
@@ -164,9 +164,9 @@ class TestTimestampResolverDailyResetFields:
         """Contains hourly_max_temp_f field."""
         assert "hourly_max_temp_f" in TimestampResolver.DAILY_RESET_FIELDS
 
-    def test_contains_t_yes_bid(self) -> None:
-        """Contains t_yes_bid field."""
-        assert "t_yes_bid" in TimestampResolver.DAILY_RESET_FIELDS
+    def test_contains_t_bid(self) -> None:
+        """Contains t_bid field."""
+        assert "t_bid" in TimestampResolver.DAILY_RESET_FIELDS
 
     def test_contains_weather_explanation(self) -> None:
         """Contains weather_explanation field."""

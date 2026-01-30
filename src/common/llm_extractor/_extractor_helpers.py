@@ -78,9 +78,9 @@ async def extract_kalshi_single(
     """Extract underlying for a single Kalshi market."""
     prompt = build_kalshi_underlying_prompt(existing_underlyings)
     user_content = build_kalshi_underlying_user_content(
-        title=market.get("title", ""),
-        rules_primary=market.get("rules_primary", ""),
-        category=market.get("category", ""),
+        title=market["title"],
+        rules_primary=market["rules_primary"],
+        category=market["category"],
     )
     response = await client.send_message(prompt, user_content)
     return parse_kalshi_underlying_response(response)
@@ -106,9 +106,7 @@ async def extract_kalshi_batch_with_retry(
             if attempt == 0:
                 logger.debug("Extra data in Kalshi batch response, retrying: %s", e.extra_text[:100])
                 continue
-            logger.warning("Extra data persisted after retry, falling back to individual extraction")
-            results = {}
-            failed_ids = original_ids
+            raise
 
     if failed_ids:
         logger.debug("Retrying %d failed Kalshi extractions", len(failed_ids))
@@ -154,8 +152,8 @@ async def extract_poly_single_with_retry(
     """Extract single Poly market with one retry."""
     prompt = build_poly_prompt(list(valid_categories), list(valid_underlyings))
     user_content = build_poly_user_content(
-        title=market.get("title", ""),
-        description=market.get("description", ""),
+        title=market["title"],
+        description=market["description"],
     )
 
     response = await client.send_message(prompt, user_content)
@@ -172,6 +170,27 @@ async def extract_poly_single_with_retry(
 
     logger.debug("Retry failed for %s: %s, skipping", market["id"], error)
     return None
+
+
+async def _retry_failed_poly_extractions(
+    client: "AnthropicClient",
+    batch: list[dict],
+    failed_ids: list[str],
+    valid_categories: set[str],
+    valid_underlyings: set[str],
+) -> tuple[list[MarketExtraction], list[str]]:
+    """Retry individual Poly extractions for failed batch items."""
+    results: list[MarketExtraction] = []
+    no_match_ids: list[str] = []
+    logger.debug("Retrying %d failed Poly extractions", len(failed_ids))
+    failed_markets = [m for m in batch if m["id"] in failed_ids]
+    for market in failed_markets:
+        extraction = await extract_poly_single_with_retry(client, market, valid_categories, valid_underlyings)
+        if extraction:
+            results.append(extraction)
+        else:
+            no_match_ids.append(market["id"])
+    return results, no_match_ids
 
 
 async def extract_poly_batch_with_retry(
@@ -195,22 +214,21 @@ async def extract_poly_batch_with_retry(
             if attempt == 0:
                 logger.debug("Extra data in Poly batch response, retrying: %s", e.extra_text[:100])
                 continue
-            logger.warning("Extra data persisted after retry, falling back to individual extraction")
-            extractions = {}
-            failed_ids = original_ids
+            raise
 
     results = list(extractions.values())
-    no_match_ids: list[str] = []
 
     if failed_ids:
-        logger.debug("Retrying %d failed Poly extractions", len(failed_ids))
-        failed_markets = [m for m in batch if m["id"] in failed_ids]
-        for market in failed_markets:
-            extraction = await extract_poly_single_with_retry(client, market, valid_categories, valid_underlyings)
-            if extraction:
-                results.append(extraction)
-            else:
-                no_match_ids.append(market["id"])
+        retried, no_match_ids = await _retry_failed_poly_extractions(
+            client,
+            batch,
+            failed_ids,
+            valid_categories,
+            valid_underlyings,
+        )
+        results.extend(retried)
+    else:
+        no_match_ids = []
 
     await store_poly_cached_batch(results, redis)
 

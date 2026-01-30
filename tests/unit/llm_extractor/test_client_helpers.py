@@ -110,7 +110,8 @@ class TestRequestWithRetries:
                 result = await request_with_retries({"model": "test"}, {"x-api-key": "key"}, accumulator)
 
         assert result == "OK"
-        assert call_count == 2
+        expected_calls = 1 + 1  # rate-limited + success
+        assert call_count == expected_calls
         mock_sleep.assert_called_once()
 
     @pytest.mark.asyncio
@@ -146,7 +147,8 @@ class TestRequestWithRetries:
                 result = await request_with_retries({"model": "test"}, {"x-api-key": "key"}, accumulator)
 
         assert result == "OK"
-        assert call_count == 2
+        expected_calls = 1 + 1  # server-error + success
+        assert call_count == expected_calls
         mock_sleep.assert_called_once()
 
     @pytest.mark.asyncio

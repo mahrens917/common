@@ -433,8 +433,8 @@ async def test_interpolation_results_flow(store):
         "btc",
         {
             ticker: {
-                "t_yes_bid": 0.1,
-                "t_yes_ask": 0.2,
+                "t_bid": 0.1,
+                "t_ask": 0.2,
                 "interpolation_method": "linear",
                 "deribit_points_used": 2,
                 "interpolation_quality_score": 0.95,
@@ -444,7 +444,7 @@ async def test_interpolation_results_flow(store):
         },
     )
     stored = await store_obj.get_interpolation_results("btc")
-    assert stored[ticker]["t_yes_bid"] == pytest.approx(0.1)
+    assert stored[ticker]["t_bid"] == pytest.approx(0.1)
 
 
 @pytest.mark.asyncio

@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import asyncio
 import logging
+from collections.abc import Callable
 
 import aiohttp
 
@@ -60,7 +61,7 @@ def extract_text(data: dict) -> str:
 async def request_with_retries(
     payload: dict,
     headers: dict,
-    accumulate_usage_fn: callable,
+    accumulate_usage_fn: Callable[[dict], None],
 ) -> str:
     """Execute the API request with exponential backoff retry logic.
 

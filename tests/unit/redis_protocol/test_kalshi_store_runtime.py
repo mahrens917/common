@@ -97,7 +97,7 @@ async def test_update_interpolation_results_pipeline(monkeypatch):
     store = _basic_store(redis)
     market_ticker = "KXHIGH-20240101-KNYC-BETWEEN-70-90"
     market_key = store.get_market_key(market_ticker)
-    redis.store[market_key] = {"t_yes_bid": "10"}
+    redis.store[market_key] = {"t_bid": "10"}
 
     async def get_redis(self):
         assert self.redis is not None
@@ -107,8 +107,8 @@ async def test_update_interpolation_results_pipeline(monkeypatch):
 
     mapping_results = {
         market_ticker: {
-            "t_yes_bid": 15.0,
-            "t_yes_ask": 25.0,
+            "t_bid": 15.0,
+            "t_ask": 25.0,
             "interpolation_method": "fast_gp",
             "deribit_points_used": 12,
             "interpolation_quality_score": 0.99,
@@ -117,6 +117,6 @@ async def test_update_interpolation_results_pipeline(monkeypatch):
 
     success = await store.update_interpolation_results("BTC", mapping_results)
     assert success is True
-    assert redis.store[market_key]["t_yes_bid"] == "15.0"
+    assert redis.store[market_key]["t_bid"] == "15.0"
     assert redis.store[market_key]["interpolation_method"] == "fast_gp"
     assert any(cmd[0] == "hset" for cmd in redis.pipeline_calls)

@@ -221,7 +221,7 @@ class TestPolyExtractor:
     async def test_retries_failed_extractions(self) -> None:
         """Test that failed extractions are retried individually."""
         extractor = PolyExtractor(api_key="sk-ant-test")
-        markets = [{"id": "m1", "title": "BTC above 100k"}]
+        markets = [{"id": "m1", "title": "BTC above 100k", "description": "Will BTC go above 100k?"}]
 
         mock_redis = AsyncMock()
         mock_redis.hgetall = AsyncMock(return_value={})
@@ -377,8 +377,8 @@ class TestExpiryAligner:
         aligner = ExpiryAligner(redis=mock_redis)
 
         pairs = [
-            ("k1", "BTC event", "2024-01-15T00:00:00Z", "p1", "BTC event", "2024-01-14T23:00:00Z"),
-            ("k2", "ETH event", "2024-02-15T00:00:00Z", "p2", "ETH event", "2024-02-14T23:00:00Z"),
+            ("k1", "BTC event", "2024-01-15T00:00:00Z", "p1", "BTC event", "2024-01-14T23:00:00Z", {"underlying": "BTC"}),
+            ("k2", "ETH event", "2024-02-15T00:00:00Z", "p2", "ETH event", "2024-02-14T23:00:00Z", {"underlying": "ETH"}),
         ]
 
         results = await aligner.align_batch(pairs)

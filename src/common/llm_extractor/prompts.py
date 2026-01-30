@@ -14,7 +14,7 @@ def build_kalshi_underlying_prompt(existing_underlyings: list[str]) -> str:
     Returns:
         System prompt string.
     """
-    underlyings_json = json.dumps(sorted(existing_underlyings)) if existing_underlyings else "[]"
+    underlyings_json = json.dumps(sorted(existing_underlyings))
 
     return f"""You are a market data analyst. Extract the underlying asset code from a Kalshi prediction market.
 
@@ -66,7 +66,7 @@ def build_kalshi_underlying_batch_prompt(existing_underlyings: list[str]) -> str
     Returns:
         System prompt string.
     """
-    underlyings_json = json.dumps(sorted(existing_underlyings)) if existing_underlyings else "[]"
+    underlyings_json = json.dumps(sorted(existing_underlyings))
 
     return f"""You are a market data analyst. Extract the underlying asset code from multiple Kalshi prediction markets.
 
@@ -105,10 +105,10 @@ def build_kalshi_underlying_batch_user_content(markets: list[dict]) -> str:
     parts: list[str] = []
     for market in markets:
         market_id = market["id"]
-        title = market.get("title", "")
-        category = market.get("category", "")
+        title = market["title"]
+        category = market["category"]
         lines = [f"[ID: {market_id}]", f"Title: {title}", f"Category: {category}"]
-        rules = market.get("rules_primary", "")
+        rules = market.get("rules_primary")
         if rules:
             lines.append(f"Rules: {rules[:300]}")
         parts.append("\n".join(lines))
@@ -268,9 +268,11 @@ You will be given:
 Rules:
 1. PERIOD EVENTS (daily high, monthly max, weekly close): If both markets are betting on the same period outcome, they are the same event. Use the Kalshi expiry as the canonical time.
 
-2. POINT-IN-TIME EVENTS (specific price at a specific moment): Only match if the times are actually the same.
+2. When one market says "in [period]" and the other says "on [last day of period]", they are typically the same period event — the date is the resolution date, not a point-in-time.
 
-3. DIFFERENT EVENTS: If they are clearly different events (different days, different periods), output null.
+3. POINT-IN-TIME EVENTS (specific price at a specific moment): Only match if the times are actually the same.
+
+4. DIFFERENT EVENTS: If they are clearly different events (different days, different periods), output null.
 
 Examples of SAME EVENT:
 - Kalshi: "Highest temperature in Miami on Jan 28" (expiry Jan 28 23:59 ET)
@@ -280,6 +282,10 @@ Examples of SAME EVENT:
 - Kalshi: "How high will XRP get in January?" (expiry Feb 1 00:00 ET)
 - Poly: "Will XRP reach $2.30 in January?" (expiry Feb 1 12:00 ET)
 - These are the SAME monthly max event. Output Kalshi's expiry.
+
+- Kalshi: "How high will XRP get in January?" (expiry Jan 31 23:59 ET)
+- Poly: "Will the price of XRP be above $2.30 on January 31?" (expiry Jan 31 12:00 ET)
+- "on January 31" refers to end of January resolution, same monthly event. Output Kalshi's expiry.
 
 Examples of DIFFERENT EVENTS:
 - Kalshi: "BTC price at 4pm ET on Jan 28"
@@ -295,6 +301,8 @@ def build_expiry_alignment_user_content(
     kalshi_expiry: str,
     poly_title: str,
     poly_expiry: str,
+    underlying: str | None = None,
+    strike_info: str | None = None,
 ) -> str:
     """Build user message for expiry alignment.
 
@@ -303,17 +311,29 @@ def build_expiry_alignment_user_content(
         kalshi_expiry: Kalshi expiry in ISO format.
         poly_title: Poly market title.
         poly_expiry: Poly API expiry in ISO format.
+        underlying: Shared underlying asset code.
+        strike_info: Strike match description.
 
     Returns:
         User message string.
     """
-    return f"""KALSHI:
+    content = f"""KALSHI:
 Title: {kalshi_title}
 Expiry: {kalshi_expiry}
 
 POLY:
 Title: {poly_title}
 Expiry: {poly_expiry}"""
+
+    if underlying or strike_info:
+        context_parts: list[str] = []
+        if underlying:
+            context_parts.append(f"Underlying: {underlying}")
+        if strike_info:
+            context_parts.append(f"Strikes: {strike_info}")
+        content += "\n\nCONTEXT:\n" + "\n".join(context_parts)
+
+    return content
 
 
 __all__ = [

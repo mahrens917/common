@@ -243,7 +243,7 @@ class TestExtractPolySingleWithRetry:
             return_value='{"category": "Crypto", "underlying": "BTC", "strike_type": "greater", "floor_strike": 100000}'
         )
 
-        market = {"id": "m1", "title": "BTC above 100k"}
+        market = {"id": "m1", "title": "BTC above 100k", "description": "Will BTC go above 100k?"}
         result = await extract_poly_single_with_retry(mock_client, market, {"Crypto"}, {"BTC"})
         assert result is not None
         assert result.market_id == "m1"
@@ -254,7 +254,7 @@ class TestExtractPolySingleWithRetry:
         mock_client = AsyncMock()
         mock_client.send_message = AsyncMock(return_value='{"category": "Invalid", "underlying": "BTC", "strike_type": "greater"}')
 
-        market = {"id": "m1", "title": "BTC above 100k"}
+        market = {"id": "m1", "title": "BTC above 100k", "description": "Will BTC go above 100k?"}
         result = await extract_poly_single_with_retry(mock_client, market, {"Crypto"}, {"BTC"})
         assert result is None
 

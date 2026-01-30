@@ -80,7 +80,7 @@ class TestResultBuilder:
         call_args = mock_repository.set_market_fields.call_args
         assert call_args[0][0] == "market_key_123"
         fields = call_args[0][1]
-        assert fields["t_yes_ask"] == "99"
+        assert fields["t_ask"] == "99"
         assert fields["last_rule_applied"] == "rule_4"
         assert fields["intended_action"] == "BUY"
         assert fields["intended_side"] == "YES"

@@ -89,7 +89,7 @@ def test_trade_opportunity_found_reports_details(buffer_reporter):
 
 def test_trade_opportunity_interprets_yes_ask_rule(buffer_reporter):
     reporter, stream = buffer_reporter
-    reason = "t_yes_ask comparison (40)"
+    reason = "t_ask (40) < yes_ask (50)"
     reporter.trade_opportunity_found(
         ticker="TICKER",
         action="SELL",

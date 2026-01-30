@@ -64,9 +64,9 @@ class AnthropicClient:
 
     def _accumulate_usage(self, data: dict) -> None:
         """Accumulate token usage from API response."""
-        usage = data.get("usage", {})
-        self._total_input_tokens += usage.get("input_tokens", 0)
-        self._total_output_tokens += usage.get("output_tokens", 0)
+        usage = data["usage"]
+        self._total_input_tokens += usage["input_tokens"]
+        self._total_output_tokens += usage["output_tokens"]
 
     def get_usage(self) -> tuple[int, int]:
         """Return (total_input_tokens, total_output_tokens)."""

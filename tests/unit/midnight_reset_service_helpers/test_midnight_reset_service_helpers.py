@@ -65,7 +65,7 @@ def test_reset_evaluator_timestamp_paths(monkeypatch):
 
 def test_field_reset_applicator_resets_and_reuses_previous(monkeypatch):
     class StubEvaluator:
-        DAILY_RESET_FIELDS = {"t_yes_bid"}
+        DAILY_RESET_FIELDS = {"t_bid"}
 
         def __init__(self, should_reset: bool):
             self._should_reset = should_reset
@@ -74,11 +74,11 @@ def test_field_reset_applicator_resets_and_reuses_previous(monkeypatch):
             return self._should_reset
 
     applicator = FieldResetApplicator(StubEvaluator(True))
-    value, was_reset = applicator.apply_field_resets("t_yes_bid", "0.55", {"last_updated": "2024-01-01T00:00:00Z"}, 0, 0)
+    value, was_reset = applicator.apply_field_resets("t_bid", "0.55", {"last_updated": "2024-01-01T00:00:00Z"}, 0, 0)
     assert was_reset is True and value is None
 
     applicator = FieldResetApplicator(StubEvaluator(False))
-    value, was_reset = applicator.apply_field_resets("t_yes_bid", None, {"t_yes_bid": "0.60", "last_updated": "2024-01-01T00:00:00Z"}, 0, 0)
+    value, was_reset = applicator.apply_field_resets("t_bid", None, {"t_bid": "0.60", "last_updated": "2024-01-01T00:00:00Z"}, 0, 0)
     assert was_reset is False and value == "0.60"
 
     value, was_reset = applicator.apply_field_resets(

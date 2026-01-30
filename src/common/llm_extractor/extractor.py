@@ -54,21 +54,45 @@ class KalshiUnderlyingExtractor:
         """Access the underlying Anthropic client for usage stats."""
         return self._client
 
+    async def _load_cached_underlyings(
+        self,
+        markets: list[dict],
+        redis: Redis,
+    ) -> tuple[dict[str, str], set[str]]:
+        """Load cached underlyings from Redis."""
+        results: dict[str, str] = {}
+        accumulated: set[str] = set()
+        for market in markets:
+            market_id = market["id"]
+            cached = await load_kalshi_cached(market_id, redis)
+            if cached:
+                results[market_id] = cached
+                accumulated.add(cached)
+        return results, accumulated
+
+    async def _process_extraction_chunk(
+        self,
+        chunk: list[list[dict]],
+        accumulated_underlyings: set[str],
+        results: dict[str, str],
+        redis: Redis,
+    ) -> None:
+        """Process a chunk of batches for extraction."""
+        existing = list(accumulated_underlyings)
+        tasks = [extract_kalshi_batch_with_retry(self._client, batch, existing, redis) for batch in chunk]
+        chunk_results = await asyncio.gather(*tasks)
+        for batch_results in chunk_results:
+            for market_id, underlying in batch_results.items():
+                results[market_id] = underlying
+                accumulated_underlyings.add(underlying)
+
     async def extract_underlyings(
         self,
         markets: list[dict],
         redis: Redis,
     ) -> dict[str, str]:
         """Extract underlyings for Kalshi markets with batching."""
-        results: dict[str, str] = {}
-        accumulated_underlyings: set[str] = set()
-
-        for market in markets:
-            market_id = market["id"]
-            cached = await load_kalshi_cached(market_id, redis)
-            if cached:
-                results[market_id] = cached
-                accumulated_underlyings.add(cached)
+        results, accumulated_underlyings = await self._load_cached_underlyings(markets, redis)
 
         uncached = [m for m in markets if m["id"] not in results]
         if not uncached:
@@ -84,15 +108,7 @@ class KalshiUnderlyingExtractor:
         for chunk_start in range(0, len(batches), concurrent):
             chunk_end = min(chunk_start + concurrent, len(batches))
             chunk = batches[chunk_start:chunk_end]
-
-            existing = list(accumulated_underlyings)
-            tasks = [extract_kalshi_batch_with_retry(self._client, batch, existing, redis) for batch in chunk]
-            chunk_results = await asyncio.gather(*tasks)
-
-            for batch_results in chunk_results:
-                for market_id, underlying in batch_results.items():
-                    results[market_id] = underlying
-                    accumulated_underlyings.add(underlying)
+            await self._process_extraction_chunk(chunk, accumulated_underlyings, results, redis)
 
             processed = min(chunk_end * batch_size, len(uncached))
             logger.info(
@@ -292,14 +308,25 @@ class ExpiryAligner:
         poly_id: str,
         poly_title: str,
         poly_expiry: str,
+        context: dict[str, str] | None = None,
     ) -> str | None:
         """Determine if markets are the same event and return aligned expiry."""
         found, cached_result = await self._get_cached(kalshi_id, poly_id)
         if found:
             return cached_result
 
+        underlying = context.get("underlying") if context else None
+        strike_info = context.get("strike_info") if context else None
+
         prompt = build_expiry_alignment_prompt()
-        user_content = build_expiry_alignment_user_content(kalshi_title, kalshi_expiry, poly_title, poly_expiry)
+        user_content = build_expiry_alignment_user_content(
+            kalshi_title,
+            kalshi_expiry,
+            poly_title,
+            poly_expiry,
+            underlying,
+            strike_info,
+        )
 
         response = await self._client.send_message(prompt, user_content)
         result = parse_expiry_alignment_response(response)
@@ -310,7 +337,7 @@ class ExpiryAligner:
 
     async def align_batch(
         self,
-        pairs: list[tuple[str, str, str, str, str, str]],
+        pairs: list[tuple[str, str, str, str, str, str, dict[str, str] | None]],
     ) -> list[str | None]:
         """Align expiries for multiple pairs with limited concurrency."""
         results: list[str | None] = []
@@ -319,8 +346,8 @@ class ExpiryAligner:
         for chunk_start in range(0, len(pairs), concurrent):
             chunk = pairs[chunk_start : chunk_start + concurrent]
             tasks = [
-                self.align_expiry(k_id, k_title, k_expiry, p_id, p_title, p_expiry)
-                for k_id, k_title, k_expiry, p_id, p_title, p_expiry in chunk
+                self.align_expiry(k_id, k_title, k_expiry, p_id, p_title, p_expiry, ctx)
+                for k_id, k_title, k_expiry, p_id, p_title, p_expiry, ctx in chunk
             ]
             chunk_results = await asyncio.gather(*tasks)
             results.extend(chunk_results)

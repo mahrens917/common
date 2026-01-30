@@ -41,7 +41,9 @@ class TestAnthropicClientSendMessage:
         mock_response.status = 200
         mock_response.raise_for_status = MagicMock()
         # Response without leading brace (prefill provides it)
-        mock_response.json = AsyncMock(return_value={"content": [{"type": "text", "text": '"key": "value"}'}]})
+        mock_response.json = AsyncMock(
+            return_value={"content": [{"type": "text", "text": '"key": "value"}'}], "usage": {"input_tokens": 10, "output_tokens": 5}}
+        )
         mock_response.__aenter__ = AsyncMock(return_value=mock_response)
         mock_response.__aexit__ = AsyncMock(return_value=False)
 
@@ -76,7 +78,9 @@ class TestAnthropicClientSendMessage:
         mock_response = MagicMock()
         mock_response.status = 200
         mock_response.raise_for_status = MagicMock()
-        mock_response.json = AsyncMock(return_value={"content": [{"type": "text", "text": "response text"}]})
+        mock_response.json = AsyncMock(
+            return_value={"content": [{"type": "text", "text": "response text"}], "usage": {"input_tokens": 10, "output_tokens": 5}}
+        )
         mock_response.__aenter__ = AsyncMock(return_value=mock_response)
         mock_response.__aexit__ = AsyncMock(return_value=False)
 

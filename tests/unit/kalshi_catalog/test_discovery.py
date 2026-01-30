@@ -373,7 +373,7 @@ class TestLogSkippedStats:
         stats.add_skipped("M2", "unsupported", "Weather")
         stats.add_skipped("M3", "missing", "Weather")
 
-        with caplog.at_level(logging.WARNING):
+        with caplog.at_level(logging.INFO):
             _log_skipped_stats(stats)
 
         assert "Skipped 3 markets" in caplog.text
@@ -388,7 +388,7 @@ class TestLogSkippedStats:
         for i in range(10):
             stats.add_skipped(f"M{i}", "unsupported", "Crypto")
 
-        with caplog.at_level(logging.WARNING):
+        with caplog.at_level(logging.INFO):
             _log_skipped_stats(stats)
 
         assert "..." in caplog.text

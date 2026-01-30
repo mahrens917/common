@@ -16,7 +16,7 @@ class DummyStore:
         self._ensure = True
         self._scan_keys = [build_kalshi_market_key("KXHIGHUSD")]
         self._redis = MagicMock()
-        self._redis.hgetall = AsyncMock(return_value={"t_yes_bid": "1", "t_yes_ask": "2"})
+        self._redis.hgetall = AsyncMock(return_value={"t_bid": "1", "t_ask": "2"})
         self._string_or_default = lambda value, default=None: value or default
         self._int_or_default = lambda value, default=0: int(value) if value is not None else default
         self._float_or_default = lambda value, default=0.0: (float(value) if value is not None else default)
@@ -59,8 +59,8 @@ async def test_process_market_for_interpolation_success(monkeypatch):
     redis = MagicMock()
     redis.hgetall = AsyncMock(
         return_value={
-            "t_yes_bid": "1",
-            "t_yes_ask": "2",
+            "t_bid": "1",
+            "t_ask": "2",
             "interpolation_method": None,
             "deribit_points_used": "3",
             "interpolation_quality_score": "4.5",
@@ -93,7 +93,7 @@ async def test_process_market_for_interpolation_skips_when_no_data():
 async def test_process_market_for_interpolation_handles_extraction_error():
     store = DummyStore()
     redis = MagicMock()
-    redis.hgetall = AsyncMock(return_value={"t_yes_bid": "1", "t_yes_ask": "2", "interpolation_method": "value"})
+    redis.hgetall = AsyncMock(return_value={"t_bid": "1", "t_ask": "2", "interpolation_method": "value"})
     # make extraction fail
     store._string_or_default = lambda value, default=None: (_ for _ in ()).throw(ValueError("boom"))
 
@@ -114,16 +114,16 @@ async def test_get_interpolation_results_respects_connection(monkeypatch):
 @pytest.mark.asyncio
 async def test_get_interpolation_results_returns_entries(monkeypatch):
     store = DummyStore()
-    store._redis.hgetall = AsyncMock(return_value={"t_yes_bid": "1", "t_yes_ask": "2"})
+    store._redis.hgetall = AsyncMock(return_value={"t_bid": "1", "t_ask": "2"})
     monkeypatch.setattr(
         store_methods,
         "_process_market_for_interpolation",
-        AsyncMock(return_value=("KXHIGHUSD", {"t_yes_bid": 1.0, "t_yes_ask": 2.0})),
+        AsyncMock(return_value=("KXHIGHUSD", {"t_bid": 1.0, "t_ask": 2.0})),
     )
 
     result = await store_methods.get_interpolation_results(store, "usd")
 
-    assert result["KXHIGHUSD"]["t_yes_bid"] == 1.0
+    assert result["KXHIGHUSD"]["t_bid"] == 1.0
 
 
 @pytest.mark.asyncio

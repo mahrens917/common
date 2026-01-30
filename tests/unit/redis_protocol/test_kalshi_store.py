@@ -1178,8 +1178,8 @@ async def test_get_interpolation_results_filters_currency(monkeypatch, fake_redi
     await fake_redis.hset(
         build_kalshi_market_key("KXBTC-M1"),
         mapping={
-            "t_yes_bid": "0.25",
-            "t_yes_ask": "0.30",
+            "t_bid": "0.25",
+            "t_ask": "0.30",
             "interpolation_method": "fast",
             "deribit_points_used": "5",
             "interpolation_quality_score": "0.8",
@@ -1192,7 +1192,7 @@ async def test_get_interpolation_results_filters_currency(monkeypatch, fake_redi
     await fake_redis.hset(
         build_kalshi_market_key("KXBTC-BAD"),
         mapping={
-            "t_yes_bid": "not-a-number",
+            "t_bid": "not-a-number",
             "interpolation_method": "bad",
             "deribit_points_used": "foo",
         },
@@ -1201,16 +1201,16 @@ async def test_get_interpolation_results_filters_currency(monkeypatch, fake_redi
     await fake_redis.hset(
         build_kalshi_market_key("KXETH-M2"),
         mapping={
-            "t_yes_bid": "0.5",
-            "t_yes_ask": "0.6",
+            "t_bid": "0.5",
+            "t_ask": "0.6",
         },
     )
 
     results = await store.get_interpolation_results("BTC")
     assert list(results.keys()) == ["KXBTC-M1"]
     payload = results["KXBTC-M1"]
-    assert payload["t_yes_bid"] == _VAL_0_25
-    assert payload["t_yes_ask"] == _VAL_0_3
+    assert payload["t_bid"] == _VAL_0_25
+    assert payload["t_ask"] == _VAL_0_3
     assert payload["deribit_points_used"] == _TEST_COUNT_5
     module_logger.warning.assert_called()
 

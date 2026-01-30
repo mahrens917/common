@@ -93,7 +93,7 @@ def test_apply_field_resets_clears_opt_in_fields(monkeypatch, service):
     )
     previous_data = {"last_updated": previous_timestamp.isoformat()}
 
-    value, was_reset = service.apply_field_resets("t_yes_bid", "0.55", previous_data, 30.0, -97.0, current_time)
+    value, was_reset = service.apply_field_resets("t_bid", "0.55", previous_data, 30.0, -97.0, current_time)
 
     assert was_reset is True
     assert value is None

@@ -31,8 +31,8 @@ async def test_get_interpolation_results_skips_invalid_entries():
     redis.hgetall = AsyncMock(
         side_effect=[
             {
-                "t_yes_bid": "1.0",
-                "t_yes_ask": "2.0",
+                "t_bid": "1.0",
+                "t_ask": "2.0",
                 "deribit_points_used": "1",
                 "interp_error_bid": "0",
             },
@@ -50,14 +50,14 @@ async def test_get_interpolation_results_skips_invalid_entries():
         result = await reader.get_interpolation_results("USD", ["k1", "k2"], *make_default_funcs())
 
     assert "USD-TEST" in result
-    assert "t_yes_bid" in result["USD-TEST"]
+    assert "t_bid" in result["USD-TEST"]
     assert "USD-FAIL" not in result
 
 
 @pytest.mark.asyncio
 async def test_extract_single_interpolation_result_validates_currency():
     redis = MagicMock()
-    redis.hgetall = AsyncMock(return_value={"t_yes_bid": "1.0", "t_yes_ask": "2.0"})
+    redis.hgetall = AsyncMock(return_value={"t_bid": "1.0", "t_ask": "2.0"})
     reader = BatchReader(redis_connection=redis, logger_instance=MagicMock())
 
     class Desc:

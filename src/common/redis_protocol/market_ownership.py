@@ -21,9 +21,7 @@ def _is_mutually_exclusive(market_data: Optional[Dict[str, Any]]) -> bool:
     if not market_data:
         return True  # Assume ME if no data provided
     me_value = market_data.get("mutually_exclusive")
-    if me_value is None:
-        return True  # Assume ME if field is missing
-    return me_value in (True, "true", "True")
+    return me_value is None or me_value in (True, "true", "True")
 
 
 def get_required_owner(ticker: str, market_data: Optional[Dict[str, Any]] = None) -> Optional[str]:
