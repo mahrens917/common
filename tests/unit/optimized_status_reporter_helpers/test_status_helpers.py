@@ -316,24 +316,28 @@ def test_day_night_detector_and_weather_helpers(monkeypatch):
 
 @pytest.mark.asyncio
 async def test_realtime_metrics_collector(monkeypatch):
+    import time as _time
+
+    now_ts = _time.time()
+
     class StubRedis:
         def __init__(self, payload):
             self.payload = payload
 
-        async def hgetall(self, key):
+        async def zrangebyscore(self, key, min_score, max_score, withscores=False):
             return self.payload
 
-    timestamps = {
-        datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S"): "2",
-        "bad": "x",
-    }
-    collector = RealtimeMetricsCollector(redis_client=StubRedis(timestamps))
+    entries = [
+        (f"{int(now_ts)}|2.0", now_ts),
+        ("bad", now_ts - 10),
+    ]
+    collector = RealtimeMetricsCollector(redis_client=StubRedis(entries))
     assert await collector.get_deribit_sum_last_60_seconds() == 2
     assert await collector.get_kalshi_sum_last_60_seconds() == 2
 
     # Error path
     class ErrorRedis:
-        async def hgetall(self, key):
+        async def zrangebyscore(self, key, min_score, max_score, withscores=False):
             raise ConnectionError("boom")
 
     collector_err = RealtimeMetricsCollector(redis_client=ErrorRedis())

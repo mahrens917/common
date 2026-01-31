@@ -184,7 +184,7 @@ def build_poly_prompt(
 VALID CATEGORIES (must use exactly one):
 {categories_json}
 
-VALID UNDERLYINGS (must use exactly one):
+VALID UNDERLYINGS (use one, or null if the market does not match any):
 {underlyings_json}
 
 VALID STRIKE TYPES (must use exactly one):
@@ -194,7 +194,7 @@ Extract:
 
 1. category: Must be from the valid categories list.
 
-2. underlying: Must be from the valid underlyings list.
+2. underlying: From the valid underlyings list, or null if the market does not match any.
 
 3. strike_type: Must be one of: "greater", "less", "between"
    - "greater": market resolves YES if value is above threshold
@@ -222,8 +222,9 @@ CRITICAL RULES:
 - Output ONLY valid JSON. Do NOT add any text, explanations, or reasoning.
 - Do NOT write "Wait, I need to reconsider" or any other commentary.
 - floor_strike and cap_strike must be numbers or null, never strings.
-- category, underlying, and strike_type MUST be from the provided lists.
-- If a market doesn't fit the valid lists, use null for that field."""
+- category and strike_type MUST be from the provided lists.
+- underlying MUST be from the provided list OR null if the market measures something different from all listed underlyings.
+- Do NOT force-match an underlying just because it seems related. The market must measure the SAME specific thing (e.g., box office revenue vs streaming views are DIFFERENT underlyings)."""
 
 
 def build_poly_user_content(title: str, description: str) -> str:
@@ -284,7 +285,9 @@ Rules:
 
 3. POINT-IN-TIME EVENTS (specific price at a specific moment): Only match if the times are actually the same.
 
-4. DIFFERENT EVENTS: If they are clearly different events (different days, different periods), output null.
+4. If one market specifies "at [specific time]" (e.g., "at 5pm EST"), the event is point-in-time regardless of how the other market phrases it. The other market's different API expiry means a different settlement time — output null.
+
+5. DIFFERENT EVENTS: If they are clearly different events (different days, different periods), output null.
 
 Examples of SAME EVENT:
 - Kalshi: "Highest temperature in Miami on Jan 28" (expiry Jan 28 23:59 ET)
@@ -303,6 +306,10 @@ Examples of DIFFERENT EVENTS:
 - Kalshi: "BTC price at 4pm ET on Jan 28"
 - Poly: "BTC price at 5pm ET on Jan 28"
 - Different times for point-in-time event. Output null.
+
+- Kalshi: "Ethereum price on Feb 6, 2026 at 5pm EST?" (expiry 2026-02-06 22:00 UTC)
+- Poly: "Will the price of Ethereum be above $2,300 on February 6?" (expiry 2026-02-06 17:00 UTC)
+- Kalshi says "at 5pm EST" = point-in-time. Different settlement times. Output null.
 
 Output ONLY valid JSON:
 {"same_event": true, "event_date": "<ISO8601>"} or {"same_event": false, "event_date": null}"""

@@ -390,11 +390,12 @@ class TestParsePolyBatchResponse:
                 ]
             }
         )
-        extractions, failed = parse_poly_batch_response(response, {"Crypto", "Sports"}, {"BTC", "NFL"})
+        extractions, failed, no_match = parse_poly_batch_response(response, {"Crypto", "Sports"}, {"BTC", "NFL"})
         assert len(extractions) == 2
         assert "m1" in extractions
         assert "m2" in extractions
         assert len(failed) == 0
+        assert len(no_match) == 0
 
     def test_separates_valid_and_invalid(self) -> None:
         """Test that valid and invalid items are separated."""
@@ -416,10 +417,11 @@ class TestParsePolyBatchResponse:
                 ]
             }
         )
-        extractions, failed = parse_poly_batch_response(response, {"Crypto"}, {"BTC"})
+        extractions, failed, no_match = parse_poly_batch_response(response, {"Crypto"}, {"BTC"})
         assert len(extractions) == 1
         assert "valid" in extractions
         assert "invalid" in failed
+        assert len(no_match) == 0
 
     def test_raises_for_invalid_json(self) -> None:
         """Test that invalid JSON raises JSONDecodeError."""
@@ -440,8 +442,36 @@ class TestParsePolyBatchResponse:
                 ]
             }
         )
-        extractions, _ = parse_poly_batch_response(response, {"Crypto"}, {"BTC"}, ["cond-1"])  # Original was lowercase
+        extractions, _, _no_match = parse_poly_batch_response(response, {"Crypto"}, {"BTC"}, ["cond-1"])  # Original was lowercase
         assert "cond-1" in extractions
+
+    def test_null_underlying_goes_to_no_match(self) -> None:
+        """Test that null underlying is routed to no_match, not failed."""
+        response = json.dumps(
+            {
+                "markets": [
+                    {
+                        "id": "matched",
+                        "category": "Crypto",
+                        "underlying": "BTC",
+                        "strike_type": "greater",
+                    },
+                    {
+                        "id": "no_match_market",
+                        "category": "Entertainment",
+                        "underlying": None,
+                        "strike_type": "greater",
+                        "floor_strike": 15,
+                    },
+                ]
+            }
+        )
+        extractions, failed, no_match = parse_poly_batch_response(
+            response, {"Crypto", "Entertainment"}, {"BTC"}, ["matched", "no_match_market"]
+        )
+        assert "matched" in extractions
+        assert len(failed) == 0
+        assert "no_match_market" in no_match
 
 
 class TestExtraDataInResponse:

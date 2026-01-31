@@ -73,7 +73,7 @@ class TestServiceUpdater:
     @pytest.fixture
     def mock_redis(self):
         client = AsyncMock()
-        client.hgetall.return_value = {}
+        client.zrangebyscore.return_value = []
         return client
 
     @pytest.fixture
@@ -82,14 +82,15 @@ class TestServiceUpdater:
 
     @pytest.mark.asyncio
     async def test_update_service_time_windows_success(self, updater, mock_redis, metadata_store):
-        mock_redis.hgetall.return_value = {
-            b"2023-01-01 12:00:00": b"5",
-            "2023-01-01 12:30:00": "10",
-        }
+        mock_redis.zrangebyscore.return_value = [
+            (b"1672574400|5", 1672574400.0),
+            ("1672576200|10", 1672576200.0),
+        ]
 
         with (
             patch(
-                "common.metadata_store_auto_updater_helpers.time_window_updater_helpers.service_updater._ensure_supported_hash",
+                "common.metadata_store_auto_updater_helpers.time_window_updater_helpers.service_updater._ensure_supported_sorted_set",
+                new_callable=AsyncMock,
                 return_value=True,
             ),
             patch("common.time_utils.get_current_utc") as mock_time,
@@ -104,23 +105,25 @@ class TestServiceUpdater:
 
             await updater.update_service_time_windows("test_service")
 
-            mock_redis.hgetall.assert_awaited_once()
+            mock_redis.zrangebyscore.assert_awaited_once()
             mock_persist.assert_awaited_once()
 
     @pytest.mark.asyncio
     async def test_update_service_time_windows_unsupported_hash(self, updater):
         with patch(
-            "common.metadata_store_auto_updater_helpers.time_window_updater_helpers.service_updater._ensure_supported_hash",
+            "common.metadata_store_auto_updater_helpers.time_window_updater_helpers.service_updater._ensure_supported_sorted_set",
+            new_callable=AsyncMock,
             return_value=False,
         ):
             await updater.update_service_time_windows("test_service")
-            updater.redis_client.hgetall.assert_not_called()
+            updater.redis_client.zrangebyscore.assert_not_called()
 
     @pytest.mark.asyncio
     async def test_update_service_time_windows_no_client(self, updater):
         updater.redis_client = None
         with patch(
-            "common.metadata_store_auto_updater_helpers.time_window_updater_helpers.service_updater._ensure_supported_hash",
+            "common.metadata_store_auto_updater_helpers.time_window_updater_helpers.service_updater._ensure_supported_sorted_set",
+            new_callable=AsyncMock,
             return_value=True,
         ):
             await updater.update_service_time_windows("test_service")
@@ -128,21 +131,20 @@ class TestServiceUpdater:
 
     @pytest.mark.asyncio
     async def test_calculate_window_counts(self):
-        windows = {
-            "hour": "2023-01-01 12:00:00",
-            "sixty_five_minutes": "2023-01-01 11:55:00",
-            "sixty_seconds": "2023-01-01 12:59:00",
+        cutoffs = {
+            "hour": 1672574400.0,
+            "sixty_five_minutes": 1672574100.0,
+            "sixty_seconds": 1672577940.0,
         }
-        hash_data = {
-            "2023-01-01 12:30:00": "10",  # In hour, in 65m
-            "2023-01-01 11:50:00": "5",  # Out of all
-            "2023-01-01 12:59:30": b"2",  # In all
-            "1999-01-01 00:00:00": "1",  # Out of all
-        }
+        entries = [
+            ("1672576200|10", 1672576200.0),  # score >= hour cutoff -> hour, 65m
+            (b"1672577970|2", 1672577970.0),  # score >= all cutoffs -> hour, 65m, 60s
+            ("1672574200|5", 1672574200.0),  # score < hour cutoff -> 65m only
+        ]
 
-        counts = _calculate_window_counts(hash_data, windows)
+        counts = _calculate_window_counts(entries, cutoffs)
         assert counts["hour"] == 10 + 2
-        assert counts["sixty_five_minutes"] == 10 + 2
+        assert counts["sixty_five_minutes"] == 10 + 2 + 5
         assert counts["sixty_seconds"] == 2
 
     @pytest.mark.asyncio
@@ -164,25 +166,25 @@ class TestHashValidator:
         return AsyncMock()
 
     @pytest.mark.asyncio
-    async def test_ensure_hash_history_key_hash(self, mock_redis):
-        mock_redis.type.return_value = "hash"
-        assert await HashValidator.ensure_hash_history_key(mock_redis, "key") is True
+    async def test_ensure_sorted_set_history_key_zset(self, mock_redis):
+        mock_redis.type.return_value = "zset"
+        assert await HashValidator.ensure_sorted_set_history_key(mock_redis, "key") is True
 
     @pytest.mark.asyncio
-    async def test_ensure_hash_history_key_none(self, mock_redis):
+    async def test_ensure_sorted_set_history_key_none(self, mock_redis):
         mock_redis.type.return_value = b"none"
-        assert await HashValidator.ensure_hash_history_key(mock_redis, "key") is True
+        assert await HashValidator.ensure_sorted_set_history_key(mock_redis, "key") is True
 
     @pytest.mark.asyncio
-    async def test_ensure_hash_history_key_invalid(self, mock_redis):
+    async def test_ensure_sorted_set_history_key_invalid(self, mock_redis):
         mock_redis.type.return_value = "string"
-        assert await HashValidator.ensure_hash_history_key(mock_redis, "key") is False
+        assert await HashValidator.ensure_sorted_set_history_key(mock_redis, "key") is False
 
     @pytest.mark.asyncio
-    async def test_ensure_hash_history_key_error(self, mock_redis):
+    async def test_ensure_sorted_set_history_key_error(self, mock_redis):
         mock_redis.type.side_effect = Exception("Redis error")
-        assert await HashValidator.ensure_hash_history_key(mock_redis, "key") is False
+        assert await HashValidator.ensure_sorted_set_history_key(mock_redis, "key") is False
 
     @pytest.mark.asyncio
-    async def test_ensure_hash_history_key_no_client(self):
-        assert await HashValidator.ensure_hash_history_key(None, "key") is False
+    async def test_ensure_sorted_set_history_key_no_client(self):
+        assert await HashValidator.ensure_sorted_set_history_key(None, "key") is False

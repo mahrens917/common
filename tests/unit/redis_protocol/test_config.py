@@ -226,7 +226,7 @@ class TestHistorySettings:
         from common.redis_protocol import config
 
         assert config.HISTORY_KEY_PREFIX == "history:"
-        assert config.HISTORY_TTL_SECONDS == 129600  # 36 hours
+        assert config.HISTORY_TTL_SECONDS == 7200  # 2 hours (consumers look back 65 minutes max)
 
 
 class TestModuleExports:

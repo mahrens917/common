@@ -171,23 +171,32 @@ def process_poly_batch_items(
     id_correction: dict[str, str],
     valid_categories: set[str],
     valid_underlyings: set[str],
-) -> tuple[dict[str, MarketExtraction], list[str]]:
-    """Process market items from Poly batch response."""
+) -> tuple[dict[str, MarketExtraction], list[str], list[str]]:
+    """Process market items from Poly batch response.
+
+    Returns:
+        Tuple of (valid extractions, failed IDs to retry, no-match IDs to skip).
+    """
     results: dict[str, MarketExtraction] = {}
     failed_ids: list[str] = []
+    no_match_ids: list[str] = []
     for item in markets_data:
         if item is None or not item.get("id"):
             continue
         market_id = str(item["id"])
         if id_correction and market_id in id_correction:
             market_id = id_correction[market_id]
+        if item.get("underlying") is None:
+            logger.debug("No matching underlying for %s, marking as no_match", market_id)
+            no_match_ids.append(market_id)
+            continue
         is_valid, error = validate_poly_extraction(item, valid_categories, valid_underlyings)
         if not is_valid:
             logger.debug("Validation failed for %s: %s", market_id, error)
             failed_ids.append(market_id)
             continue
         results[market_id] = build_market_extraction(item, market_id)
-    return results, failed_ids
+    return results, failed_ids, no_match_ids
 
 
 __all__ = [

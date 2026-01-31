@@ -330,7 +330,6 @@ class TestCreateSystemChart:
         """Test raises error with insufficient data points."""
         mock_generator = MagicMock()
         mock_redis = MagicMock()
-        mock_redis.hgetall = MagicMock(return_value={"2025-01-01 12:00:00": "50.0"})
         mock_redis.aclose = AsyncMock()
 
         with (
@@ -342,7 +341,7 @@ class TestCreateSystemChart:
             patch(
                 "common.chart_generator.runtime_helpers.ensure_awaitable",
                 new_callable=AsyncMock,
-                return_value={"2025-01-01 12:00:00": "50.0"},
+                return_value=[("1735689600|50.0", 1735689600.0)],
             ),
         ):
             with pytest.raises(InsufficientDataError, match="Insufficient data points"):

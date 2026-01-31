@@ -188,7 +188,7 @@ def parse_poly_batch_response(
     valid_categories: set[str],
     valid_underlyings: set[str],
     original_ids: list[str] | None = None,
-) -> tuple[dict[str, MarketExtraction], list[str]]:
+) -> tuple[dict[str, MarketExtraction], list[str], list[str]]:
     """Parse batch Poly extraction response with validation.
 
     Args:
@@ -198,7 +198,7 @@ def parse_poly_batch_response(
         original_ids: Original market IDs for ID correction.
 
     Returns:
-        Tuple of (valid extractions dict, list of failed market IDs).
+        Tuple of (valid extractions dict, failed market IDs to retry, no-match IDs to skip).
     """
     if original_ids is None:
         original_ids = []
@@ -207,7 +207,7 @@ def parse_poly_batch_response(
 
     if "markets" not in data:
         logger.warning("Missing 'markets' key in batch response")
-        return {}, original_ids
+        return {}, original_ids, []
 
     markets_data = data["markets"]
     id_correction = build_id_correction_lookup(markets_data, original_ids)

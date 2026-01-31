@@ -205,10 +205,15 @@ async def extract_poly_batch_with_retry(
     user_content = build_poly_batch_user_content(batch)
     original_ids = [m["id"] for m in batch]
 
+    extractions: dict[str, MarketExtraction] = {}
+    failed_ids: list[str] = []
+    batch_no_match_ids: list[str] = []
     for attempt in range(2):
         response = await client.send_message(prompt, user_content, json_prefill='{"markets": [')
         try:
-            extractions, failed_ids = parse_poly_batch_response(response, valid_categories, valid_underlyings, original_ids)
+            extractions, failed_ids, batch_no_match_ids = parse_poly_batch_response(
+                response, valid_categories, valid_underlyings, original_ids
+            )
             break
         except ExtraDataInResponse as e:
             if attempt == 0:
@@ -219,7 +224,7 @@ async def extract_poly_batch_with_retry(
     results = list(extractions.values())
 
     if failed_ids:
-        retried, no_match_ids = await _retry_failed_poly_extractions(
+        retried, retry_no_match_ids = await _retry_failed_poly_extractions(
             client,
             batch,
             failed_ids,
@@ -227,8 +232,9 @@ async def extract_poly_batch_with_retry(
             valid_underlyings,
         )
         results.extend(retried)
+        no_match_ids = batch_no_match_ids + retry_no_match_ids
     else:
-        no_match_ids = []
+        no_match_ids = batch_no_match_ids
 
     await store_poly_cached_batch(results, redis)
 

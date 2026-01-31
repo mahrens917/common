@@ -12,18 +12,34 @@ _TEST_COUNT_5 = 5
 _VAL_2_0 = 2.0
 
 
+class FakePipeline:
+    def __init__(self, client):
+        self._client = client
+        self._commands = []
+
+    def zremrangebyscore(self, key, min_score, max_score):
+        self._commands.append(("zremrangebyscore", key, min_score, max_score))
+
+    def zadd(self, key, mapping):
+        for member, score in mapping.items():
+            self._client.history.setdefault(key, {})[member] = score
+        self._commands.append(("zadd", key, mapping))
+
+    def expire(self, key, seconds):
+        self._client.expire_calls.append((key, seconds))
+        self._commands.append(("expire", key, seconds))
+
+    async def execute(self):
+        return [True] * len(self._commands)
+
+
 class FakeRedisClient:
     def __init__(self):
         self.history = {}
         self.expire_calls = []
 
-    async def hset(self, key, field, value):
-        self.history.setdefault(key, {})[field] = value
-        return 1
-
-    async def expire(self, key, seconds):
-        self.expire_calls.append((key, seconds))
-        return True
+    def pipeline(self):
+        return FakePipeline(self)
 
 
 def test_add_message_increments_count():
@@ -111,9 +127,22 @@ async def test_write_to_history_redis_records_data(monkeypatch):
 async def test_write_to_history_redis_raises_on_failure(monkeypatch):
     collector = MessageStatsCollector("kalshi")
 
-    class BrokenRedis(FakeRedisClient):
-        async def hset(self, key, field, value):
+    class BrokenPipeline:
+        def zremrangebyscore(self, *a):
+            pass
+
+        def zadd(self, *a):
+            pass
+
+        def expire(self, *a):
+            pass
+
+        async def execute(self):
             raise RuntimeError("boom")
+
+    class BrokenRedis(FakeRedisClient):
+        def pipeline(self):
+            return BrokenPipeline()
 
     fake_client = BrokenRedis()
 

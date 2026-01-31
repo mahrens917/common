@@ -75,14 +75,15 @@ class MetadataInitializer:
             if key_type in ("none", "zset"):
                 return True
 
-            logger.error(
-                "History key %s has unsupported Redis type '%s'; manual cleanup required",
+            logger.warning(
+                "History key %s has stale Redis type '%s'; deleting to recreate as sorted set",
                 key,
                 key_type,
             )
+            await ensure_awaitable(client.delete(key))
 
         except REDIS_ERRORS as exc:  # Expected exception, returning default value  # policy_guard: allow-silent-handler
             logger.error("Failed to validate history key %s: %s", key, exc, exc_info=True)
             return False
-
-        return False
+        else:
+            return True

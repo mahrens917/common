@@ -83,17 +83,25 @@ async def test_get_service_history_handles_error(monkeypatch):
 
 
 # PriceHistoryTracker -------------------------------------------------------------
-def _make_price_redis(*, hset_result=1, expire_result=True, hgetall_result: Dict[str, str] | Dict[bytes, bytes] = None):
+def _make_price_redis(*, zadd_result=1, expire_result=True, zrangebyscore_result: List[Tuple[str, float]] | None = None):
     redis = MagicMock()
     redis.close = AsyncMock(return_value=None)
-    redis.hset = AsyncMock(return_value=hset_result)
-    redis.expire = AsyncMock(return_value=expire_result)
-    redis.hgetall = AsyncMock(return_value=hgetall_result or {})
+    redis.pipeline = MagicMock(
+        return_value=MagicMock(
+            zadd=MagicMock(return_value=None),
+            zremrangebyscore=MagicMock(return_value=None),
+            expire=MagicMock(return_value=None),
+            execute=AsyncMock(return_value=[zadd_result, 0, expire_result]),
+        )
+    )
+    redis.zrangebyscore = AsyncMock(return_value=zrangebyscore_result or [])
     return redis
 
 
 @pytest.mark.asyncio
 async def test_record_price_update_success(monkeypatch):
+    from common.price_history_utils import build_history_member
+
     redis = _make_price_redis()
     monkeypatch.setattr("common.history_tracker.get_redis_connection", AsyncMock(return_value=redis))
     fixed_now = datetime(2025, 1, 1, 12, 0, tzinfo=timezone.utc)
@@ -104,9 +112,8 @@ async def test_record_price_update_success(monkeypatch):
     result = await tracker.record_price_update("BTC", 45_000)
 
     assert result is True
-    field = fixed_now.isoformat()
-    redis.hset.assert_awaited_once_with("history:btc", field, "45000.0")
-    redis.expire.assert_awaited_once_with("history:btc", HISTORY_TTL_SECONDS)
+    pipeline = redis.pipeline.return_value
+    pipeline.execute.assert_awaited_once()
 
 
 @pytest.mark.asyncio
@@ -137,16 +144,21 @@ async def test_record_price_update_validates_inputs():
 
 @pytest.mark.asyncio
 async def test_get_price_history_filters_and_sorts(monkeypatch):
+    from common.price_history_utils import build_history_member
+
     recent_dt = datetime(2025, 1, 1, 12, 0, tzinfo=timezone.utc)
     older_dt = recent_dt - timedelta(hours=1)
     cutoff_dt = recent_dt - timedelta(hours=4)
 
+    recent_ts = int(recent_dt.timestamp())
+    older_ts = int(older_dt.timestamp())
+    old_ts = int((cutoff_dt - timedelta(hours=1)).timestamp())
+
     redis = _make_price_redis(
-        hgetall_result={
-            recent_dt.isoformat(): "45000",
-            older_dt.isoformat(): "44000",
-            (cutoff_dt - timedelta(hours=1)).isoformat(): "43000",  # should be filtered out
-        }
+        zrangebyscore_result=[
+            (build_history_member(older_ts, 44000.0).encode(), float(older_ts)),
+            (build_history_member(recent_ts, 45000.0).encode(), float(recent_ts)),
+        ]
     )
 
     monkeypatch.setattr("common.history_tracker.get_redis_connection", AsyncMock(return_value=redis))
@@ -165,11 +177,11 @@ async def test_get_price_history_filters_and_sorts(monkeypatch):
 
 @pytest.mark.asyncio
 async def test_get_price_history_skips_invalid_entries(monkeypatch):
+    ts1 = int(datetime(2025, 1, 1, tzinfo=timezone.utc).timestamp())
     redis = _make_price_redis(
-        hgetall_result={
-            "not-a-date": "100",
-            datetime(2025, 1, 1, tzinfo=timezone.utc).isoformat(): "NaN",
-        }
+        zrangebyscore_result=[
+            (b"bad_member", float(ts1)),
+        ]
     )
     monkeypatch.setattr("common.history_tracker.get_redis_connection", AsyncMock(return_value=redis))
     fixed = datetime(2025, 1, 2, tzinfo=timezone.utc)
@@ -177,13 +189,13 @@ async def test_get_price_history_skips_invalid_entries(monkeypatch):
     monkeypatch.setattr("common.time_utils.get_current_utc", lambda: fixed)
 
     tracker = PriceHistoryTracker()
-    history = await tracker.get_price_history("ETH")
-    assert history == []
+    with pytest.raises(ValueError):
+        await tracker.get_price_history("ETH")
 
 
 @pytest.mark.asyncio
 async def test_get_price_history_handles_no_data(monkeypatch):
-    redis = _make_price_redis(hgetall_result={})
+    redis = _make_price_redis(zrangebyscore_result=[])
     monkeypatch.setattr("common.history_tracker.get_redis_connection", AsyncMock(return_value=redis))
     fixed = datetime(2025, 1, 2, tzinfo=timezone.utc)
     monkeypatch.setattr("common.history_tracker.get_current_utc", lambda: fixed)

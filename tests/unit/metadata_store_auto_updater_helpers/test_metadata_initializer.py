@@ -16,8 +16,8 @@ class TestMetadataInitializer:
     def mock_redis(self):
         client = AsyncMock()
         client.keys = AsyncMock(return_value=[])
-        client.type = AsyncMock(return_value="hash")
-        client.hlen = AsyncMock(return_value=5)
+        client.type = AsyncMock(return_value="zset")
+        client.zcard = AsyncMock(return_value=5)
         return client
 
     @pytest.fixture
@@ -59,7 +59,8 @@ class TestMetadataInitializer:
         with patch.object(initializer._service_name_extractor, "extract_service_name", return_value="service1"):
             await initializer.initialize_from_existing_keys()
 
-            mock_redis.hlen.assert_not_called()
+            mock_redis.delete.assert_called_once_with("history:service1")
+            mock_redis.zcard.assert_called_once()
 
     @pytest.mark.asyncio
     async def test_ensure_hash_history_key_none_type(self, initializer, mock_redis):
@@ -69,7 +70,7 @@ class TestMetadataInitializer:
         with patch.object(initializer._service_name_extractor, "extract_service_name", return_value="service1"):
             await initializer.initialize_from_existing_keys()
 
-            mock_redis.hlen.assert_called()
+            mock_redis.zcard.assert_called()
 
     @pytest.mark.asyncio
     async def test_ensure_hash_history_key_exception(self, initializer, mock_redis):
@@ -79,21 +80,20 @@ class TestMetadataInitializer:
         with patch.object(initializer._service_name_extractor, "extract_service_name", return_value="service1"):
             await initializer.initialize_from_existing_keys()
 
-            mock_redis.hlen.assert_not_called()
+            mock_redis.zcard.assert_not_called()
 
     @pytest.mark.asyncio
     async def test_initialize_hlen_error(self, initializer, mock_redis, metadata_store):
         mock_redis.keys.return_value = ["history:service1"]
-        mock_redis.hlen.side_effect = Exception("Count error")
+        mock_redis.zcard.side_effect = Exception("Count error")
 
         with patch.object(initializer._service_name_extractor, "extract_service_name", return_value="service1"):
             await initializer.initialize_from_existing_keys()
 
-            # Should continue
             metadata_store.initialize_service_count.assert_not_called()
 
     @pytest.mark.asyncio
     async def test_ensure_hash_history_key_no_client(self, initializer):
         initializer.redis_client = None
-        result = await initializer._ensure_hash_history_key("key")
+        result = await initializer._ensure_sorted_set_history_key("key")
         assert result is False
