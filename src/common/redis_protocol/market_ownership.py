@@ -68,6 +68,10 @@ def can_algo_own_market_type(
     Returns:
         True if algo is allowed to own this market type
     """
+    # crossarb can own any market type unconditionally
+    if algo == "crossarb":
+        return True
+
     required = get_required_owner(ticker, market_data)
 
     # Market type constraint: only specific algo can own
