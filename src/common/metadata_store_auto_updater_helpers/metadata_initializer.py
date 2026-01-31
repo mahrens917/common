@@ -40,7 +40,7 @@ class MetadataInitializer:
                 if not service_name:
                     continue
 
-                if not await self._ensure_hash_history_key(key):
+                if not await self._ensure_sorted_set_history_key(key):
                     logger.warning(
                         "Skipping history key %s during initialization after failed normalization",
                         key,
@@ -48,7 +48,7 @@ class MetadataInitializer:
                     continue
 
                 try:
-                    count = await ensure_awaitable(redis_client.hlen(key))
+                    count = await ensure_awaitable(redis_client.zcard(key))
                     service_counts[service_name] += count
 
                 except REDIS_ERRORS as exc:  # Expected exception in loop, continuing iteration  # policy_guard: allow-silent-handler
@@ -64,15 +64,15 @@ class MetadataInitializer:
         except REDIS_ERRORS as exc:  # Expected exception in operation  # policy_guard: allow-silent-handler
             logger.error("Error initializing metadata from existing keys: %s", exc, exc_info=True)
 
-    async def _ensure_hash_history_key(self, key: str) -> bool:
-        """Ensure the given Redis history key uses the expected hash structure"""
+    async def _ensure_sorted_set_history_key(self, key: str) -> bool:
+        """Ensure the given Redis history key uses the expected sorted set structure."""
         client = self.redis_client
         try:
             key_type = await ensure_awaitable(client.type(key))
             if isinstance(key_type, bytes):
                 key_type = key_type.decode()
 
-            if key_type in ("none", "hash"):
+            if key_type in ("none", "zset"):
                 return True
 
             logger.error(
@@ -82,7 +82,7 @@ class MetadataInitializer:
             )
 
         except REDIS_ERRORS as exc:  # Expected exception, returning default value  # policy_guard: allow-silent-handler
-            logger.error("Failed to normalize history key %s: %s", key, exc, exc_info=True)
+            logger.error("Failed to validate history key %s: %s", key, exc, exc_info=True)
             return False
 
         return False

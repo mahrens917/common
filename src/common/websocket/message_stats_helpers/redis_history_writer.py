@@ -1,8 +1,8 @@
-"""Redis history writer for message statistics"""
+"""Redis history writer for message statistics using sorted sets."""
 
 import logging
-from datetime import datetime, timezone
 
+from ...price_history_utils import build_history_member
 from ...redis_protocol.error_types import REDIS_ERRORS
 from ...redis_protocol.typing import RedisClient, ensure_awaitable
 from ...redis_utils import RedisOperationError
@@ -10,6 +10,7 @@ from ...redis_utils import RedisOperationError
 logger = logging.getLogger(__name__)
 
 REDIS_WRITE_ERRORS = REDIS_ERRORS + (RedisOperationError, ConnectionError, RuntimeError, ValueError)
+MESSAGE_HISTORY_TTL = 86400
 
 
 async def write_message_count_to_redis(
@@ -19,7 +20,7 @@ async def write_message_count_to_redis(
     current_time: float,
 ) -> None:
     """
-    Write message count to Redis history for monitor consumption.
+    Write message count to Redis sorted set for monitor consumption.
 
     Args:
         redis_client: Redis client instance
@@ -31,12 +32,20 @@ async def write_message_count_to_redis(
         ConnectionError: If Redis write fails
     """
     try:
-        datetime_str = datetime.fromtimestamp(current_time, tz=timezone.utc).strftime("%Y-%m-%d %H:%M:%S")
+        int_ts = int(current_time)
         history_key = f"history:{service_name}"
-        await ensure_awaitable(redis_client.hset(history_key, datetime_str, str(message_count)))
-        await ensure_awaitable(redis_client.expire(history_key, 86400))  # 24 hours
+        score = float(int_ts)
+        member = build_history_member(int_ts, float(message_count))
+        cutoff = float(int_ts - MESSAGE_HISTORY_TTL)
 
-        logger.debug(f"{service_name.upper()}_HISTORY: Recorded {message_count} messages at {datetime_str}")
+        pipe = redis_client.pipeline()
+        pipe.zremrangebyscore(history_key, score, score)
+        pipe.zadd(history_key, {member: score})
+        pipe.zremrangebyscore(history_key, 0, cutoff)
+        pipe.expire(history_key, MESSAGE_HISTORY_TTL)
+        await ensure_awaitable(pipe.execute())
+
+        logger.debug(f"{service_name.upper()}_HISTORY: Recorded {message_count} messages at ts={int_ts}")
 
     except REDIS_WRITE_ERRORS as exc:
         logger.exception("CRITICAL: Failed to record %s message count to Redis", service_name)

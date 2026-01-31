@@ -1,8 +1,8 @@
 """
 Price update recording for history tracking
 
-Handles validation and persistence of BTC/ETH price updates to Redis hash structure
-with automatic TTL management.
+Handles validation and persistence of BTC/ETH price updates to Redis sorted set
+with automatic TTL management and old-entry pruning.
 """
 
 from __future__ import annotations
@@ -10,7 +10,7 @@ from __future__ import annotations
 import logging
 
 from common.exceptions import ValidationError
-from common.price_history_utils import generate_redis_key, validate_currency
+from common.price_history_utils import build_history_member, generate_redis_key, validate_currency
 from common.redis_protocol.config import HISTORY_TTL_SECONDS
 from common.redis_protocol.typing import RedisClient, ensure_awaitable
 from common.time_utils import get_current_utc
@@ -22,10 +22,10 @@ logger = logging.getLogger(__name__)
 
 class PriceHistoryRecorder:
     """
-    Records price updates to Redis hash structure
+    Records price updates to Redis sorted set
 
-    Validates currency and price inputs, generates timezone-aware timestamps,
-    and persists to Redis with automatic TTL.
+    Validates currency and price inputs, generates second-precision timestamps,
+    and persists to Redis with automatic TTL and old-entry pruning.
     """
 
     @staticmethod
@@ -44,7 +44,7 @@ class PriceHistoryRecorder:
 
     async def record_price(self, client: RedisClient, currency: str, price: float) -> tuple[bool, str]:
         """
-        Record price update for BTC or ETH in Redis hash structure
+        Record price update for BTC or ETH in Redis sorted set
 
         Args:
             client: Redis client
@@ -59,23 +59,25 @@ class PriceHistoryRecorder:
             ValueError: If price is not positive
             RuntimeError: If Redis operation fails
         """
-        # Validate inputs - fail fast on invalid data
         validate_currency(currency)
         self.validate_price(price)
 
         try:
-            # Generate timezone-aware datetime string as field name
-            # Format: "2025-01-06 15:23:45+00:00" (ISO format with timezone)
-            datetime_str = get_current_utc().isoformat()
+            current_time = get_current_utc()
+            int_ts = int(current_time.timestamp())
+            datetime_str = current_time.replace(microsecond=0).isoformat()
 
-            # Use simplified key format: history:btc or history:eth
             redis_key = generate_redis_key(currency)
+            score = float(int_ts)
+            member = build_history_member(int_ts, float(price))
+            cutoff = float(int_ts - HISTORY_TTL_SECONDS)
 
-            # Store in Redis hash with datetime as field and price as value
-            await ensure_awaitable(client.hset(redis_key, datetime_str, str(float(price))))
-
-            # Set TTL for automatic cleanup
-            await ensure_awaitable(client.expire(redis_key, HISTORY_TTL_SECONDS))
+            pipe = client.pipeline()
+            pipe.zremrangebyscore(redis_key, score, score)
+            pipe.zadd(redis_key, {member: score})
+            pipe.zremrangebyscore(redis_key, 0, cutoff)
+            pipe.expire(redis_key, HISTORY_TTL_SECONDS)
+            await ensure_awaitable(pipe.execute())
 
             logger.debug(f"Recorded {currency} price history: ${price:.2f} at {datetime_str}")
 

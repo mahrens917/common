@@ -66,50 +66,39 @@ async def create_load_chart(generator: "ChartGenerator", service_name: str, hour
 
 
 async def create_system_chart(generator: "ChartGenerator", metric: str, hours: int) -> str:
+    from common.price_history_utils import parse_history_member_value
     from common.redis_utils import get_redis_connection
 
     redis_client = await get_redis_connection()
     try:
-        data = await ensure_awaitable(redis_client.hgetall(f"history:{metric}"))
+        start_ts = datetime.now(tz=timezone.utc).timestamp() - (hours * 3600)
+        entries = await ensure_awaitable(redis_client.zrangebyscore(f"history:{metric}", start_ts, "+inf", withscores=True))
     finally:
         await redis_client.aclose()
-    if not data:
+    if not entries:
         raise InsufficientDataError(f"No history data available for {metric}")
-    current_time = int(datetime.now(tz=timezone.utc).timestamp())
-    start_time = current_time - (hours * 3600)
     timestamps: List[datetime] = []
     values: List[float] = []
-    for datetime_str, value_str in data.items():
+    for member, score in entries:
         try:
-            if isinstance(datetime_str, bytes):
-                datetime_str = datetime_str.decode()
-            if isinstance(value_str, bytes):
-                value_str = value_str.decode()
-            dt = datetime.strptime(datetime_str, "%Y-%m-%d %H:%M:%S")
-            timestamp = int(dt.timestamp())
-            numeric_value = float(value_str)
+            numeric_value = parse_history_member_value(member)
         except (
             ValueError,
-            UnicodeDecodeError,
             TypeError,
         ) as exc:  # Expected data validation or parsing failure  # policy_guard: allow-silent-handler
-            logger.warning("Failed to parse metric data: datetime=%r, value=%r, error=%s", datetime_str, value_str, exc)
+            logger.warning("Failed to parse metric member: member=%r, error=%s", member, exc)
             continue
-        if timestamp >= start_time and numeric_value > 0:
-            timestamps.append(datetime.fromtimestamp(timestamp, tz=timezone.utc))
+        if numeric_value > 0:
+            timestamps.append(datetime.fromtimestamp(score, tz=timezone.utc))
             values.append(numeric_value)
     if len(timestamps) < MIN_DATA_POINTS_FOR_CHART:
         raise InsufficientDataError(f"Insufficient data points for {metric}: {len(timestamps)}")
-    sorted_pairs = sorted(zip(timestamps, values))
-    sorted_timestamps, sorted_values = zip(*sorted_pairs)
-    timestamps = list(sorted_timestamps)
-    values = list(sorted_values)
     metric_label = metric.upper() if metric.lower() == "cpu" else metric.capitalize()
     chart_title = f"{metric_label} (per minute)"
     pct_formatter = lambda x: f"{x:.1f}%"
     return await generator.generate_unified_chart(
-        timestamps=list(timestamps),
-        values=list(values),
+        timestamps=timestamps,
+        values=values,
         chart_title=chart_title,
         y_label="",
         value_formatter_func=pct_formatter,

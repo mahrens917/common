@@ -56,7 +56,7 @@ API_TYPE_VOLATILITY_INDEX = "deribit_volatility_index"
 KALSHI_ORDERBOOK_PREFIX = "kalshi:orderbook:"
 KALSHI_CHANNEL = "kalshi:updates"
 HISTORY_KEY_PREFIX = "history:"
-HISTORY_TTL_SECONDS = 129600  # 36 hours (model lookback needs 36h)
+HISTORY_TTL_SECONDS = 7200  # 2 hours (consumers look back 65 minutes max)
 BALANCE_KEY_PREFIX = "balance:"
 KALSHI_BALANCE_KEY = "kalshi:account:balance"
 

@@ -1,17 +1,18 @@
 """
-Realtime message metrics collection from Redis.
+Realtime message metrics collection from Redis sorted sets.
 
-Aggregates Deribit and Kalshi message counts from the last 60 seconds.
+Aggregates Deribit and Kalshi message counts from the last 60 seconds
+using ZRANGEBYSCORE for efficient time-windowed queries.
 """
 
 import logging
 import time
-from datetime import datetime, timezone
 from typing import Optional
 
 from redis.asyncio import Redis
 from redis.exceptions import RedisError
 
+from common.price_history_utils import parse_history_member_value
 from common.redis_protocol.typing import ensure_awaitable
 from common.redis_utils import RedisOperationError
 
@@ -29,85 +30,42 @@ REDIS_DATA_ERRORS = (
 
 
 class RealtimeMetricsCollector:
-    """Collects realtime message metrics from Redis history keys."""
+    """Collects realtime message metrics from Redis history sorted sets."""
 
     def __init__(self, redis_client: Optional[Redis] = None):
         self.redis_client = redis_client
 
     async def get_deribit_sum_last_60_seconds(self) -> int:
         """Get sum of Deribit updates from last 60 seconds."""
-        try:
-            redis_client = self.redis_client
-            assert redis_client is not None, "Redis client required for realtime metrics"
-            all_entries = await ensure_awaitable(redis_client.hgetall("history:deribit_realtime"))
-            if not all_entries:
-                return 0
-
-            current_time = time.time()
-            cutoff_time = current_time - 60.0
-            total_sum = 0
-
-            for timestamp_str, count_str in all_entries.items():
-                try:
-                    timestamp = (
-                        datetime.strptime(
-                            (timestamp_str.decode() if isinstance(timestamp_str, bytes) else timestamp_str),
-                            "%Y-%m-%d %H:%M:%S",
-                        )
-                        .replace(tzinfo=timezone.utc)
-                        .timestamp()
-                    )
-
-                    if timestamp >= cutoff_time:
-                        total_sum += float(count_str)
-                except (  # policy_guard: allow-silent-handler
-                    ValueError,
-                    TypeError,
-                ) as exc:
-                    logger.debug("Error parsing deribit realtime entry %s: %s", timestamp_str, exc)
-                    continue
-
-            return int(round(total_sum))
-
-        except REDIS_DATA_ERRORS as exc:  # Expected exception, returning default value  # policy_guard: allow-silent-handler
-            logger.debug("Error getting deribit sum last 60s (%s): %s", type(exc).__name__, exc)
-            return 0
+        return await self._sum_last_60s("history:deribit_realtime")
 
     async def get_kalshi_sum_last_60_seconds(self) -> int:
         """Get sum of Kalshi updates from last 60 seconds."""
+        return await self._sum_last_60s("history:kalshi_realtime")
+
+    async def _sum_last_60s(self, key: str) -> int:
+        """Sum values in sorted set within last 60 seconds via ZRANGEBYSCORE."""
         try:
             redis_client = self.redis_client
             assert redis_client is not None, "Redis client required for realtime metrics"
-            all_entries = await ensure_awaitable(redis_client.hgetall("history:kalshi_realtime"))
-            if not all_entries:
+            cutoff_time = time.time() - 60.0
+            entries = await ensure_awaitable(redis_client.zrangebyscore(key, cutoff_time, "+inf", withscores=True))
+            if not entries:
                 return 0
 
-            current_time = time.time()
-            cutoff_time = current_time - 60.0
-            total_sum = 0
-
-            for timestamp_str, count_str in all_entries.items():
+            total_sum = 0.0
+            for member, _score in entries:
                 try:
-                    timestamp = (
-                        datetime.strptime(
-                            (timestamp_str.decode() if isinstance(timestamp_str, bytes) else timestamp_str),
-                            "%Y-%m-%d %H:%M:%S",
-                        )
-                        .replace(tzinfo=timezone.utc)
-                        .timestamp()
-                    )
-
-                    if timestamp >= cutoff_time:
-                        total_sum += float(count_str)
+                    total_sum += parse_history_member_value(member)
                 except (  # policy_guard: allow-silent-handler
                     ValueError,
                     TypeError,
                 ) as exc:
-                    logger.debug("Error parsing kalshi realtime entry %s: %s", timestamp_str, exc)
+                    logger.debug("Error parsing realtime entry %r: %s", member, exc)
                     continue
 
             return int(round(total_sum))
 
         except REDIS_DATA_ERRORS as exc:  # Expected exception, returning default value  # policy_guard: allow-silent-handler
-            logger.debug("Error getting kalshi sum last 60s (%s): %s", type(exc).__name__, exc)
+            logger.debug("Error getting %s sum last 60s (%s): %s", key, type(exc).__name__, exc)
             return 0

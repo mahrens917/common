@@ -2,6 +2,7 @@
 
 from common.llm_extractor.prompts import (
     build_kalshi_dedup_prompt,
+    build_kalshi_underlying_batch_prompt,
     build_kalshi_underlying_prompt,
     build_kalshi_underlying_user_content,
     build_poly_batch_user_content,
@@ -35,6 +36,15 @@ class TestBuildKalshiUnderlyingPrompt:
         assert "BTC" in prompt
         assert "ETH" in prompt
         assert "FED" in prompt
+
+    def test_contains_station_qualified_weather_examples(self) -> None:
+        """Test that weather examples use CITY_STATION format."""
+        for prompt_fn in (build_kalshi_underlying_prompt, build_kalshi_underlying_batch_prompt):
+            prompt = prompt_fn([])
+            assert "NYC_KNYC" in prompt
+            assert "CHI_KMDW" in prompt
+            assert "WEATHER STATION RULE" in prompt
+            assert "CITY_STATION" in prompt
 
 
 class TestBuildKalshiUnderlyingUserContent:
@@ -108,6 +118,13 @@ class TestBuildKalshiDedupPrompt:
         assert '"groups"' in prompt
         assert '"canonical"' in prompt
         assert '"aliases"' in prompt
+
+    def test_includes_station_dedup_guidance(self) -> None:
+        """Test that dedup prompt distinguishes same-city different-station."""
+        prompt = build_kalshi_dedup_prompt("Weather", ["NYC_KNYC", "NYC_KLGA"])
+        assert "NYC_KNYC and NYC_KLGA" in prompt
+        assert "do NOT group" in prompt
+        assert "NEWYORK_KNYC" in prompt
 
 
 class TestBuildPolyPrompt:

@@ -24,15 +24,19 @@ EXISTING UNDERLYINGS (use one of these if it matches, only create new if none fi
 Extract the underlying - a short uppercase code for the SPECIFIC asset/entity being measured:
   - Crypto: "BTC", "ETH", "SOL", "DOGE", "SHIB", "XRP"
   - Forex: "USDJPY", "EURUSD", "GBPUSD"
-  - Weather: "NYC", "CHI", "SEA", "LAX", "DEN", "MIA"
+  - Weather: "NYC_KNYC", "CHI_KMDW", "DEN_KDEN", "LAX_KLAX", "MIA_KMIA", "AUS_KAUS"
   - Sports teams/leagues: "NFL", "NBA", "MLB", "UCL"
   - Esports teams: "FAZE", "G2", "SENTINELS", "FNATIC"
   - Economics: "FED", "CPI", "GDP"
   - Entertainment: "SPOTIFY_USA", "BILLBOARD_HOT100"
 
+WEATHER STATION RULE: Weather underlyings MUST use the format CITY_STATION where STATION is the ICAO code the market resolves at.
+Common mappings: New York=KNYC (Central Park), Chicago=KMDW (Midway), Denver=KDEN, Los Angeles=KLAX, Miami=KMIA, Austin=KAUS, Seattle=KSEA.
+If the market rules name a specific station, use that station. If no station is stated, use the most common station for that city.
+
 CRITICAL: Underlyings must identify SPECIFIC entities, not broad categories.
   - WRONG: "ENTERTAINMENT", "CRYPTO", "SPORTS", "WEATHER", "ESPORTS"
-  - RIGHT: "SPOTIFY_USA", "BTC", "NFL", "CHI", "FAZE"
+  - RIGHT: "SPOTIFY_USA", "BTC", "NFL", "CHI_KMDW", "FAZE"
 
 If an existing underlying matches, use it exactly. Only create a new code if none fit.
 
@@ -76,15 +80,19 @@ EXISTING UNDERLYINGS (use one of these if it matches, only create new if none fi
 Extract the underlying - a short uppercase code for the SPECIFIC asset/entity being measured:
   - Crypto: "BTC", "ETH", "SOL", "DOGE", "SHIB", "XRP"
   - Forex: "USDJPY", "EURUSD", "GBPUSD"
-  - Weather: "NYC", "CHI", "SEA", "LAX", "DEN", "MIA"
+  - Weather: "NYC_KNYC", "CHI_KMDW", "DEN_KDEN", "LAX_KLAX", "MIA_KMIA", "AUS_KAUS"
   - Sports teams/leagues: "NFL", "NBA", "MLB", "UCL"
   - Esports teams: "FAZE", "G2", "SENTINELS", "FNATIC"
   - Economics: "FED", "CPI", "GDP"
   - Entertainment: "SPOTIFY_USA", "BILLBOARD_HOT100"
 
+WEATHER STATION RULE: Weather underlyings MUST use the format CITY_STATION where STATION is the ICAO code the market resolves at.
+Common mappings: New York=KNYC (Central Park), Chicago=KMDW (Midway), Denver=KDEN, Los Angeles=KLAX, Miami=KMIA, Austin=KAUS, Seattle=KSEA.
+If the market rules name a specific station, use that station. If no station is stated, use the most common station for that city.
+
 CRITICAL: Underlyings must identify SPECIFIC entities, not broad categories.
   - WRONG: "ENTERTAINMENT", "CRYPTO", "SPORTS", "WEATHER", "ESPORTS"
-  - RIGHT: "SPOTIFY_USA", "BTC", "NFL", "CHI", "FAZE"
+  - RIGHT: "SPOTIFY_USA", "BTC", "NFL", "CHI_KMDW", "FAZE"
 
 If an existing underlying matches, use it exactly. Only create a new code if none fit.
 
@@ -141,7 +149,11 @@ CORRECT groupings (same asset, different names):
 INCORRECT groupings (different assets, do NOT group):
 - SPX and NDX -> S&P 500 vs NASDAQ-100 are DIFFERENT indices
 - BTC and ETH -> different cryptocurrencies
-- NYC and CHI -> different cities
+- NYC_KNYC and CHI_KMDW -> different cities
+- NYC_KNYC and NYC_KLGA -> different weather stations in the same city, do NOT group
+
+CORRECT weather groupings (same city AND same station):
+- NYC_KNYC, NEWYORK_KNYC -> same city and station
 
 Pick the canonical name (prefer standard ticker codes like "BTC" over "BITCOIN").
 
