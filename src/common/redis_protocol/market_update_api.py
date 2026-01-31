@@ -41,8 +41,6 @@ if TYPE_CHECKING:
 
 logger = logging.getLogger(__name__)
 
-VALID_ALGOS = frozenset({"whale", "peak", "edge", "pdf", "weather", "dutch", "strike", "total", "conjunction", "crossarb"})
-
 
 @dataclass(frozen=True)
 class MarketUpdateResult:
@@ -79,9 +77,6 @@ async def request_market_update(
     Returns:
         MarketUpdateResult with success status
     """
-    if algo not in VALID_ALGOS:
-        raise ValueError(f"Invalid algo '{algo}'. Must be one of: {sorted(VALID_ALGOS)}")
-
     if t_bid is None and t_ask is None:
         return MarketUpdateResult(success=False, rejected=False, reason="no_prices_provided", owning_algo=None)
 
@@ -112,9 +107,6 @@ async def batch_update_market_signals(
     Writes {algo}:t_bid and {algo}:t_ask fields only.
     Tracker is responsible for setting algo/direction fields.
     """
-    if algo not in VALID_ALGOS:
-        raise ValueError(f"Invalid algo '{algo}'. Must be one of: {sorted(VALID_ALGOS)}")
-
     if not signals:
         return BatchUpdateResult(succeeded=[], rejected=[], failed=[])
 
@@ -202,9 +194,6 @@ async def update_and_clear_stale(
     Returns:
         AlgoUpdateResult with succeeded, failed, and stale_cleared lists
     """
-    if algo not in VALID_ALGOS:
-        raise ValueError(f"Invalid algo '{algo}'. Must be one of: {sorted(VALID_ALGOS)}")
-
     succeeded: List[str] = []
     failed: List[str] = []
 
@@ -256,5 +245,4 @@ __all__ = [
     "request_market_update",
     "scan_algo_owned_markets",
     "update_and_clear_stale",
-    "VALID_ALGOS",
 ]

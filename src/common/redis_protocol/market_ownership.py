@@ -1,12 +1,21 @@
 """Market ownership detection and validation."""
 
-from typing import Any, Dict, Optional
+from typing import Any, Dict, List, Optional
 
-# Weather prefixes
-_WEATHER_PREFIXES = ("KXHIGH", "KXLOW")
+_config: Optional[Dict[str, Any]] = None
 
-# PDF prefixes (crypto markets)
-_PDF_PREFIXES = ("KXBTC", "KXETH")
+
+def configure_ownership(config: Dict[str, Any]) -> None:
+    """Store ownership config. Called once at tracker startup."""
+    global _config
+    _config = config
+
+
+def _get_config() -> Dict[str, Any]:
+    """Return stored config or raise if not configured."""
+    if _config is None:
+        raise RuntimeError("market_ownership not configured: call configure_ownership() first")
+    return _config
 
 
 def _is_mutually_exclusive(market_data: Optional[Dict[str, Any]]) -> bool:
@@ -32,19 +41,19 @@ def get_required_owner(ticker: str, market_data: Optional[Dict[str, Any]] = None
         market_data: Optional market data dict to check mutually_exclusive flag
 
     Returns:
-        "weather" for weather markets, "pdf" for PDF markets, None otherwise
+        Required owner algo name, or None if unrestricted
     """
+    config = _get_config()
     ticker_upper = ticker.upper()
 
-    # Weather markets: KXHIGH* or KXLOW* with mutually_exclusive=True
-    if any(ticker_upper.startswith(prefix) for prefix in _WEATHER_PREFIXES):
-        if _is_mutually_exclusive(market_data):
-            return "weather"
-
-    # PDF markets: KXBTC* or KXETH* with mutually_exclusive=True
-    if any(ticker_upper.startswith(prefix) for prefix in _PDF_PREFIXES):
-        if _is_mutually_exclusive(market_data):
-            return "pdf"
+    restrictions: List[Dict[str, Any]] = config["market_type_restrictions"]
+    for restriction in restrictions:
+        prefixes: List[str] = restriction["prefixes"]
+        if any(ticker_upper.startswith(prefix) for prefix in prefixes):
+            if restriction["require_mutually_exclusive"] and _is_mutually_exclusive(market_data):
+                return restriction["owner"]
+            if not restriction["require_mutually_exclusive"]:
+                return restriction["owner"]
 
     return None
 
@@ -56,7 +65,7 @@ def can_algo_own_market_type(
 ) -> bool:
     """Check if algo is allowed to own this market type.
 
-    Only checks market type restrictions (weather/PDF).
+    Only checks market type restrictions.
     Does NOT check current ownership - ownership is now dynamic
     and re-evaluated on every price change based on tradeable edge.
 
@@ -68,8 +77,9 @@ def can_algo_own_market_type(
     Returns:
         True if algo is allowed to own this market type
     """
-    # crossarb can own any market type unconditionally
-    if algo == "crossarb":
+    config = _get_config()
+
+    if algo in config["unrestricted_algos"]:
         return True
 
     required = get_required_owner(ticker, market_data)
@@ -89,10 +99,6 @@ def can_algo_own_market(
 ) -> bool:
     """Check if algo can claim ownership of market.
 
-    Legacy function: Use can_algo_own_market_type() instead.
-    This function is kept for external callers but the
-    current_owner check is no longer used (ownership is dynamic).
-
     Args:
         algo: Algorithm name (e.g., "peak", "weather", "pdf")
         ticker: Market ticker
@@ -106,4 +112,4 @@ def can_algo_own_market(
     return can_algo_own_market_type(algo, ticker, market_data)
 
 
-__all__ = ["can_algo_own_market", "can_algo_own_market_type", "get_required_owner"]
+__all__ = ["can_algo_own_market", "can_algo_own_market_type", "configure_ownership", "get_required_owner"]

@@ -6,7 +6,6 @@ from unittest.mock import AsyncMock, MagicMock
 import pytest
 
 from common.redis_protocol.market_update_api import (
-    VALID_ALGOS,
     BatchUpdateResult,
     MarketUpdateResult,
     _execute_batch_transaction,
@@ -59,11 +58,6 @@ class TestRequestMarketUpdate:
         redis.hdel = AsyncMock()
         redis.publish = AsyncMock()
         return redis
-
-    @pytest.mark.asyncio
-    async def test_invalid_algo_raises_value_error(self, mock_redis):
-        with pytest.raises(ValueError, match="Invalid algo"):
-            await request_market_update(mock_redis, "market:key", "invalid_algo", 50.0, 55.0)
 
     @pytest.mark.asyncio
     async def test_no_prices_provided_returns_no_success(self, mock_redis):
@@ -267,23 +261,6 @@ class TestMarketUpdateResult:
         assert result.owning_algo == "pdf"
 
 
-class TestValidAlgos:
-    """Tests for VALID_ALGOS constant."""
-
-    def test_all_algos_present(self):
-        assert "whale" in VALID_ALGOS
-        assert "peak" in VALID_ALGOS
-        assert "edge" in VALID_ALGOS
-        assert "pdf" in VALID_ALGOS
-        assert "weather" in VALID_ALGOS
-        assert "dutch" in VALID_ALGOS
-        assert "strike" in VALID_ALGOS
-        assert "total" in VALID_ALGOS
-
-    def test_is_frozenset(self):
-        assert isinstance(VALID_ALGOS, frozenset)
-
-
 class TestParseInt:
     """Tests for parse_int helper function."""
 
@@ -329,11 +306,6 @@ class TestBatchUpdateMarketSignals:
     @pytest.fixture
     def mock_key_builder(self):
         return lambda ticker: f"markets:kalshi:test:{ticker}"
-
-    @pytest.mark.asyncio
-    async def test_invalid_algo_raises_error(self, mock_redis, mock_key_builder):
-        with pytest.raises(ValueError, match="Invalid algo"):
-            await batch_update_market_signals(mock_redis, {"TEST": {"t_bid": 50.0}}, "invalid", mock_key_builder)
 
     @pytest.mark.asyncio
     async def test_empty_signals_returns_empty_result(self, mock_redis, mock_key_builder):
@@ -505,13 +477,6 @@ class TestUpdateAndClearStale:
     @pytest.fixture
     def mock_key_builder(self):
         return lambda ticker: f"markets:kalshi:test:{ticker}"
-
-    @pytest.mark.asyncio
-    async def test_invalid_algo_raises_error(self, mock_redis, mock_key_builder):
-        from common.redis_protocol.market_update_api import update_and_clear_stale
-
-        with pytest.raises(ValueError, match="Invalid algo"):
-            await update_and_clear_stale(mock_redis, {"TEST": {"t_bid": 50.0}}, "invalid", mock_key_builder, "markets:kalshi:*")
 
     @pytest.mark.asyncio
     async def test_successful_update(self, mock_redis, mock_key_builder):
