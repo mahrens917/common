@@ -67,7 +67,7 @@ SERVICE_PROCESS_PATTERNS = {
     "poly": ["-m src.poly", "src.poly", "src/poly/"],
     "structure": ["-m src.structure", "src.structure", "src/structure/"],
     "web": ["-m src.web", "src.web"],
-    "crossarb": ["scripts/crossarb", "scripts.crossarb"],
+    "crossarb": ["-m src.crossarb", "src.crossarb", "src/crossarb/"],
 }
 
 

@@ -242,6 +242,10 @@ class FakeRedis:
         """Dump contents of a hash (test helper)."""
         return self._hashes.get(key, {}).copy()
 
+    def dump_string(self, key: str) -> str | None:
+        """Dump contents of a string (test helper)."""
+        return self._data.get(key)
+
 
 @pytest.fixture(autouse=True)
 async def _cleanup_redis_pools_between_tests():
@@ -261,8 +265,11 @@ async def _cleanup_redis_pools_between_tests():
     pool = getattr(connection_pool_core._thread_local, "pool", None)
     if pool is not None:
         try:
-            await asyncio.wait_for(pool.disconnect(), timeout=1.0)
-        except Exception:
+            # Use a short timeout and handle cancellation to prevent hangs
+            disconnect_coro = pool.disconnect()
+            if asyncio.iscoroutine(disconnect_coro):
+                await asyncio.wait_for(asyncio.shield(disconnect_coro), timeout=0.5)
+        except (asyncio.TimeoutError, asyncio.CancelledError, Exception):
             pass
 
     connection_pool_core._thread_local.pool = None
@@ -277,9 +284,40 @@ async def _cleanup_redis_pools_between_tests():
 
     connection_pool_core._sync_pool = None
 
-    def dump_string(self, key: str) -> str | None:
-        """Dump contents of a string (test helper)."""
-        return self._data.get(key)
+
+@pytest.fixture(autouse=True)
+async def _cleanup_process_monitor_between_tests():
+    """
+    Reset the global process monitor singleton between tests.
+
+    This prevents background tasks from persisting across tests when using
+    session-scoped event loops.
+    """
+    yield
+
+    try:
+        from common import process_monitor
+    except Exception:
+        return
+
+    monitor = getattr(process_monitor, "_global_process_monitor", None)
+    if monitor is not None:
+        # Stop any running background task with a timeout
+        if hasattr(monitor, "_background_task") and monitor._background_task is not None:
+            if hasattr(monitor, "_shutdown_event"):
+                monitor._shutdown_event.set()
+            try:
+                await asyncio.wait_for(monitor._background_task, timeout=0.5)
+            except (asyncio.TimeoutError, asyncio.CancelledError, Exception):
+                if monitor._background_task is not None:
+                    monitor._background_task.cancel()
+                    try:
+                        await monitor._background_task
+                    except (asyncio.CancelledError, Exception):
+                        pass
+            monitor._background_task = None
+
+    process_monitor._global_process_monitor = None
 
 
 class FakeRedisPipeline:
