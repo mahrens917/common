@@ -93,6 +93,31 @@ def _find_running_services() -> Set[str]:
     return running_services
 
 
+def _remove_log_entry(entry: Path) -> None:
+    """Remove a single log entry (file or directory)."""
+    try:
+        if entry.is_dir():
+            shutil.rmtree(entry)
+        else:
+            entry.unlink()
+    except FileNotFoundError as exc:  # Expected exception in loop, continuing iteration  # policy_guard: allow-silent-handler
+        # File was removed between listdir and unlink - expected race condition
+        _MODULE_LOGGER.debug("Log entry disappeared during cleanup: %s", exc)
+    except OSError as exc:
+        raise RuntimeError(f"Failed to clear log entry {entry}") from exc
+
+
+def _clear_log_entries(log_dir: Path) -> None:
+    """Clear all log entries except monitor.log."""
+    monitor_log = log_dir / "monitor.log"
+    for entry in log_dir.iterdir():
+        if entry == monitor_log:
+            # Skip monitor.log; the file handler truncates it in-place,
+            # preserving the inode so tail -f keeps working.
+            continue
+        _remove_log_entry(entry)
+
+
 def _clear_logs_directory(log_dir: Path) -> None:
     """Remove all existing log files to ensure a clean monitor startup."""
     global _LOGS_CLEARED
@@ -107,18 +132,7 @@ def _clear_logs_directory(log_dir: Path) -> None:
         return
 
     if log_dir.exists():
-        for entry in log_dir.iterdir():
-            try:
-                if entry.is_dir():
-                    shutil.rmtree(entry)
-                else:
-                    entry.unlink()
-            except FileNotFoundError as exc:  # Expected exception in loop, continuing iteration  # policy_guard: allow-silent-handler
-                # File was removed between listdir and unlink - expected race condition
-                _MODULE_LOGGER.debug("Log entry disappeared during cleanup: %s", exc)
-                continue
-            except OSError as exc:
-                raise RuntimeError(f"Failed to clear log entry {entry}") from exc
+        _clear_log_entries(log_dir)
 
     _LOGS_CLEARED = True
 
