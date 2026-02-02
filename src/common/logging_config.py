@@ -28,7 +28,7 @@ _config_lock = threading.Lock()
 _LOGS_CLEARED = False
 _MODULE_LOGGER = logging.getLogger(__name__)
 _UNKNOWN_LOGGER_NAME = "<unknown>"
-_LOGGING_CONFIG_PATH = Path(__file__).resolve().parents[2] / "config" / "logging_config.json"
+_LOGGING_CONFIG_PATH = Path.cwd() / "config" / "logging_config.json"
 
 
 def _get_configured_log_directory() -> Optional[Path]:
@@ -267,7 +267,7 @@ def setup_logging(service_name: Optional[str] = None, user_friendly: bool = Fals
         console_handler = _build_console_handler(service_name, user_friendly, managed_by_monitor)
         root_logger.addHandler(console_handler)
 
-        project_root = Path(__file__).resolve().parents[2]
+        project_root = Path.cwd()
         file_handler = _configure_file_handler(service_name, project_root)
         if file_handler:
             root_logger.addHandler(file_handler)

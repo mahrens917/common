@@ -42,13 +42,11 @@ def logging_module(monkeypatch):
         root.removeHandler(handler)
 
 
-def _set_fake_project_root(logging_module, tmp_path: Path) -> Path:
-    """Repoint module __file__ to a temp directory so logs stay isolated."""
+def _set_fake_project_root(monkeypatch, tmp_path: Path) -> Path:
+    """Change cwd to a temp directory so logs stay isolated."""
     fake_root = tmp_path / "project_root"
-    file_path = fake_root / "src/common/logging_config.py"
-    file_path.parent.mkdir(parents=True, exist_ok=True)
-    file_path.touch()
-    logging_module.__file__ = str(file_path)
+    fake_root.mkdir(parents=True, exist_ok=True)
+    monkeypatch.chdir(fake_root)
     return fake_root
 
 
@@ -82,7 +80,7 @@ def test_clear_logs_directory_skips_when_services_running(logging_module, tmp_pa
 
 
 def test_setup_logging_user_friendly_configures_warning_console(logging_module, monkeypatch, tmp_path):
-    _set_fake_project_root(logging_module, tmp_path)
+    _set_fake_project_root(monkeypatch, tmp_path)
     monkeypatch.delenv("MANAGED_BY_MONITOR", raising=False)
 
     class RecordingStreamHandler(logging.StreamHandler):
@@ -104,7 +102,7 @@ def test_setup_logging_user_friendly_configures_warning_console(logging_module, 
 
 
 def test_setup_logging_adds_file_handler_and_resets_child_loggers(logging_module, monkeypatch, tmp_path):
-    fake_root = _set_fake_project_root(logging_module, tmp_path)
+    fake_root = _set_fake_project_root(monkeypatch, tmp_path)
     monkeypatch.delenv("MANAGED_BY_MONITOR", raising=False)
     monkeypatch.setattr(logging_module, "_get_configured_log_directory", lambda: None)
 
@@ -148,7 +146,7 @@ def test_setup_logging_adds_file_handler_and_resets_child_loggers(logging_module
 
 
 def test_setup_logging_disables_console_when_managed(logging_module, monkeypatch, tmp_path):
-    _set_fake_project_root(logging_module, tmp_path)
+    _set_fake_project_root(monkeypatch, tmp_path)
     monkeypatch.setenv("MANAGED_BY_MONITOR", "1")
 
     class RecordingStreamHandler(logging.StreamHandler):
@@ -167,7 +165,7 @@ def test_setup_logging_disables_console_when_managed(logging_module, monkeypatch
 
 
 def test_setup_logging_monitor_clears_logs_and_appends_when_child(logging_module, monkeypatch, tmp_path):
-    fake_root = _set_fake_project_root(logging_module, tmp_path)
+    fake_root = _set_fake_project_root(monkeypatch, tmp_path)
     monkeypatch.delenv("MANAGED_BY_MONITOR", raising=False)
     monkeypatch.setenv("PDF_PIPELINE_CHILD", "1")
     monkeypatch.setattr(logging_module, "_get_configured_log_directory", lambda: None)
