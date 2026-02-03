@@ -9,7 +9,10 @@ import logging
 import threading
 import time
 import weakref
-from typing import Any, Dict, Optional
+from typing import TYPE_CHECKING, Any, Dict, Optional
+
+if TYPE_CHECKING:
+    from .retry_client import RetryRedisClient
 
 import redis
 import redis.asyncio
@@ -186,6 +189,18 @@ async def get_redis_client() -> redis.asyncio.Redis:
         retry=create_async_retry(),
         retry_on_error=list(RETRY_ON_CONNECTION_ERROR),
     )
+
+
+async def get_retry_redis_client() -> "RetryRedisClient":
+    """Get a Redis client with automatic operation-level retry.
+
+    Returns a RetryRedisClient that wraps every Redis operation with
+    retry logic, providing resilience against transient failures.
+    """
+    from .retry_client import RetryRedisClient
+
+    raw_client = await get_redis_client()
+    return RetryRedisClient(raw_client)
 
 
 async def cleanup_redis_pool():

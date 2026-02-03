@@ -12,6 +12,7 @@ from typing import Any, Dict, Optional
 
 from common.kalshi_api.client import KalshiClient
 
+from ..backoff_manager_helpers import BackoffType
 from ..data_models.trading import OrderRequest, OrderResponse
 from ..order_execution import OrderPoller, TradeFinalizer
 from ..redis_protocol.trade_store import TradeStore
@@ -46,6 +47,8 @@ class KalshiTradingClientMixin:
 
     # Declare attributes for type checking
     kalshi_client: KalshiClient
+    backoff_manager: Any
+    service_name: str
     _trade_store_manager: Any
     weather_station_resolver: WeatherStationResolver
     _orders: OrderService
@@ -96,14 +99,28 @@ class KalshiTradingClientMixin:
 
     async def create_order_with_polling(self, order_request: OrderRequest, timeout_seconds: int = 5) -> OrderResponse:
         """Create order with polling, respecting any overrides set on this instance."""
-        return await self._order_polling_handler.create_order_with_polling(
-            order_request,
-            timeout_seconds,
-            self.__dict__.get("create_order"),
-            self.__dict__.get("cancel_order"),
-            lambda: self._build_order_poller(),
-            lambda: self._build_trade_finalizer(),
-        )
+        from .client_helpers.backoff_retry import with_backoff_retry
+
+        async def _do_create() -> OrderResponse:
+            return await self._order_polling_handler.create_order_with_polling(
+                order_request,
+                timeout_seconds,
+                self.__dict__.get("create_order"),
+                self.__dict__.get("cancel_order"),
+                lambda: self._build_order_poller(),
+                lambda: self._build_trade_finalizer(),
+            )
+
+        backoff = self.backoff_manager
+        if backoff is not None:
+            return await with_backoff_retry(
+                _do_create,
+                backoff_manager=backoff,
+                service_name=self.service_name,
+                backoff_type=BackoffType.GENERAL_FAILURE,
+                context="create_order_with_polling",
+            )
+        return await _do_create()
 
 
 class KalshiTradingClient(

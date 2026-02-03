@@ -2,7 +2,11 @@
 
 from __future__ import annotations
 
+import logging
 from typing import TYPE_CHECKING, Any, Dict, List, Optional
+
+from ..backoff_manager_helpers import BackoffType
+from .client_helpers.backoff_retry import with_backoff_retry
 
 if TYPE_CHECKING:
     from ..data_models.trading import (
@@ -13,6 +17,8 @@ if TYPE_CHECKING:
     )
     from ..redis_protocol.trade_store import TradeStore
 
+_logger = logging.getLogger(__name__)
+
 
 class KalshiTradingClientAPIMixin:
     """Mixin for public API methods."""
@@ -20,8 +26,19 @@ class KalshiTradingClientAPIMixin:
     _api: Any
     is_running: bool
     trade_store: Any
+    backoff_manager: Any
+    service_name: str
 
     async def get_portfolio_balance(self) -> PortfolioBalance:
+        backoff = getattr(self, "backoff_manager", None)
+        if backoff is not None:
+            return await with_backoff_retry(
+                self._api.get_portfolio_balance,
+                backoff_manager=backoff,
+                service_name=self.service_name,
+                backoff_type=BackoffType.NETWORK_FAILURE,
+                context="get_portfolio_balance",
+            )
         return await self._api.get_portfolio_balance()
 
     async def get_portfolio_positions(self) -> List[PortfolioPosition]:

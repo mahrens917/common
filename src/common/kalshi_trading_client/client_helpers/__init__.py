@@ -2,6 +2,7 @@
 
 from .attribute_handler import AttributeHandler
 from .attribute_resolver import ClientAttributeResolver
+from .backoff_retry import with_backoff_retry
 from .factory_methods import FactoryMethods
 from .initialization import ClientInitializer
 from .lifecycle import LifecycleManager
@@ -30,6 +31,7 @@ from .trade_store_ops import TradeStoreOperations
 
 __all__ = [
     "AttributeHandler",
+    "with_backoff_retry",
     "ClientAttributeResolver",
     "ClientInitializer",
     "FactoryMethods",

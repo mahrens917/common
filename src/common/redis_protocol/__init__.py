@@ -19,6 +19,7 @@ from .close_positions_command import (
     request_close_all_positions,
 )
 from .connection import cleanup_redis_pool, get_redis_pool
+from .connection_pool_core import get_retry_redis_client
 from .converters import coerce_float, decode_redis_hash, decode_redis_value
 from .kalshi_store import KalshiStore
 from .market_normalization import ensure_market_metadata_fields
@@ -36,6 +37,7 @@ from .persistence_manager import (
     get_redis_persistence_status,
 )
 from .probability_store import ProbabilityStore
+from .retry_client import RetryPipeline, RetryRedisClient
 from .subscription_store import SubscriptionStore
 from .trading_toggle_api import (
     TRADING_ENABLED_KEY,
@@ -45,10 +47,13 @@ from .trading_toggle_api import (
 )
 
 __all__ = [
+    "RetryPipeline",
+    "RetryRedisClient",
     "can_algo_own_market",
     "can_algo_own_market_type",
     "configure_ownership",
     "get_redis_pool",
+    "get_retry_redis_client",
     "get_required_owner",
     "cleanup_redis_pool",
     "RedisPersistenceManager",
