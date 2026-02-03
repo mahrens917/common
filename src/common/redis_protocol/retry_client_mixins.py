@@ -49,6 +49,26 @@ class RetryRedisHashMixin:
             policy=self._policy,
         )
 
+    async def hscan(
+        self,
+        name: str,
+        cursor: int = 0,
+        match: Optional[str] = None,
+        count: Optional[int] = None,
+        *,
+        context: str = "hscan",
+    ) -> Any:
+        kwargs: dict[str, Any] = {}
+        if match is not None:
+            kwargs["match"] = match
+        if count is not None:
+            kwargs["count"] = count
+        return await with_redis_retry(
+            lambda: ensure_awaitable(self._client.hscan(name, cursor, **kwargs)),
+            context=context,
+            policy=self._policy,
+        )
+
     async def get(self, name: str, *, context: str = "get") -> Any:
         return await with_redis_retry(
             lambda: ensure_awaitable(self._client.get(name)),
@@ -57,8 +77,11 @@ class RetryRedisHashMixin:
         )
 
     async def set(self, name: str, value: Any, *, ex: Optional[int] = None, context: str = "set") -> Any:
+        kwargs: dict[str, Any] = {}
+        if ex is not None:
+            kwargs["ex"] = ex
         return await with_redis_retry(
-            lambda: ensure_awaitable(self._client.set(name, value, ex=ex)),
+            lambda: ensure_awaitable(self._client.set(name, value, **kwargs)),
             context=context,
             policy=self._policy,
         )
@@ -77,9 +100,73 @@ class RetryRedisHashMixin:
             policy=self._policy,
         )
 
+    async def exists(self, *names: str, context: str = "exists") -> Any:
+        return await with_redis_retry(
+            lambda: ensure_awaitable(self._client.exists(*names)),
+            context=context,
+            policy=self._policy,
+        )
+
+    async def ping(self, *, context: str = "ping") -> Any:
+        return await with_redis_retry(
+            lambda: ensure_awaitable(self._client.ping()),
+            context=context,
+            policy=self._policy,
+        )
+
+
+class RetryRedisSortedSetMixin:
+    """Sorted set operations with retry."""
+
+    _client: Any
+    _policy: Optional[RedisRetryPolicy]
+
+    async def zadd(self, name: str, mapping: Any, *, context: str = "zadd") -> Any:
+        return await with_redis_retry(
+            lambda: ensure_awaitable(self._client.zadd(name, mapping)),
+            context=context,
+            policy=self._policy,
+        )
+
+    async def zrange(self, name: str, start: int, end: int, *, withscores: bool = False, context: str = "zrange") -> Any:
+        return await with_redis_retry(
+            lambda: ensure_awaitable(self._client.zrange(name, start, end, withscores=withscores)),
+            context=context,
+            policy=self._policy,
+        )
+
+    async def zrangebyscore(
+        self,
+        name: str,
+        min_score: Any,
+        max_score: Any,
+        *,
+        withscores: bool = False,
+        context: str = "zrangebyscore",
+    ) -> Any:
+        return await with_redis_retry(
+            lambda: ensure_awaitable(self._client.zrangebyscore(name, min_score, max_score, withscores=withscores)),
+            context=context,
+            policy=self._policy,
+        )
+
+    async def zremrangebyscore(self, name: str, min_score: Any, max_score: Any, *, context: str = "zremrangebyscore") -> Any:
+        return await with_redis_retry(
+            lambda: ensure_awaitable(self._client.zremrangebyscore(name, min_score, max_score)),
+            context=context,
+            policy=self._policy,
+        )
+
+    async def zcount(self, name: str, min_score: Any, max_score: Any, *, context: str = "zcount") -> Any:
+        return await with_redis_retry(
+            lambda: ensure_awaitable(self._client.zcount(name, min_score, max_score)),
+            context=context,
+            policy=self._policy,
+        )
+
 
 class RetryRedisCollectionMixin:
-    """List, set, pub/sub and scan operations with retry."""
+    """List, pub/sub and scan operations with retry."""
 
     _client: Any
     _policy: Optional[RedisRetryPolicy]
@@ -108,13 +195,6 @@ class RetryRedisCollectionMixin:
     async def lpush(self, name: str, *values: Any, context: str = "lpush") -> Any:
         return await with_redis_retry(
             lambda: ensure_awaitable(self._client.lpush(name, *values)),
-            context=context,
-            policy=self._policy,
-        )
-
-    async def zadd(self, name: str, mapping: Any, *, context: str = "zadd") -> Any:
-        return await with_redis_retry(
-            lambda: ensure_awaitable(self._client.zadd(name, mapping)),
             context=context,
             policy=self._policy,
         )
@@ -152,5 +232,19 @@ class RetryRedisCollectionMixin:
             policy=self._policy,
         )
 
+    async def config_get(self, pattern: str, *, context: str = "config_get") -> Any:
+        return await with_redis_retry(
+            lambda: ensure_awaitable(self._client.config_get(pattern)),
+            context=context,
+            policy=self._policy,
+        )
 
-__all__ = ["RetryRedisHashMixin", "RetryRedisCollectionMixin"]
+    async def config_set(self, name: str, value: Any, *, context: str = "config_set") -> Any:
+        return await with_redis_retry(
+            lambda: ensure_awaitable(self._client.config_set(name, value)),
+            context=context,
+            policy=self._policy,
+        )
+
+
+__all__ = ["RetryRedisCollectionMixin", "RetryRedisHashMixin", "RetryRedisSortedSetMixin"]

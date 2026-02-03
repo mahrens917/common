@@ -103,7 +103,7 @@ async def test_pipeline_execute_retries(monkeypatch: pytest.MonkeyPatch):
     raw_pipe = MagicMock()
     attempts: list[int] = []
 
-    async def flaky_execute():
+    async def flaky_execute(raise_on_error: bool = True):
         attempts.append(len(attempts) + 1)
         if len(attempts) == 1:
             raise RedisConnectionError("pipe error")
@@ -299,3 +299,129 @@ async def test_pipeline_lpush():
     result = pipe.lpush("list", "v1", "v2")
     assert isinstance(result, RetryPipeline)
     assert await pipe.execute() == [1]
+
+
+@pytest.mark.asyncio
+async def test_hscan_delegates():
+    mock_redis = _make_mock_redis()
+    mock_redis.hscan = AsyncMock(return_value=(0, {b"f": b"v"}))
+    client = RetryRedisClient(mock_redis, policy=_fast_policy())
+    assert await client.hscan("hash", match="f*") == (0, {b"f": b"v"})
+
+
+@pytest.mark.asyncio
+async def test_exists_delegates():
+    mock_redis = _make_mock_redis()
+    mock_redis.exists = AsyncMock(return_value=1)
+    client = RetryRedisClient(mock_redis, policy=_fast_policy())
+    assert await client.exists("key") == 1
+
+
+@pytest.mark.asyncio
+async def test_ping_delegates():
+    mock_redis = _make_mock_redis()
+    mock_redis.ping = AsyncMock(return_value=True)
+    client = RetryRedisClient(mock_redis, policy=_fast_policy())
+    assert await client.ping() is True
+
+
+@pytest.mark.asyncio
+async def test_zrange_delegates():
+    mock_redis = _make_mock_redis()
+    mock_redis.zrange = AsyncMock(return_value=[b"m1"])
+    client = RetryRedisClient(mock_redis, policy=_fast_policy())
+    assert await client.zrange("set", 0, -1) == [b"m1"]
+
+
+@pytest.mark.asyncio
+async def test_zrangebyscore_delegates():
+    mock_redis = _make_mock_redis()
+    mock_redis.zrangebyscore = AsyncMock(return_value=[b"m1"])
+    client = RetryRedisClient(mock_redis, policy=_fast_policy())
+    assert await client.zrangebyscore("set", "-inf", "+inf") == [b"m1"]
+
+
+@pytest.mark.asyncio
+async def test_zremrangebyscore_delegates():
+    mock_redis = _make_mock_redis()
+    mock_redis.zremrangebyscore = AsyncMock(return_value=1)
+    client = RetryRedisClient(mock_redis, policy=_fast_policy())
+    assert await client.zremrangebyscore("set", 0, 100) == 1
+
+
+@pytest.mark.asyncio
+async def test_zcount_delegates():
+    mock_redis = _make_mock_redis()
+    mock_redis.zcount = AsyncMock(return_value=5)
+    client = RetryRedisClient(mock_redis, policy=_fast_policy())
+    assert await client.zcount("set", "-inf", "+inf") == 5
+
+
+@pytest.mark.asyncio
+async def test_config_get_delegates():
+    mock_redis = _make_mock_redis()
+    mock_redis.config_get = AsyncMock(return_value={"maxmemory": "0"})
+    client = RetryRedisClient(mock_redis, policy=_fast_policy())
+    assert await client.config_get("maxmemory") == {"maxmemory": "0"}
+
+
+@pytest.mark.asyncio
+async def test_config_set_delegates():
+    mock_redis = _make_mock_redis()
+    mock_redis.config_set = AsyncMock(return_value=True)
+    client = RetryRedisClient(mock_redis, policy=_fast_policy())
+    assert await client.config_set("maxmemory", "100mb") is True
+
+
+@pytest.mark.asyncio
+async def test_pipeline_sorted_set_operations():
+    raw_pipe = MagicMock()
+    raw_pipe.execute = AsyncMock(return_value=[1, 0, 1])
+    for m in ("zadd", "zremrangebyscore", "expire"):
+        setattr(raw_pipe, m, MagicMock(return_value=raw_pipe))
+    pipe = RetryPipeline(raw_pipe)
+    pipe.zadd("set", {"m": 1.0}).zremrangebyscore("set", 0, 0).expire("set", 86400)
+    assert await pipe.execute() == [1, 0, 1]
+
+
+@pytest.mark.asyncio
+async def test_pipeline_delete_and_hset():
+    raw_pipe = MagicMock()
+    raw_pipe.execute = AsyncMock(return_value=[1, 1])
+    raw_pipe.delete = MagicMock(return_value=raw_pipe)
+    raw_pipe.hset = MagicMock(return_value=raw_pipe)
+    pipe = RetryPipeline(raw_pipe)
+    pipe.delete("key").hset("key", mapping={"f": "v"})
+    assert await pipe.execute() == [1, 1]
+
+
+@pytest.mark.asyncio
+async def test_pipeline_zrange_and_zcount():
+    raw_pipe = MagicMock()
+    raw_pipe.execute = AsyncMock(return_value=[[b"m1"], 5])
+    raw_pipe.zrange = MagicMock(return_value=raw_pipe)
+    raw_pipe.zcount = MagicMock(return_value=raw_pipe)
+    pipe = RetryPipeline(raw_pipe)
+    pipe.zrange("set", -1, -1, withscores=True).zcount("set", 0, "+inf")
+    assert await pipe.execute() == [[b"m1"], 5]
+
+
+@pytest.mark.asyncio
+async def test_pipeline_hget_hdel_ltrim():
+    raw_pipe = MagicMock()
+    raw_pipe.execute = AsyncMock(return_value=[b"v", 1, True])
+    raw_pipe.hget = MagicMock(return_value=raw_pipe)
+    raw_pipe.hdel = MagicMock(return_value=raw_pipe)
+    raw_pipe.ltrim = MagicMock(return_value=raw_pipe)
+    pipe = RetryPipeline(raw_pipe)
+    pipe.hget("h", "f").hdel("h", "f2").ltrim("list", 0, 99)
+    assert await pipe.execute() == [b"v", 1, True]
+
+
+@pytest.mark.asyncio
+async def test_pipeline_execute_raise_on_error_false():
+    raw_pipe = MagicMock()
+    raw_pipe.execute = AsyncMock(return_value=[1])
+    pipe = RetryPipeline(raw_pipe)
+    await pipe.execute(raise_on_error=False)
+    raw_pipe.execute.assert_awaited_once()

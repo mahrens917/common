@@ -52,6 +52,10 @@ GRACEFUL_SHUTDOWN_TIMEOUT_SECONDS = 3
 FORCE_KILL_TIMEOUT_SECONDS = 2
 POST_KILL_WAIT_SECONDS = 2
 
+SERVICE_GRACEFUL_TIMEOUT_OVERRIDES: dict[str, int] = {
+    "monitor": 30,
+}
+
 # Service name to process keywords mapping
 # Note: Patterns should be specific to avoid false matches with multiprocessing
 # parameter names (e.g., 'tracker_fd') or unrelated processes
@@ -68,6 +72,9 @@ SERVICE_PROCESS_PATTERNS = {
     "structure": ["-m src.structure", "src.structure", "src/structure/"],
     "web": ["-m src.web", "src.web"],
     "crossarb": ["-m src.crossarb", "src.crossarb", "src/crossarb/"],
+    "edge": ["-m src.edge", "src.edge", "src/edge/"],
+    "whale": ["-m src.whale", "src.whale", "src/whale/"],
+    "peak": ["-m src.peak", "src.peak", "src/peak/"],
 }
 
 
@@ -120,6 +127,33 @@ def ensure_single_instance_sync(service_name: str) -> None:
         )
 
     asyncio.run(ensure_single_instance(service_name))
+
+
+def kill_all_service_processes_sync(service_names: Optional[List[str]] = None) -> None:
+    """Synchronously kill all processes for specified services.
+
+    This helper is intended for CLI entry points that need to clean up orphaned
+    child processes before launching a new monitor instance.
+
+    Args:
+        service_names: List of service names to kill. If None, kills all known services.
+
+    Raises:
+        RuntimeError: If called while an event loop is already running.
+    """
+
+    try:
+        loop = asyncio.get_running_loop()
+    except RuntimeError:  # Expected runtime failure in operation  # policy_guard: allow-silent-handler
+        loop = None
+
+    if loop is not None and loop.is_running():
+        raise RuntimeError(
+            "kill_all_service_processes_sync cannot run inside an active event loop. "
+            "Use the async kill_all_service_processes API instead."
+        )
+
+    asyncio.run(kill_all_service_processes(service_names))
 
 
 async def kill_existing_processes(process_keywords: List[str], service_name: str = "service") -> None:
@@ -280,10 +314,11 @@ def _terminate_single_process(proc, psutil, service_name: str) -> bool:
 
 def _wait_graceful(proc, psutil, service_name: str) -> bool:
     """Attempt graceful termination."""
+    timeout = SERVICE_GRACEFUL_TIMEOUT_OVERRIDES.get(service_name, GRACEFUL_SHUTDOWN_TIMEOUT_SECONDS)
     try:
-        proc.wait(timeout=GRACEFUL_SHUTDOWN_TIMEOUT_SECONDS)
+        proc.wait(timeout=timeout)
     except psutil.TimeoutExpired:  # Expected exception in operation  # policy_guard: allow-silent-handler
-        _console(f"⏱️ Process {_safe_pid(proc)} did not terminate within " f"{GRACEFUL_SHUTDOWN_TIMEOUT_SECONDS}s; sending SIGKILL")
+        _console(f"⏱️ Process {_safe_pid(proc)} did not terminate within " f"{timeout}s; sending SIGKILL")
     except (OSError, RuntimeError, ValueError) as exc:  # Best-effort cleanup operation  # policy_guard: allow-silent-handler
         _console(f"Could not kill process: {exc}")
     else:
