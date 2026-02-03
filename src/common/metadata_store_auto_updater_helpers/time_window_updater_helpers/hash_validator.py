@@ -39,8 +39,6 @@ class HistoryKeyValidator:
             )
         except REDIS_ERRORS as exc:  # Expected exception, returning default value  # policy_guard: allow-silent-handler
             logger.error("Failed to validate history key %s: %s", key, exc, exc_info=True)
-            return False
-
         return False
 
 
