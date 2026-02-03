@@ -22,6 +22,14 @@ class RetryPipeline:
     async def __aexit__(self, exc_type: Any, exc_val: Any, exc_tb: Any) -> None:
         await self._pipeline.__aexit__(exc_type, exc_val, exc_tb)
 
+    def set(self, name: str, value: Any, **kwargs: Any) -> "RetryPipeline":
+        self._pipeline.set(name, value, **kwargs)
+        return self
+
+    def get(self, name: str) -> "RetryPipeline":
+        self._pipeline.get(name)
+        return self
+
     def hset(self, name: str, *args: Any, **kwargs: Any) -> "RetryPipeline":
         self._pipeline.hset(name, *args, **kwargs)
         return self

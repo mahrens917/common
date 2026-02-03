@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import Any, Optional
+from typing import Any, AsyncIterator, Optional
 
 from .retry import RedisRetryPolicy, with_redis_retry
 from .typing import ensure_awaitable
@@ -217,6 +217,20 @@ class RetryRedisCollectionMixin:
             context=context,
             policy=self._policy,
         )
+
+    async def scan_iter(
+        self,
+        match: Optional[str] = None,
+        count: Optional[int] = None,
+    ) -> AsyncIterator[Any]:
+        """Async generator that wraps SCAN iteration with retry on each page."""
+        cursor: int = 0
+        while True:
+            cursor, keys = await self.scan(cursor=cursor, match=match, count=count, context="scan_iter")
+            for key in keys:
+                yield key
+            if cursor == 0:
+                break
 
     async def keys(self, pattern: str = "*", *, context: str = "keys") -> Any:
         return await with_redis_retry(
