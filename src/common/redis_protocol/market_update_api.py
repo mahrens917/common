@@ -150,7 +150,7 @@ async def _execute_batch_transaction(
 
     for sig in sorted_signals:
         try:
-            await publish_market_event_update(redis, sig.market_key, sig.ticker)
+            await publish_market_event_update(redis, sig.market_key, sig.ticker, algo, sig.t_bid, sig.t_ask)
         except (RuntimeError, ConnectionError, OSError):  # Expected, non-critical  # policy_guard: allow-silent-handler
             pass
 

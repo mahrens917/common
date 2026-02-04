@@ -200,7 +200,7 @@ def _build_console_handler(service_name: Optional[str], user_friendly: bool, man
     if user_friendly:
         console_handler.setLevel(logging.WARNING)
     elif managed_by_monitor:
-        console_handler.setLevel(logging.CRITICAL + 1)
+        console_handler.setLevel(logging.INFO)
     else:
         console_handler.setLevel(logging.DEBUG)
 
@@ -209,6 +209,9 @@ def _build_console_handler(service_name: Optional[str], user_friendly: bool, man
 
 def _configure_file_handler(service_name: Optional[str], project_root: Path) -> Optional[logging.Handler]:
     if not service_name:
+        return None
+
+    if env_bool("MANAGED_BY_MONITOR", or_value=False):
         return None
 
     configured_dir = _get_configured_log_directory()

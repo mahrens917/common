@@ -76,10 +76,12 @@ class RetryRedisHashMixin:
             policy=self._policy,
         )
 
-    async def set(self, name: str, value: Any, *, ex: Optional[int] = None, context: str = "set") -> Any:
+    async def set(self, name: str, value: Any, *, ex: Optional[int] = None, nx: bool = False, context: str = "set") -> Any:
         kwargs: dict[str, Any] = {}
         if ex is not None:
             kwargs["ex"] = ex
+        if nx:
+            kwargs["nx"] = True
         return await with_redis_retry(
             lambda: ensure_awaitable(self._client.set(name, value, **kwargs)),
             context=context,

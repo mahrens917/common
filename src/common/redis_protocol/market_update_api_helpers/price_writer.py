@@ -121,13 +121,16 @@ async def write_theoretical_prices(
         t_ask,
     )
 
-    await publish_market_event_update(redis, market_key, ticker)
+    await publish_market_event_update(redis, market_key, ticker, algo, t_bid, t_ask)
 
 
 async def publish_market_event_update(
     redis: "Redis",
     market_key: str,
     ticker: str,
+    algo: str = "",
+    t_bid: Optional[float] = None,
+    t_ask: Optional[float] = None,
 ) -> None:
     """Publish market event update to notify tracker of theoretical price change."""
     try:
@@ -137,23 +140,39 @@ async def publish_market_event_update(
         )
         if not event_ticker:
             logger.debug("No event_ticker for %s, skipping publish", ticker)
-            return
+        else:
+            if isinstance(event_ticker, bytes):
+                event_ticker = event_ticker.decode("utf-8")
 
-        if isinstance(event_ticker, bytes):
-            event_ticker = event_ticker.decode("utf-8")
+            channel = f"market_event_updates:{event_ticker}"
+            payload = json.dumps(
+                {
+                    "market_ticker": ticker,
+                    "timestamp": datetime.now(timezone.utc).isoformat(),
+                }
+            )
+            await with_redis_retry(
+                lambda: ensure_awaitable(redis.publish(channel, payload)),
+                context=f"publish_event:{ticker}",
+            )
+            logger.debug("Published market event update for %s to %s", ticker, channel)
 
-        channel = f"market_event_updates:{event_ticker}"
-        payload = json.dumps(
-            {
-                "market_ticker": ticker,
-                "timestamp": datetime.now(timezone.utc).isoformat(),
-            }
-        )
-        await with_redis_retry(
-            lambda: ensure_awaitable(redis.publish(channel, payload)),
-            context=f"publish_event:{ticker}",
-        )
-        logger.debug("Published market event update for %s to %s", ticker, channel)
+        # Publish algo signal for tracker's external provider cache
+        if algo:
+            algo_channel = f"algo:signal:{ticker}"
+            algo_payload = json.dumps(
+                {
+                    "ticker": ticker,
+                    "t_ask": t_ask,
+                    "t_bid": t_bid,
+                    "algorithm": algo,
+                }
+            )
+            await with_redis_retry(
+                lambda: ensure_awaitable(redis.publish(algo_channel, algo_payload)),
+                context=f"publish_algo_signal:{ticker}",
+            )
+            logger.debug("Published algo signal for %s (%s)", ticker, algo)
     except (RuntimeError, ConnectionError, OSError) as exc:
         logger.debug("Failed to publish market event update for %s: %s", ticker, exc)
         raise

@@ -145,7 +145,7 @@ def test_setup_logging_adds_file_handler_and_resets_child_loggers(logging_module
     assert child_logger.propagate is True
 
 
-def test_setup_logging_disables_console_when_managed(logging_module, monkeypatch, tmp_path):
+def test_setup_logging_uses_console_when_managed(logging_module, monkeypatch, tmp_path):
     _set_fake_project_root(monkeypatch, tmp_path)
     monkeypatch.setenv("MANAGED_BY_MONITOR", "1")
 
@@ -161,7 +161,7 @@ def test_setup_logging_disables_console_when_managed(logging_module, monkeypatch
     logging_module.setup_logging()
 
     console = RecordingStreamHandler.instances[-1]
-    assert console.level > logging.CRITICAL
+    assert console.level == logging.INFO
 
 
 def test_setup_logging_monitor_clears_logs_and_appends_when_child(logging_module, monkeypatch, tmp_path):

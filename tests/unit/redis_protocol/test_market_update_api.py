@@ -124,16 +124,35 @@ class TestRequestMarketUpdate:
         result = await request_market_update(mock_redis, "market:key", "weather", 50.0, 55.0)
 
         assert result.success is True
-        mock_redis.publish.assert_called_once()
-        call_args = mock_redis.publish.call_args
-        assert call_args[0][0] == "market_event_updates:KXHIGH-KDCA-20250101"
+        assert mock_redis.publish.call_count == 2
+        channels = [call[0][0] for call in mock_redis.publish.call_args_list]
+        assert "market_event_updates:KXHIGH-KDCA-20250101" in channels
+        assert any(ch.startswith("algo:signal:") for ch in channels)
 
     @pytest.mark.asyncio
-    async def test_skips_publish_when_no_event_ticker(self, mock_redis):
+    async def test_publishes_algo_signal_when_no_event_ticker(self, mock_redis):
         result = await request_market_update(mock_redis, "market:key", "weather", 50.0, 55.0)
 
         assert result.success is True
-        mock_redis.publish.assert_not_called()
+        mock_redis.publish.assert_called_once()
+        call_args = mock_redis.publish.call_args
+        assert call_args[0][0] == "algo:signal:key"
+
+    @pytest.mark.asyncio
+    async def test_algo_signal_payload_format(self, mock_redis):
+        import json
+
+        result = await request_market_update(mock_redis, "market:key", "weather", 50.0, 55.0, ticker="TICKER1")
+
+        assert result.success is True
+        mock_redis.publish.assert_called_once()
+        call_args = mock_redis.publish.call_args
+        assert call_args[0][0] == "algo:signal:TICKER1"
+        payload = json.loads(call_args[0][1])
+        assert payload["ticker"] == "TICKER1"
+        assert payload["algorithm"] == "weather"
+        assert payload["t_bid"] == 50.0
+        assert payload["t_ask"] == 55.0
 
 
 class TestGetRejectionStats:
