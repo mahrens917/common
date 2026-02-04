@@ -2,7 +2,7 @@
   "kalshi": {
     "connection": {
       "timeout_seconds": 45,
-      "request_timeout_seconds": 300,
+      "request_timeout_seconds": 30,
       "max_idle_seconds": 600,
       "reconnection_initial_delay_seconds": 2,
       "reconnection_max_delay_seconds": 300,

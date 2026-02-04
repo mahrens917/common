@@ -148,6 +148,7 @@ def run_async_service(
                 setup_logging(service_name)
 
             logger = logging.getLogger(logger_name or f"src.{service_name}")
+            logger.info("Starting %s service", service_name)
 
             if ignore_sighup:
                 try:
