@@ -65,6 +65,9 @@ class RetryRedisClient(RetryRedisHashMixin, RetryRedisSortedSetMixin, RetryRedis
     def pipeline(self, **kwargs: Any) -> RetryPipeline:
         return RetryPipeline(self._client.pipeline(**kwargs), policy=self._policy)
 
+    def close(self) -> None:
+        self._client.close()
+
     async def aclose(self) -> None:
         await self._client.aclose()
 

@@ -258,17 +258,25 @@ class TestCleanupRedisPool:
     async def test_cleanup_handles_disconnect_timeout(self) -> None:
         """Handles timeout during pool disconnect."""
         mock_pool = MagicMock(spec=redis.asyncio.ConnectionPool)
-        mock_pool.disconnect = AsyncMock(side_effect=asyncio.TimeoutError())
+
+        async def slow_disconnect():
+            await asyncio.sleep(10)
+
+        mock_pool.disconnect = slow_disconnect
 
         thread_local = threading.local()
         thread_local.pool = mock_pool
         thread_local.pool_loop = weakref.ref(asyncio.get_running_loop())
 
+        async def wait_for_timeout(coro, timeout):
+            coro.close()
+            raise asyncio.TimeoutError()
+
         with (
             patch.object(connection_pool_core, "_thread_local", thread_local),
             patch.object(connection_pool_core, "_redis_health_monitor"),
             patch.object(connection_pool_core, "logger"),
-            patch("asyncio.wait_for", new_callable=AsyncMock, side_effect=asyncio.TimeoutError()),
+            patch("asyncio.wait_for", wait_for_timeout),
         ):
             # Should not raise
             await connection_pool_core.cleanup_redis_pool()
@@ -277,17 +285,25 @@ class TestCleanupRedisPool:
     async def test_cleanup_handles_redis_error_during_disconnect(self) -> None:
         """Handles Redis error during disconnect."""
         mock_pool = MagicMock(spec=redis.asyncio.ConnectionPool)
-        mock_pool.disconnect = AsyncMock(side_effect=RedisError("Disconnect error"))
+
+        async def error_disconnect():
+            raise RedisError("Disconnect error")
+
+        mock_pool.disconnect = error_disconnect
 
         thread_local = threading.local()
         thread_local.pool = mock_pool
         thread_local.pool_loop = weakref.ref(asyncio.get_running_loop())
 
+        async def wait_for_error(coro, timeout):
+            coro.close()
+            raise RedisError("error")
+
         with (
             patch.object(connection_pool_core, "_thread_local", thread_local),
             patch.object(connection_pool_core, "_redis_health_monitor"),
             patch.object(connection_pool_core, "logger"),
-            patch("asyncio.wait_for", new_callable=AsyncMock, side_effect=RedisError("error")),
+            patch("asyncio.wait_for", wait_for_error),
         ):
             # Should not raise
             await connection_pool_core.cleanup_redis_pool()
