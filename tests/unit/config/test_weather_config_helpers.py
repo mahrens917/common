@@ -157,7 +157,6 @@ def test_get_weather_settings_func_returns_fallback(monkeypatch: pytest.MonkeyPa
     result = _get_weather_settings_func()()
 
     assert result.sources.asos_source is None
-    assert result.sources.metar_source is None
 
 
 def test_load_weather_station_mapping_uses_load_config(monkeypatch: pytest.MonkeyPatch):

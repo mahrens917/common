@@ -136,7 +136,7 @@ def _get_weather_settings_func():
         """Fallback when weather package is not installed."""
         from types import SimpleNamespace
 
-        return SimpleNamespace(sources=SimpleNamespace(asos_source=None, metar_source=None))
+        return SimpleNamespace(sources=SimpleNamespace(asos_source=None))
 
     return get_weather_settings
 

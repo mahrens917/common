@@ -87,17 +87,14 @@ class DependencyValidator:
     def _validate_weather_service_dependencies():
         """Validate weather service specific dependencies"""
         weather_settings = get_weather_settings()
-        metar_source = weather_settings.sources.metar_source
-        if metar_source is None or metar_source == "":
-            metar_source = DEFAULT_WEATHER_SOURCE
 
         asos_source = weather_settings.sources.asos_source
         if asos_source is None or asos_source == "":
             asos_source = DEFAULT_WEATHER_SOURCE
 
-        logger.info(f"Weather service configuration: METAR={metar_source}, ASOS={asos_source}")
+        logger.info(f"Weather service configuration: ASOS={asos_source}")
 
-        if "ldm" in (metar_source, asos_source):
+        if asos_source == "ldm":
             logger.info("Weather service configured to use LDM, validating LDM dependencies...")
             DependencyValidator.validate_ldm_dependencies()
         else:

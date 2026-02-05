@@ -61,7 +61,7 @@ def test_validate_weather_dependencies_requires_ldm(monkeypatch):
         calls["count"] += 1
 
     settings = SimpleNamespace(
-        sources=SimpleNamespace(metar_source="ldm", asos_source="api"),
+        sources=SimpleNamespace(asos_source="ldm"),
     )
 
     monkeypatch.setattr("common.dependency_validator.get_weather_settings", lambda: settings)
@@ -80,7 +80,7 @@ def test_validate_weather_dependencies_skips_non_ldm(monkeypatch):
         raise AssertionError("LDM validation should not run for non-ldm sources")
 
     settings = SimpleNamespace(
-        sources=SimpleNamespace(metar_source="api", asos_source="https"),
+        sources=SimpleNamespace(asos_source="https"),
     )
 
     monkeypatch.setattr("common.dependency_validator.get_weather_settings", lambda: settings)
