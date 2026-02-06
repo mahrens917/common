@@ -46,7 +46,7 @@ def _suppress_noisy_third_parties() -> None:
         logging.getLogger(name).setLevel(logging.WARNING)
 
 
-def setup_logging(service_name: Optional[str] = None) -> None:
+def setup_logging(service_name: Optional[str] = None, *, log_to_file: bool = True) -> None:
     """Configure logging for the application."""
     with _config_lock:
         root_logger = logging.getLogger()
@@ -64,7 +64,7 @@ def setup_logging(service_name: Optional[str] = None) -> None:
         console_handler.setLevel(logging.INFO if managed_by_monitor else logging.DEBUG)
         root_logger.addHandler(console_handler)
 
-        if service_name and not managed_by_monitor:
+        if service_name and not managed_by_monitor and log_to_file:
             logs_dir = Path.cwd() / "logs"
             logs_dir.mkdir(parents=True, exist_ok=True)
             file_handler = logging.FileHandler(logs_dir / f"{service_name}.log", mode="w")
