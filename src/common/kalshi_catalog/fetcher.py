@@ -13,7 +13,7 @@ logger = logging.getLogger(__name__)
 
 MAX_LIMIT = 100
 MAX_CONCURRENT_REQUESTS = 10
-EVENT_DETAIL_BATCH_SIZE = 50
+EVENT_DETAIL_BATCH_SIZE = 100
 
 
 def extract_cursor(payload: Dict[str, Any]) -> Optional[str]:
