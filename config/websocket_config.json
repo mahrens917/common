@@ -10,7 +10,7 @@
       "max_consecutive_failures": 10,
       "heartbeat_interval_seconds": 30,
       "ping_interval_seconds": 20,
-      "ping_timeout_seconds": 60
+      "ping_timeout_seconds": 20
     },
     "subscription": {
       "timeout_seconds": 120,

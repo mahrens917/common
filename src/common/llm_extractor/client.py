@@ -9,19 +9,19 @@ from ._client_helpers import request_with_retries
 
 logger = logging.getLogger(__name__)
 
-_MODEL = "claude-haiku-4-5"
 _ANTHROPIC_VERSION = "2023-06-01"
-_MAX_TOKENS = 4096
+
+_MODEL_COSTS: dict[str, tuple[float, float]] = {
+    "claude-haiku-4-5": (1.0, 5.0),
+    "claude-opus-4": (15.0, 75.0),
+}
 
 
 class AnthropicClient:
     """Client for the Anthropic Messages API."""
 
-    INPUT_COST_PER_MTOK = 1.0
-    OUTPUT_COST_PER_MTOK = 5.0
-
-    def __init__(self, api_key: str | None = None) -> None:
-        """Initialize the client with an API key."""
+    def __init__(self, *, model: str, max_tokens: int, api_key: str | None = None) -> None:
+        """Initialize the client with model, max_tokens, and an API key."""
         if api_key:
             self._api_key = api_key
         else:
@@ -29,9 +29,14 @@ class AnthropicClient:
             if not loaded_key:
                 raise ValueError("ANTHROPIC_API_KEY not found in ~/.env")
             self._api_key = loaded_key
+        self._model = model
+        self._max_tokens = max_tokens
+        costs = _MODEL_COSTS[model]
+        self._input_cost_per_mtok = costs[0]
+        self._output_cost_per_mtok = costs[1]
         self._total_input_tokens = 0
         self._total_output_tokens = 0
-        logger.info("Initialized AnthropicClient (model: %s)", _MODEL)
+        logger.info("Initialized AnthropicClient (model: %s)", self._model)
 
     async def send_message(
         self,
@@ -46,8 +51,8 @@ class AnthropicClient:
             messages.append({"role": "assistant", "content": json_prefill})
 
         payload = {
-            "model": _MODEL,
-            "max_tokens": _MAX_TOKENS,
+            "model": self._model,
+            "max_tokens": self._max_tokens,
             "system": system_prompt,
             "messages": messages,
         }
@@ -74,8 +79,8 @@ class AnthropicClient:
 
     def get_cost(self) -> float:
         """Calculate total cost in USD based on token usage."""
-        input_cost = (self._total_input_tokens / 1_000_000) * self.INPUT_COST_PER_MTOK
-        output_cost = (self._total_output_tokens / 1_000_000) * self.OUTPUT_COST_PER_MTOK
+        input_cost = (self._total_input_tokens / 1_000_000) * self._input_cost_per_mtok
+        output_cost = (self._total_output_tokens / 1_000_000) * self._output_cost_per_mtok
         return input_cost + output_cost
 
     def reset_usage(self) -> None:

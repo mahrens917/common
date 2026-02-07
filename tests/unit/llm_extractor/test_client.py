@@ -15,17 +15,17 @@ class TestAnthropicClientInit:
         """Test that ValueError is raised when no API key is found."""
         with patch("common.llm_extractor.client.load_api_key_from_env_file", return_value=None):
             with pytest.raises(ValueError, match="ANTHROPIC_API_KEY"):
-                AnthropicClient()
+                AnthropicClient(model="claude-haiku-4-5", max_tokens=4096)
 
     def test_uses_provided_key(self) -> None:
         """Test that a provided API key is used directly."""
-        client = AnthropicClient(api_key="sk-ant-test")
+        client = AnthropicClient(model="claude-haiku-4-5", max_tokens=4096, api_key="sk-ant-test")
         assert client._api_key == "sk-ant-test"
 
     def test_loads_key_from_env(self) -> None:
         """Test that API key is loaded from env file."""
         with patch("common.llm_extractor.client.load_api_key_from_env_file", return_value="sk-ant-env"):
-            client = AnthropicClient()
+            client = AnthropicClient(model="claude-haiku-4-5", max_tokens=4096)
         assert client._api_key == "sk-ant-env"
 
 
@@ -35,7 +35,7 @@ class TestAnthropicClientSendMessage:
     @pytest.mark.asyncio
     async def test_sends_correct_payload_with_json_mode(self) -> None:
         """Test that the correct payload with assistant prefill is sent in json_mode."""
-        client = AnthropicClient(api_key="sk-ant-test")
+        client = AnthropicClient(model="claude-haiku-4-5", max_tokens=4096, api_key="sk-ant-test")
 
         mock_response = MagicMock()
         mock_response.status = 200
@@ -73,7 +73,7 @@ class TestAnthropicClientSendMessage:
     @pytest.mark.asyncio
     async def test_sends_correct_payload_without_prefill(self) -> None:
         """Test that no prefill is added when json_prefill=None."""
-        client = AnthropicClient(api_key="sk-ant-test")
+        client = AnthropicClient(model="claude-haiku-4-5", max_tokens=4096, api_key="sk-ant-test")
 
         mock_response = MagicMock()
         mock_response.status = 200

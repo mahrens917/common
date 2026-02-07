@@ -47,7 +47,7 @@ class KalshiUnderlyingExtractor:
 
     def __init__(self, api_key: str | None = None) -> None:
         """Initialize the extractor."""
-        self._client = AnthropicClient(api_key=api_key)
+        self._client = AnthropicClient(model="claude-haiku-4-5", max_tokens=4096, api_key=api_key)
 
     @property
     def client(self) -> AnthropicClient:
@@ -131,7 +131,7 @@ class KalshiDedupExtractor:
 
     def __init__(self, api_key: str | None = None) -> None:
         """Initialize the extractor."""
-        self._client = AnthropicClient(api_key=api_key)
+        self._client = AnthropicClient(model="claude-haiku-4-5", max_tokens=4096, api_key=api_key)
 
     @property
     def client(self) -> AnthropicClient:
@@ -205,7 +205,7 @@ class PolyExtractor:
 
     def __init__(self, api_key: str | None = None) -> None:
         """Initialize the extractor."""
-        self._client = AnthropicClient(api_key=api_key)
+        self._client = AnthropicClient(model="claude-haiku-4-5", max_tokens=4096, api_key=api_key)
 
     @property
     def client(self) -> AnthropicClient:
@@ -266,7 +266,7 @@ class ExpiryAligner:
     """Align Poly expiry with Kalshi expiry for near-miss pairs."""
 
     def __init__(self, redis: Redis) -> None:
-        self._client = AnthropicClient()
+        self._client = AnthropicClient(model="claude-haiku-4-5", max_tokens=4096)
         self._redis = redis
 
     @property

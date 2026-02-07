@@ -37,13 +37,26 @@ from .persistence_manager import (
     get_redis_persistence_status,
 )
 from .probability_store import ProbabilityStore
+from .restart_service_command import (
+    RESTART_SERVICE_COMMAND_KEY,
+    RestartServiceResult,
+    clear_restart_service_command,
+    clear_restart_service_result,
+    get_restart_service_command,
+    get_restart_service_result,
+    request_restart_service,
+    write_restart_service_result,
+)
 from .retry_client import RetryPipeline, RetryRedisClient
 from .subscription_store import SubscriptionStore
 from .trading_toggle_api import (
-    TRADING_ENABLED_KEY,
-    is_trading_enabled,
-    set_trading_enabled,
-    toggle_trading,
+    ALGO_TRADING_KEY_PREFIX,
+    get_all_algo_trading_states,
+    initialize_algo_trading_defaults,
+    is_algo_trading_enabled,
+    set_algo_trading_enabled,
+    set_all_algo_trading_enabled,
+    toggle_algo_trading,
 )
 
 __all__ = [
@@ -75,14 +88,25 @@ __all__ = [
     "clear_algo_ownership",
     "get_market_algo",
     "MarketUpdateResult",
-    "TRADING_ENABLED_KEY",
-    "is_trading_enabled",
-    "set_trading_enabled",
-    "toggle_trading",
+    "ALGO_TRADING_KEY_PREFIX",
+    "get_all_algo_trading_states",
+    "initialize_algo_trading_defaults",
+    "is_algo_trading_enabled",
+    "set_algo_trading_enabled",
+    "set_all_algo_trading_enabled",
+    "toggle_algo_trading",
     "CLOSE_POSITIONS_COMMAND_KEY",
     "clear_close_positions_command",
     "get_close_positions_command",
     "request_close_all_positions",
+    "RESTART_SERVICE_COMMAND_KEY",
+    "RestartServiceResult",
+    "clear_restart_service_command",
+    "clear_restart_service_result",
+    "get_restart_service_command",
+    "get_restart_service_result",
+    "request_restart_service",
+    "write_restart_service_result",
     "ALGO_STATS_KEY_PREFIX",
     "AlgoStatsData",
     "increment_algo_stats",
