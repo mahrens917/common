@@ -62,6 +62,7 @@ class ConnectionConfig:
     # WebSocket ping/pong configuration (optional, service-specific)
     ping_interval_seconds: Optional[int] = None
     ping_timeout_seconds: Optional[int] = None
+    close_timeout_seconds: Optional[int] = None
 
 
 def get_connection_config(service_name: str | None = None) -> ConnectionConfig:

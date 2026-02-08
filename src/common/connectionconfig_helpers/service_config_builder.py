@@ -7,48 +7,28 @@ from common.connectionconfig_helpers.config_loader import (
     load_websocket_config,
     resolve_cfb_setting,
 )
-from common.truthy import pick_truthy
 
 
-def build_kalshi_config(ws_config: Dict[str, Any]) -> Dict[str, Any]:
-    """Build Kalshi service-specific configuration.
-
-    Raises:
-        KeyError: If required configuration keys are missing from websocket_config.json
-    """
-    kalshi_conn = ws_config["kalshi"]["connection"]
-    kalshi_sub = ws_config["kalshi"]["subscription"]
-    return {
-        "connection_timeout_seconds": kalshi_conn["timeout_seconds"],
-        "request_timeout_seconds": kalshi_conn["request_timeout_seconds"],
-        "subscription_timeout_seconds": kalshi_sub["timeout_seconds"],
-        "reconnection_initial_delay_seconds": kalshi_conn["reconnection_initial_delay_seconds"],
-        "reconnection_max_delay_seconds": kalshi_conn["reconnection_max_delay_seconds"],
-        "reconnection_backoff_multiplier": kalshi_conn["reconnection_backoff_multiplier"],
-        "max_consecutive_failures": kalshi_conn["max_consecutive_failures"],
-        "health_check_interval_seconds": kalshi_conn["heartbeat_interval_seconds"],
-        "ping_interval_seconds": kalshi_conn["ping_interval_seconds"],
-        "ping_timeout_seconds": kalshi_conn["ping_timeout_seconds"],
-    }
-
-
-def build_deribit_config(ws_config: Dict[str, Any]) -> Dict[str, Any]:
-    """Build Deribit service-specific configuration.
+def build_websocket_config(ws_config: Dict[str, Any]) -> Dict[str, Any]:
+    """Build unified websocket configuration from flat config structure.
 
     Raises:
         KeyError: If required configuration keys are missing from websocket_config.json
     """
-    deribit_conn = ws_config["deribit"]["connection"]
+    conn = ws_config["connection"]
+    sub = ws_config["subscription"]
     return {
-        "connection_timeout_seconds": deribit_conn["timeout_seconds"],
-        "request_timeout_seconds": deribit_conn["request_timeout_seconds"],
-        "reconnection_initial_delay_seconds": deribit_conn["reconnection_initial_delay_seconds"],
-        "reconnection_max_delay_seconds": deribit_conn["reconnection_max_delay_seconds"],
-        "reconnection_backoff_multiplier": deribit_conn["reconnection_backoff_multiplier"],
-        "max_consecutive_failures": deribit_conn["max_consecutive_failures"],
-        "health_check_interval_seconds": deribit_conn["heartbeat_interval_seconds"],
-        "ping_interval_seconds": deribit_conn["ping_interval_seconds"],
-        "ping_timeout_seconds": deribit_conn["ping_timeout_seconds"],
+        "connection_timeout_seconds": conn["timeout_seconds"],
+        "request_timeout_seconds": conn["request_timeout_seconds"],
+        "subscription_timeout_seconds": sub["timeout_seconds"],
+        "reconnection_initial_delay_seconds": conn["reconnection_initial_delay_seconds"],
+        "reconnection_max_delay_seconds": conn["reconnection_max_delay_seconds"],
+        "reconnection_backoff_multiplier": conn["reconnection_backoff_multiplier"],
+        "max_consecutive_failures": conn["max_consecutive_failures"],
+        "health_check_interval_seconds": conn["heartbeat_interval_seconds"],
+        "ping_interval_seconds": conn["ping_interval_seconds"],
+        "ping_timeout_seconds": conn["ping_timeout_seconds"],
+        "close_timeout_seconds": conn["close_timeout_seconds"],
     }
 
 
@@ -70,19 +50,6 @@ def build_cfb_config() -> Dict[str, Any]:
     }
 
 
-def build_poly_config(ws_config: Dict[str, Any]) -> Dict[str, Any]:
-    """Build Poly service-specific configuration.
-
-    Raises:
-        KeyError: If required configuration keys are missing from websocket_config.json
-    """
-    poly_conn = ws_config["poly"]["connection"]
-    return {
-        "ping_interval_seconds": poly_conn["ping_interval_seconds"],
-        "ping_timeout_seconds": poly_conn["ping_timeout_seconds"],
-    }
-
-
 def get_service_specific_config(service_name: str) -> Dict[str, Any]:
     """Get service-specific configuration overrides."""
     if service_name == "weather":
@@ -95,13 +62,7 @@ def get_service_specific_config(service_name: str) -> Dict[str, Any]:
 
     ws_config = load_websocket_config()
 
-    if service_name == "kalshi":
-        return build_kalshi_config(ws_config)
-
-    if service_name == "deribit":
-        return build_deribit_config(ws_config)
-
-    if service_name == "poly":
-        return build_poly_config(ws_config)
+    if service_name in ("kalshi", "deribit", "poly"):
+        return build_websocket_config(ws_config)
 
     return dict()

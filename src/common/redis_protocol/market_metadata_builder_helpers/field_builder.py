@@ -19,11 +19,9 @@ def build_time_fields(market_data: Mapping[str, Any], time_field_keys: Dict[str,
         Dict of time fields
     """
     close_time_raw = market_data.get("close_time") or market_data.get("close_time_ts")
-    if close_time_raw is None:
-        raise ValueError("close_time missing from Kalshi payload")
 
     close_time_value = ""
-    if close_time_raw != "":
+    if close_time_raw is not None and close_time_raw != "":
         normalized_close_time = normalizer(close_time_raw)
         if normalized_close_time:
             close_time_value = normalized_close_time

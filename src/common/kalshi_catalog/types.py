@@ -26,7 +26,7 @@ class DiscoveredEvent:
     title: str
     category: str
     mutually_exclusive: bool
-    markets: List[DiscoveredMarket]
+    markets: list[DiscoveredMarket]
 
 
 @dataclass

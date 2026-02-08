@@ -20,14 +20,15 @@ from common.redis_protocol.market_metadata_builder_helpers.field_builder import 
 class TestBuildTimeFields:
     """Tests for build_time_fields function."""
 
-    def test_raises_when_close_time_missing(self) -> None:
-        """Raises ValueError when close_time missing."""
+    def test_returns_empty_when_close_time_missing(self) -> None:
+        """Returns empty close_time when close_time missing."""
         market_data = {}
         time_field_keys = {}
         normalizer = MagicMock()
 
-        with pytest.raises(ValueError, match="close_time missing"):
-            build_time_fields(market_data, time_field_keys, normalizer)
+        result = build_time_fields(market_data, time_field_keys, normalizer)
+
+        assert result["close_time"] == ""
 
     def test_extracts_close_time(self) -> None:
         """Extracts and normalizes close_time."""
@@ -49,15 +50,15 @@ class TestBuildTimeFields:
 
         assert result["close_time"] == "2025-01-15T12:00:00Z"
 
-    def test_raises_when_close_time_is_empty(self) -> None:
-        """Raises ValueError when close_time is empty string."""
+    def test_returns_empty_when_close_time_is_empty(self) -> None:
+        """Returns empty close_time when close_time is empty string."""
         market_data = {"close_time": ""}
         time_field_keys = {}
         normalizer = MagicMock()
 
-        # Empty string close_time is treated as missing
-        with pytest.raises(ValueError, match="close_time missing"):
-            build_time_fields(market_data, time_field_keys, normalizer)
+        result = build_time_fields(market_data, time_field_keys, normalizer)
+
+        assert result["close_time"] == ""
 
     def test_builds_additional_time_fields(self) -> None:
         """Builds additional time fields from mapping."""

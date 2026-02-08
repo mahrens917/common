@@ -80,7 +80,7 @@ def load_websocket_config() -> Dict[str, Any]:
         ConfigurationError: If file exists but contains invalid JSON
     """
     try:
-        return load_config("websocket_config.json")
+        return load_config("websocket_config.json", package="common")
     except FileNotFoundError:  # Expected exception in operation  # policy_guard: allow-silent-handler
         logger.debug("Expected exception in operation")
         return {}

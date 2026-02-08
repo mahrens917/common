@@ -70,22 +70,21 @@ class TestMetricsSectionPrinter:
         """ASOS disabled path surfaces correct line."""
         mock_get_weather_settings.return_value = SimpleNamespace(sources=SimpleNamespace(asos_source="off"))
 
-        printer.print_weather_metrics_section({"metar_messages_65m": 4})
+        printer.print_weather_metrics_section({})
 
         assert printer._emitted[0] == ""
         assert "DISABLED" in printer._emitted[2]
-        assert printer._emitted[-1] == "  🟢 METAR Temperature Changes - 4"
+        assert printer._emitted[-1] == "  ⚪ ASOS Temperature Changes - DISABLED"
 
     @patch("common.optimized_status_reporter_helpers.metrics_section_printer.get_weather_settings")
     def test_print_weather_metrics_section_prints_asos_and_metar(self, mock_get_weather_settings, printer, data_coercion):
-        """ASOS enabled path prints both metrics."""
+        """ASOS enabled path prints metrics."""
         mock_get_weather_settings.return_value = SimpleNamespace(sources=SimpleNamespace(asos_source="on"))
-        data_coercion.int_or_default.side_effect = [8, 10]
 
-        printer.print_weather_metrics_section({"asos_messages_65m": 8, "metar_messages_65m": 10})
+        printer.print_weather_metrics_section({"asos_messages_65m": 8})
 
         assert "ASOS Temperature Changes - 8" in printer._emitted[2]
-        assert printer._emitted[-1] == "  🟢 METAR Temperature Changes - 10"
+        assert printer._emitted[-1] == "  🟢 ASOS Temperature Changes - 8"
 
     def test_print_tracker_status_section_handles_missing_and_disabled(self, printer, data_coercion):
         """Tracker status section covers missing info and disabled override."""

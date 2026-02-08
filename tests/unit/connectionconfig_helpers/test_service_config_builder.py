@@ -6,33 +6,22 @@ import pytest
 
 from common.connectionconfig_helpers.service_config_builder import (
     build_cfb_config,
-    build_deribit_config,
-    build_kalshi_config,
-    build_poly_config,
+    build_websocket_config,
     get_service_specific_config,
 )
 
 # Test constants
-TEST_KALSHI_CONNECTION_TIMEOUT = 30
-TEST_KALSHI_REQUEST_TIMEOUT = 15
-TEST_KALSHI_SUBSCRIPTION_TIMEOUT = 20
-TEST_KALSHI_RECONNECTION_INITIAL_DELAY = 2
-TEST_KALSHI_RECONNECTION_MAX_DELAY = 300
-TEST_KALSHI_RECONNECTION_BACKOFF_MULTIPLIER = 2.0
-TEST_KALSHI_MAX_CONSECUTIVE_FAILURES = 10
-TEST_KALSHI_HEARTBEAT_INTERVAL = 60
-TEST_KALSHI_PING_INTERVAL = 25
-TEST_KALSHI_PING_TIMEOUT = 5
-
-TEST_DERIBIT_CONNECTION_TIMEOUT = 25
-TEST_DERIBIT_REQUEST_TIMEOUT = 10
-TEST_DERIBIT_RECONNECTION_INITIAL_DELAY = 3
-TEST_DERIBIT_RECONNECTION_MAX_DELAY = 200
-TEST_DERIBIT_RECONNECTION_BACKOFF_MULTIPLIER = 1.5
-TEST_DERIBIT_MAX_CONSECUTIVE_FAILURES = 8
-TEST_DERIBIT_HEARTBEAT_INTERVAL = 50
-TEST_DERIBIT_PING_INTERVAL = 20
-TEST_DERIBIT_PING_TIMEOUT = 10
+TEST_CONNECTION_TIMEOUT = 30
+TEST_REQUEST_TIMEOUT = 15
+TEST_SUBSCRIPTION_TIMEOUT = 20
+TEST_RECONNECTION_INITIAL_DELAY = 2
+TEST_RECONNECTION_MAX_DELAY = 300
+TEST_RECONNECTION_BACKOFF_MULTIPLIER = 2.0
+TEST_MAX_CONSECUTIVE_FAILURES = 10
+TEST_HEARTBEAT_INTERVAL = 60
+TEST_PING_INTERVAL = 25
+TEST_PING_TIMEOUT = 5
+TEST_CLOSE_TIMEOUT = 5
 
 TEST_CFB_CONNECTION_TIMEOUT = 25
 TEST_CFB_REQUEST_TIMEOUT = 15
@@ -47,9 +36,6 @@ TEST_WEATHER_MAX_CONSECUTIVE_FAILURES = 12
 TEST_WEATHER_HEALTH_CHECK_INTERVAL = 70
 TEST_WEATHER_SUBSCRIPTION_TIMEOUT = 150
 
-TEST_POLY_PING_INTERVAL = 20
-TEST_POLY_PING_TIMEOUT = 20
-
 TEST_SERVICE_NAME_WEATHER = "weather"
 TEST_SERVICE_NAME_CFB = "cfb"
 TEST_SERVICE_NAME_KALSHI = "kalshi"
@@ -58,111 +44,61 @@ TEST_SERVICE_NAME_POLY = "poly"
 TEST_SERVICE_NAME_UNKNOWN = "unknown_service"
 
 
-class TestBuildKalshiConfig:
-    """Tests for build_kalshi_config function."""
+def _make_flat_ws_config() -> dict:
+    """Create a flat websocket config for testing."""
+    return {
+        "connection": {
+            "timeout_seconds": TEST_CONNECTION_TIMEOUT,
+            "request_timeout_seconds": TEST_REQUEST_TIMEOUT,
+            "reconnection_initial_delay_seconds": TEST_RECONNECTION_INITIAL_DELAY,
+            "reconnection_max_delay_seconds": TEST_RECONNECTION_MAX_DELAY,
+            "reconnection_backoff_multiplier": TEST_RECONNECTION_BACKOFF_MULTIPLIER,
+            "max_consecutive_failures": TEST_MAX_CONSECUTIVE_FAILURES,
+            "heartbeat_interval_seconds": TEST_HEARTBEAT_INTERVAL,
+            "ping_interval_seconds": TEST_PING_INTERVAL,
+            "ping_timeout_seconds": TEST_PING_TIMEOUT,
+            "close_timeout_seconds": TEST_CLOSE_TIMEOUT,
+        },
+        "subscription": {
+            "timeout_seconds": TEST_SUBSCRIPTION_TIMEOUT,
+        },
+    }
 
-    def test_returns_kalshi_config_with_all_fields(self) -> None:
-        """Returns Kalshi config with all required fields."""
-        mock_ws_config = {
-            "kalshi": {
-                "connection": {
-                    "timeout_seconds": TEST_KALSHI_CONNECTION_TIMEOUT,
-                    "request_timeout_seconds": TEST_KALSHI_REQUEST_TIMEOUT,
-                    "reconnection_initial_delay_seconds": TEST_KALSHI_RECONNECTION_INITIAL_DELAY,
-                    "reconnection_max_delay_seconds": TEST_KALSHI_RECONNECTION_MAX_DELAY,
-                    "reconnection_backoff_multiplier": TEST_KALSHI_RECONNECTION_BACKOFF_MULTIPLIER,
-                    "max_consecutive_failures": TEST_KALSHI_MAX_CONSECUTIVE_FAILURES,
-                    "heartbeat_interval_seconds": TEST_KALSHI_HEARTBEAT_INTERVAL,
-                    "ping_interval_seconds": TEST_KALSHI_PING_INTERVAL,
-                    "ping_timeout_seconds": TEST_KALSHI_PING_TIMEOUT,
-                },
-                "subscription": {
-                    "timeout_seconds": TEST_KALSHI_SUBSCRIPTION_TIMEOUT,
-                },
-            }
-        }
 
-        result = build_kalshi_config(mock_ws_config)
+class TestBuildWebsocketConfig:
+    """Tests for build_websocket_config function."""
 
-        assert result["connection_timeout_seconds"] == TEST_KALSHI_CONNECTION_TIMEOUT
-        assert result["request_timeout_seconds"] == TEST_KALSHI_REQUEST_TIMEOUT
-        assert result["subscription_timeout_seconds"] == TEST_KALSHI_SUBSCRIPTION_TIMEOUT
-        assert result["reconnection_initial_delay_seconds"] == TEST_KALSHI_RECONNECTION_INITIAL_DELAY
-        assert result["reconnection_max_delay_seconds"] == TEST_KALSHI_RECONNECTION_MAX_DELAY
-        assert result["reconnection_backoff_multiplier"] == TEST_KALSHI_RECONNECTION_BACKOFF_MULTIPLIER
-        assert result["max_consecutive_failures"] == TEST_KALSHI_MAX_CONSECUTIVE_FAILURES
-        assert result["health_check_interval_seconds"] == TEST_KALSHI_HEARTBEAT_INTERVAL
-        assert result["ping_interval_seconds"] == TEST_KALSHI_PING_INTERVAL
-        assert result["ping_timeout_seconds"] == TEST_KALSHI_PING_TIMEOUT
+    def test_returns_config_with_all_fields(self) -> None:
+        """Returns config with all required fields."""
+        mock_ws_config = _make_flat_ws_config()
 
-    def test_raises_key_error_when_missing_kalshi_key(self) -> None:
-        """Raises KeyError when kalshi key is missing."""
-        mock_ws_config = {"other_service": {}}
+        result = build_websocket_config(mock_ws_config)
 
-        with pytest.raises(KeyError):
-            build_kalshi_config(mock_ws_config)
+        assert result["connection_timeout_seconds"] == TEST_CONNECTION_TIMEOUT
+        assert result["request_timeout_seconds"] == TEST_REQUEST_TIMEOUT
+        assert result["subscription_timeout_seconds"] == TEST_SUBSCRIPTION_TIMEOUT
+        assert result["reconnection_initial_delay_seconds"] == TEST_RECONNECTION_INITIAL_DELAY
+        assert result["reconnection_max_delay_seconds"] == TEST_RECONNECTION_MAX_DELAY
+        assert result["reconnection_backoff_multiplier"] == TEST_RECONNECTION_BACKOFF_MULTIPLIER
+        assert result["max_consecutive_failures"] == TEST_MAX_CONSECUTIVE_FAILURES
+        assert result["health_check_interval_seconds"] == TEST_HEARTBEAT_INTERVAL
+        assert result["ping_interval_seconds"] == TEST_PING_INTERVAL
+        assert result["ping_timeout_seconds"] == TEST_PING_TIMEOUT
+        assert result["close_timeout_seconds"] == TEST_CLOSE_TIMEOUT
 
     def test_raises_key_error_when_missing_connection_key(self) -> None:
         """Raises KeyError when connection key is missing."""
-        mock_ws_config = {"kalshi": {"subscription": {}}}
+        mock_ws_config = {"subscription": {"timeout_seconds": TEST_SUBSCRIPTION_TIMEOUT}}
 
         with pytest.raises(KeyError):
-            build_kalshi_config(mock_ws_config)
+            build_websocket_config(mock_ws_config)
 
     def test_raises_key_error_when_missing_subscription_key(self) -> None:
         """Raises KeyError when subscription key is missing."""
-        mock_ws_config = {"kalshi": {"connection": {}}}
+        mock_ws_config = {"connection": {}}
 
         with pytest.raises(KeyError):
-            build_kalshi_config(mock_ws_config)
-
-
-class TestBuildDeribitConfig:
-    """Tests for build_deribit_config function."""
-
-    def test_returns_deribit_config_with_all_fields(self) -> None:
-        """Returns Deribit config with all required fields."""
-        mock_ws_config = {
-            "deribit": {
-                "connection": {
-                    "timeout_seconds": TEST_DERIBIT_CONNECTION_TIMEOUT,
-                    "request_timeout_seconds": TEST_DERIBIT_REQUEST_TIMEOUT,
-                    "reconnection_initial_delay_seconds": TEST_DERIBIT_RECONNECTION_INITIAL_DELAY,
-                    "reconnection_max_delay_seconds": TEST_DERIBIT_RECONNECTION_MAX_DELAY,
-                    "reconnection_backoff_multiplier": TEST_DERIBIT_RECONNECTION_BACKOFF_MULTIPLIER,
-                    "max_consecutive_failures": TEST_DERIBIT_MAX_CONSECUTIVE_FAILURES,
-                    "heartbeat_interval_seconds": TEST_DERIBIT_HEARTBEAT_INTERVAL,
-                    "ping_interval_seconds": TEST_DERIBIT_PING_INTERVAL,
-                    "ping_timeout_seconds": TEST_DERIBIT_PING_TIMEOUT,
-                }
-            }
-        }
-
-        result = build_deribit_config(mock_ws_config)
-
-        assert result["connection_timeout_seconds"] == TEST_DERIBIT_CONNECTION_TIMEOUT
-        assert result["request_timeout_seconds"] == TEST_DERIBIT_REQUEST_TIMEOUT
-        assert result["reconnection_initial_delay_seconds"] == TEST_DERIBIT_RECONNECTION_INITIAL_DELAY
-        assert result["reconnection_max_delay_seconds"] == TEST_DERIBIT_RECONNECTION_MAX_DELAY
-        assert result["reconnection_backoff_multiplier"] == TEST_DERIBIT_RECONNECTION_BACKOFF_MULTIPLIER
-        assert result["max_consecutive_failures"] == TEST_DERIBIT_MAX_CONSECUTIVE_FAILURES
-        assert result["health_check_interval_seconds"] == TEST_DERIBIT_HEARTBEAT_INTERVAL
-        assert result["ping_interval_seconds"] == TEST_DERIBIT_PING_INTERVAL
-        assert result["ping_timeout_seconds"] == TEST_DERIBIT_PING_TIMEOUT
-
-    def test_raises_key_error_when_missing_deribit_key(self) -> None:
-        """Raises KeyError when deribit key is missing."""
-        mock_ws_config = {"other_service": {}}
-
-        with pytest.raises(KeyError):
-            build_deribit_config(mock_ws_config)
-
-    def test_raises_key_error_when_missing_connection_key(self) -> None:
-        """Raises KeyError when connection key is missing."""
-        mock_ws_config = {"deribit": {}}
-
-        with pytest.raises(KeyError):
-            build_deribit_config(mock_ws_config)
+            build_websocket_config(mock_ws_config)
 
 
 class TestBuildCfbConfig:
@@ -188,40 +124,6 @@ class TestBuildCfbConfig:
         assert result["connection_timeout_seconds"] == TEST_CFB_CONNECTION_TIMEOUT
         assert result["request_timeout_seconds"] == TEST_CFB_REQUEST_TIMEOUT
         assert result["reconnection_initial_delay_seconds"] == TEST_CFB_RECONNECTION_INITIAL_DELAY
-
-
-class TestBuildPolyConfig:
-    """Tests for build_poly_config function."""
-
-    def test_returns_poly_config_with_all_fields(self) -> None:
-        """Returns Poly config with all required fields."""
-        mock_ws_config = {
-            "poly": {
-                "connection": {
-                    "ping_interval_seconds": TEST_POLY_PING_INTERVAL,
-                    "ping_timeout_seconds": TEST_POLY_PING_TIMEOUT,
-                }
-            }
-        }
-
-        result = build_poly_config(mock_ws_config)
-
-        assert result["ping_interval_seconds"] == TEST_POLY_PING_INTERVAL
-        assert result["ping_timeout_seconds"] == TEST_POLY_PING_TIMEOUT
-
-    def test_raises_key_error_when_missing_poly_key(self) -> None:
-        """Raises KeyError when poly key is missing."""
-        mock_ws_config = {"other_service": {}}
-
-        with pytest.raises(KeyError):
-            build_poly_config(mock_ws_config)
-
-    def test_raises_key_error_when_missing_connection_key(self) -> None:
-        """Raises KeyError when connection key is missing."""
-        mock_ws_config = {"poly": {}}
-
-        with pytest.raises(KeyError):
-            build_poly_config(mock_ws_config)
 
 
 class TestGetServiceSpecificConfig:
@@ -262,80 +164,42 @@ class TestGetServiceSpecificConfig:
 
         assert result == mock_cfb_config
 
-    def test_returns_kalshi_config_when_service_name_is_kalshi(self) -> None:
-        """Returns Kalshi config when service name is kalshi."""
-        mock_ws_config = {
-            "kalshi": {
-                "connection": {
-                    "timeout_seconds": TEST_KALSHI_CONNECTION_TIMEOUT,
-                    "request_timeout_seconds": TEST_KALSHI_REQUEST_TIMEOUT,
-                    "reconnection_initial_delay_seconds": TEST_KALSHI_RECONNECTION_INITIAL_DELAY,
-                    "reconnection_max_delay_seconds": TEST_KALSHI_RECONNECTION_MAX_DELAY,
-                    "reconnection_backoff_multiplier": TEST_KALSHI_RECONNECTION_BACKOFF_MULTIPLIER,
-                    "max_consecutive_failures": TEST_KALSHI_MAX_CONSECUTIVE_FAILURES,
-                    "heartbeat_interval_seconds": TEST_KALSHI_HEARTBEAT_INTERVAL,
-                    "ping_interval_seconds": TEST_KALSHI_PING_INTERVAL,
-                    "ping_timeout_seconds": TEST_KALSHI_PING_TIMEOUT,
-                },
-                "subscription": {
-                    "timeout_seconds": TEST_KALSHI_SUBSCRIPTION_TIMEOUT,
-                },
-            }
-        }
+    def test_returns_websocket_config_when_service_name_is_kalshi(self) -> None:
+        """Returns websocket config when service name is kalshi."""
+        mock_ws_config = _make_flat_ws_config()
         with patch(
             "common.connectionconfig_helpers.service_config_builder.load_websocket_config",
             return_value=mock_ws_config,
         ):
             result = get_service_specific_config(TEST_SERVICE_NAME_KALSHI)
 
-        assert result["connection_timeout_seconds"] == TEST_KALSHI_CONNECTION_TIMEOUT
-        assert result["request_timeout_seconds"] == TEST_KALSHI_REQUEST_TIMEOUT
-        assert result["subscription_timeout_seconds"] == TEST_KALSHI_SUBSCRIPTION_TIMEOUT
+        assert result["connection_timeout_seconds"] == TEST_CONNECTION_TIMEOUT
+        assert result["request_timeout_seconds"] == TEST_REQUEST_TIMEOUT
+        assert result["subscription_timeout_seconds"] == TEST_SUBSCRIPTION_TIMEOUT
 
-    def test_returns_deribit_config_when_service_name_is_deribit(self) -> None:
-        """Returns Deribit config when service name is deribit."""
-        mock_ws_config = {
-            "deribit": {
-                "connection": {
-                    "timeout_seconds": TEST_DERIBIT_CONNECTION_TIMEOUT,
-                    "request_timeout_seconds": TEST_DERIBIT_REQUEST_TIMEOUT,
-                    "reconnection_initial_delay_seconds": TEST_DERIBIT_RECONNECTION_INITIAL_DELAY,
-                    "reconnection_max_delay_seconds": TEST_DERIBIT_RECONNECTION_MAX_DELAY,
-                    "reconnection_backoff_multiplier": TEST_DERIBIT_RECONNECTION_BACKOFF_MULTIPLIER,
-                    "max_consecutive_failures": TEST_DERIBIT_MAX_CONSECUTIVE_FAILURES,
-                    "heartbeat_interval_seconds": TEST_DERIBIT_HEARTBEAT_INTERVAL,
-                    "ping_interval_seconds": TEST_DERIBIT_PING_INTERVAL,
-                    "ping_timeout_seconds": TEST_DERIBIT_PING_TIMEOUT,
-                }
-            }
-        }
+    def test_returns_websocket_config_when_service_name_is_deribit(self) -> None:
+        """Returns websocket config when service name is deribit."""
+        mock_ws_config = _make_flat_ws_config()
         with patch(
             "common.connectionconfig_helpers.service_config_builder.load_websocket_config",
             return_value=mock_ws_config,
         ):
             result = get_service_specific_config(TEST_SERVICE_NAME_DERIBIT)
 
-        assert result["connection_timeout_seconds"] == TEST_DERIBIT_CONNECTION_TIMEOUT
-        assert result["request_timeout_seconds"] == TEST_DERIBIT_REQUEST_TIMEOUT
+        assert result["connection_timeout_seconds"] == TEST_CONNECTION_TIMEOUT
+        assert result["request_timeout_seconds"] == TEST_REQUEST_TIMEOUT
 
-    def test_returns_poly_config_when_service_name_is_poly(self) -> None:
-        """Returns Poly config when service name is poly."""
-        mock_ws_config = {
-            "poly": {
-                "connection": {
-                    "ping_interval_seconds": TEST_POLY_PING_INTERVAL,
-                    "ping_timeout_seconds": TEST_POLY_PING_TIMEOUT,
-                }
-            }
-        }
+    def test_returns_websocket_config_when_service_name_is_poly(self) -> None:
+        """Returns websocket config when service name is poly."""
+        mock_ws_config = _make_flat_ws_config()
         with patch(
             "common.connectionconfig_helpers.service_config_builder.load_websocket_config",
             return_value=mock_ws_config,
         ):
             result = get_service_specific_config(TEST_SERVICE_NAME_POLY)
 
-        assert result["ping_interval_seconds"] == TEST_POLY_PING_INTERVAL
-        assert result["ping_timeout_seconds"] == TEST_POLY_PING_TIMEOUT
+        assert result["ping_interval_seconds"] == TEST_PING_INTERVAL
+        assert result["ping_timeout_seconds"] == TEST_PING_TIMEOUT
 
     def test_returns_empty_dict_for_unknown_service_name(self) -> None:
         """Returns empty dict for unknown service name."""

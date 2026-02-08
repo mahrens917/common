@@ -71,7 +71,7 @@ def test_build_market_metadata_populates_required_fields(monkeypatch):
 
     assert metadata["close_time"] == "2025-01-31T00:00:00+00:00"
     assert metadata["floor_strike"] == "80"
-    assert metadata["cap_strike"] == "inf"
+    assert metadata["cap_strike"] == ""
     assert metadata["strike_type"] == "Greater"
     assert metadata["weather_station"] == "KNYC"
     assert metadata["timestamp"] == "123"
@@ -91,14 +91,35 @@ def test_build_market_metadata_requires_close_time():
         "cap_strike": 75,
     }
 
-    with pytest.raises(ValueError) as excinfo:
-        build_market_metadata(
-            market_ticker="KXHIGHCHI-25JAN20-B080",
-            market_data=market_data,
-            event_data=None,
-            descriptor=descriptor,
-            weather_resolver=None,
-            logger=logging.getLogger("tests.helpers"),
-        )
+    metadata = build_market_metadata(
+        market_ticker="KXHIGHCHI-25JAN20-B080",
+        market_data=market_data,
+        event_data=None,
+        descriptor=descriptor,
+        weather_resolver=None,
+        logger=logging.getLogger("tests.helpers"),
+    )
 
-    assert "close_time" in str(excinfo.value)
+    assert metadata["close_time"] == ""
+
+
+def test_build_market_metadata_handles_missing_strike_type():
+    descriptor = describe_kalshi_ticker("KXFIRSTSUPERBOWLSONG-26FEB09-DAK")
+    market_data = {
+        "id": "market-789",
+        "close_time": "2026-02-09T00:00:00Z",
+    }
+
+    metadata = build_market_metadata(
+        market_ticker="KXFIRSTSUPERBOWLSONG-26FEB09-DAK",
+        market_data=market_data,
+        event_data=None,
+        descriptor=descriptor,
+        weather_resolver=None,
+        logger=logging.getLogger("tests.helpers"),
+    )
+
+    assert metadata["strike_type"] == ""
+    assert metadata["floor_strike"] == ""
+    assert metadata["cap_strike"] == ""
+    assert metadata["close_time"] == "2026-02-09T00:00:00+00:00"

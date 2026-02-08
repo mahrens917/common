@@ -119,11 +119,11 @@ def test_metrics_section_printer_sections(monkeypatch):
         "kalshi_messages_60s": "3",
         "kalshi_market_status": {"trading_active": True},
         "cfb_messages_60s": 4,
-        "metar_messages_65m": "5",
+        "asos_messages_65m": "5",
     }
     printer.print_all_health_sections(status_payload)
     assert any("Deribit" in line for line in emitted)
-    assert any("METAR" in line for line in emitted)
+    assert any("ASOS" in line for line in emitted)
 
 
 def test_weather_section_generator_and_service_status_formatter(monkeypatch):

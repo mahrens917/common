@@ -28,6 +28,7 @@ async def discover_with_skipped_stats(
     expiry_window_seconds: int,
     min_markets_per_event: int = 2,
     progress: Callable[[str], None] | None = None,
+    mutually_exclusive_only: bool = False,
 ) -> tuple[List[DiscoveredEvent], SkippedMarketsInfo]:
     """Discover all events with valid markets and skipped market stats.
 
@@ -60,6 +61,10 @@ async def discover_with_skipped_stats(
     _report_progress(progress, f"phase=fetch_event_details total={len(unique_events)}")
     event_details = await fetch_event_details_batch(client, unique_events, progress=progress)
     logger.info("Fetched details for %d events", len(event_details))
+
+    if mutually_exclusive_only:
+        event_details = {k: v for k, v in event_details.items() if v.get("mutually_exclusive") is True}
+        logger.info("ME filter: %d events after filtering", len(event_details))
 
     skipped_stats = SkippedMarketStats()
     discovered = _process_all_events(

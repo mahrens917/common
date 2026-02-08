@@ -100,11 +100,9 @@ def _extract_time_fields(market_data: Mapping[str, Any]) -> Dict[str, str]:
     close_time_raw = market_data.get("close_time")
     if close_time_raw is None:
         close_time_raw = market_data.get("close_time_ts")
-    if close_time_raw is None:
-        raise ValueError("close_time missing from Kalshi payload")
 
     close_time_value = ""
-    if close_time_raw != "":
+    if close_time_raw is not None and close_time_raw != "":
         normalized_close_time = normalize_timestamp(close_time_raw)
         if normalized_close_time:
             close_time_value = normalized_close_time
@@ -126,7 +124,11 @@ def _extract_strike_fields(
     cap_strike_api: Any,
 ) -> Dict[str, str]:
     if not isinstance(strike_type_raw, str):
-        raise TypeError(f"strike_type must be provided for {ticker}")
+        return {
+            "strike_type": "",
+            "floor_strike": "",
+            "cap_strike": "",
+        }
     strike_type_key = strike_type_raw.lower()
 
     # Handle custom/functional/structured strike types (no traditional floor/cap)
@@ -137,29 +139,10 @@ def _extract_strike_fields(
             "cap_strike": "",
         }
 
-    if strike_type_key not in {"greater", "greater_or_equal", "less", "less_or_equal", "between"}:
-        raise TypeError(f"Unsupported strike_type '{strike_type_raw}' in Kalshi payload")
-
-    if strike_type_key in ("greater", "greater_or_equal"):
-        if floor_strike_api is None:
-            raise ValueError(f"floor_strike missing for '{strike_type_key}' market {ticker}")
-        floor_strike_value = _stringify(floor_strike_api)
-        cap_strike_value = "inf"
-    elif strike_type_key in ("less", "less_or_equal"):
-        if cap_strike_api is None:
-            raise ValueError(f"cap_strike missing for '{strike_type_key}' market {ticker}")
-        floor_strike_value = "0"
-        cap_strike_value = _stringify(cap_strike_api)
-    else:  # between
-        if floor_strike_api is None or cap_strike_api is None:
-            raise ValueError(f"floor_strike/cap_strike missing for 'between' market {ticker}")
-        floor_strike_value = _stringify(floor_strike_api)
-        cap_strike_value = _stringify(cap_strike_api)
-
     return {
         "strike_type": _stringify(strike_type_raw),
-        "floor_strike": floor_strike_value,
-        "cap_strike": cap_strike_value,
+        "floor_strike": _stringify(floor_strike_api),
+        "cap_strike": _stringify(cap_strike_api),
     }
 
 

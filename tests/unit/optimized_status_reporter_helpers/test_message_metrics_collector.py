@@ -39,7 +39,6 @@ class TestMessageMetricsCollector:
             side_effect=[
                 MockMetadata(messages_last_minute=10),  # cfb
                 MockMetadata(messages_last_65_minutes=20),  # asos
-                MockMetadata(messages_last_65_minutes=30),  # metar
             ]
         )
         return store
@@ -58,14 +57,12 @@ class TestMessageMetricsCollector:
         mock_realtime_collector.get_kalshi_sum_last_60_seconds.assert_awaited_once()
         mock_metadata_store.get_service_metadata.assert_any_call("cfb")
         mock_metadata_store.get_service_metadata.assert_any_call("asos")
-        mock_metadata_store.get_service_metadata.assert_any_call("metar")
 
         assert result == {
             "deribit_messages_60s": 100,
             "kalshi_messages_60s": 50,
             "cfb_messages_60s": 10,
             "asos_messages_65m": 20,
-            "metar_messages_65m": 30,
         }
 
     @pytest.mark.parametrize("exception_class", STATUS_REPORT_ERRORS)

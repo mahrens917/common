@@ -111,9 +111,10 @@ class TestLoadWebsocketConfig:
         with patch(
             "common.connectionconfig_helpers.config_loader.load_config",
             return_value=mock_config,
-        ):
+        ) as mock_load:
             result = load_websocket_config()
 
+        mock_load.assert_called_once_with("websocket_config.json", package="common")
         assert result == mock_config
 
     def test_returns_empty_dict_when_file_not_found(self) -> None:

@@ -578,7 +578,7 @@ def test_build_kalshi_metadata_formats_fields(monkeypatch, store: KalshiStore):
 
     metadata = store._build_kalshi_metadata(market_ticker, market_data, event_data)
     assert metadata["market_ticker"] == "KXHIGHCHI-25AUG31-B80"
-    assert metadata["floor_strike"] == "0"
+    assert metadata["floor_strike"] == "80"
     assert metadata["cap_strike"] == "120"
     assert metadata["can_close_early"] == "true"
     # Orderbook fields (yes_bids, yes_asks, etc) are not set by REST -

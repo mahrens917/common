@@ -111,7 +111,6 @@ def sample_status_dict_data():
             "kalshi_messages_60s": 200,
             "cfb_messages_60s": 50,
             "asos_messages_65m": 100,
-            "metar_messages_65m": 75,
         },
         price_data={"btc_price": 50000.0, "eth_price": 3000.0},
         weather_temperatures={"KORD": 72.5, "KJFK": 68.0},
@@ -169,7 +168,6 @@ class TestDataGathererGatherAllStatusData:
             "kalshi_messages_60s": 200,
             "cfb_messages_60s": 50,
             "asos_messages_65m": 100,
-            "metar_messages_65m": 75,
         }
         mock_collectors.price_data_collector.collect_price_data.return_value = {
             "btc_price": 50000.0,
@@ -229,7 +227,6 @@ class TestDataGathererGatherAllStatusData:
             "kalshi_messages_60s": 0,
             "cfb_messages_60s": 0,
             "asos_messages_65m": 0,
-            "metar_messages_65m": 0,
         }
         mock_collectors.price_data_collector.collect_price_data.return_value = {
             "btc_price": 0.0,
@@ -276,7 +273,6 @@ class TestBuildStatusDict:
         assert result["kalshi_messages_60s"] == 200
         assert result["cfb_messages_60s"] == 50
         assert result["asos_messages_65m"] == 100
-        assert result["metar_messages_65m"] == 75
         assert result["weather_temperatures"] == {"KORD": 72.5, "KJFK": 68.0}
         assert result["stale_logs"] == []
         assert result["log_activity"] == {"kalshi": 1234567890.0}
