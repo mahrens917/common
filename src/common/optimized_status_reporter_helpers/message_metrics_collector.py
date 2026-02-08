@@ -1,7 +1,7 @@
 """
 Message metrics aggregation from multiple sources.
 
-Combines realtime metrics (Deribit, Kalshi) with metadata metrics (CFB, ASOS, METAR).
+Combines realtime metrics (Deribit, Kalshi) with metadata metrics (CFB, ASOS).
 """
 
 import asyncio
@@ -27,8 +27,7 @@ STATUS_REPORT_ERRORS = (
 )
 
 
-# Constants
-_CONST_3 = 3
+_METADATA_SERVICE_COUNT = 2
 
 
 class MessageMetricsCollector:
@@ -50,25 +49,23 @@ class MessageMetricsCollector:
         except STATUS_REPORT_ERRORS as exc:
             raise RuntimeError("Failed to collect realtime message metrics") from exc
 
-        metadata_tasks = [self.metadata_store.get_service_metadata(name) for name in ["cfb", "asos", "metar"]]
+        metadata_tasks = [self.metadata_store.get_service_metadata(name) for name in ["cfb", "asos"]]
         try:
             metadata_results = await asyncio.gather(*metadata_tasks)
         except STATUS_REPORT_ERRORS as exc:
             raise DataError("Failed to collect metadata message metrics") from exc
 
-        if len(metadata_results) != _CONST_3:
-            raise DataError(f"Expected metadata for ['cfb', 'asos', 'metar'], got {len(metadata_results)} entries")
+        if len(metadata_results) != _METADATA_SERVICE_COUNT:
+            raise DataError(f"Expected metadata for ['cfb', 'asos'], got {len(metadata_results)} entries")
 
         cfb_messages = self._require_metadata_value("cfb", metadata_results[0], "messages_last_minute")
         asos_messages = self._require_metadata_value("asos", metadata_results[1], "messages_last_65_minutes")
-        metar_messages = self._require_metadata_value("metar", metadata_results[2], "messages_last_65_minutes")
 
         return {
             "deribit_messages_60s": deribit_messages_60s,
             "kalshi_messages_60s": kalshi_messages_60s,
             "cfb_messages_60s": cfb_messages,
             "asos_messages_65m": asos_messages,
-            "metar_messages_65m": metar_messages,
         }
 
     @staticmethod

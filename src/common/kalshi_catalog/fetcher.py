@@ -7,6 +7,7 @@ import logging
 from datetime import datetime, timezone
 from typing import Any, Callable, Dict, List, Optional
 
+from ..kalshi_api.client_helpers.errors import KalshiClientError
 from .types import CatalogDiscoveryError
 
 logger = logging.getLogger(__name__)
@@ -138,7 +139,7 @@ async def _fetch_with_semaphore(
     async with semaphore:
         try:
             result = await fetch_event_details(client, ticker)
-        except (ValueError, KeyError, RuntimeError) as exc:  # policy_guard: allow-silent-handler
+        except (ValueError, KeyError, RuntimeError, KalshiClientError) as exc:  # policy_guard: allow-silent-handler
             logger.warning("Failed to fetch event %s: %s", ticker, exc)
             return (ticker, None, exc)
         else:

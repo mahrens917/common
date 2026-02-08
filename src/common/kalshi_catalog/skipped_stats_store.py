@@ -22,8 +22,6 @@ def _stats_to_info(stats: SkippedMarketStats) -> SkippedMarketsInfo:
     """Convert internal stats to serializable info."""
     return SkippedMarketsInfo(
         total_skipped=stats.total_skipped,
-        by_strike_type=dict(stats.by_strike_type),
-        by_category=dict(stats.by_category),
     )
 
 
@@ -41,8 +39,6 @@ async def store_skipped_stats(
     data: Dict[str, Any] = {
         "timestamp": int(time.time()),
         "total_skipped": info.total_skipped,
-        "by_strike_type": info.by_strike_type,
-        "by_category": info.by_category,
     }
     json_data = json.dumps(data)
     await ensure_awaitable(redis.set(REDIS_KEY, json_data, ex=TTL_SECONDS))

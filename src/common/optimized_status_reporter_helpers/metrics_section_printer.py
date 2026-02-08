@@ -49,9 +49,6 @@ class MetricsSectionPrinter(StatusLinePrinterBase):
             asos_changes = self.data_coercion.int_or_default(status_data.get("asos_messages_65m"), 0)
             self._emit_status_line(f"  🟢 ASOS Temperature Changes - {asos_changes:,}")
 
-        metar_changes = self.data_coercion.int_or_default(status_data.get("metar_messages_65m"), None)
-        self._emit_status_line(f"  🟢 METAR Temperature Changes - {metar_changes:,}")
-
     def print_all_health_sections(self, status_data: Dict[str, Any]) -> None:
         """Print all health sections (message and weather metrics)."""
         self.print_message_metrics_section(status_data)

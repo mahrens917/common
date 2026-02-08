@@ -70,6 +70,19 @@ def build_cfb_config() -> Dict[str, Any]:
     }
 
 
+def build_poly_config(ws_config: Dict[str, Any]) -> Dict[str, Any]:
+    """Build Poly service-specific configuration.
+
+    Raises:
+        KeyError: If required configuration keys are missing from websocket_config.json
+    """
+    poly_conn = ws_config["poly"]["connection"]
+    return {
+        "ping_interval_seconds": poly_conn["ping_interval_seconds"],
+        "ping_timeout_seconds": poly_conn["ping_timeout_seconds"],
+    }
+
+
 def get_service_specific_config(service_name: str) -> Dict[str, Any]:
     """Get service-specific configuration overrides."""
     if service_name == "weather":
@@ -87,5 +100,8 @@ def get_service_specific_config(service_name: str) -> Dict[str, Any]:
 
     if service_name == "deribit":
         return build_deribit_config(ws_config)
+
+    if service_name == "poly":
+        return build_poly_config(ws_config)
 
     return dict()

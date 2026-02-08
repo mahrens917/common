@@ -20,7 +20,6 @@ logger = logging.getLogger(__name__)
 
 
 DEFAULT_CATEGORY = "Unknown"
-MAX_TICKERS_TO_DISPLAY = 5
 
 
 async def discover_with_skipped_stats(
@@ -78,8 +77,6 @@ async def discover_with_skipped_stats(
 
     skipped_info = SkippedMarketsInfo(
         total_skipped=skipped_stats.total_skipped,
-        by_strike_type=dict(skipped_stats.by_strike_type),
-        by_category=dict(skipped_stats.by_category),
     )
 
     return discovered, skipped_info
@@ -167,13 +164,6 @@ def _report_progress(progress: Callable[[str], None] | None, message: str) -> No
         progress(message)
 
 
-def _get_ellipsis_suffix(items: List[str]) -> str:
-    """Return ellipsis suffix if list exceeds display limit."""
-    if len(items) > MAX_TICKERS_TO_DISPLAY:
-        return "..."
-    return ""
-
-
 def _log_skipped_stats(skipped_stats: SkippedMarketStats) -> None:
     """Log summary of skipped markets."""
     if skipped_stats.total_skipped == 0:
@@ -181,12 +171,8 @@ def _log_skipped_stats(skipped_stats: SkippedMarketStats) -> None:
     logger.info("Skipped %d markets total", skipped_stats.total_skipped)
     if skipped_stats.by_zero_volume > 0:
         logger.info("  zero volume: %d markets", skipped_stats.by_zero_volume)
-    for strike_type, tickers in sorted(skipped_stats.by_strike_type.items()):
-        display = ", ".join(tickers[:MAX_TICKERS_TO_DISPLAY])
-        suffix = _get_ellipsis_suffix(tickers)
-        logger.info("  strike_type='%s': %d markets (%s%s)", strike_type, len(tickers), display, suffix)
-    for category, count in sorted(skipped_stats.by_category.items(), key=lambda x: -x[1]):
-        logger.info("  category='%s': %d markets skipped", category, count)
+    if skipped_stats.by_empty_orderbook > 0:
+        logger.info("  empty orderbook: %d markets", skipped_stats.by_empty_orderbook)
 
 
 __all__ = [

@@ -149,7 +149,6 @@ def _build_status_dict(data: StatusDictData) -> Dict[str, Any]:
         "kalshi_messages_60s": data.message_metrics["kalshi_messages_60s"],
         "cfb_messages_60s": data.message_metrics["cfb_messages_60s"],
         "asos_messages_65m": data.message_metrics["asos_messages_65m"],
-        "metar_messages_65m": data.message_metrics["metar_messages_65m"],
         "weather_temperatures": data.weather_temperatures,
         "stale_logs": data.stale_logs,
         "log_activity": data.log_activity_map,

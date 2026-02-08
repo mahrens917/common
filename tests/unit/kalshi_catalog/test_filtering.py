@@ -108,8 +108,8 @@ class TestFilterMarketsForWindow:
         far_future = datetime.now(timezone.utc) + timedelta(hours=2)
         far_close_time = far_future.isoformat()
         markets = [
-            {"close_time": close_time, "ticker": "M1", "strike_type": "greater"},
-            {"close_time": far_close_time, "ticker": "M2", "strike_type": "greater"},
+            {"close_time": close_time, "ticker": "M1", "yes_bid": 40, "yes_ask": 45},
+            {"close_time": far_close_time, "ticker": "M2", "yes_bid": 40, "yes_ask": 45},
         ]
         result = filter_markets_for_window(markets, 3600)
         assert len(result) == 1
@@ -120,52 +120,20 @@ class TestFilterMarketsForWindow:
         future = datetime.now(timezone.utc) + timedelta(minutes=30)
         close_time = future.isoformat()
         markets = [
-            {"close_time": close_time, "ticker": "M1", "strike_type": "less"},
+            {"close_time": close_time, "ticker": "M1", "yes_bid": 40, "yes_ask": 45},
             "not a dict",
             None,
         ]
         result = filter_markets_for_window(markets, 3600)
         assert len(result) == 1
 
-    def test_allows_all_supported_strike_types(self) -> None:
-        """Test allows all supported strike types including custom/functional/structured."""
-        future = datetime.now(timezone.utc) + timedelta(minutes=30)
-        close_time = future.isoformat()
-        markets = [
-            {"close_time": close_time, "ticker": "M1", "strike_type": "greater"},
-            {"close_time": close_time, "ticker": "M2", "strike_type": "custom"},
-            {"close_time": close_time, "ticker": "M3", "strike_type": "functional"},
-            {"close_time": close_time, "ticker": "M4", "strike_type": "structured"},
-            {"close_time": close_time, "ticker": "M5", "strike_type": "between"},
-        ]
-        result = filter_markets_for_window(markets, 3600)
-        assert len(result) == 5
-        tickers = [m["ticker"] for m in result]
-        assert "M1" in tickers
-        assert "M2" in tickers
-        assert "M3" in tickers
-        assert "M4" in tickers
-        assert "M5" in tickers
-
-    def test_filters_out_missing_strike_type(self) -> None:
-        """Test filters out markets without strike_type field."""
-        future = datetime.now(timezone.utc) + timedelta(minutes=30)
-        close_time = future.isoformat()
-        markets = [
-            {"close_time": close_time, "ticker": "M1", "strike_type": "greater"},
-            {"close_time": close_time, "ticker": "M2"},
-        ]
-        result = filter_markets_for_window(markets, 3600)
-        assert len(result) == 1
-        assert result[0]["ticker"] == "M1"
-
     def test_filters_out_zero_volume_markets(self) -> None:
         """Test filters out markets with volume == 0."""
         future = datetime.now(timezone.utc) + timedelta(minutes=30)
         close_time = future.isoformat()
         markets = [
-            {"close_time": close_time, "ticker": "M1", "strike_type": "greater", "volume": 100},
-            {"close_time": close_time, "ticker": "M2", "strike_type": "greater", "volume": 0},
+            {"close_time": close_time, "ticker": "M1", "volume": 100, "yes_bid": 40, "yes_ask": 45},
+            {"close_time": close_time, "ticker": "M2", "volume": 0, "yes_bid": 40, "yes_ask": 45},
         ]
         result = filter_markets_for_window(markets, 3600)
         assert len(result) == 1
@@ -177,33 +145,70 @@ class TestFilterMarketsForWindow:
         close_time = future.isoformat()
         stats = SkippedMarketStats()
         markets = [
-            {"close_time": close_time, "ticker": "M1", "strike_type": "greater", "volume": 0},
-            {"close_time": close_time, "ticker": "M2", "strike_type": "greater", "volume": 0},
+            {"close_time": close_time, "ticker": "M1", "volume": 0, "yes_bid": 40, "yes_ask": 45},
+            {"close_time": close_time, "ticker": "M2", "volume": 0, "yes_bid": 40, "yes_ask": 45},
         ]
         filter_markets_for_window(markets, 3600, skipped_stats=stats)
         assert stats.by_zero_volume == 2
         assert stats.total_skipped == 2
-
-    def test_allows_markets_without_volume_field(self) -> None:
-        """Test markets missing the volume field are not filtered out."""
-        future = datetime.now(timezone.utc) + timedelta(minutes=30)
-        close_time = future.isoformat()
-        markets = [
-            {"close_time": close_time, "ticker": "M1", "strike_type": "greater"},
-        ]
-        result = filter_markets_for_window(markets, 3600)
-        assert len(result) == 1
 
     def test_allows_markets_with_nonzero_volume(self) -> None:
         """Test markets with positive volume pass through."""
         future = datetime.now(timezone.utc) + timedelta(minutes=30)
         close_time = future.isoformat()
         markets = [
-            {"close_time": close_time, "ticker": "M1", "strike_type": "greater", "volume": 1},
-            {"close_time": close_time, "ticker": "M2", "strike_type": "greater", "volume": 500},
+            {"close_time": close_time, "ticker": "M1", "volume": 1, "yes_bid": 40, "yes_ask": 45},
+            {"close_time": close_time, "ticker": "M2", "volume": 500, "yes_bid": 40, "yes_ask": 45},
         ]
         result = filter_markets_for_window(markets, 3600)
         assert len(result) == 2
+
+    def test_filters_out_empty_orderbook(self) -> None:
+        """Test filters out markets with no yes_bid and no yes_ask."""
+        future = datetime.now(timezone.utc) + timedelta(minutes=30)
+        close_time = future.isoformat()
+        markets = [
+            {"close_time": close_time, "ticker": "M1", "yes_bid": 40, "yes_ask": 45},
+            {"close_time": close_time, "ticker": "M2"},
+            {"close_time": close_time, "ticker": "M3", "yes_bid": None, "yes_ask": None},
+        ]
+        result = filter_markets_for_window(markets, 3600)
+        assert len(result) == 1
+        assert result[0]["ticker"] == "M1"
+
+    def test_allows_market_with_only_bid(self) -> None:
+        """Test allows market that has yes_bid but no yes_ask."""
+        future = datetime.now(timezone.utc) + timedelta(minutes=30)
+        close_time = future.isoformat()
+        markets = [
+            {"close_time": close_time, "ticker": "M1", "yes_bid": 40},
+        ]
+        result = filter_markets_for_window(markets, 3600)
+        assert len(result) == 1
+
+    def test_allows_market_with_only_ask(self) -> None:
+        """Test allows market that has yes_ask but no yes_bid."""
+        future = datetime.now(timezone.utc) + timedelta(minutes=30)
+        close_time = future.isoformat()
+        markets = [
+            {"close_time": close_time, "ticker": "M1", "yes_ask": 45},
+        ]
+        result = filter_markets_for_window(markets, 3600)
+        assert len(result) == 1
+
+    def test_empty_orderbook_tracks_skipped_stats(self) -> None:
+        """Test empty orderbook markets are tracked in SkippedMarketStats."""
+        future = datetime.now(timezone.utc) + timedelta(minutes=30)
+        close_time = future.isoformat()
+        stats = SkippedMarketStats()
+        markets = [
+            {"close_time": close_time, "ticker": "M1"},
+            {"close_time": close_time, "ticker": "M2", "yes_bid": None, "yes_ask": None},
+            {"close_time": close_time, "ticker": "M3", "yes_bid": 40, "yes_ask": 45},
+        ]
+        filter_markets_for_window(markets, 3600, skipped_stats=stats)
+        assert stats.by_empty_orderbook == 2
+        assert stats.total_skipped == 2
 
 
 class TestConvertToDiscoveredMarket:

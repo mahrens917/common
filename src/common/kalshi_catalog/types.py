@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import Any, Dict, List
+from typing import Any, Dict
 
 
 @dataclass
@@ -34,8 +34,6 @@ class SkippedMarketsInfo:
     """Information about markets skipped during discovery."""
 
     total_skipped: int
-    by_strike_type: Dict[str, List[str]]
-    by_category: Dict[str, int]
 
 
 class CatalogDiscoveryError(RuntimeError):

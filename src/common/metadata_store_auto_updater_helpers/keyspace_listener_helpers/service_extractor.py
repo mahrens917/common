@@ -29,7 +29,6 @@ class ServiceExtractor:
             "btc",
             "eth",
             "asos",
-            "metar",
             "KAUS",
             "KMDW",
             "KORD",

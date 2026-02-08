@@ -7,6 +7,7 @@ from typing import Any, Dict
 
 import aiohttp
 
+from ..rate_limiter import RateLimiter
 from .client_helpers.errors import KalshiClientError
 
 logger = logging.getLogger(__name__)
@@ -41,6 +42,7 @@ class RequestExecutor:
         self._max_retries = max_retries
         self._backoff_base = backoff_base
         self._backoff_max = backoff_max
+        self._rate_limiter = RateLimiter()
 
     async def execute_request(
         self, method_upper: str, url: str, request_kwargs: Dict[str, Any], path: str, operation_name: str
@@ -68,10 +70,12 @@ class RequestExecutor:
     async def _execute_single_attempt(
         self, session: aiohttp.ClientSession, method_upper: str, url: str, request_kwargs: Dict[str, Any], ctx: _AttemptContext
     ) -> Dict[str, Any] | _RetryResult:
+        await self._rate_limiter.wait()
         try:
             async with session.request(method_upper, url, **request_kwargs) as response:
                 return await self._handle_response(response, ctx)
         except (aiohttp.ClientError, TimeoutError) as exc:
+            self._rate_limiter.record_error()
             result = self._handle_client_error(exc, ctx)
             if isinstance(result, _RetryResult):
                 return result
@@ -82,9 +86,12 @@ class RequestExecutor:
             return self._handle_rate_limit(ctx)
         if response.status in HTTP_RETRYABLE_SERVER_ERRORS:
             return self._handle_server_error(response.status, ctx)
-        return await self._parse_json_response(response, await response.text(), path=ctx.path)
+        result = await self._parse_json_response(response, await response.text(), path=ctx.path)
+        self._rate_limiter.record_success()
+        return result
 
     def _handle_rate_limit(self, ctx: _AttemptContext) -> _RetryResult:
+        self._rate_limiter.record_rate_limit()
         if ctx.attempt >= ctx.max_attempts:
             raise KalshiClientError(f"Kalshi rate limit exceeded for {ctx.op} after {ctx.max_attempts} attempts")
         delay = self._compute_retry_delay(ctx.attempt)

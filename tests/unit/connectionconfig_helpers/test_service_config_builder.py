@@ -8,6 +8,7 @@ from common.connectionconfig_helpers.service_config_builder import (
     build_cfb_config,
     build_deribit_config,
     build_kalshi_config,
+    build_poly_config,
     get_service_specific_config,
 )
 
@@ -46,10 +47,14 @@ TEST_WEATHER_MAX_CONSECUTIVE_FAILURES = 12
 TEST_WEATHER_HEALTH_CHECK_INTERVAL = 70
 TEST_WEATHER_SUBSCRIPTION_TIMEOUT = 150
 
+TEST_POLY_PING_INTERVAL = 20
+TEST_POLY_PING_TIMEOUT = 20
+
 TEST_SERVICE_NAME_WEATHER = "weather"
 TEST_SERVICE_NAME_CFB = "cfb"
 TEST_SERVICE_NAME_KALSHI = "kalshi"
 TEST_SERVICE_NAME_DERIBIT = "deribit"
+TEST_SERVICE_NAME_POLY = "poly"
 TEST_SERVICE_NAME_UNKNOWN = "unknown_service"
 
 
@@ -185,6 +190,40 @@ class TestBuildCfbConfig:
         assert result["reconnection_initial_delay_seconds"] == TEST_CFB_RECONNECTION_INITIAL_DELAY
 
 
+class TestBuildPolyConfig:
+    """Tests for build_poly_config function."""
+
+    def test_returns_poly_config_with_all_fields(self) -> None:
+        """Returns Poly config with all required fields."""
+        mock_ws_config = {
+            "poly": {
+                "connection": {
+                    "ping_interval_seconds": TEST_POLY_PING_INTERVAL,
+                    "ping_timeout_seconds": TEST_POLY_PING_TIMEOUT,
+                }
+            }
+        }
+
+        result = build_poly_config(mock_ws_config)
+
+        assert result["ping_interval_seconds"] == TEST_POLY_PING_INTERVAL
+        assert result["ping_timeout_seconds"] == TEST_POLY_PING_TIMEOUT
+
+    def test_raises_key_error_when_missing_poly_key(self) -> None:
+        """Raises KeyError when poly key is missing."""
+        mock_ws_config = {"other_service": {}}
+
+        with pytest.raises(KeyError):
+            build_poly_config(mock_ws_config)
+
+    def test_raises_key_error_when_missing_connection_key(self) -> None:
+        """Raises KeyError when connection key is missing."""
+        mock_ws_config = {"poly": {}}
+
+        with pytest.raises(KeyError):
+            build_poly_config(mock_ws_config)
+
+
 class TestGetServiceSpecificConfig:
     """Tests for get_service_specific_config function."""
 
@@ -278,6 +317,25 @@ class TestGetServiceSpecificConfig:
 
         assert result["connection_timeout_seconds"] == TEST_DERIBIT_CONNECTION_TIMEOUT
         assert result["request_timeout_seconds"] == TEST_DERIBIT_REQUEST_TIMEOUT
+
+    def test_returns_poly_config_when_service_name_is_poly(self) -> None:
+        """Returns Poly config when service name is poly."""
+        mock_ws_config = {
+            "poly": {
+                "connection": {
+                    "ping_interval_seconds": TEST_POLY_PING_INTERVAL,
+                    "ping_timeout_seconds": TEST_POLY_PING_TIMEOUT,
+                }
+            }
+        }
+        with patch(
+            "common.connectionconfig_helpers.service_config_builder.load_websocket_config",
+            return_value=mock_ws_config,
+        ):
+            result = get_service_specific_config(TEST_SERVICE_NAME_POLY)
+
+        assert result["ping_interval_seconds"] == TEST_POLY_PING_INTERVAL
+        assert result["ping_timeout_seconds"] == TEST_POLY_PING_TIMEOUT
 
     def test_returns_empty_dict_for_unknown_service_name(self) -> None:
         """Returns empty dict for unknown service name."""

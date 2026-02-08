@@ -98,7 +98,7 @@ async def _persist_counts(metadata_store, service_name: str, counts: dict) -> No
     sixty_seconds = counts["sixty_seconds"]
     sixty_five_minutes = counts["sixty_five_minutes"]
 
-    if service_name in ["asos", "metar"]:
+    if service_name == "asos":
         await metadata_store.update_weather_time_window_counts(service_name, hour, sixty_seconds, sixty_five_minutes)
         logger.debug(f"Updated weather time windows for {service_name}: hour={hour}, " f"60s={sixty_seconds}, 65m={sixty_five_minutes}")
         return

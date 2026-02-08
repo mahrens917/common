@@ -43,8 +43,8 @@ class TestProcessEvent:
             "title": "Test Event",
             "category": "Crypto",
             "markets": [
-                {"ticker": "M1", "close_time": close_time, "cap_strike": 100.0, "strike_type": "less"},
-                {"ticker": "M2", "close_time": close_time, "floor_strike": 50.0, "strike_type": "greater"},
+                {"ticker": "M1", "close_time": close_time, "cap_strike": 100.0, "yes_bid": 40, "yes_ask": 45},
+                {"ticker": "M2", "close_time": close_time, "floor_strike": 50.0, "yes_bid": 50, "yes_ask": 55},
             ],
         }
         stats = SkippedMarketStats()
@@ -64,8 +64,8 @@ class TestProcessEvent:
             "title": "Test Event",
             "category": "Crypto",
             "markets": [
-                {"ticker": "M1", "close_time": close_time, "cap_strike": 100.0, "strike_type": "less"},
-                {"ticker": "M2", "close_time": close_time, "floor_strike": 50.0, "strike_type": "greater"},
+                {"ticker": "M1", "close_time": close_time, "cap_strike": 100.0, "yes_bid": 40, "yes_ask": 45},
+                {"ticker": "M2", "close_time": close_time, "floor_strike": 50.0, "yes_bid": 50, "yes_ask": 55},
             ],
         }
         stats = SkippedMarketStats()
@@ -95,8 +95,8 @@ class TestProcessEvent:
             "mutually_exclusive": True,
             "title": "Test",
             "markets": [
-                {"ticker": "M1", "close_time": close_time, "cap_strike": 100.0, "strike_type": "less"},
-                {"ticker": "M2", "close_time": close_time, "floor_strike": 50.0, "strike_type": "greater"},
+                {"ticker": "M1", "close_time": close_time, "cap_strike": 100.0, "yes_bid": 40, "yes_ask": 45},
+                {"ticker": "M2", "close_time": close_time, "floor_strike": 50.0, "yes_bid": 50, "yes_ask": 55},
             ],
         }
         stats = SkippedMarketStats()
@@ -110,7 +110,7 @@ class TestProcessEvent:
         details: Dict[str, Any] = {
             "mutually_exclusive": True,
             "title": "Test",
-            "markets": [{"ticker": "M1", "close_time": close_time, "cap_strike": 100.0, "strike_type": "less"}],
+            "markets": [{"ticker": "M1", "close_time": close_time, "cap_strike": 100.0, "yes_bid": 40, "yes_ask": 45}],
         }
         stats = SkippedMarketStats()
         with pytest.raises(ValueError, match="minimum required"):
@@ -129,8 +129,8 @@ class TestProcessAllEvents:
                 "mutually_exclusive": True,
                 "title": "Event 1",
                 "markets": [
-                    {"ticker": "M1", "close_time": close_time, "cap_strike": 100.0, "strike_type": "less"},
-                    {"ticker": "M2", "close_time": close_time, "floor_strike": 50.0, "strike_type": "greater"},
+                    {"ticker": "M1", "close_time": close_time, "cap_strike": 100.0, "yes_bid": 40, "yes_ask": 45},
+                    {"ticker": "M2", "close_time": close_time, "floor_strike": 50.0, "yes_bid": 50, "yes_ask": 55},
                 ],
             },
         }
@@ -148,14 +148,14 @@ class TestProcessAllEvents:
                 "mutually_exclusive": True,
                 "title": "Event 1",
                 "markets": [
-                    {"ticker": "M1", "close_time": close_time, "cap_strike": 100.0, "strike_type": "less"},
-                    {"ticker": "M2", "close_time": close_time, "floor_strike": 50.0, "strike_type": "greater"},
+                    {"ticker": "M1", "close_time": close_time, "cap_strike": 100.0, "yes_bid": 40, "yes_ask": 45},
+                    {"ticker": "M2", "close_time": close_time, "floor_strike": 50.0, "yes_bid": 50, "yes_ask": 55},
                 ],
             },
             "E2": {
                 "mutually_exclusive": False,
                 "title": "Event 2",
-                "markets": [{"ticker": "M3", "close_time": close_time, "strike_type": "less"}],
+                "markets": [{"ticker": "M3", "close_time": close_time, "yes_bid": 40, "yes_ask": 45}],
             },
         }
         stats = SkippedMarketStats()
@@ -176,8 +176,8 @@ class TestDiscoverWithSkippedStats:
         client.api_request.side_effect = [
             {
                 "markets": [
-                    {"ticker": "M1", "event_ticker": "E1", "close_time": close_time, "strike_type": "less"},
-                    {"ticker": "M2", "event_ticker": "E1", "close_time": close_time, "strike_type": "greater"},
+                    {"ticker": "M1", "event_ticker": "E1", "close_time": close_time},
+                    {"ticker": "M2", "event_ticker": "E1", "close_time": close_time},
                 ],
                 "cursor": None,
             },
@@ -187,8 +187,8 @@ class TestDiscoverWithSkippedStats:
                     "mutually_exclusive": True,
                     "title": "Test Event",
                     "markets": [
-                        {"ticker": "M1", "close_time": close_time, "cap_strike": 100.0, "strike_type": "less"},
-                        {"ticker": "M2", "close_time": close_time, "floor_strike": 50.0, "strike_type": "greater"},
+                        {"ticker": "M1", "close_time": close_time, "cap_strike": 100.0, "yes_bid": 40, "yes_ask": 45},
+                        {"ticker": "M2", "close_time": close_time, "floor_strike": 50.0, "yes_bid": 50, "yes_ask": 55},
                     ],
                 },
             },
@@ -201,48 +201,6 @@ class TestDiscoverWithSkippedStats:
         assert len(events) == 1
         assert events[0].event_ticker == "E1"
         assert skipped_info.total_skipped == 0
-
-    @pytest.mark.asyncio
-    async def test_returns_skipped_info_for_unsupported_types(self) -> None:
-        """Test returns skipped info for markets with unsupported strike types."""
-        future = datetime.now(timezone.utc) + timedelta(minutes=30)
-        close_time = future.isoformat()
-        client = AsyncMock()
-        client.api_request.side_effect = [
-            {
-                "markets": [
-                    {"ticker": "M1", "event_ticker": "E1", "close_time": close_time, "strike_type": "less"},
-                    {"ticker": "M2", "event_ticker": "E1", "close_time": close_time, "strike_type": "unsupported"},
-                ],
-                "cursor": None,
-            },
-            {
-                "event": {
-                    "event_ticker": "E1",
-                    "mutually_exclusive": True,
-                    "title": "Test Event",
-                    "markets": [
-                        {"ticker": "M1", "close_time": close_time, "cap_strike": 100.0, "strike_type": "less"},
-                        {
-                            "ticker": "M2",
-                            "close_time": close_time,
-                            "floor_strike": 50.0,
-                            "strike_type": "unsupported",
-                            "category": "Crypto",
-                        },
-                        {"ticker": "M3", "close_time": close_time, "floor_strike": 75.0, "strike_type": "greater"},
-                    ],
-                },
-            },
-        ]
-        events, skipped_info = await discover_with_skipped_stats(
-            client,
-            expiry_window_seconds=3600,
-            min_markets_per_event=2,
-        )
-        assert len(events) == 1
-        assert skipped_info.total_skipped == 1
-        assert "unsupported" in skipped_info.by_strike_type
 
     @pytest.mark.asyncio
     async def test_calls_progress_callback(self) -> None:
@@ -266,32 +224,31 @@ class TestLogSkippedStats:
         stats = SkippedMarketStats()
         _log_skipped_stats(stats)
 
-    def test_logs_skipped_stats_with_data(self, caplog) -> None:
-        """Test logs skipped stats when markets were skipped."""
+    def test_logs_zero_volume_stats(self, caplog) -> None:
+        """Test logs skipped stats when zero-volume markets were skipped."""
         import logging
 
         stats = SkippedMarketStats()
-        stats.add_skipped("M1", "unsupported", "Crypto")
-        stats.add_skipped("M2", "unsupported", "Weather")
-        stats.add_skipped("M3", "missing", "Weather")
+        stats.add_zero_volume()
+        stats.add_zero_volume()
+        stats.add_zero_volume()
 
         with caplog.at_level(logging.INFO):
             _log_skipped_stats(stats)
 
         assert "Skipped 3 markets" in caplog.text
-        assert "unsupported" in caplog.text
-        assert "missing" in caplog.text
+        assert "zero volume: 3 markets" in caplog.text
 
-    def test_truncates_long_ticker_lists(self, caplog) -> None:
-        """Test truncates ticker lists when more than MAX_TICKERS_TO_DISPLAY."""
+    def test_logs_empty_orderbook_stats(self, caplog) -> None:
+        """Test logs skipped stats when empty-orderbook markets were skipped."""
         import logging
 
         stats = SkippedMarketStats()
-        for i in range(10):
-            stats.add_skipped(f"M{i}", "unsupported", "Crypto")
+        stats.add_empty_orderbook()
+        stats.add_empty_orderbook()
 
         with caplog.at_level(logging.INFO):
             _log_skipped_stats(stats)
 
-        assert "..." in caplog.text
-        assert "10 markets" in caplog.text
+        assert "Skipped 2 markets" in caplog.text
+        assert "empty orderbook: 2 markets" in caplog.text

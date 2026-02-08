@@ -14,7 +14,6 @@ KNOWN_SERVICES: Set[str] = {
     "btc",
     "eth",
     "asos",
-    "metar",
     "KAUS",
     "KMDW",
     "KORD",

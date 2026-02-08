@@ -50,5 +50,11 @@
       "exponential_base": 2,
       "jitter_factor": 0.1
     }
+  },
+  "poly": {
+    "connection": {
+      "ping_interval_seconds": 20,
+      "ping_timeout_seconds": 20
+    }
   }
 }

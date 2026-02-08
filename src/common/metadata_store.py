@@ -64,7 +64,7 @@ class MetadataStore:
         messages_last_minute: int,
         messages_last_65_minutes: int,
     ) -> bool:
-        """Update time-windowed message counts for weather services (ASOS/METAR)"""
+        """Update time-windowed message counts for weather services (ASOS)"""
         client = await self._connection.get_client()
         return await self._ops.update_weather_time_window_counts(
             client, service_name, messages_last_hour, messages_last_minute, messages_last_65_minutes

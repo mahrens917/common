@@ -25,8 +25,8 @@ class TestStoreSkippedStats:
         redis.set = AsyncMock()
 
         stats = SkippedMarketStats()
-        stats.add_skipped("M1", "unsupported", "Crypto")
-        stats.add_skipped("M2", "unsupported", "Weather")
+        stats.add_zero_volume()
+        stats.add_zero_volume()
 
         await store_skipped_stats(redis, stats)
 
@@ -35,7 +35,6 @@ class TestStoreSkippedStats:
         assert args[0][0] == REDIS_KEY
         stored_data = json.loads(args[0][1])
         assert stored_data["total_skipped"] == 2
-        assert "unsupported" in stored_data["by_strike_type"]
         assert args[1]["ex"] == TTL_SECONDS
 
     @pytest.mark.asyncio
