@@ -241,6 +241,8 @@ class TestModuleExports:
             "API_TYPE_QUOTE",
             "API_TYPE_VOLATILITY_INDEX",
             "BALANCE_KEY_PREFIX",
+            "DATA_CUTOFF_DAYS",
+            "DATA_CUTOFF_SECONDS",
             "DERIBIT_SUBSCRIPTION_CHANNEL",
             "DERIBIT_SUBSCRIPTION_KEY",
             "HISTORY_KEY_PREFIX",

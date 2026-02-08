@@ -22,8 +22,9 @@ from .client_helpers.errors import KalshiClientError
 
 __all__ = ["KalshiClient", "KalshiClientError", "KalshiConfig"]
 
-DEFAULT_KALSHI_REQUEST_TIMEOUT_SECONDS = 15
+DEFAULT_KALSHI_REQUEST_TIMEOUT_SECONDS = 30
 DEFAULT_KALSHI_CONNECT_TIMEOUT_SECONDS = 10
+DEFAULT_KALSHI_SOCK_READ_TIMEOUT_SECONDS = 20
 DEFAULT_KALSHI_NETWORK_MAX_RETRIES = 3
 DEFAULT_KALSHI_BACKOFF_BASE_SECONDS = 1.0
 DEFAULT_KALSHI_BACKOFF_MAX_SECONDS = 30.0
@@ -39,6 +40,7 @@ class KalshiConfig:
     base_url: str = "https://api.elections.kalshi.com"
     request_timeout_seconds: int = DEFAULT_KALSHI_REQUEST_TIMEOUT_SECONDS
     connect_timeout_seconds: int = DEFAULT_KALSHI_CONNECT_TIMEOUT_SECONDS
+    sock_read_timeout_seconds: int = DEFAULT_KALSHI_SOCK_READ_TIMEOUT_SECONDS
     network_max_retries: int = DEFAULT_KALSHI_NETWORK_MAX_RETRIES
     network_backoff_base_seconds: float = DEFAULT_KALSHI_BACKOFF_BASE_SECONDS
     network_backoff_max_seconds: float = DEFAULT_KALSHI_BACKOFF_MAX_SECONDS

@@ -11,7 +11,7 @@ class TestKalshiConfig:
     def test_defaults(self):
         config = KalshiConfig()
         assert config.base_url == "https://api.elections.kalshi.com"
-        assert config.request_timeout_seconds == 15
+        assert config.request_timeout_seconds == 30
         assert config.connect_timeout_seconds == 10
         assert config.network_max_retries == 3
         assert config.network_backoff_base_seconds == 1.0

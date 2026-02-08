@@ -27,6 +27,10 @@ class RetryPipeline(RetryPipelineHashMixin, RetryPipelineSortedSetMixin):
         self._pipeline.set(name, value, **kwargs)
         return self
 
+    def setnx(self, name: str, value: Any) -> "RetryPipeline":
+        self._pipeline.setnx(name, value)
+        return self
+
     def get(self, name: str) -> "RetryPipeline":
         self._pipeline.get(name)
         return self

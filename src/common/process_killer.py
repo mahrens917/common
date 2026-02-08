@@ -289,7 +289,7 @@ async def _terminate_processes(matching, psutil, service_name: str, wait_after_k
     """Terminate matched processes gracefully, then force kill."""
     for proc in matching:
         if not hasattr(proc, "terminate"):
-            _console(f"Could not kill process: {_safe_pid(proc)}")
+            _console(f"Could not kill process: {_safe_pid(proc)} ({service_name})")
             continue
         if not _terminate_single_process(proc, psutil, service_name):
             continue
@@ -303,7 +303,7 @@ def _terminate_single_process(proc, psutil, service_name: str) -> bool:
     try:
         proc.terminate()
     except psutil.AccessDenied:  # Expected exception, returning default value  # policy_guard: allow-silent-handler
-        _console(f"Could not kill process {_safe_pid(proc)}")
+        _console(f"Could not kill process {_safe_pid(proc)} ({service_name})")
         return False
 
     if _wait_graceful(proc, psutil, service_name):
@@ -318,11 +318,11 @@ def _wait_graceful(proc, psutil, service_name: str) -> bool:
     try:
         proc.wait(timeout=timeout)
     except psutil.TimeoutExpired:  # Expected exception in operation  # policy_guard: allow-silent-handler
-        _console(f"⏱️ Process {_safe_pid(proc)} did not terminate within " f"{timeout}s; sending SIGKILL")
+        _console(f"⏱️ Process {_safe_pid(proc)} ({service_name}) did not terminate within " f"{timeout}s; sending SIGKILL")
     except (OSError, RuntimeError, ValueError) as exc:  # Best-effort cleanup operation  # policy_guard: allow-silent-handler
-        _console(f"Could not kill process: {exc}")
+        _console(f"Could not kill process ({service_name}): {exc}")
     else:
-        _console(f"✅ Process {_safe_pid(proc)} terminated gracefully")
+        _console(f"✅ Process {_safe_pid(proc)} ({service_name}) terminated gracefully")
         return True
     return False
 
@@ -332,22 +332,22 @@ def _force_kill(proc, psutil, service_name: str) -> bool:
     try:
         proc.kill()
     except psutil.NoSuchProcess:  # Expected exception, process race condition  # policy_guard: allow-silent-handler
-        _console(f"✅ Process {_safe_pid(proc)} no longer exists")
+        _console(f"✅ Process {_safe_pid(proc)} ({service_name}) no longer exists")
         return True
     except psutil.AccessDenied:  # Expected exception, returning default value  # policy_guard: allow-silent-handler
-        _console(f"Could not kill process {_safe_pid(proc)}: permission denied")
+        _console(f"Could not kill process {_safe_pid(proc)} ({service_name}): permission denied")
         return False
 
     try:
         proc.wait(timeout=FORCE_KILL_TIMEOUT_SECONDS)
     except psutil.TimeoutExpired:  # Expected exception in operation  # policy_guard: allow-silent-handler
-        _console(f"⏱️ Process {_safe_pid(proc)} still alive after force kill timeout")
+        _console(f"⏱️ Process {_safe_pid(proc)} ({service_name}) still alive after force kill timeout")
         return False
     except psutil.NoSuchProcess:  # Expected exception in operation  # policy_guard: allow-silent-handler
-        _console(f"✅ Process {_safe_pid(proc)} no longer exists")
+        _console(f"✅ Process {_safe_pid(proc)} ({service_name}) no longer exists")
         return True
     else:
-        _console(f"✅ Process {_safe_pid(proc)} force killed")
+        _console(f"✅ Process {_safe_pid(proc)} ({service_name}) force killed")
         return True
 
 

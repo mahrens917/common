@@ -4,6 +4,7 @@ Snapshot processing for Kalshi orderbooks
 
 from __future__ import annotations
 
+import asyncio
 import logging
 from typing import Any, Dict
 
@@ -79,11 +80,15 @@ class SnapshotProcessor:
             yes_ask_size,
         )
 
-        await store_hash_fields(redis, market_key, hash_data, timestamp)
-        await store_best_prices(redis, market_key, yes_bid_price, yes_ask_price, yes_bid_size, yes_ask_size)
-        await BestPriceUpdater._recompute_direction(redis, market_key)
+        await asyncio.gather(
+            store_hash_fields(redis, market_key, hash_data, timestamp),
+            store_best_prices(redis, market_key, yes_bid_price, yes_ask_price, yes_bid_size, yes_ask_size),
+        )
 
-        await publish_market_event_throttled(redis, market_key, market_ticker, timestamp)
+        await asyncio.gather(
+            BestPriceUpdater._recompute_direction(redis, market_key),
+            publish_market_event_throttled(redis, market_key, market_ticker, timestamp),
+        )
 
         callback = self.get_update_callback()
         await callback(market_ticker, yes_bid_price, yes_ask_price)

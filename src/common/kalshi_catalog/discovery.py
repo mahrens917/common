@@ -19,77 +19,8 @@ from .types import CatalogDiscoveryError, DiscoveredEvent, SkippedMarketsInfo
 logger = logging.getLogger(__name__)
 
 
-DiscoveryResult = tuple[List[DiscoveredEvent], SkippedMarketsInfo]
-
 DEFAULT_CATEGORY = "Unknown"
 MAX_TICKERS_TO_DISPLAY = 5
-
-
-async def discover_all_markets(
-    client: Any,
-    *,
-    expiry_window_seconds: int,
-    min_markets_per_event: int = 2,
-    progress: Callable[[str], None] | None = None,
-) -> List[DiscoveredEvent]:
-    """Discover all events with valid markets.
-
-    This is the main entry point for market discovery. It:
-    1. Fetches all open markets within the expiry window
-    2. Groups markets by event_ticker
-    3. Fetches event details for each unique event
-    4. Filters markets within the time window
-    5. Validates minimum markets per event
-
-    Args:
-        client: Kalshi API client with api_request method
-        expiry_window_seconds: Maximum seconds from now for market expiry
-        min_markets_per_event: Minimum number of valid markets required per event
-        progress: Optional progress callback
-
-    Returns:
-        List of DiscoveredEvent objects with validated markets
-    """
-    now_ts = int(time.time())
-    max_ts = now_ts + expiry_window_seconds if expiry_window_seconds > 0 else None
-
-    # Step 1: Fetch all open markets with time window
-    logger.info("Fetching all open markets (window=%ss)...", expiry_window_seconds)
-    _report_progress(progress, "phase=fetch_markets")
-    markets = await fetch_all_markets(
-        client,
-        min_close_ts=now_ts,
-        max_close_ts=max_ts,
-        progress=progress,
-    )
-    logger.info("Fetched %d markets total", len(markets))
-
-    # Step 2: Group markets by event_ticker
-    event_market_groups = group_markets_by_event(markets, expiry_window_seconds)
-    unique_events = list(event_market_groups.keys())
-    logger.info("Found %d unique events from markets", len(unique_events))
-
-    # Step 3: Fetch event details for each unique event
-    _report_progress(progress, f"phase=fetch_event_details total={len(unique_events)}")
-    event_details = await fetch_event_details_batch(client, unique_events, progress=progress)
-    logger.info("Fetched details for %d events", len(event_details))
-
-    # Step 4-5: Process each event
-    skipped_stats = SkippedMarketStats()
-    discovered = _process_all_events(
-        event_details,
-        expiry_window_seconds,
-        min_markets_per_event,
-        skipped_stats,
-    )
-
-    # Final summary
-    market_count = sum(len(event.markets) for event in discovered)
-    _report_progress(progress, f"phase=done events={len(discovered)} markets={market_count}")
-    logger.info("Total: %d events with %d valid markets", len(discovered), market_count)
-
-    _log_skipped_stats(skipped_stats)
-    return discovered
 
 
 async def discover_with_skipped_stats(
@@ -98,11 +29,8 @@ async def discover_with_skipped_stats(
     expiry_window_seconds: int,
     min_markets_per_event: int = 2,
     progress: Callable[[str], None] | None = None,
-) -> DiscoveryResult:
-    """Discover markets and return both events and skipped market stats.
-
-    Same as discover_all_markets but also returns information
-    about markets that were skipped due to unsupported strike types.
+) -> tuple[List[DiscoveredEvent], SkippedMarketsInfo]:
+    """Discover all events with valid markets and skipped market stats.
 
     Args:
         client: Kalshi API client with api_request method
@@ -250,7 +178,9 @@ def _log_skipped_stats(skipped_stats: SkippedMarketStats) -> None:
     """Log summary of skipped markets."""
     if skipped_stats.total_skipped == 0:
         return
-    logger.info("Skipped %d markets with unsupported strike types", skipped_stats.total_skipped)
+    logger.info("Skipped %d markets total", skipped_stats.total_skipped)
+    if skipped_stats.by_zero_volume > 0:
+        logger.info("  zero volume: %d markets", skipped_stats.by_zero_volume)
     for strike_type, tickers in sorted(skipped_stats.by_strike_type.items()):
         display = ", ".join(tickers[:MAX_TICKERS_TO_DISPLAY])
         suffix = _get_ellipsis_suffix(tickers)
@@ -260,7 +190,5 @@ def _log_skipped_stats(skipped_stats: SkippedMarketStats) -> None:
 
 
 __all__ = [
-    "DiscoveryResult",
-    "discover_all_markets",
     "discover_with_skipped_stats",
 ]

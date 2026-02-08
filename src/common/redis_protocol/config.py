@@ -59,6 +59,8 @@ HISTORY_KEY_PREFIX = "history:"
 HISTORY_TTL_SECONDS = 7200  # 2 hours (consumers look back 65 minutes max)
 BALANCE_KEY_PREFIX = "balance:"
 KALSHI_BALANCE_KEY = "kalshi:account:balance"
+DATA_CUTOFF_DAYS = 3
+DATA_CUTOFF_SECONDS = DATA_CUTOFF_DAYS * 24 * 60 * 60  # 259200
 
 
 # Lazy-loaded values cache
@@ -166,6 +168,8 @@ __all__ = [
     "API_TYPE_QUOTE",
     "API_TYPE_VOLATILITY_INDEX",
     "BALANCE_KEY_PREFIX",
+    "DATA_CUTOFF_DAYS",
+    "DATA_CUTOFF_SECONDS",
     "DERIBIT_SUBSCRIPTION_CHANNEL",
     "DERIBIT_SUBSCRIPTION_KEY",
     "HISTORY_KEY_PREFIX",

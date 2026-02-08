@@ -4,10 +4,10 @@ from datetime import datetime, timedelta, timezone
 from typing import Any, Dict
 
 from common.kalshi_catalog.filtering import (
+    SkippedMarketStats,
     compute_effective_strike,
     convert_to_discovered_market,
     filter_markets_for_window,
-    filter_mutually_exclusive_events,
     group_markets_by_event,
     is_expiring_within_window,
     sort_markets_by_strike,
@@ -93,31 +93,6 @@ class TestGroupMarketsByEvent:
         assert len(result) == 0
 
 
-class TestFilterMutuallyExclusiveEvents:
-    """Tests for filter_mutually_exclusive_events function."""
-
-    def test_filters_to_mutually_exclusive_only(self) -> None:
-        """Test filters to only mutually exclusive events."""
-        events = {
-            "E1": {"mutually_exclusive": True, "title": "Event 1"},
-            "E2": {"mutually_exclusive": False, "title": "Event 2"},
-            "E3": {"mutually_exclusive": True, "title": "Event 3"},
-        }
-        result = filter_mutually_exclusive_events(events)
-        assert len(result) == 2
-        assert "E1" in result
-        assert "E3" in result
-        assert "E2" not in result
-
-    def test_handles_missing_mutually_exclusive_field(self) -> None:
-        """Test handles events missing mutually_exclusive field."""
-        events = {
-            "E1": {"title": "Event 1"},
-        }
-        result = filter_mutually_exclusive_events(events)
-        assert len(result) == 0
-
-
 class TestFilterMarketsForWindow:
     """Tests for filter_markets_for_window function."""
 
@@ -183,6 +158,52 @@ class TestFilterMarketsForWindow:
         result = filter_markets_for_window(markets, 3600)
         assert len(result) == 1
         assert result[0]["ticker"] == "M1"
+
+    def test_filters_out_zero_volume_markets(self) -> None:
+        """Test filters out markets with volume == 0."""
+        future = datetime.now(timezone.utc) + timedelta(minutes=30)
+        close_time = future.isoformat()
+        markets = [
+            {"close_time": close_time, "ticker": "M1", "strike_type": "greater", "volume": 100},
+            {"close_time": close_time, "ticker": "M2", "strike_type": "greater", "volume": 0},
+        ]
+        result = filter_markets_for_window(markets, 3600)
+        assert len(result) == 1
+        assert result[0]["ticker"] == "M1"
+
+    def test_zero_volume_tracks_skipped_stats(self) -> None:
+        """Test zero volume markets are tracked in SkippedMarketStats."""
+        future = datetime.now(timezone.utc) + timedelta(minutes=30)
+        close_time = future.isoformat()
+        stats = SkippedMarketStats()
+        markets = [
+            {"close_time": close_time, "ticker": "M1", "strike_type": "greater", "volume": 0},
+            {"close_time": close_time, "ticker": "M2", "strike_type": "greater", "volume": 0},
+        ]
+        filter_markets_for_window(markets, 3600, skipped_stats=stats)
+        assert stats.by_zero_volume == 2
+        assert stats.total_skipped == 2
+
+    def test_allows_markets_without_volume_field(self) -> None:
+        """Test markets missing the volume field are not filtered out."""
+        future = datetime.now(timezone.utc) + timedelta(minutes=30)
+        close_time = future.isoformat()
+        markets = [
+            {"close_time": close_time, "ticker": "M1", "strike_type": "greater"},
+        ]
+        result = filter_markets_for_window(markets, 3600)
+        assert len(result) == 1
+
+    def test_allows_markets_with_nonzero_volume(self) -> None:
+        """Test markets with positive volume pass through."""
+        future = datetime.now(timezone.utc) + timedelta(minutes=30)
+        close_time = future.isoformat()
+        markets = [
+            {"close_time": close_time, "ticker": "M1", "strike_type": "greater", "volume": 1},
+            {"close_time": close_time, "ticker": "M2", "strike_type": "greater", "volume": 500},
+        ]
+        result = filter_markets_for_window(markets, 3600)
+        assert len(result) == 2
 
 
 class TestConvertToDiscoveredMarket:

@@ -48,16 +48,21 @@ class SkippedMarketStats:
 
     by_strike_type: Dict[str, List[str]] = field(default_factory=lambda: defaultdict(list))
     by_category: Dict[str, int] = field(default_factory=lambda: defaultdict(int))
+    by_zero_volume: int = 0
 
     @property
     def total_skipped(self) -> int:
         """Total number of skipped markets."""
-        return sum(len(tickers) for tickers in self.by_strike_type.values())
+        return sum(len(tickers) for tickers in self.by_strike_type.values()) + self.by_zero_volume
 
     def add_skipped(self, ticker: str, strike_type: str, category: str) -> None:
         """Record a skipped market."""
         self.by_strike_type[strike_type].append(ticker)
         self.by_category[category] += 1
+
+    def add_zero_volume(self) -> None:
+        """Record a market skipped due to zero volume."""
+        self.by_zero_volume += 1
 
 
 def is_expiring_within_window(close_time_str: str, expiry_window_seconds: int) -> bool:
@@ -115,20 +120,6 @@ def group_markets_by_event(
     return event_markets
 
 
-def filter_mutually_exclusive_events(
-    events: Dict[str, Dict[str, Any]],
-) -> Dict[str, Dict[str, Any]]:
-    """Filter to only mutually exclusive events.
-
-    Args:
-        events: Dict mapping event_ticker to event details
-
-    Returns:
-        Dict containing only mutually exclusive events
-    """
-    return {ticker: details for ticker, details in events.items() if details.get("mutually_exclusive") is True}
-
-
 def _get_strike_type(market: Dict[str, Any]) -> str:
     """Get strike type from market, normalized to lowercase."""
     strike_type = market.get("strike_type")
@@ -140,6 +131,45 @@ def _get_strike_type(market: Dict[str, Any]) -> str:
 def _has_supported_strike_type(market: Dict[str, Any]) -> bool:
     """Check if market has a supported strike type."""
     return _get_strike_type(market) in SUPPORTED_STRIKE_TYPES
+
+
+def _is_valid_market_in_window(market: Any, expiry_window_seconds: int) -> bool:
+    """Check if item is a dict with a close_time string within the expiry window."""
+    if not isinstance(market, dict):
+        return False
+    close_time = market.get("close_time")
+    if not isinstance(close_time, str):
+        return False
+    return is_expiring_within_window(close_time, expiry_window_seconds)
+
+
+def _record_unsupported_strike(
+    market: Dict[str, Any],
+    skipped_stats: SkippedMarketStats | None,
+) -> None:
+    """Log and record a market skipped for unsupported strike type."""
+    ticker = _extract_string_field(market, "ticker")
+    strike_type = _get_strike_type(market)
+    category = _extract_string_field(market, "category")
+    logger.info(
+        "Skipping market %s: unsupported strike_type '%s' (category=%s)",
+        ticker,
+        strike_type,
+        category,
+    )
+    if skipped_stats is not None:
+        skipped_stats.add_skipped(ticker, strike_type, category)
+
+
+def _record_zero_volume(
+    market: Dict[str, Any],
+    skipped_stats: SkippedMarketStats | None,
+) -> None:
+    """Log and record a market skipped for zero volume."""
+    ticker = _extract_string_field(market, "ticker")
+    logger.info("Skipping market %s: zero volume", ticker)
+    if skipped_stats is not None:
+        skipped_stats.add_zero_volume()
 
 
 def filter_markets_for_window(
@@ -161,25 +191,14 @@ def filter_markets_for_window(
         return []
     markets_in_window: List[Dict[str, Any]] = []
     for market in nested_markets:
-        if not isinstance(market, dict):
-            continue
-        close_time = market.get("close_time")
-        if not isinstance(close_time, str):
-            continue
-        if not is_expiring_within_window(close_time, expiry_window_seconds):
+        if not _is_valid_market_in_window(market, expiry_window_seconds):
             continue
         if not _has_supported_strike_type(market):
-            ticker = _extract_string_field(market, "ticker")
-            strike_type = _get_strike_type(market)
-            category = _extract_string_field(market, "category")
-            logger.info(
-                "Skipping market %s: unsupported strike_type '%s' (category=%s)",
-                ticker,
-                strike_type,
-                category,
-            )
-            if skipped_stats is not None:
-                skipped_stats.add_skipped(ticker, strike_type, category)
+            _record_unsupported_strike(market, skipped_stats)
+            continue
+        volume = market.get("volume")
+        if isinstance(volume, int) and volume == 0:
+            _record_zero_volume(market, skipped_stats)
             continue
         markets_in_window.append(market)
     return markets_in_window
@@ -251,7 +270,6 @@ __all__ = [
     "compute_effective_strike",
     "convert_to_discovered_market",
     "filter_markets_for_window",
-    "filter_mutually_exclusive_events",
     "group_markets_by_event",
     "is_expiring_within_window",
     "sort_markets_by_strike",

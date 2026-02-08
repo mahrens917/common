@@ -15,6 +15,7 @@ _API_TIMEOUT_SECONDS = 180
 _MAX_RETRIES = 5
 _INITIAL_BACKOFF_SECONDS = 1.0
 _MAX_BACKOFF_SECONDS = 60.0
+_HTTP_CLIENT_ERROR = 400
 _HTTP_RATE_LIMIT = 429
 _HTTP_SERVER_ERROR = 500
 
@@ -95,7 +96,10 @@ async def request_with_retries(
                         backoff = min(backoff * 2, _MAX_BACKOFF_SECONDS)
                         continue
 
-                    resp.raise_for_status()
+                    if resp.status >= _HTTP_CLIENT_ERROR:
+                        error_body = await resp.text()
+                        raise RuntimeError(f"Anthropic API error ({resp.status}): {error_body}")
+
                     data = await resp.json()
                     accumulate_usage_fn(data)
                     return extract_text(data)

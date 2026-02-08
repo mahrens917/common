@@ -2,7 +2,7 @@
 
 from datetime import datetime, timedelta, timezone
 from typing import Any, Dict
-from unittest.mock import AsyncMock, MagicMock, patch
+from unittest.mock import AsyncMock, MagicMock
 
 import pytest
 
@@ -11,7 +11,6 @@ from common.kalshi_catalog.discovery import (
     _process_all_events,
     _process_event,
     _report_progress,
-    discover_all_markets,
     discover_with_skipped_stats,
 )
 from common.kalshi_catalog.filtering import SkippedMarketStats
@@ -163,103 +162,6 @@ class TestProcessAllEvents:
         result = _process_all_events(events, 3600, 2, stats)
         assert len(result) == 1
         assert result[0].event_ticker == "E1"
-
-
-class TestDiscoverAllMarkets:
-    """Tests for discover_all_markets function."""
-
-    @pytest.mark.asyncio
-    async def test_discovers_markets(self) -> None:
-        """Test discovers markets end-to-end."""
-        future = datetime.now(timezone.utc) + timedelta(minutes=30)
-        close_time = future.isoformat()
-        client = AsyncMock()
-        client.api_request.side_effect = [
-            {
-                "markets": [
-                    {"ticker": "M1", "event_ticker": "E1", "close_time": close_time, "strike_type": "less"},
-                    {"ticker": "M2", "event_ticker": "E1", "close_time": close_time, "strike_type": "greater"},
-                ],
-                "cursor": None,
-            },
-            {
-                "event": {
-                    "event_ticker": "E1",
-                    "mutually_exclusive": True,
-                    "title": "Test Event",
-                    "markets": [
-                        {"ticker": "M1", "close_time": close_time, "cap_strike": 100.0, "strike_type": "less"},
-                        {"ticker": "M2", "close_time": close_time, "floor_strike": 50.0, "strike_type": "greater"},
-                    ],
-                },
-            },
-        ]
-        result = await discover_all_markets(
-            client,
-            expiry_window_seconds=3600,
-            min_markets_per_event=2,
-        )
-        assert len(result) == 1
-        assert result[0].event_ticker == "E1"
-        assert len(result[0].markets) == 2
-
-    @pytest.mark.asyncio
-    async def test_includes_non_mutually_exclusive_events(self) -> None:
-        """Test includes non-mutually exclusive events."""
-        future = datetime.now(timezone.utc) + timedelta(minutes=30)
-        close_time = future.isoformat()
-        client = AsyncMock()
-        client.api_request.side_effect = [
-            {
-                "markets": [
-                    {"ticker": "M1", "event_ticker": "E1", "close_time": close_time, "strike_type": "less"},
-                    {"ticker": "M2", "event_ticker": "E1", "close_time": close_time, "strike_type": "greater"},
-                ],
-                "cursor": None,
-            },
-            {
-                "event": {
-                    "event_ticker": "E1",
-                    "mutually_exclusive": False,
-                    "title": "Test",
-                    "markets": [
-                        {"ticker": "M1", "close_time": close_time, "strike_type": "less"},
-                        {"ticker": "M2", "close_time": close_time, "strike_type": "greater"},
-                    ],
-                },
-            },
-        ]
-        result = await discover_all_markets(
-            client,
-            expiry_window_seconds=3600,
-            min_markets_per_event=1,
-        )
-        assert len(result) == 1
-        assert result[0].mutually_exclusive is False
-
-    @pytest.mark.asyncio
-    async def test_calls_progress_callback(self) -> None:
-        """Test calls progress callback during discovery."""
-        client = AsyncMock()
-        client.api_request.return_value = {"markets": [], "cursor": None}
-        progress = MagicMock()
-        await discover_all_markets(
-            client,
-            expiry_window_seconds=3600,
-            progress=progress,
-        )
-        assert progress.call_count >= 1
-
-    @pytest.mark.asyncio
-    async def test_returns_empty_for_no_markets(self) -> None:
-        """Test returns empty list when no markets found."""
-        client = AsyncMock()
-        client.api_request.return_value = {"markets": [], "cursor": None}
-        result = await discover_all_markets(
-            client,
-            expiry_window_seconds=3600,
-        )
-        assert result == []
 
 
 class TestDiscoverWithSkippedStats:

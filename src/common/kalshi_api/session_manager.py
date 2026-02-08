@@ -28,6 +28,7 @@ class SessionManager:
             timeout = aiohttp.ClientTimeout(
                 total=self._config.request_timeout_seconds,
                 connect=self._config.connect_timeout_seconds,
+                sock_read=self._config.sock_read_timeout_seconds,
             )
             self._session = aiohttp.ClientSession(timeout=timeout)
 
