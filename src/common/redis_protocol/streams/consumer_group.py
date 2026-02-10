@@ -5,7 +5,6 @@ from __future__ import annotations
 import logging
 from typing import TYPE_CHECKING, Any, List, Tuple
 
-from ..retry import with_redis_retry
 from ..typing import ensure_awaitable
 from .constants import PENDING_CLAIM_IDLE_MS, XAUTOCLAIM_MIN_RESULT_LENGTH
 
@@ -25,18 +24,31 @@ async def ensure_consumer_group(
 
     Uses MKSTREAM to create the stream if it doesn't exist.
     Catches BUSYGROUP to make this safe to call on every startup.
+
+    Note: no ``with_redis_retry`` wrapper here — ``RetryRedisClient``
+    already provides retry semantics.  Double-wrapping caused BUSYGROUP
+    errors to be masked inside ``RedisRetryError``, crashing on startup.
     """
     try:
-        await with_redis_retry(
-            lambda: ensure_awaitable(redis_client.xgroup_create(stream, group, id=start_id, mkstream=True)),
-            context=f"xgroup_create:{stream}/{group}",
+        await ensure_awaitable(
+            redis_client.xgroup_create(stream, group, id=start_id, mkstream=True),
         )
         logger.info("Created consumer group %s on stream %s", group, stream)
     except Exception as exc:  # policy_guard: allow-broad-except
-        if "BUSYGROUP" in str(exc):
+        if _is_busygroup_error(exc):
             logger.debug("Consumer group %s already exists on %s", group, stream)
         else:
             raise
+
+
+def _is_busygroup_error(exc: BaseException) -> bool:
+    """Check if any exception in the chain is a BUSYGROUP error."""
+    current: BaseException | None = exc
+    while current is not None:
+        if "BUSYGROUP" in str(current):
+            return True
+        current = current.__cause__
+    return False
 
 
 async def claim_pending_entries(
@@ -51,9 +63,8 @@ async def claim_pending_entries(
     Uses XAUTOCLAIM to take ownership of entries that a previous consumer
     abandoned (e.g., after a crash). Returns list of (entry_id, fields) tuples.
     """
-    result: Any = await with_redis_retry(
-        lambda: ensure_awaitable(redis_client.xautoclaim(stream, group, consumer, min_idle_time=idle_ms, start_id="0-0")),
-        context=f"xautoclaim:{stream}/{group}",
+    result: Any = await ensure_awaitable(
+        redis_client.xautoclaim(stream, group, consumer, min_idle_time=idle_ms, start_id="0-0"),
     )
     # XAUTOCLAIM returns (next_start_id, [(id, fields), ...], deleted_ids)
     if not result or len(result) < XAUTOCLAIM_MIN_RESULT_LENGTH:

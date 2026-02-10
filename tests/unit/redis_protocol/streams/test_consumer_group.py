@@ -37,8 +37,19 @@ class TestEnsureConsumerGroup:
     async def test_raises_non_busygroup_errors(self, mock_redis):
         mock_redis.xgroup_create = AsyncMock(side_effect=ConnectionError("connection lost"))
 
-        with pytest.raises(RedisRetryError):
+        with pytest.raises(ConnectionError):
             await ensure_consumer_group(mock_redis, "stream:test", "my-group")
+
+    @pytest.mark.asyncio
+    async def test_handles_busygroup_wrapped_in_retry_error(self, mock_redis):
+        """BUSYGROUP wrapped in RedisRetryError by RetryRedisClient is still handled."""
+        cause = Exception("BUSYGROUP Consumer Group name already exists")
+        wrapped = RedisRetryError("xgroup_create failed after 3 attempt(s)")
+        wrapped.__cause__ = cause
+        mock_redis.xgroup_create = AsyncMock(side_effect=wrapped)
+
+        # Should not raise
+        await ensure_consumer_group(mock_redis, "stream:test", "my-group")
 
     @pytest.mark.asyncio
     async def test_custom_start_id(self, mock_redis):

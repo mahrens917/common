@@ -1,4 +1,4 @@
-"""Stream publisher — wraps XADD with retry and approximate trimming."""
+"""Stream publisher — wraps XADD with approximate trimming."""
 
 from __future__ import annotations
 
@@ -7,7 +7,6 @@ from typing import TYPE_CHECKING, Any, Dict
 
 from redis.typing import EncodableT, FieldT
 
-from ..retry import with_redis_retry
 from ..typing import ensure_awaitable
 from .constants import STREAM_DEFAULT_MAXLEN
 
@@ -39,9 +38,8 @@ async def stream_publish(
     """
     str_fields: Dict[FieldT, EncodableT] = {k: str(v) for k, v in fields.items()}
 
-    entry_id: str = await with_redis_retry(
-        lambda: ensure_awaitable(redis_client.xadd(stream_name, str_fields, maxlen=maxlen, approximate=True)),
-        context=f"xadd:{stream_name}",
+    entry_id: str = await ensure_awaitable(
+        redis_client.xadd(stream_name, str_fields, maxlen=maxlen, approximate=True),
     )
     if isinstance(entry_id, bytes):
         entry_id = entry_id.decode("utf-8")
