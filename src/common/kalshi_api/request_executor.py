@@ -14,6 +14,7 @@ logger = logging.getLogger(__name__)
 
 HTTP_TOO_MANY_REQUESTS = 429
 HTTP_RETRYABLE_SERVER_ERRORS = (500, 502, 503, 504)
+WARNING_LOG_ATTEMPT_THRESHOLD = 3
 
 
 @dataclass
@@ -102,7 +103,8 @@ class RequestExecutor:
         if ctx.attempt >= ctx.max_attempts:
             raise KalshiClientError(f"Kalshi server error {status} for {ctx.op} after {ctx.max_attempts} attempts")
         delay = self._compute_retry_delay(ctx.attempt)
-        logger.warning("Kalshi server error %d for %s (%d/%d); retrying in %.1fs", status, ctx.op, ctx.attempt, ctx.max_attempts, delay)
+        log = logger.warning if ctx.attempt >= WARNING_LOG_ATTEMPT_THRESHOLD else logger.debug
+        log("Kalshi server error %d for %s (%d/%d); retrying in %.1fs", status, ctx.op, ctx.attempt, ctx.max_attempts, delay)
         return _RetryResult(delay)
 
     def _handle_client_error(self, exc: Exception, ctx: _AttemptContext) -> KalshiClientError | _RetryResult:
@@ -110,7 +112,8 @@ class RequestExecutor:
             logger.exception("Kalshi request %s failed after %d attempts", ctx.op, ctx.max_attempts)
             return KalshiClientError(f"Kalshi request failed for {ctx.op}: {exc}")
         delay = self._compute_retry_delay(ctx.attempt)
-        logger.warning("Kalshi request %s failed (%d/%d): %s; retrying in %.1fs", ctx.op, ctx.attempt, ctx.max_attempts, exc, delay)
+        log = logger.warning if ctx.attempt >= WARNING_LOG_ATTEMPT_THRESHOLD else logger.debug
+        log("Kalshi request %s failed (%d/%d): %s; retrying in %.1fs", ctx.op, ctx.attempt, ctx.max_attempts, exc, delay)
         return _RetryResult(delay)
 
     def _compute_retry_delay(self, attempt: int) -> float:

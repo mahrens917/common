@@ -197,14 +197,6 @@ class TestChannels:
         assert config.DERIBIT_SUBSCRIPTION_CHANNEL == "deribit:subscription:updates"
         assert config.KALSHI_SUBSCRIPTION_CHANNEL == "kalshi:subscription:updates"
 
-    def test_other_channels(self):
-        """Test that other channels have expected values."""
-        from common.redis_protocol import config
-
-        assert config.PDF_CHANNEL == "pdf:updates"
-        assert config.PRICE_INDEX_CHANNEL == "price_index:updates"
-        assert config.KALSHI_CHANNEL == "kalshi:updates"
-
 
 class TestAPITypes:
     """Tests for API type constants."""
@@ -248,7 +240,6 @@ class TestModuleExports:
             "HISTORY_KEY_PREFIX",
             "HISTORY_TTL_SECONDS",
             "KALSHI_BALANCE_KEY",
-            "KALSHI_CHANNEL",
             "KALSHI_MARKET_PREFIX",
             "KALSHI_ORDERBOOK_PREFIX",
             "KALSHI_SUBSCRIPTION_CHANNEL",
@@ -259,9 +250,7 @@ class TestModuleExports:
             "MARKET_LATEST",
             "MARKET_VERIFY_WRITES",
             "PDF_BATCH_SIZE",
-            "PDF_CHANNEL",
             "PDF_SCAN_COUNT",
-            "PRICE_INDEX_CHANNEL",
             "REDIS_CONNECTION_POOL_MAXSIZE",
             "REDIS_CONNECTION_POOL_SIZE",
             "REDIS_DB",

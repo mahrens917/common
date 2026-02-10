@@ -1,0 +1,4 @@
+{
+  "default_maxlen": 10000,
+  "pending_claim_idle_ms": 30000
+}

@@ -8,6 +8,7 @@ from datetime import datetime, timezone
 from typing import TYPE_CHECKING, Dict, Optional
 
 from ..retry import with_redis_retry
+from ..streams import ALGO_SIGNAL_STREAM, MARKET_EVENT_STREAM, stream_publish
 from ..typing import ensure_awaitable
 from .ownership_helpers import algo_field
 
@@ -144,23 +145,28 @@ async def publish_market_event_update(
             if isinstance(event_ticker, bytes):
                 event_ticker = event_ticker.decode("utf-8")
 
-            channel = f"market_event_updates:{event_ticker}"
-            payload = json.dumps(
+            await stream_publish(
+                redis,
+                MARKET_EVENT_STREAM,
                 {
+                    "event_ticker": event_ticker,
                     "market_ticker": ticker,
                     "timestamp": datetime.now(timezone.utc).isoformat(),
-                }
+                },
             )
-            await with_redis_retry(
-                lambda: ensure_awaitable(redis.publish(channel, payload)),
-                context=f"publish_event:{ticker}",
-            )
-            logger.debug("Published market event update for %s to %s", ticker, channel)
+            logger.debug("Published market event update for %s to stream %s", ticker, MARKET_EVENT_STREAM)
 
-        # Publish algo signal for tracker's external provider cache
+        # Publish algo signal to stream for tracker's external provider cache
         if algo:
-            algo_channel = f"algo:signal:{ticker}"
-            algo_payload = json.dumps(
+            algo_fields: dict[str, str] = {
+                "ticker": ticker,
+                "algorithm": algo,
+            }
+            if t_ask is not None:
+                algo_fields["t_ask"] = str(t_ask)
+            if t_bid is not None:
+                algo_fields["t_bid"] = str(t_bid)
+            algo_fields["payload"] = json.dumps(
                 {
                     "ticker": ticker,
                     "t_ask": t_ask,
@@ -168,10 +174,7 @@ async def publish_market_event_update(
                     "algorithm": algo,
                 }
             )
-            await with_redis_retry(
-                lambda: ensure_awaitable(redis.publish(algo_channel, algo_payload)),
-                context=f"publish_algo_signal:{ticker}",
-            )
+            await stream_publish(redis, ALGO_SIGNAL_STREAM, algo_fields)
             logger.debug("Published algo signal for %s (%s)", ticker, algo)
     except (RuntimeError, ConnectionError, OSError) as exc:
         logger.debug("Failed to publish market event update for %s: %s", ticker, exc)

@@ -1,0 +1,9 @@
+{
+  "graceful_shutdown_timeout_seconds": 10,
+  "force_kill_timeout_seconds": 2,
+  "post_kill_wait_seconds": 2,
+  "force_kill_linger_timeout_seconds": 5,
+  "service_graceful_timeout_overrides": {
+    "monitor": 30
+  }
+}

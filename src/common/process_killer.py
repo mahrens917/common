@@ -47,14 +47,35 @@ def _console(message: str) -> None:
     print(message)
 
 
-# Process termination timeouts (seconds)
-GRACEFUL_SHUTDOWN_TIMEOUT_SECONDS = 3
-FORCE_KILL_TIMEOUT_SECONDS = 2
-POST_KILL_WAIT_SECONDS = 2
+# Process termination timeouts — loaded lazily from process_management_config.json
+_process_mgmt_config: dict | None = None
 
-SERVICE_GRACEFUL_TIMEOUT_OVERRIDES: dict[str, int] = {
-    "monitor": 30,
-}
+
+def _get_process_mgmt_config() -> dict:
+    """Load process management config on first use."""
+    global _process_mgmt_config
+    if _process_mgmt_config is None:
+        from common.config_loader import load_config
+
+        _process_mgmt_config = load_config("process_management_config.json", package="common")
+    return _process_mgmt_config
+
+
+def _graceful_shutdown_timeout() -> int:
+    return _get_process_mgmt_config()["graceful_shutdown_timeout_seconds"]
+
+
+def _force_kill_timeout() -> int:
+    return _get_process_mgmt_config()["force_kill_timeout_seconds"]
+
+
+def _post_kill_wait() -> int:
+    return _get_process_mgmt_config()["post_kill_wait_seconds"]
+
+
+def _service_graceful_overrides() -> dict[str, int]:
+    return _get_process_mgmt_config()["service_graceful_timeout_overrides"]
+
 
 # Service name to process keywords mapping
 # Note: Patterns should be specific to avoid false matches with multiprocessing
@@ -295,7 +316,7 @@ async def _terminate_processes(matching, psutil, service_name: str, wait_after_k
             continue
 
     if wait_after_kill:
-        await asyncio.sleep(POST_KILL_WAIT_SECONDS)
+        await asyncio.sleep(_post_kill_wait())
 
 
 def _terminate_single_process(proc, psutil, service_name: str) -> bool:
@@ -314,7 +335,7 @@ def _terminate_single_process(proc, psutil, service_name: str) -> bool:
 
 def _wait_graceful(proc, psutil, service_name: str) -> bool:
     """Attempt graceful termination."""
-    timeout = SERVICE_GRACEFUL_TIMEOUT_OVERRIDES.get(service_name, GRACEFUL_SHUTDOWN_TIMEOUT_SECONDS)
+    timeout = _service_graceful_overrides().get(service_name, _graceful_shutdown_timeout())
     try:
         proc.wait(timeout=timeout)
     except psutil.TimeoutExpired:  # Expected exception in operation  # policy_guard: allow-silent-handler
@@ -339,7 +360,7 @@ def _force_kill(proc, psutil, service_name: str) -> bool:
         return False
 
     try:
-        proc.wait(timeout=FORCE_KILL_TIMEOUT_SECONDS)
+        proc.wait(timeout=_force_kill_timeout())
     except psutil.TimeoutExpired:  # Expected exception in operation  # policy_guard: allow-silent-handler
         _console(f"⏱️ Process {_safe_pid(proc)} ({service_name}) still alive after force kill timeout")
         return False

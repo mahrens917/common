@@ -14,7 +14,7 @@ from ....market_filters.kalshi import extract_best_ask, extract_best_bid
 from ...orderbook_utils import build_snapshot_sides
 from ..utils_coercion import coerce_mapping as _canonical_coerce_mapping
 from .best_price_updater import BestPriceUpdater
-from .event_publisher import publish_market_event_throttled
+from .event_publisher import publish_market_event
 from .snapshot_processor_helpers.price_formatting import normalize_price_formatting
 from .snapshot_processor_helpers.redis_storage import (
     build_hash_data,
@@ -87,7 +87,7 @@ class SnapshotProcessor:
 
         await asyncio.gather(
             BestPriceUpdater._recompute_direction(redis, market_key),
-            publish_market_event_throttled(redis, market_key, market_ticker, timestamp),
+            publish_market_event(redis, market_key, market_ticker, timestamp),
         )
 
         callback = self.get_update_callback()

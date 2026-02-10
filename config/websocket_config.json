@@ -8,7 +8,7 @@
     "reconnection_backoff_multiplier": 2.0,
     "max_consecutive_failures": 10,
     "heartbeat_interval_seconds": 20,
-    "ping_interval_seconds": 20,
+    "ping_interval_seconds": 10,
     "ping_timeout_seconds": 20,
     "close_timeout_seconds": 5
   },

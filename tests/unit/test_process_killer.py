@@ -152,8 +152,8 @@ async def test_kill_existing_processes_terminates_match(monkeypatch, psutil_stub
 
     assert process.terminate_called
     assert not process.kill_called
-    assert process.wait_calls == [process_killer.GRACEFUL_SHUTDOWN_TIMEOUT_SECONDS]
-    sleep_mock.assert_awaited_once_with(process_killer.POST_KILL_WAIT_SECONDS)
+    assert process.wait_calls == [process_killer._graceful_shutdown_timeout()]
+    sleep_mock.assert_awaited_once_with(process_killer._post_kill_wait())
 
 
 @pytest.mark.asyncio
@@ -193,10 +193,10 @@ async def test_kill_existing_processes_force_kill_on_timeout(monkeypatch, psutil
     assert process.terminate_called
     assert process.kill_called
     assert process.wait_calls == [
-        process_killer.GRACEFUL_SHUTDOWN_TIMEOUT_SECONDS,
-        process_killer.FORCE_KILL_TIMEOUT_SECONDS,
+        process_killer._graceful_shutdown_timeout(),
+        process_killer._force_kill_timeout(),
     ]
-    sleep_mock.assert_awaited_once_with(process_killer.POST_KILL_WAIT_SECONDS)
+    sleep_mock.assert_awaited_once_with(process_killer._post_kill_wait())
 
 
 @pytest.mark.asyncio
@@ -409,7 +409,7 @@ async def test_kill_existing_processes_reports_force_kill_timeout(monkeypatch, p
     await process_killer.kill_existing_processes(process_killer.SERVICE_PROCESS_PATTERNS["kalshi"], "kalshi")
 
     assert any("still alive after force kill timeout" in message for message in messages)
-    sleep_mock.assert_awaited_once_with(process_killer.POST_KILL_WAIT_SECONDS)
+    sleep_mock.assert_awaited_once_with(process_killer._post_kill_wait())
 
 
 @pytest.mark.asyncio
@@ -439,7 +439,7 @@ async def test_kill_existing_processes_handles_kill_race(monkeypatch, psutil_stu
     await process_killer.kill_existing_processes(process_killer.SERVICE_PROCESS_PATTERNS["kalshi"], "kalshi")
 
     assert any("no longer exists" in message for message in messages)
-    sleep_mock.assert_awaited_once_with(process_killer.POST_KILL_WAIT_SECONDS)
+    sleep_mock.assert_awaited_once_with(process_killer._post_kill_wait())
 
 
 @pytest.mark.asyncio

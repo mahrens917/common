@@ -57,6 +57,7 @@ class TestRequestMarketUpdate:
         redis.hset = AsyncMock()
         redis.hdel = AsyncMock()
         redis.publish = AsyncMock()
+        redis.xadd = AsyncMock(return_value=b"1-0")
         return redis
 
     @pytest.mark.asyncio
@@ -124,31 +125,34 @@ class TestRequestMarketUpdate:
         result = await request_market_update(mock_redis, "market:key", "weather", 50.0, 55.0)
 
         assert result.success is True
-        assert mock_redis.publish.call_count == 2
-        channels = [call[0][0] for call in mock_redis.publish.call_args_list]
-        assert "market_event_updates:KXHIGH-KDCA-20250101" in channels
-        assert any(ch.startswith("algo:signal:") for ch in channels)
+        # Both market event and algo signal go via stream_publish (xadd)
+        _EXPECTED_XADD_CALLS_WITH_EVENT_TICKER = 2  # one for market event stream, one for algo signal stream
+        assert mock_redis.xadd.call_count == _EXPECTED_XADD_CALLS_WITH_EVENT_TICKER
 
     @pytest.mark.asyncio
     async def test_publishes_algo_signal_when_no_event_ticker(self, mock_redis):
         result = await request_market_update(mock_redis, "market:key", "weather", 50.0, 55.0)
 
         assert result.success is True
-        mock_redis.publish.assert_called_once()
-        call_args = mock_redis.publish.call_args
-        assert call_args[0][0] == "algo:signal:key"
+        # No event_ticker means only the algo signal xadd (no market event xadd)
+        mock_redis.xadd.assert_called_once()
 
     @pytest.mark.asyncio
     async def test_algo_signal_payload_format(self, mock_redis):
         import json
 
+        from common.redis_protocol.streams.constants import ALGO_SIGNAL_STREAM
+
         result = await request_market_update(mock_redis, "market:key", "weather", 50.0, 55.0, ticker="TICKER1")
 
         assert result.success is True
-        mock_redis.publish.assert_called_once()
-        call_args = mock_redis.publish.call_args
-        assert call_args[0][0] == "algo:signal:TICKER1"
-        payload = json.loads(call_args[0][1])
+        mock_redis.xadd.assert_called_once()
+        call_args = mock_redis.xadd.call_args
+        assert call_args[0][0] == ALGO_SIGNAL_STREAM
+        fields = call_args[0][1]
+        assert fields["ticker"] == "TICKER1"
+        assert fields["algorithm"] == "weather"
+        payload = json.loads(fields["payload"])
         assert payload["ticker"] == "TICKER1"
         assert payload["algorithm"] == "weather"
         assert payload["t_bid"] == 50.0
@@ -320,6 +324,7 @@ class TestBatchUpdateMarketSignals:
         pipe.execute = AsyncMock(return_value=[])
         redis.pipeline.return_value = pipe
         redis.publish = AsyncMock()
+        redis.xadd = AsyncMock(return_value=b"1-0")
         return redis
 
     @pytest.fixture
@@ -360,6 +365,7 @@ class TestExecuteBatchTransaction:
         redis = MagicMock()
         redis.hget = AsyncMock(return_value=b"EVENT123")
         redis.publish = AsyncMock()
+        redis.xadd = AsyncMock(return_value=b"1-0")
         return redis
 
     @pytest.fixture
@@ -402,7 +408,7 @@ class TestExecuteBatchTransaction:
 
     @pytest.mark.asyncio
     async def test_publish_failure_is_silent(self, mock_redis, mock_pipe, sample_signals):
-        mock_redis.publish = AsyncMock(side_effect=ConnectionError("publish failed"))
+        mock_redis.xadd = AsyncMock(side_effect=ConnectionError("publish failed"))
         result = await _execute_batch_transaction(mock_redis, mock_pipe, sample_signals, [], [], "weather")
         assert result.succeeded == ["TEST1", "TEST2"]
 
@@ -417,6 +423,7 @@ class TestPublishMarketEventUpdate:
         redis.hset = AsyncMock()
         redis.publish = AsyncMock()
         redis.hdel = AsyncMock()
+        redis.xadd = AsyncMock(return_value=b"1-0")
         return redis
 
     @pytest.mark.asyncio
@@ -429,7 +436,7 @@ class TestPublishMarketEventUpdate:
             return None
 
         mock_redis.hget = AsyncMock(side_effect=hget_side_effect)
-        mock_redis.publish = AsyncMock(side_effect=RuntimeError("publish failed"))
+        mock_redis.xadd = AsyncMock(side_effect=RuntimeError("publish failed"))
 
         with pytest.raises(RedisRetryError, match="failed after 3 attempt"):
             await request_market_update(mock_redis, "market:key", "weather", 50.0, 55.0)
@@ -459,6 +466,7 @@ class TestBatchUpdateMarketSignalsAllFailed:
         pipe.execute = AsyncMock(return_value=[])
         redis.pipeline.return_value = pipe
         redis.publish = AsyncMock()
+        redis.xadd = AsyncMock(return_value=b"1-0")
         return redis
 
     @pytest.fixture
@@ -491,6 +499,7 @@ class TestUpdateAndClearStale:
         redis.scan = AsyncMock(return_value=(0, []))
         redis.hdel = AsyncMock()
         redis.publish = AsyncMock()
+        redis.xadd = AsyncMock(return_value=b"1-0")
         return redis
 
     @pytest.fixture

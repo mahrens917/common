@@ -54,6 +54,7 @@ class TestRequestCloseAllPositions:
     def mock_redis(self):
         redis = MagicMock()
         redis.set = AsyncMock()
+        redis.xadd = AsyncMock(return_value=b"1234-0")
         return redis
 
     @pytest.mark.asyncio
@@ -64,6 +65,20 @@ class TestRequestCloseAllPositions:
             await request_close_all_positions(mock_redis)
 
             mock_redis.set.assert_called_once_with(CLOSE_POSITIONS_COMMAND_KEY, "2024-01-15T12:00:00+00:00")
+
+    @pytest.mark.asyncio
+    async def test_publishes_to_stream(self, mock_redis):
+        with patch("common.time_utils.get_current_utc") as mock_time:
+            mock_time.return_value.isoformat.return_value = "2024-01-15T12:00:00+00:00"
+
+            await request_close_all_positions(mock_redis)
+
+            mock_redis.xadd.assert_called_once()
+            call_args = mock_redis.xadd.call_args
+            assert call_args[0][0] == "stream:close_positions"
+            fields = call_args[0][1]
+            assert fields["timestamp"] == "2024-01-15T12:00:00+00:00"
+            assert fields["action"] == "close_all"
 
 
 class TestGetClosePositionsCommand:

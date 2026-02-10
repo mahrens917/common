@@ -17,11 +17,15 @@ class SessionManager:
     def __init__(self, config: KalshiConfig) -> None:
         self._config = config
         self._session: Optional[aiohttp.ClientSession] = None
+        self._connector: Optional[aiohttp.TCPConnector] = None
         self._session_lock = asyncio.Lock()
+        self._closing = False
 
     async def initialize(self) -> None:
         """Ensure the HTTP session is ready."""
         async with self._session_lock:
+            if self._closing:
+                return
             if self._session is not None and not self._session.closed:
                 return
 
@@ -30,14 +34,25 @@ class SessionManager:
                 connect=self._config.connect_timeout_seconds,
                 sock_read=self._config.sock_read_timeout_seconds,
             )
-            self._session = aiohttp.ClientSession(timeout=timeout)
+            self._connector = aiohttp.TCPConnector()
+            self._session = aiohttp.ClientSession(
+                connector=self._connector,
+                timeout=timeout,
+            )
 
     async def close(self) -> None:
-        """Close the HTTP session if one exists."""
+        """Close the HTTP session and connector."""
         async with self._session_lock:
+            self._closing = True
             if self._session is not None:
                 await self._session.close()
                 self._session = None
+            if self._connector is not None:
+                await self._connector.close()
+                self._connector = None
+        # Allow the event loop to finalize SSL transports.
+        await asyncio.sleep(0)
+        self._closing = False
 
     def get_session(self) -> aiohttp.ClientSession:
         """Get the current session, raising if not initialized."""

@@ -14,7 +14,7 @@ from ....market_filters.kalshi import extract_best_ask, extract_best_bid
 from ...error_types import REDIS_ERRORS
 from ...typing import ensure_awaitable
 from .best_price_updater import BestPriceUpdater
-from .event_publisher import publish_market_event_throttled
+from .event_publisher import publish_market_event
 from .field_converter import FieldConverter
 from .side_data_updater import SideDataUpdater
 from .snapshot_processor import SnapshotProcessor
@@ -49,7 +49,7 @@ class DeltaProcessor(SnapshotProcessor):
         await _update_top_of_book(self, redis, market_key, side_field, side_data)
         await ensure_awaitable(redis.hset(market_key, "timestamp", timestamp))
         await _update_trade_price_cache(self, redis, market_key, market_ticker)
-        await publish_market_event_throttled(redis, market_key, market_ticker, timestamp)
+        await publish_market_event(redis, market_key, market_ticker, timestamp)
         return True
 
 

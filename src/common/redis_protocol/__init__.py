@@ -48,7 +48,27 @@ from .restart_service_command import (
     write_restart_service_result,
 )
 from .retry_client import RetryPipeline, RetryRedisClient
+from .streams import (
+    ALGO_SIGNAL_STREAM,
+    CLOSE_POSITIONS_STREAM,
+    TRACKER_CONSUMER_GROUP,
+    TRADE_EVENTS_STREAM,
+    claim_pending_entries,
+    decode_stream_response,
+    ensure_consumer_group,
+    stream_publish,
+)
 from .subscription_store import SubscriptionStore
+from .toggle_service_command import (
+    TOGGLE_SERVICE_COMMAND_KEY,
+    ToggleServiceResult,
+    clear_toggle_service_command,
+    clear_toggle_service_result,
+    get_toggle_service_command,
+    get_toggle_service_result,
+    request_toggle_service,
+    write_toggle_service_result,
+)
 from .trading_toggle_api import (
     ALGO_TRADING_KEY_PREFIX,
     get_all_algo_trading_states,
@@ -107,6 +127,14 @@ __all__ = [
     "get_restart_service_result",
     "request_restart_service",
     "write_restart_service_result",
+    "TOGGLE_SERVICE_COMMAND_KEY",
+    "ToggleServiceResult",
+    "clear_toggle_service_command",
+    "clear_toggle_service_result",
+    "get_toggle_service_command",
+    "get_toggle_service_result",
+    "request_toggle_service",
+    "write_toggle_service_result",
     "ALGO_STATS_KEY_PREFIX",
     "AlgoStatsData",
     "increment_algo_stats",
@@ -114,4 +142,12 @@ __all__ = [
     "read_all_algo_stats",
     "reset_algo_stats",
     "write_algo_stats",
+    "ALGO_SIGNAL_STREAM",
+    "CLOSE_POSITIONS_STREAM",
+    "TRADE_EVENTS_STREAM",
+    "TRACKER_CONSUMER_GROUP",
+    "claim_pending_entries",
+    "decode_stream_response",
+    "ensure_consumer_group",
+    "stream_publish",
 ]

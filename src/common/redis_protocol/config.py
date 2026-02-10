@@ -48,13 +48,10 @@ KALSHI_SUBSCRIPTION_KEY = "kalshi:subscriptions"
 MARKET_LATEST = "deribit_markets:latest"
 DERIBIT_SUBSCRIPTION_CHANNEL = "deribit:subscription:updates"
 KALSHI_SUBSCRIPTION_CHANNEL = "kalshi:subscription:updates"
-PDF_CHANNEL = "pdf:updates"
-PRICE_INDEX_CHANNEL = "price_index:updates"
 API_TYPE_QUOTE = "quote"
 API_TYPE_PRICE_INDEX = "deribit_price_index"
 API_TYPE_VOLATILITY_INDEX = "deribit_volatility_index"
 KALSHI_ORDERBOOK_PREFIX = "kalshi:orderbook:"
-KALSHI_CHANNEL = "kalshi:updates"
 HISTORY_KEY_PREFIX = "history:"
 HISTORY_TTL_SECONDS = 7200  # 2 hours (consumers look back 65 minutes max)
 BALANCE_KEY_PREFIX = "balance:"
@@ -175,7 +172,6 @@ __all__ = [
     "HISTORY_KEY_PREFIX",
     "HISTORY_TTL_SECONDS",
     "KALSHI_BALANCE_KEY",
-    "KALSHI_CHANNEL",
     "KALSHI_MARKET_PREFIX",
     "KALSHI_ORDERBOOK_PREFIX",
     "KALSHI_SUBSCRIPTION_CHANNEL",
@@ -186,9 +182,7 @@ __all__ = [
     "MARKET_LATEST",
     "MARKET_VERIFY_WRITES",
     "PDF_BATCH_SIZE",
-    "PDF_CHANNEL",
     "PDF_SCAN_COUNT",
-    "PRICE_INDEX_CHANNEL",
     "REDIS_CONNECTION_POOL_MAXSIZE",
     "REDIS_CONNECTION_POOL_SIZE",
     "REDIS_DB",

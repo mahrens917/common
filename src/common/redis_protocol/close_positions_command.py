@@ -13,6 +13,7 @@ import logging
 from dataclasses import dataclass
 from typing import TYPE_CHECKING, Optional
 
+from .streams import CLOSE_POSITIONS_STREAM, stream_publish
 from .typing import ensure_awaitable
 
 if TYPE_CHECKING:
@@ -38,6 +39,10 @@ async def request_close_all_positions(redis: "Redis") -> None:
     """
     Request closing all positions by writing current timestamp to Redis.
 
+    The command key is the source of truth; the stream notification
+    guarantees the subscriber wakes up even if it was offline when
+    the command was issued.
+
     Args:
         redis: Redis client
     """
@@ -45,6 +50,7 @@ async def request_close_all_positions(redis: "Redis") -> None:
 
     timestamp = get_current_utc().isoformat()
     await ensure_awaitable(redis.set(CLOSE_POSITIONS_COMMAND_KEY, timestamp))
+    await stream_publish(redis, CLOSE_POSITIONS_STREAM, {"timestamp": timestamp, "action": "close_all"})
     logger.info("Close all positions command issued at %s", timestamp)
 
 
