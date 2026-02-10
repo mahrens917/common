@@ -10,7 +10,13 @@ class FeeCalculator:
     """Calculate fees for Kalshi orders."""
 
     @staticmethod
-    async def calculate_order_fees(market_ticker: str, quantity: int, price_cents: int) -> int:
+    async def calculate_order_fees(
+        market_ticker: str,
+        quantity: int,
+        price_cents: int,
+        *,
+        is_maker: bool = False,
+    ) -> int:
         """Calculate fees for a proposed order."""
         try:
             fee_func = getattr(importlib.import_module("common.kalshi_trading_client"), "calculate_fees")
@@ -18,7 +24,7 @@ class FeeCalculator:
             from ....kalshi_fees import calculate_fees as fee_func
 
         try:
-            return fee_func(quantity, price_cents, market_ticker)
+            return fee_func(quantity, price_cents, market_ticker, is_maker=is_maker)
         except (ValueError, TypeError, RuntimeError, OverflowError) as exc:
             logger.exception(
                 "Failed to calculate fees for %s (%s)",
