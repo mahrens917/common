@@ -1,6 +1,17 @@
 from __future__ import annotations
 
-"""Kalshi trading fee utilities shared across services."""
+"""Kalshi trading fee utilities shared across services.
+
+Fee formula: ``ceil(coefficient * contracts * P * (1 - P))`` where *P* is the
+contract price in dollars and the coefficient depends on the market category
+and whether the order is maker or taker.
+
+Categories
+----------
+- **standard** – most markets.  Taker 7 %, maker 1.75 %.
+- **index** – S&P 500 (``INX*``) and Nasdaq-100 (``NASDAQ100*``) markets.
+  Taker 3.5 %, maker 0.875 % (halved from standard).
+"""
 
 import json
 import math
@@ -9,6 +20,8 @@ from typing import Any, Dict
 from common.path_utils import get_project_root
 
 PROJECT_ROOT = get_project_root(__file__, levels_up=2)
+
+_STANDARD_CATEGORY = "standard"
 
 
 def _load_trade_analyzer_config() -> Dict[str, Any]:
@@ -27,10 +40,18 @@ def _load_trade_analyzer_config() -> Dict[str, Any]:
             raise RuntimeError(f"Required configuration section '{section}' not found in {config_path}")
 
     trading_fees = config["trading_fees"]
-    required_fee_fields = ["general_fee_coefficient", "maker_fee_coefficient", "maker_fee_products"]
-    for field in required_fee_fields:
+    for field in ("categories", "index_ticker_prefixes"):
         if field not in trading_fees:
             raise RuntimeError(f"Required field '{field}' not found in trading_fees configuration")
+
+    categories = trading_fees["categories"]
+    if _STANDARD_CATEGORY not in categories:
+        raise RuntimeError("Required 'standard' category not found in trading_fees.categories")
+
+    for cat_name, cat_cfg in categories.items():
+        for coeff in ("taker_fee_coefficient", "maker_fee_coefficient"):
+            if coeff not in cat_cfg:
+                raise RuntimeError(f"Required field '{coeff}' not found in category '{cat_name}'")
 
     if "mappings" not in config["symbol_mappings"]:
         raise RuntimeError("Required 'mappings' section not found in symbol_mappings configuration")
@@ -45,18 +66,40 @@ def get_symbol_mappings() -> Dict[str, str]:
     return config["symbol_mappings"]["mappings"]
 
 
-def _is_maker_fee_product(market_ticker: str) -> bool:
-    """Determine whether ``market_ticker`` qualifies for maker-fee pricing."""
+def _get_market_category(market_ticker: str) -> str:
+    """Return the fee category for *market_ticker* (e.g. ``'standard'`` or ``'index'``)."""
 
     config = _load_trade_analyzer_config()
-    maker_fee_products = config["trading_fees"]["maker_fee_products"]
-
     ticker_upper = market_ticker.upper()
-    return any(ticker_upper.startswith(product_prefix.upper()) for product_prefix in maker_fee_products)
+    index_prefixes = config["trading_fees"]["index_ticker_prefixes"]
+
+    if any(ticker_upper.startswith(prefix.upper()) for prefix in index_prefixes):
+        return "index"
+
+    return _STANDARD_CATEGORY
 
 
-def calculate_fees(contracts: int, price_cents: int, market_ticker: str) -> int:
-    """Compute Kalshi fees in cents for a proposed trade."""
+def calculate_fees(
+    contracts: int,
+    price_cents: int,
+    market_ticker: str,
+    *,
+    is_maker: bool = False,
+) -> int:
+    """Compute Kalshi fees in cents for a proposed trade.
+
+    Parameters
+    ----------
+    contracts:
+        Number of contracts.
+    price_cents:
+        Price per contract in cents (0-99).
+    market_ticker:
+        Ticker string used to resolve the market fee category.
+    is_maker:
+        ``True`` when the order rests on the book (maker); ``False`` when the
+        order crosses the spread (taker).
+    """
 
     if contracts < 0:
         raise ValueError(f"Contracts cannot be negative: {contracts}")
@@ -67,10 +110,9 @@ def calculate_fees(contracts: int, price_cents: int, market_ticker: str) -> int:
         return 0
 
     config = _load_trade_analyzer_config()
-    if _is_maker_fee_product(market_ticker):
-        fee_coefficient = config["trading_fees"]["maker_fee_coefficient"]
-    else:
-        fee_coefficient = config["trading_fees"]["general_fee_coefficient"]
+    category = _get_market_category(market_ticker)
+    fee_key = "maker_fee_coefficient" if is_maker else "taker_fee_coefficient"
+    fee_coefficient = config["trading_fees"]["categories"][category][fee_key]
 
     price_dollars = price_cents / 100.0
     fee_calculation_dollars = fee_coefficient * contracts * price_dollars * (1 - price_dollars)
@@ -83,6 +125,8 @@ def is_trade_profitable_after_fees(
     entry_price_cents: int,
     theoretical_price_cents: int,
     market_ticker: str,
+    *,
+    is_maker: bool = False,
 ) -> bool:
     """Return ``True`` if the trade clears Kalshi fees and remains profitable."""
 
@@ -91,7 +135,7 @@ def is_trade_profitable_after_fees(
     if theoretical_price_cents < 0:
         raise ValueError(f"Theoretical price cannot be negative: {theoretical_price_cents}")
 
-    fees_cents = calculate_fees(contracts, entry_price_cents, market_ticker)
+    fees_cents = calculate_fees(contracts, entry_price_cents, market_ticker, is_maker=is_maker)
     gross_profit_cents = (theoretical_price_cents - entry_price_cents) * contracts
     net_profit_cents = gross_profit_cents - fees_cents
     return net_profit_cents > 0

@@ -1,8 +1,16 @@
 {
   "trading_fees": {
-    "general_fee_coefficient": 0.07,
-    "maker_fee_coefficient": 0.0175,
-    "maker_fee_products": ["BTC-M1", "ETH-M1", "kxnba-series"]
+    "categories": {
+      "standard": {
+        "taker_fee_coefficient": 0.07,
+        "maker_fee_coefficient": 0.0175
+      },
+      "index": {
+        "taker_fee_coefficient": 0.035,
+        "maker_fee_coefficient": 0.00875
+      }
+    },
+    "index_ticker_prefixes": ["INX", "NASDAQ100"]
   },
   "symbol_mappings": {
     "mappings": {
