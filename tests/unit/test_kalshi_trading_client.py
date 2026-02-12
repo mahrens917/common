@@ -366,7 +366,7 @@ def test_create_icao_to_city_mapping_builds_reverse_lookup(bare_trading_client):
 
 @pytest.mark.asyncio
 async def test_calculate_order_fees_uses_fee_helper(monkeypatch, bare_trading_client):
-    def fake_calculate(quantity, price_cents, ticker):
+    def fake_calculate(quantity, price_cents, ticker, *, is_maker=False):
         assert quantity == _TEST_COUNT_3
         assert price_cents == _CONST_45
         assert ticker == "KXHIGHNYC-25JAN01"

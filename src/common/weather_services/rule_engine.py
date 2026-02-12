@@ -93,6 +93,12 @@ class WeatherRuleEngine:
                     best_cap = cap
                     best_floor = floor
                 continue
+            if strike_type == "less":
+                if MarketEvaluator.evaluate_less_market(max_temp_f, cap, snapshot, best_cap):
+                    best_snapshot = snapshot
+                    best_cap = cap
+                    best_floor = floor
+                continue
             if strike_type == "between":
                 best_snapshot, best_cap, best_floor = MarketEvaluator.evaluate_between_market(
                     max_temp_f, cap, floor, snapshot, best_snapshot, best_cap, best_floor

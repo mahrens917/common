@@ -19,6 +19,7 @@ from typing import TYPE_CHECKING, Any, Callable, Dict, List, Optional
 
 from .market_update_api_helpers import (
     REJECTION_KEY_PREFIX,
+    PriceSignal,
     add_signal_to_pipeline,
     algo_field,
     build_market_signals,
@@ -82,7 +83,7 @@ async def request_market_update(
 
     display_ticker = ticker if ticker else market_key.split(":")[-1]
 
-    await write_theoretical_prices(redis, market_key, algo, t_bid, t_ask, display_ticker)
+    await write_theoretical_prices(redis, market_key, algo, PriceSignal(t_bid=t_bid, t_ask=t_ask), display_ticker)
 
     return MarketUpdateResult(success=True, rejected=False, reason=None, owning_algo=None)
 
@@ -150,7 +151,13 @@ async def _execute_batch_transaction(
 
     for sig in sorted_signals:
         try:
-            await publish_market_event_update(redis, sig.market_key, sig.ticker, algo, sig.t_bid, sig.t_ask)
+            await publish_market_event_update(
+                redis,
+                sig.market_key,
+                sig.ticker,
+                algo,
+                PriceSignal(t_bid=sig.t_bid, t_ask=sig.t_ask),
+            )
         except (RuntimeError, ConnectionError, OSError):  # Expected, non-critical  # policy_guard: allow-silent-handler
             pass
 
@@ -207,7 +214,13 @@ async def update_and_clear_stale(
 
         market_key = key_builder(ticker)
         try:
-            await write_theoretical_prices(redis, market_key, algo, t_bid, t_ask, ticker)
+            await write_theoretical_prices(
+                redis,
+                market_key,
+                algo,
+                PriceSignal(t_bid=t_bid, t_ask=t_ask, edge=data.get("edge"), signal=data.get("signal")),
+                ticker,
+            )
             succeeded.append(ticker)
         except (RuntimeError, ConnectionError, OSError):
             logger.exception("Failed to write signal for %s", ticker)

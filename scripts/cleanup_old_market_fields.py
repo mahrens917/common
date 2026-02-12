@@ -52,9 +52,7 @@ async def cleanup_old_fields(dry_run: bool = True) -> tuple[int, int]:
 
                 # Check which old fields exist
                 existing: List[bytes | None] = await ensure_awaitable(redis.hmget(key_str, list(OLD_FIELDS)))
-                fields_to_remove = [
-                    field for field, value in zip(OLD_FIELDS, existing) if value is not None
-                ]
+                fields_to_remove = [field for field, value in zip(OLD_FIELDS, existing) if value is not None]
 
                 if fields_to_remove:
                     if dry_run:
@@ -75,9 +73,7 @@ async def cleanup_old_fields(dry_run: bool = True) -> tuple[int, int]:
 
 async def main() -> None:
     """Main entry point."""
-    parser = argparse.ArgumentParser(
-        description="Clean up old non-namespaced t_yes_bid/t_yes_ask fields"
-    )
+    parser = argparse.ArgumentParser(description="Clean up old non-namespaced t_yes_bid/t_yes_ask fields")
     parser.add_argument(
         "--dry-run",
         action="store_true",

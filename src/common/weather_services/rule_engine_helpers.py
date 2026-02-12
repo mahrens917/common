@@ -79,6 +79,13 @@ class MissingGreaterFloorStrikeError(WeatherRuleEngineError):
         super().__init__(f"Market {market_key} missing floor strike for 'greater' evaluation")
 
 
+class MissingLessCapStrikeError(WeatherRuleEngineError):
+    """Raised when 'less' markets lack cap strike data."""
+
+    def __init__(self, market_key: str) -> None:
+        super().__init__(f"Market {market_key} missing cap strike for 'less' evaluation")
+
+
 class MissingBetweenStrikeError(WeatherRuleEngineError):
     """Raised when 'between' markets lack cap/floor strike data."""
 
@@ -205,6 +212,13 @@ class MarketEvaluator:
         if floor is None:
             raise MissingGreaterFloorStrikeError(snapshot.key)
         return max_temp_f >= floor and (best_floor is None or floor > best_floor)
+
+    @staticmethod
+    def evaluate_less_market(max_temp_f, cap, snapshot, best_cap):
+        """Check if less market qualifies (tightest cap above temp wins)."""
+        if cap is None:
+            raise MissingLessCapStrikeError(snapshot.key)
+        return max_temp_f <= cap and (best_cap is None or cap < best_cap)
 
     @staticmethod
     def evaluate_between_market(

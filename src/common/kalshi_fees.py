@@ -22,20 +22,14 @@ from common.path_utils import get_project_root
 PROJECT_ROOT = get_project_root(__file__, levels_up=2)
 
 _STANDARD_CATEGORY = "standard"
+_MAKER_FEE_KEY = "maker_fee_coefficient"
+_TAKER_FEE_KEY = "taker_fee_coefficient"
 
 
-def _load_trade_analyzer_config() -> Dict[str, Any]:
-    """Load fee configuration from ``config/trade_analyzer_config.json``."""
+def _validate_config(config: Dict[str, Any], config_path: str) -> None:
+    """Validate required sections and fields in trade analyzer config."""
 
-    config_path = PROJECT_ROOT / "config" / "trade_analyzer_config.json"
-    if not config_path.exists():
-        raise FileNotFoundError(f"Configuration file not found: {config_path}")
-
-    with config_path.open("r", encoding="utf-8") as config_file:
-        config = json.load(config_file)
-
-    required_sections = ["trading_fees", "symbol_mappings"]
-    for section in required_sections:
+    for section in ("trading_fees", "symbol_mappings"):
         if section not in config:
             raise RuntimeError(f"Required configuration section '{section}' not found in {config_path}")
 
@@ -49,13 +43,25 @@ def _load_trade_analyzer_config() -> Dict[str, Any]:
         raise RuntimeError("Required 'standard' category not found in trading_fees.categories")
 
     for cat_name, cat_cfg in categories.items():
-        for coeff in ("taker_fee_coefficient", "maker_fee_coefficient"):
+        for coeff in (_TAKER_FEE_KEY, _MAKER_FEE_KEY):
             if coeff not in cat_cfg:
                 raise RuntimeError(f"Required field '{coeff}' not found in category '{cat_name}'")
 
     if "mappings" not in config["symbol_mappings"]:
         raise RuntimeError("Required 'mappings' section not found in symbol_mappings configuration")
 
+
+def _load_trade_analyzer_config() -> Dict[str, Any]:
+    """Load fee configuration from ``config/trade_analyzer_config.json``."""
+
+    config_path = PROJECT_ROOT / "config" / "trade_analyzer_config.json"
+    if not config_path.exists():
+        raise FileNotFoundError(f"Configuration file not found: {config_path}")
+
+    with config_path.open("r", encoding="utf-8") as config_file:
+        config = json.load(config_file)
+
+    _validate_config(config, str(config_path))
     return config
 
 
@@ -111,7 +117,7 @@ def calculate_fees(
 
     config = _load_trade_analyzer_config()
     category = _get_market_category(market_ticker)
-    fee_key = "maker_fee_coefficient" if is_maker else "taker_fee_coefficient"
+    fee_key = _MAKER_FEE_KEY if is_maker else _TAKER_FEE_KEY
     fee_coefficient = config["trading_fees"]["categories"][category][fee_key]
 
     price_dollars = price_cents / 100.0

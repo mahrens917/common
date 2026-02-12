@@ -20,6 +20,7 @@ from .ownership_helpers import (
     scan_algo_owned_markets,
 )
 from .price_writer import (
+    PriceSignal,
     compute_direction,
     parse_int,
     publish_market_event_update,
@@ -30,6 +31,7 @@ __all__ = [
     "REJECTION_KEY_PREFIX",
     "MarketSignal",
     "OwnershipCheckResult",
+    "PriceSignal",
     "add_signal_to_pipeline",
     "algo_field",
     "build_market_signals",

@@ -273,42 +273,69 @@ class TestTradeProfit:
 
     def test_profitable_taker(self) -> None:
         assert kalshi_fees.is_trade_profitable_after_fees(
-            contracts=1, entry_price_cents=40, theoretical_price_cents=70, market_ticker="KXFOO",
+            contracts=1,
+            entry_price_cents=40,
+            theoretical_price_cents=70,
+            market_ticker="KXFOO",
         )
 
     def test_not_profitable_taker(self) -> None:
         assert not kalshi_fees.is_trade_profitable_after_fees(
-            contracts=1, entry_price_cents=90, theoretical_price_cents=91, market_ticker="KXFOO",
+            contracts=1,
+            entry_price_cents=90,
+            theoretical_price_cents=91,
+            market_ticker="KXFOO",
         )
 
     def test_profitable_maker(self) -> None:
         assert kalshi_fees.is_trade_profitable_after_fees(
-            contracts=1, entry_price_cents=50, theoretical_price_cents=53, market_ticker="KXFOO", is_maker=True,
+            contracts=1,
+            entry_price_cents=50,
+            theoretical_price_cents=53,
+            market_ticker="KXFOO",
+            is_maker=True,
         )
 
     def test_not_profitable_maker(self) -> None:
         assert not kalshi_fees.is_trade_profitable_after_fees(
-            contracts=1, entry_price_cents=50, theoretical_price_cents=51, market_ticker="KXFOO", is_maker=True,
+            contracts=1,
+            entry_price_cents=50,
+            theoretical_price_cents=51,
+            market_ticker="KXFOO",
+            is_maker=True,
         )
 
     def test_profitable_index_taker(self) -> None:
         assert kalshi_fees.is_trade_profitable_after_fees(
-            contracts=1, entry_price_cents=50, theoretical_price_cents=53, market_ticker="INXD-25FEB10",
+            contracts=1,
+            entry_price_cents=50,
+            theoretical_price_cents=53,
+            market_ticker="INXD-25FEB10",
         )
 
     def test_profitable_index_maker(self) -> None:
         assert kalshi_fees.is_trade_profitable_after_fees(
-            contracts=1, entry_price_cents=50, theoretical_price_cents=52, market_ticker="INXD-25FEB10", is_maker=True,
+            contracts=1,
+            entry_price_cents=50,
+            theoretical_price_cents=52,
+            market_ticker="INXD-25FEB10",
+            is_maker=True,
         )
 
     def test_rejects_negative_entry_price(self) -> None:
         with pytest.raises(ValueError, match="negative"):
             kalshi_fees.is_trade_profitable_after_fees(
-                contracts=1, entry_price_cents=-1, theoretical_price_cents=50, market_ticker="KXFOO",
+                contracts=1,
+                entry_price_cents=-1,
+                theoretical_price_cents=50,
+                market_ticker="KXFOO",
             )
 
     def test_rejects_negative_theoretical_price(self) -> None:
         with pytest.raises(ValueError, match="negative"):
             kalshi_fees.is_trade_profitable_after_fees(
-                contracts=1, entry_price_cents=10, theoretical_price_cents=-5, market_ticker="KXFOO",
+                contracts=1,
+                entry_price_cents=10,
+                theoretical_price_cents=-5,
+                market_ticker="KXFOO",
             )

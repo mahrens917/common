@@ -11,7 +11,7 @@ from common.redis_protocol.market_ownership import (
 )
 
 _TEST_CONFIG = {
-    "algos": ["crossarb", "peak", "edge", "weather", "pdf", "whale", "strike", "total", "dutch", "conjunction"],
+    "algos": ["crossarb", "peak", "edge", "weather", "pdf", "whale", "strike", "total", "dutch"],
     "priority_order": ["crossarb"],
     "unrestricted_algos": ["crossarb"],
     "market_type_restrictions": [

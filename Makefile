@@ -5,6 +5,7 @@ export CI_SHARED_ROOT
 export PYTHONPATH := $(CI_SHARED_ROOT)$(if $(PYTHONPATH),:$(PYTHONPATH))
 export PYTHONDONTWRITEBYTECODE := 1
 
+# Repository-specific overrides (set before including ci_shared.mk)
 # Add pytest warning filters to allow ResourceWarning/PytestUnraisableExceptionWarning (from async test cleanup)
 SHARED_PYTEST_EXTRA = -W "ignore::ResourceWarning" -W "ignore::pytest.PytestUnraisableExceptionWarning"
 
@@ -20,11 +21,11 @@ format:
 	black $(FORMAT_TARGETS)
 
 lint:
-	$(PYTHON) -m compileall src tests
-	pylint -j 1 src tests
+	$(PYTHON) -m compileall $(FORMAT_TARGETS)
+	pylint -j 1 $(PYLINT_ARGS) $(SHARED_PYLINT_TARGETS)
 
 type:
-	pyright src
+	pyright --warnings $(SHARED_PYRIGHT_TARGETS)
 
 policy:
 	$(PYTHON) -m ci_tools.scripts.policy_guard

@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import json
 import logging
+from dataclasses import dataclass
 from datetime import datetime, timezone
 from typing import TYPE_CHECKING, Dict, Optional
 
@@ -16,6 +17,16 @@ if TYPE_CHECKING:
     from redis.asyncio import Redis
 
 logger = logging.getLogger(__name__)
+
+
+@dataclass(frozen=True)
+class PriceSignal:
+    """Bundle of theoretical price data for a market update."""
+
+    t_bid: Optional[float] = None
+    t_ask: Optional[float] = None
+    edge: Optional[float] = None
+    signal: Optional[str] = None
 
 
 def parse_int(value: object) -> int:
@@ -96,8 +107,7 @@ async def write_theoretical_prices(
     redis: "Redis",
     market_key: str,
     algo: str,
-    t_bid: Optional[float],
-    t_ask: Optional[float],
+    prices: PriceSignal,
     ticker: str,
 ) -> None:
     """Write theoretical prices to Redis using namespaced fields.
@@ -105,24 +115,24 @@ async def write_theoretical_prices(
     Algos write their own {algo}:t_bid and {algo}:t_ask fields.
     Tracker is responsible for setting algo/direction fields.
     """
-    mapping = build_price_mapping(algo, t_bid, t_ask)
+    mapping = build_price_mapping(algo, prices.t_bid, prices.t_ask)
 
     await with_redis_retry(
         lambda: ensure_awaitable(redis.hset(market_key, mapping=mapping)),
         context=f"hset_prices:{ticker}",
     )
-    await delete_stale_opposite_field(redis, market_key, algo, t_bid, t_ask)
+    await delete_stale_opposite_field(redis, market_key, algo, prices.t_bid, prices.t_ask)
 
     logger.debug(
         "Updated market %s: %s:t_bid=%s, %s:t_ask=%s",
         ticker,
         algo,
-        t_bid,
+        prices.t_bid,
         algo,
-        t_ask,
+        prices.t_ask,
     )
 
-    await publish_market_event_update(redis, market_key, ticker, algo, t_bid, t_ask)
+    await publish_market_event_update(redis, market_key, ticker, algo, prices)
 
 
 async def publish_market_event_update(
@@ -130,8 +140,7 @@ async def publish_market_event_update(
     market_key: str,
     ticker: str,
     algo: str = "",
-    t_bid: Optional[float] = None,
-    t_ask: Optional[float] = None,
+    prices: PriceSignal = PriceSignal(),
 ) -> None:
     """Publish market event update to notify tracker of theoretical price change."""
     event_ticker = await with_redis_retry(
@@ -164,16 +173,22 @@ async def publish_market_event_update(
             "ticker": ticker,
             "algorithm": algo,
         }
-        if t_ask is not None:
-            algo_fields["t_ask"] = str(t_ask)
-        if t_bid is not None:
-            algo_fields["t_bid"] = str(t_bid)
+        if prices.t_ask is not None:
+            algo_fields["t_ask"] = str(prices.t_ask)
+        if prices.t_bid is not None:
+            algo_fields["t_bid"] = str(prices.t_bid)
+        if prices.edge is not None:
+            algo_fields["edge"] = str(prices.edge)
+        if prices.signal is not None:
+            algo_fields["signal"] = prices.signal
         algo_fields["payload"] = json.dumps(
             {
                 "ticker": ticker,
-                "t_ask": t_ask,
-                "t_bid": t_bid,
+                "t_ask": prices.t_ask,
+                "t_bid": prices.t_bid,
                 "algorithm": algo,
+                "edge": prices.edge,
+                "signal": prices.signal,
             }
         )
         await with_redis_retry(
