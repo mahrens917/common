@@ -17,12 +17,12 @@ class StubRedisClient:
         *,
         set_result: bool | None = True,
         set_exception: Exception | None = None,
-        delete_exception: Exception | None = None,
+        eval_exception: Exception | None = None,
         get_override: dict[str, str] | None = None,
     ) -> None:
         self.set_result = set_result
         self.set_exception = set_exception
-        self.delete_exception = delete_exception
+        self.eval_exception = eval_exception
         self.set_calls: list[tuple[str, str, int, bool]] = []
         self.delete_calls: list[str] = []
         self._store: dict[str, str] = get_override or {}
@@ -38,11 +38,18 @@ class StubRedisClient:
     async def get(self, key: str) -> str | None:
         return self._store.get(key)
 
-    async def delete(self, key: str) -> None:
-        self.delete_calls.append(key)
-        if self.delete_exception is not None:
-            raise self.delete_exception
-        self._store.pop(key, None)
+    async def eval(self, _script: str, _num_keys: int, key: str, value: str) -> int:
+        """Simulate the atomic compare-and-delete Lua release script."""
+        if self.eval_exception is not None:
+            raise self.eval_exception
+        stored = self._store.get(key)
+        if stored is None:
+            return -1
+        if stored == value:
+            self.delete_calls.append(key)
+            del self._store[key]
+            return 1
+        return 0
 
 
 @pytest.mark.asyncio
@@ -98,7 +105,7 @@ async def test_release_deletes_key_when_acquired() -> None:
 
 @pytest.mark.asyncio
 async def test_release_handles_delete_error() -> None:
-    stub = StubRedisClient(delete_exception=RuntimeError("cannot delete"))
+    stub = StubRedisClient(eval_exception=RuntimeError("cannot delete"))
     lock = DistributedLock(stub, "delete:error")
 
     assert await lock.acquire() is True
