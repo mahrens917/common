@@ -26,6 +26,17 @@ class MarketSignal:
     t_bid: float | None
     t_ask: float | None
     algo: str
+    signal: str | None = None
+    edge: float | None = None
+
+
+def _derive_signal(t_bid: float | None, t_ask: float | None) -> str | None:
+    """Derive signal direction from theoretical prices when not explicitly provided."""
+    if t_ask is not None and t_bid is None:
+        return "BUY"
+    if t_bid is not None and t_ask is None:
+        return "SELL"
+    return None
 
 
 def build_market_signals(
@@ -34,16 +45,26 @@ def build_market_signals(
     key_builder: Any,
 ) -> List[MarketSignal]:
     """Build MarketSignal objects from input signals dict."""
-    return [
-        MarketSignal(
-            ticker=ticker,
-            market_key=key_builder(ticker),
-            t_bid=data.get("t_bid"),
-            t_ask=data.get("t_ask"),
-            algo=algo,
+    result: List[MarketSignal] = []
+    for ticker, data in signals.items():
+        t_bid = data.get("t_bid")
+        t_ask = data.get("t_ask")
+        signal = data.get("signal")
+        edge = data.get("edge")
+        if signal is None:
+            signal = _derive_signal(t_bid, t_ask)
+        result.append(
+            MarketSignal(
+                ticker=ticker,
+                market_key=key_builder(ticker),
+                t_bid=t_bid,
+                t_ask=t_ask,
+                algo=algo,
+                signal=signal,
+                edge=edge,
+            )
         )
-        for ticker, data in signals.items()
-    ]
+    return result
 
 
 def filter_valid_signals(
@@ -80,9 +101,9 @@ def build_signal_mapping(
     mapping: Dict[str, Any] = {}
 
     if sig.t_bid is not None:
-        mapping[bid_field] = sig.t_bid
+        mapping[bid_field] = max(1, min(99, round(sig.t_bid)))
     if sig.t_ask is not None:
-        mapping[ask_field] = sig.t_ask
+        mapping[ask_field] = max(1, min(99, round(sig.t_ask)))
 
     return mapping
 

@@ -29,6 +29,11 @@ class PriceSignal:
     signal: Optional[str] = None
 
 
+def _clamp_price(value: float) -> int:
+    """Round and clamp a theoretical price to valid Kalshi range [1, 99]."""
+    return max(1, min(99, round(value)))
+
+
 def parse_int(value: object) -> int:
     """Parse value to int, treating None/empty as 0."""
     if value is None or value in {"", b""}:
@@ -114,25 +119,30 @@ async def write_theoretical_prices(
 
     Algos write their own {algo}:t_bid and {algo}:t_ask fields.
     Tracker is responsible for setting algo/direction fields.
+    Prices are clamped to valid Kalshi range [1, 99] before writing.
     """
-    mapping = build_price_mapping(algo, prices.t_bid, prices.t_ask)
+    t_bid = _clamp_price(prices.t_bid) if prices.t_bid is not None else None
+    t_ask = _clamp_price(prices.t_ask) if prices.t_ask is not None else None
+
+    mapping = build_price_mapping(algo, t_bid, t_ask)
 
     await with_redis_retry(
         lambda: ensure_awaitable(redis.hset(market_key, mapping=mapping)),
         context=f"hset_prices:{ticker}",
     )
-    await delete_stale_opposite_field(redis, market_key, algo, prices.t_bid, prices.t_ask)
+    await delete_stale_opposite_field(redis, market_key, algo, t_bid, t_ask)
 
     logger.debug(
         "Updated market %s: %s:t_bid=%s, %s:t_ask=%s",
         ticker,
         algo,
-        prices.t_bid,
+        t_bid,
         algo,
-        prices.t_ask,
+        t_ask,
     )
 
-    await publish_market_event_update(redis, market_key, ticker, algo, prices)
+    clamped_prices = PriceSignal(t_bid=t_bid, t_ask=t_ask, edge=prices.edge, signal=prices.signal)
+    await publish_market_event_update(redis, market_key, ticker, algo, clamped_prices)
 
 
 async def publish_market_event_update(

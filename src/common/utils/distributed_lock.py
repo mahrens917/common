@@ -15,6 +15,17 @@ from .distributed_lock_errors import LockUnavailableError
 
 logger = logging.getLogger(__name__)
 
+# Lua script for atomic compare-and-delete: only deletes if the value matches
+_RELEASE_SCRIPT = """
+if redis.call("get", KEYS[1]) == ARGV[1] then
+    return redis.call("del", KEYS[1])
+elseif redis.call("exists", KEYS[1]) == 0 then
+    return -1
+else
+    return 0
+end
+"""
+
 
 class DistributedLock:
     """Redis-based distributed lock using SET NX EX for atomic acquisition."""
@@ -51,7 +62,11 @@ class DistributedLock:
         return True
 
     async def release(self) -> None:
-        """Release the distributed lock if we own it. Raises LockUnavailableError if unsafe."""
+        """Release the distributed lock if we own it. Raises LockUnavailableError if unsafe.
+
+        Uses a Lua script to atomically compare the lock value and delete in
+        a single Redis round-trip, preventing race conditions between GET and DELETE.
+        """
         if not self.redis_client:
             raise LockUnavailableError(f"Redis client is required to release distributed lock '{self.lock_key}'")
 
@@ -59,19 +74,19 @@ class DistributedLock:
             raise LockUnavailableError(f"Distributed lock '{self.lock_key}' cannot be released because it was not acquired")
 
         try:
-            current_value = await self.redis_client.get(self.lock_key)
-            if current_value is None:
-                raise LockUnavailableError(f"Distributed lock '{self.lock_key}' expired or was cleared externally")
-
-            if current_value != self.lock_value:
-                raise LockUnavailableError(f"Distributed lock '{self.lock_key}' is held by another owner")
-
-            await self.redis_client.delete(self.lock_key)
-            self._acquired = False
-            logger.debug(f"Released distributed lock: {self.lock_key}")
-
+            result = await self.redis_client.eval(_RELEASE_SCRIPT, 1, self.lock_key, self.lock_value)
         except REDIS_ERRORS as exc:
             raise LockUnavailableError(f"Failed to release distributed lock '{self.lock_key}': {exc}") from exc
+
+        if result == -1:
+            self._acquired = False
+            raise LockUnavailableError(f"Distributed lock '{self.lock_key}' expired or was cleared externally")
+
+        if result == 0:
+            raise LockUnavailableError(f"Distributed lock '{self.lock_key}' is held by another owner")
+
+        self._acquired = False
+        logger.debug(f"Released distributed lock: {self.lock_key}")
 
     @asynccontextmanager
     async def acquire_context(self):

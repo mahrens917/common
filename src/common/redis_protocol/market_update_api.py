@@ -156,7 +156,7 @@ async def _execute_batch_transaction(
                 sig.market_key,
                 sig.ticker,
                 algo,
-                PriceSignal(t_bid=sig.t_bid, t_ask=sig.t_ask),
+                PriceSignal(t_bid=sig.t_bid, t_ask=sig.t_ask, signal=sig.signal, edge=sig.edge),
             )
         except (RuntimeError, ConnectionError, OSError):  # Expected, non-critical  # policy_guard: allow-silent-handler
             pass
