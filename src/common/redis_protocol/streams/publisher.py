@@ -36,7 +36,7 @@ async def stream_publish(
     Returns:
         The entry ID assigned by Redis.
     """
-    str_fields: Dict[FieldT, EncodableT] = {k: str(v) for k, v in fields.items()}
+    str_fields: Dict[FieldT, EncodableT] = {k: str(v) for k, v in fields.items() if v is not None}
 
     entry_id: str = await ensure_awaitable(
         redis_client.xadd(stream_name, str_fields, maxlen=maxlen, approximate=True),

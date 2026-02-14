@@ -312,7 +312,7 @@ class TestMarketSelectionHelper:
 
     def test_is_temperature_in_band_at_cap(self) -> None:
         """Test temperature at cap."""
-        assert MarketSelectionHelper.is_temperature_in_band(80.0, 70.0, 80.0) is True
+        assert MarketSelectionHelper.is_temperature_in_band(80.0, 70.0, 80.0) is False
 
     def test_is_temperature_in_band_below(self) -> None:
         """Test temperature below band."""

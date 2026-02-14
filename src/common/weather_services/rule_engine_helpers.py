@@ -182,7 +182,7 @@ class MarketSelectionHelper:
         """Check if temperature is within specified bounds."""
         if floor is None or cap is None:
             return False
-        return floor <= temp_f <= cap
+        return floor <= temp_f < cap
 
     @staticmethod
     def calculate_market_width(floor: Optional[float], cap: Optional[float]) -> Optional[float]:
@@ -218,7 +218,7 @@ class MarketEvaluator:
         """Check if less market qualifies (tightest cap above temp wins)."""
         if cap is None:
             raise MissingLessCapStrikeError(snapshot.key)
-        return max_temp_f <= cap and (best_cap is None or cap < best_cap)
+        return max_temp_f < cap and (best_cap is None or cap < best_cap)
 
     @staticmethod
     def evaluate_between_market(

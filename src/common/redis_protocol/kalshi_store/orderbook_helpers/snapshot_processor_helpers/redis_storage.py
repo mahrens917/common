@@ -48,6 +48,6 @@ async def store_best_prices(
 
 def build_hash_data(orderbook_sides: Dict[str, Any], timestamp: str) -> Dict[str, str]:
     """Build hash data for Redis storage."""
-    hash_data = {side_name: orjson.dumps(side_data).decode() for side_name, side_data in orderbook_sides.items() if side_data}
+    hash_data = {side_name: orjson.dumps(side_data).decode() for side_name, side_data in orderbook_sides.items()}
     hash_data["timestamp"] = timestamp
     return hash_data

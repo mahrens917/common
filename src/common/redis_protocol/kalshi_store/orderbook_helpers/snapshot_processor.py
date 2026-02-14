@@ -12,15 +12,12 @@ from redis.asyncio import Redis
 
 from ....market_filters.kalshi import extract_best_ask, extract_best_bid
 from ...orderbook_utils import build_snapshot_sides
+from ...typing import ensure_awaitable
 from ..utils_coercion import coerce_mapping as _canonical_coerce_mapping
 from .best_price_updater import BestPriceUpdater
 from .event_publisher import publish_market_event
 from .snapshot_processor_helpers.price_formatting import normalize_price_formatting
-from .snapshot_processor_helpers.redis_storage import (
-    build_hash_data,
-    store_best_prices,
-    store_hash_fields,
-)
+from .snapshot_processor_helpers.redis_storage import build_hash_data
 
 logger = logging.getLogger(__name__)
 
@@ -80,10 +77,21 @@ class SnapshotProcessor:
             yes_ask_size,
         )
 
-        await asyncio.gather(
-            store_hash_fields(redis, market_key, hash_data, timestamp),
-            store_best_prices(redis, market_key, yes_bid_price, yes_ask_price, yes_bid_size, yes_ask_size),
-        )
+        combined = {k: v for k, v in hash_data.items() if k != "timestamp"}
+        combined["timestamp"] = timestamp
+        best_price_fields = [
+            ("yes_bid", yes_bid_price),
+            ("yes_ask", yes_ask_price),
+            ("yes_bid_size", yes_bid_size),
+            ("yes_ask_size", yes_ask_size),
+        ]
+        for name, val in best_price_fields:
+            if val is not None:
+                combined[name] = str(val)
+        await ensure_awaitable(redis.hset(market_key, mapping=combined))
+        fields_to_del = [name for name, val in best_price_fields if val is None]
+        if fields_to_del:
+            await ensure_awaitable(redis.hdel(market_key, *fields_to_del))
 
         await asyncio.gather(
             BestPriceUpdater._recompute_direction(redis, market_key),

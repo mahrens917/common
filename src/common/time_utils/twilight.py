@@ -8,7 +8,7 @@ import math
 from datetime import datetime, timedelta, timezone
 from typing import Optional
 
-from .base import AstronomicalComputationError, logger
+from .base import EARTH_AXIAL_TILT_DEG, AstronomicalComputationError, logger
 from .solar import calculate_solar_noon_utc
 
 # Constants
@@ -33,7 +33,7 @@ def _calculate_twilight(latitude: float, longitude: float, date, *, is_dawn: boo
     _validate_coordinates(latitude, longitude)
     date_utc = _normalize_date(date)
     day_of_year = date_utc.timetuple().tm_yday
-    declination = 23.45 * math.sin(math.radians(360 * (284 + day_of_year) / 365))
+    declination = EARTH_AXIAL_TILT_DEG * math.sin(math.radians(360 * (284 + day_of_year) / 365))
     hour_angle = _compute_hour_angle(latitude, declination, date_utc, longitude, is_dawn)
     minutes = _compute_minutes_offset(hour_angle, longitude, day_of_year, is_dawn)
     result = _build_twilight_datetime(date_utc, minutes)

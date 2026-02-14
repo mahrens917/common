@@ -154,6 +154,7 @@ class TestUserDataWriter:
         redis.hget = AsyncMock(return_value=None)
         redis.lpush = AsyncMock()
         redis.ltrim = AsyncMock()
+        redis.expire = AsyncMock()
         return redis
 
     @pytest.fixture

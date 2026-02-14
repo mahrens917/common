@@ -85,9 +85,9 @@ def _extract_delta_inputs(msg_data: Dict[str, Any]) -> tuple[str, str, float] | 
 def _resolve_side_field(side: str, price: float) -> tuple[str, str] | None:
     """Return the Redis field and price representation for the provided side."""
     if side == "yes":
-        return "yes_bids", str(price)
+        return "yes_bids", f"{float(price):.1f}"
     if side == "no":
-        return "yes_asks", str(100 - float(price))
+        return "yes_asks", f"{100 - float(price):.1f}"
     return None
 
 
@@ -99,7 +99,11 @@ async def _apply_side_delta(
     price_str: str,
     delta: float,
 ) -> dict | None:
-    """Load the current side snapshot, apply the delta, and persist the result."""
+    """Load the current side snapshot, apply the delta, and persist the result.
+
+    Safe without transactions because message processing is sequential
+    within the asyncio event loop (single consumer from the message queue).
+    """
     try:
         side_json = await ensure_awaitable(redis.hget(market_key, side_field))
     except REDIS_ERRORS as exc:

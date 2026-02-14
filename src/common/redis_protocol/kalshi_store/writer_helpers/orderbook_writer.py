@@ -14,10 +14,13 @@ from redis.asyncio import Redis
 from common.redis_schema import build_kalshi_market_key
 from common.truthy import pick_if, pick_truthy
 
+from ...config import DATA_CUTOFF_SECONDS
 from ...error_types import REDIS_ERRORS
 from ...typing import ensure_awaitable
 from .market_update_writer import RedisConnectionMixin
 from .timestamp_normalizer import TimestampNormalizer
+
+_FILL_ORDER_TTL_SECONDS = DATA_CUTOFF_SECONDS
 
 if TYPE_CHECKING:
     from ..connection import RedisConnectionManager
@@ -232,9 +235,13 @@ class UserDataWriter(RedisConnectionMixin):
             mapping = _build_fill_mapping(data, _resolve_fill_price(data), ts_iso, await self._fetch_market_algo(str(ticker)))
 
             redis_client = await self._ensure_redis()
-            await ensure_awaitable(redis_client.hset(f"kalshi:fills:{ticker}:{trade_id}", mapping=mapping))
-            await ensure_awaitable(redis_client.lpush(f"kalshi:fills:{ticker}", trade_id))
-            await ensure_awaitable(redis_client.ltrim(f"kalshi:fills:{ticker}", 0, 99))
+            fill_key = f"kalshi:fills:{ticker}:{trade_id}"
+            list_key = f"kalshi:fills:{ticker}"
+            await ensure_awaitable(redis_client.hset(fill_key, mapping=mapping))
+            await ensure_awaitable(redis_client.expire(fill_key, _FILL_ORDER_TTL_SECONDS))
+            await ensure_awaitable(redis_client.lpush(list_key, trade_id))
+            await ensure_awaitable(redis_client.ltrim(list_key, 0, 99))
+            await ensure_awaitable(redis_client.expire(list_key, _FILL_ORDER_TTL_SECONDS))
         except (ValueError, TypeError) as exc:  # policy_guard: allow-silent-handler
             logger.error("Invalid user fill payload: %s", exc, exc_info=True)
             return False
@@ -259,7 +266,9 @@ class UserDataWriter(RedisConnectionMixin):
             mapping = _build_order_mapping(data, ts_iso)
 
             redis_client = await self._ensure_redis()
-            await ensure_awaitable(redis_client.hset(f"kalshi:orders:{ticker}:{order_id}", mapping=mapping))
+            order_key = f"kalshi:orders:{ticker}:{order_id}"
+            await ensure_awaitable(redis_client.hset(order_key, mapping=mapping))
+            await ensure_awaitable(redis_client.expire(order_key, _FILL_ORDER_TTL_SECONDS))
         except (ValueError, TypeError) as exc:  # policy_guard: allow-silent-handler
             logger.error("Invalid user order payload: %s", exc, exc_info=True)
             return False

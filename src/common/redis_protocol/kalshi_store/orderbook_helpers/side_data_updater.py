@@ -15,20 +15,24 @@ class SideDataUpdater:
 
     @staticmethod
     def parse_side_data(side_json: bytes | str | None) -> Dict:
-        """Parse side data JSON, returning empty dict on error."""
-        if not side_json:
+        """Parse side data JSON from Redis.
+
+        Returns empty dict for genuinely empty fields (None/empty bytes).
+        Logs at error level and returns empty dict on corrupted JSON so
+        data integrity issues are visible to monitoring without crashing
+        the processing pipeline.
+        """
+        if side_json is None or side_json in {b"", ""}:
             return {}
 
         try:
             side_data = orjson.loads(side_json)
-        except (
-            orjson.JSONDecodeError,
-            TypeError,
-        ) as exc:  # Expected data validation or parsing failure  # policy_guard: allow-silent-handler
-            logger.warning("Error parsing side data: %s, initializing empty", exc)
+        except (orjson.JSONDecodeError, TypeError) as exc:  # Expected: corrupted Redis data  # policy_guard: allow-silent-handler
+            logger.error("Corrupted orderbook side data in Redis: %s", exc, exc_info=True)
             return {}
 
         if not isinstance(side_data, dict):
+            logger.error("Orderbook side data is not a dict: %s", type(side_data).__name__)
             return {}
 
         return side_data

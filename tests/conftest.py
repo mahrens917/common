@@ -327,6 +327,15 @@ class FakeRedisPipeline:
         self.fake_redis = fake_redis
         self.transaction = transaction
         self.commands: list[tuple[str, Any]] = []
+        self._watching = False
+
+    async def watch(self, *keys: str) -> None:
+        """Watch keys for optimistic locking. Switches to immediate mode."""
+        self._watching = True
+
+    def multi(self) -> None:
+        """Switch back to buffered/transactional mode after WATCH."""
+        self._watching = False
 
     def set(self, key: str, value: str | bytes) -> "FakeRedisPipeline":
         """Pipeline set."""
@@ -362,8 +371,10 @@ class FakeRedisPipeline:
         self.commands.append(("hset", (key, update_map)))
         return self
 
-    def hget(self, key: str, field: str) -> "FakeRedisPipeline":
-        """Pipeline hget."""
+    def hget(self, key: str, field: str) -> Any:
+        """Pipeline hget. Returns result immediately when watching."""
+        if self._watching:
+            return self.fake_redis.hget(key, field)
         self.commands.append(("hget", (key, field)))
         return self
 

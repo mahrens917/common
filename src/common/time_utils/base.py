@@ -11,4 +11,6 @@ class AstronomicalComputationError(RuntimeError):
     """Raised when astronomical calculations cannot produce a valid result."""
 
 
-__all__ = ["AstronomicalComputationError", "logger"]
+EARTH_AXIAL_TILT_DEG = 23.4393
+
+__all__ = ["AstronomicalComputationError", "EARTH_AXIAL_TILT_DEG", "logger"]
