@@ -22,21 +22,29 @@ class MarketSelector:
 
     async def select_target_market(self, city_code: str, *, day_code: Optional[str], max_temp_f: float) -> Optional[MarketSnapshot]:
         """Select best market for rule 4 application."""
-        best_snapshot, best_cap, best_floor = None, None, None
+        best_between, best_between_cap, best_between_floor = None, None, None
+        best_greater, best_greater_floor = None, None
+        best_less, best_less_cap = None, None
         async for snapshot in self._repository.iter_city_markets(city_code, day_code=day_code):
             cap, floor = MarketEvaluator.extract_strike_values(snapshot, TemperatureCoercer)
             strike_type = snapshot.strike_type.lower()
 
             if strike_type == "greater":
-                if MarketEvaluator.evaluate_greater_market(max_temp_f, floor, snapshot, best_floor):
-                    best_snapshot = snapshot
-                    best_cap = cap
-                    best_floor = floor
-                continue
-
-            if strike_type == "between":
-                best_snapshot, best_cap, best_floor = MarketEvaluator.evaluate_between_market(
-                    max_temp_f, cap, floor, snapshot, best_snapshot, best_cap, best_floor
+                if MarketEvaluator.evaluate_greater_market(max_temp_f, floor, snapshot, best_greater_floor):
+                    best_greater = snapshot
+                    best_greater_floor = floor
+            elif strike_type == "less":
+                if MarketEvaluator.evaluate_less_market(max_temp_f, cap, snapshot, best_less_cap):
+                    best_less = snapshot
+                    best_less_cap = cap
+            elif strike_type == "between":
+                best_between, best_between_cap, best_between_floor = MarketEvaluator.evaluate_between_market(
+                    max_temp_f, cap, floor, snapshot, best_between, best_between_cap, best_between_floor
                 )
 
-        return best_snapshot
+        # Between markets are strictly tighter than unbounded greater/less
+        if best_between is not None:
+            return best_between
+        if best_greater is not None:
+            return best_greater
+        return best_less

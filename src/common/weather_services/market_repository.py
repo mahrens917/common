@@ -95,7 +95,9 @@ class RedisWeatherMarketRepository(MarketRepository):
                 descriptor=descriptor,
             )
 
-            strike_type = self._resolve_strike_type(descriptor.ticker, enriched_snapshot)
+            strike_type = self._resolve_strike_type(enriched_snapshot)
+            if strike_type is None:
+                continue
 
             yield MarketSnapshot(
                 key=key_str,
@@ -118,17 +120,12 @@ class RedisWeatherMarketRepository(MarketRepository):
                 break
 
     @staticmethod
-    def _resolve_strike_type(ticker: str, snapshot: Dict[str, Any]) -> str:
+    def _resolve_strike_type(snapshot: Dict[str, Any]) -> Optional[str]:
         """Determine the strike classification for a weather market snapshot."""
         strike = snapshot.get("strike_type")
         if isinstance(strike, str) and strike.strip():
             return strike.lower()
-
-        parts = [segment.upper() for segment in ticker.split("-") if segment]
-        for candidate in ("BETWEEN", "GREATER", "LESS", "ABOVE", "BELOW"):
-            if candidate in parts:
-                return candidate.lower()
-        return "unknown"
+        return None
 
 
 __all__ = ["MarketRepository", "MarketSnapshot", "RedisWeatherMarketRepository"]

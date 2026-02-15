@@ -14,9 +14,9 @@ class StationResolver:
 
     def __init__(
         self,
-        station_mapping_loader: Callable[[], Dict[str, Dict[str, Any]]] | None = None,
+        station_mapping_loader: Callable[[], Dict[str, Dict[str, Any]]] = load_weather_station_mapping,
     ) -> None:
-        self._loader = station_mapping_loader or load_weather_station_mapping
+        self._loader = station_mapping_loader
         self._station_mapping: Dict[str, Dict[str, Any]] = {}
         self._alias_index: Dict[str, str] = {}
 

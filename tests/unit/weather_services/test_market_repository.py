@@ -95,83 +95,48 @@ class TestRedisWeatherMarketRepositoryResolveStrikeType:
     def test_uses_snapshot_strike_type(self) -> None:
         """Test uses strike_type from snapshot when available."""
         result = RedisWeatherMarketRepository._resolve_strike_type(
-            "KXHIGHMIA-T72",
             {"strike_type": "Greater"},
         )
 
         assert result == "greater"
 
-    def test_parses_between_from_ticker(self) -> None:
-        """Test parses BETWEEN from ticker."""
+    def test_returns_between(self) -> None:
+        """Test returns between strike type."""
         result = RedisWeatherMarketRepository._resolve_strike_type(
-            "KXHIGHMIA-BETWEEN-T70-T75",
-            {},
+            {"strike_type": "between"},
         )
 
         assert result == "between"
 
-    def test_parses_greater_from_ticker(self) -> None:
-        """Test parses GREATER from ticker."""
+    def test_returns_less(self) -> None:
+        """Test returns less strike type."""
         result = RedisWeatherMarketRepository._resolve_strike_type(
-            "KXHIGHMIA-GREATER-T72",
-            {},
-        )
-
-        assert result == "greater"
-
-    def test_parses_less_from_ticker(self) -> None:
-        """Test parses LESS from ticker."""
-        result = RedisWeatherMarketRepository._resolve_strike_type(
-            "KXHIGHMIA-LESS-T70",
-            {},
+            {"strike_type": "Less"},
         )
 
         assert result == "less"
 
-    def test_parses_above_from_ticker(self) -> None:
-        """Test parses ABOVE from ticker."""
+    def test_returns_none_when_missing(self) -> None:
+        """Test returns None when strike_type is absent."""
+        result = RedisWeatherMarketRepository._resolve_strike_type({})
+
+        assert result is None
+
+    def test_returns_none_for_empty_strike_type(self) -> None:
+        """Test returns None for empty/whitespace strike_type string."""
         result = RedisWeatherMarketRepository._resolve_strike_type(
-            "KXHIGHMIA-ABOVE-T75",
-            {},
-        )
-
-        assert result == "above"
-
-    def test_parses_below_from_ticker(self) -> None:
-        """Test parses BELOW from ticker."""
-        result = RedisWeatherMarketRepository._resolve_strike_type(
-            "KXHIGHMIA-BELOW-T65",
-            {},
-        )
-
-        assert result == "below"
-
-    def test_returns_unknown_when_not_found(self) -> None:
-        """Test returns 'unknown' when strike type not found."""
-        result = RedisWeatherMarketRepository._resolve_strike_type(
-            "KXHIGHMIA-T72",
-            {},
-        )
-
-        assert result == "unknown"
-
-    def test_ignores_empty_strike_type(self) -> None:
-        """Test ignores empty strike_type string."""
-        result = RedisWeatherMarketRepository._resolve_strike_type(
-            "KXHIGHMIA-GREATER-T72",
             {"strike_type": "  "},
         )
 
-        assert result == "greater"
+        assert result is None
 
-    def test_handles_none_strike_type(self) -> None:
-        """Test handles None strike_type."""
+    def test_returns_none_for_none_strike_type(self) -> None:
+        """Test returns None when strike_type is None."""
         result = RedisWeatherMarketRepository._resolve_strike_type(
-            "KXHIGHMIA-BETWEEN-T70-T75",
             {"strike_type": None},
         )
 
-        assert result == "between"
+        assert result is None
 
 
 class TestRedisWeatherMarketRepositoryScan:

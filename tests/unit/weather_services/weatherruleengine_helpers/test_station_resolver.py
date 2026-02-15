@@ -16,10 +16,11 @@ class TestStationResolverInit:
 
     def test_uses_default_loader(self) -> None:
         """Test uses default loader when none provided."""
+        from common.config.weather import load_weather_station_mapping
+
         resolver = StationResolver()
 
-        # Should have a loader
-        assert resolver._loader is not None
+        assert resolver._loader is load_weather_station_mapping
 
     def test_uses_custom_loader(self) -> None:
         """Test uses custom loader when provided."""

@@ -149,8 +149,30 @@ class TestMarketSelectorSelectTargetMarket:
             assert mock_evaluator.evaluate_greater_market.call_count == 2
 
     @pytest.mark.asyncio
-    async def test_handles_mixed_strike_types(self) -> None:
-        """Test handles mix of greater and between strike types."""
+    async def test_selects_less_market(self) -> None:
+        """Test selects less strike type market."""
+        mock_repo = MagicMock()
+        mock_snapshot = MagicMock()
+        mock_snapshot.strike_type = "less"
+
+        async def iter_markets(*args, **kwargs):
+            yield mock_snapshot
+
+        mock_repo.iter_city_markets = iter_markets
+
+        with patch("common.weather_services.weatherruleengine_helpers.market_selector.MarketEvaluator") as mock_evaluator:
+            mock_evaluator.extract_strike_values.return_value = (78.0, None)
+            mock_evaluator.evaluate_less_market.return_value = True
+
+            selector = MarketSelector(mock_repo)
+            result = await selector.select_target_market("MIA", day_code=None, max_temp_f=75.0)
+
+            assert result is mock_snapshot
+            mock_evaluator.evaluate_less_market.assert_called_once()
+
+    @pytest.mark.asyncio
+    async def test_between_wins_over_greater(self) -> None:
+        """Test between market wins over qualifying greater market."""
         mock_repo = MagicMock()
         greater_snapshot = MagicMock()
         greater_snapshot.strike_type = "greater"
@@ -165,7 +187,7 @@ class TestMarketSelectorSelectTargetMarket:
 
         with patch("common.weather_services.weatherruleengine_helpers.market_selector.MarketEvaluator") as mock_evaluator:
             mock_evaluator.extract_strike_values.side_effect = [(None, 70.0), (78.0, 72.0)]
-            mock_evaluator.evaluate_greater_market.return_value = False
+            mock_evaluator.evaluate_greater_market.return_value = True
             mock_evaluator.evaluate_between_market.return_value = (between_snapshot, 78.0, 72.0)
 
             selector = MarketSelector(mock_repo)
