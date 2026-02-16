@@ -32,6 +32,8 @@ FETCH_FILLS_ERRORS = (
     TypeError,
 )
 
+_DEFAULT_POLL_INTERVAL_SECONDS = 0.5
+
 FillFetcher = Callable[[str], Awaitable[List[Dict[str, Any]]]]
 Sleeper = Callable[[float], Awaitable[None]]
 
@@ -59,14 +61,16 @@ class OrderPoller:
         *,
         sleep: Optional[Sleeper] = None,
         operation_name: str = "create_order_with_polling",
+        poll_interval: float = _DEFAULT_POLL_INTERVAL_SECONDS,
     ) -> None:
         self._fetch_fills = fetch_fills
         self._sleep = sleep or asyncio.sleep
         self._operation_name = operation_name
+        self._poll_interval = poll_interval
 
     async def poll(self, order_id: str, timeout_seconds: float) -> Optional[PollingOutcome]:
         """
-        Wait for the configured timeout and fetch fills once.
+        Poll for fills at regular intervals until timeout.
 
         Returns:
             PollingOutcome if fills were returned, otherwise None.
@@ -74,17 +78,23 @@ class OrderPoller:
         Raises:
             KalshiOrderPollingError: When fill retrieval fails or invalid fills are returned.
         """
-        await self._wait(timeout_seconds)
-        fills = await self._retrieve_fills(order_id)
-        if not fills:
-            logger.info(
-                "[%s] No fills returned for order %s after %.2fs timeout",
-                self._operation_name,
-                order_id,
-                timeout_seconds,
-            )
-            return None
+        elapsed = 0.0
+        while elapsed < timeout_seconds:
+            interval = min(self._poll_interval, timeout_seconds - elapsed)
+            await self._wait(interval)
+            elapsed += interval
+            fills = await self._retrieve_fills(order_id)
+            if fills:
+                return self._build_outcome(order_id, fills)
+        logger.info(
+            "[%s] No fills returned for order %s after %.2fs timeout",
+            self._operation_name,
+            order_id,
+            timeout_seconds,
+        )
+        return None
 
+    def _build_outcome(self, order_id: str, fills: List[Dict[str, Any]]) -> PollingOutcome:
         outcome = self._summarize_fills(order_id, fills)
         logger.info(
             "[%s] Aggregated fills for order %s: filled=%s avg_price=%s¢",
@@ -95,10 +105,10 @@ class OrderPoller:
         )
         return outcome
 
-    async def _wait(self, timeout_seconds: float) -> None:
-        if timeout_seconds <= 0:
+    async def _wait(self, seconds: float) -> None:
+        if seconds <= 0:
             return
-        await self._sleep(timeout_seconds)
+        await self._sleep(seconds)
 
     async def _retrieve_fills(self, order_id: str) -> List[Dict[str, Any]]:
         try:

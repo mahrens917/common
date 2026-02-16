@@ -1,41 +1,83 @@
 from datetime import datetime, timezone
+from typing import Generator, Optional
 
 import pytest
 
 from common.time_helpers.location import (
-    MAX_LATITUDE,
-    MAX_LONGITUDE,
-    MIN_LATITUDE,
-    MIN_LONGITUDE,
-    _get_timezone_heuristic,
+    TimezoneLookupError,
+    _STATE,
+    _set_override_finder,
+    get_timezone_finder,
     get_timezone_from_coordinates,
+    resolve_timezone,
+    shutdown_timezone_finder,
 )
 from common.time_utils.local import calculate_local_midnight_utc, is_after_local_midnight
 
 
-def test_get_timezone_from_coordinates_validates_bounds():
-    with pytest.raises(ValueError):
-        get_timezone_from_coordinates(MIN_LATITUDE - 1, 0)
-    with pytest.raises(ValueError):
-        get_timezone_from_coordinates(0, MAX_LONGITUDE + 1)
+@pytest.fixture(autouse=True)
+def reset_timezone_state() -> Generator[None, None, None]:
+    _STATE.finder = None
+    _STATE.error = None
+    _set_override_finder(None)
+    yield
+    _STATE.finder = None
+    _STATE.error = None
+    _set_override_finder(None)
 
 
-def test_timezone_heuristic_and_import_fallback(monkeypatch):
-    # Force ImportError path
-    def fake_import(name, *args, **kwargs):
-        if name == "timezonefinder":
-            raise ImportError()
-        return __import__(name, *args, **kwargs)
+def test_get_timezone_from_coordinates_returns_timezone() -> None:
+    class StubFinder:
+        def timezone_at(self, *, lng: float, lat: float) -> str:
+            return "Europe/Paris"
 
-    monkeypatch.setattr("builtins.__import__", fake_import)
-    tz = get_timezone_from_coordinates(40, -74)
-    assert tz in {"America/New_York", "UTC"}
+    _set_override_finder(StubFinder())
 
-    # Direct heuristic checks
-    assert _get_timezone_heuristic(40, -74) == "America/New_York"
-    assert _get_timezone_heuristic(34, -118) == "America/Los_Angeles"
-    assert _get_timezone_heuristic(35, 140) == "Asia/Tokyo"
-    assert _get_timezone_heuristic(51, 0) == "Europe/London"
+    tz = get_timezone_from_coordinates(48.85, 2.35)
+
+    assert tz == "Europe/Paris"
+
+
+def test_get_timezone_from_coordinates_raises_when_no_match() -> None:
+    class StubFinder:
+        def timezone_at(self, *, lng: float, lat: float) -> Optional[str]:
+            return None
+
+    _set_override_finder(StubFinder())
+
+    with pytest.raises(TimezoneLookupError, match="Unable to resolve timezone"):
+        get_timezone_from_coordinates(0.0, 0.0)
+
+
+def test_resolve_timezone_uses_configured_value() -> None:
+    result = resolve_timezone(40.7, -74.0, configured_timezone="America/New_York")
+
+    assert result == "America/New_York"
+
+
+def test_resolve_timezone_falls_back_to_coordinates() -> None:
+    class StubFinder:
+        def timezone_at(self, *, lng: float, lat: float) -> str:
+            return "America/Chicago"
+
+    _set_override_finder(StubFinder())
+
+    result = resolve_timezone(41.9, -87.6)
+
+    assert result == "America/Chicago"
+
+
+def test_shutdown_timezone_finder_invokes_close() -> None:
+    closed: list[str] = []
+
+    class StubFinder:
+        def close(self) -> None:
+            closed.append("close")
+
+    _set_override_finder(StubFinder())
+    shutdown_timezone_finder()
+
+    assert closed == ["close"]
 
 
 def test_local_midnight_and_after_check(monkeypatch):

@@ -16,23 +16,12 @@ class ExpiredMarketCleaner:
     """Clean up expired markets from Redis."""
 
     def __init__(self, redis_client: RedisClient, *, grace_period_days: int = 0) -> None:
-        """
-        Initialize cleaner.
-
-        Args:
-            redis_client: Redis client instance
-            grace_period_days: Days after expiration to keep markets (default: 0)
-        """
+        """Initialize cleaner."""
         self._redis = redis_client
         self._grace_period_days = grace_period_days
 
     async def cleanup_kalshi_markets(self) -> int:
-        """
-        Clean up expired Kalshi markets.
-
-        Returns:
-            Number of markets deleted
-        """
+        """Clean up expired Kalshi markets."""
         pattern = "markets:kalshi:*"
         deleted_count = 0
 
@@ -72,33 +61,15 @@ class ExpiredMarketCleaner:
         return False
 
     async def cleanup_deribit_options(self) -> int:
-        """
-        Clean up expired Deribit options.
-
-        Returns:
-            Number of options deleted
-        """
+        """Clean up expired Deribit options."""
         return await self._cleanup_deribit_instruments("option")
 
     async def cleanup_deribit_futures(self) -> int:
-        """
-        Clean up expired Deribit futures (excludes perpetuals).
-
-        Returns:
-            Number of futures deleted
-        """
+        """Clean up expired Deribit futures (excludes perpetuals)."""
         return await self._cleanup_deribit_instruments("future")
 
     async def _cleanup_deribit_instruments(self, instrument_type: str) -> int:
-        """
-        Clean up expired Deribit instruments of the specified type.
-
-        Args:
-            instrument_type: "option" or "future"
-
-        Returns:
-            Number of instruments deleted
-        """
+        """Clean up expired Deribit instruments of the specified type."""
         pattern = f"markets:deribit:{instrument_type}:*"
         deleted_count = 0
 

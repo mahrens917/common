@@ -14,4 +14,18 @@ ARCHITECTURAL NOTE: The system uses a hybrid approach:
 
 from typing import List
 
-__all__: List[str] = []
+from .solar import (
+    SolarTimes,
+    compute_day_of_year_encoding,
+    compute_solar_diurnal,
+    compute_solar_diurnal_from_iso,
+    compute_solar_times,
+)
+
+__all__: List[str] = [
+    "SolarTimes",
+    "compute_day_of_year_encoding",
+    "compute_solar_diurnal",
+    "compute_solar_diurnal_from_iso",
+    "compute_solar_times",
+]

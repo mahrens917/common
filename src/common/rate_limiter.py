@@ -100,7 +100,7 @@ class RateLimiter:
         return self._current_delay_ms
 
     def handle_429_response(self, retry_after_seconds: Optional[float] = None) -> float:
-        """Compatibility alias for record_rate_limit."""
+        """Alias for record_rate_limit."""
         return self.record_rate_limit(retry_after_seconds)
 
     def record_error(self) -> None:
@@ -109,7 +109,7 @@ class RateLimiter:
         # Non-rate-limit errors don't affect backoff state
 
     def get_metrics(self) -> Dict[str, int | float | bool]:
-        """Compatibility alias for stats property."""
+        """Alias for stats property."""
         return self.stats
 
     def reset(self) -> None:

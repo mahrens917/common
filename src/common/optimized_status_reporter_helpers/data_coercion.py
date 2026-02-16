@@ -29,20 +29,20 @@ class DataCoercion:
 
     @staticmethod
     def bool_or_default(value: Any, value_on_error: bool) -> bool:
-        """Extract boolean or return fallback."""
+        """Extract boolean or return value on error."""
         return _bool_or_default(value, value_on_error)
 
     @staticmethod
     def int_or_default(value: Any, value_on_error: int = 0) -> int:
-        """Extract integer or return fallback."""
+        """Extract integer or return value on error."""
         return _int_or_default(value, value_on_error)
 
     @staticmethod
     def float_or_default(value: Any, value_on_error: float = 0.0) -> float:
-        """Extract float or return fallback."""
+        """Extract float or return value on error."""
         return _float_or_default(value, value_on_error)
 
     @staticmethod
     def string_or_default(value: Any, value_on_error: str) -> str:
-        """Extract string or return fallback."""
+        """Extract string or return value on error."""
         return _string_or_default(value, value_on_error)

@@ -24,12 +24,7 @@ class MarketFilter:
     """Filter markets by various criteria"""
 
     def __init__(self, logger_instance: logging.Logger):
-        """
-        Initialize market filter
-
-        Args:
-            logger_instance: Logger to use for filter operations
-        """
+        """Initialize market filter."""
         self.logger = logger_instance
 
     def _extract_ticker_from_key(self, key_str: str) -> str | None:
@@ -47,17 +42,7 @@ class MarketFilter:
         return descriptor.ticker
 
     async def find_currency_market_tickers(self, redis: Redis, currency: str, is_market_for_currency_func) -> List[str]:
-        """
-        Scan Redis for Kalshi market tickers matching the requested currency.
-
-        Args:
-            redis: Redis connection
-            currency: Currency to filter by
-            is_market_for_currency_func: Function to check if ticker matches currency
-
-        Returns:
-            List of market tickers for the currency
-        """
+        """Scan Redis for Kalshi market tickers matching the requested currency."""
         pattern = f"{SCHEMA.kalshi_market_prefix}:*"
         cursor = 0
         collected: List[str] = []
@@ -110,15 +95,7 @@ class MarketFilter:
         processed: int,
         skip_reasons: Counter[str],
     ) -> None:
-        """
-        Log summary of market filtering results
-
-        Args:
-            currency: Currency being processed
-            total: Total markets found
-            processed: Markets successfully processed
-            skip_reasons: Counter of skip reasons
-        """
+        """Log summary of market filtering results."""
         if total <= 0:
             return
         skipped = total - processed

@@ -8,7 +8,9 @@ Exception classes support two patterns:
 2. Contextual attributes: err = ConfigurationError(field="x", value=123); raise err
 """
 
-from typing import Any
+from __future__ import annotations
+
+from typing import Any, Tuple
 
 _DEFAULT_APPLICATION_ERROR_MESSAGE = "Application error occurred"
 
@@ -28,6 +30,14 @@ class ApplicationError(Exception):
             setattr(self, key, value)
 
 
+def _split_field_path(path: str) -> Tuple[str, str]:
+    """Split a dotted field path into (section, field) for error messages."""
+    if "." in path:
+        parts = path.rsplit(".", 1)
+        return parts[0], parts[1]
+    return path, "value"
+
+
 class ConfigurationError(ApplicationError):
     """Configuration is invalid or missing."""
 
@@ -35,6 +45,51 @@ class ConfigurationError(ApplicationError):
         if not message:
             message = "Configuration is invalid or missing"
         super().__init__(message, **kwargs)
+
+    @classmethod
+    def missing_section(cls, section: str) -> "ConfigurationError":
+        """Create error for a missing configuration section."""
+        return cls(f"Runtime configuration is invalid: missing '{section}' section")
+
+    @classmethod
+    def missing_field(cls, section: str, field: str) -> "ConfigurationError":
+        """Create error for a missing field within a section."""
+        return cls(f"Runtime configuration is invalid: missing '{section}.{field}' field")
+
+    @classmethod
+    def invalid_field(cls, section: str, field: str, reason: str) -> "ConfigurationError":
+        """Create error for an invalid field value."""
+        return cls(f"Runtime configuration is invalid: invalid '{section}.{field}' field ({reason})")
+
+    @classmethod
+    def missing_field_path(cls, path: str) -> "ConfigurationError":
+        """Create error for a missing field using a dotted path."""
+        section, field = _split_field_path(path)
+        return cls.missing_field(section, field)
+
+    @classmethod
+    def invalid_field_path(cls, path: str, reason: str) -> "ConfigurationError":
+        """Create error for an invalid field using a dotted path."""
+        section, field = _split_field_path(path)
+        return cls.invalid_field(section, field, reason)
+
+    @classmethod
+    def missing_key(cls, *, source: str, key: str) -> "ConfigurationError":
+        """Create error for a missing key in a source."""
+        return cls(f"Runtime configuration is invalid: {source} missing '{key}' key")
+
+
+class ConfigurationTypeError(TypeError):
+    """Raised when configuration payloads have unexpected types."""
+
+    def __init__(self, *, section: str, expected: str) -> None:
+        message = f"runtime config value '{section}' must be a {expected}"
+        super().__init__(message)
+
+    @classmethod
+    def for_field(cls, path: str, expected: str) -> "ConfigurationTypeError":
+        """Create type error for a field at the given path."""
+        return cls(section=path, expected=expected)
 
 
 class ValidationError(ApplicationError):

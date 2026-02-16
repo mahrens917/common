@@ -94,13 +94,13 @@ async def _get_market_metadata(store: "KalshiMarketReader", ticker: str) -> Dict
     return await snapshot_retriever.get_metadata(ticker)
 
 
-async def _get_market_field(store: "KalshiMarketReader", ticker: str, field: str, fallback_value: Optional[str] = None) -> str:
+async def _get_market_field(store: "KalshiMarketReader", ticker: str, field: str, fill_value: Optional[str] = None) -> str:
     snapshot_retriever = getattr(store, "_snapshot_retriever")
     try:
         return await snapshot_retriever.get_field(ticker, field)
     except (KeyError, ValueError, TypeError, RuntimeError):
-        if fallback_value is not None:
-            return fallback_value
+        if fill_value is not None:
+            return fill_value
         raise
 
 

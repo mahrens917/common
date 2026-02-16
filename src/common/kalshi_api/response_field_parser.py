@@ -16,7 +16,6 @@ class ResponseFieldParser:
 
     @staticmethod
     def parse_timestamp(timestamp_raw: str) -> datetime | None:
-        """Parse a timestamp string into a datetime object."""
         return parse_timestamp(timestamp_raw)
 
     @staticmethod

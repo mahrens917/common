@@ -35,6 +35,34 @@ class MidpointSignalResult:
     explanation: str
 
 
+async def _apply_rule4_fields(repository: MarketRepository, target_snapshot: MarketSnapshot, station_icao: str, max_temp_f: float) -> MidpointSignalResult:
+    """Write Rule 4 fields to Redis and build the result."""
+    explanation = f"⏰ MIDPOINT: Taking {max_temp_f}°F as final high → Buying YES"
+    await repository.set_market_fields(
+        target_snapshot.key,
+        {
+            "t_ask": "99",
+            "weather_explanation": explanation,
+            "last_rule_applied": "rule_4",
+            "intended_action": "BUY",
+            "intended_side": "YES",
+            "rule_triggered": "rule_4",
+        },
+    )
+    logger.info(
+        "WeatherRuleEngine: Rule 4 applied to %s for station %s",
+        target_snapshot.ticker,
+        station_icao,
+    )
+    return MidpointSignalResult(
+        station_icao=station_icao,
+        market_key=target_snapshot.key,
+        ticker=target_snapshot.ticker,
+        max_temp_f=max_temp_f,
+        explanation=explanation,
+    )
+
+
 class WeatherRuleEngine:
     """Evaluate and publish weather trading rules via an injected repository."""
 
@@ -109,32 +137,9 @@ class WeatherRuleEngine:
         return best_less
 
     async def _apply_market_fields_and_return_result(
-        self, target_snapshot: MarketSnapshot, station_icao: str, max_temp_f: float
+        self, target_snapshot: MarketSnapshot, station_icao: str, max_temp_f: float,
     ) -> MidpointSignalResult:
-        explanation = f"⏰ MIDPOINT: Taking {max_temp_f}°F as final high → Buying YES"
-        await self._repository.set_market_fields(
-            target_snapshot.key,
-            {
-                "t_ask": "99",
-                "weather_explanation": explanation,
-                "last_rule_applied": "rule_4",
-                "intended_action": "BUY",
-                "intended_side": "YES",
-                "rule_triggered": "rule_4",
-            },
-        )
-        logger.info(
-            "WeatherRuleEngine: Rule 4 applied to %s for station %s",
-            target_snapshot.ticker,
-            station_icao,
-        )
-        return MidpointSignalResult(
-            station_icao=station_icao,
-            market_key=target_snapshot.key,
-            ticker=target_snapshot.ticker,
-            max_temp_f=max_temp_f,
-            explanation=explanation,
-        )
+        return await _apply_rule4_fields(self._repository, target_snapshot, station_icao, max_temp_f)
 
     @staticmethod
     def _coerce_temperature(value: Any) -> Optional[float]:

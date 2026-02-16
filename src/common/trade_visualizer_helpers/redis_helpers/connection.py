@@ -2,7 +2,7 @@
 
 
 def get_redis_connection():
-    """Get Redis connection (for testing compatibility)."""
+    """Get Redis connection (used by tests)."""
     from common.redis_utils import get_redis_connection as _get_redis_connection
 
     return _get_redis_connection()

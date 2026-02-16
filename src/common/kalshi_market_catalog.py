@@ -16,7 +16,7 @@ logger = logging.getLogger(__name__)
 
 
 def _load_kalshi_settings_func():
-    """Load kalshi settings with fallback."""
+    """Load kalshi settings via module search."""
     import importlib
 
     for module_path in ["src.kalshi.settings", "kalshi.settings"]:
@@ -32,7 +32,7 @@ def _load_kalshi_settings_func():
             return module.get_kalshi_settings
 
     def get_kalshi_settings():
-        """Fallback when kalshi package is not installed."""
+        """Stub when kalshi package is not installed."""
         from types import SimpleNamespace
 
         return SimpleNamespace(
@@ -40,6 +40,35 @@ def _load_kalshi_settings_func():
         )
 
     return get_kalshi_settings
+
+
+def _build_metadata_from_markets(markets: List[Dict[str, object]]) -> Dict[str, InstrumentMetadata]:
+    """Convert a list of market dicts to an InstrumentMetadata map."""
+    metadata: Dict[str, InstrumentMetadata] = {}
+    for market in markets:
+        if "ticker" in market:
+            ticker = market["ticker"]
+        else:
+            ticker = None
+        if not isinstance(ticker, str):
+            raise KalshiMarketCatalogError("Kalshi market missing ticker")
+        raw_currency = market.get("currency")
+        if raw_currency is not None:
+            currency_value = str(raw_currency)
+        else:
+            currency_value = "unknown"
+        raw_close_time = market.get("close_time")
+        if raw_close_time is not None:
+            close_time_text = str(raw_close_time)
+        else:
+            close_time_text = ""
+        metadata[ticker] = InstrumentMetadata(
+            type="market",
+            channel=f"market.{ticker}",
+            currency=currency_value,
+            expiry=close_time_text,
+        )
+    return metadata
 
 
 class KalshiMarketCatalogError(RuntimeError):
@@ -131,31 +160,4 @@ class KalshiMarketCatalog:
 
     def _metadata_from_markets(self, markets: List[Dict[str, object]]) -> Dict[str, InstrumentMetadata]:
         """Convert markets to metadata map."""
-        metadata: Dict[str, InstrumentMetadata] = {}
-        for market in markets:
-            if "ticker" in market:
-                ticker = market["ticker"]
-            else:
-                ticker = None
-            if not isinstance(ticker, str):
-                raise KalshiMarketCatalogError("Kalshi market missing ticker")
-
-            raw_currency = market.get("currency")
-            if raw_currency is not None:
-                currency_value = str(raw_currency)
-            else:
-                currency_value = "unknown"
-
-            raw_close_time = market.get("close_time")
-            if raw_close_time is not None:
-                close_time_text = str(raw_close_time)
-            else:
-                close_time_text = ""
-
-            metadata[ticker] = InstrumentMetadata(
-                type="market",
-                channel=f"market.{ticker}",
-                currency=currency_value,
-                expiry=close_time_text,
-            )
-        return metadata
+        return _build_metadata_from_markets(markets)

@@ -42,5 +42,5 @@ class HistoryKeyValidator:
         return False
 
 
-# Backward-compatible alias used by service_updater
+# Alias used by service_updater
 HashValidator = HistoryKeyValidator

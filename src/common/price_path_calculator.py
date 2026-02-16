@@ -46,6 +46,24 @@ NON_CALLABLE_ENSURE_PATH_METRICS_TEMPLATE = "GP surface for {} has non-callable 
 FAILED_TO_GENERATE_METRICS_TEMPLATE = "Failed to generate metrics for {}"
 
 
+def _emit_progress_steps(callback, total_steps):
+    """Fire progress callback at ~10% intervals."""
+    if not callback or total_steps <= 0:
+        return
+    interval = max(1, total_steps // 10)
+    for index in range(1, total_steps + 1):
+        if index % interval == 0 or index == total_steps:
+            try:
+                callback(index, total_steps)
+            except (
+                RuntimeError,
+                ValueError,
+                TypeError,
+            ) as exc:  # Expected data validation or parsing failure  # policy_guard: allow-silent-handler
+                logger.warning("Failed to invoke progress callback: index=%r, total_steps=%r, error=%s", index, total_steps, exc)
+                break
+
+
 class MostProbablePricePathCalculator:
     _SIGMA_MIN_RATIO, _SIGMA_MAX_RATIO = 0.002, 0.10
 
@@ -136,20 +154,7 @@ class MostProbablePricePathCalculator:
         return time.time() + timeline_days * 24.0 * 3600.0
 
     def _emit_progress(self, total_steps):
-        if not self._progress_callback or total_steps <= 0:
-            return
-        interval = max(1, total_steps // 10)
-        for index in range(1, total_steps + 1):
-            if index % interval == 0 or index == total_steps:
-                try:
-                    self._progress_callback(index, total_steps)
-                except (
-                    RuntimeError,
-                    ValueError,
-                    TypeError,
-                ) as exc:  # Expected data validation or parsing failure  # policy_guard: allow-silent-handler
-                    logger.warning("Failed to invoke progress callback: index=%r, total_steps=%r, error=%s", index, total_steps, exc)
-                    break
+        _emit_progress_steps(self._progress_callback, total_steps)
 
     def _generate_prediction_timeline(self, horizon_days: float):
         return self._timeline_builder.generate_timeline(horizon_days)

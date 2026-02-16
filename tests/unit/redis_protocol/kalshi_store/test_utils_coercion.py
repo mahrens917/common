@@ -174,7 +174,7 @@ class TestStringOrDefault:
     def test_returns_default_for_none(self):
         """Test default value for None."""
         assert string_or_default(None) == ""
-        assert string_or_default(None, fallback_value="fallback") == "fallback"
+        assert string_or_default(None, fill_value="fallback") == "fallback"
 
     def test_converts_non_string_types(self):
         """Test conversion of non-string types."""
@@ -185,7 +185,7 @@ class TestStringOrDefault:
     def test_handles_unicode_in_bytes(self):
         """Test handling of unicode in bytes."""
         assert string_or_default(b"\xc3\xa9") == "é"
-        assert string_or_default(b"invalid\xff\xfe", fallback_value="fallback") != "fallback"
+        assert string_or_default(b"invalid\xff\xfe", fill_value="fallback") != "fallback"
 
 
 class TestIntOrDefault:
@@ -217,12 +217,12 @@ class TestIntOrDefault:
     def test_returns_default_for_none(self):
         """Test default value for None."""
         assert int_or_default(None) == 0
-        assert int_or_default(None, fallback_value=_INT_100) == _INT_100
+        assert int_or_default(None, fill_value=_INT_100) == _INT_100
 
     def test_returns_default_for_invalid_string(self):
         """Test default value for invalid strings."""
         assert int_or_default("not_a_number") == 0
-        assert int_or_default("not_a_number", fallback_value=_INT_42) == _INT_42
+        assert int_or_default("not_a_number", fill_value=_INT_42) == _INT_42
 
     def test_converts_bool_to_int(self):
         """Test boolean conversion to int."""
@@ -251,12 +251,12 @@ class TestFloatOrDefault:
     def test_returns_default_for_none(self):
         """Test default value for None."""
         assert float_or_default(None) == pytest.approx(_VAL_0_0)
-        assert float_or_default(None, fallback_value=_VAL_100_0) == pytest.approx(_VAL_100_0)
+        assert float_or_default(None, fill_value=_VAL_100_0) == pytest.approx(_VAL_100_0)
 
     def test_returns_default_for_invalid_string(self):
         """Test default value for invalid strings."""
         assert float_or_default("not_a_number") == pytest.approx(_VAL_0_0)
-        assert float_or_default("invalid", fallback_value=_VAL_42_0) == pytest.approx(_VAL_42_0)
+        assert float_or_default("invalid", fill_value=_VAL_42_0) == pytest.approx(_VAL_42_0)
 
     def test_raises_error_when_requested(self):
         """Test error raising mode."""
@@ -449,7 +449,7 @@ class TestFormatProbabilityValue:
 
     def test_raises_type_error_for_non_numeric(self):
         """Test raising TypeError for non-numeric values."""
-        with pytest.raises(TypeError, match="Probability value must be float-compatible"):
+        with pytest.raises(TypeError, match="Probability value must be numeric"):
             _format_probability_value("not_a_number")
         with pytest.raises(TypeError):
             _format_probability_value(None)

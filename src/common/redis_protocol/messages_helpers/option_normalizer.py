@@ -9,7 +9,7 @@ def normalize_option_type(option_type: Optional[str], option_kind: Optional[str]
 
     Args:
         option_type: Primary option type string (may be abbreviated)
-        option_kind: Fallback option kind string if option_type is not provided
+        option_kind: Alternate option kind string if option_type is not provided
 
     Returns:
         Normalized option type ('call' or 'put') or None

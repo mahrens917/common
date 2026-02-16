@@ -17,7 +17,7 @@ async def test_poller_returns_outcome_with_average_price():
         ]
     )
     sleep = AsyncMock()
-    poller = OrderPoller(fetch, sleep=sleep, operation_name="test_poll")
+    poller = OrderPoller(fetch, sleep=sleep, operation_name="test_poll", poll_interval=0.5)
 
     outcome = await poller.poll("ORD-1", timeout_seconds=0.5)
 
@@ -31,7 +31,7 @@ async def test_poller_returns_outcome_with_average_price():
 async def test_poller_returns_none_when_no_fills():
     fetch = AsyncMock(return_value=[])
     sleep = AsyncMock()
-    poller = OrderPoller(fetch, sleep=sleep, operation_name="test_poll")
+    poller = OrderPoller(fetch, sleep=sleep, operation_name="test_poll", poll_interval=0.1)
 
     outcome = await poller.poll("ORD-2", timeout_seconds=0.1)
 
@@ -41,12 +41,34 @@ async def test_poller_returns_none_when_no_fills():
 
 
 @pytest.mark.asyncio
+async def test_poller_polls_multiple_times_before_timeout():
+    """Verify poller checks multiple times, not just once at the end."""
+    call_count = 0
+
+    async def fetch_with_delay(order_id):
+        nonlocal call_count
+        call_count += 1
+        if call_count >= _TEST_COUNT_3:
+            return [{"count": 1, "side": "yes", "yes_price": 50}]
+        return []
+
+    sleep = AsyncMock()
+    poller = OrderPoller(AsyncMock(side_effect=fetch_with_delay), sleep=sleep, operation_name="test_poll", poll_interval=0.1)
+
+    outcome = await poller.poll("ORD-MULTI", timeout_seconds=1.0)
+
+    assert outcome is not None
+    assert outcome.total_filled == 1
+    assert call_count == _TEST_COUNT_3
+
+
+@pytest.mark.asyncio
 async def test_poller_raises_when_fetch_fails():
     fetch = AsyncMock(side_effect=RuntimeError("network down"))
-    poller = OrderPoller(fetch, sleep=AsyncMock(), operation_name="poll_failure")
+    poller = OrderPoller(fetch, sleep=AsyncMock(), operation_name="poll_failure", poll_interval=0.1)
 
     with pytest.raises(KalshiOrderPollingError) as excinfo:
-        await poller.poll("ORD-3", timeout_seconds=0)
+        await poller.poll("ORD-3", timeout_seconds=0.1)
 
     assert "network down" in str(excinfo.value)
     assert excinfo.value.order_id == "ORD-3"
@@ -55,9 +77,9 @@ async def test_poller_raises_when_fetch_fails():
 @pytest.mark.asyncio
 async def test_poller_raises_for_invalid_fill():
     fetch = AsyncMock(return_value=[{"count": 0, "side": "yes", "yes_price": 45}])
-    poller = OrderPoller(fetch, sleep=AsyncMock(), operation_name="poll_invalid")
+    poller = OrderPoller(fetch, sleep=AsyncMock(), operation_name="poll_invalid", poll_interval=0.1)
 
     with pytest.raises(KalshiOrderPollingError) as excinfo:
-        await poller.poll("ORD-4", timeout_seconds=0)
+        await poller.poll("ORD-4", timeout_seconds=0.1)
 
     assert "non-positive" in str(excinfo.value)

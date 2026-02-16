@@ -57,7 +57,7 @@ async def write_status_to_redis(
                 mapping={k: str(v) for k, v in status_data.items()},
             )
         )
-        # Legacy pattern for backwards compatibility (status hash)
+        # Retained status hash pattern used by monitor consumers
         await ensure_awaitable(redis.hset("status", service_name, status.value))
 
         logger.info(

@@ -26,12 +26,12 @@ class ServiceStatusManager:
         self.service_status_key = service_status_key
 
     @staticmethod
-    def _string_or_default(value: Any, fallback_value: str = "") -> str:
+    def _string_or_default(value: Any, fill_value: str = "") -> str:
         if isinstance(value, str):
             return value
         if isinstance(value, (bytes, bytearray)):
             return value.decode("utf-8", "ignore")
-        return fallback_value
+        return fill_value
 
     async def update_service_status(self, service: str, status: Any) -> bool:
         """

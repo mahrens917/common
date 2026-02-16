@@ -4,7 +4,7 @@ from __future__ import annotations
 Async Redis helpers shared across Kalshi services.
 
 This module provides a thin wrapper around the unified async connection pool
-so callers avoid lingering synchronous compatibility utilities.
+so callers avoid lingering synchronous Redis utilities.
 """
 
 

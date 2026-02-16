@@ -151,6 +151,33 @@ class MarketFetcherClient:
         return pages
 
 
+async def _fetch_weather_series(client, fetcher_client, category: str, markets: List[Dict[str, object]], seen_tickers: set[str]) -> int:
+    """Fetch weather-specific market series from Kalshi API."""
+    from common.kalshi_api import KalshiClientError
+
+    try:
+        series_list = await client.get_series(category=category)
+    except (KalshiClientError, KeyError, TypeError, ValueError) as exc:
+        raise KalshiMarketCatalogError(f"Failed to fetch Kalshi weather series for {category}") from exc
+    pages = 0
+    matched_series = 0
+    for series in series_list:
+        if isinstance(series, dict):
+            ticker = series.get("ticker")
+        else:
+            ticker = None
+        if not ticker or not ticker.upper().startswith("KXHIGH"):
+            continue
+        matched_series += 1
+        weather_params: BaseParams = {"category": category, "series_ticker": ticker}
+        pages += await fetcher_client.fetch_markets(
+            f"series {ticker}", markets, seen_tickers, base_params=weather_params,
+        )
+    if matched_series == 0:
+        raise KalshiMarketCatalogError(f"Weather series for {category} returned no KXHIGH tickers; aborting market discovery")
+    return pages
+
+
 class MarketFetcher:
     """Fetches markets from Kalshi API with pagination."""
 
@@ -226,33 +253,4 @@ class MarketFetcher:
 
     async def _fetch_weather_markets(self, category: str, markets: List[Dict[str, object]], seen_tickers: set[str]) -> int:
         """Fetch weather-specific markets."""
-        from common.kalshi_api import KalshiClientError
-
-        try:
-            series_list = await self._client.get_series(category=category)
-        except (KalshiClientError, KeyError, TypeError, ValueError) as exc:
-            raise KalshiMarketCatalogError(f"Failed to fetch Kalshi weather series for {category}") from exc
-
-        pages = 0
-        matched_series = 0
-        for series in series_list:
-            if isinstance(series, dict):
-                ticker = series.get("ticker")
-            else:
-                ticker = None
-            if not ticker or not ticker.upper().startswith("KXHIGH"):
-                continue
-
-            matched_series += 1
-            weather_params: BaseParams = {"category": category, "series_ticker": ticker}
-            pages += await self._fetcher_client.fetch_markets(
-                f"series {ticker}",
-                markets,
-                seen_tickers,
-                base_params=weather_params,
-            )
-
-        if matched_series == 0:
-            raise KalshiMarketCatalogError(f"Weather series for {category} returned no KXHIGH tickers; aborting market discovery")
-
-        return pages
+        return await _fetch_weather_series(self._client, self._fetcher_client, category, markets, seen_tickers)

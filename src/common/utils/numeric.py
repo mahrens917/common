@@ -89,15 +89,15 @@ def coerce_float_default(value: Any, value_on_error: float) -> float:
     """
     Convert value to float with explicit default.
 
-    Returns specified fallback value if conversion fails. Use this when you need
-    a guaranteed float return value with a known fallback.
+    Returns specified substitute value if conversion fails. Use this when you need
+    a guaranteed float return value with a known substitute.
 
     Args:
         value: Value to convert (int, float, str, bytes, etc.)
-        value_on_error: Fallback value to return if conversion fails
+        value_on_error: Fill value to return if conversion fails
 
     Returns:
-        Float value or fallback value if conversion fails
+        Float value or substitute value if conversion fails
 
     Examples:
         >>> coerce_float_default("3.14", 0.0)
@@ -188,15 +188,15 @@ def coerce_int_default(value: Any, value_on_error: int) -> int:
     """
     Convert value to int with explicit default.
 
-    Returns specified fallback value if conversion fails. Use this when you need
-    a guaranteed int return value with a known fallback.
+    Returns specified substitute value if conversion fails. Use this when you need
+    a guaranteed int return value with a known substitute.
 
     Args:
         value: Value to convert (int, float, str, bytes, etc.)
-        value_on_error: Fallback value to return if conversion fails
+        value_on_error: Fill value to return if conversion fails
 
     Returns:
-        Integer value or fallback value if conversion fails
+        Integer value or substitute value if conversion fails
 
     Examples:
         >>> coerce_int_default("42", 0)

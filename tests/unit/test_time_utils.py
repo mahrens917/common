@@ -119,6 +119,7 @@ class TestTimeUtilsReexports:
 
         expected_exports = {
             "AstronomicalComputationError",
+            "TimezoneLookupError",
             "DERIBIT_EXPIRY_HOUR",
             "EPOCH_START",
             "DateTimeExpiry",
@@ -128,10 +129,13 @@ class TestTimeUtilsReexports:
             "get_datetime_from_time_point",
             "get_fixed_time_point",
             "get_time_from_epoch",
+            "get_timezone_finder",
             "is_market_expired",
             "match_expiries_exactly",
             "parse_iso_datetime",
             "parse_timestamp",
+            "resolve_timezone",
+            "shutdown_timezone_finder",
             "validate_expiry_hour",
             "ensure_timezone_aware",
             "format_datetime",

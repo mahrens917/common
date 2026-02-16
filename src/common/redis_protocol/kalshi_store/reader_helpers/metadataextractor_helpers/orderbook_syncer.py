@@ -19,5 +19,5 @@ class OrderbookSyncer:
 
 
 def _sync_top_of_book_fields(snapshot: Dict[str, Any]) -> None:
-    """Module-level helper retained for backward-compatible patching in tests."""
+    """Module-level helper retained for test patching."""
     canonical_sync_top_of_book(snapshot)

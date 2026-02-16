@@ -7,33 +7,18 @@ import common.simple_system_metrics as metrics
 DEFAULT_STATVFS_FR_SIZE = 1024
 
 
-def _patch_subprocess_popen(
+def _patch_os_popen(
     monkeypatch,
     *,
     stdout: str = "",
-    returncode: int = 0,
-    popen_side_effect: Exception | None = None,
-    communicate_side_effect: Exception | None = None,
+    side_effect: Exception | None = None,
 ) -> None:
-    import subprocess
+    def fake_popen(cmd):
+        if side_effect is not None:
+            raise side_effect
+        return io.StringIO(stdout)
 
-    class FakePopen:
-        def __init__(self) -> None:
-            self.returncode = returncode
-
-        def communicate(self, timeout: float | None = None) -> tuple[str, str]:
-            _ = timeout
-            if communicate_side_effect is not None:
-                raise communicate_side_effect
-            return stdout, ""
-
-    def fake_popen(*args, **kwargs):
-        _ = args, kwargs
-        if popen_side_effect is not None:
-            raise popen_side_effect
-        return FakePopen()
-
-    monkeypatch.setattr(subprocess, "Popen", fake_popen)
+    monkeypatch.setattr(metrics.os, "popen", fake_popen)
 
 
 def test_get_disk_percent_calculates_usage(monkeypatch):
@@ -246,15 +231,13 @@ def test_get_cpu_percent_macos_reads_iostat(monkeypatch):
 
 
 def test_get_memory_percent_macos_parses_vm_stat(monkeypatch):
-    import subprocess
-
     vm_stat_output = """Mach Virtual Memory Statistics: (page size of 4096 bytes)
 Pages free:                               100000.
 Pages active:                             200000.
 Pages inactive:                           50000.
 Pages wired down:                         150000."""
 
-    _patch_subprocess_popen(monkeypatch, stdout=vm_stat_output, returncode=0)
+    _patch_os_popen(monkeypatch, stdout=vm_stat_output)
 
     usage = metrics._get_memory_percent_macos()
 
@@ -265,26 +248,19 @@ Pages wired down:                         150000."""
 
 
 def test_get_memory_percent_macos_returns_zero_on_error(monkeypatch):
-    _patch_subprocess_popen(monkeypatch, stdout="", returncode=1)
+    _patch_os_popen(monkeypatch, stdout="")
 
     assert metrics._get_memory_percent_macos() == 0.0
 
 
-def test_get_memory_percent_macos_handles_timeout(monkeypatch):
-    import subprocess
-
-    _patch_subprocess_popen(
-        monkeypatch,
-        communicate_side_effect=subprocess.TimeoutExpired(cmd="vm_stat", timeout=1),
-    )
+def test_get_memory_percent_macos_handles_os_error_from_read(monkeypatch):
+    _patch_os_popen(monkeypatch, side_effect=OSError("popen failed"))
 
     assert metrics._get_memory_percent_macos() == 0.0
 
 
-def test_get_memory_percent_macos_handles_subprocess_error(monkeypatch):
-    import subprocess
-
-    _patch_subprocess_popen(monkeypatch, communicate_side_effect=subprocess.SubprocessError("error"))
+def test_get_memory_percent_macos_handles_popen_error(monkeypatch):
+    _patch_os_popen(monkeypatch, side_effect=OSError("command not found"))
 
     assert metrics._get_memory_percent_macos() == 0.0
 
@@ -294,7 +270,7 @@ def test_get_memory_percent_macos_handles_value_error(monkeypatch):
 Pages free:                               abc.
 Pages active:                             200000."""
 
-    _patch_subprocess_popen(monkeypatch, stdout=vm_stat_output, returncode=0)
+    _patch_os_popen(monkeypatch, stdout=vm_stat_output)
 
     assert metrics._get_memory_percent_macos() == 0.0
 
@@ -306,7 +282,7 @@ Pages active:                             0.
 Pages inactive:                           0.
 Pages wired down:                         0."""
 
-    _patch_subprocess_popen(monkeypatch, stdout=vm_stat_output, returncode=0)
+    _patch_os_popen(monkeypatch, stdout=vm_stat_output)
 
     assert metrics._get_memory_percent_macos() == 0.0
 
@@ -317,7 +293,7 @@ def test_get_cpu_percent_macos_parses_iostat(monkeypatch):
    16.00   10  0.16  25 15 60  1.5  1.8  2.0
    12.00    8  0.10  30 10 60  1.5  1.8  2.0"""
 
-    _patch_subprocess_popen(monkeypatch, stdout=iostat_output, returncode=0)
+    _patch_os_popen(monkeypatch, stdout=iostat_output)
 
     usage = metrics._get_cpu_percent_macos()
 
@@ -327,26 +303,19 @@ def test_get_cpu_percent_macos_parses_iostat(monkeypatch):
 
 
 def test_get_cpu_percent_macos_returns_zero_on_error(monkeypatch):
-    _patch_subprocess_popen(monkeypatch, stdout="", returncode=1)
+    _patch_os_popen(monkeypatch, stdout="")
 
     assert metrics._get_cpu_percent_macos() == 0.0
 
 
-def test_get_cpu_percent_macos_handles_timeout(monkeypatch):
-    import subprocess
-
-    _patch_subprocess_popen(
-        monkeypatch,
-        communicate_side_effect=subprocess.TimeoutExpired(cmd="iostat", timeout=3),
-    )
+def test_get_cpu_percent_macos_handles_os_error_from_read(monkeypatch):
+    _patch_os_popen(monkeypatch, side_effect=OSError("popen failed"))
 
     assert metrics._get_cpu_percent_macos() == 0.0
 
 
-def test_get_cpu_percent_macos_handles_subprocess_error(monkeypatch):
-    import subprocess
-
-    _patch_subprocess_popen(monkeypatch, communicate_side_effect=subprocess.SubprocessError("error"))
+def test_get_cpu_percent_macos_handles_popen_error(monkeypatch):
+    _patch_os_popen(monkeypatch, side_effect=OSError("command not found"))
 
     assert metrics._get_cpu_percent_macos() == 0.0
 
@@ -356,7 +325,7 @@ def test_get_cpu_percent_macos_handles_value_error(monkeypatch):
     KB/t  tps  MB/s  us sy id   1m   5m   15m
    16.00   10  0.16  abc def ghi  1.5  1.8  2.0"""
 
-    _patch_subprocess_popen(monkeypatch, stdout=iostat_output, returncode=0)
+    _patch_os_popen(monkeypatch, stdout=iostat_output)
 
     assert metrics._get_cpu_percent_macos() == 0.0
 
@@ -434,18 +403,18 @@ def test_get_cpu_percent_macos_handles_missing_column(monkeypatch):
     iostat_output = """some output
 without proper headers"""
 
-    _patch_subprocess_popen(monkeypatch, stdout=iostat_output, returncode=0)
+    _patch_os_popen(monkeypatch, stdout=iostat_output)
     assert metrics._get_cpu_percent_macos() == 0.0
 
 
 def test_get_cpu_percent_macos_handles_os_error(monkeypatch):
-    _patch_subprocess_popen(monkeypatch, popen_side_effect=OSError("error"))
+    _patch_os_popen(monkeypatch, side_effect=OSError("error"))
 
     assert metrics._get_cpu_percent_macos() == 0.0
 
 
 def test_get_memory_percent_macos_handles_os_error(monkeypatch):
-    _patch_subprocess_popen(monkeypatch, popen_side_effect=OSError("error"))
+    _patch_os_popen(monkeypatch, side_effect=OSError("error"))
 
     assert metrics._get_memory_percent_macos() == 0.0
 
@@ -479,7 +448,7 @@ Pages active:                             20000.
 Pages inactive:                           5000.
 Pages wired down:                         15000."""
 
-    _patch_subprocess_popen(monkeypatch, stdout=vm_stat_output, returncode=0)
+    _patch_os_popen(monkeypatch, stdout=vm_stat_output)
 
     usage = metrics._get_memory_percent_macos()
 

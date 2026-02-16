@@ -142,8 +142,8 @@ class CanonicalTokenResolutionParams:
 
 
 @dataclass
-class CanonicalTokenFallbackParams:
-    """Parameters for canonical token fallback handling."""
+class CanonicalTokenRetryParams:
+    """Parameters for canonical token retry handling."""
 
     redis_client: Any
     canonical_token: str

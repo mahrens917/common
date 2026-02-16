@@ -381,22 +381,14 @@ async def is_market_expired(store, market_ticker: str) -> bool:
 
 
 def _parse_strike_values(floor_strike, cap_strike) -> tuple[Optional[float], Optional[float]]:
-    """
-    Parse floor and cap strike values.
-
-    Delegates to common.strike_helpers.parse_strike_bounds.
-    """
+    """Parse floor and cap strike values."""
     from common.strike_helpers import parse_strike_bounds
 
     return parse_strike_bounds(floor_strike, cap_strike)
 
 
 def _calculate_strike_from_type(strike_type: str, floor_value: Optional[float], cap_value: Optional[float]) -> Optional[float]:
-    """
-    Calculate strike based on type and values.
-
-    Delegates to common.strike_helpers.calculate_strike_value.
-    """
+    """Calculate strike based on type and values."""
     from common.strike_helpers import calculate_strike_value
 
     return calculate_strike_value(strike_type, floor_value, cap_value)

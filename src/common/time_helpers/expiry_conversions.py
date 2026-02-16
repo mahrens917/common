@@ -141,7 +141,7 @@ def parse_iso_datetime(expiry: str) -> Optional[Tuple[datetime, float]]:
     """
     Parse ISO 8601 formatted expiry strings into UTC datetimes and epoch offsets.
 
-    Only accepts strict ISO 8601 format. Rejects deprecated Kalshi token formats
+    Only accepts strict ISO 8601 format. Rejects obsolete Kalshi token formats
     like "28FEB25", "01JAN25", etc.
     """
     try:

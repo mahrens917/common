@@ -42,7 +42,11 @@ def apply_polling_outcome(order_response: OrderResponse, outcome: PollingOutcome
     order_response.filled_count = outcome.total_filled
     order_response.remaining_count = max(0, initial_count - outcome.total_filled)
     order_response.average_fill_price_cents = outcome.average_price_cents
-    order_response.status = OrderStatus.FILLED
+    remaining = max(0, initial_count - outcome.total_filled)
+    if remaining > 0:
+        order_response.status = OrderStatus.PARTIALLY_FILLED
+    else:
+        order_response.status = OrderStatus.FILLED
 
 
 async def execute_polling_workflow(

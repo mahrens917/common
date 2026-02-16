@@ -88,17 +88,7 @@ def _default_weather_station_loader() -> Dict[str, Dict[str, Any]]:
 
 
 def _convert_numeric_field(value: Any) -> Optional[float]:  # pragma: no cover - numeric helper
-    """
-    Convert a field value to numeric format for proper data storage.
-
-    Delegates to canonical implementation in common.utils.numeric.
-
-    Args:
-        value: The value to convert (can be string, number, or None)
-
-    Returns:
-        Numeric value or None if empty/invalid
-    """
+    """Convert a field value to numeric format for proper data storage."""
     from common.utils.numeric import coerce_float_optional
 
     if value is None or value in ("", "None"):
@@ -141,65 +131,36 @@ def coerce_sequence(candidate: Any) -> List[Any]:
     return _coerce_sequence_impl(candidate)
 
 
-def _string_or_default(value: Any, fallback_value: str = "") -> str:
-    """
-    Coerce value to string with fallback value.
-
-    Args:
-        value: Value to coerce
-        fallback_value: Fallback value if value is None
-
-    Returns:
-        String representation or fallback value
-    """
-    return str(value) if value is not None else fallback_value
+def _string_or_default(value: Any, fill_value: str = "") -> str:
+    """Coerce value to string with fill value."""
+    return str(value) if value is not None else fill_value
 
 
-def string_or_default(value: Any, fallback_value: str = "", *, trim: bool = False) -> str:
+def string_or_default(value: Any, fill_value: str = "", *, trim: bool = False) -> str:
     """Coerce value to string with optional whitespace trimming and byte decoding."""
-    return _string_or_default_impl(value, fallback_value, trim=trim)
+    return _string_or_default_impl(value, fill_value, trim=trim)
 
 
-def _int_or_default(value: Any, fallback_value: int = 0) -> int:
-    """
-    Coerce value to int with fallback value.
-
-    Args:
-        value: Value to coerce
-        fallback_value: Fallback value if coercion fails
-
-    Returns:
-        Integer representation or fallback value
-    """
-    return _int_or_default_impl(value, fallback_value)
+def _int_or_default(value: Any, fill_value: int = 0) -> int:
+    """Coerce value to int with fill value."""
+    return _int_or_default_impl(value, fill_value)
 
 
-def int_or_default(value: Any, fallback_value: int = 0) -> int:
+def int_or_default(value: Any, fill_value: int = 0) -> int:
     """Public wrapper for int coercion helper."""
-    return _int_or_default_impl(value, fallback_value)
+    return _int_or_default_impl(value, fill_value)
 
 
-def _float_or_default(value: Any, fallback_value: float = 0.0) -> float:
-    """
-    Coerce value to float with optional fallback value.
-
-    Delegates to canonical implementation in common.utils.numeric.
-
-    Args:
-        value: Value to coerce
-        fallback_value: Fallback value if coercion fails
-
-    Returns:
-        Float representation or fallback value
-    """
+def _float_or_default(value: Any, fill_value: float = 0.0) -> float:
+    """Coerce value to float with fill value."""
     from common.utils.numeric import coerce_float_default
 
-    return coerce_float_default(value, fallback_value)
+    return coerce_float_default(value, fill_value)
 
 
 def float_or_default(
     value: Any,
-    fallback_value: float = 0.0,
+    fill_value: float = 0.0,
     *,
     raise_on_error: bool = False,
     error_message: str | None = None,
@@ -210,56 +171,35 @@ def float_or_default(
     Delegates to canonical implementation in common.utils.numeric.
 
     When ``raise_on_error`` is False (default), this mirrors ``_float_or_default`` and
-    returns the provided ``fallback_value`` for invalid inputs. When True, a ``ValueError`` is
+    returns the provided ``fill_value`` for invalid inputs. When True, a ``ValueError`` is
     raised using ``error_message`` if provided.
     """
-    return _float_or_default_impl(value, fallback_value, raise_on_error=raise_on_error, error_message=error_message)
+    return _float_or_default_impl(value, fill_value, raise_on_error=raise_on_error, error_message=error_message)
 
 
 def bool_or_default(
     value: Any,
-    fallback_value: bool,
+    fill_value: bool,
     *,
     parse_strings: bool = False,
 ) -> bool:
     """
-    Coerce common boolean representations or return fallback value.
+    Coerce common boolean representations or return fill value.
 
     When ``parse_strings`` is True, accepts typical truthy/falsey strings.
     """
-    return _bool_or_default_impl(value, fallback_value, parse_strings=parse_strings)
+    return _bool_or_default_impl(value, fill_value, parse_strings=parse_strings)
 
 
 def _counter_value(counter: Counter[str], key: str) -> int:
-    """
-    Get counter value with default of 0.
-
-    Args:
-        counter: Counter object
-        key: Key to lookup
-
-    Returns:
-        Counter value or 0 if key not found
-    """
+    """Get counter value with a default of 0."""
     if key in counter:
         return counter[key]
     return 0
 
 
 def _to_optional_float(value: Any, *, context: str) -> Optional[float]:
-    """
-    Convert value to optional float with context for error messages.
-
-    Args:
-        value: Value to convert
-        context: Context string for error messages
-
-    Returns:
-        Float value or None if empty
-
-    Raises:
-        RuntimeError: If value is invalid
-    """
+    """Convert value to optional float with context for error messages."""
     if value in (None, "", b""):
         return None
     try:
@@ -269,19 +209,7 @@ def _to_optional_float(value: Any, *, context: str) -> Optional[float]:
 
 
 def to_optional_float(value: Any, *, context: str) -> Optional[float]:
-    """
-    Convert value to optional float with context for error messages.
-
-    Args:
-        value: Value to convert
-        context: Context string for error messages
-
-    Returns:
-        Float value or None if empty
-
-    Raises:
-        RuntimeError: If value is invalid
-    """
+    """Convert value to optional float with context for error messages."""
     return _to_optional_float(value, context=context)
 
 
@@ -291,17 +219,7 @@ def to_optional_float(value: Any, *, context: str) -> Optional[float]:
 
 
 def _normalise_hash(raw_hash: Dict[Any, Any]) -> Dict[str, Any]:
-    """
-    Convert Redis hash responses to a str-keyed dictionary.
-
-    Delegates to canonical implementation in market_normalization_core.
-
-    Args:
-        raw_hash: Raw hash from Redis (may have bytes keys/values)
-
-    Returns:
-        Normalized dictionary with string keys and decoded values
-    """
+    """Convert Redis hash responses to a str-keyed dictionary."""
     from ..market_normalization_core import normalise_hash
 
     return normalise_hash(raw_hash)
@@ -320,14 +238,7 @@ def normalise_hash(raw_hash: Dict[Any, Any]) -> Dict[str, Any]:
 
 
 def _sync_top_of_book_fields(snapshot: Dict[str, Any]) -> None:
-    """
-    Align scalar YES side fields with the JSON orderbook payload.
-
-    Modifies snapshot in-place to ensure scalar fields match orderbook data.
-
-    Args:
-        snapshot: Market snapshot dictionary to update
-    """
+    """Align scalar YES side fields with the JSON orderbook payload."""
     bid_price, bid_size = extract_best_bid(snapshot.get("yes_bids"))
     ask_price, ask_size = extract_best_ask(snapshot.get("yes_asks"))
 
@@ -356,22 +267,11 @@ def sync_top_of_book_fields(snapshot: Dict[str, Any]) -> None:
 
 
 def _format_probability_value(value: Any) -> str:
-    """
-    Format probability value for storage.
-
-    Args:
-        value: Probability value to format
-
-    Returns:
-        Formatted probability string
-
-    Raises:
-        ValueError: If value is not float-compatible or not finite
-    """
+    """Format probability value for storage."""
     try:
         numeric = float(value)
     except (TypeError, ValueError) as exc:
-        raise TypeError(f"Probability value must be float-compatible, got {value}") from exc
+        raise TypeError(f"Probability value must be numeric, got {value}") from exc
 
     if not math.isfinite(numeric):
         raise TypeError(f"Probability value must be finite, got {numeric}")
@@ -397,17 +297,7 @@ def format_probability_value(value: Any) -> str:
 
 
 def _normalize_timestamp(value: Any) -> Optional[str]:
-    """
-    Normalize timestamp format to ISO8601.
-
-    Delegates to canonical implementation in metadata_helpers.timestamp_normalization.
-
-    Args:
-        value: Timestamp value (string, int, float, or datetime)
-
-    Returns:
-        ISO8601 formatted timestamp or None if invalid
-    """
+    """Normalize timestamp format to ISO8601."""
     from .metadata_helpers.timestamp_normalization import normalize_timestamp
 
     return normalize_timestamp(value)
@@ -421,16 +311,7 @@ def normalize_timestamp(value: Any) -> Optional[str]:
 
 
 def _select_timestamp_value(market_data: Dict, fields: List[str]) -> Optional[object]:
-    """
-    Select timestamp from market data by trying multiple field names.
-
-    Args:
-        market_data: Market data dictionary
-        fields: List of field names to try in order
-
-    Returns:
-        First non-None timestamp value found or None
-    """
+    """Select timestamp from market data by trying multiple field names."""
     from .metadata import KalshiMetadataAdapter
 
     return KalshiMetadataAdapter.select_timestamp_value(market_data, fields)

@@ -31,7 +31,7 @@ class BestPriceUpdater:
 
     @staticmethod
     async def store_optional_field(redis: Redis, market_key: str, field: str, value: object) -> None:
-        """Backward-compatible wrapper for storing optional hash fields."""
+        """Wrapper for storing optional hash fields."""
         await store_optional_field_core(redis, market_key, field, value)
 
     @staticmethod

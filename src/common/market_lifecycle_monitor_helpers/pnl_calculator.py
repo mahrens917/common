@@ -2,7 +2,7 @@
 
 from typing import Optional
 
-from ..data_models.trading import PortfolioPosition
+from ..data_models.trading import OrderSide, PortfolioPosition
 from .state_tracker import SettlementInfo
 
 
@@ -34,7 +34,7 @@ class PnLCalculator:
         if average_price is None:
             return None
 
-        if side.value.upper() == "YES":
+        if side == OrderSide.YES:
             settlement_value_per_contract = settlement_price
         else:
             settlement_value_per_contract = 100 - settlement_price

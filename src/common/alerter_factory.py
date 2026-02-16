@@ -21,16 +21,16 @@ ServiceAlerter: type[ServiceAlerterProtocol]
 try:
     from common.alerter import Alerter as ServiceAlerter
 except ImportError as exc:  # Optional module not available  # policy_guard: allow-silent-handler
-    logger.debug("Monitor module not available, using fallback: %s", exc)
+    logger.debug("Monitor module not available, using stub: %s", exc)
 
-    class _FallbackAlerter:
-        """Fallback alerter for repos without monitor module."""
+    class _StubAlerter:
+        """Stub alerter for repos without monitor module."""
 
         async def cleanup(self) -> None:
             """No-op cleanup method."""
             return None
 
-    ServiceAlerter = _FallbackAlerter
+    ServiceAlerter = _StubAlerter
 
 
 _shutdown_registry: "weakref.WeakSet" = weakref.WeakSet()

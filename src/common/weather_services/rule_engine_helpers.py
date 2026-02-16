@@ -31,7 +31,7 @@ class ZoneInfoUnavailableError(WeatherRuleEngineError):
 
 
 class DayCodeFormatError(WeatherRuleEngineError):
-    """Raised when Kalshi-compatible day code cannot be formatted."""
+    """Raised when Kalshi-format day code cannot be formatted."""
 
     def __init__(self) -> None:
         super().__init__("Failed to format weather day code")
@@ -115,7 +115,7 @@ class TemperatureCoercer:
 
 
 class DayCodeBuilder:
-    """Build Kalshi-compatible day codes (e.g., 25JAN01)."""
+    """Build Kalshi-format day codes (e.g., 25JAN01)."""
 
     @staticmethod
     def build() -> str:

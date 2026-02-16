@@ -145,7 +145,7 @@ def test_register_shutdown_hook_is_idempotent(monkeypatch):
 
 
 def test_fallback_alerter_used_when_alerter_import_fails(monkeypatch):
-    """Test that _FallbackAlerter is used when common.alerter module is not available."""
+    """Test that _StubAlerter is used when common.alerter module is not available."""
     import importlib
 
     # Save original module state
@@ -158,7 +158,7 @@ def test_fallback_alerter_used_when_alerter_import_fails(monkeypatch):
         # Force reload of alerter_factory to trigger the import error path
         importlib.reload(alerter_factory)
 
-        # Create an alerter - should use _FallbackAlerter
+        # Create an alerter - should use _StubAlerter
         callbacks = []
         monkeypatch.setattr(alerter_factory, "_shutdown_registry", weakref.WeakSet())
         monkeypatch.setattr(alerter_factory.atexit, "register", lambda fn: callbacks.append(fn))
@@ -296,9 +296,8 @@ def test_shutdown_hook_handles_missing_monitor_alerter_error(monkeypatch):
     assert alerter.cleanup_calls == 1
 
 
-async def test_fallback_alerter_cleanup_returns_none():
-    """Test that _FallbackAlerter.cleanup() returns None."""
-    # Create a _FallbackAlerter directly
-    fallback = alerter_factory._FallbackAlerter()
-    result = await fallback.cleanup()
+async def test_stub_alerter_cleanup_returns_none():
+    """Test that _StubAlerter.cleanup() returns None."""
+    stub = alerter_factory._StubAlerter()
+    result = await stub.cleanup()
     assert result is None

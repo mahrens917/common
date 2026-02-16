@@ -8,22 +8,22 @@ class MicroPriceProperties:
 
     @staticmethod
     def get_is_future() -> bool:
-        """Always False for options (compatibility property)."""
+        """Always False for options (derived property)."""
         return False
 
     @staticmethod
     def get_expiry_timestamp(expiry: datetime) -> int:
-        """Expiry as Unix timestamp (compatibility property)."""
+        """Expiry as Unix timestamp (derived property)."""
         return int(expiry.timestamp())
 
     @staticmethod
     def get_bid_price(best_bid: float) -> float:
-        """Alias for best_bid (compatibility property)."""
+        """Alias for best_bid (derived property)."""
         return best_bid
 
     @staticmethod
     def get_ask_price(best_ask: float) -> float:
-        """Alias for best_ask (compatibility property)."""
+        """Alias for best_ask (derived property)."""
         return best_ask
 
     @staticmethod

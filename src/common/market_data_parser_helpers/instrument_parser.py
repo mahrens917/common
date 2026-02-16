@@ -98,7 +98,7 @@ class SpotParser:
         SymbolValidator.validate_quote_currency(quote_currency)
 
         # For spot pairs, we use a far future date as they don't expire
-        # This maintains compatibility with existing code expecting expiry_date
+        # This satisfies code that expects a valid expiry_date field
         far_future = datetime(2099, 12, 31, 8, 0, 0, tzinfo=timezone.utc)
 
         return ParsedInstrument(

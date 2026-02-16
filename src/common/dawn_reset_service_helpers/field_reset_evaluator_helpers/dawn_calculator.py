@@ -1,4 +1,4 @@
-"""Compatibility shim exposing DawnCalculator within field reset helpers."""
+"""Re-export of DawnCalculator within field reset helpers."""
 
 from __future__ import annotations
 

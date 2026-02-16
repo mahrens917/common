@@ -52,7 +52,7 @@ def _resolve_config_json(name: str, config_dir: Optional[Path]) -> Dict[str, Any
 
 
 def _import_config_loader():
-    """Import config loader from weather package with fallback."""
+    """Import config loader from weather package via module search."""
     import importlib
 
     for module_path in ["src.weather.config_loader", "weather.config_loader"]:
@@ -117,7 +117,7 @@ def load_weather_trading_config(
 
 
 def _get_weather_settings_func():
-    """Load weather settings loader with fallback for when package not installed."""
+    """Load weather settings loader via module search."""
     import importlib
 
     for module_path in ["src.weather.settings", "weather.settings"]:
@@ -133,7 +133,7 @@ def _get_weather_settings_func():
             return module.get_weather_settings
 
     def get_weather_settings():
-        """Fallback when weather package is not installed."""
+        """Stub when weather package is not installed."""
         from types import SimpleNamespace
 
         return SimpleNamespace(sources=SimpleNamespace(asos_source=None))

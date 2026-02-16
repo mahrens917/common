@@ -39,7 +39,7 @@ def __getattr__(name: str):
 
 
 def _load_cli_temp_f():
-    """Load temperature converter function with fallback."""
+    """Load temperature converter function via module search."""
     import importlib
 
     for module_path in ["src.weather.temperature_converter", "weather.temperature_converter"]:
@@ -55,7 +55,7 @@ def _load_cli_temp_f():
             return module.cli_temp_f
 
     def cli_temp_f(celsius):
-        """Fallback when weather package is not installed."""
+        """Stub when weather package is not installed."""
         return int(celsius * 9 / 5 + 32)
 
     return cli_temp_f

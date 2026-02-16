@@ -21,7 +21,7 @@ def parse_fills_from_response(
 
     Args:
         order_data: Raw order data from Kalshi API
-        timestamp: Order timestamp (fallback for fills without timestamp)
+        timestamp: Order timestamp (used for fills without their own timestamp)
         filled_count: Expected total filled count
 
     Returns:

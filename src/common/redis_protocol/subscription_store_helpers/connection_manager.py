@@ -33,7 +33,7 @@ class SubscriptionStoreConnectionManager:
         self._initialized = value
 
     def set_parent(self, parent_store):
-        """Set parent store for backward compatibility
+        """Set parent store reference.
 
         Args:
             parent_store: Parent SubscriptionStore instance

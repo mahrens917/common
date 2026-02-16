@@ -134,7 +134,7 @@ count = coerce_int_default(raw_count, default=0)
 **When to Use Each:**
 - **`coerce_float_strict()`**: Trading calculations, pricing, validation where failure is critical
 - **`coerce_float_optional()`**: User input, API responses, optional configuration values
-- **`coerce_float_default()`**: Metrics, stats, display values where a fallback makes sense
+- **`coerce_float_default()`**: Metrics, stats, display values where a substitute makes sense
 
 **Files Consolidated (20 files now delegate to canonical):**
 - `src/common/redis_protocol/kalshi_store/utils_coercion.py`
@@ -492,7 +492,7 @@ display_string = format_timestamp(dt, tz_name="EST")
 ```
 
 **Files Consolidated (6 files now delegate to canonical):**
-- `src/deribit/message_handler_helpers/legacy.py`
+- `src/deribit/message_handler_helpers/timestamp_helpers.py`
 - `src/weather/redis_store_helpers/observation_validator.py`
 - `src/deribit/message_handler_helpers/snapshotbuilder_helpers/expiry_calculator.py`
 - `src/common/redis_protocol/messages_helpers/timestamp_converter.py`

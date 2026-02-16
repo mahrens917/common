@@ -50,7 +50,7 @@ async def collect_process_candidates(
 
 
 async def _scan_os_processes(process_keywords: Sequence[str], service_name: str) -> List[NormalizedProcess]:
-    """Direct OS scan fallback when the monitor has no matches."""
+    """Direct OS scan when the monitor has no matches."""
     from .process_normalizer import normalize_process
 
     try:

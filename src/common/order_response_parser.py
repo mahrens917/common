@@ -140,6 +140,7 @@ def _parse_order_status(order_data: Dict[str, Any]) -> OrderStatus:
     status_str = str(order_data["status"]).lower()
     status_mapping = {
         "filled": OrderStatus.FILLED,
+        "partially_filled": OrderStatus.PARTIALLY_FILLED,
         "executed": OrderStatus.EXECUTED,
         "resting": OrderStatus.PENDING,
         "canceled": OrderStatus.CANCELLED,

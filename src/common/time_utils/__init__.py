@@ -31,6 +31,12 @@ from ..time_helpers.timezone import (
     sleep_until_next_minute,
     to_utc,
 )
+from ..time_helpers.location import (
+    TimezoneLookupError,
+    get_timezone_finder,
+    resolve_timezone,
+    shutdown_timezone_finder,
+)
 from .base import AstronomicalComputationError
 from .local import (
     calculate_local_midnight_utc,
@@ -48,6 +54,11 @@ from .twilight import (
 __all__ = [
     # Exceptions
     "AstronomicalComputationError",
+    "TimezoneLookupError",
+    # Timezone finder utilities
+    "get_timezone_finder",
+    "resolve_timezone",
+    "shutdown_timezone_finder",
     # Re-exported expiry helpers
     "DERIBIT_EXPIRY_HOUR",
     "EPOCH_START",

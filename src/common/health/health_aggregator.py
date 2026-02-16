@@ -96,7 +96,7 @@ class ServiceHealthAggregator:
 
     def format_status_line(self, result: ServiceHealthResult) -> str:
         """
-        Format a status line for display (compatible with existing monitor output).
+        Format a status line for display (matching existing monitor output).
 
         Args:
             result: ServiceHealthResult to format

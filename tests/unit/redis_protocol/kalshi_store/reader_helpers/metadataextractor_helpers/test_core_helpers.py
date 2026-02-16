@@ -85,7 +85,7 @@ def test_strike_helpers_handle_types():
 
 
 def test_type_converter_handles_strings_and_bytes():
-    assert TypeConverter.string_or_default(None, fallback_value="X") == "X"
+    assert TypeConverter.string_or_default(None, fill_value="X") == "X"
     assert TypeConverter.string_or_default(123) == "123"
     normalized = TypeConverter.normalize_hash({b"key": b"value", "int": 3})
     assert normalized == {"key": "value", "int": 3}

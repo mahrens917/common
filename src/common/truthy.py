@@ -1,4 +1,4 @@
-"""Helpers for selecting truthy values without boolean fallbacks."""
+"""Helpers for selecting truthy values without boolean substitution."""
 
 from __future__ import annotations
 

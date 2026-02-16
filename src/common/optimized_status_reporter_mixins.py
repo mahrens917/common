@@ -70,7 +70,7 @@ class StatusReporterFormatterMixin:
         return self._log_activity_formatter.format_log_activity_short(service_name, activity)
 
     def _format_log_activity_short(self, service_name: str, activity: Optional[Any]) -> Optional[str]:
-        """Backward-compatible alias for log activity summarization."""
+        """Internal alias for log activity summarization."""
         return self.format_log_activity_short(service_name, activity)
 
 

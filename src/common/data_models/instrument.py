@@ -73,9 +73,8 @@ class Instrument:
         """
         Get the expiry timestamp as an integer.
 
-        This property provides compatibility with test code that expects
-        'expiry_timestamp' attribute. Converts the datetime expiry to
-        a Unix timestamp.
+        Converts the expiry to a Unix timestamp for consumers that expect
+        an integer 'expiry_timestamp' attribute.
 
         Returns:
             int: The expiry timestamp

@@ -14,6 +14,23 @@ from .liquidity_fetcher import MarketState
 logger = logging.getLogger(__name__)
 
 
+def _decode_redis_hash(market_data: dict) -> dict:
+    """Decode bytes in a Redis hash to strings."""
+    return {
+        (k.decode("utf-8") if isinstance(k, bytes) else k): (v.decode("utf-8") if isinstance(v, bytes) else v)
+        for k, v in market_data.items()
+    }
+
+
+def _safe_float_value(value):
+    """Convert value to float, returning None on failure."""
+    try:
+        return float(value) if value is not None else None
+    except (ValueError, TypeError) as exc:  # Expected data validation or parsing failure  # policy_guard: allow-silent-handler
+        logger.warning("Failed to convert value to float: value=%r, error=%s", value, exc)
+        return None
+
+
 class RedisFetcher:
     """Fetches trade and market data from Redis."""
 
@@ -86,10 +103,7 @@ class RedisFetcher:
 
     def _decode_market_data(self, market_data: dict) -> dict:
         """Decode bytes in market data to strings."""
-        return {
-            (k.decode("utf-8") if isinstance(k, bytes) else k): (v.decode("utf-8") if isinstance(v, bytes) else v)
-            for k, v in market_data.items()
-        }
+        return _decode_redis_hash(market_data)
 
     def _extract_ticker(self, key: str) -> str | None:
         """Extract ticker from market key."""
@@ -114,8 +128,4 @@ class RedisFetcher:
 
     def _safe_float(self, value):
         """Safely convert value to float."""
-        try:
-            return float(value) if value is not None else None
-        except (ValueError, TypeError) as exc:  # Expected data validation or parsing failure  # policy_guard: allow-silent-handler
-            logger.warning("Failed to convert value to float: value=%r, error=%s", value, exc)
-            return None
+        return _safe_float_value(value)

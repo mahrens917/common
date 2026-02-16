@@ -17,7 +17,7 @@ from typing import TYPE_CHECKING, Any, Optional
 
 from common.constants.network import HTTP_OK
 
-# Constants for avoiding literal fallbacks in ternary expressions
+# Constants used in place of inline literals in ternary expressions
 EMPTY_API_KEY_SECRET: str = ""
 EMPTY_PARAMS: dict = {}
 NESTED_MARKETS_PARAMS: dict = {"with_nested_markets": "true"}

@@ -38,7 +38,7 @@ class AlgoStatsData:
     last_updated: str = ""
 
     def to_dict(self) -> Dict[str, str]:
-        """Convert to Redis-compatible dict (all string values)."""
+        """Convert to Redis dict (all string values)."""
         return {k: str(v) for k, v in asdict(self).items()}
 
     @classmethod

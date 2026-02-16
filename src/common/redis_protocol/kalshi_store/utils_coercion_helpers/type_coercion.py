@@ -53,7 +53,7 @@ def coerce_sequence(candidate: Any) -> List[Any]:
     return []
 
 
-def string_or_default(value: Any, fallback_value: str = "", *, trim: bool = False) -> str:
+def string_or_default(value: Any, fill_value: str = "", *, trim: bool = False) -> str:
     """Coerce value to string with optional whitespace trimming and byte decoding."""
     if isinstance(value, str):
         return value.strip() if trim else value
@@ -61,15 +61,15 @@ def string_or_default(value: Any, fallback_value: str = "", *, trim: bool = Fals
         decoded = value.decode("utf-8", "ignore")
         return decoded.strip() if trim else decoded
     if value is None:
-        return fallback_value
+        return fill_value
     coerced = str(value)
     return coerced.strip() if trim else coerced
 
 
-def int_or_default(value: Any, fallback_value: int = 0) -> int:
+def int_or_default(value: Any, fill_value: int = 0) -> int:
     """Public wrapper for int coercion helper."""
     if value is None:
-        return fallback_value
+        return fill_value
     if isinstance(value, bool):
         return int(value)
     if isinstance(value, (int, float)):
@@ -82,13 +82,13 @@ def int_or_default(value: Any, fallback_value: int = 0) -> int:
             TypeError,
             ValueError,
         ):
-            return fallback_value
-    return fallback_value
+            return fill_value
+    return fill_value
 
 
 def float_or_default(
     value: Any,
-    fallback_value: float = 0.0,
+    fill_value: float = 0.0,
     *,
     raise_on_error: bool = False,
     error_message: str | None = None,
@@ -99,13 +99,13 @@ def float_or_default(
     Delegates to canonical implementation in common.utils.numeric.
 
     When ``raise_on_error`` is False (default), this mirrors ``_float_or_default`` and
-    returns the provided ``fallback_value`` for invalid inputs. When True, a ``ValueError`` is
+    returns the provided ``fill_value`` for invalid inputs. When True, a ``ValueError`` is
     raised using ``error_message`` if provided.
     """
     from common.utils.numeric import coerce_float_default, coerce_float_strict
 
     if not raise_on_error:
-        return coerce_float_default(value, fallback_value)
+        return coerce_float_default(value, fill_value)
 
     if value is None:
         message = error_message.format(value=value) if error_message else _DEFAULT_NUMERIC_ERROR_MESSAGE
@@ -120,12 +120,12 @@ def float_or_default(
 
 def bool_or_default(
     value: Any,
-    fallback_value: bool,
+    fill_value: bool,
     *,
     parse_strings: bool = False,
 ) -> bool:
     """
-    Coerce common boolean representations or return fallback_value.
+    Coerce common boolean representations or return fill_value.
 
     When ``parse_strings`` is True, accepts typical truthy/falsey strings.
     """
@@ -139,7 +139,7 @@ def bool_or_default(
             return True
         if lowered in {"false", "no", "off", "0"}:
             return False
-    return fallback_value
+    return fill_value
 
 
 __all__ = [

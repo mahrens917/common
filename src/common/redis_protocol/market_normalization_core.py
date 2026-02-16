@@ -101,7 +101,7 @@ def format_probability_value(value: Any) -> str:
     try:
         numeric = float(value)
     except (TypeError, ValueError) as exc:
-        raise ProbabilityValueError(f"Probability value must be float-compatible, got {value}") from exc
+        raise ProbabilityValueError(f"Probability value must be numeric, got {value}") from exc
 
     if not math.isfinite(numeric):
         raise ProbabilityValueError(f"Probability value must be finite, got {numeric}")

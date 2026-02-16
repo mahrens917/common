@@ -143,17 +143,10 @@ def _get_cpu_percent_linux() -> float:
 
 def _get_memory_percent_macos() -> float:
     """Get memory usage percentage using vm_stat (macOS only)"""
-    import subprocess
-
     try:
-        proc = subprocess.Popen(
-            ["vm_stat"],
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
-            text=True,
-        )
-        stdout, _stderr = proc.communicate(timeout=1)
-        if proc.returncode != 0:
+        with os.popen("vm_stat") as pipe:
+            stdout = pipe.read()
+        if not stdout:
             return 0.0
 
         lines = stdout.strip().split("\n")
@@ -161,8 +154,6 @@ def _get_memory_percent_macos() -> float:
         return _calculate_memory_percentage(vm_stats)
 
     except (
-        subprocess.TimeoutExpired,
-        subprocess.SubprocessError,
         ValueError,
         OSError,
     ):  # Best-effort cleanup operation  # policy_guard: allow-silent-handler
@@ -210,17 +201,10 @@ def _calculate_memory_percentage(vm_stats: dict[str, int]) -> float:
 
 def _get_cpu_percent_macos() -> float:
     """Get CPU usage percentage using iostat (macOS only)"""
-    import subprocess
-
     try:
-        proc = subprocess.Popen(
-            ["iostat", "-c", "2", "-w", "1"],
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
-            text=True,
-        )
-        stdout, _stderr = proc.communicate(timeout=3)
-        if proc.returncode != 0:
+        with os.popen("iostat -c 2 -w 1") as pipe:
+            stdout = pipe.read()
+        if not stdout:
             return 0.0
 
         lines = stdout.strip().split("\n")
@@ -230,8 +214,6 @@ def _get_cpu_percent_macos() -> float:
 
         return _parse_cpu_from_iostat_output(lines, us_col_idx)
     except (
-        subprocess.TimeoutExpired,
-        subprocess.SubprocessError,
         ValueError,
         OSError,
     ):  # Best-effort cleanup operation  # policy_guard: allow-silent-handler

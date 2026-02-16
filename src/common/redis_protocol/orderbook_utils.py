@@ -87,7 +87,7 @@ def _extract_market_ticker(msg_data: Dict[str, Any]) -> str:
 
 
 def build_snapshot_sides(msg_data: Dict[str, Any], market_ticker: str) -> Dict[str, Dict[str, float]]:
-    """Convert yes/no level arrays into Redis hash compatible dictionaries."""
+    """Convert yes/no level arrays into Redis hash dictionaries."""
 
     orderbook_sides: Dict[str, Dict[str, float]] = {"yes_bids": {}, "yes_asks": {}}
     for side in ("yes", "no"):

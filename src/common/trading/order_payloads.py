@@ -26,7 +26,7 @@ def build_order_payload(order_request: OrderRequest) -> Dict[str, int | str]:
 
     price_cents = order_request.yes_price_cents
     if price_cents is None:
-        raise ValueError("Order requests must provide yes_price_cents before payload construction; " "do not rely on implicit fallbacks.")
+        raise ValueError("Order requests must provide yes_price_cents before payload construction; " "do not rely on implicit values.")
 
     if price_cents > _MAX_PRICE:
         raise TypeError(f"Order price must be between 0-99 cents, received {price_cents}")

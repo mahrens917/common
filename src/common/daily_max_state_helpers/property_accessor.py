@@ -2,7 +2,7 @@
 Property accessor for DailyMaxState to reduce class line count.
 
 This module provides a PropertyAccessor class that encapsulates all property
-getter/setter pairs for the DailyMaxState class, maintaining backward compatibility
+getter/setter pairs for the DailyMaxState class, maintaining the existing API
 while keeping the main class under the 120-line limit.
 """
 
@@ -15,7 +15,7 @@ class PropertyAccessor:
 
     This class encapsulates all property getter/setter pairs to reduce
     the line count of the main DailyMaxState class while maintaining
-    backward compatibility with existing code.
+    the existing API surface.
 
     Supported properties:
     - max_temp_c: Maximum temperature in Celsius

@@ -15,6 +15,28 @@ from .config import AstronomicalEventData
 logger = logging.getLogger("src.monitor.chart_generator")
 
 
+def _resolve_local_timezone(latitude: float, longitude: float, station_icao: str) -> Optional[tzinfo]:
+    """Resolve the local timezone for the given coordinates."""
+    try:
+        import pytz
+
+        from common.time_utils import get_timezone_from_coordinates
+
+        timezone_name = get_timezone_from_coordinates(latitude, longitude)
+        local_tz = pytz.timezone(timezone_name)
+        logger.debug("Using local timezone %s for %s", timezone_name, station_icao)
+    except (  # policy_guard: allow-silent-handler
+        RuntimeError,
+        ValueError,
+        TypeError,
+        KeyError,
+    ) as exc:  # pragma: no cover - geo lookup failure
+        logger.warning("Failed to get timezone for %s: %s", station_icao, exc)
+        return None
+    else:
+        return local_tz
+
+
 class AstronomicalCalculator:
     """Calculates dawn, dusk, and solar events for weather charts"""
 
@@ -98,22 +120,5 @@ class AstronomicalCalculator:
             return AstronomicalFeatures(vertical_lines=[], dawn_dusk_periods=None)
 
     def _get_local_timezone(self, latitude: float, longitude: float, station_icao: str) -> Optional[tzinfo]:
-        """Get local timezone for coordinates"""
-        try:
-            import pytz
-
-            from common.time_utils import get_timezone_from_coordinates
-
-            timezone_name = get_timezone_from_coordinates(latitude, longitude)
-            local_tz = pytz.timezone(timezone_name)
-            logger.debug("Using local timezone %s for %s", timezone_name, station_icao)
-        except (  # policy_guard: allow-silent-handler
-            RuntimeError,
-            ValueError,
-            TypeError,
-            KeyError,
-        ) as exc:  # pragma: no cover - geo lookup failure
-            logger.warning("Failed to get timezone for %s: %s", station_icao, exc)
-            return None
-        else:
-            return local_tz
+        """Get local timezone for coordinates."""
+        return _resolve_local_timezone(latitude, longitude, station_icao)

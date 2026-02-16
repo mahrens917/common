@@ -58,13 +58,8 @@ class RetryRedisHashMixin:
         *,
         context: str = "hscan",
     ) -> Any:
-        kwargs: dict[str, Any] = {}
-        if match is not None:
-            kwargs["match"] = match
-        if count is not None:
-            kwargs["count"] = count
         return await with_redis_retry(
-            lambda: ensure_awaitable(self._client.hscan(name, cursor, **kwargs)),
+            lambda: ensure_awaitable(self._client.hscan(name, cursor, match=match, count=count)),
             context=context,
             policy=self._policy,
         )
@@ -77,13 +72,8 @@ class RetryRedisHashMixin:
         )
 
     async def set(self, name: str, value: Any, *, ex: Optional[int] = None, nx: bool = False, context: str = "set") -> Any:
-        kwargs: dict[str, Any] = {}
-        if ex is not None:
-            kwargs["ex"] = ex
-        if nx:
-            kwargs["nx"] = True
         return await with_redis_retry(
-            lambda: ensure_awaitable(self._client.set(name, value, **kwargs)),
+            lambda: ensure_awaitable(self._client.set(name, value, ex=ex, nx=nx)),
             context=context,
             policy=self._policy,
         )

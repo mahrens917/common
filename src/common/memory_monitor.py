@@ -20,6 +20,14 @@ DEFAULT_TASK_COUNT_THRESHOLD = 50
 DEFAULT_MAX_SNAPSHOTS = 100
 
 
+def _set_threshold(monitor, attr_name: str, analyzer_attr: str, value) -> None:
+    """Update a threshold attribute on both the monitor and its trend analyzer."""
+    object.__setattr__(monitor, attr_name, value)
+    analyzer = getattr(monitor, "_trend_analyzer", None)
+    if analyzer is not None:
+        setattr(analyzer, analyzer_attr, value)
+
+
 class MemoryMonitor:
     def __init__(self, service_name: str, check_interval_seconds: int = 60):
         self.service_name = service_name
@@ -94,9 +102,7 @@ class MemoryMonitor:
 
     @memory_growth_threshold_mb.setter
     def memory_growth_threshold_mb(self, value: float) -> None:
-        object.__setattr__(self, "_memory_growth_threshold_mb", value)
-        if hasattr(self, "_trend_analyzer"):
-            self._trend_analyzer.memory_growth_threshold_mb = value
+        _set_threshold(self, "_memory_growth_threshold_mb", "memory_growth_threshold_mb", value)
 
     @property
     def collection_growth_threshold(self) -> int:
@@ -104,9 +110,7 @@ class MemoryMonitor:
 
     @collection_growth_threshold.setter
     def collection_growth_threshold(self, value: int) -> None:
-        object.__setattr__(self, "_collection_growth_threshold", value)
-        if hasattr(self, "_trend_analyzer"):
-            self._trend_analyzer.collection_growth_threshold = value
+        _set_threshold(self, "_collection_growth_threshold", "collection_growth_threshold", value)
 
     @property
     def task_count_threshold(self) -> int:
@@ -114,9 +118,7 @@ class MemoryMonitor:
 
     @task_count_threshold.setter
     def task_count_threshold(self, value: int) -> None:
-        object.__setattr__(self, "_task_count_threshold", value)
-        if hasattr(self, "_trend_analyzer"):
-            self._trend_analyzer.task_count_threshold = value
+        _set_threshold(self, "_task_count_threshold", "task_count_threshold", value)
 
     @property
     def shutdown_requested(self) -> bool:

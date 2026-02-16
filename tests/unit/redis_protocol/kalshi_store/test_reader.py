@@ -320,7 +320,7 @@ async def test_kalshi_market_reader_get_field_returns_default(monkeypatch):
     reader._snapshot_retriever = MagicMock()
     reader._snapshot_retriever.get_field = AsyncMock(side_effect=RuntimeError("boom"))
 
-    assert await reader.get_market_field("KXHIGHTEST", "status", fallback_value="fallback") == "fallback"
+    assert await reader.get_market_field("KXHIGHTEST", "status", fill_value="fallback") == "fallback"
 
 
 @pytest.mark.asyncio

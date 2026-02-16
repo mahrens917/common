@@ -36,6 +36,23 @@ from .runtime_helpers import notify_progress as _notify_progress_impl
 from .runtime_helpers import safe_float_value as _safe_float_value_impl
 
 
+def _check_market_expires_today(strike_collector, market_data, today_date, et_timezone, market_key, today_market_date) -> bool:
+    """Check whether a market expires today via the strike collector's validator."""
+    validator = getattr(strike_collector, "expiration_validator", None)
+    if validator is None:
+        raise RuntimeError("Strike collector has no expiration validator configured")
+    base_method = getattr(type(validator), "market_expires_today", None)
+    if base_method is None:
+        raise RuntimeError("Expiration validator is missing market_expires_today")
+    try:
+        return base_method(validator, market_data, today_date, et_timezone, market_key, today_market_date)
+    except RuntimeError as exc:
+        message = str(exc)
+        if "No expiration metadata available" in message:
+            raise RuntimeError("Unable to determine expiration date") from exc
+        raise
+
+
 class ChartPropertyMixin:
     _progress_callback: Optional[Callable[[str], None]]
     _progress_notifier: Optional[ProgressNotifier]
@@ -116,33 +133,9 @@ class ChartHelperMixin:
     _progress_notifier: Optional[ProgressNotifier]
 
     def _market_expires_today(
-        self,
-        market_data: Dict[str, str],
-        today_date,
-        et_timezone,
-        market_key: str,
-        today_market_date: str,
+        self, market_data: Dict[str, str], today_date, et_timezone, market_key: str, today_market_date: str,
     ) -> bool:
-        validator = getattr(self._strike_collector, "expiration_validator", None)
-        if validator is None:
-            raise RuntimeError("Strike collector has no expiration validator configured")
-        base_method = getattr(type(validator), "market_expires_today", None)
-        if base_method is None:
-            raise RuntimeError("Expiration validator is missing market_expires_today")
-        try:
-            return base_method(
-                validator,
-                market_data,
-                today_date,
-                et_timezone,
-                market_key,
-                today_market_date,
-            )
-        except RuntimeError as exc:
-            message = str(exc)
-            if "No expiration metadata available" in message:
-                raise RuntimeError("Unable to determine expiration date") from exc
-            raise
+        return _check_market_expires_today(self._strike_collector, market_data, today_date, et_timezone, market_key, today_market_date)
 
     async def generate_load_charts(self, hours: int = 24) -> Dict[str, str]:
         generator = cast("ChartGenerator", self)

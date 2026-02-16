@@ -23,16 +23,16 @@ class _DefaultDependencies:
     poller: object
 
 
-def _resolve_dep(provided_deps: dict, key: str, fallback_value):
-    """Resolve a single dependency from provided dict or use fallback.
+def _resolve_dep(provided_deps: dict, key: str, fill_value):
+    """Resolve a single dependency from provided dict or use fill value.
 
     Returns the provided value if it exists and is truthy, otherwise
-    returns the fallback value. Uses explicit check to avoid silent fallbacks.
+    returns the fill value value. Uses explicit check to avoid silent fill values.
     """
     value = provided_deps.get(key)
     if value is not None:
         return value
-    return fallback_value
+    return fill_value
 
 
 def _resolve_all_deps(provided_deps: dict, defaults: _DefaultDependencies) -> dict:
@@ -48,7 +48,7 @@ def _resolve_all_deps(provided_deps: dict, defaults: _DefaultDependencies) -> di
         "order_creator": defaults.order_creator,
         "poller": defaults.poller,
     }
-    return {key: _resolve_dep(provided_deps, key, fallback_value) for key, fallback_value in defaults_dict.items()}
+    return {key: _resolve_dep(provided_deps, key, fill_value) for key, fill_value in defaults_dict.items()}
 
 
 def create_or_use_dependencies(

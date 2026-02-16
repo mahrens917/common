@@ -320,9 +320,9 @@ class MarketQueryDelegator:
         """Get orderbook for market."""
         return await self._reader.get_orderbook(ticker)
 
-    async def get_market_field(self, ticker: str, field: str, *, fallback_value: Optional[str] = None) -> Optional[str]:
+    async def get_market_field(self, ticker: str, field: str, *, fill_value: Optional[str] = None) -> Optional[str]:
         """Get single market field."""
-        return await self._reader.get_market_field(ticker, field, fallback_value=fallback_value)
+        return await self._reader.get_market_field(ticker, field, fill_value=fill_value)
 
     async def get_orderbook_side(self, ticker: str, side: str) -> Dict:
         """Get orderbook side (bids or asks)."""

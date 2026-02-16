@@ -83,7 +83,7 @@ class OptimizedStatusReporter(
 
     async def _gather_status_data_optimized(self, redis_client=None) -> Dict[str, Any]:
         """
-        Backward-compatible status data gathering used by monitor commands.
+        Status data gathering used by monitor commands.
 
         When ``redis_client`` is not provided, a client is created and closed internally.
         """
