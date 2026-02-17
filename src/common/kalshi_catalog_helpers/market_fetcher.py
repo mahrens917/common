@@ -133,6 +133,7 @@ class MarketFetcherClient:
             params = _build_request_params(self._client, base_params, cursor)
             payload = await _fetch_page(self._client, params)
             page_markets = _extract_page_markets(payload)
+            pages += 1
 
             added = _add_markets(page_markets, markets, seen_tickers, label, base_params)
             logger.info(
@@ -146,7 +147,6 @@ class MarketFetcherClient:
             cursor = _extract_next_cursor(payload)
             if cursor is None:
                 break
-            pages += 1
 
         return pages
 
@@ -171,7 +171,10 @@ async def _fetch_weather_series(client, fetcher_client, category: str, markets: 
         matched_series += 1
         weather_params: BaseParams = {"category": category, "series_ticker": ticker}
         pages += await fetcher_client.fetch_markets(
-            f"series {ticker}", markets, seen_tickers, base_params=weather_params,
+            f"series {ticker}",
+            markets,
+            seen_tickers,
+            base_params=weather_params,
         )
     if matched_series == 0:
         raise KalshiMarketCatalogError(f"Weather series for {category} returned no KXHIGH tickers; aborting market discovery")

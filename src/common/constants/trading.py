@@ -1,6 +1,7 @@
-"""Trading price constants.
+"""Trading price and algo constants.
 
-These constants define the valid price ranges for Kalshi trading operations.
+These constants define the valid price ranges for Kalshi trading operations
+and the canonical list of algorithm names used across the system.
 """
 
 # Order price bounds (valid range for placing orders: 1-99 cents)
@@ -14,10 +15,16 @@ MAX_MARKET_PRICE_CENTS = 100
 # Settlement price for binary markets (settles at 0 or 100)
 MAX_SETTLEMENT_PRICE_CENTS = 100
 
+# Canonical set of algorithm names recognized by the trading system.
+# Producers must use one of these names; tracker validates against this set.
+# Update both here and tracker/config/algos.json when adding a new algo.
+VALID_ALGO_NAMES: frozenset[str] = frozenset({"crossarb", "peak", "edge", "weather", "pdf", "whale", "strike", "total", "dutch"})
+
 __all__ = [
     "MIN_PRICE_CENTS",
     "MAX_PRICE_CENTS",
     "MIN_MARKET_PRICE_CENTS",
     "MAX_MARKET_PRICE_CENTS",
     "MAX_SETTLEMENT_PRICE_CENTS",
+    "VALID_ALGO_NAMES",
 ]

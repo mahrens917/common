@@ -9,6 +9,7 @@ from common.order_response_parser_exceptions import (
     EmptyOrderDataError,
     EmptyRejectionReasonError,
     EmptyResponseError,
+    InvalidOrderCountError,
     MissingTickerError,
 )
 
@@ -82,7 +83,7 @@ def test_parse_allows_zero_fill_without_price():
         trade_reason="Waiting for execution",
     )
 
-    assert order.status is OrderStatus.PENDING
+    assert order.status is OrderStatus.RESTING
     assert order.average_fill_price_cents is None
     assert order.remaining_count == _TEST_COUNT_2
 
@@ -168,7 +169,7 @@ def test_parse_uses_remaining_count_when_provided():
     assert order.fills[0].timestamp.isoformat() == "2024-01-01T00:05:00+00:00"
 
 
-def test_parse_defaults_total_count_when_missing():
+def test_parse_raises_when_total_count_missing():
     payload = _base_order_payload(
         initial_count=None,
         remaining_count=None,
@@ -185,15 +186,13 @@ def test_parse_defaults_total_count_when_missing():
     payload.pop("initial_count", None)
     payload.pop("remaining_count", None)
 
-    order = parse_kalshi_order_response(
-        payload,
-        trade_rule="TEMP_DECLINE",
-        trade_reason="Default total count guard",
-    )
-
-    assert order.remaining_count == 0
-    assert order.filled_count == SINGLE_FILL_COUNT
-    assert order.average_fill_price_cents == _CONST_45
+    with pytest.raises(InvalidOrderCountError) as exc_info:
+        parse_kalshi_order_response(
+            payload,
+            trade_rule="TEMP_DECLINE",
+            trade_reason="Missing total count guard",
+        )
+    assert exc_info.value.field == "total_count"
 
 
 def test_parse_missing_created_time_raises():

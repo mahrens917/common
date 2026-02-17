@@ -12,7 +12,7 @@ from common.market_lifecycle_monitor_helpers.state_tracker import SettlementInfo
 @pytest.mark.asyncio
 async def test_validate_settlement_pnl_handles_unsettled_market():
     validator = SettlementValidator(SimpleNamespace(settlement_cache={}))
-    position = PortfolioPosition(ticker="TST", position_count=1, average_price_cents=10)
+    position = PortfolioPosition(ticker="TST", position_count=1, average_price_cents=10, side=OrderSide.YES)
 
     valid, message, pnl = await validator.validate_settlement_pnl("TST", position)
 
@@ -31,7 +31,7 @@ async def test_validate_settlement_pnl_requires_price():
         is_settled=True,
     )
     validator = SettlementValidator(SimpleNamespace(settlement_cache={"TST": settlement_info}))
-    position = PortfolioPosition(ticker="TST", position_count=1, average_price_cents=10)
+    position = PortfolioPosition(ticker="TST", position_count=1, average_price_cents=10, side=OrderSide.YES)
 
     valid, message, pnl = await validator.validate_settlement_pnl("TST", position)
 
@@ -67,7 +67,7 @@ async def test_validate_settlement_pnl_computes_expected_value():
 @pytest.mark.asyncio
 async def test_validate_settlement_pnl_returns_error_on_attribute_failure():
     validator = SettlementValidator(SimpleNamespace())
-    position = PortfolioPosition(ticker="TST", position_count=1, average_price_cents=10)
+    position = PortfolioPosition(ticker="TST", position_count=1, average_price_cents=10, side=OrderSide.YES)
 
     valid, message, pnl = await validator.validate_settlement_pnl("TST", position)
 

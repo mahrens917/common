@@ -3,10 +3,9 @@
 from datetime import datetime
 from typing import Any, Dict
 
-from .field_validators import validate_string_field
+from common.constants.trading import MAX_PRICE_CENTS
 
-# Constants
-_MAX_PRICE = 99
+from .field_validators import validate_string_field
 
 
 def validate_order_strings(order_data: Dict[str, Any]) -> None:
@@ -64,5 +63,5 @@ def validate_order_prices(order_data: Dict[str, Any]) -> None:
         price = order_data[price_field]
         if not isinstance(price, (int, float)):
             raise TypeError(f"{price_field} must be numeric, got: {type(price)}")
-        if price < 1 or price > _MAX_PRICE:
+        if price < 1 or price > MAX_PRICE_CENTS:
             raise ValueError(f"{price_field} must be between 1-99 cents, got: {price}")

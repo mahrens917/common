@@ -108,8 +108,8 @@ class TestRequestMarketUpdate:
         assert result.success is True
 
     @pytest.mark.asyncio
-    async def test_ticker_provided_explicitly(self, mock_redis):
-        result = await request_market_update(mock_redis, "market:key", "weather", 50.0, 55.0, ticker="CUSTOM")
+    async def test_ticker_derived_from_short_key(self, mock_redis):
+        result = await request_market_update(mock_redis, "market:CUSTOM", "weather", 50.0, 55.0)
 
         assert result.success is True
 
@@ -143,7 +143,7 @@ class TestRequestMarketUpdate:
 
         from common.redis_protocol.streams.constants import ALGO_SIGNAL_STREAM
 
-        result = await request_market_update(mock_redis, "market:key", "weather", 50.0, 55.0, ticker="TICKER1")
+        result = await request_market_update(mock_redis, "market:key:TICKER1", "weather", 50.0, 55.0)
 
         assert result.success is True
         mock_redis.xadd.assert_called_once()
@@ -305,9 +305,15 @@ class TestParseInt:
     def test_float_string_value(self):
         assert parse_int("42.5") == 42
 
+    def test_float_value(self):
+        assert parse_int(42.5) == 42
+
+    def test_int_value(self):
+        assert parse_int(42) == 42
+
     def test_invalid_type_raises_error(self):
-        with pytest.raises(TypeError, match="Cannot parse float to int"):
-            parse_int(42.5)
+        with pytest.raises(TypeError, match="Cannot parse object to int"):
+            parse_int(object())
 
 
 class TestBatchUpdateMarketSignals:
@@ -366,13 +372,11 @@ class TestExecuteBatchTransaction:
         redis.hget = AsyncMock(return_value=b"EVENT123")
         redis.publish = AsyncMock()
         redis.xadd = AsyncMock(return_value=b"1-0")
-        return redis
-
-    @pytest.fixture
-    def mock_pipe(self):
         pipe = MagicMock()
         pipe.execute = AsyncMock(return_value=[])
-        return pipe
+        redis.pipeline.return_value = pipe
+        redis._mock_pipe = pipe
+        return redis
 
     @pytest.fixture
     def sample_signals(self):
@@ -394,22 +398,24 @@ class TestExecuteBatchTransaction:
         ]
 
     @pytest.mark.asyncio
-    async def test_successful_execution(self, mock_redis, mock_pipe, sample_signals):
-        result = await _execute_batch_transaction(mock_redis, mock_pipe, sample_signals, [], [], "weather")
+    async def test_successful_execution(self, mock_redis, sample_signals):
+        result = await _execute_batch_transaction(mock_redis, sample_signals, [], [], "weather")
         assert result.succeeded == ["TEST1", "TEST2"]
         assert result.rejected == []
         assert result.failed == []
 
     @pytest.mark.asyncio
-    async def test_execution_failure_raises(self, mock_redis, mock_pipe, sample_signals):
-        mock_pipe.execute = AsyncMock(side_effect=RuntimeError("Redis connection failed"))
+    async def test_execution_failure_raises(self, mock_redis, sample_signals, monkeypatch):
+        monkeypatch.setattr("common.redis_protocol.retry.asyncio.sleep", AsyncMock())
+        mock_redis._mock_pipe.execute = AsyncMock(side_effect=RuntimeError("Redis connection failed"))
         with pytest.raises(RuntimeError):
-            await _execute_batch_transaction(mock_redis, mock_pipe, sample_signals, [], [], "weather")
+            await _execute_batch_transaction(mock_redis, sample_signals, [], [], "weather")
 
     @pytest.mark.asyncio
-    async def test_publish_failure_is_silent(self, mock_redis, mock_pipe, sample_signals):
+    async def test_publish_failure_is_silent(self, mock_redis, sample_signals, monkeypatch):
+        monkeypatch.setattr("common.redis_protocol.retry.asyncio.sleep", AsyncMock())
         mock_redis.xadd = AsyncMock(side_effect=ConnectionError("publish failed"))
-        result = await _execute_batch_transaction(mock_redis, mock_pipe, sample_signals, [], [], "weather")
+        result = await _execute_batch_transaction(mock_redis, sample_signals, [], [], "weather")
         assert result.succeeded == ["TEST1", "TEST2"]
 
 
@@ -427,8 +433,10 @@ class TestPublishMarketEventUpdate:
         return redis
 
     @pytest.mark.asyncio
-    async def test_publish_exception_is_raised(self, mock_redis):
+    async def test_publish_exception_is_raised(self, mock_redis, monkeypatch):
         from common.redis_protocol.retry import RedisRetryError
+
+        monkeypatch.setattr("common.redis_protocol.retry.asyncio.sleep", AsyncMock())
 
         def hget_side_effect(key, field):
             if field == "event_ticker":
@@ -438,7 +446,7 @@ class TestPublishMarketEventUpdate:
         mock_redis.hget = AsyncMock(side_effect=hget_side_effect)
         mock_redis.xadd = AsyncMock(side_effect=RuntimeError("publish failed"))
 
-        with pytest.raises(RedisRetryError, match="failed after 3 attempt"):
+        with pytest.raises(RedisRetryError, match="failed after 5 attempt"):
             await request_market_update(mock_redis, "market:key", "weather", 50.0, 55.0)
 
 
@@ -557,9 +565,10 @@ class TestUpdateAndClearStale:
         assert "STALE" in result.stale_cleared
 
     @pytest.mark.asyncio
-    async def test_write_failure_raises(self, mock_redis, mock_key_builder):
+    async def test_write_failure_raises(self, mock_redis, mock_key_builder, monkeypatch):
         from common.redis_protocol.market_update_api import update_and_clear_stale
 
+        monkeypatch.setattr("common.redis_protocol.retry.asyncio.sleep", AsyncMock())
         mock_redis.hset = AsyncMock(side_effect=RuntimeError("write failed"))
 
         with pytest.raises(RuntimeError):

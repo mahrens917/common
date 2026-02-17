@@ -6,6 +6,7 @@ from .trading import (
     MAX_SETTLEMENT_PRICE_CENTS,
     MIN_MARKET_PRICE_CENTS,
     MIN_PRICE_CENTS,
+    VALID_ALGO_NAMES,
 )
 
 __all__ = [
@@ -14,4 +15,5 @@ __all__ = [
     "MAX_SETTLEMENT_PRICE_CENTS",
     "MIN_MARKET_PRICE_CENTS",
     "MAX_MARKET_PRICE_CENTS",
+    "VALID_ALGO_NAMES",
 ]

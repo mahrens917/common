@@ -43,11 +43,19 @@ async def ensure_consumer_group(
 
 def _is_busygroup_error(exc: BaseException) -> bool:
     """Check if any exception in the chain is a BUSYGROUP error."""
-    current: BaseException | None = exc
-    while current is not None:
+    seen: set[int] = set()
+    stack = [exc]
+    while stack:
+        current = stack.pop()
+        if id(current) in seen:
+            continue
+        seen.add(id(current))
         if "BUSYGROUP" in str(current):
             return True
-        current = current.__cause__
+        if current.__cause__ is not None:
+            stack.append(current.__cause__)
+        if current.__context__ is not None:
+            stack.append(current.__context__)
     return False
 
 

@@ -80,9 +80,13 @@ class TestWriteAlgoStats:
 
     @pytest.mark.asyncio
     async def test_write_algo_stats_success(self):
+        mock_pipe = MagicMock()
+        mock_pipe.hset = MagicMock()
+        mock_pipe.expire = MagicMock()
+        mock_pipe.execute = AsyncMock(return_value=[1, True])
+
         redis = MagicMock()
-        redis.hset = AsyncMock(return_value=1)
-        redis.expire = AsyncMock(return_value=True)
+        redis.pipeline = MagicMock(return_value=mock_pipe)
 
         result = await write_algo_stats(
             redis,
@@ -95,13 +99,19 @@ class TestWriteAlgoStats:
         )
 
         assert result is True
-        redis.hset.assert_awaited_once()
-        redis.expire.assert_awaited_once_with(f"{ALGO_STATS_KEY_PREFIX}:weather", ALGO_STATS_TTL_SECONDS)
+        mock_pipe.hset.assert_called_once()
+        mock_pipe.expire.assert_called_once_with(f"{ALGO_STATS_KEY_PREFIX}:weather", ALGO_STATS_TTL_SECONDS)
+        mock_pipe.execute.assert_awaited_once()
 
     @pytest.mark.asyncio
     async def test_write_algo_stats_raises_on_redis_error(self):
+        mock_pipe = MagicMock()
+        mock_pipe.hset = MagicMock()
+        mock_pipe.expire = MagicMock()
+        mock_pipe.execute = AsyncMock(side_effect=RuntimeError("connection failed"))
+
         redis = MagicMock()
-        redis.hset = AsyncMock(side_effect=RuntimeError("connection failed"))
+        redis.pipeline = MagicMock(return_value=mock_pipe)
 
         with pytest.raises(RuntimeError, match="connection failed"):
             await write_algo_stats(redis, algo="pdf", events_processed=10)

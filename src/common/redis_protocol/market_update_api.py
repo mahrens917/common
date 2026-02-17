@@ -2,7 +2,8 @@
 Market Update API
 
 Provides algo-aware market update functionality.
-All algos (whale, peak, edge, pdf, weather) use this API to update theoretical prices.
+All algos (whale, peak, edge, pdf, weather, crossarb, dutch, strike, total)
+use this API to update theoretical prices.
 
 Field naming convention:
   - {algo}:t_bid, {algo}:t_ask - namespaced theoretical prices per algo
@@ -16,6 +17,8 @@ from __future__ import annotations
 import logging
 from dataclasses import dataclass
 from typing import TYPE_CHECKING, Any, Callable, Dict, List, Optional
+
+from common.constants.trading import MAX_PRICE_CENTS, MIN_PRICE_CENTS
 
 from .market_update_api_helpers import (
     REJECTION_KEY_PREFIX,
@@ -34,7 +37,7 @@ from .market_update_api_helpers import (
     scan_algo_owned_markets,
     write_theoretical_prices,
 )
-from .retry import with_redis_retry
+from .retry import RedisRetryError, with_redis_retry
 from .typing import ensure_awaitable
 
 if TYPE_CHECKING:
@@ -59,7 +62,9 @@ async def request_market_update(
     algo: str,
     t_bid: Optional[float],
     t_ask: Optional[float],
-    ticker: Optional[str] = None,
+    *,
+    edge: Optional[float] = None,
+    signal: Optional[str] = None,
 ) -> MarketUpdateResult:
     """
     Update theoretical prices for a market using namespaced fields.
@@ -70,10 +75,11 @@ async def request_market_update(
     Args:
         redis: Redis client
         market_key: Redis key for the market (e.g., markets:kalshi:weather:KXHIGH-KDCA-202501)
-        algo: Algorithm name (whale, peak, edge, pdf, weather)
+        algo: Algorithm name (whale, peak, edge, pdf, weather, crossarb, dutch, strike, total)
         t_bid: Theoretical bid price (can be None to skip)
         t_ask: Theoretical ask price (can be None to skip)
-        ticker: Optional ticker for logging (extracted from key if not provided)
+        edge: Explicit edge value (required when prices are provided)
+        signal: Explicit signal direction ("BUY", "SELL", "NONE")
 
     Returns:
         MarketUpdateResult with success status
@@ -81,9 +87,10 @@ async def request_market_update(
     if t_bid is None and t_ask is None:
         return MarketUpdateResult(success=False, rejected=False, reason="no_prices_provided", owning_algo=None)
 
-    display_ticker = ticker if ticker else market_key.split(":")[-1]
+    display_ticker = market_key.split(":")[-1]
 
-    await write_theoretical_prices(redis, market_key, algo, PriceSignal(t_bid=t_bid, t_ask=t_ask), display_ticker)
+    price_signal = PriceSignal(t_bid=t_bid, t_ask=t_ask, edge=edge, signal=signal)
+    await write_theoretical_prices(redis, market_key, algo, price_signal, display_ticker)
 
     return MarketUpdateResult(success=True, rejected=False, reason=None, owning_algo=None)
 
@@ -118,18 +125,12 @@ async def batch_update_market_signals(
         return BatchUpdateResult(succeeded=[], rejected=[], failed=failed)
 
     sorted_signals = sorted(valid_signals, key=lambda s: (s.t_ask is not None, s.ticker))
-    pipe = redis.pipeline(transaction=True)
 
-    for sig in sorted_signals:
-        mapping = build_signal_mapping(sig, algo)
-        add_signal_to_pipeline(pipe, sig, mapping)
-
-    return await _execute_batch_transaction(redis, pipe, sorted_signals, [], failed, algo)
+    return await _execute_batch_transaction(redis, sorted_signals, [], failed, algo)
 
 
 async def _execute_batch_transaction(
     redis: "Redis",
-    pipe: Any,
     sorted_signals: List[Any],
     rejected: List[str],
     failed: List[str],
@@ -137,9 +138,17 @@ async def _execute_batch_transaction(
 ) -> BatchUpdateResult:
     """Execute the batch transaction and publish event updates."""
     succeeded: List[str] = []
+
+    async def _build_and_execute_pipeline() -> None:
+        pipe_inner = redis.pipeline(transaction=True)
+        for sig in sorted_signals:
+            mapping = build_signal_mapping(sig, algo)
+            add_signal_to_pipeline(pipe_inner, sig, mapping)
+        await ensure_awaitable(pipe_inner.execute())
+
     try:
         await with_redis_retry(
-            lambda: ensure_awaitable(pipe.execute()),
+            _build_and_execute_pipeline,
             context=f"pipeline_batch_update:{algo}",
         )
         succeeded = [sig.ticker for sig in sorted_signals]
@@ -150,16 +159,22 @@ async def _execute_batch_transaction(
         raise
 
     for sig in sorted_signals:
+        clamped_bid = max(MIN_PRICE_CENTS, min(MAX_PRICE_CENTS, round(sig.t_bid))) if sig.t_bid is not None else None
+        clamped_ask = max(MIN_PRICE_CENTS, min(MAX_PRICE_CENTS, round(sig.t_ask))) if sig.t_ask is not None else None
+        price_signal = PriceSignal(t_bid=clamped_bid, t_ask=clamped_ask, signal=sig.signal, edge=sig.edge)
         try:
-            await publish_market_event_update(
-                redis,
-                sig.market_key,
-                sig.ticker,
-                algo,
-                PriceSignal(t_bid=sig.t_bid, t_ask=sig.t_ask, signal=sig.signal, edge=sig.edge),
+            await with_redis_retry(
+                lambda _s=sig, _ps=price_signal: publish_market_event_update(
+                    redis,
+                    _s.market_key,
+                    _s.ticker,
+                    algo,
+                    _ps,
+                ),
+                context=f"publish_event:{sig.ticker}",
             )
-        except (RuntimeError, ConnectionError, OSError):  # Expected, non-critical  # policy_guard: allow-silent-handler
-            pass
+        except RedisRetryError:  # policy_guard: allow-silent-handler
+            logger.exception("Failed to publish event update for %s after retries", sig.ticker)
 
     return BatchUpdateResult(succeeded=succeeded, rejected=[], failed=failed)
 

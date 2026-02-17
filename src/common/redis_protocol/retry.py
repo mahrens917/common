@@ -32,12 +32,11 @@ DEFAULT_RETRY_EXCEPTIONS: Tuple[Type[Exception], ...] = (
     asyncio.TimeoutError,
     OSError,
     RuntimeError,
-    ValueError,
 )
 
 
-DEFAULT_REDIS_RETRY_MAX_DELAY = 2.0
-DEFAULT_REDIS_RETRY_MAX_ATTEMPTS = 3
+DEFAULT_REDIS_RETRY_MAX_DELAY = 10.0
+DEFAULT_REDIS_RETRY_MAX_ATTEMPTS = 5
 
 
 @dataclass(frozen=True)

@@ -8,12 +8,19 @@ update rules while ensuring Redis writes remain centralised.
 """
 
 
+import asyncio
 from datetime import date, datetime, timedelta
 from typing import Callable
 
+from redis import WatchError
+
 from ...data_models.trade_record import TradeRecord
+from ..typing import ensure_awaitable
 from .errors import TradeStoreError
 from .records import TradeRecordRepository
+
+_WATCH_MAX_RETRIES = 10
+_WATCH_BASE_DELAY = 0.01
 
 
 class TradePriceUpdater:
@@ -38,8 +45,8 @@ class TradePriceUpdater:
         self,
         market_ticker: str,
         *,
-        yes_bid: float,
-        yes_ask: float,
+        yes_bid: int,
+        yes_ask: int,
         lookback_days: int = 7,
     ) -> int:
         if lookback_days <= 0:
@@ -67,13 +74,32 @@ class TradePriceUpdater:
         self,
         trade: TradeRecord,
         *,
-        yes_bid: float,
-        yes_ask: float,
+        yes_bid: int,
+        yes_ask: int,
     ) -> None:
-        trade.last_yes_bid = yes_bid
-        trade.last_yes_ask = yes_ask
-        trade.last_price_update = self._now()
-        await self._repository.save_without_reindex(trade)
+        client = await self._repository.redis_client()
+        trade_key = self._repository.build_trade_key(trade.trade_timestamp.date(), trade.order_id)
+        for watch_attempt in range(_WATCH_MAX_RETRIES):
+            try:
+                async with client.pipeline() as pipe:
+                    await ensure_awaitable(pipe.watch(trade_key))
+                    trade_json = await ensure_awaitable(pipe.get(trade_key))
+                    if not trade_json:
+                        await ensure_awaitable(pipe.unwatch())
+                        raise TradeStoreError(f"Trade key {trade_key} missing for order {trade.order_id}")
+                    current_trade = self._repository.decode_trade(trade_json)
+                    current_trade.last_yes_bid = yes_bid
+                    current_trade.last_yes_ask = yes_ask
+                    current_trade.last_price_update = self._now()
+                    updated_payload = self._repository.encode_trade(current_trade)
+                    pipe.multi()
+                    pipe.set(trade_key, updated_payload)
+                    await ensure_awaitable(pipe.execute())
+                break
+            except WatchError as exc:
+                if watch_attempt >= _WATCH_MAX_RETRIES - 1:
+                    raise TradeStoreError(f"Optimistic lock failed after {_WATCH_MAX_RETRIES} retries for order {trade.order_id}") from exc
+                await asyncio.sleep(_WATCH_BASE_DELAY * (2**watch_attempt))
 
 
 __all__ = ["TradePriceUpdater"]

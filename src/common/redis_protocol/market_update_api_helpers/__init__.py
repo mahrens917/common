@@ -24,6 +24,7 @@ from .price_writer import (
     compute_direction,
     parse_int,
     publish_market_event_update,
+    validate_algo_name,
     write_theoretical_prices,
 )
 
@@ -47,5 +48,6 @@ __all__ = [
     "publish_market_event_update",
     "record_rejection",
     "scan_algo_owned_markets",
+    "validate_algo_name",
     "write_theoretical_prices",
 ]

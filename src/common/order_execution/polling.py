@@ -140,5 +140,5 @@ class OrderPoller:
                 request_data={"fills": fills},
             )
 
-        average_price = total_cost // total_filled
+        average_price = round(total_cost / total_filled)
         return PollingOutcome(fills=fills, total_filled=total_filled, average_price_cents=average_price)

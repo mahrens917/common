@@ -5,7 +5,7 @@ from __future__ import annotations
 from datetime import datetime
 from typing import TYPE_CHECKING, Any, List, Optional
 
-from common.truthy import pick_truthy
+from common.constants.trading import MAX_PRICE_CENTS
 
 # Error messages
 ERR_ORDER_ID_MISSING = "Order ID must be specified"
@@ -17,7 +17,6 @@ if TYPE_CHECKING:
 
 # Constants
 _CONST_10 = 10
-_MAX_PRICE = 99
 
 
 def validate_order_response_enums(
@@ -72,7 +71,7 @@ def validate_order_response_price(filled_count: int | None, average_fill_price_c
         pass
 
     if average_fill_price_cents is not None:
-        if average_fill_price_cents <= 0 or average_fill_price_cents > _MAX_PRICE:
+        if average_fill_price_cents <= 0 or average_fill_price_cents > MAX_PRICE_CENTS:
             raise ValueError(f"Average fill price must be between 1-99 cents: {average_fill_price_cents}")
 
     if fees_cents is not None and fees_cents < 0:
@@ -81,7 +80,7 @@ def validate_order_response_price(filled_count: int | None, average_fill_price_c
 
 def validate_order_response_fills(fills: List["OrderFill"] | None, filled_count: int | None) -> None:
     """Validate fills list consistency."""
-    if fills:
+    if fills is not None and len(fills) > 0:
         total_fill_count = sum(fill.count for fill in fills)
         if filled_count is None:
             raise ValueError("Filled count must be specified")

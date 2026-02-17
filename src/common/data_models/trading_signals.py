@@ -13,6 +13,7 @@ from datetime import datetime
 from enum import Enum
 from typing import Optional, cast
 
+from common.constants.trading import MAX_PRICE_CENTS, MIN_PRICE_CENTS
 from common.validation_guards import require
 
 from .trading import OrderAction, OrderSide
@@ -21,11 +22,6 @@ from .trading import OrderAction, OrderSide
 ERR_SIGNAL_COUNT_MISMATCH = "signals_generated ({generated}) must match actual signals count ({actual})"
 ERR_UPDATE_TIMESTAMP_NOT_DATETIME = "Update timestamp must be a datetime object"
 ERR_MARKETS_ANALYZED_NEGATIVE = "Total markets analyzed cannot be negative"
-
-
-# Constants
-_MIN_PRICE = 0
-_MAX_PRICE = 99
 
 
 class TradingSignalType(Enum):
@@ -54,7 +50,7 @@ class TradingSignal:
 
     # Signal metadata
     ticker: str
-    confidence: str  # "HIGH", "MEDIUM", "LOW"
+    confidence: str  # "HIGH" or "MEDIUM"
     timestamp: datetime
 
     # Weather context and reasoning
@@ -90,7 +86,7 @@ class TradingSignal:
 
         if self.signal_type == TradingSignalType.NO_TRADE:
             require(
-                not any((self.action, self.side, self.target_price_cents)),
+                self.action is None and self.side is None and self.target_price_cents is None,
                 ValueError("NO_TRADE signals must not have action, side, or target_price_cents"),
             )
 
@@ -99,13 +95,17 @@ class TradingSignal:
         assert self.target_price_cents is not None
         target_price = self.target_price_cents
         require(
-            _MIN_PRICE < target_price <= _MAX_PRICE,
-            ValueError(f"Target price must be between 1-{_MAX_PRICE} cents: {target_price}"),
+            MIN_PRICE_CENTS <= target_price <= MAX_PRICE_CENTS,
+            ValueError(f"Target price must be between {MIN_PRICE_CENTS}-{MAX_PRICE_CENTS} cents: {target_price}"),
         )
 
     def _validate_reason_fields(self) -> None:
         """Ensure metadata fields are populated."""
         require(bool(self.ticker), ValueError("Ticker must be specified"))
+        require(
+            self.confidence in ("HIGH", "MEDIUM"),
+            ValueError(f"Confidence must be 'HIGH' or 'MEDIUM', got: {self.confidence!r}"),
+        )
         require(bool(self.weather_reason), ValueError("Weather reason must be specified"))
         require(bool(self.trading_reason), ValueError("Trading reason must be specified"))
 

@@ -35,7 +35,9 @@ class MidpointSignalResult:
     explanation: str
 
 
-async def _apply_rule4_fields(repository: MarketRepository, target_snapshot: MarketSnapshot, station_icao: str, max_temp_f: float) -> MidpointSignalResult:
+async def _apply_rule4_fields(
+    repository: MarketRepository, target_snapshot: MarketSnapshot, station_icao: str, max_temp_f: float
+) -> MidpointSignalResult:
     """Write Rule 4 fields to Redis and build the result."""
     explanation = f"⏰ MIDPOINT: Taking {max_temp_f}°F as final high → Buying YES"
     await repository.set_market_fields(
@@ -137,7 +139,10 @@ class WeatherRuleEngine:
         return best_less
 
     async def _apply_market_fields_and_return_result(
-        self, target_snapshot: MarketSnapshot, station_icao: str, max_temp_f: float,
+        self,
+        target_snapshot: MarketSnapshot,
+        station_icao: str,
+        max_temp_f: float,
     ) -> MidpointSignalResult:
         return await _apply_rule4_fields(self._repository, target_snapshot, station_icao, max_temp_f)
 

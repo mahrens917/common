@@ -142,7 +142,7 @@ def _parse_order_status(order_data: Dict[str, Any]) -> OrderStatus:
         "filled": OrderStatus.FILLED,
         "partially_filled": OrderStatus.PARTIALLY_FILLED,
         "executed": OrderStatus.EXECUTED,
-        "resting": OrderStatus.PENDING,
+        "resting": OrderStatus.RESTING,
         "canceled": OrderStatus.CANCELLED,
         "rejected": OrderStatus.REJECTED,
     }
@@ -185,8 +185,7 @@ def _compute_order_counts(order_data: Dict[str, Any], filled_count: int) -> Orde
             raise err from exc
         total_count = remaining_count + filled_count
     else:
-        total_count = 1
-        remaining_count = total_count - filled_count
+        raise InvalidOrderCountError("total_count", "missing (no initial_count, count, quantity, or remaining_count field)")
 
     return OrderCounts(
         filled_count=filled_count,
@@ -215,7 +214,7 @@ def _parse_average_fill_price(order_data: Dict[str, Any], filled_count: int) -> 
 
     maker_cost = order_data.get("maker_fill_cost")
     if _has_reliable_maker_cost(maker_cost):
-        average = int(maker_cost) // filled_count
+        average = round(int(maker_cost) / filled_count)
         logger.info("✅ [PRICE DEBUG] Using maker_fill_cost calculation: %s¢", average)
         return average
 
@@ -284,7 +283,12 @@ def _parse_order_fills(
 
 def _build_order_fill(fill_data: Dict[str, Any], order_timestamp: datetime) -> OrderFill:
     """Create an OrderFill entry after validating the payload."""
-    price_cents = _require_fill_field(fill_data, "price")
+    price_raw = _require_fill_field(fill_data, "price")
+    try:
+        price_cents = int(price_raw)
+    except (TypeError, ValueError) as exc:
+        err = InvalidFillFieldError("price", price_raw)
+        raise err from exc
     count_int = _parse_fill_count(fill_data)
     fill_timestamp = _parse_fill_timestamp(fill_data, order_timestamp)
     return OrderFill(price_cents=price_cents, count=count_int, timestamp=fill_timestamp)

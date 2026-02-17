@@ -38,9 +38,19 @@ def test_status_helpers_cover_ready_failed_and_operational():
 async def test_set_service_status_serializes_and_stores(monkeypatch):
     calls = []
 
+    class FakePipeline:
+        def hset(self, *args, **kwargs):
+            calls.append(("hset", args, kwargs))
+
+        def expire(self, *args, **kwargs):
+            calls.append(("expire", args, kwargs))
+
+        async def execute(self):
+            pass
+
     class FakeRedis:
-        async def hset(self, *args, **kwargs):
-            calls.append((args, kwargs))
+        def pipeline(self):
+            return FakePipeline()
 
     async def fake_get_redis_connection():
         return FakeRedis()
@@ -56,14 +66,19 @@ async def test_set_service_status_serializes_and_stores(monkeypatch):
         health=HealthStatus.DEGRADED.value,
     )
 
-    assert calls[0][0] == ("status", "pricing", "ready_degraded")
-
-    detail_args = calls[1][0]
-    assert detail_args[0] == "status:pricing"
-
-    serialized_payload = calls[1][1]["mapping"]
+    # First call: unified key write (ops:status:PRICING)
+    assert calls[0][0] == "hset"
+    unified_key = calls[0][1][0]
+    assert unified_key == "ops:status:PRICING"
+    serialized_payload = calls[0][2]["mapping"]
     assert serialized_payload["status"] == "ready_degraded"
     assert serialized_payload["timestamp"] == "123.0"
     assert json.loads(serialized_payload["metadata"]) == {"healthy": False}
     assert serialized_payload["health"] == "degraded"
     assert serialized_payload["error"] == "degraded connectivity"
+
+    # Second call: expire on unified key
+    assert calls[1][0] == "expire"
+
+    # Only two calls: unified key hset + expire (legacy status hash removed)
+    assert len(calls) == 2

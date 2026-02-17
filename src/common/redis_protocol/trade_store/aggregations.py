@@ -39,12 +39,9 @@ class TradeQueryService:
 
     async def trades_by_date_range(self, start_date: date, end_date: date) -> List[TradeRecord]:
         minimum_trade_date = self._start_date_loader()
-        if end_date < minimum_trade_date:
-            if start_date < minimum_trade_date:
-                return []
-            raise TradeStoreError(f"Requested end date {end_date} predates supported history ({minimum_trade_date})")
-        if start_date < minimum_trade_date:
-            raise TradeStoreError(f"Requested start date {start_date} predates supported history ({minimum_trade_date})")
+        if start_date < minimum_trade_date and end_date < minimum_trade_date:
+            return []
+        start_date = max(start_date, minimum_trade_date)
 
         trades: List[TradeRecord] = []
         current = start_date

@@ -184,13 +184,13 @@ async def test_check_settlements(monkeypatch):
         ticker="KX-TEST",
         settlement_price_cents=55,
         settlement_time=datetime.now(timezone.utc),
-        winning_side="YES",
+        winning_side="yes",
         is_settled=True,
     )
     monkeypatch.setattr(monitor, "_fetch_settlement_info", AsyncMock(return_value=settlement))
 
     results = await monitor.check_settlements()
-    assert results["KX-TEST"].winning_side == "YES"
+    assert results["KX-TEST"].winning_side == "yes"
     assert monitor.settlement_cache["KX-TEST"].is_settled is True
 
 
@@ -202,7 +202,7 @@ async def test_validate_settlement_pnl(monkeypatch, fixed_now):
         ticker="KX-TEST",
         settlement_price_cents=60,
         settlement_time=None,
-        winning_side="YES",
+        winning_side="yes",
         is_settled=True,
     )
     position = PortfolioPosition(
@@ -300,7 +300,7 @@ async def test_fetch_settlement_info_returns_winner(monkeypatch, fixed_now):
         AsyncMock(return_value={"ticker": "KX", "status": "settled", "result_price": 30}),
     )
     info = await monitor._fetch_settlement_info("KX")
-    assert info.winning_side == "NO"
+    assert info.winning_side == "no"
 
 
 def test_parse_market_info_handles_invalid_close(monkeypatch):

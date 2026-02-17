@@ -10,8 +10,6 @@ from ...typing import ensure_awaitable
 from .side_data_updater import SideDataUpdater
 from .snapshot_processor_helpers.redis_storage import store_optional_field as store_optional_field_core
 
-PRICE_UNAVAILABLE = 0
-
 
 def _parse_int_optional(value: object) -> Optional[int]:
     """Parse value to int, returning None for missing/empty."""
@@ -37,7 +35,13 @@ class BestPriceUpdater:
     @staticmethod
     async def _recompute_direction(redis: Redis, market_key: str) -> None:
         """Recompute and store direction based on current prices and theoretical values."""
-        fields = await ensure_awaitable(redis.hmget(market_key, ["yes_bid", "yes_ask", "t_bid", "t_ask"]))
+        algo = await ensure_awaitable(redis.hget(market_key, "algo"))
+        if algo is None:
+            return
+        if isinstance(algo, bytes):
+            algo = algo.decode("utf-8")
+
+        fields = await ensure_awaitable(redis.hmget(market_key, ["yes_bid", "yes_ask", f"{algo}:t_bid", f"{algo}:t_ask"]))
         kalshi_bid = _parse_int_optional(fields[0])
         kalshi_ask = _parse_int_optional(fields[1])
         t_bid = _parse_int_optional(fields[2])
@@ -46,12 +50,10 @@ class BestPriceUpdater:
         if t_bid is None and t_ask is None:
             return
 
-        direction = compute_direction(
-            t_bid,
-            t_ask,
-            kalshi_bid if kalshi_bid is not None else PRICE_UNAVAILABLE,
-            kalshi_ask if kalshi_ask is not None else PRICE_UNAVAILABLE,
-        )
+        if kalshi_bid is None or kalshi_ask is None:
+            return
+
+        direction = compute_direction(t_bid, t_ask, kalshi_bid, kalshi_ask)
         await ensure_awaitable(redis.hset(market_key, "direction", direction))
 
     @staticmethod
@@ -68,3 +70,5 @@ class BestPriceUpdater:
             best_price, best_size = extract_best_ask(side_data)
             await BestPriceUpdater.store_optional_field(redis, market_key, "yes_ask", best_price)
             await BestPriceUpdater.store_optional_field(redis, market_key, "yes_ask_size", best_size)
+
+        await BestPriceUpdater._recompute_direction(redis, market_key)

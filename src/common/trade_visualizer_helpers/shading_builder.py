@@ -10,12 +10,9 @@ from typing import List, Optional
 
 from matplotlib.axes import Axes
 
+from common.constants.trading import MAX_MARKET_PRICE_CENTS, MIN_MARKET_PRICE_CENTS
 from common.data_models.trade_record import TradeRecord
 from common.trade_visualizer_helpers import shading_helpers
-
-# Kalshi market price boundaries (cents)
-_KALSHI_MIN_PRICE = 0
-_KALSHI_MAX_PRICE = 100
 
 logger = logging.getLogger(__name__)
 
@@ -46,7 +43,7 @@ class ShadingBuilder:
         """Check if state represents no liquidity."""
         bid = state.yes_bid
         ask = state.yes_ask
-        return (bid is None or bid == _KALSHI_MIN_PRICE) and (ask is None or ask == _KALSHI_MAX_PRICE)
+        return (bid is None or bid == MIN_MARKET_PRICE_CENTS) and (ask is None or ask == MAX_MARKET_PRICE_CENTS)
 
     def create_executed_trade_shading(
         self,
@@ -114,7 +111,15 @@ class ShadingBuilder:
                 len(timestamps_for_chart),
             )
             for idx, shading in enumerate(shadings, start=1):
-                shading_helpers.apply_single_shading(ax, idx, shading.y_min, shading.y_max, shading.color, shading.alpha)
+                shading_helpers.apply_single_shading(
+                    ax,
+                    idx,
+                    shading.y_min,
+                    shading.y_max,
+                    shading.color,
+                    shading.alpha,
+                    time_window=(shading.start_time, shading.end_time),
+                )
         except (
             ValueError,
             RuntimeError,

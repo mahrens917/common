@@ -5,6 +5,7 @@ from __future__ import annotations
 from datetime import datetime
 from typing import TYPE_CHECKING, Any
 
+from common.constants.trading import MAX_PRICE_CENTS
 from common.exceptions import ValidationError
 
 from ...redis_schema.markets import KalshiMarketCategory
@@ -20,7 +21,6 @@ if TYPE_CHECKING:
 
 # Constants
 _CONST_100 = 100
-_MAX_PRICE = 99
 
 
 def validate_basic_fields(trade: "TradeRecord") -> None:
@@ -51,7 +51,7 @@ def validate_quantity_and_price(quantity: int, price_cents: int, fee_cents: int)
     if quantity <= 0:
         raise ValueError(f"Quantity must be positive: {quantity}")
 
-    if price_cents <= 0 or price_cents > _MAX_PRICE:
+    if price_cents <= 0 or price_cents > MAX_PRICE_CENTS:
         raise ValueError(f"Price must be between 1-99 cents: {price_cents}")
 
     if fee_cents < 0:

@@ -546,23 +546,23 @@ async def test_get_trades_by_date_range_propagates_errors(monkeypatch, fake_redi
 
 
 @pytest.mark.asyncio
-async def test_get_trades_by_date_range_rejects_start_before_history(monkeypatch, fake_redis_client_factory):
+async def test_get_trades_by_date_range_clamps_start_before_history(monkeypatch, fake_redis_client_factory):
     store, _ = _build_store(monkeypatch, fake_redis_client_factory)
 
     store._queries._start_date_loader = lambda: date(2024, 1, 5)  # type: ignore[attr-defined]
 
-    with pytest.raises(TradeStoreError, match="predates supported history"):
-        await store.get_trades_by_date_range(date(2024, 1, 4), date(2024, 1, 6))
+    result = await store.get_trades_by_date_range(date(2024, 1, 4), date(2024, 1, 6))
+    assert isinstance(result, list)
 
 
 @pytest.mark.asyncio
-async def test_get_trades_by_date_range_rejects_end_before_history(monkeypatch, fake_redis_client_factory):
+async def test_get_trades_by_date_range_end_before_start_returns_empty(monkeypatch, fake_redis_client_factory):
     store, _ = _build_store(monkeypatch, fake_redis_client_factory)
 
     store._queries._start_date_loader = lambda: date(2024, 1, 5)  # type: ignore[attr-defined]
 
-    with pytest.raises(TradeStoreError, match="predates supported history"):
-        await store.get_trades_by_date_range(date(2024, 1, 5), date(2024, 1, 4))
+    result = await store.get_trades_by_date_range(date(2024, 1, 5), date(2024, 1, 4))
+    assert result == []
 
 
 @pytest.mark.asyncio

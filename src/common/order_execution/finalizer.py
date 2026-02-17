@@ -14,6 +14,7 @@ import asyncio
 import logging
 from typing import Any, Awaitable, Callable, Dict, Optional, Protocol
 
+from ..constants.trading import MAX_PRICE_CENTS, MIN_PRICE_CENTS
 from ..data_models.trade_record import TradeRecord, TradeSide
 from ..data_models.trading import OrderRequest, OrderResponse, OrderSide
 from ..redis_protocol.trade_store import TradeStore
@@ -253,8 +254,8 @@ def _build_trade_record(
     price_cents = outcome.average_price_cents
     if price_cents is None:
         price_cents = order_response.average_fill_price_cents
-    if price_cents is None:
-        price_cents = int()
+    if price_cents is None or price_cents < MIN_PRICE_CENTS or price_cents > MAX_PRICE_CENTS:
+        raise KalshiTradePersistenceError("Cannot build trade record: no valid price data available")
     fee_cents = order_response.fees_cents
     if fee_cents is None:
         fee_cents = int()

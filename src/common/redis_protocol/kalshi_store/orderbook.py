@@ -49,14 +49,24 @@ class KalshiOrderbookProcessor:
     def _market_descriptor(self, market_ticker: str) -> KalshiMarketDescriptor:
         return describe_kalshi_ticker(market_ticker)
 
-    async def process_snapshot(self, *, redis: Redis, market_key: str, market_ticker: str, msg_data: Dict[str, Any], timestamp: str) -> bool:
+    async def process_snapshot(
+        self, *, redis: Redis, market_key: str, market_ticker: str, msg_data: Dict[str, Any], timestamp: str
+    ) -> bool:
         return await self._snapshot_processor.process_orderbook_snapshot(
-            redis=redis, market_key=market_key, market_ticker=market_ticker, msg_data=msg_data, timestamp=timestamp,
+            redis=redis,
+            market_key=market_key,
+            market_ticker=market_ticker,
+            msg_data=msg_data,
+            timestamp=timestamp,
         )
 
     async def process_delta(self, *, redis: Redis, market_key: str, market_ticker: str, msg_data: Dict[str, Any], timestamp: str) -> bool:
         return await self._delta_processor.process_orderbook_delta(
-            redis=redis, market_key=market_key, market_ticker=market_ticker, msg_data=msg_data, timestamp=timestamp,
+            redis=redis,
+            market_key=market_key,
+            market_ticker=market_ticker,
+            msg_data=msg_data,
+            timestamp=timestamp,
         )
 
     async def update_orderbook(self, message: Dict) -> bool:

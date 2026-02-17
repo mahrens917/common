@@ -5,10 +5,8 @@ from __future__ import annotations
 
 from typing import Dict
 
+from ..constants.trading import MAX_PRICE_CENTS
 from ..data_models.trading import OrderRequest, OrderSide, OrderType
-
-# Constants
-_MAX_PRICE = 99
 
 
 def build_order_payload(order_request: OrderRequest) -> Dict[str, int | str]:
@@ -28,10 +26,10 @@ def build_order_payload(order_request: OrderRequest) -> Dict[str, int | str]:
     if price_cents is None:
         raise ValueError("Order requests must provide yes_price_cents before payload construction; " "do not rely on implicit values.")
 
-    if price_cents > _MAX_PRICE:
-        raise TypeError(f"Order price must be between 0-99 cents, received {price_cents}")
+    if price_cents > MAX_PRICE_CENTS:
+        raise ValueError(f"Order price must be between 0-{MAX_PRICE_CENTS} cents, received {price_cents}")
     if price_cents < 0:
-        raise TypeError(f"Order price must be non-negative, received {price_cents}")
+        raise ValueError(f"Order price must be non-negative, received {price_cents}")
     if price_cents == 0 and order_request.order_type != OrderType.MARKET:
         raise ValueError("Only market orders may specify a zero yes_price_cents")
 

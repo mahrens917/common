@@ -25,7 +25,7 @@ class SessionManager:
         """Ensure the HTTP session is ready."""
         async with self._session_lock:
             if self._closing:
-                return
+                raise RuntimeError("Cannot initialize session while close is in progress")
             if self._session is not None and not self._session.closed:
                 return
 
@@ -44,15 +44,18 @@ class SessionManager:
         """Close the HTTP session and connector."""
         async with self._session_lock:
             self._closing = True
-            if self._session is not None:
-                await self._session.close()
-                self._session = None
-            if self._connector is not None:
-                await self._connector.close()
-                self._connector = None
-        # Allow the event loop to finalize SSL transports.
-        await asyncio.sleep(0)
-        self._closing = False
+            try:
+                if self._session is not None:
+                    await self._session.close()
+                    self._session = None
+                if self._connector is not None:
+                    await self._connector.close()
+                    self._connector = None
+                # Allow the event loop to finalize SSL transports while still
+                # holding the lock so that initialize() cannot race.
+                await asyncio.sleep(0)
+            finally:
+                self._closing = False
 
     def get_session(self) -> aiohttp.ClientSession:
         """Get the current session, raising if not initialized."""

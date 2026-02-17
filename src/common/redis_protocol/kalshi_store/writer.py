@@ -35,10 +35,6 @@ class KalshiStoreError(RuntimeError):
     """Raised when KalshiStore operations cannot complete successfully."""
 
 
-def _normalize_timestamp(value: Any) -> Any:
-    return _normalize_timestamp(value)
-
-
 class ValidationMixin:
     _validation: ValidationWriter
 

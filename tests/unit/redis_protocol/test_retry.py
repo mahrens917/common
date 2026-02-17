@@ -52,7 +52,7 @@ async def test_execute_with_retry_invokes_retry_callback(monkeypatch: pytest.Mon
     async def op(attempt: int) -> str:
         attempts.append(attempt)
         if attempt == 1:
-            raise ValueError("boom")
+            raise RuntimeError("boom")
         return "success"
 
     async def on_retry(ctx: RedisRetryContext) -> None:

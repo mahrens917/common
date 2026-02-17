@@ -795,7 +795,7 @@ async def test_create_order_with_polling_allows_non_weather_trade(monkeypatch, c
     finalizer = _install_finalizer(monkeypatch, client)
 
     result = await client.create_order_with_polling(request, timeout_seconds=1)
-    assert result.status == OrderStatus.FILLED
+    assert result.status == OrderStatus.PARTIALLY_FILLED
     assert finalizer.calls
     assert finalizer.calls[0][0].ticker == "KXBTCJAN25-100"
 

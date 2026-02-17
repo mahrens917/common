@@ -17,6 +17,7 @@ import json
 import math
 from typing import Any, Dict
 
+from common.constants.trading import MAX_PRICE_CENTS
 from common.path_utils import get_project_root
 
 PROJECT_ROOT = get_project_root(__file__, levels_up=2)
@@ -72,10 +73,9 @@ def get_symbol_mappings() -> Dict[str, str]:
     return config["symbol_mappings"]["mappings"]
 
 
-def _get_market_category(market_ticker: str) -> str:
+def _get_market_category(market_ticker: str, config: Dict[str, Any]) -> str:
     """Return the fee category for *market_ticker* (e.g. ``'standard'`` or ``'index'``)."""
 
-    config = _load_trade_analyzer_config()
     ticker_upper = market_ticker.upper()
     index_prefixes = config["trading_fees"]["index_ticker_prefixes"]
 
@@ -111,12 +111,14 @@ def calculate_fees(
         raise ValueError(f"Contracts cannot be negative: {contracts}")
     if price_cents < 0:
         raise ValueError(f"Price cannot be negative: {price_cents}")
+    if price_cents > MAX_PRICE_CENTS:
+        raise ValueError(f"Price cannot exceed {MAX_PRICE_CENTS} cents: {price_cents}")
 
     if contracts == 0 or price_cents == 0:
         return 0
 
     config = _load_trade_analyzer_config()
-    category = _get_market_category(market_ticker)
+    category = _get_market_category(market_ticker, config)
     fee_key = _MAKER_FEE_KEY if is_maker else _TAKER_FEE_KEY
     fee_coefficient = config["trading_fees"]["categories"][category][fee_key]
 
@@ -128,21 +130,46 @@ def calculate_fees(
 
 def is_trade_profitable_after_fees(
     contracts: int,
-    entry_price_cents: int,
+    trade_price_cents: int,
     theoretical_price_cents: int,
     market_ticker: str,
     *,
     is_maker: bool = False,
+    action: str = "buy",
 ) -> bool:
-    """Return ``True`` if the trade clears Kalshi fees and remains profitable."""
+    """Return ``True`` if the trade clears Kalshi fees and remains profitable.
 
-    if entry_price_cents < 0:
-        raise ValueError(f"Entry price cannot be negative: {entry_price_cents}")
+    Parameters
+    ----------
+    trade_price_cents:
+        The price of the proposed trade in cents.  For BUY this is the
+        purchase price; for SELL this is the sell (exit) price.
+    theoretical_price_cents:
+        The fair-value reference price in cents.
+    action:
+        ``"buy"`` or ``"sell"``.
+
+    For BUY:  gross = (theoretical - trade_price) * contracts.
+    For SELL: gross = (trade_price - theoretical) * contracts.
+
+    Fees are computed on *trade_price_cents* (the price of the proposed
+    order).  Prior buy-side fees are sunk costs and excluded.
+    """
+
+    if trade_price_cents < 0:
+        raise ValueError(f"Trade price cannot be negative: {trade_price_cents}")
     if theoretical_price_cents < 0:
         raise ValueError(f"Theoretical price cannot be negative: {theoretical_price_cents}")
 
-    fees_cents = calculate_fees(contracts, entry_price_cents, market_ticker, is_maker=is_maker)
-    gross_profit_cents = (theoretical_price_cents - entry_price_cents) * contracts
+    action_lower = action.lower()
+    if action_lower not in ("buy", "sell"):
+        raise ValueError(f"Action must be 'buy' or 'sell', got: {action!r}")
+
+    fees_cents = calculate_fees(contracts, trade_price_cents, market_ticker, is_maker=is_maker)
+    if action_lower == "buy":
+        gross_profit_cents = (theoretical_price_cents - trade_price_cents) * contracts
+    else:
+        gross_profit_cents = (trade_price_cents - theoretical_price_cents) * contracts
     net_profit_cents = gross_profit_cents - fees_cents
     return net_profit_cents > 0
 

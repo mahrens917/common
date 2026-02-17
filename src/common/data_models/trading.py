@@ -125,11 +125,11 @@ class PortfolioPosition:
     def _fill_defaults(self) -> None:
         """Populate safe defaults when fields are omitted."""
         if self.side is None:
-            self.side = OrderSide.YES
+            raise ValueError("PortfolioPosition.side must be specified explicitly; implicit defaults hide data integrity issues")
         if self.average_price_cents is None:
-            self.average_price_cents = 0
+            raise ValueError("PortfolioPosition.average_price_cents must be specified explicitly")
         if self.position_count is None:
-            self.position_count = 0
+            raise ValueError("PortfolioPosition.position_count must be specified explicitly")
         if self.last_updated is None:
             self.last_updated = datetime.now(timezone.utc)
 

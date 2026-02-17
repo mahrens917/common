@@ -45,7 +45,7 @@ class TestBestPriceUpdater:
         ):
             await BestPriceUpdater.update_from_side(redis, "market:key", "yes_bids")
 
-        redis.hget.assert_called_once_with("market:key", "yes_bids")
+        redis.hget.assert_any_call("market:key", "yes_bids")
 
     @pytest.mark.asyncio
     async def test_update_from_side_asks(self) -> None:
@@ -59,4 +59,4 @@ class TestBestPriceUpdater:
         ):
             await BestPriceUpdater.update_from_side(redis, "market:key", "yes_asks")
 
-        redis.hget.assert_called_once_with("market:key", "yes_asks")
+        redis.hget.assert_any_call("market:key", "yes_asks")

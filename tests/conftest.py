@@ -135,12 +135,12 @@ class FakeRedis:
         """Get number of fields in a hash."""
         return len(self._hashes.get(key, {}))
 
-    async def incrby(self, key: str, increment: int = 1) -> str:
+    async def incrby(self, key: str, increment: int = 1) -> int:
         """Increment a counter."""
         current = int(self._data.get(key, 0))
         new_val = current + increment
         self._data[key] = str(new_val)
-        return str(new_val)
+        return new_val
 
     async def incrbyfloat(self, key: str, increment: float) -> float:
         """Increment a float counter."""
@@ -153,17 +153,20 @@ class FakeRedis:
         """Delete keys."""
         deleted = 0
         for k in keys:
+            found = False
             if k in self._data:
                 del self._data[k]
-                deleted += 1
+                found = True
             if k in self._sets:
                 del self._sets[k]
-                deleted += 1
+                found = True
             if k in self._hashes:
                 del self._hashes[k]
-                deleted += 1
+                found = True
             if k in self._sorted_sets:
                 del self._sorted_sets[k]
+                found = True
+            if found:
                 deleted += 1
         return deleted
 
@@ -229,6 +232,12 @@ class FakeRedis:
         """Publish message to channel."""
         self.published.append((channel, message))
         return 1
+
+    async def watch(self, *keys: str) -> None:
+        """Watch keys for optimistic locking (no-op in fake)."""
+
+    async def unwatch(self) -> None:
+        """Unwatch all keys (no-op in fake)."""
 
     def pipeline(self, transaction: bool = True):
         """Create a pipeline context."""
@@ -333,9 +342,20 @@ class FakeRedisPipeline:
         """Watch keys for optimistic locking. Switches to immediate mode."""
         self._watching = True
 
+    async def unwatch(self) -> None:
+        """Cancel any active WATCH."""
+        self._watching = False
+
     def multi(self) -> None:
         """Switch back to buffered/transactional mode after WATCH."""
         self._watching = False
+
+    def get(self, key: str) -> Any:
+        """Pipeline get. Returns coroutine when watching, buffers otherwise."""
+        if self._watching:
+            return self.fake_redis.get(key)
+        self.commands.append(("get", (key,)))
+        return self
 
     def set(self, key: str, value: str | bytes) -> "FakeRedisPipeline":
         """Pipeline set."""
@@ -372,7 +392,7 @@ class FakeRedisPipeline:
         return self
 
     def hget(self, key: str, field: str) -> Any:
-        """Pipeline hget. Returns result immediately when watching."""
+        """Pipeline hget. Returns coroutine when watching, buffers otherwise."""
         if self._watching:
             return self.fake_redis.hget(key, field)
         self.commands.append(("hget", (key, field)))
@@ -421,6 +441,7 @@ class FakeRedisPipeline:
     async def _execute_command(self, cmd: str, args: tuple) -> Any:
         """Execute a single command. Dispatch based on command type."""
         dispatcher = {
+            "get": lambda: self.fake_redis.get(args[0]),
             "set": lambda: self.fake_redis.set(args[0], args[1]),
             "sadd": lambda: self.fake_redis.sadd(args[0], *args[1]),
             "hset": lambda: self.fake_redis.hset(args[0], args[1]),

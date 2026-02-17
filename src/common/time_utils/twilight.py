@@ -91,10 +91,10 @@ def _build_twilight_datetime(date_utc: datetime, minutes: float) -> datetime:
     mins = int(minutes % 60)
     seconds = int((minutes % 1) * 60)
     twilight_date = date_utc.date()
-    if hours >= _CONST_24:
+    while hours >= _CONST_24:
         hours -= 24
         twilight_date += timedelta(days=1)
-    elif hours < 0:
+    while hours < 0:
         hours += 24
         twilight_date -= timedelta(days=1)
     return datetime.combine(

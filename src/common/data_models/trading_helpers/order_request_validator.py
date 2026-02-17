@@ -4,6 +4,8 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
+from common.constants.trading import MAX_PRICE_CENTS
+
 # Error messages
 ERR_ORDER_QUANTITY_NOT_POSITIVE = "Order quantity must be positive: {value}"
 ERR_ORDER_PRICE_NOT_POSITIVE = "Order price must be positive: {value}"
@@ -15,7 +17,6 @@ if TYPE_CHECKING:
 
 # Constants
 _CONST_10 = 10
-_MAX_PRICE = 99
 
 
 def validate_order_request_enums(
@@ -47,12 +48,12 @@ def validate_order_request_price(order_type: "OrderType", yes_price_cents: int |
     if order_type == OrderType.LIMIT:
         if yes_price_cents is None:
             raise ValueError("Limit orders must specify yes_price_cents")
-        if yes_price_cents <= 0 or yes_price_cents > _MAX_PRICE:
+        if yes_price_cents <= 0 or yes_price_cents > MAX_PRICE_CENTS:
             raise ValueError(f"Yes price must be between 1-99 cents: {yes_price_cents}")
     elif order_type == OrderType.MARKET:
         if yes_price_cents is None:
             raise ValueError("Market orders must specify yes_price_cents (use 0 for exchange default behaviour)")
-        if yes_price_cents < 0 or yes_price_cents > _MAX_PRICE:
+        if yes_price_cents < 0 or yes_price_cents > MAX_PRICE_CENTS:
             raise ValueError(f"Market order price must be between 0-99 cents: {yes_price_cents}")
 
 

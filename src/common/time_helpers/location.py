@@ -7,7 +7,6 @@ lazy initialization, error caching, and test override support.
 
 from __future__ import annotations
 
-import importlib
 import logging
 from dataclasses import dataclass
 from typing import TYPE_CHECKING, Any, Optional, Protocol, cast
@@ -84,8 +83,9 @@ def get_timezone_finder() -> _TimezoneFinderProtocol:
         raise TimezoneLookupError(_DEPENDENCY_MESSAGE) from _STATE.error
 
     try:
-        timezone_module = importlib.import_module("timezonefinder")
-        finder_cls = cast(type[_TimezoneFinderType], getattr(timezone_module, "TimezoneFinder"))
+        import timezonefinder as timezone_module
+
+        finder_cls = cast(type[_TimezoneFinderType], timezone_module.TimezoneFinder)
     except ModuleNotFoundError as exc:  # pragma: no cover - dependency missing
         _STATE.error = exc
         logger.warning(

@@ -3,13 +3,11 @@
 from datetime import datetime
 from typing import Any, Optional
 
+from common.constants.trading import MAX_PRICE_CENTS
+
 # Error messages
 ERR_MARKET_ID_MISSING = "Market ID must be specified"
 ERR_MARKET_SYMBOL_MISSING = "Market symbol must be specified"
-
-
-# Constants
-_MAX_PRICE = 99
 
 
 def validate_market_ticker(ticker: str) -> None:
@@ -53,7 +51,7 @@ def validate_bid_price(best_bid_cents: Optional[int]) -> None:
     if best_bid_cents is None:
         return
 
-    if best_bid_cents <= 0 or best_bid_cents > _MAX_PRICE:
+    if best_bid_cents <= 0 or best_bid_cents > MAX_PRICE_CENTS:
         raise ValueError(f"Best bid must be between 1-99 cents: {best_bid_cents}")
 
 
@@ -70,7 +68,7 @@ def validate_ask_price(best_ask_cents: Optional[int]) -> None:
     if best_ask_cents is None:
         return
 
-    if best_ask_cents <= 0 or best_ask_cents > _MAX_PRICE:
+    if best_ask_cents <= 0 or best_ask_cents > MAX_PRICE_CENTS:
         raise ValueError(f"Best ask must be between 1-99 cents: {best_ask_cents}")
 
 
@@ -105,7 +103,7 @@ def validate_last_price(last_price_cents: Optional[int]) -> None:
     if last_price_cents is None:
         return
 
-    if last_price_cents <= 0 or last_price_cents > _MAX_PRICE:
+    if last_price_cents <= 0 or last_price_cents > MAX_PRICE_CENTS:
         raise ValueError(f"Last price must be between 1-99 cents: {last_price_cents}")
 
 

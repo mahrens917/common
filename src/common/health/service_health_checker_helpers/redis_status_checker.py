@@ -8,6 +8,7 @@ import logging
 
 from ...redis_protocol.converters import decode_redis_hash
 from ...redis_protocol.typing import RedisClient, ensure_awaitable
+from ...redis_schema.operations import ServiceStatusKey
 from ..service_health_types import (
     HEALTH_CHECK_ERRORS,
     MISSING_STATUS_VALUE,
@@ -31,8 +32,8 @@ async def check_redis_status(service_name: str, redis_client: RedisClient) -> Se
         ServiceHealthInfo based on Redis status
     """
     try:
-        # Get service status from Redis
-        status_key = f"status:{service_name}"
+        # Get service status from Redis (unified ops:status:<SERVICE> key)
+        status_key = ServiceStatusKey(service=service_name).key()
         status_data = await ensure_awaitable(redis_client.hgetall(status_key))
 
         if not status_data:

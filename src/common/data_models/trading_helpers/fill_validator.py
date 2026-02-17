@@ -3,13 +3,11 @@
 from datetime import datetime
 from typing import Any
 
+from common.constants.trading import MAX_PRICE_CENTS
+
 # Error messages
 ERR_FILL_QUANTITY_NOT_POSITIVE = "Fill quantity must be positive: {value}"
 ERR_FILL_PRICE_NOT_POSITIVE = "Fill price must be positive: {value}"
-
-
-# Constants
-_MAX_PRICE = 99
 
 
 def validate_fill_price(price_cents: int) -> None:
@@ -22,7 +20,7 @@ def validate_fill_price(price_cents: int) -> None:
     Raises:
         ValueError: If price is out of bounds (1-99 cents)
     """
-    if price_cents <= 0 or price_cents > _MAX_PRICE:
+    if price_cents <= 0 or price_cents > MAX_PRICE_CENTS:
         raise ValueError(f"Fill price must be between 1-99 cents: {price_cents}")
 
 

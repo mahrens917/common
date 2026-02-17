@@ -12,6 +12,8 @@ from .client_helpers.errors import KalshiClientError
 
 logger = logging.getLogger(__name__)
 
+HTTP_NO_CONTENT = 204
+HTTP_SUCCESS_CODES = {200, 201, 202}
 HTTP_TOO_MANY_REQUESTS = 429
 HTTP_RETRYABLE_SERVER_ERRORS = (500, 502, 503, 504)
 WARNING_LOG_ATTEMPT_THRESHOLD = 3
@@ -58,7 +60,7 @@ class RequestExecutor:
     async def _retry_request(
         self, session: aiohttp.ClientSession, method_upper: str, url: str, request_kwargs: Dict[str, Any], path: str, op: str
     ) -> Dict[str, Any]:
-        max_attempts = max(1, self._max_retries)
+        max_attempts = 1 + max(0, self._max_retries)
         for attempt in range(1, max_attempts + 1):
             ctx = _AttemptContext(path=path, op=op, attempt=attempt, max_attempts=max_attempts)
             result = await self._execute_single_attempt(session, method_upper, url, request_kwargs, ctx)
@@ -124,11 +126,13 @@ class RequestExecutor:
         return min(base_backoff * (2 ** (attempt - 1)), max_backoff)
 
     async def _parse_json_response(self, response: aiohttp.ClientResponse, text: str, *, path: str) -> Dict[str, Any]:
+        if response.status == HTTP_NO_CONTENT:
+            return {}
         try:
             payload = await response.json()
         except aiohttp.ContentTypeError as exc:
             raise KalshiClientError(f"Kalshi response was not JSON for {path}: {text}") from exc
-        if response.status not in {200, 201, 202}:
+        if response.status not in HTTP_SUCCESS_CODES:
             raise KalshiClientError(f"Kalshi request {path} returned {response.status}: {payload}")
         if not isinstance(payload, dict):
             raise KalshiClientError(f"Kalshi response for {path} was not a JSON object")

@@ -265,7 +265,7 @@ async def test_execute_request_client_error_retry(mock_session_manager, mock_aut
         )
 
     assert "Connection failed" in str(exc_info.value)
-    assert mock_session.request.call_count == 2
+    assert mock_session.request.call_count == 3  # 1 initial + 2 retries
 
 
 @pytest.mark.asyncio

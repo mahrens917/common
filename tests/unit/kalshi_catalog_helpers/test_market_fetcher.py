@@ -245,7 +245,7 @@ class TestMarketFetcherClient:
 
         pages = await fetcher.fetch_markets("test", markets, seen_tickers, None)
 
-        assert pages == 0
+        assert pages == 1
         assert len(markets) == 1
 
     @pytest.mark.asyncio
@@ -265,7 +265,7 @@ class TestMarketFetcherClient:
 
         pages = await fetcher.fetch_markets("test", markets, seen_tickers, None)
 
-        assert pages == 1
+        assert pages == 2
         assert len(markets) == 2
 
 

@@ -8,6 +8,8 @@ from dataclasses import dataclass
 from datetime import datetime, timezone
 from typing import TYPE_CHECKING, Dict, Optional
 
+from common.constants.trading import VALID_ALGO_NAMES
+
 from ..retry import with_redis_retry
 from ..streams import ALGO_SIGNAL_STREAM, MARKET_EVENT_STREAM, stream_publish
 from ..typing import ensure_awaitable
@@ -38,6 +40,10 @@ def parse_int(value: object) -> int:
     """Parse value to int, treating None/empty as 0."""
     if value is None or value in {"", b""}:
         return 0
+    if isinstance(value, int):
+        return value
+    if isinstance(value, float):
+        return int(round(value))
     if isinstance(value, bytes):
         value = value.decode("utf-8")
     if isinstance(value, str):
@@ -108,6 +114,12 @@ async def delete_stale_opposite_field(
         )
 
 
+def validate_algo_name(algo: str) -> None:
+    """Validate that algo name is in the canonical set. Raises ValueError if invalid."""
+    if algo not in VALID_ALGO_NAMES:
+        raise ValueError(f"Unknown algo '{algo}'. Valid algos: {sorted(VALID_ALGO_NAMES)}")
+
+
 async def write_theoretical_prices(
     redis: "Redis",
     market_key: str,
@@ -121,6 +133,7 @@ async def write_theoretical_prices(
     Tracker is responsible for setting algo/direction fields.
     Prices are clamped to valid Kalshi range [1, 99] before writing.
     """
+    validate_algo_name(algo)
     t_bid = _clamp_price(prices.t_bid) if prices.t_bid is not None else None
     t_ask = _clamp_price(prices.t_ask) if prices.t_ask is not None else None
 

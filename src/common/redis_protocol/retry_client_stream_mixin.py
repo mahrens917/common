@@ -2,10 +2,15 @@
 
 from __future__ import annotations
 
+import logging
 from typing import Any, List, Optional, Tuple
 
-from .retry import RedisRetryPolicy, with_redis_retry
+from redis.exceptions import RedisError
+
+from .retry import RedisFatalError, RedisRetryPolicy, with_redis_retry
 from .typing import ensure_awaitable
+
+logger = logging.getLogger(__name__)
 
 
 class RetryRedisStreamMixin:
@@ -48,8 +53,17 @@ class RetryRedisStreamMixin:
             kwargs["count"] = count
         if block is not None:
             kwargs["block"] = block
+
+        async def _do_xreadgroup() -> Any:
+            try:
+                return await ensure_awaitable(self._client.xreadgroup(groupname, consumername, streams, **kwargs))
+            except RedisError as exc:
+                if "NOGROUP" in str(exc):
+                    raise RedisFatalError(f"Consumer group '{groupname}' does not exist; call ensure_consumer_group() first") from exc
+                raise
+
         return await with_redis_retry(
-            lambda: ensure_awaitable(self._client.xreadgroup(groupname, consumername, streams, **kwargs)),
+            _do_xreadgroup,
             context=context,
             policy=self._policy,
         )

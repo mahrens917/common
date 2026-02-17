@@ -50,14 +50,12 @@ async def write_status_to_redis(
     }
 
     try:
-        # Write to unified pattern (ops:status:<service>)
         await ensure_awaitable(
             redis.hset(
                 status_key,
                 mapping={k: str(v) for k, v in status_data.items()},
             )
         )
-        # Retained status hash pattern used by monitor consumers
         await ensure_awaitable(redis.hset("status", service_name, status.value))
 
         logger.info(

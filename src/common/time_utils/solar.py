@@ -50,10 +50,10 @@ def calculate_solar_noon_utc(latitude: float, longitude: float, date) -> datetim
     solar_noon_seconds = int((solar_noon_minutes % 1) * 60)
 
     solar_noon_date = date_utc.date()
-    if solar_noon_hours >= _CONST_24:
+    while solar_noon_hours >= _CONST_24:
         solar_noon_hours -= 24
         solar_noon_date = solar_noon_date + timedelta(days=1)
-    elif solar_noon_hours < 0:
+    while solar_noon_hours < 0:
         solar_noon_hours += 24
         solar_noon_date = solar_noon_date - timedelta(days=1)
 

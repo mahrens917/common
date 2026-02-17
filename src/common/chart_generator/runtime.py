@@ -133,7 +133,12 @@ class ChartHelperMixin:
     _progress_notifier: Optional[ProgressNotifier]
 
     def _market_expires_today(
-        self, market_data: Dict[str, str], today_date, et_timezone, market_key: str, today_market_date: str,
+        self,
+        market_data: Dict[str, str],
+        today_date,
+        et_timezone,
+        market_key: str,
+        today_market_date: str,
     ) -> bool:
         return _check_market_expires_today(self._strike_collector, market_data, today_date, et_timezone, market_key, today_market_date)
 

@@ -19,10 +19,16 @@ class ServiceUnderTest(StatusReporterMixin):
 
 @pytest.fixture
 def mock_redis():
-    """Create a mock Redis client."""
+    """Create a mock Redis client with pipeline support."""
     redis = AsyncMock()
     redis.hset = AsyncMock()
     redis.hgetall = AsyncMock()
+    # Pipeline delegates hset to redis.hset so call tracking works
+    pipe = MagicMock()
+    pipe.hset = redis.hset
+    pipe.expire = MagicMock()
+    pipe.execute = AsyncMock()
+    redis.pipeline = MagicMock(return_value=pipe)
     return redis
 
 

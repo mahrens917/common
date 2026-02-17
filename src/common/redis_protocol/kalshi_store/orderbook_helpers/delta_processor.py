@@ -49,7 +49,11 @@ class DeltaProcessor(SnapshotProcessor):
         await _update_top_of_book(self, redis, market_key, side_field, side_data)
         await ensure_awaitable(redis.hset(market_key, "timestamp", timestamp))
         await _update_trade_price_cache(self, redis, market_key, market_ticker)
-        await publish_market_event(redis, market_key, market_ticker, timestamp)
+        try:
+            await publish_market_event(redis, market_key, market_ticker, timestamp)
+        except (RuntimeError, ConnectionError, OSError):
+            logger.warning("Publish failed for %s after successful orderbook update", market_ticker)
+            raise
         return True
 
 

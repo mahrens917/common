@@ -182,8 +182,12 @@ class UnifiedChartRendererMixin(
     async def generate_unified_chart(self, *, timestamps, values, chart_title: str, y_label: str, value_formatter_func, **kwargs) -> str:
         """Public helper that delegates to the private renderer implementation."""
         return await self._generate_unified_chart(
-            timestamps=timestamps, values=values, chart_title=chart_title,
-            y_label=y_label, value_formatter_func=value_formatter_func, **kwargs,
+            timestamps=timestamps,
+            values=values,
+            chart_title=chart_title,
+            y_label=y_label,
+            value_formatter_func=value_formatter_func,
+            **kwargs,
         )
 
     def _configure_time_axis(

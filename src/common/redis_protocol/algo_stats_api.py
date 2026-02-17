@@ -8,7 +8,6 @@ and tracker can read them for unified status reporting.
 
 from __future__ import annotations
 
-import json
 import logging
 from dataclasses import asdict, dataclass
 from datetime import datetime, timezone
@@ -105,8 +104,10 @@ async def write_algo_stats(
         last_updated=datetime.now(timezone.utc).isoformat(),
     )
 
-    await ensure_awaitable(redis.hset(stats_key, mapping=stats.to_dict()))
-    await ensure_awaitable(redis.expire(stats_key, ALGO_STATS_TTL_SECONDS))
+    pipe = redis.pipeline()
+    pipe.hset(stats_key, mapping=stats.to_dict())
+    pipe.expire(stats_key, ALGO_STATS_TTL_SECONDS)
+    await ensure_awaitable(pipe.execute())
     logger.debug("Wrote stats for algo %s: %s", algo, stats)
     return True
 
@@ -139,9 +140,7 @@ async def increment_algo_stats(
     """
     stats_key = _build_stats_key(algo)
 
-    # Use pipeline for atomic updates
     pipe = redis.pipeline()
-
     if events_processed:
         pipe.hincrby(stats_key, "events_processed", events_processed)
     if signals_generated:
@@ -152,13 +151,10 @@ async def increment_algo_stats(
         pipe.hincrby(stats_key, "ownership_rejections", ownership_rejections)
     if markets_evaluated:
         pipe.hincrby(stats_key, "markets_evaluated", markets_evaluated)
-
-    # Always update algo name and timestamp
     pipe.hset(stats_key, "algo", algo)
     pipe.hset(stats_key, "last_updated", datetime.now(timezone.utc).isoformat())
     pipe.expire(stats_key, ALGO_STATS_TTL_SECONDS)
-
-    await pipe.execute()
+    await ensure_awaitable(pipe.execute())
 
     logger.debug(
         "Incremented stats for %s: events=%d, signals=%d, written=%d",
