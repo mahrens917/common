@@ -156,6 +156,9 @@ if os.environ.get("REFERENCE_UNUSED_MODULES") in ("1", "true"):
     import common.trade_visualizer_helpers.redis_helpers.data_fetchers
     import common.trade_visualizer_helpers.shading_creator
     import common.trading.order_metadata_service
+
+    # Temperature utilities
+    import common.utils.temperature
     import common.weather_services.weatherruleengine_helpers.market_selector
     import common.weather_services.weatherruleengine_helpers.station_resolver
     import common.websocket.message_stats_helpers.redis_history_writer

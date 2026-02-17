@@ -17,6 +17,7 @@ from __future__ import annotations
 import logging
 import os
 import platform
+import subprocess
 
 logger = logging.getLogger(__name__)
 
@@ -144,8 +145,8 @@ def _get_cpu_percent_linux() -> float:
 def _get_memory_percent_macos() -> float:
     """Get memory usage percentage using vm_stat (macOS only)"""
     try:
-        with os.popen("vm_stat") as pipe:
-            stdout = pipe.read()
+        proc = subprocess.Popen(["vm_stat"], stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+        stdout, _ = proc.communicate()
         if not stdout:
             return 0.0
 
@@ -202,8 +203,13 @@ def _calculate_memory_percentage(vm_stats: dict[str, int]) -> float:
 def _get_cpu_percent_macos() -> float:
     """Get CPU usage percentage using iostat (macOS only)"""
     try:
-        with os.popen("iostat -c 2 -w 1") as pipe:
-            stdout = pipe.read()
+        proc = subprocess.Popen(
+            ["iostat", "-c", "2", "-w", "1"],
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            text=True,
+        )
+        stdout, _ = proc.communicate()
         if not stdout:
             return 0.0
 
