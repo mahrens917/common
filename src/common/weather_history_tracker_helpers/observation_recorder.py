@@ -82,7 +82,6 @@ class WeatherObservationRecorder:
             Tuple of (success, datetime_str)
         """
         try:
-            # Validate inputs
             WeatherObservationRecorder.validate_temperature_input(station_icao, temp_f)
             station_icao = ensure_uppercase_icao(station_icao)
 
@@ -100,7 +99,7 @@ class WeatherObservationRecorder:
             ValueError,
             TypeError,
         ):
-            logger.exception(f"Failed to record  temperature history: ")
+            logger.exception("Failed to record temperature history")
             return False, ""
         else:
             return True, datetime_str

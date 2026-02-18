@@ -18,8 +18,6 @@ import logging
 from dataclasses import dataclass
 from typing import TYPE_CHECKING, Any, Callable, Dict, List, Optional
 
-from common.constants.trading import MAX_PRICE_CENTS, MIN_PRICE_CENTS
-
 from .market_update_api_helpers import (
     REJECTION_KEY_PREFIX,
     PriceSignal,
@@ -138,11 +136,13 @@ async def _execute_batch_transaction(
 ) -> BatchUpdateResult:
     """Execute the batch transaction and publish event updates."""
     succeeded: List[str] = []
+    sig_mappings = [(sig, build_signal_mapping(sig, algo)) for sig in sorted_signals]
+    bid_key = algo_field(algo, "t_bid")
+    ask_key = algo_field(algo, "t_ask")
 
     async def _build_and_execute_pipeline() -> None:
         pipe_inner = redis.pipeline(transaction=True)
-        for sig in sorted_signals:
-            mapping = build_signal_mapping(sig, algo)
+        for sig, mapping in sig_mappings:
             add_signal_to_pipeline(pipe_inner, sig, mapping)
         await ensure_awaitable(pipe_inner.execute())
 
@@ -155,13 +155,15 @@ async def _execute_batch_transaction(
         logger.debug("Batch updated %d markets atomically for algo %s", len(succeeded), algo)
     except (RuntimeError, ConnectionError, OSError):
         logger.exception("Failed to execute batch update for algo %s", algo)
-        failed = list(failed) + [sig.ticker for sig in sorted_signals]
         raise
 
-    for sig in sorted_signals:
-        clamped_bid = max(MIN_PRICE_CENTS, min(MAX_PRICE_CENTS, round(sig.t_bid))) if sig.t_bid is not None else None
-        clamped_ask = max(MIN_PRICE_CENTS, min(MAX_PRICE_CENTS, round(sig.t_ask))) if sig.t_ask is not None else None
-        price_signal = PriceSignal(t_bid=clamped_bid, t_ask=clamped_ask, signal=sig.signal, edge=sig.edge)
+    for sig, mapping in sig_mappings:
+        price_signal = PriceSignal(
+            t_bid=mapping.get(bid_key),
+            t_ask=mapping.get(ask_key),
+            signal=sig.signal,
+            edge=sig.edge,
+        )
         try:
             await with_redis_retry(
                 lambda _s=sig, _ps=price_signal: publish_market_event_update(
@@ -240,13 +242,19 @@ async def update_and_clear_stale(
         except (RuntimeError, ConnectionError, OSError):
             logger.exception("Failed to write signal for %s", ticker)
             failed.append(ticker)
-            raise
 
     owned_tickers = await scan_algo_owned_markets(redis, scan_pattern, algo)
 
     current_tickers = set(signals.keys())
     stale_tickers = owned_tickers - current_tickers
     stale_cleared = await clear_stale_markets(redis, stale_tickers, algo, key_builder)
+
+    for ticker in stale_cleared:
+        market_key = key_builder(ticker)
+        try:
+            await publish_market_event_update(redis, market_key, ticker, algo, PriceSignal(signal="NONE", edge=0.0))
+        except RedisRetryError:  # policy_guard: allow-silent-handler
+            logger.exception("Failed to publish NONE signal for stale market %s", ticker)
 
     logger.info(
         "Algo %s: updated %d, failed %d, cleared %d stale",

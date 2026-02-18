@@ -170,27 +170,9 @@ async def publish_market_event_update(
         lambda: ensure_awaitable(redis.hget(market_key, "event_ticker")),
         context=f"hget_event_ticker:{ticker}",
     )
-    if not event_ticker:
-        logger.debug("No event_ticker for %s, skipping publish", ticker)
-    else:
-        if isinstance(event_ticker, bytes):
-            event_ticker = event_ticker.decode("utf-8")
 
-        await with_redis_retry(
-            lambda: stream_publish(
-                redis,
-                MARKET_EVENT_STREAM,
-                {
-                    "event_ticker": event_ticker,
-                    "market_ticker": ticker,
-                    "timestamp": datetime.now(timezone.utc).isoformat(),
-                },
-            ),
-            context=f"stream_publish_event:{ticker}",
-        )
-        logger.debug("Published market event update for %s to stream %s", ticker, MARKET_EVENT_STREAM)
-
-    # Publish algo signal to stream for tracker's external provider cache
+    # Publish algo signal FIRST so the tracker's in-memory cache is updated
+    # before the market event triggers ownership re-evaluation.
     if algo:
         algo_fields: dict[str, str] = {
             "ticker": ticker,
@@ -219,3 +201,23 @@ async def publish_market_event_update(
             context=f"stream_publish_algo:{ticker}",
         )
         logger.debug("Published algo signal for %s (%s)", ticker, algo)
+
+    if not event_ticker:
+        logger.warning("No event_ticker for %s, skipping market event publish", ticker)
+    else:
+        if isinstance(event_ticker, bytes):
+            event_ticker = event_ticker.decode("utf-8")
+
+        await with_redis_retry(
+            lambda: stream_publish(
+                redis,
+                MARKET_EVENT_STREAM,
+                {
+                    "event_ticker": event_ticker,
+                    "market_ticker": ticker,
+                    "timestamp": datetime.now(timezone.utc).isoformat(),
+                },
+            ),
+            context=f"stream_publish_event:{ticker}",
+        )
+        logger.debug("Published market event update for %s to stream %s", ticker, MARKET_EVENT_STREAM)

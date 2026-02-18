@@ -5,7 +5,6 @@ from common.config_loader import load_config
 _streams_config = load_config("streams_config.json", package="common")
 
 # Stream names
-TRADE_EVENTS_STREAM = "stream:trade_events"
 ALGO_SIGNAL_STREAM = "stream:algo_signal"
 CLOSE_POSITIONS_STREAM = "stream:close_positions"
 MARKET_EVENT_STREAM = "stream:market_event_updates"
@@ -28,7 +27,6 @@ __all__ = [
     "MARKET_EVENT_STREAM",
     "PENDING_CLAIM_IDLE_MS",
     "STREAM_DEFAULT_MAXLEN",
-    "TRADE_EVENTS_STREAM",
     "TRACKER_CONSUMER_GROUP",
     "XAUTOCLAIM_MIN_RESULT_LENGTH",
 ]

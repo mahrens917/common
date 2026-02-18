@@ -3,8 +3,10 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from datetime import date, timedelta
+from datetime import datetime, timedelta, timezone
 from typing import TYPE_CHECKING, Any, Dict, List, Tuple
+
+from common.constants.trading import MAX_PRICE_CENTS, MIN_PRICE_CENTS
 
 from ..retry import with_redis_retry
 from ..typing import ensure_awaitable
@@ -101,9 +103,9 @@ def build_signal_mapping(
     mapping: Dict[str, Any] = {}
 
     if sig.t_bid is not None:
-        mapping[bid_field] = max(1, min(99, round(sig.t_bid)))
+        mapping[bid_field] = max(MIN_PRICE_CENTS, min(MAX_PRICE_CENTS, round(sig.t_bid)))
     if sig.t_ask is not None:
-        mapping[ask_field] = max(1, min(99, round(sig.t_ask)))
+        mapping[ask_field] = max(MIN_PRICE_CENTS, min(MAX_PRICE_CENTS, round(sig.t_ask)))
 
     return mapping
 
@@ -131,7 +133,7 @@ def add_signal_to_pipeline(
 async def get_rejection_stats(redis: "Redis", days: int = 1) -> Dict[str, Dict[str, int]]:
     """Get rejection statistics for the specified number of days."""
     stats: Dict[str, Dict[str, int]] = {}
-    today = date.today()
+    today = datetime.now(timezone.utc).date()
 
     for i in range(days):
         day = today - timedelta(days=i)

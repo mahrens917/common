@@ -51,8 +51,8 @@ from .retry_client import RetryPipeline, RetryRedisClient
 from .streams import (
     ALGO_SIGNAL_STREAM,
     CLOSE_POSITIONS_STREAM,
+    MARKET_EVENT_STREAM,
     TRACKER_CONSUMER_GROUP,
-    TRADE_EVENTS_STREAM,
     claim_pending_entries,
     decode_stream_response,
     ensure_consumer_group,
@@ -144,7 +144,7 @@ __all__ = [
     "write_algo_stats",
     "ALGO_SIGNAL_STREAM",
     "CLOSE_POSITIONS_STREAM",
-    "TRADE_EVENTS_STREAM",
+    "MARKET_EVENT_STREAM",
     "TRACKER_CONSUMER_GROUP",
     "claim_pending_entries",
     "decode_stream_response",

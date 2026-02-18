@@ -21,9 +21,10 @@ from common.exceptions import ValidationError
 from common.redis_protocol.config import BALANCE_KEY_PREFIX, HISTORY_KEY_PREFIX, HISTORY_TTL_SECONDS
 from common.redis_protocol.typing import RedisClient, ensure_awaitable
 from common.redis_utils import RedisOperationError, get_redis_connection
-from common.time_utils import get_current_utc
 
 logger = logging.getLogger(__name__)
+
+_BALANCE_MEMBER_PARTS = 2  # "timestamp:balance_cents" → exactly 2 colon-separated parts
 
 REDIS_ERRORS = (
     RedisError,
@@ -49,63 +50,59 @@ class HistoryTracker:
     def __init__(self):
         self.redis_client: Optional[RedisClient] = None
 
+    async def _ensure_client(self) -> RedisClient:
+        if self.redis_client is None:
+            self.redis_client = await get_redis_connection()
+        if self.redis_client is None:
+            raise ConnectionError("Redis client not initialized for HistoryTracker")
+        return self.redis_client
+
     async def record_service_update(self, service_name: str, updates_per_second: float) -> bool:
         """Record the service update stream."""
-        return await _record_service_update(self, service_name, updates_per_second)
+        try:
+            client = await self._ensure_client()
+            current_timestamp = int(time.time())
+            redis_key = f"{HISTORY_KEY_PREFIX}{service_name}"
+            member = f"{current_timestamp}:{updates_per_second}"
+            await ensure_awaitable(client.zadd(redis_key, {member: current_timestamp}))
+            await ensure_awaitable(client.expire(redis_key, HISTORY_TTL_SECONDS))
+            logger.debug(
+                "Recorded %s history: %s updates/sec at %s",
+                service_name,
+                updates_per_second,
+                current_timestamp,
+            )
+        except REDIS_ERRORS as exc:
+            logger.exception("Failed to record %s history", service_name)
+            raise RuntimeError(f"Failed to record {service_name} history in Redis") from exc
+        else:
+            return True
 
     async def get_service_history(self, service_name: str, hours: int = 24) -> List[Tuple[int, float]]:
         """Retrieve the stored service history data."""
-        return await _get_service_history(self, service_name, hours)
-
-
-async def _ensure_client(self) -> RedisClient:
-    if self.redis_client is None:
-        self.redis_client = await get_redis_connection()
-    if self.redis_client is None:
-        raise ConnectionError("Redis client not initialized for HistoryTracker")
-    return self.redis_client
-
-
-async def _record_service_update(self, service_name: str, updates_per_second: float) -> bool:
-    try:
-        client = await _ensure_client(self)
-        current_timestamp = int(time.time())
-        redis_key = f"{HISTORY_KEY_PREFIX}{service_name}"
-        await ensure_awaitable(client.zadd(redis_key, {str(current_timestamp): updates_per_second}))
-        await ensure_awaitable(client.expire(redis_key, HISTORY_TTL_SECONDS))
-        logger.debug(
-            "Recorded %s history: %s updates/sec at %s",
-            service_name,
-            updates_per_second,
-            current_timestamp,
-        )
-    except REDIS_ERRORS as exc:
-        logger.exception("Failed to record %s history", service_name)
-        raise RuntimeError(f"Failed to record {service_name} history in Redis") from exc
-    else:
-        return True
-
-
-async def _get_service_history(self, service_name: str, hours: int = 24) -> List[Tuple[int, float]]:
-    try:
-        client = await _ensure_client(self)
-        redis_key = f"{HISTORY_KEY_PREFIX}{service_name}"
-        current_time = int(time.time())
-        start_time = current_time - (hours * 3600)
-        data = await ensure_awaitable(client.zrangebyscore(redis_key, start_time, current_time, withscores=True))
-        history_data = []
-        for member, score in data:
-            timestamp = int(score)
-            value = float(member)
-            history_data.append((timestamp, value))
-    except REDIS_ERRORS as exc:
-        logger.exception("Failed to get %s history", service_name)
-        raise RuntimeError(f"Failed to load {service_name} history from Redis") from exc
-    except (ValueError, TypeError):
-        logger.exception("Invalid %s history payload", service_name)
-        raise
-    else:
-        return history_data
+        try:
+            client = await self._ensure_client()
+            redis_key = f"{HISTORY_KEY_PREFIX}{service_name}"
+            current_time = int(time.time())
+            start_time = current_time - (hours * 3600)
+            data = await ensure_awaitable(client.zrangebyscore(redis_key, start_time, current_time, withscores=True))
+            history_data = []
+            for member, score in data:
+                timestamp = int(score)
+                member_str = member.decode() if isinstance(member, bytes) else str(member)
+                parts = member_str.split(":", 1)
+                if len(parts) != 2:
+                    raise ValueError(f"Unexpected member format: {member_str!r}")
+                value = float(parts[1])
+                history_data.append((timestamp, value))
+        except REDIS_ERRORS as exc:
+            logger.exception("Failed to get %s history", service_name)
+            raise RuntimeError(f"Failed to load {service_name} history from Redis") from exc
+        except (ValueError, TypeError):
+            logger.exception("Invalid %s history payload", service_name)
+            raise
+        else:
+            return history_data
 
 
 class PriceHistoryTracker:
@@ -201,14 +198,9 @@ class WeatherHistoryTracker:
             WeatherObservationRecorder,
             WeatherStatisticsRetriever,
         )
-        from .weather_history_tracker_helpers import observation_recorder as weather_recorder_module
-        from .weather_history_tracker_helpers import statistics_retriever as weather_stats_module
-
         self._connection_manager = WeatherHistoryConnectionManager(get_redis_connection)
         self._observation_recorder = WeatherObservationRecorder()
         self._statistics_retriever = WeatherStatisticsRetriever()
-        weather_recorder_module.get_current_utc = get_current_utc
-        weather_stats_module.get_current_utc = get_current_utc
 
     async def initialize(self):
         """Initialize Redis connection"""
@@ -344,7 +336,10 @@ class BalanceHistoryTracker:
                 timestamp = int(score)
                 # Parse member format: "timestamp:balance_cents"
                 member_str = member.decode() if isinstance(member, bytes) else str(member)
-                balance_cents = int(member_str.split(":")[1])
+                parts = member_str.split(":")
+                if len(parts) < _BALANCE_MEMBER_PARTS:
+                    raise ValueError(f"Unexpected member format: {member_str!r}")
+                balance_cents = int(parts[1])
                 history_data.append((timestamp, balance_cents))
 
             return sorted(history_data, key=lambda x: x[0])

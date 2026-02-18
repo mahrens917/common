@@ -46,14 +46,13 @@ class WeatherStatisticsRetriever:
             temp_f = float(data["temp_f"])
             if _TEMP_MIN <= temp_f <= _TEMP_MAX:
                 return (int(score), temp_f)
+            return None
         except (  # policy_guard: allow-silent-handler
             ValueError,
             KeyError,
             json.JSONDecodeError,
             TypeError,
         ):
-            return None
-        else:
             return None
 
     @staticmethod
@@ -64,12 +63,12 @@ class WeatherStatisticsRetriever:
         return ensure_uppercase_icao(station_icao)
 
     @staticmethod
-    async def _fetch_redis_entries(client: RedisClient, station_icao: str) -> List[Tuple[bytes | str, float]]:
-        """Fetch all temperature entries from Redis for station."""
+    async def _fetch_redis_entries(client: RedisClient, station_icao: str, cutoff_ts: float) -> List[Tuple[bytes | str, float]]:
+        """Fetch temperature entries within the time window from Redis for station."""
         redis_key = WeatherHistoryKey(icao=station_icao).key()
-        entries = await ensure_awaitable(client.zrange(redis_key, 0, -1, withscores=True))
+        entries = await ensure_awaitable(client.zrangebyscore(redis_key, cutoff_ts, "+inf", withscores=True))
         if not entries:
-            logger.warning(f"No temperature history found for {station_icao}")
+            logger.warning("No temperature history found for %s", station_icao)
             return []
         return entries
 
@@ -79,8 +78,6 @@ class WeatherStatisticsRetriever:
         invalid_count = 0
         temperature_history = []
         for payload, score in entries:
-            if score < cutoff_ts:
-                continue
             parsed = WeatherStatisticsRetriever._parse_entry(payload, score)
             if parsed is None:
                 invalid_count += 1
@@ -106,12 +103,12 @@ class WeatherStatisticsRetriever:
         """
         try:
             station_icao = WeatherStatisticsRetriever._validate_station_input(station_icao)
-            entries = await WeatherStatisticsRetriever._fetch_redis_entries(client, station_icao)
+            cutoff_ts = (get_current_utc() - timedelta(hours=hours)).timestamp()
+            entries = await WeatherStatisticsRetriever._fetch_redis_entries(client, station_icao, cutoff_ts)
 
             if not entries:
                 return []
 
-            cutoff_ts = (get_current_utc() - timedelta(hours=hours)).timestamp()
             return WeatherStatisticsRetriever._filter_and_parse_entries(entries, cutoff_ts)
 
         except REDIS_ERRORS + (  # policy_guard: allow-silent-handler
@@ -119,5 +116,5 @@ class WeatherStatisticsRetriever:
             ValueError,
             TypeError,
         ):
-            logger.exception(f"Failed to get  temperature history: ")
+            logger.exception("Failed to get temperature history")
             return []

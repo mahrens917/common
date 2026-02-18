@@ -2,7 +2,7 @@
 Simple system metrics module that eliminates CPU spikes from monitoring.
 
 This module provides efficient system metrics collection for Linux and macOS:
-- Linux: Direct /proc filesystem reads (10-100x faster than psutil)
+- Linux: /proc/meminfo for memory; vmstat for CPU (1-second sample)
 - macOS: Lightweight system command calls (vm_stat, iostat)
 
 Key benefits:
@@ -22,16 +22,13 @@ import subprocess
 logger = logging.getLogger(__name__)
 
 
-# Constants
-_CONST_4 = 4
-
 
 def get_memory_percent() -> float:
     """Get memory usage percentage (Linux and macOS)."""
     system = platform.system()
     if system == "Linux":
         return _get_memory_percent_linux()
-    if system == "Darwin":
+    elif system == "Darwin":
         return _get_memory_percent_macos()
     else:
         raise RuntimeError(f"Memory metrics not supported on {system}")
@@ -41,11 +38,9 @@ def get_cpu_percent() -> float:
     """
     Get CPU usage percentage.
 
-    Uses direct /proc/stat reads on Linux for maximum efficiency.
-    Uses vm_stat on macOS for similar efficiency.
-
-    Note: This provides instantaneous CPU usage, not averaged over time.
-    For monitoring purposes, this is sufficient and eliminates CPU spikes.
+    On Linux, vmstat samples over a 1-second window.
+    On macOS, iostat samples over a 1-second window.
+    Both provide current CPU usage and eliminate spikes from psutil-style polling.
     """
     system = platform.system()
     if system == "Linux":
@@ -80,7 +75,7 @@ def get_disk_percent(path: str = "/") -> float:
         else:
             return 0.0
     except OSError:  # Best-effort cleanup operation  # policy_guard: allow-silent-handler
-        logger.debug(f"Error getting disk usage for {path}")
+        logger.debug("Error getting disk usage for %s", path)
         return 0.0
 
 
@@ -90,7 +85,8 @@ def _get_memory_percent_linux() -> float:
         with open("/proc/meminfo", "r") as f:
             lines = f.readlines()
 
-        mem_total = mem_available = 0
+        mem_total = 0
+        mem_available: int | None = None
         for line in lines:
             if line.startswith("MemTotal:"):
                 mem_total = int(line.split()[1]) * 1024  # Convert KB to bytes
@@ -98,47 +94,47 @@ def _get_memory_percent_linux() -> float:
                 mem_available = int(line.split()[1]) * 1024  # Convert KB to bytes
                 break
 
-        if mem_total > 0:
+        if mem_total > 0 and mem_available is not None:
             used_bytes = mem_total - mem_available
             return (used_bytes / mem_total) * 100.0
 
         else:
             return 0.0
     except (OSError, ValueError):  # Best-effort cleanup operation  # policy_guard: allow-silent-handler
-        logger.debug(f"Error reading /proc/meminfo")
+        logger.debug("Error reading /proc/meminfo")
         return 0.0
 
 
 def _get_cpu_percent_linux() -> float:
-    """Get CPU usage percentage from /proc/stat (Linux only)"""
+    """Get CPU usage percentage using vmstat (Linux only).
+
+    Uses 'vmstat 1 2' to measure CPU over a 1-second window,
+    matching the macOS iostat approach.
+    """
     try:
-        with open("/proc/stat", "r") as f:
-            line = f.readline()
-
-        # Parse: cpu user nice system idle iowait irq softirq steal guest guest_nice
-        # We need at least the first 4 values: user, nice, system, idle
-        values = line.split()[1:]  # Skip 'cpu' label
-        if len(values) < _CONST_4:
+        proc = subprocess.Popen(
+            ["vmstat", "1", "2"],
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            text=True,
+        )
+        try:
+            stdout, _ = proc.communicate(timeout=10)
+        except subprocess.TimeoutExpired:
+            proc.kill()
+            proc.communicate(timeout=5)
+            return 0.0
+        if not stdout:
             return 0.0
 
-        # Convert to integers, taking only what we need
-        cpu_times = [int(x) for x in values[:8]]  # Take up to 8 values safely
-
-        # Calculate total and idle time
-        idle_time = cpu_times[3]  # idle
-        if len(cpu_times) > _CONST_4:
-            idle_time += cpu_times[4]  # Add iowait to idle time
-
-        total_time = sum(cpu_times)
-
-        if total_time > 0:
-            active_time = total_time - idle_time
-            return (active_time / total_time) * 100.0
-
-        else:
+        lines = stdout.strip().split("\n")
+        us_col_idx = _find_cpu_column_index(lines)
+        if us_col_idx == -1:
             return 0.0
-    except (OSError, ValueError):  # Best-effort cleanup operation  # policy_guard: allow-silent-handler
-        logger.debug(f"Error reading /proc/stat")
+
+        return _parse_cpu_from_iostat_output(lines, us_col_idx)
+    except (ValueError, OSError):  # Best-effort cleanup operation  # policy_guard: allow-silent-handler
+        logger.debug("Error reading vmstat for CPU")
         return 0.0
 
 
@@ -146,7 +142,12 @@ def _get_memory_percent_macos() -> float:
     """Get memory usage percentage using vm_stat (macOS only)"""
     try:
         proc = subprocess.Popen(["vm_stat"], stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
-        stdout, _ = proc.communicate()
+        try:
+            stdout, _ = proc.communicate(timeout=5)
+        except subprocess.TimeoutExpired:
+            proc.kill()
+            proc.communicate(timeout=5)
+            return 0.0
         if not stdout:
             return 0.0
 
@@ -157,8 +158,9 @@ def _get_memory_percent_macos() -> float:
     except (
         ValueError,
         OSError,
+        IndexError,
     ):  # Best-effort cleanup operation  # policy_guard: allow-silent-handler
-        logger.debug(f"Error reading vm_stat for memory")
+        logger.debug("Error reading vm_stat for memory")
         return 0.0
 
 
@@ -209,7 +211,12 @@ def _get_cpu_percent_macos() -> float:
             stderr=subprocess.PIPE,
             text=True,
         )
-        stdout, _ = proc.communicate()
+        try:
+            stdout, _ = proc.communicate(timeout=10)
+        except subprocess.TimeoutExpired:
+            proc.kill()
+            proc.communicate(timeout=5)
+            return 0.0
         if not stdout:
             return 0.0
 
@@ -223,7 +230,7 @@ def _get_cpu_percent_macos() -> float:
         ValueError,
         OSError,
     ):  # Best-effort cleanup operation  # policy_guard: allow-silent-handler
-        logger.debug(f"Error reading iostat for CPU")
+        logger.debug("Error reading iostat for CPU")
         return 0.0
 
 

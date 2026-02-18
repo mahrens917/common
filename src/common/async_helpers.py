@@ -28,8 +28,8 @@ def safely_schedule_coroutine(
 
     try:
         return loop.create_task(coro)
-    except (RuntimeError, ValueError, TypeError):  # Expected data validation or parsing failure  # policy_guard: allow-silent-handler
-        asyncio.run(coro)
+    except (RuntimeError, ValueError, TypeError):  # Expected task scheduling failure  # policy_guard: allow-silent-handler
+        coro.close()
         return None
 
 

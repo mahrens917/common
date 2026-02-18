@@ -17,16 +17,12 @@ from common.redis_protocol.typing import RedisClient, ensure_awaitable
 from common.time_utils import get_current_utc
 
 from .price_history_connection_manager import REDIS_ERRORS
-from .price_history_parser import PriceHistoryParser
 
 logger = logging.getLogger(__name__)
 
 
 class PriceHistoryRetriever:
     """Retrieves price history from Redis sorted set."""
-
-    def __init__(self):
-        self._parser = PriceHistoryParser()
 
     async def get_history(self, client: RedisClient, currency: str, hours: int = 24) -> List[Tuple[int, float]]:
         """Retrieve history via ZRANGEBYSCORE for the requested time window."""

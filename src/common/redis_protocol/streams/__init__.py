@@ -7,7 +7,6 @@ from .constants import (
     PENDING_CLAIM_IDLE_MS,
     STREAM_DEFAULT_MAXLEN,
     TRACKER_CONSUMER_GROUP,
-    TRADE_EVENTS_STREAM,
 )
 from .consumer_group import claim_pending_entries, ensure_consumer_group
 from .message_decoder import decode_stream_response
@@ -19,7 +18,6 @@ __all__ = [
     "MARKET_EVENT_STREAM",
     "PENDING_CLAIM_IDLE_MS",
     "STREAM_DEFAULT_MAXLEN",
-    "TRADE_EVENTS_STREAM",
     "TRACKER_CONSUMER_GROUP",
     "claim_pending_entries",
     "decode_stream_response",
