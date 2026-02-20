@@ -83,27 +83,23 @@ class TestSafelyScheduleCoroutine:
         assert task is None
         assert result_holder.get("executed") is True
 
-    def test_handles_runtime_error_in_create_task(self):
-        """RuntimeError during create_task falls back to asyncio.run."""
-        executed = {"count": 0}
+    def test_propagates_runtime_error_from_create_task(self):
+        """RuntimeError during create_task propagates to the caller."""
 
         async def tracking_coro():
-            executed["count"] += 1
+            pass
 
-        # Patch get_running_loop to return a mock, then create_task to raise
         mock_loop = MagicMock()
         mock_loop.create_task.side_effect = RuntimeError("test error")
 
         with patch("asyncio.get_running_loop", return_value=mock_loop):
-            with patch("asyncio.run") as mock_run:
-                coro = tracking_coro()
-                result = safely_schedule_coroutine(coro)
-                assert result is None
-                assert mock_run.called
-                coro.close()
+            coro = tracking_coro()
+            with pytest.raises(RuntimeError, match="test error"):
+                safely_schedule_coroutine(coro)
+            coro.close()
 
-    def test_handles_value_error_in_create_task(self):
-        """ValueError during create_task falls back to asyncio.run."""
+    def test_propagates_value_error_from_create_task(self):
+        """ValueError during create_task propagates to the caller."""
 
         async def simple_coro():
             return "ok"
@@ -112,15 +108,13 @@ class TestSafelyScheduleCoroutine:
         mock_loop.create_task.side_effect = ValueError("test error")
 
         with patch("asyncio.get_running_loop", return_value=mock_loop):
-            with patch("asyncio.run") as mock_run:
-                coro = simple_coro()
-                result = safely_schedule_coroutine(coro)
-                assert result is None
-                assert mock_run.called
-                coro.close()
+            coro = simple_coro()
+            with pytest.raises(ValueError, match="test error"):
+                safely_schedule_coroutine(coro)
+            coro.close()
 
-    def test_handles_type_error_in_create_task(self):
-        """TypeError during create_task falls back to asyncio.run."""
+    def test_propagates_type_error_from_create_task(self):
+        """TypeError during create_task propagates to the caller."""
 
         async def simple_coro():
             return "ok"
@@ -129,9 +123,7 @@ class TestSafelyScheduleCoroutine:
         mock_loop.create_task.side_effect = TypeError("test error")
 
         with patch("asyncio.get_running_loop", return_value=mock_loop):
-            with patch("asyncio.run") as mock_run:
-                coro = simple_coro()
-                result = safely_schedule_coroutine(coro)
-                assert result is None
-                assert mock_run.called
-                coro.close()
+            coro = simple_coro()
+            with pytest.raises(TypeError, match="test error"):
+                safely_schedule_coroutine(coro)
+            coro.close()

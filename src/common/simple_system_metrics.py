@@ -2,7 +2,7 @@
 Simple system metrics module that eliminates CPU spikes from monitoring.
 
 This module provides efficient system metrics collection for Linux and macOS:
-- Linux: /proc/meminfo for memory; vmstat for CPU (1-second sample)
+- Linux: /proc/meminfo for memory; /proc/stat for CPU
 - macOS: Lightweight system command calls (vm_stat, iostat)
 
 Key benefits:
@@ -21,6 +21,12 @@ import subprocess
 
 logger = logging.getLogger(__name__)
 
+_PROC_STAT_MIN_FIELDS = 6  # "cpu" + user + nice + system + idle + iowait (minimum required)
+_PROC_STAT_IOWAIT_INDEX = 4  # index in values[] (after stripping "cpu" label) for iowait
+
+# Previous /proc/stat snapshot (total_jiffies, idle_jiffies) for delta-based CPU measurement.
+# None on first call; updated every successful read.
+_last_cpu_stats: tuple[int, int] | None = None
 
 
 def get_memory_percent() -> float:
@@ -38,9 +44,8 @@ def get_cpu_percent() -> float:
     """
     Get CPU usage percentage.
 
-    On Linux, vmstat samples over a 1-second window.
+    On Linux, reads /proc/stat for instantaneous CPU usage.
     On macOS, iostat samples over a 1-second window.
-    Both provide current CPU usage and eliminate spikes from psutil-style polling.
     """
     system = platform.system()
     if system == "Linux":
@@ -106,36 +111,39 @@ def _get_memory_percent_linux() -> float:
 
 
 def _get_cpu_percent_linux() -> float:
-    """Get CPU usage percentage using vmstat (Linux only).
+    """Get CPU usage percentage from /proc/stat (Linux only).
 
-    Uses 'vmstat 1 2' to measure CPU over a 1-second window,
-    matching the macOS iostat approach.
+    Uses delta between two consecutive snapshots to measure instantaneous CPU
+    load rather than the cumulative average since boot.  Returns 0.0 on the
+    first call (no prior snapshot) or when the counter delta is zero/negative
+    (e.g. immediately after a reboot).
     """
+    global _last_cpu_stats
     try:
-        proc = subprocess.Popen(
-            ["vmstat", "1", "2"],
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
-            text=True,
-        )
-        try:
-            stdout, _ = proc.communicate(timeout=10)
-        except subprocess.TimeoutExpired:
-            proc.kill()
-            proc.communicate(timeout=5)
-            return 0.0
-        if not stdout:
+        with open("/proc/stat", "r") as f:
+            line = f.readline()
+
+        parts = line.split()
+        if not (parts and parts[0] == "cpu" and len(parts) >= _PROC_STAT_MIN_FIELDS):
             return 0.0
 
-        lines = stdout.strip().split("\n")
-        us_col_idx = _find_cpu_column_index(lines)
-        if us_col_idx == -1:
-            return 0.0
+        values = [int(p) for p in parts[1:]]
+        idle = values[3] + values[_PROC_STAT_IOWAIT_INDEX]
+        total = sum(values)
 
-        return _parse_cpu_from_iostat_output(lines, us_col_idx)
-    except (ValueError, OSError):  # Best-effort cleanup operation  # policy_guard: allow-silent-handler
-        logger.debug("Error reading vmstat for CPU")
-        return 0.0
+        prev_stats = _last_cpu_stats
+        _last_cpu_stats = (total, idle)
+
+        if prev_stats is not None:
+            prev_total, prev_idle = prev_stats
+            delta_total = total - prev_total
+            delta_idle = idle - prev_idle
+
+            if delta_total > 0:
+                return ((delta_total - delta_idle) / delta_total) * 100.0
+    except (OSError, ValueError):  # Best-effort cleanup operation  # policy_guard: allow-silent-handler
+        logger.debug("Error reading /proc/stat for CPU")
+    return 0.0
 
 
 def _get_memory_percent_macos() -> float:
@@ -146,8 +154,8 @@ def _get_memory_percent_macos() -> float:
             stdout, _ = proc.communicate(timeout=5)
         except subprocess.TimeoutExpired:
             proc.kill()
-            proc.communicate(timeout=5)
-            return 0.0
+            proc.communicate()  # No timeout needed after SIGKILL
+            raise OSError("vm_stat timed out")
         if not stdout:
             return 0.0
 
@@ -167,7 +175,6 @@ def _get_memory_percent_macos() -> float:
 def _parse_vm_stat_output(lines: list[str]) -> dict[str, int]:
     """Parse vm_stat output to extract page statistics."""
     stats = {
-        "page_size": 4096,  # Default page size
         "pages_free": 0,
         "pages_active": 0,
         "pages_inactive": 0,
@@ -175,7 +182,6 @@ def _parse_vm_stat_output(lines: list[str]) -> dict[str, int]:
     }
 
     parsers = {
-        "page size of": lambda line: ("page_size", int(line.split()[-2])),
         "Pages free:": lambda line: ("pages_free", int(line.split()[-1].rstrip("."))),
         "Pages active:": lambda line: ("pages_active", int(line.split()[-1].rstrip("."))),
         "Pages inactive:": lambda line: ("pages_inactive", int(line.split()[-1].rstrip("."))),
@@ -215,8 +221,8 @@ def _get_cpu_percent_macos() -> float:
             stdout, _ = proc.communicate(timeout=10)
         except subprocess.TimeoutExpired:
             proc.kill()
-            proc.communicate(timeout=5)
-            return 0.0
+            proc.communicate()  # No timeout needed after SIGKILL
+            raise OSError("iostat timed out")
         if not stdout:
             return 0.0
 

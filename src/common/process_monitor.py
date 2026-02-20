@@ -173,14 +173,16 @@ class ProcessMonitor(
 
 
 _global_process_monitor: Optional[ProcessMonitor] = None
+_global_process_monitor_lock = asyncio.Lock()
 
 
 async def get_global_process_monitor() -> ProcessMonitor:
     """Get the singleton process monitor."""
     global _global_process_monitor
-    if _global_process_monitor is None:
-        _global_process_monitor = ProcessMonitor()
-        await _global_process_monitor.initialize()
+    async with _global_process_monitor_lock:
+        if _global_process_monitor is None:
+            _global_process_monitor = ProcessMonitor()
+            await _global_process_monitor.initialize()
     return _global_process_monitor
 
 

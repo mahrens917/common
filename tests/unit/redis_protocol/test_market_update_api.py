@@ -341,7 +341,6 @@ class TestBatchUpdateMarketSignals:
     async def test_empty_signals_returns_empty_result(self, mock_redis, mock_key_builder):
         result = await batch_update_market_signals(mock_redis, {}, "weather", mock_key_builder)
         assert result.succeeded == []
-        assert result.rejected == []
         assert result.failed == []
 
     @pytest.mark.asyncio
@@ -399,9 +398,8 @@ class TestExecuteBatchTransaction:
 
     @pytest.mark.asyncio
     async def test_successful_execution(self, mock_redis, sample_signals):
-        result = await _execute_batch_transaction(mock_redis, sample_signals, [], [], "weather")
+        result = await _execute_batch_transaction(mock_redis, sample_signals, [], "weather")
         assert result.succeeded == ["TEST1", "TEST2"]
-        assert result.rejected == []
         assert result.failed == []
 
     @pytest.mark.asyncio
@@ -409,13 +407,13 @@ class TestExecuteBatchTransaction:
         monkeypatch.setattr("common.redis_protocol.retry.asyncio.sleep", AsyncMock())
         mock_redis._mock_pipe.execute = AsyncMock(side_effect=RuntimeError("Redis connection failed"))
         with pytest.raises(RuntimeError):
-            await _execute_batch_transaction(mock_redis, sample_signals, [], [], "weather")
+            await _execute_batch_transaction(mock_redis, sample_signals, [], "weather")
 
     @pytest.mark.asyncio
     async def test_publish_failure_is_silent(self, mock_redis, sample_signals, monkeypatch):
         monkeypatch.setattr("common.redis_protocol.retry.asyncio.sleep", AsyncMock())
         mock_redis.xadd = AsyncMock(side_effect=ConnectionError("publish failed"))
-        result = await _execute_batch_transaction(mock_redis, sample_signals, [], [], "weather")
+        result = await _execute_batch_transaction(mock_redis, sample_signals, [], "weather")
         assert result.succeeded == ["TEST1", "TEST2"]
 
 
@@ -454,9 +452,8 @@ class TestBatchUpdateResult:
     """Tests for BatchUpdateResult dataclass."""
 
     def test_create_result(self):
-        result = BatchUpdateResult(succeeded=["A", "B"], rejected=["C"], failed=["D"])
+        result = BatchUpdateResult(succeeded=["A", "B"], failed=["D"])
         assert result.succeeded == ["A", "B"]
-        assert result.rejected == ["C"]
         assert result.failed == ["D"]
 
 
@@ -491,7 +488,6 @@ class TestBatchUpdateMarketSignalsAllFailed:
             mock_key_builder,
         )
         assert result.succeeded == []
-        assert result.rejected == []
         assert "TEST1" in result.failed
         assert "TEST2" in result.failed
 

@@ -9,7 +9,7 @@ import time
 from ..service_health_types import ServiceHealth, ServiceHealthInfo
 
 # Constants
-_CONST_300 = 300
+_STATUS_STALE_THRESHOLD_SECONDS = 300  # 5 minutes
 
 
 def evaluate_status_health(status_value: str, last_update: float) -> ServiceHealthInfo:
@@ -23,7 +23,7 @@ def evaluate_status_health(status_value: str, last_update: float) -> ServiceHeal
     Returns:
         ServiceHealthInfo with evaluated health
     """
-    from ...service_status import is_service_failed, is_service_operational
+    from ...service_status import is_service_failed, is_service_ready
 
     age_seconds = time.time() - last_update
 
@@ -33,8 +33,8 @@ def evaluate_status_health(status_value: str, last_update: float) -> ServiceHeal
             last_status_update=last_update,
             error_message=f"Service status: {status_value}",
         )
-    elif is_service_operational(status_value):
-        if age_seconds < _CONST_300:  # Status updated within 5 minutes
+    elif is_service_ready(status_value):
+        if age_seconds < _STATUS_STALE_THRESHOLD_SECONDS:
             return ServiceHealthInfo(health=ServiceHealth.HEALTHY, last_status_update=last_update)
         else:
             return ServiceHealthInfo(

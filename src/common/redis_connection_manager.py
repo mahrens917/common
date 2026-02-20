@@ -16,8 +16,7 @@ logger = logging.getLogger(__name__)
 REDIS_ERRORS = (
     RedisError,
     RedisOperationError,
-    ConnectionError,
-    TimeoutError,
+    OSError,
     asyncio.TimeoutError,
     RuntimeError,
 )
@@ -56,6 +55,11 @@ class RedisConnectionManager:
         except REDIS_ERRORS as exc:
             logger.exception("Redis connection failed: %s", type(exc).__name__)
             raise
+
+    async def ensure_connected(self) -> None:
+        """Initialize Redis connection only if not already connected."""
+        if self.redis_client is None:
+            await self.initialize()
 
     async def cleanup(self) -> None:
         """Clean up Redis connection to prevent resource leaks."""

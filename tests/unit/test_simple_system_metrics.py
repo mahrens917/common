@@ -66,6 +66,8 @@ def test_get_memory_percent_linux_reads_proc(monkeypatch):
 
 
 def test_get_cpu_percent_linux_reads_proc(monkeypatch):
+    # Seed a prior snapshot of all-zeros so the delta equals the raw values.
+    monkeypatch.setattr(metrics, "_last_cpu_stats", (0, 0))
     fake_stat = io.StringIO("cpu 100 50 50 200 25 0 0 0\n")
 
     def fake_open(path, mode="r", *args, **kwargs):
@@ -78,7 +80,7 @@ def test_get_cpu_percent_linux_reads_proc(monkeypatch):
 
     usage = metrics._get_cpu_percent_linux()
 
-    # total = 100 + 50 + 50 + 200 + 25 = 425, idle = 200 + 25 = 225 => active = 200 => ~47.0588235%
+    # delta_total = 425, delta_idle = 225 => active = 200 => ~47.06%
     assert usage == pytest.approx((425 - 225) / 425 * 100.0)
 
 
@@ -104,6 +106,7 @@ def test_get_cpu_percent_raises_on_non_linux(monkeypatch):
 
 
 def test_cpu_percent_linux_returns_zero_for_malformed_stat(monkeypatch):
+    monkeypatch.setattr(metrics, "_last_cpu_stats", None)
     fake_stat = io.StringIO("cpu 1 2\n")
 
     def fake_open(path, mode="r", *args, **kwargs):
@@ -117,7 +120,9 @@ def test_cpu_percent_linux_returns_zero_for_malformed_stat(monkeypatch):
     assert metrics._get_cpu_percent_linux() == 0.0
 
 
-def test_cpu_percent_linux_handles_read_errors(monkeypatch):
+def test_cpu_percent_linux_returns_zero_on_read_errors(monkeypatch):
+    monkeypatch.setattr(metrics, "_last_cpu_stats", None)
+
     def fake_open(*args, **kwargs):
         raise OSError("no stat")
 
@@ -180,6 +185,7 @@ def test_memory_percent_linux_handles_missing_fields(monkeypatch):
 
 
 def test_cpu_percent_linux_returns_zero_when_total_zero(monkeypatch):
+    monkeypatch.setattr(metrics, "_last_cpu_stats", None)
     fake_stat = io.StringIO("cpu 0 0 0 0 0 0 0 0\n")
 
     def fake_open(path, mode="r", *args, **kwargs):
@@ -194,6 +200,8 @@ def test_cpu_percent_linux_returns_zero_when_total_zero(monkeypatch):
 
 
 def test_cpu_percent_linux_includes_iowait(monkeypatch):
+    # Seed a prior snapshot of all-zeros so the delta equals the raw values.
+    monkeypatch.setattr(metrics, "_last_cpu_stats", (0, 0))
     fake_stat = io.StringIO("cpu 100 50 50 200 25 10 5 3\n")
 
     def fake_open(path, mode="r", *args, **kwargs):
@@ -206,13 +214,14 @@ def test_cpu_percent_linux_includes_iowait(monkeypatch):
 
     usage = metrics._get_cpu_percent_linux()
 
-    # total = 100+50+50+200+25+10+5+3 = 443, idle = 200+25 = 225, active = 218
+    # delta_total = 443, delta_idle = 225, active = 218
     expected_usage = (443 - 225) / 443 * 100.0
     assert usage == pytest.approx(expected_usage)
 
 
-def test_cpu_percent_linux_handles_value_error(monkeypatch):
-    fake_stat = io.StringIO("cpu abc def ghi jkl\n")
+def test_cpu_percent_linux_returns_zero_on_value_error(monkeypatch):
+    monkeypatch.setattr(metrics, "_last_cpu_stats", None)
+    fake_stat = io.StringIO("cpu abc def ghi jkl mno\n")
 
     def fake_open(path, mode="r", *args, **kwargs):
         if path == "/proc/stat":
@@ -459,3 +468,43 @@ Pages wired down:                         15000."""
     # used = 20000 + 15000 = 35000
     expected = (35000 / 50000) * 100.0
     assert usage == pytest.approx(expected)
+
+
+def test_cpu_percent_linux_first_call_returns_zero(monkeypatch):
+    """First call with no prior snapshot must return 0.0 and seed the cache."""
+    monkeypatch.setattr(metrics, "_last_cpu_stats", None)
+    fake_stat = io.StringIO("cpu 100 50 50 200 25 0 0 0\n")
+
+    def fake_open(path, mode="r", *args, **kwargs):
+        if path == "/proc/stat":
+            fake_stat.seek(0)
+            return fake_stat
+        raise AssertionError("Unexpected file access")
+
+    monkeypatch.setattr(metrics, "open", fake_open, raising=False)
+
+    assert metrics._get_cpu_percent_linux() == 0.0
+    # State must now be seeded so the next call can compute a delta.
+    assert metrics._last_cpu_stats == (425, 225)
+
+
+def test_cpu_percent_linux_delta_across_two_reads(monkeypatch):
+    """Second call computes delta between successive snapshots."""
+    # Simulate prior snapshot: total=1000, idle=600
+    monkeypatch.setattr(metrics, "_last_cpu_stats", (1000, 600))
+    # New snapshot: total=1200, idle=680  =>  delta_total=200, delta_idle=80 => 60% used
+    fake_stat = io.StringIO("cpu 200 50 50 530 100 100 50 50 70\n")
+
+    def fake_open(path, mode="r", *args, **kwargs):
+        if path == "/proc/stat":
+            fake_stat.seek(0)
+            return fake_stat
+        raise AssertionError("Unexpected file access")
+
+    monkeypatch.setattr(metrics, "open", fake_open, raising=False)
+
+    usage = metrics._get_cpu_percent_linux()
+
+    # parts: user=200 nice=50 system=50 idle=530 iowait=100 ... total=1200, idle=530+100=630
+    # delta_total=1200-1000=200, delta_idle=630-600=30 => (200-30)/200*100 = 85%
+    assert usage == pytest.approx((200 - 30) / 200 * 100.0)

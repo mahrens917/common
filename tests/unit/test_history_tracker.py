@@ -255,8 +255,8 @@ async def test_record_temperature_update_handles_errors(monkeypatch):
     monkeypatch.setattr("common.weather_history_tracker_helpers.observation_recorder.get_current_utc", lambda: fixed_time)
 
     tracker = WeatherHistoryTracker()
-    result = await tracker.record_temperature_update("KAUS", 70.0)
-    assert result is False
+    with pytest.raises(RuntimeError):
+        await tracker.record_temperature_update("KAUS", 70.0)
 
 
 @pytest.mark.asyncio

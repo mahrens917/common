@@ -1,5 +1,6 @@
 """Connection state tracker for centralized connection state management."""
 
+import asyncio
 import logging
 import time as _time
 from typing import Any, Dict, List, Optional
@@ -111,14 +112,16 @@ class ConnectionStateTracker:
 
 
 _connection_state_tracker: Optional[ConnectionStateTracker] = None
+_connection_state_tracker_lock = asyncio.Lock()
 
 
 async def get_connection_state_tracker() -> ConnectionStateTracker:
     """Get the global connection state tracker instance."""
     global _connection_state_tracker
-    if _connection_state_tracker is None:
-        _connection_state_tracker = ConnectionStateTracker()
-        await _connection_state_tracker.initialize()
+    async with _connection_state_tracker_lock:
+        if _connection_state_tracker is None:
+            _connection_state_tracker = ConnectionStateTracker()
+            await _connection_state_tracker.initialize()
     return _connection_state_tracker
 
 

@@ -68,7 +68,7 @@ async def test_check_redis_status_reports_healthy(monkeypatch):
     from common import service_status
 
     monkeypatch.setattr(service_status, "is_service_failed", lambda status: status == "failed")
-    monkeypatch.setattr(service_status, "is_service_operational", lambda status: status == "operational")
+    monkeypatch.setattr(service_status, "is_service_ready", lambda status: status == "operational")
 
     from common.health.service_health_checker_helpers.redis_status_checker import (
         check_redis_status,
@@ -98,7 +98,7 @@ async def test_check_redis_status_handles_stale_operational_status(monkeypatch):
     from common import service_status
 
     monkeypatch.setattr(service_status, "is_service_failed", lambda status: False)
-    monkeypatch.setattr(service_status, "is_service_operational", lambda status: status == "operational")
+    monkeypatch.setattr(service_status, "is_service_ready", lambda status: status == "operational")
 
     from common.health.service_health_checker_helpers.redis_status_checker import (
         check_redis_status,
@@ -126,7 +126,7 @@ async def test_check_redis_status_handles_failed_status(monkeypatch):
     from common import service_status
 
     monkeypatch.setattr(service_status, "is_service_failed", lambda status: status == "failed")
-    monkeypatch.setattr(service_status, "is_service_operational", lambda status: False)
+    monkeypatch.setattr(service_status, "is_service_ready", lambda status: False)
 
     from common.health.service_health_checker_helpers.redis_status_checker import (
         check_redis_status,
@@ -171,7 +171,7 @@ async def test_check_redis_status_handles_invalid_timestamp(monkeypatch):
     from common import service_status
 
     monkeypatch.setattr(service_status, "is_service_failed", lambda status: False)
-    monkeypatch.setattr(service_status, "is_service_operational", lambda status: True)
+    monkeypatch.setattr(service_status, "is_service_ready", lambda status: True)
 
     from common.health.service_health_checker_helpers.redis_status_checker import (
         check_redis_status,

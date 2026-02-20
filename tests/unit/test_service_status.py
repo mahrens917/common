@@ -7,7 +7,6 @@ from common.service_status import (
     ServiceStatus,
     create_status_data,
     is_service_failed,
-    is_service_operational,
     is_service_ready,
     set_service_status,
 )
@@ -25,9 +24,6 @@ def test_status_helpers_cover_ready_failed_and_operational():
     assert is_service_ready("ready")
     assert is_service_ready("ready_degraded")
     assert not is_service_ready("stopped")
-
-    assert is_service_operational("ready")
-    assert not is_service_operational("stopped")
 
     assert is_service_failed("error")
     assert is_service_failed("failed")

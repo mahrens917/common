@@ -79,5 +79,12 @@ class RetryRedisClient(RetryRedisHashMixin, RetryRedisSortedSetMixin, RetryRedis
     def pubsub(self, **kwargs: Any) -> Any:
         return self._client.pubsub(**kwargs)
 
+    async def eval(self, script: str, numkeys: int, *keys_and_args: Any, context: str = "eval") -> Any:
+        return await with_redis_retry(
+            lambda: ensure_awaitable(self._client.eval(script, numkeys, *keys_and_args)),
+            context=context,
+            policy=self._policy,
+        )
+
 
 __all__ = ["RetryPipeline", "RetryRedisClient"]

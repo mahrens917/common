@@ -73,7 +73,6 @@ class PriceHistoryRecorder:
             cutoff = float(int_ts - HISTORY_TTL_SECONDS)
 
             pipe = client.pipeline()
-            pipe.zremrangebyscore(redis_key, score, score)
             pipe.zadd(redis_key, {member: score})
             pipe.zremrangebyscore(redis_key, 0, cutoff)
             pipe.expire(redis_key, HISTORY_TTL_SECONDS)

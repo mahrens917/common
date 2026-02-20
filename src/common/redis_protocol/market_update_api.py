@@ -19,7 +19,6 @@ from dataclasses import dataclass
 from typing import TYPE_CHECKING, Any, Callable, Dict, List, Optional
 
 from .market_update_api_helpers import (
-    REJECTION_KEY_PREFIX,
     PriceSignal,
     add_signal_to_pipeline,
     algo_field,
@@ -98,7 +97,6 @@ class BatchUpdateResult:
     """Result of a batch market update."""
 
     succeeded: List[str]
-    rejected: List[str]
     failed: List[str]
 
 
@@ -114,23 +112,24 @@ async def batch_update_market_signals(
     Tracker is responsible for setting algo/direction fields.
     """
     if not signals:
-        return BatchUpdateResult(succeeded=[], rejected=[], failed=[])
+        return BatchUpdateResult(succeeded=[], failed=[])
 
     market_signals = build_market_signals(signals, algo, key_builder)
     valid_signals, failed = filter_valid_signals(market_signals)
 
     if not valid_signals:
-        return BatchUpdateResult(succeeded=[], rejected=[], failed=failed)
+        return BatchUpdateResult(succeeded=[], failed=failed)
 
+    # Bid-only signals (t_ask is None) are written first so that the pipeline
+    # processes simpler updates before two-sided ones; ticker breaks ties deterministically.
     sorted_signals = sorted(valid_signals, key=lambda s: (s.t_ask is not None, s.ticker))
 
-    return await _execute_batch_transaction(redis, sorted_signals, [], failed, algo)
+    return await _execute_batch_transaction(redis, sorted_signals, failed, algo)
 
 
 async def _execute_batch_transaction(
     redis: "Redis",
     sorted_signals: List[Any],
-    rejected: List[str],
     failed: List[str],
     algo: str,
 ) -> BatchUpdateResult:
@@ -178,7 +177,7 @@ async def _execute_batch_transaction(
         except RedisRetryError:  # policy_guard: allow-silent-handler
             logger.exception("Failed to publish event update for %s after retries", sig.ticker)
 
-    return BatchUpdateResult(succeeded=succeeded, rejected=[], failed=failed)
+    return BatchUpdateResult(succeeded=succeeded, failed=failed)
 
 
 @dataclass(frozen=True)
@@ -238,10 +237,11 @@ async def update_and_clear_stale(
                 PriceSignal(t_bid=t_bid, t_ask=t_ask, edge=data.get("edge"), signal=data.get("signal")),
                 ticker,
             )
-            succeeded.append(ticker)
         except (RuntimeError, ConnectionError, OSError):
-            logger.exception("Failed to write signal for %s", ticker)
-            failed.append(ticker)
+            logger.exception("Failed to write theoretical prices for %s", ticker)
+            raise
+        else:
+            succeeded.append(ticker)
 
     owned_tickers = await scan_algo_owned_markets(redis, scan_pattern, algo)
 

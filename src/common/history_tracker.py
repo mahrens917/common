@@ -9,31 +9,42 @@ with automatic 24-hour expiration:
 - history:eth (hash with datetime as field, price as value)
 """
 
-import asyncio
 import logging
 import time
 from dataclasses import dataclass
 from typing import List, Optional, Tuple
 
-from redis.exceptions import RedisError
-
 from common.exceptions import ValidationError
 from common.redis_protocol.config import BALANCE_KEY_PREFIX, HISTORY_KEY_PREFIX, HISTORY_TTL_SECONDS
+from common.redis_protocol.error_types import REDIS_ERRORS as _BASE_REDIS_ERRORS
 from common.redis_protocol.typing import RedisClient, ensure_awaitable
 from common.redis_utils import RedisOperationError, get_redis_connection
 
 logger = logging.getLogger(__name__)
 
 _BALANCE_MEMBER_PARTS = 2  # "timestamp:balance_cents" → exactly 2 colon-separated parts
+_HISTORY_MEMBER_PARTS = 2  # "timestamp:value" → exactly 2 colon-separated parts
 
-REDIS_ERRORS = (
-    RedisError,
-    RedisOperationError,
-    ConnectionError,
-    TimeoutError,
-    asyncio.TimeoutError,
-    RuntimeError,
-)
+
+def _parse_history_member(member_str: str) -> float:
+    """Parse value from a history member string 'timestamp:value'."""
+    parts = member_str.split(":", 1)
+    if len(parts) != _HISTORY_MEMBER_PARTS:
+        raise ValueError(f"Unexpected member format: {member_str!r}")
+    return float(parts[1])
+
+
+def _parse_balance_member(member_str: str) -> int:
+    """Parse balance_cents from a balance member string 'timestamp:balance_cents'."""
+    parts = member_str.split(":", 1)
+    if len(parts) != _BALANCE_MEMBER_PARTS:
+        raise ValueError(f"Unexpected member format: {member_str!r}")
+    return int(parts[1])
+
+
+# OSError (in _BASE_REDIS_ERRORS) is the parent of ConnectionError and TimeoutError,
+# so those are already covered. RedisOperationError is raised by redis_utils helpers.
+REDIS_ERRORS = _BASE_REDIS_ERRORS + (RedisOperationError,)
 
 
 @dataclass
@@ -90,10 +101,7 @@ class HistoryTracker:
             for member, score in data:
                 timestamp = int(score)
                 member_str = member.decode() if isinstance(member, bytes) else str(member)
-                parts = member_str.split(":", 1)
-                if len(parts) != 2:
-                    raise ValueError(f"Unexpected member format: {member_str!r}")
-                value = float(parts[1])
+                value = _parse_history_member(member_str)
                 history_data.append((timestamp, value))
         except REDIS_ERRORS as exc:
             logger.exception("Failed to get %s history", service_name)
@@ -151,12 +159,12 @@ class PriceHistoryTracker:
             ValueError: If price is not positive
         """
         try:
-            await self.initialize()
+            await self._connection_manager.ensure_connected()
             client = self._connection_manager.get_client()
             success, _ = await self._recorder.record_price(client, currency, price)
         except ValidationError as exc:
             raise ValueError(str(exc)) from exc
-        except (RuntimeError, ValueError, TypeError, AttributeError) as exc:
+        except (RuntimeError, ValueError, TypeError) as exc:
             raise RuntimeError(f"Failed to record {currency} price history") from exc
         else:
             return success
@@ -176,7 +184,7 @@ class PriceHistoryTracker:
             ValueError: If currency is not 'BTC' or 'ETH'
         """
         try:
-            await self.initialize()
+            await self._connection_manager.ensure_connected()
             client = self._connection_manager.get_client()
             return await self._retriever.get_history(client, currency, hours)
         except ValidationError as exc:
@@ -198,6 +206,7 @@ class WeatherHistoryTracker:
             WeatherObservationRecorder,
             WeatherStatisticsRetriever,
         )
+
         self._connection_manager = WeatherHistoryConnectionManager(get_redis_connection)
         self._observation_recorder = WeatherObservationRecorder()
         self._statistics_retriever = WeatherStatisticsRetriever()
@@ -219,20 +228,26 @@ class WeatherHistoryTracker:
             temp_f: Temperature in Fahrenheit
 
         Returns:
-            True if recorded successfully, False otherwise
+            True if recorded successfully
 
         Raises:
             ValueError: If station_icao is empty or temp_f is invalid
+            REDIS_ERRORS: If a Redis connection or command error occurs
         """
         try:
             self._observation_recorder.validate_temperature_input(station_icao, temp_f)
         except ValidationError as exc:
             raise ValueError(str(exc)) from exc
 
-        await self.initialize()
-        client = self._connection_manager.get_client()
-        success, _ = await self._observation_recorder.record_observation(client, station_icao, temp_f)
-        return success
+        try:
+            await self._connection_manager.ensure_connected()
+            client = self._connection_manager.get_client()
+            success, _ = await self._observation_recorder.record_observation(client, station_icao, temp_f)
+        except REDIS_ERRORS:
+            logger.exception("Failed to record temperature for %s", station_icao)
+            raise
+        else:
+            return success
 
     async def get_temperature_history(self, station_icao: str, hours: int = 24) -> List[Tuple[int, float]]:
         """
@@ -249,11 +264,13 @@ class WeatherHistoryTracker:
             ValueError: If station_icao is empty
         """
         try:
-            await self.initialize()
+            await self._connection_manager.ensure_connected()
             client = self._connection_manager.get_client()
             return await self._statistics_retriever.get_history(client, station_icao, hours)
         except ValidationError as exc:
             raise ValueError(str(exc)) from exc
+        except REDIS_ERRORS as exc:
+            raise RuntimeError(f"Failed to get temperature history for {station_icao}") from exc
 
 
 class BalanceHistoryTracker:
@@ -336,13 +353,12 @@ class BalanceHistoryTracker:
                 timestamp = int(score)
                 # Parse member format: "timestamp:balance_cents"
                 member_str = member.decode() if isinstance(member, bytes) else str(member)
-                parts = member_str.split(":")
-                if len(parts) < _BALANCE_MEMBER_PARTS:
-                    raise ValueError(f"Unexpected member format: {member_str!r}")
-                balance_cents = int(parts[1])
-                history_data.append((timestamp, balance_cents))
-
-            return sorted(history_data, key=lambda x: x[0])
+                history_data.append((timestamp, _parse_balance_member(member_str)))
+        except (ValueError, TypeError):
+            logger.exception("Invalid %s balance history payload", exchange)
+            raise
         except REDIS_ERRORS as exc:
             logger.exception("Failed to get %s balance history", exchange)
             raise RuntimeError(f"Failed to load {exchange} balance history from Redis") from exc
+        else:
+            return history_data

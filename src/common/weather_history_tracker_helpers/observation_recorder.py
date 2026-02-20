@@ -2,31 +2,17 @@
 
 from __future__ import annotations
 
-import asyncio
 import json
 import logging
-
-from redis.exceptions import RedisError
 
 from common.exceptions import ValidationError
 from common.redis_protocol.typing import RedisClient, ensure_awaitable
 from common.redis_schema import WeatherHistoryKey, ensure_uppercase_icao
-from common.redis_utils import RedisOperationError
 from common.time_utils import get_current_utc
 
 logger = logging.getLogger(__name__)
 
-REDIS_ERRORS = (
-    RedisError,
-    RedisOperationError,
-    ConnectionError,
-    TimeoutError,
-    asyncio.TimeoutError,
-    RuntimeError,
-)
-
-
-# Constants
+# Temperature bounds in Fahrenheit — shared with statistics_retriever
 _TEMP_MAX = 200
 _TEMP_MIN = -200
 
@@ -94,7 +80,7 @@ class WeatherObservationRecorder:
 
             logger.debug(f"Recorded {station_icao} temperature history: {temp_f:.1f}°F at {datetime_str}")
 
-        except REDIS_ERRORS + (  # policy_guard: allow-silent-handler
+        except (  # policy_guard: allow-silent-handler
             json.JSONDecodeError,
             ValueError,
             TypeError,

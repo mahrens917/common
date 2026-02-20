@@ -17,6 +17,11 @@ def safely_schedule_coroutine(
     Accept either a coroutine object or a zero-argument callable that returns a
     coroutine, which prevents creating the coroutine unless scheduling actually
     happens.
+
+    When a running event loop exists, the coroutine is scheduled as a
+    :class:`asyncio.Task` and that task is returned.  When no loop is running,
+    the coroutine is executed synchronously via ``asyncio.run`` and ``None``
+    is returned — the coroutine's return value is not accessible to the caller.
     """
     coro = _resolve_coroutine(coro_or_factory)
 
@@ -26,11 +31,7 @@ def safely_schedule_coroutine(
         asyncio.run(coro)
         return None
 
-    try:
-        return loop.create_task(coro)
-    except (RuntimeError, ValueError, TypeError):  # Expected task scheduling failure  # policy_guard: allow-silent-handler
-        coro.close()
-        return None
+    return loop.create_task(coro)
 
 
 def _resolve_coroutine(

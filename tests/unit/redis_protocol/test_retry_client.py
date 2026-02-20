@@ -425,3 +425,70 @@ async def test_pipeline_execute_raise_on_error_false():
     pipe = RetryPipeline(raw_pipe)
     await pipe.execute(raise_on_error=False)
     raw_pipe.execute.assert_awaited_once()
+
+
+@pytest.mark.asyncio
+async def test_pipeline_context_manager():
+    raw_pipe = MagicMock()
+    raw_pipe.__aexit__ = AsyncMock(return_value=None)
+    pipe = RetryPipeline(raw_pipe)
+    async with pipe as p:
+        assert p is pipe
+    raw_pipe.__aexit__.assert_awaited_once()
+
+
+@pytest.mark.asyncio
+async def test_pipeline_set():
+    raw_pipe = MagicMock()
+    raw_pipe.set = MagicMock(return_value=raw_pipe)
+    pipe = RetryPipeline(raw_pipe)
+    result = pipe.set("key", "value", ex=60)
+    assert result is pipe
+    raw_pipe.set.assert_called_once_with("key", "value", ex=60)
+
+
+@pytest.mark.asyncio
+async def test_pipeline_setnx():
+    raw_pipe = MagicMock()
+    raw_pipe.setnx = MagicMock(return_value=raw_pipe)
+    pipe = RetryPipeline(raw_pipe)
+    result = pipe.setnx("key", "value")
+    assert result is pipe
+    raw_pipe.setnx.assert_called_once_with("key", "value")
+
+
+@pytest.mark.asyncio
+async def test_pipeline_get():
+    raw_pipe = MagicMock()
+    raw_pipe.get = MagicMock(return_value=raw_pipe)
+    pipe = RetryPipeline(raw_pipe)
+    result = pipe.get("key")
+    assert result is pipe
+    raw_pipe.get.assert_called_once_with("key")
+
+
+@pytest.mark.asyncio
+async def test_client_pipeline_returns_retry_pipeline():
+    mock_redis = _make_mock_redis()
+    client = RetryRedisClient(mock_redis, policy=_fast_policy())
+    pipe = client.pipeline(transaction=True)
+    assert isinstance(pipe, RetryPipeline)
+    mock_redis.pipeline.assert_called_once_with(transaction=True)
+
+
+@pytest.mark.asyncio
+async def test_client_close_delegates():
+    mock_redis = _make_mock_redis()
+    mock_redis.close = MagicMock()
+    client = RetryRedisClient(mock_redis)
+    client.close()
+    mock_redis.close.assert_called_once()
+
+
+@pytest.mark.asyncio
+async def test_eval_delegates():
+    mock_redis = _make_mock_redis()
+    mock_redis.eval = AsyncMock(return_value=42)
+    client = RetryRedisClient(mock_redis, policy=_fast_policy())
+    result = await client.eval("return 1", 0)
+    assert result == 42

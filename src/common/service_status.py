@@ -74,20 +74,6 @@ def is_service_ready(status_value: str) -> bool:
     return status_value in (ServiceStatus.READY.value, ServiceStatus.READY_DEGRADED.value)
 
 
-def is_service_operational(status_value: str) -> bool:
-    """
-    Check if a service status indicates the service is operational.
-    Includes READY and READY_DEGRADED states.
-
-    Args:
-        status_value: Status string from Redis
-
-    Returns:
-        True if service is operational, False otherwise
-    """
-    return status_value in (ServiceStatus.READY.value, ServiceStatus.READY_DEGRADED.value)
-
-
 def is_service_failed(status_value: str) -> bool:
     """
     Check if a service status indicates the service has failed.
@@ -101,26 +87,26 @@ def is_service_failed(status_value: str) -> bool:
     return status_value in (ServiceStatus.ERROR.value, ServiceStatus.FAILED.value)
 
 
-STATUS_UPDATE_ERRORS = REDIS_ERRORS + (RedisOperationError, ConnectionError, TypeError, ValueError)
+STATUS_UPDATE_ERRORS = REDIS_ERRORS + (RedisOperationError, TypeError, ValueError)
 
-_STATUS_KEY_TTL_SECONDS = 600
+_STATUS_KEY_TTL_SECONDS = 86400
 
 
 async def set_service_status(service_name: str, status: ServiceStatus, **fields: Any) -> None:
     """Persist a service status update to Redis."""
 
     detail = create_status_data(status, **fields)
+    name_key = str(service_name)
 
     try:
         redis = await get_redis_connection()
-        name_key = str(service_name)
         serialized = {key: json.dumps(value) if isinstance(value, (dict, list)) else str(value) for key, value in detail.items()}
 
         unified_key = ServiceStatusKey(service=name_key).key()
         pipe = redis.pipeline()
         pipe.hset(unified_key, mapping=serialized)
         pipe.expire(unified_key, _STATUS_KEY_TTL_SECONDS)
-        await pipe.execute()
+        await ensure_awaitable(pipe.execute())
     except STATUS_UPDATE_ERRORS as exc:
-        logger.exception("Failed to update status for %s (%s)", name_key, type(exc).__name__, exc_info=True)
+        logger.exception("Failed to update status for %s (%s)", name_key, type(exc).__name__)
         raise
