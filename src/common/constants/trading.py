@@ -16,8 +16,8 @@ MAX_MARKET_PRICE_CENTS = 100
 MAX_SETTLEMENT_PRICE_CENTS = 100
 
 # Canonical set of algorithm names recognized by the trading system.
-# Producers must use one of these names; tracker validates against this set.
-# Update both here and tracker/config/algos.json when adding a new algo.
+# Single source of truth — producers and tracker both validate against this set.
+# Update only here when adding a new algo.
 VALID_ALGO_NAMES: frozenset[str] = frozenset({"crossarb", "peak", "edge", "weather", "pdf", "whale", "strike", "total", "dutch"})
 
 __all__ = [
