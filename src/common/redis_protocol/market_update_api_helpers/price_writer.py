@@ -230,7 +230,9 @@ async def publish_market_event_update(
 
     # Publish algo signal FIRST so the tracker's in-memory cache is updated
     # before the market event triggers ownership re-evaluation.
-    if algo:
+    # Only publish when signal and edge are present — the tracker subscriber
+    # requires both and drops incomplete messages.
+    if algo and prices.signal is not None and prices.edge is not None:
         await _publish_algo_signal(redis, ticker, algo, prices)
 
     if not event_ticker:

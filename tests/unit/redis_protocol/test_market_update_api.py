@@ -122,7 +122,7 @@ class TestRequestMarketUpdate:
 
         mock_redis.hget = AsyncMock(side_effect=hget_side_effect)
 
-        result = await request_market_update(mock_redis, "market:key", "weather", 50.0, 55.0)
+        result = await request_market_update(mock_redis, "market:key", "weather", 50.0, 55.0, edge=5.0, signal="BUY")
 
         assert result.success is True
         # Both market event and algo signal go via stream_publish (xadd)
@@ -131,7 +131,7 @@ class TestRequestMarketUpdate:
 
     @pytest.mark.asyncio
     async def test_publishes_algo_signal_when_no_event_ticker(self, mock_redis):
-        result = await request_market_update(mock_redis, "market:key", "weather", 50.0, 55.0)
+        result = await request_market_update(mock_redis, "market:key", "weather", 50.0, 55.0, edge=5.0, signal="BUY")
 
         assert result.success is True
         # No event_ticker means only the algo signal xadd (no market event xadd)
@@ -143,7 +143,7 @@ class TestRequestMarketUpdate:
 
         from common.redis_protocol.streams.constants import ALGO_SIGNAL_STREAM
 
-        result = await request_market_update(mock_redis, "market:key:TICKER1", "weather", 50.0, 55.0)
+        result = await request_market_update(mock_redis, "market:key:TICKER1", "weather", 50.0, 55.0, edge=5.0, signal="BUY")
 
         assert result.success is True
         mock_redis.xadd.assert_called_once()

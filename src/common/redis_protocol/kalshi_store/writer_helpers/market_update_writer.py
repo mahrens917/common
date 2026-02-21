@@ -84,19 +84,25 @@ class TradePriceMixin:
             trade_store = await self._get_trade_store()
             await ensure_awaitable(trade_store.update_trade_prices(market_ticker, yes_bid, yes_ask))
         except REDIS_ERRORS as exc:  # Expected exception in operation  # policy_guard: allow-silent-handler
-            logger.error(
-                "Redis error updating trade prices for market %s: %s",
-                market_ticker,
-                exc,
-                exc_info=True,
-            )
+            if isinstance(exc, (ConnectionError, OSError)):
+                logger.warning("Redis connection lost updating trade prices for %s (likely shutdown)", market_ticker)
+            else:
+                logger.error(
+                    "Redis error updating trade prices for market %s: %s",
+                    market_ticker,
+                    exc,
+                    exc_info=True,
+                )
         except TradeStoreError as exc:  # Expected exception in operation  # policy_guard: allow-silent-handler
-            logger.error(
-                "TradeStore error updating prices for market %s: %s",
-                market_ticker,
-                exc,
-                exc_info=True,
-            )
+            if isinstance(exc.__cause__, (ConnectionError, OSError)):
+                logger.warning("Redis connection lost updating trade prices for %s (likely shutdown)", market_ticker)
+            else:
+                logger.error(
+                    "TradeStore error updating prices for market %s: %s",
+                    market_ticker,
+                    exc,
+                    exc_info=True,
+                )
         except (ValueError, TypeError) as exc:  # Expected data validation or parsing failure  # policy_guard: allow-silent-handler
             logger.error(
                 "Invalid trade price payload for market %s: %s",

@@ -16,8 +16,9 @@ T = TypeVar("T")
 _TRUE_VALUES = {"1", "true", "t", "yes", "y", "on"}
 _FALSE_VALUES = {"0", "false", "f", "no", "n", "off"}
 
-_DOTENV_CANDIDATES = (Path(".env"), Path.home() / ".env")
-_JSON_ENV_CANDIDATES = (Path("config/runtime_env.json"), Path.home() / ".kalshi_env.json")
+_SERVICE_ROOT = Path.cwd()
+_DOTENV_CANDIDATES = (_SERVICE_ROOT / ".env", Path.home() / ".env")
+_JSON_ENV_CANDIDATES = (_SERVICE_ROOT / "config" / "runtime_env.json", Path.home() / ".kalshi_env.json")
 
 _DEFAULT_VALUES: dict[str, str] | None = None
 
