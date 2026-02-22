@@ -27,8 +27,6 @@ class PriceSignal:
 
     t_bid: Optional[float] = None
     t_ask: Optional[float] = None
-    edge: Optional[float] = None
-    signal: Optional[str] = None
 
 
 def _clamp_price(value: float) -> int:
@@ -154,7 +152,7 @@ async def write_theoretical_prices(
         t_ask,
     )
 
-    clamped_prices = PriceSignal(t_bid=t_bid, t_ask=t_ask, edge=prices.edge, signal=prices.signal)
+    clamped_prices = PriceSignal(t_bid=t_bid, t_ask=t_ask)
     await publish_market_event_update(redis, market_key, ticker, algo, clamped_prices)
 
 
@@ -164,10 +162,6 @@ def _add_price_fields(fields: dict[str, str], prices: PriceSignal) -> None:
         fields["t_ask"] = str(prices.t_ask)
     if prices.t_bid is not None:
         fields["t_bid"] = str(prices.t_bid)
-    if prices.edge is not None:
-        fields["edge"] = str(prices.edge)
-    if prices.signal is not None:
-        fields["signal"] = prices.signal
 
 
 async def _publish_algo_signal(redis: "Redis", ticker: str, algo: str, prices: PriceSignal) -> None:
@@ -180,8 +174,6 @@ async def _publish_algo_signal(redis: "Redis", ticker: str, algo: str, prices: P
             "t_ask": prices.t_ask,
             "t_bid": prices.t_bid,
             "algorithm": algo,
-            "edge": prices.edge,
-            "signal": prices.signal,
         }
     )
     await with_redis_retry(
@@ -229,10 +221,8 @@ async def publish_market_event_update(
     )
 
     # Publish algo signal FIRST so the tracker's in-memory cache is updated
-    # before the market event triggers ownership re-evaluation.
-    # Only publish when signal and edge are present — the tracker subscriber
-    # requires both and drops incomplete messages.
-    if algo and prices.signal is not None and prices.edge is not None:
+    # before the market event triggers evaluation.
+    if algo:
         await _publish_algo_signal(redis, ticker, algo, prices)
 
     if not event_ticker:

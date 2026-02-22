@@ -59,9 +59,6 @@ async def request_market_update(
     algo: str,
     t_bid: Optional[float],
     t_ask: Optional[float],
-    *,
-    edge: Optional[float] = None,
-    signal: Optional[str] = None,
 ) -> MarketUpdateResult:
     """
     Update theoretical prices for a market using namespaced fields.
@@ -75,8 +72,6 @@ async def request_market_update(
         algo: Algorithm name (whale, peak, edge, pdf, weather, crossarb, dutch, strike, total)
         t_bid: Theoretical bid price (can be None to skip)
         t_ask: Theoretical ask price (can be None to skip)
-        edge: Explicit edge value (required when prices are provided)
-        signal: Explicit signal direction ("BUY", "SELL", "NONE")
 
     Returns:
         MarketUpdateResult with success status
@@ -86,7 +81,7 @@ async def request_market_update(
 
     display_ticker = market_key.split(":")[-1]
 
-    price_signal = PriceSignal(t_bid=t_bid, t_ask=t_ask, edge=edge, signal=signal)
+    price_signal = PriceSignal(t_bid=t_bid, t_ask=t_ask)
     await write_theoretical_prices(redis, market_key, algo, price_signal, display_ticker)
 
     return MarketUpdateResult(success=True, rejected=False, reason=None, owning_algo=None)
@@ -160,8 +155,6 @@ async def _execute_batch_transaction(
         price_signal = PriceSignal(
             t_bid=mapping.get(bid_key),
             t_ask=mapping.get(ask_key),
-            signal=sig.signal,
-            edge=sig.edge,
         )
         try:
             await with_redis_retry(
@@ -234,7 +227,7 @@ async def update_and_clear_stale(
                 redis,
                 market_key,
                 algo,
-                PriceSignal(t_bid=t_bid, t_ask=t_ask, edge=data.get("edge"), signal=data.get("signal")),
+                PriceSignal(t_bid=t_bid, t_ask=t_ask),
                 ticker,
             )
         except (RuntimeError, ConnectionError, OSError):
@@ -252,7 +245,7 @@ async def update_and_clear_stale(
     for ticker in stale_cleared:
         market_key = key_builder(ticker)
         try:
-            await publish_market_event_update(redis, market_key, ticker, algo, PriceSignal(signal="NONE", edge=0.0))
+            await publish_market_event_update(redis, market_key, ticker, algo, PriceSignal())
         except RedisRetryError:  # policy_guard: allow-silent-handler
             logger.exception("Failed to publish NONE signal for stale market %s", ticker)
 
