@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from datetime import datetime, timedelta, timezone
+from datetime import date, timedelta
 from typing import TYPE_CHECKING, Any, Dict, List, Tuple
 
 from common.constants.trading import MAX_PRICE_CENTS, MIN_PRICE_CENTS
@@ -116,7 +116,7 @@ def add_signal_to_pipeline(
 async def get_rejection_stats(redis: "Redis", days: int = 1) -> Dict[str, Dict[str, int]]:
     """Get rejection statistics for the specified number of days."""
     stats: Dict[str, Dict[str, int]] = {}
-    today = datetime.now(timezone.utc).date()
+    today = date.today()
 
     for i in range(days):
         day = today - timedelta(days=i)

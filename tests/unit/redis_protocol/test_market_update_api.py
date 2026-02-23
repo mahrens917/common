@@ -10,9 +10,7 @@ from common.redis_protocol.market_update_api import (
     MarketUpdateResult,
     _execute_batch_transaction,
     batch_update_market_signals,
-    clear_algo_ownership,
     compute_direction,
-    get_market_algo,
     get_rejection_stats,
     request_market_update,
 )
@@ -201,67 +199,6 @@ class TestGetRejectionStats:
 
         today = date.today().isoformat()
         assert result[today]["weather:pdf"] == 10
-
-
-class TestClearAlgoOwnership:
-    """Tests for clear_algo_ownership function."""
-
-    @pytest.fixture
-    def mock_redis(self):
-        redis = MagicMock()
-        redis.hdel = AsyncMock()
-        return redis
-
-    @pytest.mark.asyncio
-    async def test_clear_existing_ownership(self, mock_redis):
-        mock_redis.hdel = AsyncMock(return_value=1)
-
-        result = await clear_algo_ownership(mock_redis, "market:key")
-
-        assert result is True
-        mock_redis.hdel.assert_called_once_with("market:key", "algo")
-
-    @pytest.mark.asyncio
-    async def test_clear_nonexistent_ownership(self, mock_redis):
-        mock_redis.hdel = AsyncMock(return_value=0)
-
-        result = await clear_algo_ownership(mock_redis, "market:key")
-
-        assert result is False
-
-
-class TestGetMarketAlgo:
-    """Tests for get_market_algo function."""
-
-    @pytest.fixture
-    def mock_redis(self):
-        redis = MagicMock()
-        redis.hget = AsyncMock()
-        return redis
-
-    @pytest.mark.asyncio
-    async def test_no_algo(self, mock_redis):
-        mock_redis.hget = AsyncMock(return_value=None)
-
-        result = await get_market_algo(mock_redis, "market:key")
-
-        assert result is None
-
-    @pytest.mark.asyncio
-    async def test_bytes_algo(self, mock_redis):
-        mock_redis.hget = AsyncMock(return_value=b"weather")
-
-        result = await get_market_algo(mock_redis, "market:key")
-
-        assert result == "weather"
-
-    @pytest.mark.asyncio
-    async def test_string_algo(self, mock_redis):
-        mock_redis.hget = AsyncMock(return_value="pdf")
-
-        result = await get_market_algo(mock_redis, "market:key")
-
-        assert result == "pdf"
 
 
 class TestMarketUpdateResult:
@@ -547,7 +484,7 @@ class TestUpdateAndClearStale:
         from common.redis_protocol.market_update_api import update_and_clear_stale
 
         mock_redis.scan = AsyncMock(return_value=(0, [b"markets:kalshi:test:STALE"]))
-        mock_redis.hget = AsyncMock(return_value=b"weather")
+        mock_redis.hmget = AsyncMock(return_value=[b"50", None])
 
         result = await update_and_clear_stale(
             mock_redis,

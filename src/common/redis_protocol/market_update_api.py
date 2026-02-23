@@ -24,14 +24,12 @@ from .market_update_api_helpers import (
     algo_field,
     build_market_signals,
     build_signal_mapping,
-    clear_algo_ownership,
     clear_stale_markets,
     compute_direction,
     filter_valid_signals,
-    get_market_algo,
     get_rejection_stats,
     publish_market_event_update,
-    scan_algo_owned_markets,
+    scan_algo_active_markets,
     write_theoretical_prices,
 )
 from .retry import RedisRetryError, with_redis_retry
@@ -236,7 +234,7 @@ async def update_and_clear_stale(
         else:
             succeeded.append(ticker)
 
-    owned_tickers = await scan_algo_owned_markets(redis, scan_pattern, algo)
+    owned_tickers = await scan_algo_active_markets(redis, scan_pattern, algo)
 
     current_tickers = set(signals.keys())
     stale_tickers = owned_tickers - current_tickers
@@ -265,13 +263,11 @@ __all__ = [
     "AlgoUpdateResult",
     "batch_update_market_signals",
     "BatchUpdateResult",
-    "clear_algo_ownership",
     "clear_stale_markets",
     "compute_direction",
-    "get_market_algo",
     "get_rejection_stats",
     "MarketUpdateResult",
     "request_market_update",
-    "scan_algo_owned_markets",
+    "scan_algo_active_markets",
     "update_and_clear_stale",
 ]

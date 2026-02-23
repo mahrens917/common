@@ -26,8 +26,6 @@ from .market_normalization import ensure_market_metadata_fields
 from .market_ownership import can_algo_own_market, can_algo_own_market_type, configure_ownership, get_required_owner
 from .market_update_api import (
     MarketUpdateResult,
-    clear_algo_ownership,
-    get_market_algo,
     request_market_update,
 )
 from .messages import IndexMetadata, InstrumentMetadata, MarketData, SubscriptionUpdate
@@ -105,8 +103,6 @@ __all__ = [
     "decode_redis_hash",
     "coerce_float",
     "request_market_update",
-    "clear_algo_ownership",
-    "get_market_algo",
     "MarketUpdateResult",
     "ALGO_TRADING_KEY_PREFIX",
     "get_all_algo_trading_states",
