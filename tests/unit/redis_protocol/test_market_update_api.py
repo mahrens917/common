@@ -498,6 +498,60 @@ class TestUpdateAndClearStale:
         assert "STALE" in result.stale_cleared
 
     @pytest.mark.asyncio
+    async def test_writes_metadata_fields(self, mock_redis, mock_key_builder):
+        from common.redis_protocol.market_update_api import update_and_clear_stale
+
+        result = await update_and_clear_stale(
+            mock_redis,
+            {"TEST1": {"t_bid": 50.0, "t_ask": 55.0, "bl_spread": 0.03, "svi_rmse": 0.01}},
+            "pdf",
+            mock_key_builder,
+            "markets:kalshi:*",
+        )
+
+        assert "TEST1" in result.succeeded
+        _EXPECTED_HSET_CALLS = 2  # one for prices, one for metadata
+        assert mock_redis.hset.call_count == _EXPECTED_HSET_CALLS
+        metadata_call = mock_redis.hset.call_args_list[1]
+        mapping = metadata_call.kwargs["mapping"]
+        assert mapping["pdf:bl_spread"] == "0.03"
+        assert mapping["pdf:svi_rmse"] == "0.01"
+
+    @pytest.mark.asyncio
+    async def test_no_metadata_skips_extra_hset(self, mock_redis, mock_key_builder):
+        from common.redis_protocol.market_update_api import update_and_clear_stale
+
+        result = await update_and_clear_stale(
+            mock_redis,
+            {"TEST1": {"t_bid": 50.0, "t_ask": 55.0}},
+            "weather",
+            mock_key_builder,
+            "markets:kalshi:*",
+        )
+
+        assert "TEST1" in result.succeeded
+        mock_redis.hset.assert_called_once()
+
+    @pytest.mark.asyncio
+    async def test_stale_markets_get_metadata_deleted(self, mock_redis, mock_key_builder):
+        from common.redis_protocol.market_update_api import update_and_clear_stale
+
+        mock_redis.scan = AsyncMock(return_value=(0, [b"markets:kalshi:test:STALE"]))
+        mock_redis.hmget = AsyncMock(return_value=[b"50", None])
+
+        result = await update_and_clear_stale(
+            mock_redis,
+            {"TEST1": {"t_bid": 50.0, "bl_spread": 0.03}},
+            "pdf",
+            mock_key_builder,
+            "markets:kalshi:*",
+        )
+
+        assert "STALE" in result.stale_cleared
+        hdel_args = mock_redis.hdel.call_args[0]
+        assert "pdf:bl_spread" in hdel_args
+
+    @pytest.mark.asyncio
     async def test_write_failure_raises(self, mock_redis, mock_key_builder, monkeypatch):
         from common.redis_protocol.market_update_api import update_and_clear_stale
 

@@ -61,4 +61,18 @@ class RetryPipelineSortedSetMixin:
         return self
 
 
-__all__ = ["RetryPipelineHashMixin", "RetryPipelineSortedSetMixin"]
+class RetryPipelineSetMixin:
+    """Set operations for pipeline."""
+
+    _pipeline: Any
+
+    def sadd(self, name: str, *values: Any) -> Self:
+        self._pipeline.sadd(name, *values)
+        return self
+
+    def srem(self, name: str, *values: Any) -> Self:
+        self._pipeline.srem(name, *values)
+        return self
+
+
+__all__ = ["RetryPipelineHashMixin", "RetryPipelineSetMixin", "RetryPipelineSortedSetMixin"]

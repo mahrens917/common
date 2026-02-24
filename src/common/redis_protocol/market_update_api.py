@@ -30,6 +30,7 @@ from .market_update_api_helpers import (
     get_rejection_stats,
     publish_market_event_update,
     scan_algo_active_markets,
+    validate_algo_name,
     write_theoretical_prices,
 )
 from .retry import RedisRetryError, with_redis_retry
@@ -39,6 +40,8 @@ if TYPE_CHECKING:
     from redis.asyncio import Redis
 
 logger = logging.getLogger(__name__)
+
+_PRICE_FIELDS = frozenset(("t_bid", "t_ask"))
 
 
 @dataclass(frozen=True)
@@ -180,36 +183,19 @@ class AlgoUpdateResult:
     stale_cleared: List[str]
 
 
-async def update_and_clear_stale(
+async def _write_signals(
     redis: "Redis",
     signals: Dict[str, Dict[str, Any]],
     algo: str,
     key_builder: Callable[[str], str],
-    scan_pattern: str,
-) -> AlgoUpdateResult:
-    """Update theoretical prices and clear stale markets.
+) -> tuple[List[str], List[str], set[str]]:
+    """Write theoretical prices and metadata for each signal.
 
-    This is the main entry point for algos to update their signals.
-
-    1. Write {algo}:t_bid and {algo}:t_ask for each signal
-    2. Publish event updates to notify tracker
-    3. Scan for algo-owned markets
-    4. Clear stale (owned but not in signals)
-
-    Note: Tracker is responsible for setting algo/direction fields.
-
-    Args:
-        redis: Redis client
-        signals: Dict of {ticker: {"t_bid": X, "t_ask": Y}}
-        algo: Algorithm name
-        key_builder: Function to build market key from ticker
-        scan_pattern: Pattern to scan for owned markets (e.g., "markets:kalshi:*")
-
-    Returns:
-        AlgoUpdateResult with succeeded, failed, and stale_cleared lists
+    Returns (succeeded, failed, metadata_field_names).
     """
     succeeded: List[str] = []
     failed: List[str] = []
+    metadata_field_names: set[str] = set()
 
     for ticker, data in signals.items():
         t_bid = data.get("t_bid")
@@ -234,11 +220,48 @@ async def update_and_clear_stale(
         else:
             succeeded.append(ticker)
 
-    owned_tickers = await scan_algo_active_markets(redis, scan_pattern, algo)
+        metadata = {k: v for k, v in data.items() if k not in _PRICE_FIELDS}
+        if metadata:
+            await write_algo_metadata(redis, market_key, algo, metadata)
+            metadata_field_names.update(metadata.keys())
 
-    current_tickers = set(signals.keys())
-    stale_tickers = owned_tickers - current_tickers
-    stale_cleared = await clear_stale_markets(redis, stale_tickers, algo, key_builder)
+    return succeeded, failed, metadata_field_names
+
+
+async def update_and_clear_stale(
+    redis: "Redis",
+    signals: Dict[str, Dict[str, Any]],
+    algo: str,
+    key_builder: Callable[[str], str],
+    scan_pattern: str,
+) -> AlgoUpdateResult:
+    """Update theoretical prices and clear stale markets.
+
+    This is the main entry point for algos to update their signals.
+
+    1. Write {algo}:t_bid and {algo}:t_ask for each signal
+    2. Publish event updates to notify tracker
+    3. Scan for algo-owned markets
+    4. Clear stale (owned but not in signals)
+
+    Note: Tracker is responsible for setting algo/direction fields.
+    """
+    succeeded, failed, metadata_field_names = await _write_signals(
+        redis,
+        signals,
+        algo,
+        key_builder,
+    )
+
+    owned_tickers = await scan_algo_active_markets(redis, scan_pattern, algo)
+    stale_tickers = owned_tickers - set(signals.keys())
+    stale_cleared = await clear_stale_markets(
+        redis,
+        stale_tickers,
+        algo,
+        key_builder,
+        frozenset(metadata_field_names),
+    )
 
     for ticker in stale_cleared:
         market_key = key_builder(ticker)
@@ -258,6 +281,28 @@ async def update_and_clear_stale(
     return AlgoUpdateResult(succeeded=succeeded, failed=failed, stale_cleared=stale_cleared)
 
 
+async def write_algo_metadata(
+    redis: "Redis",
+    market_key: str,
+    algo: str,
+    metadata: dict[str, Any],
+) -> None:
+    """Write algo-specific metadata fields to a market hash.
+
+    Builds mapping with namespaced keys: {algo}:{field} for each entry in metadata.
+    Single HSET call to write all fields atomically.
+
+    Args:
+        redis: Redis client
+        market_key: Redis key for the market hash
+        algo: Algorithm name (validated against canonical set)
+        metadata: Dict of {field_name: value} to write
+    """
+    validate_algo_name(algo)
+    mapping = {algo_field(algo, k): str(v) for k, v in metadata.items()}
+    await ensure_awaitable(redis.hset(market_key, mapping=mapping))
+
+
 __all__ = [
     "algo_field",
     "AlgoUpdateResult",
@@ -270,4 +315,5 @@ __all__ = [
     "request_market_update",
     "scan_algo_active_markets",
     "update_and_clear_stale",
+    "write_algo_metadata",
 ]

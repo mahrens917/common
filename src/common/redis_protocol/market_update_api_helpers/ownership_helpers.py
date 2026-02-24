@@ -67,24 +67,29 @@ async def clear_stale_markets(
     stale_tickers: Set[str],
     algo: str,
     key_builder: Callable[[str], str],
+    metadata_fields: frozenset[str] = frozenset(),
 ) -> List[str]:
     """Clear stale markets for this algo.
 
     Removes {algo}:t_bid, {algo}:t_ask, {algo}:direction, {algo}:status,
-    {algo}:reason fields.
+    {algo}:reason fields, plus any algo-namespaced metadata fields.
     """
     cleared: List[str] = []
-    bid_field = algo_field(algo, "t_bid")
-    ask_field = algo_field(algo, "t_ask")
-    direction_field = algo_field(algo, "direction")
-    status_field = algo_field(algo, "status")
-    reason_field = algo_field(algo, "reason")
+    base_fields = [
+        algo_field(algo, "t_bid"),
+        algo_field(algo, "t_ask"),
+        algo_field(algo, "direction"),
+        algo_field(algo, "status"),
+        algo_field(algo, "reason"),
+    ]
+    extra_fields = [algo_field(algo, f) for f in sorted(metadata_fields)]
+    all_fields = base_fields + extra_fields
 
     for ticker in stale_tickers:
         market_key = key_builder(ticker)
 
         await with_redis_retry(
-            lambda mk=market_key: ensure_awaitable(redis.hdel(mk, bid_field, ask_field, direction_field, status_field, reason_field)),
+            lambda mk=market_key: ensure_awaitable(redis.hdel(mk, *all_fields)),
             context=f"hdel_stale:{ticker}",
         )
         cleared.append(ticker)

@@ -253,4 +253,39 @@ class RetryRedisCollectionMixin:
         )
 
 
-__all__ = ["RetryRedisCollectionMixin", "RetryRedisHashMixin", "RetryRedisSortedSetMixin"]
+class RetryRedisSetMixin:
+    """Set operations with retry."""
+
+    _client: Any
+    _policy: Optional[RedisRetryPolicy]
+
+    async def sadd(self, name: str, *values: Any, context: str = "sadd") -> Any:
+        return await with_redis_retry(
+            lambda: ensure_awaitable(self._client.sadd(name, *values)),
+            context=context,
+            policy=self._policy,
+        )
+
+    async def srem(self, name: str, *values: Any, context: str = "srem") -> Any:
+        return await with_redis_retry(
+            lambda: ensure_awaitable(self._client.srem(name, *values)),
+            context=context,
+            policy=self._policy,
+        )
+
+    async def smembers(self, name: str, *, context: str = "smembers") -> Any:
+        return await with_redis_retry(
+            lambda: ensure_awaitable(self._client.smembers(name)),
+            context=context,
+            policy=self._policy,
+        )
+
+    async def sismember(self, name: str, value: Any, *, context: str = "sismember") -> Any:
+        return await with_redis_retry(
+            lambda: ensure_awaitable(self._client.sismember(name, value)),
+            context=context,
+            policy=self._policy,
+        )
+
+
+__all__ = ["RetryRedisCollectionMixin", "RetryRedisHashMixin", "RetryRedisSetMixin", "RetryRedisSortedSetMixin"]

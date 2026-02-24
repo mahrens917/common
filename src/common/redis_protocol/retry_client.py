@@ -5,13 +5,13 @@ from __future__ import annotations
 from typing import Any, List, Optional
 
 from .retry import RedisRetryPolicy, with_redis_retry
-from .retry_client_mixins import RetryRedisCollectionMixin, RetryRedisHashMixin, RetryRedisSortedSetMixin
+from .retry_client_mixins import RetryRedisCollectionMixin, RetryRedisHashMixin, RetryRedisSetMixin, RetryRedisSortedSetMixin
 from .retry_client_stream_mixin import RetryRedisStreamMixin
-from .retry_pipeline_mixins import RetryPipelineHashMixin, RetryPipelineSortedSetMixin
+from .retry_pipeline_mixins import RetryPipelineHashMixin, RetryPipelineSetMixin, RetryPipelineSortedSetMixin
 from .typing import ensure_awaitable
 
 
-class RetryPipeline(RetryPipelineHashMixin, RetryPipelineSortedSetMixin):
+class RetryPipeline(RetryPipelineHashMixin, RetryPipelineSetMixin, RetryPipelineSortedSetMixin):
     """Pipeline wrapper that retries execute() on transient errors."""
 
     def __init__(self, pipeline: Any, *, policy: Optional[RedisRetryPolicy] = None) -> None:
@@ -60,7 +60,7 @@ class RetryPipeline(RetryPipelineHashMixin, RetryPipelineSortedSetMixin):
         )
 
 
-class RetryRedisClient(RetryRedisHashMixin, RetryRedisSortedSetMixin, RetryRedisCollectionMixin, RetryRedisStreamMixin):
+class RetryRedisClient(RetryRedisHashMixin, RetryRedisSetMixin, RetryRedisSortedSetMixin, RetryRedisCollectionMixin, RetryRedisStreamMixin):
     """Redis client wrapper with automatic operation-level retry."""
 
     def __init__(self, redis_client: Any, *, policy: Optional[RedisRetryPolicy] = None) -> None:
