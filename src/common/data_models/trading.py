@@ -295,3 +295,26 @@ class MarketValidationData:
             self.last_price_cents,
             self.timestamp,
         )
+
+
+_MAX_BATCH_SIZE = 20
+_MIN_BATCH_SIZE = 1
+
+
+@dataclass
+class BatchOrderResult:
+    """Result for a single order within a batch submission.
+
+    Each entry maps to one order in the batch request, preserving
+    the original index for correlation with the input list.
+    """
+
+    order_index: int
+    order_response: Optional[OrderResponse]
+    error_code: Optional[str]
+    error_message: Optional[str]
+
+    @property
+    def succeeded(self) -> bool:
+        """Whether this individual order was accepted."""
+        return self.order_response is not None and self.error_code is None

@@ -6,7 +6,14 @@ import inspect
 import logging
 from typing import TYPE_CHECKING, Any, Dict, List, Optional
 
-from common.data_models.trading import OrderRequest, OrderResponse
+from common.data_models.trading import (
+    _MAX_BATCH_SIZE,
+    _MIN_BATCH_SIZE,
+    BatchOrderResult,
+    OrderRequest,
+    OrderResponse,
+    OrderStatus,
+)
 from common.redis_protocol.error_types import REDIS_ERRORS
 from common.trading.order_payloads import build_order_payload
 
@@ -143,3 +150,95 @@ class OrderOperations:
                 raise KalshiClientError("Fill entry must be a JSON object")
             normalised.append(self._response_parser.normalise_fill(item))
         return normalised
+
+    async def batch_create_orders(self, order_requests: List[OrderRequest]) -> List[BatchOrderResult]:
+        """Submit a batch of orders in a single API call.
+
+        Uses POST /trade-api/v2/portfolio/orders/batched.
+        Maximum 20 orders per batch.
+        """
+        if len(order_requests) < _MIN_BATCH_SIZE:
+            raise KalshiClientError("Batch must contain at least one order")
+        if len(order_requests) > _MAX_BATCH_SIZE:
+            raise KalshiClientError(f"Batch size {len(order_requests)} exceeds maximum of {_MAX_BATCH_SIZE}")
+
+        payloads = _build_batch_payloads(order_requests)
+        batch_payload = {"orders": payloads}
+        logger.debug("Submitting batch of %d orders", len(payloads))
+        response = await self._execute_order_request(
+            "POST",
+            "/trade-api/v2/portfolio/orders/batched",
+            batch_payload,
+            "batch_create_orders",
+        )
+        return _parse_batch_response(response, order_requests)
+
+
+def _build_batch_payloads(order_requests: List[OrderRequest]) -> List[Dict[str, Any]]:
+    """Build order payloads for a batch request."""
+    payloads = []
+    for req in order_requests:
+        try:
+            payloads.append(build_order_payload(req))
+        except ValueError as exc:
+            raise KalshiClientError(str(exc)) from exc
+    return payloads
+
+
+def _parse_batch_response(
+    response: Any,
+    order_requests: List[OrderRequest],
+) -> List[BatchOrderResult]:
+    """Parse the batch order API response into BatchOrderResult list."""
+    if not isinstance(response, dict):
+        raise KalshiClientError("Batch response was not a JSON object")
+
+    orders_raw = response.get("orders")
+    if not isinstance(orders_raw, list):
+        raise KalshiClientError("Batch response missing 'orders' list")
+
+    if len(orders_raw) != len(order_requests):
+        raise KalshiClientError(f"Batch response count {len(orders_raw)} does not match request count {len(order_requests)}")
+
+    results: List[BatchOrderResult] = []
+    for idx, entry in enumerate(orders_raw):
+        if not isinstance(entry, dict):
+            raise KalshiClientError(f"Batch response entry {idx} is not a JSON object")
+
+        error_code = entry.get("error_code")
+        error_message = entry.get("error_message")
+        order_response: Optional[OrderResponse] = None
+
+        if error_code is None and "order_id" in entry:
+            raw_status = entry.get("status")
+            if raw_status is None:
+                raise KalshiClientError(f"Batch response entry {idx} missing 'status' field")
+            order_response = OrderResponse(
+                order_id=entry["order_id"],
+                status=_parse_batch_order_status(raw_status),
+                ticker=order_requests[idx].ticker,
+                side=order_requests[idx].side,
+                action=order_requests[idx].action,
+                order_type=order_requests[idx].order_type,
+                trade_rule=order_requests[idx].trade_rule,
+                trade_reason=order_requests[idx].trade_reason,
+                client_order_id=order_requests[idx].client_order_id,
+            )
+
+        results.append(
+            BatchOrderResult(
+                order_index=idx,
+                order_response=order_response,
+                error_code=error_code,
+                error_message=error_message,
+            )
+        )
+    return results
+
+
+def _parse_batch_order_status(raw_status: str) -> OrderStatus:
+    """Parse a status string from a batch response entry."""
+    try:
+        return OrderStatus(raw_status.lower())
+    except ValueError as exc:
+        raise KalshiClientError(f"Unknown batch order status: {raw_status}") from exc

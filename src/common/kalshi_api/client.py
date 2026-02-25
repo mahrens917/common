@@ -7,7 +7,7 @@ from dataclasses import dataclass
 from typing import TYPE_CHECKING, Any, Optional
 
 from common.config.shared import get_kalshi_credentials
-from common.data_models.trading import PortfolioBalance
+from common.data_models.trading import BatchOrderResult, OrderRequest, PortfolioBalance
 
 from .client_bindings import bind_client_methods
 from .client_helpers import (
@@ -152,6 +152,10 @@ class KalshiClient:
 
     async def get_fills(self, order_id: str) -> list[dict[str, Any]]:
         """Get fills for an order."""
+        raise NotImplementedError
+
+    async def batch_create_orders(self, order_requests: list[OrderRequest]) -> list[BatchOrderResult]:
+        """Submit a batch of orders in a single API call."""
         raise NotImplementedError
 
     async def get_exchange_status(self) -> dict[str, bool]:

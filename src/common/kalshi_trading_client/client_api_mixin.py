@@ -10,6 +10,7 @@ from .client_helpers.backoff_retry import with_backoff_retry
 
 if TYPE_CHECKING:
     from ..data_models.trading import (
+        BatchOrderResult,
         OrderRequest,
         OrderResponse,
         PortfolioBalance,
@@ -46,6 +47,9 @@ class KalshiTradingClientAPIMixin:
 
     async def create_order(self, order_request: OrderRequest) -> OrderResponse:
         return await self._api.create_order(order_request)
+
+    async def batch_create_orders(self, order_requests: list["OrderRequest"]) -> list["BatchOrderResult"]:
+        return await self._api.batch_create_orders(order_requests)
 
     async def cancel_order(self, order_id: str) -> bool:
         return await self._api.cancel_order(order_id)

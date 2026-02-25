@@ -7,6 +7,7 @@ from typing import Any, Dict, List, Optional
 import aiohttp
 
 from common.data_models.trading import (
+    BatchOrderResult,
     OrderRequest,
     OrderResponse,
     PortfolioBalance,
@@ -15,6 +16,12 @@ from common.data_models.trading import (
 from common.trading.order_payloads import build_order_payload
 
 from .client_helpers import KalshiClientError
+from .client_helpers.property_accessors import get_initialized as _get_initialized
+from .client_helpers.property_accessors import get_session_lock as _get_session_lock
+from .client_helpers.property_accessors import get_trade_store as _get_trade_store
+from .client_helpers.property_accessors import set_initialized as _set_initialized
+from .client_helpers.property_accessors import set_session_lock as _set_session_lock
+from .client_helpers.property_accessors import set_trade_store as _set_trade_store
 
 HTTP_ERROR_STATUS_THRESHOLD = 400
 
@@ -291,6 +298,13 @@ def _parse_order_response_impl(
     return response_parser.parse_order_response(payload, trade_rule, trade_reason)
 
 
+async def _batch_create_orders_impl(client, order_requests: List[OrderRequest]) -> List[BatchOrderResult]:
+    order_ops = getattr(client, "_order_ops", None)
+    if order_ops is None:
+        raise KalshiClientError("Order operations not initialized")
+    return await order_ops.batch_create_orders(order_requests)
+
+
 def _parse_order_fill_impl(client, payload: Dict[str, Any]) -> Dict[str, Any]:
     response_parser = getattr(client, "_response_parser", None)
     if response_parser is None:
@@ -308,44 +322,6 @@ def _normalise_fill(client, payload: Dict[str, Any]) -> Dict[str, Any]:
     if response_parser is None:
         raise KalshiClientError("Response parser not initialized")
     return response_parser.normalise_fill(payload)
-
-
-def _get_session_lock(client):
-    manager = getattr(client, "_session_manager", None)
-    if manager is not None:
-        lock = manager.session_lock
-        client.__dict__["_cached_session_lock"] = lock
-        return lock
-    return client.__dict__.get("_cached_session_lock", None)
-
-
-def _set_session_lock(client, value) -> None:
-    manager = getattr(client, "_session_manager", None)
-    if manager is None:
-        client.__dict__["_cached_session_lock"] = value
-        return
-    manager.set_session_lock(value)
-    client.__dict__["_cached_session_lock"] = value
-
-
-def _get_initialized(client) -> bool:
-    initialized = client.__dict__.get("_initialized", None)
-    result = False
-    if initialized is not None:
-        result = bool(initialized)
-    return result
-
-
-def _set_initialized(client, value: bool) -> None:
-    setattr(client, "_initialized", value)
-
-
-def _get_trade_store(client) -> Optional[Any]:
-    return client.__dict__.get("_trade_store", None)
-
-
-def _set_trade_store(client, value: Optional[Any]) -> None:
-    setattr(client, "_trade_store", value)
 
 
 def bind_client_methods(client_cls, session_getter, session_setter) -> None:
@@ -378,6 +354,7 @@ def bind_client_methods(client_cls, session_getter, session_setter) -> None:
     client_cls.get_portfolio_balance = _get_portfolio_balance_impl
     client_cls.get_portfolio_positions = _get_portfolio_positions_impl
     client_cls.create_order = _create_order_impl
+    client_cls.batch_create_orders = _batch_create_orders_impl
     client_cls.cancel_order = _cancel_order_impl
     client_cls.get_order = _get_order_impl
     client_cls.get_fills = _get_fills_impl
