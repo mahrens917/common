@@ -11,7 +11,6 @@ import logging
 
 from common.exceptions import ValidationError
 from common.price_history_utils import build_history_member, generate_redis_key, validate_currency
-from common.redis_protocol.config import HISTORY_TTL_SECONDS
 from common.redis_protocol.typing import RedisClient, ensure_awaitable
 from common.time_utils import get_current_utc
 
@@ -70,13 +69,8 @@ class PriceHistoryRecorder:
             redis_key = generate_redis_key(currency)
             score = float(int_ts)
             member = build_history_member(int_ts, float(price))
-            cutoff = float(int_ts - HISTORY_TTL_SECONDS)
 
-            pipe = client.pipeline()
-            pipe.zadd(redis_key, {member: score})
-            pipe.zremrangebyscore(redis_key, 0, cutoff)
-            pipe.expire(redis_key, HISTORY_TTL_SECONDS)
-            await ensure_awaitable(pipe.execute())
+            await ensure_awaitable(client.zadd(redis_key, {member: score}))
 
             logger.debug(f"Recorded {currency} price history: ${price:.2f} at {datetime_str}")
 

@@ -7,8 +7,6 @@ from typing import TYPE_CHECKING
 
 from redis.asyncio import Redis
 
-from ...connection_helpers import ensure_or_raise
-
 if TYPE_CHECKING:
     from ..connection import RedisConnectionManager
 
@@ -39,18 +37,6 @@ class ConnectionManager:
         Raises:
             RuntimeError: If Redis connection cannot be established
         """
-        if not await self._ensure_connection():
-            raise RuntimeError("Failed to establish Redis connection")
-
-        return await self._connection.get_redis()
-
-    async def _ensure_connection(self) -> bool:
-        """
-        Ensure that a healthy Redis client is available.
-
-        Returns:
-            True if connection is healthy, False otherwise
-        """
         try:
             redis = await self._connection.get_redis()
             await redis.ping()
@@ -58,20 +44,16 @@ class ConnectionManager:
             RuntimeError,
             ConnectionError,
             AttributeError,
-        ) as exc:  # Transient network/connection failure  # policy_guard: allow-silent-handler
+        ) as exc:
             self._logger.error("Failed to ensure Redis connection: %s", exc, exc_info=True)
-            return False
-        else:
-            return True
+            raise RuntimeError("Failed to establish Redis connection") from exc
+        return redis
 
     async def ensure_connection_or_raise(self, operation: str) -> None:
         """
         Ensure Redis connection or raise an error with operation context.
 
-        Args:
-            operation: Name of the operation being performed
-
         Raises:
             RuntimeError: If Redis connection cannot be established
         """
-        await ensure_or_raise(self._ensure_connection, operation=operation, logger=self._logger)
+        await self.get_redis()

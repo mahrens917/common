@@ -223,6 +223,9 @@ class SubscriptionDelegator:
     async def add_subscribed_market(self, market_ticker: str, *, category: Optional[str] = None) -> bool:
         return await self._subscription.add_subscribed_market(market_ticker, category=category)
 
+    async def bulk_add_subscribed_markets(self, market_tickers: List[str]) -> int:
+        return await self._subscription.bulk_add_subscribed_markets(market_tickers)
+
     async def remove_subscribed_market(
         self,
         market_ticker: str,

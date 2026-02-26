@@ -120,7 +120,7 @@ async def test_write_to_history_redis_records_data(monkeypatch):
     history_key = "history:kalshi"
     assert history_key in fake_client.history
     assert len(fake_client.history[history_key]) == 1
-    assert fake_client.expire_calls == [(history_key, 86400)]
+    assert fake_client.expire_calls == []
 
 
 @pytest.mark.asyncio

@@ -18,7 +18,7 @@ MAX_SETTLEMENT_PRICE_CENTS = 100
 # Canonical set of algorithm names recognized by the trading system.
 # Single source of truth — producers and tracker both validate against this set.
 # Update only here when adding a new algo.
-VALID_ALGO_NAMES: frozenset[str] = frozenset({"crossarb", "peak", "edge", "weather", "pdf", "whale", "strike", "total", "dutch"})
+VALID_ALGO_NAMES: frozenset[str] = frozenset({"crossarb", "peak", "edge", "weather", "pdf", "whale", "strike", "dutch"})
 
 __all__ = [
     "MIN_PRICE_CENTS",

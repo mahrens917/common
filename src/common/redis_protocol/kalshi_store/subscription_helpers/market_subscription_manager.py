@@ -3,7 +3,7 @@ Market subscription management for KalshiSubscriptionTracker
 """
 
 import logging
-from typing import Optional, Set
+from typing import Optional, Sequence, Set
 
 from ...error_types import REDIS_ERRORS
 
@@ -68,6 +68,30 @@ class MarketSubscriptionManager:
             raise
         else:
             return True
+
+    async def bulk_add_subscribed_markets(self, market_tickers: Sequence[str]) -> int:
+        """Add multiple markets using a single Redis pipeline.
+
+        Args:
+            market_tickers: Market tickers to subscribe to
+
+        Returns:
+            Number of markets added
+        """
+        if not market_tickers:
+            return 0
+        try:
+            redis = await self._get_redis()
+            pipeline = redis.pipeline(transaction=False)
+            for ticker in market_tickers:
+                subscription_key = f"{self.service_prefix}:{ticker}"
+                pipeline.hset(self.subscriptions_key, subscription_key, "1")
+            await pipeline.execute()
+        except REDIS_ERRORS as exc:
+            logger.error("Error bulk-adding %d subscribed markets: %s", len(market_tickers), exc, exc_info=True)
+            raise
+        else:
+            return len(market_tickers)
 
     async def remove_subscribed_market(self, market_ticker: str, *, category: Optional[str] = None) -> bool:
         """

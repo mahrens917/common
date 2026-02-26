@@ -89,3 +89,40 @@ async def test_remove_subscribed_market_handles_redis_error(monkeypatch):
 
     with pytest.raises(DummyRedisError):
         await manager.remove_subscribed_market("KXHIGHTEST")
+
+
+@pytest.mark.asyncio
+async def test_bulk_add_empty_tickers():
+    manager = market_subscription_manager.MarketSubscriptionManager(AsyncMock(), "subs:key", "ws")
+    result = await manager.bulk_add_subscribed_markets([])
+    assert result == 0
+
+
+@pytest.mark.asyncio
+async def test_bulk_add_subscribed_markets():
+    pipe = MagicMock()
+    pipe.hset = MagicMock()
+    pipe.execute = AsyncMock(return_value=[1, 1])
+    redis = MagicMock()
+    redis.pipeline = MagicMock(return_value=pipe)
+    manager = market_subscription_manager.MarketSubscriptionManager(AsyncMock(return_value=redis), "subs:key", "ws")
+
+    result = await manager.bulk_add_subscribed_markets(["TICKER1", "TICKER2"])
+
+    assert result == 2
+    pipe.hset.assert_any_call("subs:key", "ws:TICKER1", "1")
+    pipe.hset.assert_any_call("subs:key", "ws:TICKER2", "1")
+
+
+@pytest.mark.asyncio
+async def test_bulk_add_subscribed_markets_handles_redis_error(monkeypatch):
+    pipe = MagicMock()
+    pipe.hset = MagicMock()
+    pipe.execute = AsyncMock(side_effect=DummyRedisError("boom"))
+    redis = MagicMock()
+    redis.pipeline = MagicMock(return_value=pipe)
+    monkeypatch.setattr(market_subscription_manager, "REDIS_ERRORS", (DummyRedisError,))
+    manager = market_subscription_manager.MarketSubscriptionManager(AsyncMock(return_value=redis), "subs:key", "ws")
+
+    with pytest.raises(DummyRedisError):
+        await manager.bulk_add_subscribed_markets(["TICKER1"])

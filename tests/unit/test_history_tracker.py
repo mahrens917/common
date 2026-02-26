@@ -35,7 +35,6 @@ async def test_record_service_update_success(monkeypatch):
 
     assert result is True
     redis.zadd.assert_awaited_once_with(f"{HISTORY_KEY_PREFIX}kalshi", {"1700000000:12.5": 1_700_000_000})
-    redis.expire.assert_awaited_once_with(f"{HISTORY_KEY_PREFIX}kalshi", HISTORY_TTL_SECONDS)
 
 
 @pytest.mark.asyncio
@@ -81,17 +80,10 @@ async def test_get_service_history_handles_error(monkeypatch):
 
 
 # PriceHistoryTracker -------------------------------------------------------------
-def _make_price_redis(*, zadd_result=1, expire_result=True, zrangebyscore_result: List[Tuple[str, float]] | None = None):
+def _make_price_redis(*, zadd_result=1, zrangebyscore_result: List[Tuple[str, float]] | None = None):
     redis = MagicMock()
     redis.close = AsyncMock(return_value=None)
-    redis.pipeline = MagicMock(
-        return_value=MagicMock(
-            zadd=MagicMock(return_value=None),
-            zremrangebyscore=MagicMock(return_value=None),
-            expire=MagicMock(return_value=None),
-            execute=AsyncMock(return_value=[zadd_result, 0, expire_result]),
-        )
-    )
+    redis.zadd = AsyncMock(return_value=zadd_result)
     redis.zrangebyscore = AsyncMock(return_value=zrangebyscore_result or [])
     return redis
 
@@ -109,8 +101,7 @@ async def test_record_price_update_success(monkeypatch):
     result = await tracker.record_price_update("BTC", 45_000)
 
     assert result is True
-    pipeline = redis.pipeline.return_value
-    pipeline.execute.assert_awaited_once()
+    redis.zadd.assert_called_once()
 
 
 @pytest.mark.asyncio

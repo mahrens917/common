@@ -6,7 +6,7 @@ tracking subscribed markets, subscription IDs, and service status.
 """
 
 import logging
-from typing import Any, Awaitable, Callable, Dict, Optional, Sequence, Set, TypeVar
+from typing import Any, Awaitable, Callable, Dict, List, Optional, Sequence, Set, TypeVar
 
 from .connection import RedisConnectionManager
 from .subscription_helpers import (
@@ -80,6 +80,13 @@ class MarketSubscriptionMixin:
             self._market_subscription_manager.add_subscribed_market,
             market_ticker,
             category=category,
+        )
+
+    async def bulk_add_subscribed_markets(self, market_tickers: List[str]) -> int:
+        return await self._execute_with_connection(
+            "bulk_add_subscribed_markets",
+            self._market_subscription_manager.bulk_add_subscribed_markets,
+            market_tickers,
         )
 
     async def remove_subscribed_market(self, market_ticker: str, *, category: Optional[str] = None) -> bool:

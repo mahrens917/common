@@ -76,7 +76,6 @@ class HistoryTracker:
             redis_key = f"{HISTORY_KEY_PREFIX}{service_name}"
             member = f"{current_timestamp}:{updates_per_second}"
             await ensure_awaitable(client.zadd(redis_key, {member: current_timestamp}))
-            await ensure_awaitable(client.expire(redis_key, HISTORY_TTL_SECONDS))
             logger.debug(
                 "Recorded %s history: %s updates/sec at %s",
                 service_name,

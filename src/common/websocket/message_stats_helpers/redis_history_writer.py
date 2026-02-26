@@ -10,7 +10,6 @@ from ...redis_utils import RedisOperationError
 logger = logging.getLogger(__name__)
 
 REDIS_WRITE_ERRORS = REDIS_ERRORS + (RedisOperationError, ConnectionError, RuntimeError, ValueError)
-MESSAGE_HISTORY_TTL = 86400
 
 
 async def write_message_count_to_redis(
@@ -36,13 +35,10 @@ async def write_message_count_to_redis(
         history_key = f"history:{service_name}"
         score = float(int_ts)
         member = build_history_member(int_ts, float(message_count))
-        cutoff = float(int_ts - MESSAGE_HISTORY_TTL)
 
         pipe = redis_client.pipeline()
         pipe.zremrangebyscore(history_key, score, score)
         pipe.zadd(history_key, {member: score})
-        pipe.zremrangebyscore(history_key, 0, cutoff)
-        pipe.expire(history_key, MESSAGE_HISTORY_TTL)
         await ensure_awaitable(pipe.execute())
 
         logger.debug(f"{service_name.upper()}_HISTORY: Recorded {message_count} messages at ts={int_ts}")
