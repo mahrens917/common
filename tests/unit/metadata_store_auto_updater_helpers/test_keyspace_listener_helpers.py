@@ -3,6 +3,8 @@ from unittest.mock import AsyncMock, MagicMock, Mock, patch
 
 import pytest
 
+RETRY_CALL_COUNT = 3
+
 from common.metadata_store_auto_updater_helpers.keyspace_listener import KeyspaceListener
 from common.metadata_store_auto_updater_helpers.keyspace_listener_helpers.event_handler import (
     EventHandler,
@@ -154,7 +156,7 @@ class TestPubsubManager:
         async def health_check_then_shutdown():
             nonlocal call_count
             call_count += 1
-            if call_count >= 3:
+            if call_count >= RETRY_CALL_COUNT:
                 manager.request_shutdown()
             return False
 
@@ -168,7 +170,7 @@ class TestPubsubManager:
 
             await manager.listen_with_retry()
 
-            assert call_count == 3
+            assert call_count == RETRY_CALL_COUNT
 
     @pytest.mark.asyncio
     async def test_listen_with_retry_redis_error(self, manager, mock_redis):
@@ -178,7 +180,7 @@ class TestPubsubManager:
         def pubsub_with_shutdown():
             nonlocal call_count
             call_count += 1
-            if call_count >= 3:
+            if call_count >= RETRY_CALL_COUNT:
                 manager.request_shutdown()
             raise original_side_effect
 
@@ -194,7 +196,7 @@ class TestPubsubManager:
 
             await manager.listen_with_retry()
 
-            assert call_count == 3
+            assert call_count == RETRY_CALL_COUNT
 
     @pytest.mark.asyncio
     async def test_listen_shutdown_requested(self, manager):
