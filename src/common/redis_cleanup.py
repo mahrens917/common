@@ -29,7 +29,8 @@ _KEY_RETENTION: list[tuple[str, int]] = [
     ("weather:station_history:", _WEATHER_STATION_RETENTION_SECONDS),
 ]
 
-_SKIP_PREFIXES = ("balance:",)
+_SKIP_PREFIXES = ("balance:", "trades:by_")
+_SKIP_INFIXES = (":order-",)
 
 _SCAN_PATTERNS = ("trades:*", "history:*", "weather:station_history:*")
 
@@ -38,6 +39,9 @@ def _get_retention_seconds(key: str) -> int | None:
     """Return retention seconds for a key, or None to skip."""
     for prefix in _SKIP_PREFIXES:
         if key.startswith(prefix):
+            return None
+    for infix in _SKIP_INFIXES:
+        if infix in key:
             return None
     for prefix, retention in _KEY_RETENTION:
         if key.startswith(prefix):

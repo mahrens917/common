@@ -56,6 +56,10 @@ class RetryPipelineSortedSetMixin:
         self._pipeline.zrangebyscore(name, min_score, max_score, withscores=withscores)
         return self
 
+    def zcard(self, name: str) -> Self:
+        self._pipeline.zcard(name)
+        return self
+
     def zcount(self, name: str, min_score: Any, max_score: Any) -> Self:
         self._pipeline.zcount(name, min_score, max_score)
         return self

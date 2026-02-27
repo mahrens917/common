@@ -149,25 +149,40 @@ class TestPubsubManager:
 
     @pytest.mark.asyncio
     async def test_listen_with_retry_health_check_failure(self, manager):
+        call_count = 0
+
+        async def health_check_then_shutdown():
+            nonlocal call_count
+            call_count += 1
+            if call_count >= 3:
+                manager.request_shutdown()
+            return False
+
         with (
             patch(
                 "common.metadata_store_auto_updater_helpers.keyspace_listener_helpers.pubsub_manager.perform_redis_health_check",
-                return_value=False,
+                side_effect=health_check_then_shutdown,
             ),
             patch("asyncio.sleep", return_value=None),
         ):
 
             await manager.listen_with_retry()
 
-            # Should try 5 times (max_retries)
-            # Since health check returns False, it raises ConnectionError caught in loop
-            # The loop runs until max_retries is hit or successful break
-            # Here it hits max retries
+            assert call_count == 3
 
     @pytest.mark.asyncio
     async def test_listen_with_retry_redis_error(self, manager, mock_redis):
-        # Mock pubsub to raise error
-        mock_redis.pubsub.side_effect = ConnectionError("Redis down")
+        call_count = 0
+        original_side_effect = ConnectionError("Redis down")
+
+        def pubsub_with_shutdown():
+            nonlocal call_count
+            call_count += 1
+            if call_count >= 3:
+                manager.request_shutdown()
+            raise original_side_effect
+
+        mock_redis.pubsub.side_effect = pubsub_with_shutdown
 
         with (
             patch(
@@ -179,7 +194,7 @@ class TestPubsubManager:
 
             await manager.listen_with_retry()
 
-            assert mock_redis.pubsub.call_count == 5
+            assert call_count == 3
 
     @pytest.mark.asyncio
     async def test_listen_shutdown_requested(self, manager):

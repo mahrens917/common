@@ -149,6 +149,13 @@ class RetryRedisSortedSetMixin:
             policy=self._policy,
         )
 
+    async def zcard(self, name: str, *, context: str = "zcard") -> Any:
+        return await with_redis_retry(
+            lambda: ensure_awaitable(self._client.zcard(name)),
+            context=context,
+            policy=self._policy,
+        )
+
     async def zcount(self, name: str, min_score: Any, max_score: Any, *, context: str = "zcount") -> Any:
         return await with_redis_retry(
             lambda: ensure_awaitable(self._client.zcount(name, min_score, max_score)),

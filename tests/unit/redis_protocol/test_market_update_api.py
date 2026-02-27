@@ -503,7 +503,7 @@ class TestUpdateAndClearStale:
 
         result = await update_and_clear_stale(
             mock_redis,
-            {"TEST1": {"t_bid": 50.0, "t_ask": 55.0, "bl_spread": 0.03, "svi_rmse": 0.01}},
+            {"TEST1": {"t_bid": 50.0, "t_ask": 55.0, "t_spread": 0.03, "svi_rmse": 0.01}},
             "pdf",
             mock_key_builder,
             "markets:kalshi:*",
@@ -514,7 +514,7 @@ class TestUpdateAndClearStale:
         assert mock_redis.hset.call_count == _EXPECTED_HSET_CALLS
         metadata_call = mock_redis.hset.call_args_list[1]
         mapping = metadata_call.kwargs["mapping"]
-        assert mapping["pdf:bl_spread"] == "0.03"
+        assert mapping["pdf:t_spread"] == "0.03"
         assert mapping["pdf:svi_rmse"] == "0.01"
 
     @pytest.mark.asyncio
@@ -541,7 +541,7 @@ class TestUpdateAndClearStale:
 
         result = await update_and_clear_stale(
             mock_redis,
-            {"TEST1": {"t_bid": 50.0, "bl_spread": 0.03}},
+            {"TEST1": {"t_bid": 50.0, "t_spread": 0.03}},
             "pdf",
             mock_key_builder,
             "markets:kalshi:*",
@@ -549,7 +549,7 @@ class TestUpdateAndClearStale:
 
         assert "STALE" in result.stale_cleared
         hdel_args = mock_redis.hdel.call_args[0]
-        assert "pdf:bl_spread" in hdel_args
+        assert "pdf:t_spread" in hdel_args
 
     @pytest.mark.asyncio
     async def test_write_failure_raises(self, mock_redis, mock_key_builder, monkeypatch):

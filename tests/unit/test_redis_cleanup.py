@@ -58,6 +58,13 @@ class TestGetRetentionSeconds:
     def test_balance_key_skipped(self):
         assert _get_retention_seconds("balance:kalshi") is None
 
+    def test_trades_by_date_skipped(self):
+        """trades:by_* keys are regular sets, not sorted sets."""
+        assert _get_retention_seconds("trades:by_date:2026-02-20") is None
+        assert _get_retention_seconds("trades:by_station:KAUS") is None
+        assert _get_retention_seconds("trades:by_rule:peak") is None
+        assert _get_retention_seconds("trades:by_category:weather") is None
+
     def test_unknown_key_skipped(self):
         assert _get_retention_seconds("some_other_key") is None
 

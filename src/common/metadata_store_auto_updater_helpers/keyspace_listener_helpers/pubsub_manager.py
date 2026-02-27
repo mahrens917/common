@@ -9,7 +9,7 @@ from common.redis_protocol.typing import RedisClient, ensure_awaitable
 
 logger = logging.getLogger(__name__)
 
-DEFAULT_KEYSPACE_LISTENER_MAX_RETRIES = 5
+_MAX_BACKOFF_SECONDS = 60
 
 REDIS_ERRORS = (
     Exception,  # Catch-all for Redis errors
@@ -36,18 +36,19 @@ class PubsubManager(ShutdownRequestMixin):
 
     async def listen_with_retry(self):
         """
-        Listen for keyspace notifications on history:* keys with retry logic
+        Listen for keyspace notifications on history:* keys with retry logic.
 
-        Retries up to DEFAULT_KEYSPACE_LISTENER_MAX_RETRIES times with exponential backoff.
+        Retries indefinitely with exponential backoff capped at _MAX_BACKOFF_SECONDS.
+        Resets backoff after a successful connection.
         """
-        max_retries = DEFAULT_KEYSPACE_LISTENER_MAX_RETRIES
         base_delay = 1.0
-        retry_count = 0
+        consecutive_failures = 0
 
-        while not self._shutdown_requested and retry_count < max_retries:
+        while not self._shutdown_requested:
             try:
                 # Verify Redis health before attempting connection
                 await self._verify_redis_health()
+                consecutive_failures = 0
 
                 # Start listening to keyspace notifications
                 await self._run_listen_loop()
@@ -61,7 +62,7 @@ class PubsubManager(ShutdownRequestMixin):
                 raise
             except REDIS_ERRORS as exc:  # Expected exception in operation  # policy_guard: allow-silent-handler
                 # Handle Redis errors with retry logic
-                retry_count = await self._handle_redis_error(exc, retry_count, max_retries, base_delay)
+                consecutive_failures = await self._handle_redis_error(exc, consecutive_failures, base_delay)
 
     async def _verify_redis_health(self):
         """Verify Redis is healthy before connecting."""
@@ -84,24 +85,19 @@ class PubsubManager(ShutdownRequestMixin):
         finally:
             await ensure_awaitable(pubsub.close())
 
-    async def _handle_redis_error(self, exc: Exception, retry_count: int, max_retries: int, base_delay: float) -> int:
-        """Handle Redis error with retry logic."""
-        retry_count += 1
+    async def _handle_redis_error(self, exc: Exception, consecutive_failures: int, base_delay: float) -> int:
+        """Handle Redis error with capped exponential backoff."""
+        consecutive_failures += 1
         logger.error(
-            "Error in keyspace listener (attempt %s/%s): %s",
-            retry_count,
-            max_retries,
+            "Error in keyspace listener (consecutive failure %s): %s",
+            consecutive_failures,
             exc,
             exc_info=True,
         )
 
-        if retry_count >= max_retries:
-            logger.error("Max retries exceeded for keyspace listener, giving up")
-            return retry_count
-
         if not self._shutdown_requested:
-            delay = base_delay * (2 ** (retry_count - 1))
-            logger.info(f"Retrying keyspace listener in {delay:.1f}s...")
+            delay = min(base_delay * (2 ** (consecutive_failures - 1)), _MAX_BACKOFF_SECONDS)
+            logger.info("Retrying keyspace listener in %.1f s...", delay)
             await asyncio.sleep(delay)
 
-        return retry_count
+        return consecutive_failures

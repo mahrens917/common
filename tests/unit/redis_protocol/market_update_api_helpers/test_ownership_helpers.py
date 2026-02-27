@@ -146,11 +146,11 @@ class TestClearStaleMarkets:
 
     @pytest.mark.asyncio
     async def test_clears_metadata_fields(self, mock_redis, key_builder):
-        metadata_fields = frozenset({"bl_spread", "svi_rmse"})
+        metadata_fields = frozenset({"t_spread", "svi_rmse"})
         await clear_stale_markets(mock_redis, {"TICKER1"}, "pdf", key_builder, metadata_fields)
 
         call_args = mock_redis.hdel.call_args[0]
         assert "pdf:t_bid" in call_args
         assert "pdf:t_ask" in call_args
-        assert "pdf:bl_spread" in call_args
+        assert "pdf:t_spread" in call_args
         assert "pdf:svi_rmse" in call_args
