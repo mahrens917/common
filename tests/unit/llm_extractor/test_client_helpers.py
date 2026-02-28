@@ -1,6 +1,5 @@
 """Tests for llm_extractor client helpers module."""
 
-import asyncio
 from unittest.mock import AsyncMock, MagicMock, patch
 
 import aiohttp
@@ -42,6 +41,17 @@ class TestExtractText:
         data = {"content": [{"type": "text", "text": "Hello world"}]}
         assert extract_text(data) == "Hello world"
 
+    def test_joins_multiple_text_blocks(self) -> None:
+        """Test that multiple text blocks are joined with newline."""
+        data = {
+            "content": [
+                {"type": "text", "text": "first"},
+                {"type": "tool_use", "id": "t1", "name": "web_search"},
+                {"type": "text", "text": "second"},
+            ]
+        }
+        assert extract_text(data) == "first\nsecond"
+
     def test_raises_on_missing_text(self) -> None:
         """Test that KeyError is raised when no text block."""
         data = {"content": [{"type": "image", "data": "..."}]}
@@ -54,14 +64,14 @@ class TestRequestWithRetries:
 
     @pytest.mark.asyncio
     async def test_successful_request(self) -> None:
-        """Test successful request returns text."""
-        accumulator = MagicMock()
+        """Test successful request returns full response dict."""
+        response_data = {"content": [{"type": "text", "text": "OK"}], "usage": {"input_tokens": 10, "output_tokens": 5}}
 
         with patch("common.llm_extractor._client_helpers.aiohttp.ClientSession") as mock_session_cls:
             mock_resp = MagicMock()
             mock_resp.status = 200
             mock_resp.raise_for_status = MagicMock()
-            mock_resp.json = AsyncMock(return_value={"content": [{"type": "text", "text": "OK"}], "usage": {}})
+            mock_resp.json = AsyncMock(return_value=response_data)
             mock_resp.__aenter__ = AsyncMock(return_value=mock_resp)
             mock_resp.__aexit__ = AsyncMock()
 
@@ -72,16 +82,15 @@ class TestRequestWithRetries:
 
             mock_session_cls.return_value = mock_session
 
-            result = await request_with_retries({"model": "test"}, {"x-api-key": "key"}, accumulator)
+            result = await request_with_retries({"model": "test"}, {"x-api-key": "key"})
 
-        assert result == "OK"
-        accumulator.assert_called_once()
+        assert result["content"][0]["text"] == "OK"
 
     @pytest.mark.asyncio
     async def test_retries_on_rate_limit(self) -> None:
         """Test that request retries on 429 status."""
-        accumulator = MagicMock()
         call_count = 0
+        response_data = {"content": [{"type": "text", "text": "OK"}], "usage": {"input_tokens": 10, "output_tokens": 5}}
 
         with patch("common.llm_extractor._client_helpers.aiohttp.ClientSession") as mock_session_cls:
             with patch("common.llm_extractor._client_helpers.asyncio.sleep", new_callable=AsyncMock) as mock_sleep:
@@ -96,7 +105,7 @@ class TestRequestWithRetries:
                     else:
                         mock_resp.status = 200
                         mock_resp.raise_for_status = MagicMock()
-                        mock_resp.json = AsyncMock(return_value={"content": [{"type": "text", "text": "OK"}], "usage": {}})
+                        mock_resp.json = AsyncMock(return_value=response_data)
                     mock_resp.__aenter__ = AsyncMock(return_value=mock_resp)
                     mock_resp.__aexit__ = AsyncMock()
                     return mock_resp
@@ -107,9 +116,9 @@ class TestRequestWithRetries:
                 mock_session.__aexit__ = AsyncMock()
                 mock_session_cls.return_value = mock_session
 
-                result = await request_with_retries({"model": "test"}, {"x-api-key": "key"}, accumulator)
+                result = await request_with_retries({"model": "test"}, {"x-api-key": "key"})
 
-        assert result == "OK"
+        assert result["content"][0]["text"] == "OK"
         expected_calls = 1 + 1  # rate-limited + success
         assert call_count == expected_calls
         mock_sleep.assert_called_once()
@@ -117,8 +126,8 @@ class TestRequestWithRetries:
     @pytest.mark.asyncio
     async def test_retries_on_server_error(self) -> None:
         """Test that request retries on 500+ status."""
-        accumulator = MagicMock()
         call_count = 0
+        response_data = {"content": [{"type": "text", "text": "OK"}], "usage": {"input_tokens": 10, "output_tokens": 5}}
 
         with patch("common.llm_extractor._client_helpers.aiohttp.ClientSession") as mock_session_cls:
             with patch("common.llm_extractor._client_helpers.asyncio.sleep", new_callable=AsyncMock) as mock_sleep:
@@ -133,7 +142,7 @@ class TestRequestWithRetries:
                     else:
                         mock_resp.status = 200
                         mock_resp.raise_for_status = MagicMock()
-                        mock_resp.json = AsyncMock(return_value={"content": [{"type": "text", "text": "OK"}], "usage": {}})
+                        mock_resp.json = AsyncMock(return_value=response_data)
                     mock_resp.__aenter__ = AsyncMock(return_value=mock_resp)
                     mock_resp.__aexit__ = AsyncMock()
                     return mock_resp
@@ -144,9 +153,9 @@ class TestRequestWithRetries:
                 mock_session.__aexit__ = AsyncMock()
                 mock_session_cls.return_value = mock_session
 
-                result = await request_with_retries({"model": "test"}, {"x-api-key": "key"}, accumulator)
+                result = await request_with_retries({"model": "test"}, {"x-api-key": "key"})
 
-        assert result == "OK"
+        assert result["content"][0]["text"] == "OK"
         expected_calls = 1 + 1  # server-error + success
         assert call_count == expected_calls
         mock_sleep.assert_called_once()
@@ -154,8 +163,6 @@ class TestRequestWithRetries:
     @pytest.mark.asyncio
     async def test_raises_after_max_retries_on_client_error(self) -> None:
         """Test that RuntimeError is raised after max retries on client error."""
-        accumulator = MagicMock()
-
         with patch("common.llm_extractor._client_helpers.aiohttp.ClientSession") as mock_session_cls:
             with patch("common.llm_extractor._client_helpers.asyncio.sleep", new_callable=AsyncMock):
                 mock_session = MagicMock()
@@ -165,4 +172,4 @@ class TestRequestWithRetries:
                 mock_session_cls.return_value = mock_session
 
                 with pytest.raises(RuntimeError, match=f"after {_MAX_RETRIES} retries"):
-                    await request_with_retries({"model": "test"}, {"x-api-key": "key"}, accumulator)
+                    await request_with_retries({"model": "test"}, {"x-api-key": "key"})

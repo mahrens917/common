@@ -14,8 +14,6 @@ logger = logging.getLogger(__name__)
 
 
 class RetryRedisStreamMixin:
-    """Stream operations with retry."""
-
     _client: Any
     _policy: Optional[RedisRetryPolicy]
 
@@ -104,8 +102,16 @@ class RetryRedisStreamMixin:
         mkstream: bool = False,
         context: str = "xgroup_create",
     ) -> Any:
+        async def _do_xgroup_create() -> Any:
+            try:
+                return await ensure_awaitable(self._client.xgroup_create(name, groupname, id=id, mkstream=mkstream))
+            except RedisError as exc:
+                if "BUSYGROUP" in str(exc):
+                    raise RedisFatalError(f"Consumer group '{groupname}' already exists on stream '{name}'") from exc
+                raise
+
         return await with_redis_retry(
-            lambda: ensure_awaitable(self._client.xgroup_create(name, groupname, id=id, mkstream=mkstream)),
+            _do_xgroup_create,
             context=context,
             policy=self._policy,
         )

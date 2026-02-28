@@ -34,6 +34,9 @@ package-dir = {"" = "src"}
 [tool.setuptools.packages]
 find = {where = ["src"], include = ["common*"]}
 
+[tool.setuptools.data-files]
+"lib/python/config" = ["config/*.json"]
+
 # =============================================================================
 # Repository-Specific Tool Configurations
 # =============================================================================

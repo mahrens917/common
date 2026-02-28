@@ -5,6 +5,7 @@ from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 
+from common.llm_extractor.client import MessageResponse
 from common.llm_extractor.extractor import (
     ExpiryAligner,
     KalshiDedupExtractor,
@@ -14,6 +15,11 @@ from common.llm_extractor.extractor import (
     get_ttl,
 )
 from common.llm_extractor.models import MarketExtraction
+
+
+def _msg(text: str) -> MessageResponse:
+    """Create a MessageResponse with default token counts."""
+    return MessageResponse(text=text, input_tokens=10, output_tokens=5)
 
 
 class TestGetRedisKey:
@@ -81,7 +87,7 @@ class TestKalshiUnderlyingExtractor:
         mock_redis.pipeline = MagicMock(return_value=mock_pipe)
 
         # Batch response format
-        api_response = json.dumps({"markets": [{"id": "m1", "underlying": "ETH"}]})
+        api_response = _msg(json.dumps({"markets": [{"id": "m1", "underlying": "ETH"}]}))
 
         with patch.object(extractor._client, "send_message", new_callable=AsyncMock, return_value=api_response):
             results = await extractor.extract_underlyings(markets, mock_redis)
@@ -125,7 +131,7 @@ class TestKalshiDedupExtractor:
         mock_redis.get = AsyncMock(return_value=None)
         mock_redis.set = AsyncMock()
 
-        api_response = json.dumps({"groups": [{"canonical": "BTC", "aliases": ["BITCOIN"]}]})
+        api_response = _msg(json.dumps({"groups": [{"canonical": "BTC", "aliases": ["BITCOIN"]}]}))
 
         with patch.object(extractor._client, "send_message", new_callable=AsyncMock, return_value=api_response):
             results = await extractor.dedup_underlyings(underlyings_by_category, mock_redis)
@@ -194,19 +200,21 @@ class TestPolyExtractor:
         mock_pipe.execute = AsyncMock(return_value=[])
         mock_redis.pipeline = MagicMock(return_value=mock_pipe)
 
-        api_response = json.dumps(
-            {
-                "markets": [
-                    {
-                        "id": "cond-new",
-                        "category": "Crypto",
-                        "underlying": "ETH",
-                        "strike_type": "greater",
-                        "floor_strike": 5000,
-                        "cap_strike": None,
-                    }
-                ]
-            }
+        api_response = _msg(
+            json.dumps(
+                {
+                    "markets": [
+                        {
+                            "id": "cond-new",
+                            "category": "Crypto",
+                            "underlying": "ETH",
+                            "strike_type": "greater",
+                            "floor_strike": 5000,
+                            "cap_strike": None,
+                        }
+                    ]
+                }
+            )
         )
 
         with patch.object(extractor._client, "send_message", new_callable=AsyncMock, return_value=api_response):
@@ -232,26 +240,30 @@ class TestPolyExtractor:
         mock_redis.pipeline = MagicMock(return_value=mock_pipe)
 
         # First call returns invalid, retry returns valid
-        invalid_response = json.dumps(
-            {
-                "markets": [
-                    {
-                        "id": "m1",
-                        "category": "Invalid",  # Invalid category
-                        "underlying": "BTC",
-                        "strike_type": "greater",
-                    }
-                ]
-            }
+        invalid_response = _msg(
+            json.dumps(
+                {
+                    "markets": [
+                        {
+                            "id": "m1",
+                            "category": "Invalid",  # Invalid category
+                            "underlying": "BTC",
+                            "strike_type": "greater",
+                        }
+                    ]
+                }
+            )
         )
-        valid_response = json.dumps(
-            {
-                "category": "Crypto",
-                "underlying": "BTC",
-                "strike_type": "greater",
-                "floor_strike": 100000,
-                "cap_strike": None,
-            }
+        valid_response = _msg(
+            json.dumps(
+                {
+                    "category": "Crypto",
+                    "underlying": "BTC",
+                    "strike_type": "greater",
+                    "floor_strike": 100000,
+                    "cap_strike": None,
+                }
+            )
         )
 
         call_count = 0
@@ -330,7 +342,7 @@ class TestExpiryAligner:
 
         aligner = ExpiryAligner(redis=mock_redis)
 
-        api_response = json.dumps({"same_event": True, "event_date": "2024-01-15"})
+        api_response = _msg(json.dumps({"same_event": True, "event_date": "2024-01-15"}))
 
         with patch.object(aligner._client, "send_message", new_callable=AsyncMock, return_value=api_response):
             result = await aligner.align_expiry(
@@ -354,7 +366,7 @@ class TestExpiryAligner:
 
         aligner = ExpiryAligner(redis=mock_redis)
 
-        api_response = json.dumps({"same_event": False})
+        api_response = _msg(json.dumps({"same_event": False}))
 
         with patch.object(aligner._client, "send_message", new_callable=AsyncMock, return_value=api_response):
             result = await aligner.align_expiry(

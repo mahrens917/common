@@ -3,9 +3,10 @@
 from __future__ import annotations
 
 import logging
+from dataclasses import dataclass
 
 from ._api_key import load_api_key_from_env_file
-from ._client_helpers import request_with_retries
+from ._client_helpers import extract_text, request_with_retries
 
 logger = logging.getLogger(__name__)
 
@@ -16,6 +17,15 @@ _MODEL_COSTS: dict[str, tuple[float, float]] = {
     "claude-opus-4": (15.0, 75.0),
     "claude-opus-4-6": (5.0, 25.0),
 }
+
+
+@dataclass(frozen=True)
+class MessageResponse:
+    """Structured response from the Anthropic Messages API."""
+
+    text: str
+    input_tokens: int
+    output_tokens: int
 
 
 class AnthropicClient:
@@ -45,34 +55,53 @@ class AnthropicClient:
         user_content: str,
         *,
         json_prefill: str | None = "{",
-    ) -> str:
-        """Send a message to Claude and return the text response."""
+        tools: list[dict] | None = None,
+    ) -> MessageResponse:
+        """Send a message to Claude and return a structured response."""
         messages = [{"role": "user", "content": user_content}]
         if json_prefill:
             messages.append({"role": "assistant", "content": json_prefill})
 
-        payload = {
+        payload: dict = {
             "model": self._model,
             "max_tokens": self._max_tokens,
             "system": system_prompt,
             "messages": messages,
         }
-        headers = {
+        if tools:
+            payload["tools"] = tools
+        headers: dict[str, str] = {
             "x-api-key": self._api_key,
             "anthropic-version": _ANTHROPIC_VERSION,
             "content-type": "application/json",
         }
-        response = await request_with_retries(payload, headers, self._accumulate_usage)
+        if tools and any("type" in t and t["type"].startswith("web_search") for t in tools):
+            headers["anthropic-beta"] = "web-search-2025-03-05"
+        data = await request_with_retries(payload, headers)
+        self._accumulate_usage(data)
+        text = extract_text(data)
 
         if json_prefill:
-            return json_prefill + response
-        return response
+            text = json_prefill + text
+
+        usage = data["usage"]
+        return MessageResponse(
+            text=text,
+            input_tokens=usage["input_tokens"],
+            output_tokens=usage["output_tokens"],
+        )
 
     def _accumulate_usage(self, data: dict) -> None:
         """Accumulate token usage from API response."""
         usage = data["usage"]
         self._total_input_tokens += usage["input_tokens"]
         self._total_output_tokens += usage["output_tokens"]
+
+    def compute_call_cost(self, input_tokens: int, output_tokens: int) -> float:
+        """Calculate cost in USD for a single call's token usage."""
+        input_cost = (input_tokens / 1_000_000) * self._input_cost_per_mtok
+        output_cost = (output_tokens / 1_000_000) * self._output_cost_per_mtok
+        return input_cost + output_cost
 
     def get_usage(self) -> tuple[int, int]:
         """Return (total_input_tokens, total_output_tokens)."""
@@ -90,4 +119,4 @@ class AnthropicClient:
         self._total_output_tokens = 0
 
 
-__all__ = ["AnthropicClient"]
+__all__ = ["AnthropicClient", "MessageResponse"]

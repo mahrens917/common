@@ -11,6 +11,9 @@ from common.metadata_store_auto_updater_helpers.time_window_updater_helpers.hash
 from common.metadata_store_auto_updater_helpers.time_window_updater_helpers.service_updater import (
     ServiceUpdater,
     _calculate_window_counts,
+    _coerce_int_from_member,
+    _count_entries_per_window,
+    _ensure_supported_sorted_set,
     _persist_counts,
 )
 
@@ -188,3 +191,102 @@ class TestHashValidator:
     @pytest.mark.asyncio
     async def test_ensure_sorted_set_history_key_no_client(self):
         assert await HashValidator.ensure_sorted_set_history_key(None, "key") is False
+
+
+class TestEnsureSupportedSortedSet:
+    @pytest.mark.asyncio
+    async def test_returns_true_for_valid_sorted_set(self):
+        mock_redis = AsyncMock()
+        mock_redis.type.return_value = "zset"
+        result = await _ensure_supported_sorted_set(mock_redis, "history:svc", "svc")
+        assert result is True
+
+    @pytest.mark.asyncio
+    async def test_returns_false_and_warns_for_invalid_type(self):
+        mock_redis = AsyncMock()
+        mock_redis.type.return_value = "string"
+        with patch("common.metadata_store_auto_updater_helpers.time_window_updater_helpers.service_updater.logger") as mock_log:
+            result = await _ensure_supported_sorted_set(mock_redis, "history:svc", "svc")
+        assert result is False
+        mock_log.warning.assert_called_once()
+
+
+class TestCountEntriesPerWindow:
+    def test_counts_all_entries_in_windows(self):
+        cutoffs = {"hour": 1000.0, "sixty_five_minutes": 900.0, "sixty_seconds": 1100.0}
+        entries = [
+            (b"member1", 1050.0),  # >= hour, >= 65m, < 60s
+            (b"member2", 1150.0),  # >= hour, >= 65m, >= 60s
+            (b"member3", 950.0),  # < hour, >= 65m, < 60s
+        ]
+        counts = _count_entries_per_window(entries, cutoffs)
+        assert counts["sixty_five_minutes"] == 3
+        assert counts["hour"] == 2
+        assert counts["sixty_seconds"] == 1
+
+    def test_empty_entries_returns_zeros(self):
+        cutoffs = {"hour": 1000.0, "sixty_five_minutes": 900.0, "sixty_seconds": 1100.0}
+        counts = _count_entries_per_window([], cutoffs)
+        assert counts == {"hour": 0, "sixty_five_minutes": 0, "sixty_seconds": 0}
+
+
+class TestCoerceIntFromMember:
+    def test_valid_member_returns_int(self):
+        assert _coerce_int_from_member("100|42") == 42
+
+    def test_invalid_member_returns_zero(self):
+        result = _coerce_int_from_member("no_pipe_here")
+        assert result == 0
+
+    def test_non_numeric_value_returns_zero(self):
+        result = _coerce_int_from_member("100|abc")
+        assert result == 0
+
+
+class TestServiceUpdaterAsosPath:
+    @pytest.mark.asyncio
+    async def test_update_service_time_windows_asos_uses_count_entries(self):
+        metadata_store = AsyncMock()
+        mock_redis = AsyncMock()
+        mock_redis.zrangebyscore.return_value = [(b"member1", 1000.0), (b"member2", 2000.0)]
+        updater = ServiceUpdater(metadata_store, mock_redis)
+
+        with (
+            patch(
+                "common.metadata_store_auto_updater_helpers.time_window_updater_helpers.service_updater._ensure_supported_sorted_set",
+                new_callable=AsyncMock,
+                return_value=True,
+            ),
+            patch("common.time_utils.get_current_utc") as mock_time,
+            patch(
+                "common.metadata_store_auto_updater_helpers.time_window_updater_helpers.service_updater._count_entries_per_window",
+            ) as mock_count,
+            patch(
+                "common.metadata_store_auto_updater_helpers.time_window_updater_helpers.service_updater._persist_counts",
+            ) as mock_persist,
+        ):
+            mock_time.return_value = datetime(2023, 1, 1, 13, 0, 0)
+            mock_count.return_value = {"hour": 2, "sixty_five_minutes": 2, "sixty_seconds": 0}
+            await updater.update_service_time_windows("asos")
+            mock_count.assert_called_once()
+            mock_persist.assert_awaited_once()
+
+    @pytest.mark.asyncio
+    async def test_update_service_time_windows_logs_on_exception(self):
+        metadata_store = AsyncMock()
+        mock_redis = AsyncMock()
+        mock_redis.zrangebyscore.side_effect = Exception("Redis error")
+        updater = ServiceUpdater(metadata_store, mock_redis)
+
+        with (
+            patch(
+                "common.metadata_store_auto_updater_helpers.time_window_updater_helpers.service_updater._ensure_supported_sorted_set",
+                new_callable=AsyncMock,
+                return_value=True,
+            ),
+            patch("common.time_utils.get_current_utc") as mock_time,
+            patch("common.metadata_store_auto_updater_helpers.time_window_updater_helpers.service_updater.logger") as mock_log,
+        ):
+            mock_time.return_value = datetime(2023, 1, 1, 13, 0, 0)
+            await updater.update_service_time_windows("test_service")
+            mock_log.error.assert_called_once()

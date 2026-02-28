@@ -56,7 +56,9 @@ class TestAnthropicClientSendMessage:
             result = await client.send_message("system prompt", "user content")
 
         # Result should have opening brace prepended
-        assert result == '{"key": "value"}'
+        assert result.text == '{"key": "value"}'
+        assert result.input_tokens == 10
+        assert result.output_tokens == 5
         call_kwargs = mock_session.post.call_args
         payload = call_kwargs.kwargs["json"]
         assert payload["model"] == "claude-haiku-4-5"
@@ -92,7 +94,9 @@ class TestAnthropicClientSendMessage:
         with patch("aiohttp.ClientSession", return_value=mock_session):
             result = await client.send_message("system prompt", "user content", json_prefill=None)
 
-        assert result == "response text"
+        assert result.text == "response text"
+        assert result.input_tokens == 10
+        assert result.output_tokens == 5
         call_kwargs = mock_session.post.call_args
         payload = call_kwargs.kwargs["json"]
         # Only one message (user), no assistant prefill

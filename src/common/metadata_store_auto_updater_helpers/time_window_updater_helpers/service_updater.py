@@ -13,6 +13,9 @@ logger = logging.getLogger(__name__)
 REDIS_ERRORS = (Exception,)
 
 
+_ENTRY_COUNT_SERVICES = frozenset({"asos"})
+
+
 class ServiceUpdater:
     """Updates time-windowed counts for individual services."""
 
@@ -46,7 +49,10 @@ class ServiceUpdater:
             cutoffs = _build_timestamp_cutoffs(current_ts)
             broadest_cutoff = cutoffs["sixty_five_minutes"]
             entries = await ensure_awaitable(self.redis_client.zrangebyscore(history_key, broadest_cutoff, "+inf", withscores=True))
-            counts = _calculate_window_counts(entries, cutoffs)
+            if service_name in _ENTRY_COUNT_SERVICES:
+                counts = _count_entries_per_window(entries, cutoffs)
+            else:
+                counts = _calculate_window_counts(entries, cutoffs)
 
             await _persist_counts(self.metadata_store, service_name, counts)
         except REDIS_ERRORS as exc:  # Expected exception in operation  # policy_guard: allow-silent-handler
@@ -68,6 +74,18 @@ def _build_timestamp_cutoffs(current_ts: float) -> dict[str, float]:
         "sixty_five_minutes": current_ts - 3900,
         "sixty_seconds": current_ts - 60,
     }
+
+
+def _count_entries_per_window(entries: list, cutoffs: dict[str, float]) -> dict:
+    """Count entries per time window (each entry = 1). Used for aggregate keys like ASOS."""
+    totals = {"hour": 0, "sixty_five_minutes": 0, "sixty_seconds": 0}
+    for _member, score in entries:
+        totals["sixty_five_minutes"] += 1
+        if score >= cutoffs["hour"]:
+            totals["hour"] += 1
+        if score >= cutoffs["sixty_seconds"]:
+            totals["sixty_seconds"] += 1
+    return totals
 
 
 def _calculate_window_counts(entries: list, cutoffs: dict[str, float]) -> dict:

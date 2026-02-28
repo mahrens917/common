@@ -4,7 +4,6 @@ from __future__ import annotations
 
 import asyncio
 import logging
-from collections.abc import Callable
 
 import aiohttp
 
@@ -43,36 +42,36 @@ def get_retry_wait(resp: aiohttp.ClientResponse, backoff: float, attempt: int) -
 def extract_text(data: dict) -> str:
     """Extract text content from Claude API response.
 
+    Collects ALL text blocks and joins with newline. Web search responses
+    interleave text with tool_use/web_search_tool_result blocks.
+
     Args:
         data: The response data dict.
 
     Returns:
-        The text content.
+        The joined text content.
 
     Raises:
         KeyError: If no text block found.
     """
-    content = data["content"]
-    for block in content:
-        if block["type"] == "text":
-            return block["text"]
-    raise KeyError("No text block found in Claude response")
+    parts = [block["text"] for block in data["content"] if block["type"] == "text"]
+    if not parts:
+        raise KeyError("No text block found in Claude response")
+    return "\n".join(parts)
 
 
 async def request_with_retries(
     payload: dict,
     headers: dict,
-    accumulate_usage_fn: Callable[[dict], None],
-) -> str:
+) -> dict:
     """Execute the API request with exponential backoff retry logic.
 
     Args:
         payload: The request payload.
         headers: The request headers.
-        accumulate_usage_fn: Function to accumulate token usage.
 
     Returns:
-        The text response.
+        The full response JSON dict.
 
     Raises:
         RuntimeError: If all retries are exhausted.
@@ -100,9 +99,7 @@ async def request_with_retries(
                         error_body = await resp.text()
                         raise RuntimeError(f"Anthropic API error ({resp.status}): {error_body}")
 
-                    data = await resp.json()
-                    accumulate_usage_fn(data)
-                    return extract_text(data)
+                    return await resp.json()
 
         except aiohttp.ClientError as exc:
             logger.warning("API call failed (attempt %d/%d): %s", attempt + 1, _MAX_RETRIES, exc)

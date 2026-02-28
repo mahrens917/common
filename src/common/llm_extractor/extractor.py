@@ -197,7 +197,7 @@ class KalshiDedupExtractor:
         """Run dedup for a single category."""
         prompt = build_kalshi_dedup_prompt(category, underlyings)
         response = await self._client.send_message(prompt, "Please identify any duplicates.")
-        return parse_kalshi_dedup_response(response, original_underlyings=set(underlyings))
+        return parse_kalshi_dedup_response(response.text, original_underlyings=set(underlyings))
 
 
 class PolyExtractor:
@@ -329,7 +329,7 @@ class ExpiryAligner:
         )
 
         response = await self._client.send_message(prompt, user_content)
-        result = parse_expiry_alignment_response(response)
+        result = parse_expiry_alignment_response(response.text)
 
         await self._store_cached(kalshi_id, poly_id, result)
 

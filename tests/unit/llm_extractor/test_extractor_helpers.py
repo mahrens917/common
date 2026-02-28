@@ -21,7 +21,13 @@ from common.llm_extractor._extractor_helpers import (
     store_poly_cached_batch,
     store_poly_no_match_batch,
 )
+from common.llm_extractor.client import MessageResponse
 from common.llm_extractor.models import MarketExtraction
+
+
+def _msg(text: str) -> MessageResponse:
+    """Create a MessageResponse with default token counts."""
+    return MessageResponse(text=text, input_tokens=10, output_tokens=5)
 
 
 class TestConstants:
@@ -105,7 +111,7 @@ class TestExtractKalshiSingle:
     async def test_extracts_underlying(self) -> None:
         """Test extracting single underlying."""
         mock_client = AsyncMock()
-        mock_client.send_message = AsyncMock(return_value='{"underlying": "BTC"}')
+        mock_client.send_message = AsyncMock(return_value=_msg('{"underlying": "BTC"}'))
 
         market = {"id": "m1", "title": "BTC above 100k", "category": "Crypto", "rules_primary": ""}
         result = await extract_kalshi_single(mock_client, market, ["ETH"])
@@ -119,7 +125,7 @@ class TestExtractKalshiBatchWithRetry:
     async def test_extracts_batch(self) -> None:
         """Test extracting batch of underlyings."""
         mock_client = AsyncMock()
-        mock_client.send_message = AsyncMock(return_value='{"markets": [{"id": "m1", "underlying": "BTC"}]}')
+        mock_client.send_message = AsyncMock(return_value=_msg('{"markets": [{"id": "m1", "underlying": "BTC"}]}'))
 
         mock_pipe = MagicMock()
         mock_pipe.hset = MagicMock(return_value=mock_pipe)
@@ -240,7 +246,7 @@ class TestExtractPolySingleWithRetry:
         """Test successful extraction on first attempt."""
         mock_client = AsyncMock()
         mock_client.send_message = AsyncMock(
-            return_value='{"category": "Crypto", "underlying": "BTC", "strike_type": "greater", "floor_strike": 100000}'
+            return_value=_msg('{"category": "Crypto", "underlying": "BTC", "strike_type": "greater", "floor_strike": 100000}')
         )
 
         market = {"id": "m1", "title": "BTC above 100k", "description": "Will BTC go above 100k?"}
@@ -252,7 +258,7 @@ class TestExtractPolySingleWithRetry:
     async def test_returns_none_on_invalid(self) -> None:
         """Test returning None on invalid extraction after retry."""
         mock_client = AsyncMock()
-        mock_client.send_message = AsyncMock(return_value='{"category": "Invalid", "underlying": "BTC", "strike_type": "greater"}')
+        mock_client.send_message = AsyncMock(return_value=_msg('{"category": "Invalid", "underlying": "BTC", "strike_type": "greater"}'))
 
         market = {"id": "m1", "title": "BTC above 100k", "description": "Will BTC go above 100k?"}
         result = await extract_poly_single_with_retry(mock_client, market, {"Crypto"}, {"BTC"})
@@ -267,7 +273,9 @@ class TestExtractPolyBatchWithRetry:
         """Test extracting batch of markets."""
         mock_client = AsyncMock()
         mock_client.send_message = AsyncMock(
-            return_value='{"markets": [{"id": "m1", "category": "Crypto", "underlying": "BTC", "strike_type": "greater", "floor_strike": 100000}]}'
+            return_value=_msg(
+                '{"markets": [{"id": "m1", "category": "Crypto", "underlying": "BTC", "strike_type": "greater", "floor_strike": 100000}]}'
+            )
         )
 
         mock_pipe = MagicMock()

@@ -5,8 +5,9 @@ from __future__ import annotations
 from unittest.mock import AsyncMock, MagicMock
 
 import pytest
+from redis.exceptions import ResponseError
 
-from common.redis_protocol.retry import RedisRetryPolicy
+from common.redis_protocol.retry import RedisFatalError, RedisRetryPolicy
 from common.redis_protocol.retry_client_stream_mixin import RetryRedisStreamMixin
 
 
@@ -140,6 +141,18 @@ class TestXgroupCreate:
             id="$",
             mkstream=True,
         )
+
+    @pytest.mark.asyncio
+    async def test_xgroup_create_busygroup_aborts_retry(self):
+        """BUSYGROUP raises RedisFatalError immediately — no retries."""
+        mixin = _make_mixin()
+        mixin._client.xgroup_create = AsyncMock(
+            side_effect=ResponseError("BUSYGROUP Consumer Group name already exists"),
+        )
+        with pytest.raises(RedisFatalError, match="already exists"):
+            await mixin.xgroup_create("stream", "grp")
+        # Called only once — no retries for BUSYGROUP
+        assert mixin._client.xgroup_create.await_count == 1
 
 
 class TestXlen:

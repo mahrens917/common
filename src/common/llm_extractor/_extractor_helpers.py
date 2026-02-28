@@ -83,7 +83,7 @@ async def extract_kalshi_single(
         category=market["category"],
     )
     response = await client.send_message(prompt, user_content)
-    return parse_kalshi_underlying_response(response)
+    return parse_kalshi_underlying_response(response.text)
 
 
 async def extract_kalshi_batch_with_retry(
@@ -100,7 +100,7 @@ async def extract_kalshi_batch_with_retry(
     for attempt in range(2):
         response = await client.send_message(prompt, user_content, json_prefill='{"markets": [')
         try:
-            results, failed_ids = parse_kalshi_underlying_batch_response(response, original_ids)
+            results, failed_ids = parse_kalshi_underlying_batch_response(response.text, original_ids)
             break
         except ExtraDataInResponse as e:
             if attempt == 0:
@@ -157,14 +157,14 @@ async def extract_poly_single_with_retry(
     )
 
     response = await client.send_message(prompt, user_content)
-    extraction, error = parse_poly_extraction_response(response, market["id"], valid_categories, valid_underlyings)
+    extraction, error = parse_poly_extraction_response(response.text, market["id"], valid_categories, valid_underlyings)
     if extraction:
         return extraction
 
     logger.debug("First attempt failed for %s: %s, retrying", market["id"], error)
 
     response = await client.send_message(prompt, user_content)
-    extraction, error = parse_poly_extraction_response(response, market["id"], valid_categories, valid_underlyings)
+    extraction, error = parse_poly_extraction_response(response.text, market["id"], valid_categories, valid_underlyings)
     if extraction:
         return extraction
 
@@ -212,7 +212,7 @@ async def extract_poly_batch_with_retry(
         response = await client.send_message(prompt, user_content, json_prefill='{"markets": [')
         try:
             extractions, failed_ids, batch_no_match_ids = parse_poly_batch_response(
-                response, valid_categories, valid_underlyings, original_ids
+                response.text, valid_categories, valid_underlyings, original_ids
             )
             break
         except ExtraDataInResponse as e:
