@@ -115,7 +115,7 @@ def _is_valid_market_in_window(market: Any, expiry_window_seconds: int) -> bool:
 
 
 def _has_empty_orderbook(market: Dict[str, Any]) -> bool:
-    """Check if market has no bids and no asks."""
+    """Check if market is missing both bid and ask."""
     return market.get("yes_bid") is None and market.get("yes_ask") is None
 
 
