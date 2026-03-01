@@ -282,35 +282,16 @@ async def test_register_restarting(test_service, mock_redis):
 
 
 @pytest.mark.asyncio
-async def test_legacy_compatibility_dual_write(test_service, mock_redis):
-    """Verify writes to both new and old patterns during migration."""
+async def test_writes_only_to_unified_key(test_service, mock_redis):
+    """Verify writes only to unified ops:status:* key (legacy status hash removed)."""
     await test_service.report_status(ServiceStatus.READY)
 
-    # Should have at least 2 hset calls
-    assert mock_redis.hset.call_count >= 2
+    assert mock_redis.hset.call_count == 1
 
-    calls = [call for call in mock_redis.hset.call_args_list]
-
-    # Find unified pattern call
-    unified_call = None
-    for call in calls:
-        if call[0][0] == "ops:status:TEST_SERVICE":
-            unified_call = call
-            break
-
-    # Find legacy pattern call
-    legacy_call = None
-    for call in calls:
-        if call[0][0] == "status" and len(call[0]) == 3:  # hset(key, field, value)
-            legacy_call = call
-            break
-
-    assert unified_call is not None, "Should write to unified pattern"
-    assert legacy_call is not None, "Should write to legacy pattern"
-
-    # Legacy call should write service name -> status value
-    assert legacy_call[0][1] == "test_service"
-    assert legacy_call[0][2] == "ready"
+    call = mock_redis.hset.call_args_list[0]
+    assert call[0][0] == "ops:status:TEST_SERVICE"
+    mapping = call[1]["mapping"]
+    assert mapping["status"] == "ready"
 
 
 @pytest.mark.asyncio

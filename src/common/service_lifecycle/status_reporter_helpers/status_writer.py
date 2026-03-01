@@ -56,7 +56,6 @@ async def write_status_to_redis(
                 mapping={k: str(v) for k, v in status_data.items()},
             )
         )
-        await ensure_awaitable(redis.hset("status", service_name, status.value))
 
         logger.info(
             "Status updated",
