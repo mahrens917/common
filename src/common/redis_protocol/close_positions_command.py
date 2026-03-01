@@ -24,6 +24,7 @@ logger = logging.getLogger(__name__)
 CLOSE_POSITIONS_COMMAND_KEY = "config:command:close_positions"
 CLOSE_POSITIONS_RESULT_KEY = "config:command:close_positions:result"
 RESULT_TTL_SECONDS = 30
+COMMAND_TTL_SECONDS = 60
 
 
 @dataclass
@@ -49,7 +50,7 @@ async def request_close_all_positions(redis: "Redis") -> None:
     from common.time_utils import get_current_utc
 
     timestamp = get_current_utc().isoformat()
-    await ensure_awaitable(redis.set(CLOSE_POSITIONS_COMMAND_KEY, timestamp))
+    await ensure_awaitable(redis.set(CLOSE_POSITIONS_COMMAND_KEY, timestamp, ex=COMMAND_TTL_SECONDS))
     await stream_publish(redis, CLOSE_POSITIONS_STREAM, {"timestamp": timestamp, "action": "close_all"})
     logger.info("Close all positions command issued at %s", timestamp)
 

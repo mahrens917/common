@@ -27,6 +27,7 @@ class PriceSignal:
 
     t_bid: Optional[float] = None
     t_ask: Optional[float] = None
+    one_shot: bool = False
 
 
 def _clamp_price(value: float) -> int:
@@ -152,7 +153,7 @@ async def write_theoretical_prices(
         t_ask,
     )
 
-    clamped_prices = PriceSignal(t_bid=t_bid, t_ask=t_ask)
+    clamped_prices = PriceSignal(t_bid=t_bid, t_ask=t_ask, one_shot=prices.one_shot)
     await publish_market_event_update(redis, market_key, ticker, algo, clamped_prices)
 
 
@@ -168,14 +169,16 @@ async def _publish_algo_signal(redis: "Redis", ticker: str, algo: str, prices: P
     """Publish algo signal stream entry for the given ticker."""
     algo_fields: dict[str, str] = {"ticker": ticker, "algorithm": algo}
     _add_price_fields(algo_fields, prices)
-    algo_fields["payload"] = json.dumps(
-        {
-            "ticker": ticker,
-            "t_ask": prices.t_ask,
-            "t_bid": prices.t_bid,
-            "algorithm": algo,
-        }
-    )
+    payload_dict: dict[str, object] = {
+        "ticker": ticker,
+        "t_ask": prices.t_ask,
+        "t_bid": prices.t_bid,
+        "algorithm": algo,
+    }
+    if prices.one_shot:
+        algo_fields["one_shot"] = "true"
+        payload_dict["one_shot"] = True
+    algo_fields["payload"] = json.dumps(payload_dict)
     await with_redis_retry(
         lambda: stream_publish(redis, ALGO_SIGNAL_STREAM, algo_fields),
         context=f"stream_publish_algo:{ticker}",

@@ -8,6 +8,7 @@ import pytest
 from common.redis_protocol.close_positions_command import (
     CLOSE_POSITIONS_COMMAND_KEY,
     CLOSE_POSITIONS_RESULT_KEY,
+    COMMAND_TTL_SECONDS,
     RESULT_TTL_SECONDS,
     ClosePositionsResult,
     clear_close_positions_command,
@@ -64,7 +65,7 @@ class TestRequestCloseAllPositions:
 
             await request_close_all_positions(mock_redis)
 
-            mock_redis.set.assert_called_once_with(CLOSE_POSITIONS_COMMAND_KEY, "2024-01-15T12:00:00+00:00")
+            mock_redis.set.assert_called_once_with(CLOSE_POSITIONS_COMMAND_KEY, "2024-01-15T12:00:00+00:00", ex=COMMAND_TTL_SECONDS)
 
     @pytest.mark.asyncio
     async def test_publishes_to_stream(self, mock_redis):

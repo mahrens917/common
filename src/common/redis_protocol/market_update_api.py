@@ -205,13 +205,14 @@ async def _write_signals(
             failed.append(ticker)
             continue
 
+        one_shot = bool(data.get("one_shot"))
         market_key = key_builder(ticker)
         try:
             await write_theoretical_prices(
                 redis,
                 market_key,
                 algo,
-                PriceSignal(t_bid=t_bid, t_ask=t_ask),
+                PriceSignal(t_bid=t_bid, t_ask=t_ask, one_shot=one_shot),
                 ticker,
             )
         except (RuntimeError, ConnectionError, OSError):

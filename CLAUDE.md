@@ -3,7 +3,7 @@
 Shared Python utilities library used across multiple trading system repositories. Code lives in `src/common/`, tests mirror the layout in `tests/`.
 
 ## Quick Commands
-- Run CI/automation with `make check` or `python -m ci_tools.ci --model gpt-5-codex` (delegates to `scripts/ci.sh` through `ci_shared.mk`).
+- Run CI/automation with `make check` or `python -m ci_tools.ci --model claude-sonnet-4-6` (delegates to `scripts/ci.sh` through `ci_shared.mk`).
 - Tests: `pytest tests/ --cov=src --cov-fail-under=80 --strict-markers --cov-report=term -W error` (serial execution). Coverage guard enforces 80%.
 - Formatting/type/lint: `make format`, `make type`, `make lint`.
 

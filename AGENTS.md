@@ -10,7 +10,7 @@
 ## Build, Test, and Development Commands
 
 - `make check` / `./scripts/ci.sh`: run the shared CI pipeline via `~/ci_shared`.
-- `python -m ci_tools.ci --model gpt-5-codex`: run the shared CI driver directly.
+- `python -m ci_tools.ci --model claude-sonnet-4-6`: run the shared CI driver directly.
 - `make format`: auto-format with `isort` (Black profile) and `black`.
 - `make lint`: `compileall` + `pylint` (`--errors-only`).
 - `make type`: run `pyright` on `src/`.
