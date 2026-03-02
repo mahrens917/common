@@ -17,8 +17,7 @@ def _find_potential_t_separators(ticker: str) -> list[int]:
     """Find all potential T separator positions in ticker."""
     if "T" not in ticker:
         raise ValidationError(f"Invalid ticker format - no 'T' found in ticker: {ticker}")
-    t_positions = [i for i, char in enumerate(ticker) if char == "T"]
-    return [t_pos for t_pos in t_positions if _is_valid_t_separator(ticker, t_pos)]
+    return [i for i, char in enumerate(ticker) if char == "T" and _is_valid_t_separator(ticker, i)]
 
 
 def _validate_separator_count(potential_separators: list[int], ticker: str) -> None:

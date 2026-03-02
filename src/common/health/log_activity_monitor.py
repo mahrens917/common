@@ -8,6 +8,7 @@ Slim coordinator that delegates to helper modules:
 - activity_classifier: Classifies log activity status based on age
 """
 
+import asyncio
 import logging
 from typing import Dict, List
 
@@ -84,7 +85,13 @@ class LogActivityMonitor:
             return LogActivity(status=LogActivityStatus.ERROR, error_message=str(exc))
 
     async def get_all_service_log_activity(self, service_names: List[str]) -> Dict[str, LogActivity]:
-        results = {}
-        for service_name in service_names:
-            results[service_name] = await self.get_log_activity(service_name)
+        activities = await asyncio.gather(
+            *(self.get_log_activity(name) for name in service_names),
+            return_exceptions=True,
+        )
+        results: Dict[str, LogActivity] = {}
+        for name, activity in zip(service_names, activities):
+            if isinstance(activity, BaseException):
+                raise activity
+            results[name] = activity
         return results

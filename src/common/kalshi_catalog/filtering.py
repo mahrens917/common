@@ -104,41 +104,29 @@ def group_markets_by_event(
     return event_markets
 
 
-def _is_valid_market_in_window(market: Any, expiry_window_seconds: int) -> bool:
-    """Check if item is a dict with a close_time string within the expiry window."""
+def _is_market_eligible(
+    market: Dict[str, Any],
+    expiry_window_seconds: int,
+    skipped_stats: SkippedMarketStats | None,
+) -> bool:
+    """Return True if market passes all filters; record skip reason if rejected."""
     if not isinstance(market, dict):
         return False
     close_time = market.get("close_time")
-    if not isinstance(close_time, str):
+    if not isinstance(close_time, str) or not is_expiring_within_window(close_time, expiry_window_seconds):
         return False
-    return is_expiring_within_window(close_time, expiry_window_seconds)
-
-
-def _has_empty_orderbook(market: Dict[str, Any]) -> bool:
-    """Check if market is missing both bid and ask."""
-    return market.get("yes_bid") is None and market.get("yes_ask") is None
-
-
-def _record_empty_orderbook(
-    market: Dict[str, Any],
-    skipped_stats: SkippedMarketStats | None,
-) -> None:
-    """Log and record a market skipped for empty orderbook."""
-    ticker = _extract_string_field(market, "ticker")
-    logger.info("Skipping market %s: empty orderbook (no bids/asks)", ticker)
-    if skipped_stats is not None:
-        skipped_stats.add_empty_orderbook()
-
-
-def _record_zero_volume(
-    market: Dict[str, Any],
-    skipped_stats: SkippedMarketStats | None,
-) -> None:
-    """Log and record a market skipped for zero volume."""
-    ticker = _extract_string_field(market, "ticker")
-    logger.info("Skipping market %s: zero volume", ticker)
-    if skipped_stats is not None:
-        skipped_stats.add_zero_volume()
+    volume = market.get("volume")
+    if isinstance(volume, int) and volume == 0:
+        logger.info("Skipping market %s: zero volume", _extract_string_field(market, "ticker"))
+        if skipped_stats is not None:
+            skipped_stats.add_zero_volume()
+        return False
+    if market.get("yes_bid") is None and market.get("yes_ask") is None:
+        logger.info("Skipping market %s: empty orderbook (no bids/asks)", _extract_string_field(market, "ticker"))
+        if skipped_stats is not None:
+            skipped_stats.add_empty_orderbook()
+        return False
+    return True
 
 
 def filter_markets_for_window(
@@ -147,6 +135,9 @@ def filter_markets_for_window(
     skipped_stats: SkippedMarketStats | None = None,
 ) -> List[Dict[str, Any]]:
     """Filter nested markets to only those expiring within the window.
+
+    Single-pass filter with short-circuit evaluation: time window, then volume,
+    then orderbook checks.
 
     Args:
         nested_markets: List of market dictionaries from event details
@@ -158,19 +149,7 @@ def filter_markets_for_window(
     """
     if not isinstance(nested_markets, list):
         return []
-    markets_in_window: List[Dict[str, Any]] = []
-    for market in nested_markets:
-        if not _is_valid_market_in_window(market, expiry_window_seconds):
-            continue
-        volume = market.get("volume")
-        if isinstance(volume, int) and volume == 0:
-            _record_zero_volume(market, skipped_stats)
-            continue
-        if _has_empty_orderbook(market):
-            _record_empty_orderbook(market, skipped_stats)
-            continue
-        markets_in_window.append(market)
-    return markets_in_window
+    return [m for m in nested_markets if _is_market_eligible(m, expiry_window_seconds, skipped_stats)]
 
 
 def convert_to_discovered_market(market: Dict[str, Any]) -> DiscoveredMarket:
@@ -224,6 +203,7 @@ def sort_markets_by_strike(markets: List[DiscoveredMarket]) -> List[DiscoveredMa
     """Sort markets by effective strike value ascending.
 
     Markets without valid strikes are placed at the end.
+    Pre-computes strikes to avoid O(N log N) recomputation during sort.
 
     Args:
         markets: List of discovered markets to sort
@@ -231,7 +211,8 @@ def sort_markets_by_strike(markets: List[DiscoveredMarket]) -> List[DiscoveredMa
     Returns:
         New list sorted by effective strike
     """
-    return sorted(markets, key=compute_effective_strike)
+    strike_cache = {id(m): compute_effective_strike(m) for m in markets}
+    return sorted(markets, key=lambda m: strike_cache[id(m)])
 
 
 __all__ = [

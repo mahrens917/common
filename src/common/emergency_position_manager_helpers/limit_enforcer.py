@@ -103,9 +103,11 @@ def _calculate_total_exposure(positions: List[PortfolioPosition], monitored_posi
 
 
 def _sorted_high_risk_assessments(assessments: list) -> List[PositionRiskAssessment]:
-    high_risk = [assessment for assessment in assessments if assessment.requires_closure]
-    high_risk.sort(key=lambda assessment: assessment.risk_score, reverse=True)
-    return high_risk
+    return sorted(
+        (a for a in assessments if a.requires_closure),
+        key=lambda a: a.risk_score,
+        reverse=True,
+    )
 
 
 async def _close_until_within_limit(

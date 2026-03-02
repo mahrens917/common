@@ -91,12 +91,8 @@ def _build_twilight_datetime(date_utc: datetime, minutes: float) -> datetime:
     mins = int(minutes % 60)
     seconds = int((minutes % 1) * 60)
     twilight_date = date_utc.date()
-    while hours >= _CONST_24:
-        hours -= 24
-        twilight_date += timedelta(days=1)
-    while hours < 0:
-        hours += 24
-        twilight_date -= timedelta(days=1)
+    day_offset, hours = divmod(hours, _CONST_24)
+    twilight_date += timedelta(days=day_offset)
     return datetime.combine(
         twilight_date,
         datetime.min.time().replace(hour=hours, minute=mins, second=seconds),
@@ -117,6 +113,9 @@ def _log_twilight(latitude: float, longitude: float, date_utc: datetime, result:
     )
 
 
+_NEAR_MIDNIGHT_HOURS = 3
+
+
 def is_between_dawn_and_dusk(latitude: float, longitude: float, current_time: Optional[datetime] = None) -> bool:
     """Return True when current time sits between dawn and dusk."""
     current_time = current_time or datetime.now(timezone.utc)
@@ -126,31 +125,49 @@ def is_between_dawn_and_dusk(latitude: float, longitude: float, current_time: Op
     dawn_current = calculate_dawn_utc(latitude, longitude, current_time)
     dusk_current = calculate_dusk_utc(latitude, longitude, current_time)
 
-    previous_day = current_time - timedelta(days=1)
-    dawn_previous = calculate_dawn_utc(latitude, longitude, previous_day)
-    dusk_previous = calculate_dusk_utc(latitude, longitude, previous_day)
-
-    next_day = current_time + timedelta(days=1)
-    dawn_next = calculate_dawn_utc(latitude, longitude, next_day)
-    dusk_next = calculate_dusk_utc(latitude, longitude, next_day)
-
-    is_daylight = any(
-        start <= current_time <= end
-        for start, end in (
-            (dawn_current, dusk_current),
-            (dawn_previous, dusk_previous),
-            (dawn_next, dusk_next),
+    if dawn_current <= current_time <= dusk_current:
+        logger.debug(
+            "Daylight window: current=%s, dawn_current=%s, dusk_current=%s, is_daylight=True",
+            current_time.isoformat(),
+            dawn_current.isoformat(),
+            dusk_current.isoformat(),
         )
-    )
+        return True
+
+    hour = current_time.hour
+    near_midnight = hour < _NEAR_MIDNIGHT_HOURS or hour >= (_CONST_24 - _NEAR_MIDNIGHT_HOURS)
+    if near_midnight:
+        previous_day = current_time - timedelta(days=1)
+        dawn_previous = calculate_dawn_utc(latitude, longitude, previous_day)
+        dusk_previous = calculate_dusk_utc(latitude, longitude, previous_day)
+        if dawn_previous <= current_time <= dusk_previous:
+            logger.debug(
+                "Daylight window: current=%s, dawn_current=%s, dusk_current=%s, is_daylight=True",
+                current_time.isoformat(),
+                dawn_current.isoformat(),
+                dusk_current.isoformat(),
+            )
+            return True
+
+        next_day = current_time + timedelta(days=1)
+        dawn_next = calculate_dawn_utc(latitude, longitude, next_day)
+        dusk_next = calculate_dusk_utc(latitude, longitude, next_day)
+        if dawn_next <= current_time <= dusk_next:
+            logger.debug(
+                "Daylight window: current=%s, dawn_current=%s, dusk_current=%s, is_daylight=True",
+                current_time.isoformat(),
+                dawn_current.isoformat(),
+                dusk_current.isoformat(),
+            )
+            return True
 
     logger.debug(
-        "Daylight window: current=%s, dawn_current=%s, dusk_current=%s, is_daylight=%s",
+        "Daylight window: current=%s, dawn_current=%s, dusk_current=%s, is_daylight=False",
         current_time.isoformat(),
         dawn_current.isoformat(),
         dusk_current.isoformat(),
-        is_daylight,
     )
-    return is_daylight
+    return False
 
 
 def is_after_midpoint_noon_to_dusk(latitude: float, longitude: float, current_time: Optional[datetime] = None) -> bool:

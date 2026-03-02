@@ -6,7 +6,7 @@ from __future__ import annotations
 
 import asyncio
 import logging
-from typing import Any, Dict
+from typing import TYPE_CHECKING, Any, Dict
 
 from redis.asyncio import Redis
 
@@ -19,6 +19,10 @@ from .event_publisher import publish_market_event
 from .snapshot_processor_helpers.price_formatting import normalize_price_formatting
 from .snapshot_processor_helpers.redis_storage import build_hash_data
 
+if TYPE_CHECKING:
+    from ...coalescing_batcher import CoalescingBatcher
+    from .orderbook_cache import MarketUpdate, OrderbookCache
+
 logger = logging.getLogger(__name__)
 
 
@@ -26,13 +30,14 @@ class SnapshotProcessor:
     """Processes orderbook snapshot updates"""
 
     def __init__(self, update_trade_prices_callback: Any):
-        """
-        Initialize snapshot processor
-
-        Args:
-            update_trade_prices_callback: Callback to update trade prices (can be callable or object with method)
-        """
         self._update_trade_prices_callback = update_trade_prices_callback
+        self._cache: OrderbookCache | None = None
+        self._batcher: CoalescingBatcher[str, MarketUpdate] | None = None
+
+    def set_cache_and_batcher(self, cache: OrderbookCache, batcher: CoalescingBatcher[str, MarketUpdate]) -> None:
+        """Attach the in-memory cache and coalescing batcher."""
+        self._cache = cache
+        self._batcher = batcher
 
     def get_update_callback(self) -> Any:
         """Return the callback responsible for publishing trade prices."""
@@ -45,6 +50,39 @@ class SnapshotProcessor:
         yes_bid_price, yes_bid_size = extract_best_bid(yes_bids_payload)
         yes_ask_price, yes_ask_size = extract_best_ask(yes_asks_payload)
         return yes_bid_price, yes_ask_price, yes_bid_size, yes_ask_size
+
+    def _build_combined_fields(
+        self,
+        hash_data: Dict[str, Any],
+        timestamp: str,
+        best_price_fields: list[tuple[str, Any]],
+    ) -> Dict[str, Any]:
+        """Merge hash data with timestamp and non-None price fields."""
+        combined = {k: v for k, v in hash_data.items() if k != "timestamp"}
+        combined["timestamp"] = timestamp
+        for name, val in best_price_fields:
+            if val is not None:
+                combined[name] = str(val)
+        return combined
+
+    async def _write_to_redis(
+        self,
+        redis: Redis,
+        market_key: str,
+        market_ticker: str,
+        timestamp: str,
+        combined: Dict[str, Any],
+        best_price_fields: list[tuple[str, Any]],
+    ) -> None:
+        """Write combined fields to Redis and publish update event."""
+        await ensure_awaitable(redis.hset(market_key, mapping=combined))
+        fields_to_del = [name for name, val in best_price_fields if val is None]
+        if fields_to_del:
+            await ensure_awaitable(redis.hdel(market_key, *fields_to_del))
+        await asyncio.gather(
+            BestPriceUpdater._recompute_direction(redis, market_key),
+            publish_market_event(redis, market_key, market_ticker, timestamp),
+        )
 
     async def process_orderbook_snapshot(
         self,
@@ -77,26 +115,24 @@ class SnapshotProcessor:
             yes_ask_size,
         )
 
-        combined = {k: v for k, v in hash_data.items() if k != "timestamp"}
-        combined["timestamp"] = timestamp
         best_price_fields = [
             ("yes_bid", yes_bid_price),
             ("yes_ask", yes_ask_price),
             ("yes_bid_size", yes_bid_size),
             ("yes_ask_size", yes_ask_size),
         ]
-        for name, val in best_price_fields:
-            if val is not None:
-                combined[name] = str(val)
-        await ensure_awaitable(redis.hset(market_key, mapping=combined))
-        fields_to_del = [name for name, val in best_price_fields if val is None]
-        if fields_to_del:
-            await ensure_awaitable(redis.hdel(market_key, *fields_to_del))
+        combined = self._build_combined_fields(hash_data, timestamp, best_price_fields)
 
-        await asyncio.gather(
-            BestPriceUpdater._recompute_direction(redis, market_key),
-            publish_market_event(redis, market_key, market_ticker, timestamp),
-        )
+        if self._cache is not None and self._batcher is not None:
+            from .orderbook_cache import MarketUpdate
+
+            self._cache.store_snapshot(market_key, combined)
+            self._batcher.add(
+                market_key,
+                MarketUpdate(market_key=market_key, market_ticker=market_ticker, fields=dict(combined), timestamp=timestamp),
+            )
+        else:
+            await self._write_to_redis(redis, market_key, market_ticker, timestamp, combined, best_price_fields)
 
         callback = self.get_update_callback()
         await callback(market_ticker, yes_bid_price, yes_ask_price)

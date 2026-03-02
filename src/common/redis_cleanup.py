@@ -37,9 +37,8 @@ _SCAN_PATTERNS = ("trades:*", "history:*", "weather:station_history:*")
 
 def _get_retention_seconds(key: str) -> int | None:
     """Return retention seconds for a key, or None to skip."""
-    for prefix in _SKIP_PREFIXES:
-        if key.startswith(prefix):
-            return None
+    if key.startswith(_SKIP_PREFIXES):
+        return None
     for infix in _SKIP_INFIXES:
         if infix in key:
             return None
@@ -73,29 +72,32 @@ def _build_cutoff_list(all_keys: set[str], now: float) -> list[tuple[str, float]
     return result
 
 
-async def _prune_keys(redis_client: Any, keys_with_cutoff: list[tuple[str, float]]) -> int:
-    """Remove stale entries; return count of keys that had entries removed."""
+async def _prune_and_delete_empty(redis_client: Any, keys_with_cutoff: list[tuple[str, float]]) -> tuple[int, int]:
+    """Remove stale entries and delete empty keys. Returns (pruned, deleted)."""
     pipe = redis_client.pipeline()
     for key, cutoff in keys_with_cutoff:
         pipe.zremrangebyscore(key, "-inf", str(cutoff))
-    results = await pipe.execute()
-    return sum(1 for r in results if r and r > 0)
-
-
-async def _delete_empty_keys(redis_client: Any, keys_with_cutoff: list[tuple[str, float]]) -> int:
-    """Delete keys with zero remaining entries; return count deleted."""
-    pipe = redis_client.pipeline()
-    for key, _ in keys_with_cutoff:
         pipe.zcard(key)
-    card_results = await pipe.execute()
-    empty_keys = [key for (key, _), card in zip(keys_with_cutoff, card_results) if card == 0]
+    results = await pipe.execute()
+
+    pruned = 0
+    empty_keys: list[str] = []
+    for i, (key, _) in enumerate(keys_with_cutoff):
+        removed = results[2 * i]
+        card = results[2 * i + 1]
+        if removed and removed > 0:
+            pruned += 1
+        if card == 0:
+            empty_keys.append(key)
+
     if not empty_keys:
-        return 0
+        return pruned, 0
+
     pipe = redis_client.pipeline()
     for key in empty_keys:
         pipe.delete(key)
     await pipe.execute()
-    return len(empty_keys)
+    return pruned, len(empty_keys)
 
 
 async def prune_sorted_set_keys(redis_client: Any, now: float) -> int:
@@ -113,8 +115,7 @@ async def prune_sorted_set_keys(redis_client: Any, now: float) -> int:
     keys_with_cutoff = _build_cutoff_list(all_keys, now)
     if not keys_with_cutoff:
         return 0
-    pruned = await _prune_keys(redis_client, keys_with_cutoff)
-    deleted = await _delete_empty_keys(redis_client, keys_with_cutoff)
+    pruned, deleted = await _prune_and_delete_empty(redis_client, keys_with_cutoff)
     total = pruned + deleted
     if total > 0:
         logger.info("Redis cleanup: pruned %d keys, deleted %d empty", pruned, deleted)

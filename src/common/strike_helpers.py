@@ -14,8 +14,6 @@ All strike-related code should import from this module to avoid duplication.
 import logging
 from typing import Any, Dict, Mapping, Optional, Tuple
 
-import numpy as np
-
 from common.truthy import pick_if
 
 from .strike_helpers_utils import (
@@ -304,7 +302,7 @@ def compute_strike_value(
 def _handle_between(floor_strike: Optional[float], cap_strike: Optional[float]) -> Tuple[Optional[float], Optional[str]]:
     if floor_strike is None or cap_strike is None:
         return None, "between_missing_bounds"
-    return float(np.mean([floor_strike, cap_strike])), None
+    return (floor_strike + cap_strike) / 2, None
 
 
 def _handle_greater(floor_strike: Optional[float], _: Optional[float]) -> Tuple[Optional[float], Optional[str]]:

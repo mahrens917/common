@@ -323,14 +323,22 @@ class TestRedisFetcherBuildMarketState:
         assert result.yes_ask is None
 
 
+def _make_pipeline_redis(pipeline_results: list) -> MagicMock:
+    """Create a Redis mock whose pipeline() returns results via execute()."""
+    mock_redis = MagicMock()
+    mock_pipe = MagicMock()
+    mock_pipe.execute = AsyncMock(return_value=pipeline_results)
+    mock_redis.pipeline.return_value = mock_pipe
+    return mock_redis
+
+
 class TestRedisFetcherProcessMarketKeys:
     """Tests for _process_market_keys method."""
 
     @pytest.mark.asyncio
     async def test_processes_bytes_keys(self) -> None:
         """Test processes bytes keys correctly."""
-        mock_redis = MagicMock()
-        mock_redis.hgetall = AsyncMock(return_value={b"traded": b"true", b"yes_bid": b"45"})
+        mock_redis = _make_pipeline_redis([{b"traded": b"true", b"yes_bid": b"45"}])
 
         with patch("common.trade_visualizer.parse_kalshi_market_key") as mock_parse:
             mock_result = MagicMock()
@@ -356,8 +364,7 @@ class TestRedisFetcherProcessMarketKeys:
     @pytest.mark.asyncio
     async def test_skips_none_states(self) -> None:
         """Test skips None states from extraction."""
-        mock_redis = MagicMock()
-        mock_redis.hgetall = AsyncMock(return_value={})
+        mock_redis = _make_pipeline_redis([{}])
 
         fetcher = RedisFetcher(MagicMock())
         result = await fetcher._process_market_keys(mock_redis, [TEST_MARKET_KEY])
@@ -367,8 +374,7 @@ class TestRedisFetcherProcessMarketKeys:
     @pytest.mark.asyncio
     async def test_appends_valid_states(self) -> None:
         """Test appends valid states to results."""
-        mock_redis = MagicMock()
-        mock_redis.hgetall = AsyncMock(return_value={b"traded": b"true"})
+        mock_redis = _make_pipeline_redis([{b"traded": b"true"}])
 
         with patch("common.trade_visualizer.parse_kalshi_market_key") as mock_parse:
             mock_result = MagicMock()

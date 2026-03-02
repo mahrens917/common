@@ -29,11 +29,17 @@ class _FakePipeline:
     def __init__(self, redis: _FakeRedis):
         self.redis = redis
         self.commands: List[Tuple[str, Tuple[Any, ...]]] = []
+        self._exists_results: List[bool] = []
 
-    def hset(self, key: str, field: str, value: str):
-        self.commands.append(("hset", (key, field, value)))
-        self.redis.pipeline_calls.append(("hset", (key, field, value)))
-        self.redis.store.setdefault(key, {})[field] = value
+    def hset(self, key: str = "", field: str = "", value: str = "", *, mapping: Dict[str, str] | None = None):
+        if mapping is not None:
+            self.commands.append(("hset", (key,)))
+            self.redis.pipeline_calls.append(("hset", (key,)))
+            self.redis.store.setdefault(key, {}).update(mapping)
+        else:
+            self.commands.append(("hset", (key, field, value)))
+            self.redis.pipeline_calls.append(("hset", (key, field, value)))
+            self.redis.store.setdefault(key, {})[field] = value
         return self
 
     def hdel(self, key: str, *fields: str):
@@ -43,7 +49,15 @@ class _FakePipeline:
             self.redis.store.setdefault(key, {}).pop(field, None)
         return self
 
+    def exists(self, key: str):
+        self._exists_results.append(key in self.redis.store)
+        return self
+
     async def execute(self):
+        if self._exists_results:
+            results = list(self._exists_results)
+            self._exists_results.clear()
+            return results
         return True
 
 

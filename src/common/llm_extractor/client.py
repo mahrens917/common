@@ -31,7 +31,7 @@ class MessageResponse:
 class AnthropicClient:
     """Client for the Anthropic Messages API."""
 
-    def __init__(self, *, model: str, max_tokens: int, api_key: str | None = None) -> None:
+    def __init__(self, *, model: str, max_tokens: int, temperature: float | None = None, api_key: str | None = None) -> None:
         """Initialize the client with model, max_tokens, and an API key."""
         if api_key:
             self._api_key = api_key
@@ -42,6 +42,7 @@ class AnthropicClient:
             self._api_key = loaded_key
         self._model = model
         self._max_tokens = max_tokens
+        self._temperature = temperature
         costs = _MODEL_COSTS[model]
         self._input_cost_per_mtok = costs[0]
         self._output_cost_per_mtok = costs[1]
@@ -68,6 +69,8 @@ class AnthropicClient:
             "system": system_prompt,
             "messages": messages,
         }
+        if self._temperature is not None:
+            payload["temperature"] = self._temperature
         if tools:
             payload["tools"] = tools
         headers: dict[str, str] = {

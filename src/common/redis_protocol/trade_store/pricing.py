@@ -41,6 +41,26 @@ class TradePriceUpdater:
         self._now = current_time_provider
         self._logger = logger
 
+    async def _load_matching_trades(self, search_date: date, market_ticker: str) -> list[TradeRecord]:
+        """Load trades for a date that match the given market ticker."""
+        order_ids = await self._repository.load_all_for_date(search_date)
+        if not order_ids:
+            return []
+        client = await self._repository.redis_client()
+        trade_keys = [self._repository.build_trade_key(search_date, oid) for oid in order_ids]
+        async with client.pipeline() as pipe:
+            for key in trade_keys:
+                pipe.get(key)
+            results = await ensure_awaitable(pipe.execute())
+        matching: list[TradeRecord] = []
+        for order_id, trade_json in zip(order_ids, results):
+            if not trade_json:
+                raise TradeStoreError(f"Trade {order_id} expected for {search_date} but payload missing")
+            trade = self._repository.decode_trade(trade_json)
+            if trade.market_ticker == market_ticker:
+                matching.append(trade)
+        return matching
+
     async def update_market_prices(
         self,
         market_ticker: str,
@@ -57,13 +77,7 @@ class TradePriceUpdater:
 
         for days_back in range(lookback_days):
             search_date = today - timedelta(days=days_back)
-            order_ids = await self._repository.load_all_for_date(search_date)
-            for order_id in order_ids:
-                trade = await self._repository.get(search_date, order_id)
-                if trade is None:
-                    raise TradeStoreError(f"Trade {order_id} expected for {search_date} but payload missing")
-                if trade.market_ticker != market_ticker:
-                    continue
+            for trade in await self._load_matching_trades(search_date, market_ticker):
                 await self._apply_price_update(trade, yes_bid=yes_bid, yes_ask=yes_ask)
                 updated_count += 1
 

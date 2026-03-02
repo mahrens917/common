@@ -78,13 +78,27 @@ class PnLStore:
             raise TradeStoreError(f"Invalid unrealized P&L JSON for {redis_key}") from exc
 
     async def get_unrealized_history(self, start_date: date, end_date: date) -> List[Dict[str, Any]]:
-        history: List[Dict[str, Any]] = []
+        date_keys: List[str] = []
         current = start_date
         while current <= end_date:
-            snapshot = await self.get_unrealized_snapshot(self._keys.unrealized_pnl(current))
-            if snapshot:
-                history.append(snapshot)
+            date_keys.append(self._keys.unrealized_pnl(current))
             current += timedelta(days=1)
+
+        client = await self._redis_provider()
+        async with client.pipeline() as pipe:
+            for key in date_keys:
+                pipe.get(key)
+            results = await ensure_awaitable(pipe.execute())
+
+        history: List[Dict[str, Any]] = []
+        for key, raw in zip(date_keys, results):
+            if not raw:
+                continue
+            try:
+                history.append(orjson.loads(raw))
+            except orjson.JSONDecodeError as exc:
+                raise TradeStoreError(f"Invalid unrealized P&L JSON for {key}") from exc
+
         self._logger.debug(
             "Retrieved %s unrealized P&L snapshots for %s to %s",
             len(history),

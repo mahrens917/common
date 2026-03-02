@@ -1,6 +1,6 @@
 import logging
 import time
-from typing import Any, Dict
+from typing import TYPE_CHECKING, Any, Dict
 
 from redis.asyncio import Redis
 
@@ -10,6 +10,10 @@ from .connection import RedisConnectionManager
 from .orderbook_helpers import DeltaProcessor, SnapshotProcessor
 from .orderbook_helpers.message_processing import dispatcher, normalizer
 from .orderbook_helpers.message_processing.dispatcher import OrderbookMessageContext
+
+if TYPE_CHECKING:
+    from ..coalescing_batcher import CoalescingBatcher
+    from .orderbook_helpers.orderbook_cache import MarketUpdate, OrderbookCache
 
 logger = logging.getLogger(__name__)
 
@@ -30,6 +34,11 @@ class KalshiOrderbookProcessor:
         self._update_trade_prices_callback = update_trade_prices_callback
         self._snapshot_processor = SnapshotProcessor(update_trade_prices_callback)
         self._delta_processor = DeltaProcessor(update_trade_prices_callback)
+
+    def set_cache_and_batcher(self, cache: "OrderbookCache", batcher: "CoalescingBatcher[str, MarketUpdate]") -> None:
+        """Attach cache and batcher to both processors."""
+        self._snapshot_processor.set_cache_and_batcher(cache, batcher)
+        self._delta_processor.set_cache_and_batcher(cache, batcher)
 
     async def _get_redis(self) -> Redis:
         return await self._connection_manager.get_redis()

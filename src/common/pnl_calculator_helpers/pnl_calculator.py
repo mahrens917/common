@@ -5,7 +5,7 @@ Provides basic PnL computation using current market values.
 """
 
 import logging
-from typing import List
+from typing import List, Optional
 
 from ..data_models.trade_record import TradeRecord
 
@@ -36,6 +36,18 @@ class PnLCalculationEngine:
         return total_pnl_cents
 
     @staticmethod
+    def compute_pnl_values(trades: List[TradeRecord]) -> List[int]:
+        """Compute per-trade PnL values in a single pass.
+
+        Args:
+            trades: List of trade records
+
+        Returns:
+            List of PnL values in cents, one per trade
+        """
+        return [trade.calculate_current_pnl_cents() for trade in trades]
+
+    @staticmethod
     def calculate_total_cost(trades: List[TradeRecord]) -> int:
         """
         Calculate total cost for a list of trades.
@@ -49,12 +61,13 @@ class PnLCalculationEngine:
         return sum(t.cost_cents for t in trades)
 
     @staticmethod
-    def calculate_win_rate(trades: List[TradeRecord]) -> float:
+    def calculate_win_rate(trades: List[TradeRecord], *, pnl_values: Optional[List[int]] = None) -> float:
         """
         Calculate win rate for a list of trades.
 
         Args:
             trades: List of trade records
+            pnl_values: Pre-computed PnL values to avoid recomputation
 
         Returns:
             Win rate as a float between 0.0 and 1.0
@@ -62,5 +75,8 @@ class PnLCalculationEngine:
         if not trades:
             return 0.0
 
-        winning_trades = sum(1 for t in trades if t.calculate_current_pnl_cents() > 0)
+        if pnl_values is not None:
+            winning_trades = sum(1 for pnl in pnl_values if pnl > 0)
+        else:
+            winning_trades = sum(1 for t in trades if t.calculate_current_pnl_cents() > 0)
         return winning_trades / len(trades)

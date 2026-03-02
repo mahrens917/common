@@ -151,8 +151,7 @@ async def increment_algo_stats(
         pipe.hincrby(stats_key, "ownership_rejections", ownership_rejections)
     if markets_evaluated:
         pipe.hincrby(stats_key, "markets_evaluated", markets_evaluated)
-    pipe.hset(stats_key, "algo", algo)
-    pipe.hset(stats_key, "last_updated", datetime.now(timezone.utc).isoformat())
+    pipe.hset(stats_key, mapping={"algo": algo, "last_updated": datetime.now(timezone.utc).isoformat()})
     pipe.expire(stats_key, ALGO_STATS_TTL_SECONDS)
     await ensure_awaitable(pipe.execute())
 
@@ -204,12 +203,23 @@ async def read_all_algo_stats(redis: "Redis") -> Dict[str, AlgoStatsData]:
         Dict mapping algo name to stats
     """
     algos = ["whale", "peak", "edge", "pdf", "weather"]
-    results: Dict[str, AlgoStatsData] = {}
+    keys = [_build_stats_key(algo) for algo in algos]
 
-    for algo in algos:
-        stats = await read_algo_stats(redis, algo)
-        if stats:
-            results[algo] = stats
+    pipe = redis.pipeline()
+    for key in keys:
+        pipe.hgetall(key)
+    raw_results = await ensure_awaitable(pipe.execute())
+
+    results: Dict[str, AlgoStatsData] = {}
+    for algo, data in zip(algos, raw_results):
+        if not data:
+            continue
+        decoded = {}
+        for k, v in data.items():
+            key = k.decode() if isinstance(k, bytes) else str(k)
+            val = v.decode() if isinstance(v, bytes) else str(v)
+            decoded[key] = val
+        results[algo] = AlgoStatsData.from_dict(decoded)
 
     return results
 

@@ -5,7 +5,7 @@ Delta processing for Kalshi orderbooks
 from __future__ import annotations
 
 import logging
-from typing import Any, Dict
+from typing import TYPE_CHECKING, Any, Dict
 
 import orjson
 from redis.asyncio import Redis
@@ -19,6 +19,9 @@ from .field_converter import FieldConverter
 from .side_data_updater import SideDataUpdater
 from .snapshot_processor import SnapshotProcessor
 from .snapshot_processor_helpers.redis_storage import store_optional_field
+
+if TYPE_CHECKING:
+    from .orderbook_cache import OrderbookCache
 
 logger = logging.getLogger(__name__)
 
@@ -41,6 +44,10 @@ class DeltaProcessor(SnapshotProcessor):
             return _none_guard_value
 
         side_field, price_str, delta = parsed_inputs
+
+        if self._cache is not None and self._batcher is not None:
+            return await self._process_delta_cached(redis, market_key, market_ticker, side_field, price_str, delta, timestamp)
+
         side_data = await _apply_side_delta(redis, market_key, market_ticker, side_field, price_str, delta)
         if side_data is None:
             _none_guard_value = False
@@ -54,6 +61,49 @@ class DeltaProcessor(SnapshotProcessor):
         except (RuntimeError, ConnectionError, OSError):
             logger.warning("Publish failed for %s after successful orderbook update", market_ticker)
             raise
+        return True
+
+    async def _process_delta_cached(
+        self,
+        redis: Redis,
+        market_key: str,
+        market_ticker: str,
+        side_field: str,
+        price_str: str,
+        delta: float,
+        timestamp: str,
+    ) -> bool:
+        """Process delta using in-memory cache and coalescing batcher."""
+        from .orderbook_cache import MarketUpdate
+
+        cache: OrderbookCache = self._cache  # type: ignore[assignment]
+        side_json = cache.get_field(market_key, side_field)
+        side_data = SideDataUpdater.apply_delta(SideDataUpdater.parse_side_data(side_json), price_str, delta)
+        side_encoded = orjson.dumps(side_data).decode()
+        logger.debug("MARKET_UPDATE: Ticker=%s, Fields=['%s']", market_ticker, side_field)
+
+        updates: Dict[str, str] = {side_field: side_encoded, "timestamp": timestamp}
+        if side_field == "yes_bids":
+            best_price, best_size = extract_best_bid(side_data)
+            if best_price is not None:
+                updates["yes_bid"] = str(best_price)
+            if best_size is not None:
+                updates["yes_bid_size"] = str(best_size)
+        else:
+            best_price, best_size = extract_best_ask(side_data)
+            if best_price is not None:
+                updates["yes_ask"] = str(best_price)
+            if best_size is not None:
+                updates["yes_ask_size"] = str(best_size)
+
+        cache.update_fields(market_key, updates)
+        snapshot = cache.get_snapshot(market_key)
+        self._batcher.add(  # type: ignore[union-attr]
+            market_key,
+            MarketUpdate(market_key=market_key, market_ticker=market_ticker, fields=snapshot, timestamp=timestamp),  # type: ignore[arg-type]
+        )
+
+        await _update_trade_price_cache_from_cache(self, cache, market_key, market_ticker)
         return True
 
 
@@ -151,6 +201,19 @@ async def _update_trade_price_cache(processor: DeltaProcessor, redis: Redis, mar
     decoded_yes_ask = yes_ask_raw.decode("utf-8", "ignore") if isinstance(yes_ask_raw, bytes) else yes_ask_raw
     parsed_yes_bid = FieldConverter.convert_numeric_field(decoded_yes_bid)
     parsed_yes_ask = FieldConverter.convert_numeric_field(decoded_yes_ask)
+    if parsed_yes_bid is not None and parsed_yes_ask is not None:
+        callback = processor.get_update_callback()
+        await callback(market_ticker, parsed_yes_bid, parsed_yes_ask)
+
+
+async def _update_trade_price_cache_from_cache(
+    processor: DeltaProcessor, cache: "OrderbookCache", market_key: str, market_ticker: str
+) -> None:
+    """Update cached trade prices from the in-memory cache."""
+    yes_bid_str = cache.get_field(market_key, "yes_bid")
+    yes_ask_str = cache.get_field(market_key, "yes_ask")
+    parsed_yes_bid = FieldConverter.convert_numeric_field(yes_bid_str)
+    parsed_yes_ask = FieldConverter.convert_numeric_field(yes_ask_str)
     if parsed_yes_bid is not None and parsed_yes_ask is not None:
         callback = processor.get_update_callback()
         await callback(market_ticker, parsed_yes_bid, parsed_yes_ask)

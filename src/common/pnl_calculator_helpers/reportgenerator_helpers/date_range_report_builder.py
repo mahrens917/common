@@ -67,8 +67,9 @@ class DateRangeReportBuilder:
 
         try:
             total_cost_cents = self.pnl_engine.calculate_total_cost(trades)
-            total_pnl_cents = await self.pnl_engine.calculate_unrealized_pnl(trades)
-            win_rate = self.pnl_engine.calculate_win_rate(trades)
+            pnl_values = self.pnl_engine.compute_pnl_values(trades)
+            total_pnl_cents = sum(pnl_values)
+            win_rate = self.pnl_engine.calculate_win_rate(trades, pnl_values=pnl_values)
 
             by_weather_station = await self.breakdown_calculator.calculate_station_breakdown(trades)
             by_rule = await self.breakdown_calculator.calculate_rule_breakdown(trades)

@@ -40,10 +40,13 @@ async def store_best_prices(
     ]
     fields_to_set = {name: str(val) for name, val in field_values if val is not None}
     fields_to_del = [name for name, val in field_values if val is None]
-    if fields_to_set:
-        await ensure_awaitable(redis.hset(market_key, mapping=fields_to_set))
-    if fields_to_del:
-        await ensure_awaitable(redis.hdel(market_key, *fields_to_del))
+    if fields_to_set or fields_to_del:
+        pipe = redis.pipeline()
+        if fields_to_set:
+            pipe.hset(market_key, mapping=fields_to_set)
+        if fields_to_del:
+            pipe.hdel(market_key, *fields_to_del)
+        await ensure_awaitable(pipe.execute())
 
 
 def build_hash_data(orderbook_sides: Dict[str, Any], timestamp: str) -> Dict[str, str]:

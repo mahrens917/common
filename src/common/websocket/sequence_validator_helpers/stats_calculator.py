@@ -30,22 +30,28 @@ class StatsCalculator:
             Dictionary with validation statistics
         """
         total_sids = len(self.tracking_state.sid_to_last_seq)
-        total_gaps = sum(self.tracking_state.sid_to_gap_count.values())
+
+        total_gaps = 0
+        sids_with_gaps = 0
+        max_gaps_for_sid = 0
+        for count in self.tracking_state.sid_to_gap_count.values():
+            total_gaps += count
+            if count > 0:
+                sids_with_gaps += 1
+                if count > max_gaps_for_sid:
+                    max_gaps_for_sid = count
 
         stats = {
             "service_name": self.service_name,
             "total_sids": total_sids,
             "total_gaps": total_gaps,
             "max_gap_tolerance": self.max_gap_tolerance,
-            "sids_with_gaps": len([count for count in self.tracking_state.sid_to_gap_count.values() if count > 0]),
+            "sids_with_gaps": sids_with_gaps,
         }
 
         if total_sids > 0:
             stats["avg_gaps_per_sid"] = total_gaps / total_sids
-            if self.tracking_state.sid_to_gap_count:
-                stats["max_gaps_for_sid"] = max(self.tracking_state.sid_to_gap_count.values())
-            else:
-                stats["max_gaps_for_sid"] = 0
+            stats["max_gaps_for_sid"] = max_gaps_for_sid
 
         return stats
 

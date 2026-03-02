@@ -14,6 +14,7 @@ which algo wins ownership and the computed trading direction.
 
 from __future__ import annotations
 
+import asyncio
 import logging
 from dataclasses import dataclass
 from typing import TYPE_CHECKING, Any, Callable, Dict, List, Optional
@@ -183,6 +184,39 @@ class AlgoUpdateResult:
     stale_cleared: List[str]
 
 
+async def _write_single_signal(
+    redis: "Redis",
+    ticker: str,
+    data: Dict[str, Any],
+    algo: str,
+    key_builder: Callable[[str], str],
+) -> tuple[str, bool, set[str]]:
+    """Write prices and metadata for one signal. Returns (ticker, success, field_names)."""
+    t_bid = data.get("t_bid")
+    t_ask = data.get("t_ask")
+
+    if t_bid is None and t_ask is None:
+        return ticker, False, set()
+
+    one_shot = bool(data.get("one_shot"))
+    market_key = key_builder(ticker)
+    await write_theoretical_prices(
+        redis,
+        market_key,
+        algo,
+        PriceSignal(t_bid=t_bid, t_ask=t_ask, one_shot=one_shot),
+        ticker,
+    )
+
+    field_names: set[str] = set()
+    metadata = {k: v for k, v in data.items() if k not in _PRICE_FIELDS}
+    if metadata:
+        await write_algo_metadata(redis, market_key, algo, metadata)
+        field_names.update(metadata.keys())
+
+    return ticker, True, field_names
+
+
 async def _write_signals(
     redis: "Redis",
     signals: Dict[str, Dict[str, Any]],
@@ -193,38 +227,18 @@ async def _write_signals(
 
     Returns (succeeded, failed, metadata_field_names).
     """
+    tasks = [_write_single_signal(redis, ticker, data, algo, key_builder) for ticker, data in signals.items()]
+    results = await asyncio.gather(*tasks)
+
     succeeded: List[str] = []
     failed: List[str] = []
     metadata_field_names: set[str] = set()
-
-    for ticker, data in signals.items():
-        t_bid = data.get("t_bid")
-        t_ask = data.get("t_ask")
-
-        if t_bid is None and t_ask is None:
-            failed.append(ticker)
-            continue
-
-        one_shot = bool(data.get("one_shot"))
-        market_key = key_builder(ticker)
-        try:
-            await write_theoretical_prices(
-                redis,
-                market_key,
-                algo,
-                PriceSignal(t_bid=t_bid, t_ask=t_ask, one_shot=one_shot),
-                ticker,
-            )
-        except (RuntimeError, ConnectionError, OSError):
-            logger.exception("Failed to write theoretical prices for %s", ticker)
-            raise
-        else:
+    for ticker, success, field_names in results:
+        if success:
             succeeded.append(ticker)
-
-        metadata = {k: v for k, v in data.items() if k not in _PRICE_FIELDS}
-        if metadata:
-            await write_algo_metadata(redis, market_key, algo, metadata)
-            metadata_field_names.update(metadata.keys())
+        else:
+            failed.append(ticker)
+        metadata_field_names.update(field_names)
 
     return succeeded, failed, metadata_field_names
 
@@ -282,6 +296,48 @@ async def update_and_clear_stale(
     return AlgoUpdateResult(succeeded=succeeded, failed=failed, stale_cleared=stale_cleared)
 
 
+async def write_event_signals(
+    redis: "Redis",
+    signals: Dict[str, Dict[str, Any]],
+    algo: str,
+    key_builder: Callable[[str], str],
+    event_market_tickers: set[str],
+) -> AlgoUpdateResult:
+    """Write signals for one event and clear algo fields from non-qualifying event markets.
+
+    Unlike ``update_and_clear_stale`` which scans ALL markets globally,
+    this only examines the markets belonging to the current event.
+
+    1. Write {algo}:t_bid and {algo}:t_ask for qualifying markets
+    2. Clear algo fields from event markets NOT in signals
+    3. Publish event updates for cleared markets
+    """
+    succeeded, failed, metadata_field_names = await _write_signals(
+        redis,
+        signals,
+        algo,
+        key_builder,
+    )
+
+    stale_tickers = event_market_tickers - set(signals.keys())
+    stale_cleared = await clear_stale_markets(
+        redis,
+        stale_tickers,
+        algo,
+        key_builder,
+        frozenset(metadata_field_names),
+    )
+
+    for ticker in stale_cleared:
+        market_key = key_builder(ticker)
+        try:
+            await publish_market_event_update(redis, market_key, ticker, algo, PriceSignal())
+        except RedisRetryError:  # policy_guard: allow-silent-handler
+            logger.exception("Failed to publish NONE signal for stale event market %s", ticker)
+
+    return AlgoUpdateResult(succeeded=succeeded, failed=failed, stale_cleared=stale_cleared)
+
+
 async def write_algo_metadata(
     redis: "Redis",
     market_key: str,
@@ -317,4 +373,5 @@ __all__ = [
     "scan_algo_active_markets",
     "update_and_clear_stale",
     "write_algo_metadata",
+    "write_event_signals",
 ]

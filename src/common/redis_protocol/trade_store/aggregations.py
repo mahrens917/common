@@ -8,6 +8,8 @@ TradeStore class so unit tests can focus on specific business rules.
 """
 
 
+import asyncio
+import itertools
 from datetime import date, timedelta
 from typing import Callable, List
 
@@ -43,16 +45,18 @@ class TradeQueryService:
             return []
         start_date = max(start_date, minimum_trade_date)
 
+        num_days = (end_date - start_date).days + 1
+        dates = [start_date + timedelta(days=i) for i in range(num_days)]
+        date_order_ids = await asyncio.gather(*(self._repository.load_all_for_date(d) for d in dates))
+
+        all_pairs = [(d, oid) for d, order_ids in zip(dates, date_order_ids) for oid in order_ids]
+        trade_results = await asyncio.gather(*[self._repository.get(d, oid) for d, oid in all_pairs])
+
         trades: List[TradeRecord] = []
-        current = start_date
-        while current <= end_date:
-            order_ids = await self._repository.load_all_for_date(current)
-            for order_id in order_ids:
-                trade = await self._repository.get(current, order_id)
-                if trade is None:
-                    raise TradeStoreError(f"Trade {order_id} expected for {current} but payload is missing")
-                trades.append(trade)
-            current += timedelta(days=1)
+        for (current, order_id), trade in zip(all_pairs, trade_results):
+            if trade is None:
+                raise TradeStoreError(f"Trade {order_id} expected for {current} but payload is missing")
+            trades.append(trade)
         return trades
 
     async def trades_by_station(self, station: str) -> List[TradeRecord]:
@@ -69,7 +73,11 @@ class TradeQueryService:
         today_trades = await self.trades_by_date_range(today, today)
         yesterday_trades = await self.trades_by_date_range(yesterday, yesterday)
 
-        closed_today = [trade for trade in today_trades + yesterday_trades if get_trade_close_date(trade) == today]
+        closed_today = [
+            trade
+            for trade in itertools.chain(today_trades, yesterday_trades)
+            if get_trade_close_date(trade) == today
+        ]
         self._logger.debug("Found %s trades closing on %s", len(closed_today), today)
         return closed_today
 
@@ -87,9 +95,9 @@ class TradeQueryService:
         return trades
 
     async def _collect_trades_by_id(self, order_ids: List[str], *, context: str) -> List[TradeRecord]:
+        results = await asyncio.gather(*(self._repository.get_by_order_id(oid) for oid in order_ids))
         trades: List[TradeRecord] = []
-        for order_id in order_ids:
-            trade = await self._repository.get_by_order_id(order_id)
+        for order_id, trade in zip(order_ids, results):
             if trade is None:
                 raise TradeStoreError(f"Trade {order_id} expected for {context} but not found")
             trades.append(trade)

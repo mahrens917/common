@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import asyncio
 import logging
 from datetime import datetime, timezone
 from typing import List
@@ -43,10 +44,11 @@ class RedisFetcher:
         raw_order_ids = await redis.smembers(station_key)
         start_aware = start_time if start_time.tzinfo else start_time.replace(tzinfo=timezone.utc)
         end_aware = end_time if end_time.tzinfo else end_time.replace(tzinfo=timezone.utc)
+        order_ids = [raw.decode("utf-8") if isinstance(raw, bytes) else raw for raw in raw_order_ids]
+        tasks = [self._trade_store.get_trade_by_order_id(oid) for oid in order_ids]
+        trades = await asyncio.gather(*tasks)
         results = []
-        for raw in raw_order_ids:
-            order_id = raw.decode("utf-8") if isinstance(raw, bytes) else raw
-            trade = await self._trade_store.get_trade_by_order_id(order_id)
+        for trade in trades:
             if not trade:
                 continue
             trade_time = trade.trade_timestamp if trade.trade_timestamp.tzinfo else trade.trade_timestamp.replace(tzinfo=timezone.utc)
@@ -73,15 +75,29 @@ class RedisFetcher:
 
     async def _process_market_keys(self, redis, raw_keys: list) -> List[MarketState]:
         """Process market keys and extract states."""
-        states: List[MarketState] = []
+        decoded_keys: list[str] = []
+        pipe = redis.pipeline()
         for raw_key in raw_keys:
             key = raw_key.decode("utf-8") if isinstance(raw_key, bytes) else raw_key
-            if self._is_auxiliary_key(key):
-                continue
+            if not self._is_auxiliary_key(key):
+                decoded_keys.append(key)
+                pipe.hgetall(key)
 
-            state = await self._extract_market_state(redis, key)
-            if state is not None:
-                states.append(state)
+        if not decoded_keys:
+            return []
+
+        all_market_data = await pipe.execute()
+
+        states: List[MarketState] = []
+        for key, market_data in zip(decoded_keys, all_market_data):
+            if not market_data:
+                continue
+            decoded = self._decode_market_data(market_data)
+            ticker = self._extract_ticker(key)
+            if ticker is None:
+                continue
+            state = self._build_market_state(ticker, decoded)
+            states.append(state)
         return states
 
     def _is_auxiliary_key(self, key: str) -> bool:

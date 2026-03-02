@@ -128,21 +128,24 @@ class TestPruneSortedSetKeys:
         redis = MagicMock()
         redis.scan = AsyncMock(return_value=(0, scan_results or []))
 
-        prune_pipe = MagicMock()
-        prune_pipe.zremrangebyscore = MagicMock()
-        prune_pipe.execute = AsyncMock(return_value=prune_results or [])
+        prune_list = prune_results or []
+        card_list = card_results or []
+        interleaved: list = []
+        for p, c in zip(prune_list, card_list):
+            interleaved.extend([p, c])
 
-        card_pipe = MagicMock()
-        card_pipe.zcard = MagicMock()
-        card_pipe.execute = AsyncMock(return_value=card_results or [])
+        combined_pipe = MagicMock()
+        combined_pipe.zremrangebyscore = MagicMock()
+        combined_pipe.zcard = MagicMock()
+        combined_pipe.execute = AsyncMock(return_value=interleaved)
 
         delete_pipe = MagicMock()
         delete_pipe.delete = MagicMock()
         delete_pipe.execute = AsyncMock(return_value=[])
 
-        redis.pipeline = MagicMock(side_effect=[prune_pipe, card_pipe, delete_pipe])
+        redis.pipeline = MagicMock(side_effect=[combined_pipe, delete_pipe])
 
-        return redis, prune_pipe, card_pipe, delete_pipe
+        return redis, combined_pipe, delete_pipe
 
     @pytest.mark.asyncio
     async def test_no_keys_found(self):
@@ -155,7 +158,7 @@ class TestPruneSortedSetKeys:
 
     @pytest.mark.asyncio
     async def test_prunes_with_correct_cutoff(self):
-        redis, prune_pipe, card_pipe, _ = self._make_redis(
+        redis, combined_pipe, _ = self._make_redis(
             scan_results=[b"trades:ABC"],
             prune_results=[3],
             card_results=[5],
@@ -164,11 +167,11 @@ class TestPruneSortedSetKeys:
         result = await prune_sorted_set_keys(redis, _NOW)
 
         assert result == 1
-        prune_pipe.zremrangebyscore.assert_called_once_with("trades:ABC", "-inf", str(_NOW - DATA_CUTOFF_SECONDS))
+        combined_pipe.zremrangebyscore.assert_called_once_with("trades:ABC", "-inf", str(_NOW - DATA_CUTOFF_SECONDS))
 
     @pytest.mark.asyncio
     async def test_deletes_empty_keys(self):
-        redis, prune_pipe, card_pipe, delete_pipe = self._make_redis(
+        redis, _, delete_pipe = self._make_redis(
             scan_results=[b"history:kalshi"],
             prune_results=[2],
             card_results=[0],
@@ -196,7 +199,7 @@ class TestPruneSortedSetKeys:
 
     @pytest.mark.asyncio
     async def test_no_deletes_when_keys_nonempty(self):
-        redis, prune_pipe, card_pipe, delete_pipe = self._make_redis(
+        redis, _, _ = self._make_redis(
             scan_results=[b"trades:XYZ"],
             prune_results=[0],
             card_results=[10],
@@ -205,8 +208,7 @@ class TestPruneSortedSetKeys:
         result = await prune_sorted_set_keys(redis, _NOW)
 
         assert result == 0
-        # delete pipeline should not be created (only 2 pipelines: prune + card)
-        assert redis.pipeline.call_count == 2
+        assert redis.pipeline.call_count == 1
 
     @pytest.mark.asyncio
     async def test_multiple_keys_mixed_results(self):
@@ -219,19 +221,16 @@ class TestPruneSortedSetKeys:
             ]
         )
 
-        prune_pipe = MagicMock()
-        prune_pipe.zremrangebyscore = MagicMock()
-        prune_pipe.execute = AsyncMock(return_value=[5, 0, 3, 1])
-
-        card_pipe = MagicMock()
-        card_pipe.zcard = MagicMock()
-        card_pipe.execute = AsyncMock(return_value=[2, 10, 0, 0])
+        combined_pipe = MagicMock()
+        combined_pipe.zremrangebyscore = MagicMock()
+        combined_pipe.zcard = MagicMock()
+        combined_pipe.execute = AsyncMock(return_value=[5, 2, 0, 10, 3, 0, 1, 0])
 
         delete_pipe = MagicMock()
         delete_pipe.delete = MagicMock()
         delete_pipe.execute = AsyncMock(return_value=[1, 1])
 
-        redis.pipeline = MagicMock(side_effect=[prune_pipe, card_pipe, delete_pipe])
+        redis.pipeline = MagicMock(side_effect=[combined_pipe, delete_pipe])
 
         result = await prune_sorted_set_keys(redis, _NOW)
 
@@ -254,7 +253,7 @@ class TestPruneSortedSetKeys:
 
     @pytest.mark.asyncio
     async def test_returns_zero_when_nothing_pruned_or_deleted(self):
-        redis, prune_pipe, card_pipe, _ = self._make_redis(
+        redis, _, _ = self._make_redis(
             scan_results=[b"trades:A", b"trades:B"],
             prune_results=[0, 0],
             card_results=[5, 3],
@@ -266,7 +265,7 @@ class TestPruneSortedSetKeys:
 
     @pytest.mark.asyncio
     async def test_realtime_key_uses_short_retention(self):
-        redis, prune_pipe, card_pipe, _ = self._make_redis(
+        redis, combined_pipe, _ = self._make_redis(
             scan_results=[b"history:deribit_realtime"],
             prune_results=[1],
             card_results=[5],
@@ -274,11 +273,11 @@ class TestPruneSortedSetKeys:
 
         await prune_sorted_set_keys(redis, _NOW)
 
-        prune_pipe.zremrangebyscore.assert_called_once_with("history:deribit_realtime", "-inf", str(_NOW - _REALTIME_RETENTION_SECONDS))
+        combined_pipe.zremrangebyscore.assert_called_once_with("history:deribit_realtime", "-inf", str(_NOW - _REALTIME_RETENTION_SECONDS))
 
     @pytest.mark.asyncio
     async def test_asos_key_uses_48h_retention(self):
-        redis, prune_pipe, card_pipe, _ = self._make_redis(
+        redis, combined_pipe, _ = self._make_redis(
             scan_results=[b"history:asos:KJFK"],
             prune_results=[1],
             card_results=[5],
@@ -286,4 +285,4 @@ class TestPruneSortedSetKeys:
 
         await prune_sorted_set_keys(redis, _NOW)
 
-        prune_pipe.zremrangebyscore.assert_called_once_with("history:asos:KJFK", "-inf", str(_NOW - _ASOS_RETENTION_SECONDS))
+        combined_pipe.zremrangebyscore.assert_called_once_with("history:asos:KJFK", "-inf", str(_NOW - _ASOS_RETENTION_SECONDS))

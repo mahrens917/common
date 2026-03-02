@@ -203,6 +203,8 @@ async def _publish_market_event(
     if algo:
         market_event_fields["algorithm"] = algo
         _add_price_fields(market_event_fields, prices)
+        if prices.one_shot:
+            market_event_fields["one_shot"] = "true"
     await with_redis_retry(
         lambda: stream_publish(redis, MARKET_EVENT_STREAM, market_event_fields),
         context=f"stream_publish_event:{ticker}",

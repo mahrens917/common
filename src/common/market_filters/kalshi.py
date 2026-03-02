@@ -65,34 +65,31 @@ def _normalise_orderbook(payload: Any) -> Mapping[str, Any]:
     return {}
 
 
+def _valid_levels(
+    book: Mapping[str, Any],
+) -> list[Tuple[float, int]]:
+    """Convert and filter orderbook entries to valid (price, size) pairs."""
+    return [
+        (price, size_int)
+        for p, s in book.items()
+        if (price := to_float_value(p)) is not None
+        and (size_int := to_int_value(s)) is not None
+        and size_int > 0
+    ]
+
+
 def extract_best_bid(payload: Any) -> Tuple[Optional[float], Optional[int]]:
-    book = _normalise_orderbook(payload)
-    best_price: Optional[float] = None
-    best_size: Optional[int] = None
-    for price_str, size in book.items():
-        price = to_float_value(price_str)
-        size_int = to_int_value(size)
-        if price is None or size_int is None or size_int <= 0:
-            continue
-        if best_price is None or price > best_price:
-            best_price = price
-            best_size = size_int
-    return best_price, best_size
+    levels = _valid_levels(_normalise_orderbook(payload))
+    if not levels:
+        return None, None
+    return max(levels, key=lambda x: x[0])
 
 
 def extract_best_ask(payload: Any) -> Tuple[Optional[float], Optional[int]]:
-    book = _normalise_orderbook(payload)
-    best_price: Optional[float] = None
-    best_size: Optional[int] = None
-    for price_str, size in book.items():
-        price = to_float_value(price_str)
-        size_int = to_int_value(size)
-        if price is None or size_int is None or size_int <= 0:
-            continue
-        if best_price is None or price < best_price:
-            best_price = price
-            best_size = size_int
-    return best_price, best_size
+    levels = _valid_levels(_normalise_orderbook(payload))
+    if not levels:
+        return None, None
+    return min(levels, key=lambda x: x[0])
 
 
 # parse_expiry_datetime is imported from kalshi_helpers.data_converters

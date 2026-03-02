@@ -1,6 +1,6 @@
 """Tests for snapshot_processor_helpers.redis_storage module."""
 
-from unittest.mock import AsyncMock
+from unittest.mock import AsyncMock, MagicMock
 
 import pytest
 
@@ -24,39 +24,51 @@ async def test_store_hash_fields_overwrites_timestamp() -> None:
     assert mapping["yes_bids"] == '{"50":3}'
 
 
+def _make_redis_with_pipeline() -> MagicMock:
+    """Create a Redis mock whose pipeline() returns a synchronous mock pipeline."""
+    redis = MagicMock()
+    mock_pipe = MagicMock()
+    mock_pipe.execute = AsyncMock(return_value=[])
+    redis.pipeline.return_value = mock_pipe
+    return redis
+
+
 @pytest.mark.asyncio
 async def test_store_best_prices_sets_and_deletes() -> None:
-    """store_best_prices sets non-None fields and deletes None fields."""
-    redis = AsyncMock()
+    """store_best_prices sets non-None fields and deletes None fields via pipeline."""
+    redis = _make_redis_with_pipeline()
 
     await store_best_prices(redis, "market:TEST", 50, None, 10, None)
 
-    redis.hset.assert_awaited_once()
-    set_mapping = redis.hset.call_args.kwargs["mapping"]
+    pipe = redis.pipeline.return_value
+    pipe.hset.assert_called_once()
+    set_mapping = pipe.hset.call_args.kwargs["mapping"]
     assert set_mapping == {"yes_bid": "50", "yes_bid_size": "10"}
 
-    redis.hdel.assert_awaited_once()
-    del_args = redis.hdel.call_args.args
+    pipe.hdel.assert_called_once()
+    del_args = pipe.hdel.call_args.args
     assert del_args == ("market:TEST", "yes_ask", "yes_ask_size")
 
 
 @pytest.mark.asyncio
 async def test_store_best_prices_all_present() -> None:
     """store_best_prices sets all fields when none are None."""
-    redis = AsyncMock()
+    redis = _make_redis_with_pipeline()
 
     await store_best_prices(redis, "market:TEST", 50, 55, 10, 20)
 
-    redis.hset.assert_awaited_once()
-    redis.hdel.assert_not_awaited()
+    pipe = redis.pipeline.return_value
+    pipe.hset.assert_called_once()
+    pipe.hdel.assert_not_called()
 
 
 @pytest.mark.asyncio
 async def test_store_best_prices_all_none() -> None:
     """store_best_prices deletes all fields when all are None."""
-    redis = AsyncMock()
+    redis = _make_redis_with_pipeline()
 
     await store_best_prices(redis, "market:TEST", None, None, None, None)
 
-    redis.hset.assert_not_awaited()
-    redis.hdel.assert_awaited_once()
+    pipe = redis.pipeline.return_value
+    pipe.hset.assert_not_called()
+    pipe.hdel.assert_called_once()

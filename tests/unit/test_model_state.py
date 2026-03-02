@@ -62,6 +62,31 @@ def _make_probability_redis(keys: List[str], probability_map: dict[str, float]):
         return value
 
     redis_client.hgetall = AsyncMock(side_effect=hgetall_side_effect)
+
+    # Support pipeline-based probability fetches
+    class _ProbabilityPipeline:
+        def __init__(self):
+            self._keys: List[str] = []
+
+        def hgetall(self, key):
+            self._keys.append(key)
+            return self
+
+        async def execute(self):
+            results = []
+            for key in self._keys:
+                key_str = key.decode("utf-8") if isinstance(key, bytes) else key
+                value = probability_map.get(key_str)
+                results.append(value if value is not None else {})
+            return results
+
+        async def __aenter__(self):
+            return self
+
+        async def __aexit__(self, *args):
+            pass
+
+    redis_client.pipeline.return_value = _ProbabilityPipeline()
     return redis_client
 
 
@@ -93,7 +118,7 @@ async def test_calculate_probability_sums_matching_keys():
 
     assert probability == pytest.approx(0.60)
     redis_client.keys.assert_awaited_once_with("probabilities:BTC:*")
-    assert redis_client.hgetall.await_count >= _TEST_COUNT_3
+    redis_client.pipeline.assert_called_once()
 
 
 @pytest.mark.asyncio

@@ -242,17 +242,26 @@ class TestReadAlgoStats:
 class TestReadAllAlgoStats:
     """Tests for read_all_algo_stats function."""
 
+    @staticmethod
+    def _make_pipeline_redis(pipeline_results: list) -> MagicMock:
+        """Create Redis mock with pipeline returning given results."""
+        redis = MagicMock()
+        mock_pipe = MagicMock()
+        mock_pipe.execute = AsyncMock(return_value=pipeline_results)
+        redis.pipeline.return_value = mock_pipe
+        return redis
+
     @pytest.mark.asyncio
     async def test_read_all_algo_stats_returns_all_found(self):
-        async def mock_hgetall(key):
-            if "weather" in key:
-                return {"algo": "weather", "events_processed": "100"}
-            if "pdf" in key:
-                return {"algo": "pdf", "events_processed": "50"}
-            return {}
-
-        redis = MagicMock()
-        redis.hgetall = AsyncMock(side_effect=mock_hgetall)
+        # algos order: whale, peak, edge, pdf, weather
+        pipeline_results = [
+            {},  # whale
+            {},  # peak
+            {},  # edge
+            {"algo": "pdf", "events_processed": "50"},  # pdf
+            {"algo": "weather", "events_processed": "100"},  # weather
+        ]
+        redis = self._make_pipeline_redis(pipeline_results)
 
         result = await read_all_algo_stats(redis)
 
@@ -263,8 +272,8 @@ class TestReadAllAlgoStats:
 
     @pytest.mark.asyncio
     async def test_read_all_algo_stats_skips_missing(self):
-        redis = MagicMock()
-        redis.hgetall = AsyncMock(return_value={})
+        pipeline_results = [{}, {}, {}, {}, {}]
+        redis = self._make_pipeline_redis(pipeline_results)
 
         result = await read_all_algo_stats(redis)
 

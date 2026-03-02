@@ -52,9 +52,8 @@ class MarketDataMixin(RedisConnectionMixin):
         pipe = redis_client.pipeline(transaction=True)
 
         try:
-            for field_name, value in field_updates.items():
-                pipe.hset(market_key, field_name, self._format_probability(value))
-
+            mapping = {field_name: self._format_probability(value) for field_name, value in field_updates.items()}
+            pipe.hset(market_key, mapping=mapping)
             await ensure_awaitable(pipe.execute())
             logger.debug(
                 "Persisted enhanced data for %s with fields: %s",

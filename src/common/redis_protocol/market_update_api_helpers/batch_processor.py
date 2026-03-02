@@ -115,26 +115,27 @@ def add_signal_to_pipeline(
 
 async def get_rejection_stats(redis: "Redis", days: int = 1) -> Dict[str, Dict[str, int]]:
     """Get rejection statistics for the specified number of days."""
-    stats: Dict[str, Dict[str, int]] = {}
     today = date.today()
+    day_strings = [(today - timedelta(days=i)).isoformat() for i in range(days)]
+    keys = [f"{REJECTION_KEY_PREFIX}:{day_str}" for day_str in day_strings]
 
-    for i in range(days):
-        day = today - timedelta(days=i)
-        day_str = day.isoformat()
-        key = f"{REJECTION_KEY_PREFIX}:{day_str}"
+    async def _pipeline_fetch() -> list:
+        pipe = redis.pipeline()
+        for key in keys:
+            pipe.hgetall(key)
+        return await ensure_awaitable(pipe.execute())
 
-        data = await with_redis_retry(
-            lambda k=key: ensure_awaitable(redis.hgetall(k)),
-            context=f"hgetall_rejection_stats:{day_str}",
-        )
+    raw_results = await with_redis_retry(
+        _pipeline_fetch,
+        context="pipeline_rejection_stats",
+    )
+
+    stats: Dict[str, Dict[str, int]] = {}
+    for day_str, data in zip(day_strings, raw_results):
         if data:
-            day_stats: Dict[str, int] = {}
-            for field, count in data.items():
-                if isinstance(field, bytes):
-                    field = field.decode("utf-8")
-                if isinstance(count, bytes):
-                    count = int(count.decode("utf-8"))
-                day_stats[field] = int(count)
-            stats[day_str] = day_stats
+            stats[day_str] = {
+                (f.decode("utf-8") if isinstance(f, bytes) else f): int(c.decode("utf-8") if isinstance(c, bytes) else c)
+                for f, c in data.items()
+            }
 
     return stats

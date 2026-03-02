@@ -82,19 +82,22 @@ async def test_accumulates_valid_probabilities(monkeypatch):
         in_range,
     )
 
-    async def extract_probability(_redis_client, key_str):
-        mapping = {"KEY_A": 0.1, "KEY_B": None, "KEY_C": 0.3}
-        return mapping.get(key_str)
+    prob_map = {"KEY_A": 0.1, "KEY_C": 0.3}
 
-    extract_mock = AsyncMock(side_effect=extract_probability)
+    async def fake_pipeline_fetch(_redis_client, matching_keys):
+        return [prob_map.get(k) for k in matching_keys]
+
+    pipeline_mock = AsyncMock(side_effect=fake_pipeline_fetch)
     monkeypatch.setattr(
         probability_calculator,
-        "extract_probability_from_key",
-        extract_mock,
+        "_fetch_probabilities_pipeline",
+        pipeline_mock,
     )
 
     result = await calculate_range_probability(redis_client, "USD", 5.0, 25.0)
 
     assert result == pytest.approx(0.4)
-    extract_mock.assert_any_call(redis_client, "KEY_A")
-    extract_mock.assert_any_call(redis_client, "KEY_C")
+    pipeline_mock.assert_called_once()
+    called_keys = pipeline_mock.call_args[0][1]
+    assert "KEY_A" in called_keys
+    assert "KEY_C" in called_keys

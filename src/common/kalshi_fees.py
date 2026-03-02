@@ -26,6 +26,8 @@ _STANDARD_CATEGORY = "standard"
 _MAKER_FEE_KEY = "maker_fee_coefficient"
 _TAKER_FEE_KEY = "taker_fee_coefficient"
 
+_UPPER_PREFIXES_CACHE: tuple[str, ...] | None = None
+
 
 def _validate_config(config: Dict[str, Any], config_path: str) -> None:
     """Validate required sections and fields in trade analyzer config."""
@@ -66,20 +68,35 @@ def _load_trade_analyzer_config() -> Dict[str, Any]:
     return config
 
 
+_CONFIG_CACHE: Dict[str, Any] | None = None
+
+
+def _get_cached_config() -> Dict[str, Any]:
+    global _CONFIG_CACHE
+    if _CONFIG_CACHE is None:
+        _CONFIG_CACHE = _load_trade_analyzer_config()
+    return _CONFIG_CACHE
+
+
 def get_symbol_mappings() -> Dict[str, str]:
     """Return configured symbol-to-fee-category mappings."""
 
-    config = _load_trade_analyzer_config()
+    config = _get_cached_config()
     return config["symbol_mappings"]["mappings"]
+
+
+def _get_upper_prefixes(config: Dict[str, Any]) -> tuple[str, ...]:
+    global _UPPER_PREFIXES_CACHE
+    if _UPPER_PREFIXES_CACHE is None:
+        _UPPER_PREFIXES_CACHE = tuple(p.upper() for p in config["trading_fees"]["index_ticker_prefixes"])
+    return _UPPER_PREFIXES_CACHE
 
 
 def _get_market_category(market_ticker: str, config: Dict[str, Any]) -> str:
     """Return the fee category for *market_ticker* (e.g. ``'standard'`` or ``'index'``)."""
 
     ticker_upper = market_ticker.upper()
-    index_prefixes = config["trading_fees"]["index_ticker_prefixes"]
-
-    if any(ticker_upper.startswith(prefix.upper()) for prefix in index_prefixes):
+    if ticker_upper.startswith(_get_upper_prefixes(config)):
         return "index"
 
     return _STANDARD_CATEGORY
@@ -117,7 +134,7 @@ def calculate_fees(
     if contracts == 0 or price_cents == 0:
         return 0
 
-    config = _load_trade_analyzer_config()
+    config = _get_cached_config()
     category = _get_market_category(market_ticker, config)
     fee_key = _MAKER_FEE_KEY if is_maker else _TAKER_FEE_KEY
     fee_coefficient = config["trading_fees"]["categories"][category][fee_key]

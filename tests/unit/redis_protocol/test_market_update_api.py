@@ -160,22 +160,27 @@ class TestRequestMarketUpdate:
 class TestGetRejectionStats:
     """Tests for get_rejection_stats function."""
 
-    @pytest.fixture
-    def mock_redis(self):
+    @staticmethod
+    def _make_pipeline_redis(pipeline_results: list) -> MagicMock:
+        """Create Redis mock with pipeline returning given results."""
         redis = MagicMock()
-        redis.hgetall = AsyncMock(return_value={})
+        mock_pipe = MagicMock()
+        mock_pipe.execute = AsyncMock(return_value=pipeline_results)
+        redis.pipeline.return_value = mock_pipe
         return redis
 
     @pytest.mark.asyncio
-    async def test_no_rejections(self, mock_redis):
+    async def test_no_rejections(self):
+        mock_redis = self._make_pipeline_redis([{}])
+
         result = await get_rejection_stats(mock_redis)
 
         assert result == {}
 
     @pytest.mark.asyncio
-    async def test_with_rejections(self, mock_redis):
+    async def test_with_rejections(self):
         today = date.today().isoformat()
-        mock_redis.hgetall = AsyncMock(return_value={b"weather:pdf": b"5", b"peak:extreme": b"3"})
+        mock_redis = self._make_pipeline_redis([{b"weather:pdf": b"5", b"peak:extreme": b"3"}])
 
         result = await get_rejection_stats(mock_redis, days=1)
 
@@ -184,16 +189,17 @@ class TestGetRejectionStats:
         assert result[today]["peak:extreme"] == 3
 
     @pytest.mark.asyncio
-    async def test_multiple_days(self, mock_redis):
-        mock_redis.hgetall = AsyncMock(return_value={b"weather:pdf": b"2"})
+    async def test_multiple_days(self):
+        mock_redis = self._make_pipeline_redis([{b"weather:pdf": b"2"}] * 3)
 
         result = await get_rejection_stats(mock_redis, days=3)
 
-        assert mock_redis.hgetall.call_count == 3
+        pipe = mock_redis.pipeline.return_value
+        assert pipe.hgetall.call_count == 3
 
     @pytest.mark.asyncio
-    async def test_string_field_handling(self, mock_redis):
-        mock_redis.hgetall = AsyncMock(return_value={"weather:pdf": "10"})
+    async def test_string_field_handling(self):
+        mock_redis = self._make_pipeline_redis([{"weather:pdf": "10"}])
 
         result = await get_rejection_stats(mock_redis, days=1)
 
@@ -578,3 +584,68 @@ class TestAlgoUpdateResult:
         assert result.succeeded == ["A", "B"]
         assert result.failed == ["C"]
         assert result.stale_cleared == ["D"]
+
+
+class TestWriteEventSignals:
+    """Tests for write_event_signals function."""
+
+    @pytest.fixture
+    def mock_redis(self):
+        redis = MagicMock()
+        redis.hget = AsyncMock(return_value=None)
+        redis.hset = AsyncMock()
+        redis.hdel = AsyncMock()
+        redis.publish = AsyncMock()
+        redis.xadd = AsyncMock(return_value=b"1-0")
+        return redis
+
+    @pytest.fixture
+    def mock_key_builder(self):
+        return lambda ticker: f"markets:kalshi:test:{ticker}"
+
+    @pytest.mark.asyncio
+    async def test_writes_signals_for_event(self, mock_redis, mock_key_builder):
+        from common.redis_protocol.market_update_api import write_event_signals
+
+        result = await write_event_signals(
+            mock_redis,
+            {"MKT-A1": {"t_bid": 50.0}},
+            "peak",
+            mock_key_builder,
+            event_market_tickers={"MKT-A1", "MKT-A2"},
+        )
+
+        assert "MKT-A1" in result.succeeded
+        assert "MKT-A2" in result.stale_cleared
+
+    @pytest.mark.asyncio
+    async def test_no_stale_when_all_have_signals(self, mock_redis, mock_key_builder):
+        from common.redis_protocol.market_update_api import write_event_signals
+
+        result = await write_event_signals(
+            mock_redis,
+            {"MKT-A1": {"t_bid": 50.0}, "MKT-A2": {"t_ask": 60.0}},
+            "peak",
+            mock_key_builder,
+            event_market_tickers={"MKT-A1", "MKT-A2"},
+        )
+
+        assert len(result.succeeded) == 2
+        assert result.stale_cleared == []
+
+    @pytest.mark.asyncio
+    async def test_empty_signals_clears_all_event_markets(self, mock_redis, mock_key_builder):
+        from common.redis_protocol.market_update_api import write_event_signals
+
+        mock_redis.hmget = AsyncMock(return_value=[b"50", None])
+
+        result = await write_event_signals(
+            mock_redis,
+            {},
+            "peak",
+            mock_key_builder,
+            event_market_tickers={"MKT-A1", "MKT-A2"},
+        )
+
+        assert result.succeeded == []
+        assert set(result.stale_cleared) == {"MKT-A1", "MKT-A2"}

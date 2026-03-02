@@ -25,6 +25,4 @@ def should_reduce_exposure(total_exposure: int, max_exposure: int) -> bool:
 
 def get_sorted_high_risk_positions(assessments: list) -> list:
     """Get high-risk positions sorted by risk score (highest first)."""
-    high_risk_positions = [a for a in assessments if a.requires_closure]
-    high_risk_positions.sort(key=lambda x: x.risk_score, reverse=True)
-    return high_risk_positions
+    return sorted((a for a in assessments if a.requires_closure), key=lambda x: x.risk_score, reverse=True)

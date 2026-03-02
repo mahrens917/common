@@ -11,13 +11,13 @@ from .algo_stats_api import (
     reset_algo_stats,
     write_algo_stats,
 )
-from .batching import BatchManager
 from .close_positions_command import (
     CLOSE_POSITIONS_COMMAND_KEY,
     clear_close_positions_command,
     get_close_positions_command,
     request_close_all_positions,
 )
+from .coalescing_batcher import CoalescingBatcher
 from .connection import cleanup_redis_pool, get_redis_pool
 from .connection_pool_core import get_retry_redis_client
 from .converters import coerce_float, decode_redis_hash, decode_redis_value
@@ -50,7 +50,14 @@ from .streams import (
     ALGO_SIGNAL_STREAM,
     CLOSE_POSITIONS_STREAM,
     MARKET_EVENT_STREAM,
+    SIGNALS_EDGE_CONSUMER_GROUP,
+    SIGNALS_PEAK_CONSUMER_GROUP,
+    SIGNALS_STRUCTURE_CONSUMER_GROUP,
+    SIGNALS_WHALE_CONSUMER_GROUP,
     TRACKER_CONSUMER_GROUP,
+    MessageHandler,
+    RedisStreamSubscriber,
+    StreamConfig,
     claim_pending_entries,
     decode_stream_response,
     ensure_consumer_group,
@@ -101,7 +108,7 @@ __all__ = [
     "InstrumentMetadata",
     "IndexMetadata",
     "MarketData",
-    "BatchManager",
+    "CoalescingBatcher",
     "KalshiStore",
     "ensure_market_metadata_fields",
     "ProbabilityStore",
@@ -153,6 +160,13 @@ __all__ = [
     "ALGO_SIGNAL_STREAM",
     "CLOSE_POSITIONS_STREAM",
     "MARKET_EVENT_STREAM",
+    "MessageHandler",
+    "RedisStreamSubscriber",
+    "SIGNALS_EDGE_CONSUMER_GROUP",
+    "SIGNALS_PEAK_CONSUMER_GROUP",
+    "SIGNALS_STRUCTURE_CONSUMER_GROUP",
+    "SIGNALS_WHALE_CONSUMER_GROUP",
+    "StreamConfig",
     "TRACKER_CONSUMER_GROUP",
     "claim_pending_entries",
     "decode_stream_response",

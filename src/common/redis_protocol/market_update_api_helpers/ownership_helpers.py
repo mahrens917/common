@@ -41,15 +41,14 @@ async def scan_algo_active_markets(
             lambda c=cursor: ensure_awaitable(redis.scan(c, match=scan_pattern, count=1000)),
             context=f"scan:{scan_pattern}",
         )
-        for key in keys:
-            key_str = key.decode("utf-8") if isinstance(key, bytes) else str(key)
+        for raw_key in keys:
+            key_str = raw_key.decode("utf-8") if isinstance(raw_key, bytes) else str(raw_key)
             values = await with_redis_retry(
                 lambda k=key_str: ensure_awaitable(redis.hmget(k, [bid_field, ask_field])),
                 context=f"hmget_theo:{key_str}",
             )
             if values[0] is not None or values[1] is not None:
-                ticker = key_str.split(":")[-1]
-                active_tickers.add(ticker)
+                active_tickers.add(key_str.split(":")[-1])
         if cursor == 0:
             break
 
@@ -87,7 +86,6 @@ async def clear_stale_markets(
 
     for ticker in stale_tickers:
         market_key = key_builder(ticker)
-
         await with_redis_retry(
             lambda mk=market_key: ensure_awaitable(redis.hdel(mk, *all_fields)),
             context=f"hdel_stale:{ticker}",

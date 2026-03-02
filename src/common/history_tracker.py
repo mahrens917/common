@@ -22,24 +22,21 @@ from common.redis_utils import RedisOperationError, get_redis_connection
 
 logger = logging.getLogger(__name__)
 
-_BALANCE_MEMBER_PARTS = 2  # "timestamp:balance_cents" → exactly 2 colon-separated parts
-_HISTORY_MEMBER_PARTS = 2  # "timestamp:value" → exactly 2 colon-separated parts
-
 
 def _parse_history_member(member_str: str) -> float:
     """Parse value from a history member string 'timestamp:value'."""
-    parts = member_str.split(":", 1)
-    if len(parts) != _HISTORY_MEMBER_PARTS:
+    _, sep, value = member_str.partition(":")
+    if not sep:
         raise ValueError(f"Unexpected member format: {member_str!r}")
-    return float(parts[1])
+    return float(value)
 
 
 def _parse_balance_member(member_str: str) -> int:
     """Parse balance_cents from a balance member string 'timestamp:balance_cents'."""
-    parts = member_str.split(":", 1)
-    if len(parts) != _BALANCE_MEMBER_PARTS:
+    _, sep, value = member_str.partition(":")
+    if not sep:
         raise ValueError(f"Unexpected member format: {member_str!r}")
-    return int(parts[1])
+    return int(value)
 
 
 # OSError (in _BASE_REDIS_ERRORS) is the parent of ConnectionError and TimeoutError,

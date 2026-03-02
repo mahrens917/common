@@ -48,14 +48,12 @@ class PriceDataCollector:
             if len(price_data) < _MIN_DATA_POINTS:
                 raise InsufficientDataError(f"Insufficient price data for {symbol}: {len(price_data)} points")
 
-            timestamps = []
-            prices = []
+            data_points: List[Tuple[datetime, float]] = []
 
             for timestamp_int, price_float in price_data:
                 try:
                     dt = datetime.fromtimestamp(timestamp_int, tz=timezone.utc)
-                    timestamps.append(dt)
-                    prices.append(float(price_float))
+                    data_points.append((dt, float(price_float)))
                 except (  # policy_guard: allow-silent-handler
                     ValueError,
                     TypeError,
@@ -63,24 +61,24 @@ class PriceDataCollector:
                     logger.warning(f"Skipping invalid price data point for {symbol}: timestamp={timestamp_int}, price={price_float}, error")
                     continue
 
-            if not timestamps or not prices:
+            if not data_points:
                 raise InsufficientDataError(f"No valid price data for {symbol}")
 
-            sorted_data = sorted(zip(timestamps, prices))
-            timestamps, prices = zip(*sorted_data)
-            timestamps = list(timestamps)
-            prices = list(prices)
-
-            # Ensure we always display a full 24 hours of history before the forecast
-            if timestamps:
-                history_span = timestamps[-1] - timedelta(hours=24)
-                first_timestamp = timestamps[0]
-                if first_timestamp > history_span:
-                    synthetic_time = history_span.replace(tzinfo=first_timestamp.tzinfo)
-                    timestamps.insert(0, synthetic_time)
-                    prices.insert(0, prices[0])
-
+            data_points.sort()
+            timestamps, prices = (list(col) for col in zip(*data_points))
+            self._pad_to_24h(timestamps, prices)
             return timestamps, prices
 
         finally:
             await price_tracker.cleanup()
+
+    @staticmethod
+    def _pad_to_24h(timestamps: List[datetime], prices: List[float]) -> None:
+        """Ensure at least 24 hours of history by prepending a synthetic point if needed."""
+        if not timestamps:
+            return
+        history_span = timestamps[-1] - timedelta(hours=24)
+        if timestamps[0] > history_span:
+            synthetic_time = history_span.replace(tzinfo=timestamps[0].tzinfo)
+            timestamps.insert(0, synthetic_time)
+            prices.insert(0, prices[0])

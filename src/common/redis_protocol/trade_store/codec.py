@@ -15,9 +15,7 @@ import orjson
 
 from ...data_models.trade_record import TradeRecord, TradeSide
 from .codec_helpers.field_extractor import ensure_timezone, extract_optional_fields
-from .codec_helpers.validators import validate_required_fields as _validate_required_fields
-from .codec_helpers.validators import validate_trade_metadata as _validate_trade_metadata
-from .codec_helpers.validators import validate_weather_fields as _validate_weather_fields
+from .codec_helpers.validators import validate_trade_data as _validate_trade_data
 from .order_metadata_codec import OrderMetadataCodec
 
 JsonLike = Union[str, bytes, Dict[str, Any]]
@@ -29,9 +27,7 @@ def _extract_optional_fields(data: Dict[str, Any]) -> Dict[str, Any]:
 
 def _decode_trade_record(payload: JsonLike) -> TradeRecord:
     data = _ensure_mapping(payload)
-    _validate_required_fields(data)
-    _validate_trade_metadata(data)
-    _validate_weather_fields(data)
+    _validate_trade_data(data)
 
     optional_fields = _extract_optional_fields(data)
     trade_timestamp = ensure_timezone(datetime.fromisoformat(data["trade_timestamp"]))
