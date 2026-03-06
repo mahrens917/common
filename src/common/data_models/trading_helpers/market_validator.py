@@ -3,7 +3,7 @@
 from datetime import datetime
 from typing import Any, Optional
 
-from common.constants.trading import MAX_PRICE_CENTS
+from common.constants import MAX_PRICE_CENTS
 
 # Error messages
 ERR_MARKET_ID_MISSING = "Market ID must be specified"

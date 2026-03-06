@@ -9,13 +9,10 @@ from typing import Any, Dict, List, Optional
 
 from redis.asyncio import Redis
 
-from ...config.redis_schema import get_schema_config
+from ...config.redis_schema import RedisSchemaConfig
 from ..weather_station_resolver import WeatherStationResolver
-from .store_helpers.attribute_resolution import kalshi_store_getattr
-from .store_helpers.property_management import setup_kalshi_store_properties
-from .store_helpers.scanner import scan_market_keys
-from .store_helpers.static_methods import setup_kalshi_store_static_methods
-from .store_helpers.ticker_finder import find_all_market_tickers, find_currency_market_tickers
+from .store_helpers.class_setup import kalshi_store_getattr, setup_kalshi_store_properties, setup_kalshi_store_static_methods
+from .store_helpers.data_operations import find_all_market_tickers, find_currency_market_tickers, scan_market_keys
 from .store_initializer import initialize_kalshi_store
 from .store_methods import (
     get_active_strikes_and_expiries,
@@ -27,7 +24,7 @@ from .store_methods import (
 )
 from .utils_coercion import default_weather_station_loader as _canonical_weather_loader
 
-SCHEMA = get_schema_config()
+SCHEMA = RedisSchemaConfig.load()
 logger = logging.getLogger(__name__)
 default_weather_station_loader = _canonical_weather_loader
 _default_weather_station_loader = default_weather_station_loader
@@ -199,8 +196,7 @@ class KalshiStore:
             return attr_resolver.resolve("get_market_key")(market_ticker)
         raise NotImplementedError("KalshiStore helper not bound for get_market_key")
 
-    def __getattr__(self, name: str) -> Any:
-        raise AttributeError(name)
+    __getattr__ = kalshi_store_getattr
 
 
 _SETTABLE_ATTRIBUTES = {
@@ -229,7 +225,6 @@ for method_suffix, attr_name in _SETTABLE_ATTRIBUTES.items():
 
     # Setter helpers used during initialization (avoids direct private usage).
 
-# Set up properties, getattr, and static methods
+# Set up properties and static methods
 setup_kalshi_store_properties(KalshiStore)
-setattr(KalshiStore, "__getattr__", kalshi_store_getattr)
 setup_kalshi_store_static_methods(KalshiStore)

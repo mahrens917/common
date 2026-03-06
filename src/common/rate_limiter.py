@@ -3,7 +3,7 @@
 Aggressive backoff-only strategy: runs at full speed until rate limited,
 then backs off exponentially. A single success clears backoff completely.
 
-Used by: peak, kalshi, and other trading system repositories.
+Used by: kalshi, analytics, and other trading system repositories.
 """
 
 from __future__ import annotations

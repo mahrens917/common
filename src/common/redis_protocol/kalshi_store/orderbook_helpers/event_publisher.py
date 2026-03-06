@@ -24,6 +24,8 @@ async def publish_market_event(
     market_key: str,
     market_ticker: str,
     timestamp: str,
+    *,
+    event_ticker: str | None = None,
 ) -> bool:
     """
     Publish market event update to the stream.
@@ -33,18 +35,18 @@ async def publish_market_event(
         market_key: Redis key for the market
         market_ticker: Market ticker string
         timestamp: Update timestamp
+        event_ticker: Optional pre-fetched event_ticker to avoid extra Redis lookup
 
     Returns:
         True if published, False if no event_ticker found
     """
     try:
-        event_ticker = await ensure_awaitable(redis.hget(market_key, "event_ticker"))
-        if not event_ticker:
-            logger.debug("No event_ticker for %s, skipping publish", market_ticker)
-            return False
-
-        if isinstance(event_ticker, bytes):
-            event_ticker = event_ticker.decode("utf-8")
+        if event_ticker is None:
+            raw = await ensure_awaitable(redis.hget(market_key, "event_ticker"))
+            if not raw:
+                logger.debug("No event_ticker for %s, skipping publish", market_ticker)
+                return False
+            event_ticker = raw.decode("utf-8") if isinstance(raw, bytes) else raw
 
         await stream_publish(
             redis,

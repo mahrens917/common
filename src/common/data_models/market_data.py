@@ -16,7 +16,7 @@ from .micro_price_helpers.validation_params import (
     MathematicalRelationships,
     ValidationErrorParams,
 )
-from .micropriceoptiondata_helpers.factory import MicroPriceOptionDataFactory
+from .micropriceoptiondata_helpers.factory import from_enhanced_option_data
 from .micropriceoptiondata_helpers.properties import MicroPriceProperties
 
 
@@ -168,7 +168,7 @@ class MicroPriceOptionDataMixin:
 
     @classmethod
     def from_enhanced_option_data(cls, enhanced_option):
-        return MicroPriceOptionDataFactory.from_enhanced_option_data(enhanced_option, cls)
+        return from_enhanced_option_data(enhanced_option, cls)
 
     @property
     def is_future(self) -> bool:

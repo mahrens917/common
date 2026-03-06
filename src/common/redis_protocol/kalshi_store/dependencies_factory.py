@@ -59,56 +59,52 @@ class KalshiStoreDependencies:
     attr_resolver: AttributeResolver
 
 
-class KalshiStoreDependenciesFactory:
-    """Factory for creating KalshiStore dependencies."""
+def create_dependencies(
+    logger: logging.Logger,
+    redis: Optional[Redis],
+    service_prefix: Optional[str],
+    weather_resolver: WeatherStationResolver,
+    update_trade_prices_callback: Callable,
+) -> KalshiStoreDependencies:
+    """
+    Create all core dependencies for KalshiStore.
 
-    @staticmethod
-    def create(
-        logger: logging.Logger,
-        redis: Optional[Redis],
-        service_prefix: Optional[str],
-        weather_resolver: WeatherStationResolver,
-        update_trade_prices_callback: Callable,
-    ) -> KalshiStoreDependencies:
-        """
-        Create all core dependencies for KalshiStore.
+    Args:
+        logger: Logger instance
+        redis: Optional Redis client
+        service_prefix: Service prefix ('rest' or 'ws')
+        weather_resolver: Weather station resolver instance
+        update_trade_prices_callback: Callback for trade price updates
 
-        Args:
-            logger: Logger instance
-            redis: Optional Redis client
-            service_prefix: Service prefix ('rest' or 'ws')
-            weather_resolver: Weather station resolver instance
-            update_trade_prices_callback: Callback for trade price updates
+    Returns:
+        KalshiStoreDependencies container with all components wired together
+    """
+    # Create core components
+    core = factory_helpers.create_core_components(logger, redis, service_prefix, weather_resolver, update_trade_prices_callback)
 
-        Returns:
-            KalshiStoreDependencies container with all components wired together
-        """
-        # Create core components
-        core = factory_helpers.create_core_components(logger, redis, service_prefix, weather_resolver, update_trade_prices_callback)
+    # Create delegators
+    delegators = factory_helpers.create_delegators(core, weather_resolver)
 
-        # Create delegators
-        delegators = factory_helpers.create_delegators(core, weather_resolver)
+    # Create attribute resolver
+    attr_resolver = factory_helpers.create_attribute_resolver(delegators)
 
-        # Create attribute resolver
-        attr_resolver = factory_helpers.create_attribute_resolver(delegators)
-
-        return KalshiStoreDependencies(
-            connection=core["connection"],
-            metadata=core["metadata"],
-            reader=core["reader"],
-            writer=core["writer"],
-            subscription=core["subscription"],
-            cleaner=core["cleaner"],
-            orderbook=core["orderbook"],
-            property_mgr=delegators["property_mgr"],
-            conn_delegator=delegators["conn_delegator"],
-            metadata_delegator=delegators["metadata_delegator"],
-            subscription_delegator=delegators["subscription_delegator"],
-            query_delegator=delegators["query_delegator"],
-            write_delegator=delegators["write_delegator"],
-            orderbook_delegator=delegators["orderbook_delegator"],
-            cleanup_delegator=delegators["cleanup_delegator"],
-            utility_delegator=delegators["utility_delegator"],
-            storage_delegator=delegators["storage_delegator"],
-            attr_resolver=attr_resolver,
-        )
+    return KalshiStoreDependencies(
+        connection=core["connection"],
+        metadata=core["metadata"],
+        reader=core["reader"],
+        writer=core["writer"],
+        subscription=core["subscription"],
+        cleaner=core["cleaner"],
+        orderbook=core["orderbook"],
+        property_mgr=delegators["property_mgr"],
+        conn_delegator=delegators["conn_delegator"],
+        metadata_delegator=delegators["metadata_delegator"],
+        subscription_delegator=delegators["subscription_delegator"],
+        query_delegator=delegators["query_delegator"],
+        write_delegator=delegators["write_delegator"],
+        orderbook_delegator=delegators["orderbook_delegator"],
+        cleanup_delegator=delegators["cleanup_delegator"],
+        utility_delegator=delegators["utility_delegator"],
+        storage_delegator=delegators["storage_delegator"],
+        attr_resolver=attr_resolver,
+    )

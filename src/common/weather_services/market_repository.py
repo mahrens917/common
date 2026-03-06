@@ -6,7 +6,7 @@ import logging
 from dataclasses import dataclass
 from typing import Any, AsyncIterator, Dict, Optional, Protocol
 
-from common.config.redis_schema import get_schema_config
+from common.config.redis_schema import RedisSchemaConfig
 from common.redis_protocol import ensure_market_metadata_fields
 from common.redis_protocol.converters import decode_redis_hash
 from common.redis_protocol.kalshi_store import KalshiStore
@@ -14,7 +14,7 @@ from common.redis_protocol.typing import RedisClient, ensure_awaitable
 from common.redis_schema import WeatherStationKey, parse_kalshi_market_key
 
 logger = logging.getLogger(__name__)
-SCHEMA = get_schema_config()
+SCHEMA = RedisSchemaConfig.load()
 
 
 @dataclass(frozen=True)

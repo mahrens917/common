@@ -14,7 +14,7 @@ from typing import Any, Callable, Dict, List, Optional
 from .error_analyzer_helpers.data_classes import ErrorAnalysis, ErrorCategory, ErrorSeverity
 from .error_analyzer_helpers.dependencies_factory import (
     ErrorAnalyzerDependencies,
-    ErrorAnalyzerDependenciesFactory,
+    create_dependencies,
 )
 
 logger = logging.getLogger(__name__)
@@ -52,7 +52,7 @@ class ErrorAnalyzer:
         self.telegram_notifier = telegram_notifier
         self.error_history: List[ErrorAnalysis] = []
         self.max_history_size = DEFAULT_ERROR_HISTORY_SIZE
-        deps = dependencies or ErrorAnalyzerDependenciesFactory.create(service_name, telegram_notifier)
+        deps = dependencies or create_dependencies(service_name, telegram_notifier)
         self.categorizer = deps.categorizer
         self.severity_evaluator = deps.severity_evaluator
         self.root_cause_identifier = deps.root_cause_identifier

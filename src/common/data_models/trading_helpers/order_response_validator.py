@@ -5,7 +5,7 @@ from __future__ import annotations
 from datetime import datetime
 from typing import TYPE_CHECKING, Any, List, Optional
 
-from common.constants.trading import MAX_PRICE_CENTS
+from common.constants import MAX_PRICE_CENTS
 
 # Error messages
 ERR_ORDER_ID_MISSING = "Order ID must be specified"

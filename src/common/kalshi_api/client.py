@@ -12,11 +12,11 @@ from common.data_models.trading import BatchOrderResult, OrderRequest, Portfolio
 from .client_bindings import bind_client_methods
 from .client_helpers import (
     ComponentInitializer,
-    CredentialValidator,
     FillsOperations,
     KeyLoader,
     MarketStatusOperations,
     SeriesOperations,
+    extract_and_validate_credentials,
 )
 from .client_helpers.errors import KalshiClientError
 
@@ -83,7 +83,6 @@ class KalshiClient:
     _session_manager: Any
     _auth_helper: Any
     _request_builder: Any
-    _response_parser: Any
     _portfolio_ops: Any
     _order_ops: Any
     _series_ops: SeriesOperations
@@ -101,7 +100,7 @@ class KalshiClient:
         self._config = config if config else KalshiConfig()
         credentials = get_kalshi_credentials(require_secret=False)
         self._access_key = credentials.key_id
-        private_key_b64 = CredentialValidator.extract_and_validate(credentials)
+        private_key_b64 = extract_and_validate_credentials(credentials)
         private_key = KeyLoader.load_private_key(private_key_b64)
         self._private_key = private_key
         self._logger = logging.getLogger(__name__)
@@ -114,7 +113,6 @@ class KalshiClient:
                 "_session_manager": components["session_manager"],
                 "_auth_helper": components["auth_helper"],
                 "_request_builder": components["request_builder"],
-                "_response_parser": components["response_parser"],
                 "_portfolio_ops": components["portfolio_ops"],
                 "_order_ops": components["order_ops"],
                 "_series_ops": SeriesOperations(self),

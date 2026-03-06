@@ -12,9 +12,7 @@ from common.redis_protocol.trade_store.errors import TradeStoreError, TradeStore
 from common.redis_protocol.trade_store.store_helpers.connection_manager_helpers.acquisition import (
     ConnectionAcquisitionHelper,
 )
-from common.redis_protocol.trade_store.store_helpers.connection_manager_helpers.retry_helpers.policy_factory import (
-    create_retry_policy,
-)
+from common.redis_protocol.trade_store.store_helpers.connection_manager_helpers.retry import _build_retry_policy as create_retry_policy
 from common.redis_protocol.trade_store.store_helpers.connection_manager_helpers.state import (
     ConnectionStateHelper,
 )

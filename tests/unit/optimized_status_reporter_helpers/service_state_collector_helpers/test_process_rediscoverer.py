@@ -4,8 +4,8 @@ from unittest.mock import Mock
 
 import pytest
 
-from common.optimized_status_reporter_helpers.service_state_collector_helpers.process_rediscoverer import (
-    ProcessRediscoverer,
+from common.optimized_status_reporter_helpers.service_state_collector_helpers import (
+    helpers,
 )
 
 
@@ -30,7 +30,7 @@ class TestProcessRediscoverer:
         service_name = "test_service"
         # process_manager.process_info will remain empty, so info will be None
 
-        is_running, info = ProcessRediscoverer.rediscover_and_validate(service_name, mock_process_manager, mock_pid_validator)
+        is_running, info = helpers.rediscover_and_validate(service_name, mock_process_manager, mock_pid_validator)
 
         mock_process_manager._rediscover_process.assert_called_once_with(service_name)
         assert is_running is False
@@ -42,7 +42,7 @@ class TestProcessRediscoverer:
         service_name = "test_service"
         mock_process_manager.process_info[service_name] = Mock(pid=None)
 
-        is_running, info = ProcessRediscoverer.rediscover_and_validate(service_name, mock_process_manager, mock_pid_validator)
+        is_running, info = helpers.rediscover_and_validate(service_name, mock_process_manager, mock_pid_validator)
 
         mock_process_manager._rediscover_process.assert_called_once_with(service_name)
         assert is_running is False
@@ -55,7 +55,7 @@ class TestProcessRediscoverer:
         mock_process_manager.process_info[service_name] = Mock(pid=123)
         mock_pid_validator.is_running.return_value = True
 
-        is_running, info = ProcessRediscoverer.rediscover_and_validate(service_name, mock_process_manager, mock_pid_validator)
+        is_running, info = helpers.rediscover_and_validate(service_name, mock_process_manager, mock_pid_validator)
 
         mock_process_manager._rediscover_process.assert_called_once_with(service_name)
         mock_pid_validator.is_running.assert_called_once_with(123)
@@ -68,7 +68,7 @@ class TestProcessRediscoverer:
         mock_process_manager.process_info[service_name] = Mock(pid=123)
         mock_pid_validator.is_running.return_value = False
 
-        is_running, info = ProcessRediscoverer.rediscover_and_validate(service_name, mock_process_manager, mock_pid_validator)
+        is_running, info = helpers.rediscover_and_validate(service_name, mock_process_manager, mock_pid_validator)
 
         mock_process_manager._rediscover_process.assert_called_once_with(service_name)
         mock_pid_validator.is_running.assert_called_once_with(123)

@@ -41,6 +41,15 @@ async def write_status_to_redis(
     current_time = time.time()
     uptime = current_time - start_time
 
+    status_mapping: Dict[str, str] = {
+        "status": status.value,
+        "timestamp": str(current_time),
+        "pid": str(pid),
+        "uptime_seconds": str(uptime),
+    }
+    for k, v in additional_fields.items():
+        status_mapping[k] = str(v)
+
     status_data: Dict[str, Any] = {
         "status": status.value,
         "timestamp": current_time,
@@ -53,7 +62,7 @@ async def write_status_to_redis(
         await ensure_awaitable(
             redis.hset(
                 status_key,
-                mapping={k: str(v) for k, v in status_data.items()},
+                mapping=status_mapping,
             )
         )
 

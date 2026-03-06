@@ -17,8 +17,8 @@ from .metadata_helpers.timestamp_normalization import normalize_timestamp as _no
 from .writer_helpers import ValidationWriter
 from .writer_helpers.dependencies_factory import (
     KalshiMarketWriterDependencies,
-    KalshiMarketWriterDependenciesFactory,
 )
+from .writer_helpers.dependencies_factory import create_dependencies as create_writer_dependencies
 
 if TYPE_CHECKING:
     from .writer_helpers.batch_reader import BatchReader
@@ -166,9 +166,7 @@ class KalshiMarketWriter(
         self._connection = connection_manager
         self._metadata = metadata_adapter
 
-        deps = dependencies or KalshiMarketWriterDependenciesFactory.create(
-            redis_connection, logger_instance, metadata_adapter, connection_manager
-        )
+        deps = dependencies or create_writer_dependencies(redis_connection, logger_instance, metadata_adapter, connection_manager)
         self._validation = deps.validation
         self._metadata_writer = deps.metadata_writer
         self._market_updater = deps.market_updater

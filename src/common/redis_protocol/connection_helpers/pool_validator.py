@@ -25,7 +25,7 @@ REDIS_SETUP_ERRORS = (
 )
 
 
-async def test_pool_connection(pool: redis.asyncio.ConnectionPool, host: str, port: int, db: int) -> None:
+async def validate_pool_connection(pool: redis.asyncio.ConnectionPool, host: str, port: int, db: int) -> None:
     """
     Test Redis pool by creating a temporary connection and pinging server.
 
@@ -55,10 +55,6 @@ async def test_pool_connection(pool: redis.asyncio.ConnectionPool, host: str, po
     finally:
         if test_client:
             await test_client.aclose()
-
-
-# Prevent pytest from collecting helper as a standalone test
-setattr(test_pool_connection, "__test__", False)
 
 
 async def _log_server_info(client: redis.asyncio.Redis) -> None:

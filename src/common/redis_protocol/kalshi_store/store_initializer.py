@@ -13,14 +13,14 @@ if TYPE_CHECKING:
     from .store import KalshiStore
     from .store_initializer_helpers.delegator_factory import DelegatorSet
 
-from ...config.redis_schema import get_schema_config
+from ...config.redis_schema import RedisSchemaConfig
 from ..weather_station_resolver import WeatherStationResolver
 from .connection import RedisConnectionManager
 from .initialization_helpers import build_weather_resolver
 from .orderbook import KalshiOrderbookProcessor
 from .utils_coercion import default_weather_station_loader
 
-SCHEMA = get_schema_config()
+SCHEMA = RedisSchemaConfig.load()
 logger = logging.getLogger(__name__)
 
 

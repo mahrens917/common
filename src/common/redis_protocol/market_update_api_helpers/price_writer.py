@@ -8,7 +8,7 @@ from dataclasses import dataclass
 from datetime import datetime, timezone
 from typing import TYPE_CHECKING, Dict, Optional
 
-from common.constants.trading import VALID_ALGO_NAMES
+from common.constants import VALID_ALGO_NAMES
 
 from ..retry import with_redis_retry
 from ..streams import ALGO_SIGNAL_STREAM, MARKET_EVENT_STREAM, stream_publish

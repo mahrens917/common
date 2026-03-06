@@ -20,8 +20,8 @@ from .metadata_helpers import (
     enrich_metadata_fields,
     extract_station_from_ticker,
 )
-from .metadata_helpers import normalize_timestamp as _normalize_timestamp
-from .metadata_helpers import select_timestamp_value as _select_timestamp_value
+from .metadata_helpers.timestamp_normalization import normalize_timestamp as _normalize_timestamp
+from .metadata_helpers.timestamp_normalization import select_timestamp_value as _select_timestamp_value
 
 
 class KalshiMetadataAdapter:

@@ -4,7 +4,6 @@ from ..authentication import AuthenticationHelper
 from ..order_operations import OrderOperations
 from ..portfolio_operations import PortfolioOperations
 from ..request_builder import RequestBuilder
-from ..response_parser import ResponseParser
 from ..session_manager import SessionManager
 
 
@@ -27,15 +26,13 @@ class ComponentInitializer:
             self.config.network_backoff_base_seconds,
             self.config.network_backoff_max_seconds,
         )
-        response_parser = ResponseParser()
         portfolio_ops = PortfolioOperations(request_builder)
-        order_ops = OrderOperations(request_builder, response_parser)
+        order_ops = OrderOperations(request_builder)
 
         return {
             "session_manager": session_manager,
             "auth_helper": auth_helper,
             "request_builder": request_builder,
-            "response_parser": response_parser,
             "portfolio_ops": portfolio_ops,
             "order_ops": order_ops,
         }

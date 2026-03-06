@@ -12,12 +12,12 @@ from redis.asyncio import Redis
 
 from common.truthy import pick_truthy
 
-from ....config.redis_schema import get_schema_config
+from ....config.redis_schema import RedisSchemaConfig
 from ....parsing_utils import decode_redis_key
 from ....redis_schema import parse_kalshi_market_key
 
 logger = logging.getLogger(__name__)
-SCHEMA = get_schema_config()
+SCHEMA = RedisSchemaConfig.load()
 
 
 class MarketFilter:

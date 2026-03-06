@@ -3,7 +3,7 @@
 from datetime import datetime
 from typing import Any, Dict
 
-from common.constants.trading import MAX_PRICE_CENTS
+from common.constants import MAX_PRICE_CENTS
 
 from .field_validators import validate_string_field
 

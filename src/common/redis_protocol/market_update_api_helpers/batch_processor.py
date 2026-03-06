@@ -6,7 +6,7 @@ from dataclasses import dataclass
 from datetime import date, timedelta
 from typing import TYPE_CHECKING, Any, Dict, List, Tuple
 
-from common.constants.trading import MAX_PRICE_CENTS, MIN_PRICE_CENTS
+from common.constants import MAX_PRICE_CENTS, MIN_PRICE_CENTS
 
 from ..retry import with_redis_retry
 from ..typing import ensure_awaitable

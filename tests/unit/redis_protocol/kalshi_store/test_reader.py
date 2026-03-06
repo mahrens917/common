@@ -311,8 +311,8 @@ async def test_market_query_handler_returns_market_data_when_available():
 async def test_kalshi_market_reader_get_field_returns_default(monkeypatch):
     dependencies = DummyDependencies()
     monkeypatch.setattr(
-        dependencies_factory.KalshiMarketReaderDependenciesFactory,
-        "create",
+        dependencies_factory,
+        "create_dependencies",
         lambda logger, metadata_adapter: dependencies,
     )
 

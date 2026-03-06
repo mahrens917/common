@@ -4,8 +4,9 @@ from __future__ import annotations
 
 from typing import Iterable, List
 
+from monitor.common_local.process_monitor import ProcessInfo
+
 from .. import process_monitor as process_monitor_module
-from ..process_monitor import ProcessInfo
 
 
 async def query_monitor_for_processes(process_keywords: Iterable[str], service_name: str) -> List[ProcessInfo]:

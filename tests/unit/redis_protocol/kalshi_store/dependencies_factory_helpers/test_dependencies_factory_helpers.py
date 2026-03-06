@@ -46,15 +46,13 @@ class DummyMarketReader:
         return "market-key"
 
 
-class DummyWriterDependenciesFactory:
-    @staticmethod
-    def create(redis, logger, metadata, connection):
-        return {
-            "redis": redis,
-            "logger": logger,
-            "metadata": metadata,
-            "connection": connection,
-        }
+def _dummy_create_writer_dependencies(redis, logger, metadata, connection):
+    return {
+        "redis": redis,
+        "logger": logger,
+        "metadata": metadata,
+        "connection": connection,
+    }
 
 
 class DummyMarketWriter:
@@ -99,8 +97,8 @@ def _patch_dependencies(monkeypatch):
     monkeypatch.setattr(helpers, "KalshiMarketReader", DummyMarketReader)
     monkeypatch.setattr(
         helpers,
-        "KalshiMarketWriterDependenciesFactory",
-        DummyWriterDependenciesFactory,
+        "create_writer_dependencies",
+        _dummy_create_writer_dependencies,
     )
     monkeypatch.setattr(helpers, "KalshiMarketWriter", DummyMarketWriter)
     monkeypatch.setattr(helpers, "KalshiMarketCleaner", DummyMarketCleaner)

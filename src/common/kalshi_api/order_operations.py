@@ -18,6 +18,7 @@ from common.redis_protocol.error_types import REDIS_ERRORS
 from common.trading.order_payloads import build_order_payload
 
 from .client_helpers.errors import KalshiClientError
+from .response_parser import normalise_rp_fill, parse_order_response
 
 logger = logging.getLogger(__name__)
 
@@ -25,7 +26,6 @@ if TYPE_CHECKING:
     from common.redis_protocol.trade_store import TradeStore
 
     from .request_builder import RequestBuilder
-    from .response_parser import ResponseParser
 
 
 class OrderMetadataManager:
@@ -68,9 +68,8 @@ class OrderMetadataManager:
 class OrderOperations:
     """Handles order-related API operations."""
 
-    def __init__(self, request_builder: RequestBuilder, response_parser: ResponseParser) -> None:
+    def __init__(self, request_builder: RequestBuilder) -> None:
         self._request_builder = request_builder
-        self._response_parser = response_parser
         self._trade_store_errors = REDIS_ERRORS + (
             KalshiClientError,
             ConnectionError,
@@ -132,7 +131,7 @@ class OrderOperations:
             metadata = await self._metadata_manager.fetch_metadata(order_id)
         merged_rule = trade_rule if trade_rule else metadata.get("trade_rule")
         merged_reason = trade_reason if trade_reason else metadata.get("trade_reason")
-        return self._response_parser.parse_order_response(payload, merged_rule, merged_reason)
+        return parse_order_response(payload, merged_rule, merged_reason)
 
     async def get_fills(self, order_id: str) -> List[Dict[str, Any]]:
         """Get fills for an order by order ID."""
@@ -148,7 +147,7 @@ class OrderOperations:
         for item in fills_raw:
             if not isinstance(item, dict):
                 raise KalshiClientError("Fill entry must be a JSON object")
-            normalised.append(self._response_parser.normalise_fill(item))
+            normalised.append(normalise_rp_fill(item))
         return normalised
 
     async def batch_create_orders(self, order_requests: List[OrderRequest]) -> List[BatchOrderResult]:

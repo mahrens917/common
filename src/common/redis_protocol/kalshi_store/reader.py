@@ -12,19 +12,18 @@ Extracted from KalshiStore to reduce class size and improve separation of concer
 import logging
 from typing import Any, Dict, List, Optional, Sequence, Set, Tuple
 
-from common.config.redis_schema import get_schema_config
+from common.config.redis_schema import RedisSchemaConfig
 from common.parsing_utils import decode_redis_key
 from common.redis_schema import build_kalshi_market_key
 
-SCHEMA = get_schema_config()
+SCHEMA = RedisSchemaConfig.load()
 
 from .connection import RedisConnectionManager
 from .metadata import KalshiMetadataAdapter
 from .reader_async_methods_mixin import KalshiMarketReaderAsyncMethodsMixin
-from .reader_helpers import ReaderConnectionWrapper
+from .reader_helpers import ReaderConnectionWrapper, dependencies_factory
 from .reader_helpers.dependencies_factory import (
     KalshiMarketReaderDependencies,
-    KalshiMarketReaderDependenciesFactory,
 )
 from .reader_helpers.market_query_handler import MarketQueryHandler
 from .reader_helpers.market_status_checker import MarketStatusChecker
@@ -168,7 +167,7 @@ class KalshiMarketReader(KalshiMarketReaderAsyncMethodsMixin):
             metadata_adapter,
             service_prefix,
         )
-        deps = dependencies or KalshiMarketReaderDependenciesFactory.create(logger, metadata_adapter)
+        deps = dependencies or dependencies_factory.create_dependencies(logger, metadata_adapter)
         self._ticker_parser = deps.ticker_parser
         self._market_filter = deps.market_filter
         self._metadata_extractor = deps.metadata_extractor

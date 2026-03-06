@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from common.constants.trading import MAX_PRICE_CENTS
+from common.constants import MAX_PRICE_CENTS
 
 # Error messages
 ERR_ORDER_QUANTITY_NOT_POSITIVE = "Order quantity must be positive: {value}"

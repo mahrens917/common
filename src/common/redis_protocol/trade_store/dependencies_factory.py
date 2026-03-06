@@ -45,54 +45,50 @@ class TradeStoreDependencies:
     api: TradeStoreAPIDelegator
 
 
-class TradeStoreDependenciesFactory:
-    """Factory for creating TradeStore dependencies."""
-
-    @staticmethod
-    def create(logger: logging.Logger, redis: Optional[RedisClient], get_redis_func: Callable) -> TradeStoreDependencies:
-        """Create all core dependencies for TradeStore."""
-        base_connection = RedisConnectionManager(logger=logger, redis=redis)
-        connection_mgr = TradeStoreConnectionManager(logger, base_connection)
-        pool_acquirer = PoolAcquirer(logger, connection_mgr)
-        executor = OperationExecutor(logger)
-        deps = DependencyResolver()
-        timezone = deps.get_timezone_loader()()
-        keys = TradeKeyBuilder()
-        codec = TradeRecordCodec()
-        metadata_codec = OrderMetadataCodec(timestamp_provider=deps.get_timestamp_provider())
-        repository = TradeRecordRepository(get_redis_func, key_builder=keys, codec=codec, logger=logger)
-        metadata_store = OrderMetadataStore(get_redis_func, key_builder=keys, codec=metadata_codec, logger=logger)
-        queries = TradeQueryService(
-            repository,
-            key_builder=keys,
-            logger=logger,
-            timezone=timezone,
-            start_date_loader=deps.get_start_date_loader(),
-            timezone_aware_date_loader=deps.get_timezone_date_loader(),
-        )
-        pnl = PnLStore(get_redis_func, key_builder=keys, logger=logger)
-        price_updater = TradePriceUpdater(
-            repository,
-            timezone=timezone,
-            timezone_aware_date_loader=deps.get_timezone_date_loader(),
-            current_time_provider=deps.get_timestamp_provider(),
-            logger=logger,
-        )
-        api = TradeStoreAPIDelegator(repository, metadata_store, queries, pnl, price_updater, executor, deps)
-        return TradeStoreDependencies(
-            base_connection=base_connection,
-            connection_mgr=connection_mgr,
-            pool_acquirer=pool_acquirer,
-            executor=executor,
-            deps=deps,
-            timezone=timezone,
-            keys=keys,
-            codec=codec,
-            metadata_codec=metadata_codec,
-            repository=repository,
-            metadata_store=metadata_store,
-            queries=queries,
-            pnl=pnl,
-            price_updater=price_updater,
-            api=api,
-        )
+def create_dependencies(logger: logging.Logger, redis: Optional[RedisClient], get_redis_func: Callable) -> TradeStoreDependencies:
+    """Create all core dependencies for TradeStore."""
+    base_connection = RedisConnectionManager(logger=logger, redis=redis)
+    connection_mgr = TradeStoreConnectionManager(logger, base_connection)
+    pool_acquirer = PoolAcquirer(logger, connection_mgr)
+    executor = OperationExecutor(logger)
+    deps = DependencyResolver()
+    timezone = deps.get_timezone_loader()()
+    keys = TradeKeyBuilder()
+    codec = TradeRecordCodec()
+    metadata_codec = OrderMetadataCodec(timestamp_provider=deps.get_timestamp_provider())
+    repository = TradeRecordRepository(get_redis_func, key_builder=keys, codec=codec, logger=logger)
+    metadata_store = OrderMetadataStore(get_redis_func, key_builder=keys, codec=metadata_codec, logger=logger)
+    queries = TradeQueryService(
+        repository,
+        key_builder=keys,
+        logger=logger,
+        timezone=timezone,
+        start_date_loader=deps.get_start_date_loader(),
+        timezone_aware_date_loader=deps.get_timezone_date_loader(),
+    )
+    pnl = PnLStore(get_redis_func, key_builder=keys, logger=logger)
+    price_updater = TradePriceUpdater(
+        repository,
+        timezone=timezone,
+        timezone_aware_date_loader=deps.get_timezone_date_loader(),
+        current_time_provider=deps.get_timestamp_provider(),
+        logger=logger,
+    )
+    api = TradeStoreAPIDelegator(repository, metadata_store, queries, pnl, price_updater, executor, deps)
+    return TradeStoreDependencies(
+        base_connection=base_connection,
+        connection_mgr=connection_mgr,
+        pool_acquirer=pool_acquirer,
+        executor=executor,
+        deps=deps,
+        timezone=timezone,
+        keys=keys,
+        codec=codec,
+        metadata_codec=metadata_codec,
+        repository=repository,
+        metadata_store=metadata_store,
+        queries=queries,
+        pnl=pnl,
+        price_updater=price_updater,
+        api=api,
+    )

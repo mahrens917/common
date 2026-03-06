@@ -24,10 +24,8 @@ class TradeNotifierAdapter:
         error_iterable: Iterable[Type[Exception]] = _EMPTY_ERROR_TYPES if notification_error_types is None else notification_error_types
         if notifier_supplier is None:
             try:
-                from kalshi.notifications.trade_notifier import (  # type: ignore[import]
-                    TradeNotificationError,
-                    get_trade_notifier,
-                )
+                from kalshi.notifications.trade_notifier import TradeNotificationError  # type: ignore[import]
+                from kalshi.notifications.trade_notifier_factory import get_trade_notifier  # type: ignore[import]
 
                 notifier_supplier = get_trade_notifier
                 error_types = tuple(error_iterable)

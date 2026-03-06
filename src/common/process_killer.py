@@ -94,7 +94,6 @@ SERVICE_PROCESS_PATTERNS = {
     "web": ["-m src.web", "src.web"],
     "crossarb": ["-m src.crossarb", "src.crossarb", "src/crossarb/"],
     "edge": ["-m src.edge", "src.edge", "src/edge/"],
-    "whale": ["-m src.whale", "src.whale", "src/whale/"],
     "peak": ["-m src.peak", "src.peak", "src/peak/"],
 }
 
@@ -279,7 +278,7 @@ async def _get_process_monitor():
     """Return global process monitor if available."""
     from importlib import import_module
 
-    monitor_mod = import_module("common.process_monitor")
+    monitor_mod = import_module("monitor.common_local.process_monitor")
     return await monitor_mod.get_global_process_monitor()
 
 

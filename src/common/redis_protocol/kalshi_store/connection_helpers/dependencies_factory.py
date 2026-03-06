@@ -30,26 +30,22 @@ class RedisConnectionDependencies:
     method_adapter: MethodAdapter
 
 
-class RedisConnectionDependenciesFactory:
-    """Factory for creating RedisConnectionManager dependencies."""
+def create_dependencies(manager: "RedisConnectionManager", logger: "logging.Logger") -> RedisConnectionDependencies:
+    """Create dependencies for RedisConnectionManager."""
+    property_manager = PropertyManager(manager)
+    property_accessor = PropertyAccessor(manager)
+    pool_manager = PoolManager()
+    connection_verifier = ConnectionVerifier()
+    retry_handler = RetryHandler(logger)
+    lifecycle = LifecycleCoordinator(manager)
+    method_adapter = MethodAdapter(manager)
 
-    @staticmethod
-    def create(manager: "RedisConnectionManager", logger: "logging.Logger") -> RedisConnectionDependencies:
-        """Create dependencies for RedisConnectionManager."""
-        property_manager = PropertyManager(manager)
-        property_accessor = PropertyAccessor(manager)
-        pool_manager = PoolManager()
-        connection_verifier = ConnectionVerifier()
-        retry_handler = RetryHandler(logger)
-        lifecycle = LifecycleCoordinator(manager)
-        method_adapter = MethodAdapter(manager)
-
-        return RedisConnectionDependencies(
-            property_manager=property_manager,
-            property_accessor=property_accessor,
-            pool_manager=pool_manager,
-            connection_verifier=connection_verifier,
-            retry_handler=retry_handler,
-            lifecycle=lifecycle,
-            method_adapter=method_adapter,
-        )
+    return RedisConnectionDependencies(
+        property_manager=property_manager,
+        property_accessor=property_accessor,
+        pool_manager=pool_manager,
+        connection_verifier=connection_verifier,
+        retry_handler=retry_handler,
+        lifecycle=lifecycle,
+        method_adapter=method_adapter,
+    )

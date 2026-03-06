@@ -8,6 +8,8 @@ from common.service_status import (
     create_status_data,
     is_service_failed,
     is_service_ready,
+    read_service_ready,
+    read_services_ready,
     set_service_status,
 )
 
@@ -78,3 +80,74 @@ async def test_set_service_status_serializes_and_stores(monkeypatch):
 
     # Only two calls: unified key hset + expire (legacy status hash removed)
     assert len(calls) == 2
+
+
+@pytest.mark.asyncio
+async def test_read_service_ready_returns_true_for_ready():
+    class FakeRedis:
+        async def hget(self, _key, _field):
+            return b"ready"
+
+    result = await read_service_ready(FakeRedis(), "kalshi")
+    assert result is True
+
+
+@pytest.mark.asyncio
+async def test_read_service_ready_returns_false_for_stopped():
+    class FakeRedis:
+        async def hget(self, _key, _field):
+            return "stopped"
+
+    result = await read_service_ready(FakeRedis(), "kalshi")
+    assert result is False
+
+
+@pytest.mark.asyncio
+async def test_read_service_ready_returns_none_when_missing():
+    class FakeRedis:
+        async def hget(self, _key, _field):
+            return None
+
+    result = await read_service_ready(FakeRedis(), "kalshi")
+    assert result is None
+
+
+@pytest.mark.asyncio
+async def test_read_service_ready_ready_degraded():
+    class FakeRedis:
+        async def hget(self, _key, _field):
+            return b"ready_degraded"
+
+    result = await read_service_ready(FakeRedis(), "deribit")
+    assert result is True
+
+
+@pytest.mark.asyncio
+async def test_read_services_ready_batch():
+    statuses = {"kalshi": b"ready", "deribit": b"stopped", "weather": None}
+
+    class FakePipeline:
+        def __init__(self):
+            self._keys = []
+
+        def hget(self, key, _field):
+            self._keys.append(key)
+
+        async def execute(self):
+            return [statuses.get(k.split(":")[-1].lower()) for k in self._keys]
+
+    class FakeRedis:
+        def pipeline(self, transaction=True):
+            return FakePipeline()
+
+    result = await read_services_ready(FakeRedis(), ["kalshi", "deribit", "weather"])
+    assert result == {"kalshi": True, "deribit": False, "weather": None}
+
+
+@pytest.mark.asyncio
+async def test_read_services_ready_empty_list():
+    class FakeRedis:
+        pass
+
+    result = await read_services_ready(FakeRedis(), [])
+    assert result == {}

@@ -175,11 +175,11 @@ class TestGetAllAlgoTradingStates:
 
     @pytest.mark.asyncio
     async def test_returns_dict_of_states(self, mock_redis):
-        algos = ["peak", "edge", "whale"]
+        algos = ["peak", "edge", "crossarb"]
 
         result = await get_all_algo_trading_states(mock_redis, algos, "paper")
 
-        assert result == {"peak": True, "edge": False, "whale": True}
+        assert result == {"peak": True, "edge": False, "crossarb": True}
 
     @pytest.mark.asyncio
     async def test_live_mode_defaults(self):
@@ -336,7 +336,7 @@ class TestGetAlgoCooldownMinutes:
     async def test_returns_default_when_key_missing(self, mock_redis):
         mock_redis.get = AsyncMock(return_value=None)
 
-        result = await get_algo_cooldown_minutes(mock_redis, "whale", "paper")
+        result = await get_algo_cooldown_minutes(mock_redis, "weather", "paper")
 
         assert result == 60
 
@@ -401,7 +401,7 @@ class TestGetAlgoMaxContracts:
     async def test_returns_default_when_key_missing(self, mock_redis):
         mock_redis.get = AsyncMock(return_value=None)
 
-        result = await get_algo_max_contracts(mock_redis, "whale", "live")
+        result = await get_algo_max_contracts(mock_redis, "weather", "live")
 
         assert result == 1
 
@@ -475,10 +475,10 @@ class TestGetAllAlgoTradingConfig:
         pipe.execute = AsyncMock(return_value=[None, None, None])
         redis.pipeline = MagicMock(return_value=pipe)
 
-        result = await get_all_algo_trading_config(redis, ["whale"], "paper")
+        result = await get_all_algo_trading_config(redis, ["weather"], "paper")
 
         assert result == {
-            "whale": AlgoTradingConfig(enabled=True, cooldown_minutes=60, max_contracts=1),
+            "weather": AlgoTradingConfig(enabled=True, cooldown_minutes=60, max_contracts=1),
         }
 
     @pytest.mark.asyncio

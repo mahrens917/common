@@ -95,9 +95,9 @@ class MicroPriceConverter:
         This is a convenience method that applies the single-instrument conversion
         to a list of instruments, with proper error handling and filtering.
         """
-        from .micro_price_helpers import BatchConverter
+        from .micro_price_helpers import convert_instruments_to_micro_price_data
 
-        return BatchConverter.convert_instruments_to_micro_price_data(
+        return convert_instruments_to_micro_price_data(
             instruments,
             currency,
             MicroPriceConverter.convert_instrument_to_micro_price_option_data,

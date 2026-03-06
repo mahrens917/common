@@ -4,7 +4,7 @@ from datetime import datetime, timedelta, timezone
 
 import pytest
 
-from common.time_helpers import expiry as expiry_module
+from common.time_helpers import expiry_conversions as expiry_conversions_module
 from common.time_helpers.expiry import (
     DateTimeExpiry,
     calculate_time_to_expiry_years,
@@ -21,7 +21,7 @@ from common.time_helpers.expiry import (
 
 
 def reset_clamp_flag():
-    expiry_module._PRE_EPOCH_CLAMP_LOGGED = False  # type: ignore[attr-defined]
+    expiry_conversions_module._pre_epoch_clamp_logged = False  # type: ignore[attr-defined]
 
 
 def test_validate_expiry_hour_logs_when_unexpected(caplog):

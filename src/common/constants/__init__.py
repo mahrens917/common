@@ -1,13 +1,33 @@
 """Constants package for shared constant values."""
 
-from .trading import (
-    MAX_MARKET_PRICE_CENTS,
-    MAX_PRICE_CENTS,
-    MAX_SETTLEMENT_PRICE_CENTS,
-    MIN_MARKET_PRICE_CENTS,
-    MIN_PRICE_CENTS,
-    VALID_ALGO_NAMES,
-)
+# Trading price and algo constants
+MIN_PRICE_CENTS = 1
+MAX_PRICE_CENTS = 99
+MIN_MARKET_PRICE_CENTS = 0
+MAX_MARKET_PRICE_CENTS = 100
+MAX_SETTLEMENT_PRICE_CENTS = 100
+VALID_ALGO_NAMES: frozenset[str] = frozenset({"crossarb", "peak", "edge", "weather", "pdf", "strike", "dutch", "claude"})
+
+# Mathematical constants and precision thresholds
+FLOAT_TOLERANCE = 1e-10
+HIGH_PRECISION = 0.1
+STANDARD_PRECISION = 1.0
+FINE_PRECISION = 5.0
+
+# Network and HTTP constants
+HTTP_OK = 200
+HTTP_INTERNAL_SERVER_ERROR = 500
+WEBSOCKET_ABNORMAL_CLOSURE = 1006
+
+# Time conversion constants
+SECONDS_PER_MINUTE = 60
+SECONDS_PER_HOUR = 3600
+HEALTH_CHECK_TIMEOUT = 300
+
+# Validation constants
+MIN_KEY_PARTS = 5
+MIN_TRADE_REASON_LENGTH = 10
+UTILIZATION_WARNING_THRESHOLD = 80
 
 __all__ = [
     "MIN_PRICE_CENTS",
@@ -16,4 +36,17 @@ __all__ = [
     "MIN_MARKET_PRICE_CENTS",
     "MAX_MARKET_PRICE_CENTS",
     "VALID_ALGO_NAMES",
+    "FLOAT_TOLERANCE",
+    "HIGH_PRECISION",
+    "STANDARD_PRECISION",
+    "FINE_PRECISION",
+    "HTTP_OK",
+    "HTTP_INTERNAL_SERVER_ERROR",
+    "WEBSOCKET_ABNORMAL_CLOSURE",
+    "SECONDS_PER_MINUTE",
+    "SECONDS_PER_HOUR",
+    "HEALTH_CHECK_TIMEOUT",
+    "MIN_KEY_PARTS",
+    "MIN_TRADE_REASON_LENGTH",
+    "UTILIZATION_WARNING_THRESHOLD",
 ]

@@ -21,15 +21,11 @@ from .order_metadata_codec import OrderMetadataCodec
 JsonLike = Union[str, bytes, Dict[str, Any]]
 
 
-def _extract_optional_fields(data: Dict[str, Any]) -> Dict[str, Any]:
-    return extract_optional_fields(data)
-
-
 def _decode_trade_record(payload: JsonLike) -> TradeRecord:
     data = _ensure_mapping(payload)
     _validate_trade_data(data)
 
-    optional_fields = _extract_optional_fields(data)
+    optional_fields = extract_optional_fields(data)
     trade_timestamp = ensure_timezone(datetime.fromisoformat(data["trade_timestamp"]))
 
     return TradeRecord(

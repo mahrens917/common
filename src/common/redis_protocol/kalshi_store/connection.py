@@ -16,7 +16,7 @@ from redis.asyncio import Redis
 from .connection_helpers import DelegatedProperty, PropertyManager
 from .connection_helpers.dependencies_factory import (
     RedisConnectionDependencies,
-    RedisConnectionDependenciesFactory,
+    create_dependencies,
 )
 from .connection_helpers.lifecycle_coordinator import LifecycleCoordinator
 from .connection_helpers.retry_handler import ConnectionRetryConfig
@@ -96,7 +96,7 @@ class RedisConnectionManager:
         self._redis: Optional[Redis] = redis
         self._pool = getattr(redis, "connection_pool", None) if redis else None
         self._initialized = redis is not None
-        deps = dependencies or RedisConnectionDependenciesFactory.create(self, logger)
+        deps = dependencies or create_dependencies(self, logger)
         self._property_manager = deps.property_manager
         self._properties = deps.property_accessor
         self._pool_manager = deps.pool_manager

@@ -3,7 +3,7 @@
 import pytest
 
 from common.redis_protocol.kalshi_store.reader_helpers.snapshotreader_helpers import (
-    market_tracker,
+    helpers,
 )
 
 
@@ -19,7 +19,7 @@ class StubRedis:
 @pytest.mark.asyncio
 async def test_is_market_tracked_returns_true():
     redis = StubRedis()
-    assert await market_tracker.is_market_tracked(redis, "market", "T")
+    assert await helpers.is_market_tracked(redis, "market", "T")
 
 
 @pytest.mark.asyncio
@@ -28,6 +28,6 @@ async def test_is_market_tracked_raises_on_error(monkeypatch):
         async def exists(self, *_, **__):
             raise DummyRedisError("boom")
 
-    monkeypatch.setattr(market_tracker, "REDIS_ERRORS", (DummyRedisError,))
+    monkeypatch.setattr(helpers, "REDIS_ERRORS", (DummyRedisError,))
     with pytest.raises(DummyRedisError):
-        await market_tracker.is_market_tracked(BrokenRedis(), "market", "T")
+        await helpers.is_market_tracked(BrokenRedis(), "market", "T")

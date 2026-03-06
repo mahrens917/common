@@ -13,11 +13,9 @@ from common.redis_protocol.kalshi_store.reader_helpers.metadataextractor_helpers
     metadata_builder,
     record_validator,
 )
-from common.redis_protocol.kalshi_store.reader_helpers.metadataextractor_helpers.metadata_parser import (
-    MetadataParser,
-)
-from common.redis_protocol.kalshi_store.reader_helpers.metadataextractor_helpers.price_extractor import (
-    PriceExtractor,
+from common.redis_protocol.kalshi_store.reader_helpers.metadataextractor_helpers.utilities import (
+    extract_market_prices,
+    parse_market_metadata,
 )
 from common.strike_helpers import calculate_strike_value, parse_strike_bounds
 
@@ -207,23 +205,23 @@ def test_record_validator_handles_missing_strike():
 
 
 def test_metadata_parser_returns_parsed_metadata():
-    result = MetadataParser.parse_market_metadata("KXHIGHZ", {"metadata": b'{"foo": "bar"}'})
+    result = parse_market_metadata("KXHIGHZ", {"metadata": b'{"foo": "bar"}'})
 
     assert result == {"foo": "bar"}
 
 
 def test_metadata_parser_handles_invalid_json():
-    assert MetadataParser.parse_market_metadata("KXHIGHZ", {"metadata": b"broken"}) is None
+    assert parse_market_metadata("KXHIGHZ", {"metadata": b"broken"}) is None
 
 
 def test_metadata_parser_missing_metadata():
-    assert MetadataParser.parse_market_metadata("KXHIGHZ", {}) is None
+    assert parse_market_metadata("KXHIGHZ", {}) is None
 
 
 def test_price_extractor_coerces_prices():
     metadata = {"yes_bid": "2.5", "yes_ask": "bad"}
 
-    assert PriceExtractor.extract_market_prices(metadata) == (2.5, None)
+    assert extract_market_prices(metadata) == (2.5, None)
 
 
 def test_strike_helpers_convert_bounds():

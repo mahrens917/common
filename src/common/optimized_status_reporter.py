@@ -65,7 +65,8 @@ class OptimizedStatusReporter(
     async def generate_and_stream_status_report(self) -> Dict[str, Any]:
         """Generate and stream status report using optimized patterns."""
 
-        from common.process_monitor import get_global_process_monitor
+        from monitor.common_local.process_monitor import get_global_process_monitor
+
         from common.redis_protocol.connection_pool_core import get_redis_client
 
         try:
@@ -96,7 +97,8 @@ class OptimizedStatusReporter(
         Creates and cleans up a Redis client when one is not provided.
         """
 
-        from common.process_monitor import get_global_process_monitor
+        from monitor.common_local.process_monitor import get_global_process_monitor
+
         from common.redis_protocol.connection_pool_core import get_redis_client as get_client
 
         owns_client = False

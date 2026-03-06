@@ -6,7 +6,7 @@ import logging
 import aiohttp
 
 from common.config_loader import load_config
-from common.constants.time import HEALTH_CHECK_TIMEOUT
+from common.constants import HEALTH_CHECK_TIMEOUT
 
 VALIDATION_CONFIG = load_config("validation_constants.json")
 

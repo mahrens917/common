@@ -17,7 +17,7 @@ Shared Python utilities library used across multiple trading system repositories
 
 ## CI Pipeline (exact order)
 - `codespell` -> `vulture` -> `deptry` -> `gitleaks` -> `bandit_wrapper` -> `safety scan` (skipped with `CI_AUTOMATION`) -> `ruff --fix` -> `pyright --warnings` -> `pylint` -> `pytest` -> `coverage_guard` -> `compileall`.
-- Limits: classes <=100 lines; functions <=80; modules <=400; cyclomatic <=10 / cognitive <=15; inheritance depth <=2; <=15 public / 25 total methods; <=5 instantiations in `__init__`/`__post_init__`; `unused_module_guard --strict`; documentation guard expects README/CLAUDE/docs hierarchy.
+- Limits: classes ≤150 lines; functions ≤80; modules ≤600; cyclomatic ≤10 / cognitive ≤15; inheritance depth ≤2; ≤15 public / 30 total methods; ≤8 instantiations in `__init__`/`__post_init__`; `unused_module_guard --strict`; `delegation_guard` (no module-scope setattr, no single-method wrappers, no pass-through functions, no empty helper packages); `fragmentation_guard` (packages must not be >50% tiny modules); documentation guard requires README/CLAUDE/docs hierarchy.
 - Policy guard reminders: banned tokens (`legacy`, `fallback`, `default`, `catch_all`, `failover`, `backup`, `compat`, `backwards`, `deprecated`, `legacy_mode`, `old_api`, `legacy_flag`, TODO/FIXME/HACK/WORKAROUND), no broad/empty exception handlers, no literal fallbacks in `.get`/`setdefault`/ternaries/`os.getenv`/`if x is None`, and no `time.sleep`/`subprocess.*`/`requests.*` inside `src`.
 - Prep: `tool_config_guard --sync` runs up front; PYTHONPATH is set to include `~/projects/ci_shared`.
 

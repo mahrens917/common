@@ -5,8 +5,8 @@ from unittest.mock import Mock, patch
 import psutil
 import pytest
 
-from common.optimized_status_reporter_helpers.service_state_collector_helpers.pid_validator import (
-    PidValidator,
+from common.optimized_status_reporter_helpers.service_state_collector_helpers import (
+    helpers,
 )
 
 
@@ -21,7 +21,7 @@ class TestPidValidator:
         mock_process_instance.status.return_value = psutil.STATUS_RUNNING
         mock_psutil_process.return_value = mock_process_instance
 
-        assert PidValidator.is_running(123) is True
+        assert helpers.is_running(123) is True
         mock_psutil_process.assert_called_once_with(123)
         mock_process_instance.is_running.assert_called_once()
         mock_process_instance.status.assert_called_once()
@@ -34,7 +34,7 @@ class TestPidValidator:
         mock_process_instance.status.return_value = psutil.STATUS_ZOMBIE
         mock_psutil_process.return_value = mock_process_instance
 
-        assert PidValidator.is_running(123) is False
+        assert helpers.is_running(123) is False
         mock_psutil_process.assert_called_once_with(123)
         mock_process_instance.is_running.assert_called_once()
         mock_process_instance.status.assert_called_once()
@@ -47,7 +47,7 @@ class TestPidValidator:
         mock_process_instance.status.return_value = psutil.STATUS_RUNNING  # Status shouldn't matter if not running
         mock_psutil_process.return_value = mock_process_instance
 
-        assert PidValidator.is_running(123) is False
+        assert helpers.is_running(123) is False
         mock_psutil_process.assert_called_once_with(123)
         mock_process_instance.is_running.assert_called_once()
         mock_process_instance.status.assert_not_called()  # status() should not be called if is_running() is False
@@ -65,5 +65,5 @@ class TestPidValidator:
         """Test is_running returns False when psutil.Process raises exceptions."""
         mock_psutil_process.side_effect = exception_class("Test exception")
 
-        assert PidValidator.is_running(123) is False
+        assert helpers.is_running(123) is False
         mock_psutil_process.assert_called_once_with(123)

@@ -5,18 +5,18 @@ import pytest
 
 from common.redis_protocol.trade_store.store_helpers.dependencies_factory import (
     TradeStoreDependencies,
-    TradeStoreDependenciesFactory,
+    create_dependencies,
 )
 
 
-class TestTradeStoreDependenciesFactory:
+class TestCreateDependencies:
     def test_create(self):
         logger = Mock(spec=logging.Logger)
         base_connection = Mock()
         get_redis = Mock()
         timezone = Mock()
 
-        deps = TradeStoreDependenciesFactory.create(
+        deps = create_dependencies(
             logger=logger,
             base_connection=base_connection,
             get_redis=get_redis,

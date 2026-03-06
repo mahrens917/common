@@ -193,7 +193,7 @@ class TestDataGathererGatherAllStatusData:
         async def mock_get_monitor():
             return mock_process_monitor
 
-        with patch("common.process_monitor.get_global_process_monitor", side_effect=mock_get_monitor):
+        with patch("monitor.common_local.process_monitor.get_global_process_monitor", side_effect=mock_get_monitor):
             result = await gatherer.gather_all_status_data(mock_redis)
 
             assert result["redis_process"]["pid"] == 12345
@@ -244,7 +244,7 @@ class TestDataGathererGatherAllStatusData:
         async def mock_get_monitor():
             return mock_process_monitor
 
-        with patch("common.process_monitor.get_global_process_monitor", side_effect=mock_get_monitor):
+        with patch("monitor.common_local.process_monitor.get_global_process_monitor", side_effect=mock_get_monitor):
             await gatherer.gather_all_status_data(mock_redis)
 
             mock_collectors.redis_key_counter.collect_key_counts.assert_called_once()

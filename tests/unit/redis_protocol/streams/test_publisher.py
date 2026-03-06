@@ -45,12 +45,20 @@ class TestStreamPublish:
         assert result == "1234567890-0"
 
     @pytest.mark.asyncio
-    async def test_converts_values_to_strings(self, mock_redis):
+    async def test_passes_native_types_directly(self, mock_redis):
         await stream_publish(mock_redis, "stream:test", {"count": 42, "price": 99.5})
 
         call_args = mock_redis.xadd.call_args
         fields = call_args[0][1]
-        assert fields == {"count": "42", "price": "99.5"}
+        assert fields == {"count": 42, "price": 99.5}
+
+    @pytest.mark.asyncio
+    async def test_converts_non_native_values_to_strings(self, mock_redis):
+        await stream_publish(mock_redis, "stream:test", {"obj": object.__new__(object)})
+
+        call_args = mock_redis.xadd.call_args
+        fields = call_args[0][1]
+        assert isinstance(fields["obj"], str)
 
     @pytest.mark.asyncio
     async def test_custom_maxlen(self, mock_redis):

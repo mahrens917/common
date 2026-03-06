@@ -30,8 +30,11 @@ class OrderbookCache:
         return entry.get(field)
 
     def store_snapshot(self, market_key: str, fields: Dict[str, str]) -> None:
-        """Replace all cached fields for a market with a full snapshot."""
-        self._markets[market_key] = dict(fields)
+        """Replace all cached fields for a market with a full snapshot.
+
+        Takes ownership of *fields* — callers must not mutate the dict after passing it.
+        """
+        self._markets[market_key] = fields
 
     def update_fields(self, market_key: str, fields: Dict[str, str]) -> Dict[str, str]:
         """Update specific fields and return the full market state by reference.

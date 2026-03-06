@@ -6,7 +6,7 @@ from typing import Any, Dict, Optional
 
 from common.truthy import pick_truthy
 
-from .state_cleaner import StateCleaner
+from .state_cleaner import cleanup_old_state as _cleanup_old_state
 from .types import BackoffConfig, BackoffType
 
 logger = logging.getLogger(__name__)
@@ -86,7 +86,7 @@ class BackoffStateManager:
         _reset_state(self.backoff_state, service_name, backoff_type)
 
     def cleanup_old_state(self, max_age_seconds: int = 3600):
-        StateCleaner.cleanup_old_state(self.backoff_state, max_age_seconds)
+        _cleanup_old_state(self.backoff_state, max_age_seconds)
 
     def get_backoff_info(self, service_name: str, backoff_type: BackoffType, config: BackoffConfig) -> Dict[str, Any]:
         bucket = self.backoff_state.get(service_name)

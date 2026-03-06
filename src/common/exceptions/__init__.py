@@ -153,3 +153,19 @@ class MessageHandlerError(ApplicationError):
         if not message:
             message = "Message handler failure"
         super().__init__(message, **kwargs)
+
+
+class MarketError(ApplicationError):
+    """Base market error."""
+
+
+class TradingError(ApplicationError):
+    """Base trading error."""
+
+
+class WeatherError(ApplicationError):
+    """Base weather error."""
+
+
+class WeatherServiceError(ApplicationError):
+    """Weather service operational error."""

@@ -13,21 +13,9 @@ from common.base_connection_manager_helpers import (
     retry_logic,
     state_broadcast_helper,
 )
-from common.connection_manager_helpers import health_monitor as cm_health_monitor
-from common.connection_manager_helpers import notification_manager as cm_notification_manager
-from common.connection_manager_helpers import reconnection_handler as cm_reconnection_handler
-from common.connection_manager_helpers import state_manager as cm_state_manager
+from common.connection_manager_helpers import managers as cm_managers
 from common.connection_state import ConnectionState
 from common.data_models.trade_record import TradeRecord, TradeSide
-from common.metadata_store_helpers.data_normalizer import DataNormalizer
-from common.optimized_status_reporter_helpers.data_formatting import DataFormatting
-from common.optimized_status_reporter_helpers.moon_phase_calculator import (
-    MoonPhaseCalculator,
-)
-from common.optimized_status_reporter_helpers.price_data_collector import (
-    PriceDataCollector,
-)
-from common.optimized_status_reporter_helpers.redis_key_counter import RedisKeyCounter
 from common.redis_protocol.trade_store.codec_helpers.decoder import decode_trade_record
 from common.redis_protocol.trade_store.codec_helpers.encoder import (
     encode_trade_record,
@@ -133,23 +121,6 @@ def _build_trade(**overrides):
     return TradeRecord(**base)
 
 
-def test_data_normalizer_fields_and_numeric_coercion():
-    raw = {b"count": b"5", "price": "10.5", "flag": True, "empty": "   "}
-    normalized = DataNormalizer.normalize_hash(raw)
-    assert normalized["count"] == "5"
-
-    assert DataNormalizer.int_field(normalized, "count") == 5
-    assert DataNormalizer.int_field(normalized, "flag") == 1
-    assert DataNormalizer.int_field(normalized, "missing", value_on_error=7) == 7
-
-    assert DataNormalizer.float_field(normalized, "price") == 10.5
-    assert DataNormalizer.float_field(normalized, "empty", value_on_error=2.5) == 2.5
-    with pytest.raises(ValueError):
-        DataNormalizer.int_field({"price": object()}, "price")
-    with pytest.raises(ValueError):
-        DataNormalizer.float_field({"price": object()}, "price")
-
-
 def test_timestamp_parser_handles_types_and_errors():
     now = datetime.now(timezone.utc)
     assert parse_timestamp(now) == now
@@ -165,65 +136,6 @@ def test_timestamp_parser_handles_types_and_errors():
     assert parse_timestamp(None, allow_none=True) is None
     with pytest.raises(TypeError):
         parse_timestamp({"bad": "type"})
-
-
-def test_data_formatting_and_moon_phase():
-    assert DataFormatting.format_percentage(None) == "N/A"
-    assert DataFormatting.format_percentage(True) == "1.0%"
-    assert DataFormatting.format_percentage("12.34") == "12.3%"
-    assert DataFormatting.format_percentage("bad") == "N/A"
-
-    # Moon phase should return a single emoji even if calculation fails
-    emoji = MoonPhaseCalculator.get_moon_phase_emoji()
-    assert isinstance(emoji, str) and emoji
-
-
-@pytest.mark.asyncio
-async def test_price_data_collector_and_redis_key_counter(monkeypatch):
-    class StubStore:
-        def __init__(self, _client):
-            pass
-
-        async def get_usdc_micro_price(self, ticker):
-            if ticker == "BTC":
-                return 10.0
-            raise RuntimeError("fail")
-
-    monkeypatch.setattr(
-        "common.redis_protocol.market_store.DeribitStore",
-        StubStore,
-    )
-
-    collector = PriceDataCollector(redis_client="redis")
-    prices = await collector.collect_price_data()
-    assert prices == {"btc_price": 10.0, "eth_price": None}
-
-    class StubRedis:
-        def __init__(self, keys):
-            self._keys = keys
-
-        async def scan_iter(self, match=None, count=None):
-            prefix = match.split(":*", 1)[0] if match else ""
-            for key in self._keys:
-                if not prefix or key.startswith(prefix):
-                    yield key
-
-    class StubSchema:
-        deribit_market_prefix = "deribit"
-        kalshi_market_prefix = "kalshi"
-
-    monkeypatch.setattr(
-        "common.optimized_status_reporter_helpers.redis_key_counter.get_schema_config",
-        lambda: StubSchema(),
-    )
-
-    redis_client = StubRedis(["deribit:a", "kalshi:b", "cfb:c", "weather:station:x"])
-    counter = RedisKeyCounter(redis_client)
-    counts = await counter.collect_key_counts()
-    assert counts["redis_deribit_keys"] == 1
-    assert counts["redis_kalshi_keys"] == 1
-    assert counts["redis_cfb_keys"] == 1
-    assert counts["redis_weather_keys"] == 1
 
 
 @pytest.mark.asyncio
@@ -273,20 +185,20 @@ async def test_notification_and_state_helpers(monkeypatch):
 
 def test_connection_manager_helper_stubs():
     # These helper classes are thin wrappers; ensure constructors and methods are reachable
-    hm = cm_health_monitor.HealthMonitor()
+    hm = cm_managers.HealthMonitor()
     assert asyncio.run(hm.monitor()) is None
 
-    nm = cm_notification_manager.NotificationManager(foo="bar")
+    nm = cm_managers.NotificationManager(foo="bar")
     assert nm._shutdown_requested is False
     # notify is a stub that raises NotImplementedError
     with pytest.raises(NotImplementedError):
         asyncio.run(nm.notify())
 
-    rm = cm_reconnection_handler.ReconnectionHandler()
+    rm = cm_managers.ReconnectionHandler()
     with pytest.raises(NotImplementedError):
         asyncio.run(rm.reconnect())
 
-    sm = cm_state_manager.StateManager(foo="bar")
+    sm = cm_managers.StateManager(foo="bar")
     with pytest.raises(NotImplementedError):
         asyncio.run(sm.transition_state())
 

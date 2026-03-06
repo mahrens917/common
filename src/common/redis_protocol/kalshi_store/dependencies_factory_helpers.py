@@ -1,4 +1,4 @@
-"""Helper functions for KalshiStoreDependenciesFactory."""
+"""Helper functions for KalshiStore dependency creation."""
 
 import logging
 from typing import Callable, Optional
@@ -26,7 +26,7 @@ from .subscription import KalshiSubscriptionTracker
 from .utility_delegator import UtilityDelegator
 from .write_delegator import WriteDelegator
 from .writer import KalshiMarketWriter
-from .writer_helpers.dependencies_factory import KalshiMarketWriterDependenciesFactory
+from .writer_helpers.dependencies_factory import create_dependencies as create_writer_dependencies
 
 
 def create_core_components(
@@ -49,7 +49,7 @@ def create_core_components(
         subscriptions_key=subscriptions_key,
     )
 
-    writer_dependencies = KalshiMarketWriterDependenciesFactory.create(redis or connection.redis, logger, metadata, connection)
+    writer_dependencies = create_writer_dependencies(redis or connection.redis, logger, metadata, connection)
     writer = KalshiMarketWriter(
         redis or connection.redis,
         logger,

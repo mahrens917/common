@@ -43,10 +43,10 @@ def __getattr__(name):
         from .request_builder import RequestBuilder
 
         return RequestBuilder
-    if name == "ResponseParser":
-        from .response_parser import ResponseParser
+    if name == "response_parser":
+        from . import response_parser
 
-        return ResponseParser
+        return response_parser
     if name == "SessionManager":
         from .session_manager import SessionManager
 

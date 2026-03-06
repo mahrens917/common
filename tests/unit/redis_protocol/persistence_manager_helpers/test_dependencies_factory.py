@@ -3,7 +3,7 @@ from __future__ import annotations
 from types import SimpleNamespace
 
 from common.redis_protocol.persistence_manager_helpers.dependencies_factory import (
-    RedisPersistenceManagerDependenciesFactory,
+    create_dependencies,
 )
 
 
@@ -24,7 +24,7 @@ def test_create_sets_redis_on_connection(monkeypatch):
         FakeConnection,
     )
 
-    deps = RedisPersistenceManagerDependenciesFactory.create(redis="redis-client")
+    deps = create_dependencies(redis="redis-client")
 
     assert captured.set_called is True
     assert captured.redis_arg == "redis-client"

@@ -4,7 +4,7 @@ from types import SimpleNamespace
 
 import pytest
 
-from common.data_conversion.micro_price_helpers.batch_converter import BatchConverter
+from common.data_conversion.micro_price_helpers.batch_converter import convert_instruments_to_micro_price_data
 from common.data_models.trading import OrderSide, OrderType
 from common.deribit.utils import is_supported_ticker
 from common.health.log_activity_monitor import LogActivityStatus
@@ -381,9 +381,9 @@ def test_batch_converter_and_order_payloads():
         return StubOption(valid=instrument == "good")
 
     with pytest.raises(ValueError):
-        BatchConverter.convert_instruments_to_micro_price_data([], "USD", converter)
+        convert_instruments_to_micro_price_data([], "USD", converter)
 
-    result = BatchConverter.convert_instruments_to_micro_price_data(["good", "bad"], "USD", converter)
+    result = convert_instruments_to_micro_price_data(["good", "bad"], "USD", converter)
     assert len(result) == 1
 
     order = SimpleNamespace(

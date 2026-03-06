@@ -64,7 +64,9 @@ class TestRequestRestartService:
             await request_restart_service(mock_redis, "kalshi")
 
             expected_payload = json.dumps({"service_name": "kalshi", "timestamp": "2024-01-15T12:00:00+00:00"})
-            mock_redis.set.assert_called_once_with(RESTART_SERVICE_COMMAND_KEY, expected_payload)
+            from common.redis_protocol.restart_service_command import COMMAND_TTL_SECONDS
+
+            mock_redis.set.assert_called_once_with(RESTART_SERVICE_COMMAND_KEY, expected_payload, ex=COMMAND_TTL_SECONDS)
 
 
 class TestGetRestartServiceCommand:

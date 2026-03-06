@@ -1,5 +1,6 @@
 """Tests for EventMarketIndex."""
 
+import logging
 from unittest.mock import AsyncMock, MagicMock
 
 import pytest
@@ -125,3 +126,151 @@ class TestEventMarketIndex:
 
         assert index.event_count == 0
         assert index.market_count == 0
+
+
+class TestApplyStreamUpdate:
+    """Tests for EventMarketIndex.apply_stream_update."""
+
+    @pytest.mark.asyncio
+    async def test_cache_hit_merges_fields(self):
+        store = MagicMock()
+        store.get_all_markets = AsyncMock(return_value=[_make_market("EVT-A", "MKT-A1")])
+
+        index = EventMarketIndex()
+        await index.initialize(store)
+
+        result = index.apply_stream_update("MKT-A1", {"yes_bid": "70", "yes_ask": "75"})
+
+        assert result is not None
+        assert result["yes_bid"] == "70"
+        assert result["yes_ask"] == "75"
+        assert result["event_ticker"] == "EVT-A"
+
+    @pytest.mark.asyncio
+    async def test_cache_hit_preserves_existing_fields(self):
+        store = MagicMock()
+        store.get_all_markets = AsyncMock(return_value=[_make_market("EVT-A", "MKT-A1")])
+
+        index = EventMarketIndex()
+        await index.initialize(store)
+
+        result = index.apply_stream_update("MKT-A1", {"yes_bid": "70"})
+
+        assert result is not None
+        assert result["yes_bid"] == "70"
+        assert result["yes_ask"] == "55"
+
+    def test_cache_miss_with_event_ticker_creates_entry(self):
+        index = EventMarketIndex()
+
+        result = index.apply_stream_update("MKT-NEW", {"event_ticker": "EVT-NEW", "yes_bid": "40"})
+
+        assert result is not None
+        assert result["market_ticker"] == "MKT-NEW"
+        assert result["yes_bid"] == "40"
+        assert index.market_count == 1
+        assert "MKT-NEW" in index.get_event_market_tickers("EVT-NEW")
+
+    def test_cache_miss_without_event_ticker_returns_none(self):
+        index = EventMarketIndex()
+
+        result = index.apply_stream_update("MKT-UNKNOWN", {"yes_bid": "40"})
+
+        assert result is None
+        assert index.market_count == 0
+
+    @pytest.mark.asyncio
+    async def test_updates_visible_through_get_event_markets(self):
+        store = MagicMock()
+        store.get_all_markets = AsyncMock(return_value=[_make_market("EVT-A", "MKT-A1")])
+
+        index = EventMarketIndex()
+        await index.initialize(store)
+
+        index.apply_stream_update("MKT-A1", {"yes_bid": "99"})
+
+        markets = index.get_event_markets("EVT-A")
+        assert markets[0]["yes_bid"] == "99"
+
+
+def _mock_redis_scan(key_count: int) -> MagicMock:
+    """Build a mock redis that returns key_count plain market keys from SCAN."""
+    redis = MagicMock()
+    keys = [f"markets:kalshi:MKT-{i}" for i in range(key_count)]
+
+    async def mock_scan(cursor=0, match="", count=500):
+        return 0, keys
+
+    redis.scan = AsyncMock(side_effect=mock_scan)
+    return redis
+
+
+class TestReconcile:
+    """Tests for EventMarketIndex.reconcile."""
+
+    @pytest.mark.asyncio
+    async def test_matching_count_returns_false(self):
+        markets = [_make_market("EVT-A", f"MKT-{i}") for i in range(10)]
+        store = MagicMock()
+        store.get_all_markets = AsyncMock(return_value=markets)
+
+        index = EventMarketIndex()
+        await index.initialize(store)
+
+        redis = _mock_redis_scan(10)
+        assert await index.reconcile(redis) is False
+
+    @pytest.mark.asyncio
+    async def test_within_tolerance_returns_false(self):
+        markets = [_make_market("EVT-A", f"MKT-{i}") for i in range(10)]
+        store = MagicMock()
+        store.get_all_markets = AsyncMock(return_value=markets)
+
+        index = EventMarketIndex()
+        await index.initialize(store)
+
+        redis = _mock_redis_scan(14)
+        assert await index.reconcile(redis) is False
+
+    @pytest.mark.asyncio
+    async def test_diverged_count_returns_true(self, caplog):
+        markets = [_make_market("EVT-A", f"MKT-{i}") for i in range(10)]
+        store = MagicMock()
+        store.get_all_markets = AsyncMock(return_value=markets)
+
+        index = EventMarketIndex()
+        await index.initialize(store)
+
+        redis = _mock_redis_scan(20)
+        with caplog.at_level(logging.WARNING):
+            result = await index.reconcile(redis)
+
+        assert result is True
+        assert "count divergence" in caplog.text
+
+    @pytest.mark.asyncio
+    async def test_excludes_subkeys(self):
+        """SCAN keys with :trading_signal or :position_state are excluded."""
+        markets = [_make_market("EVT-A", f"MKT-{i}") for i in range(5)]
+        store = MagicMock()
+        store.get_all_markets = AsyncMock(return_value=markets)
+
+        index = EventMarketIndex()
+        await index.initialize(store)
+
+        redis = MagicMock()
+        keys = [
+            "markets:kalshi:MKT-0",
+            "markets:kalshi:MKT-1",
+            "markets:kalshi:MKT-2",
+            "markets:kalshi:MKT-3",
+            "markets:kalshi:MKT-4",
+            "markets:kalshi:MKT-0:trading_signal",
+            "markets:kalshi:MKT-1:position_state",
+        ]
+
+        async def mock_scan(cursor=0, match="", count=500):
+            return 0, keys
+
+        redis.scan = AsyncMock(side_effect=mock_scan)
+        assert await index.reconcile(redis) is False

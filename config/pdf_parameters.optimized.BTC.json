@@ -1,0 +1,12 @@
+{
+  "metadata": {
+    "currency": "BTC",
+    "version": "1.0"
+  },
+  "parameters": {
+    "nested": {
+      "key2": "val2"
+    },
+    "param2": "value2"
+  }
+}

@@ -25,36 +25,32 @@ class SessionTrackerDependencies:
     cleanup: SessionCleanup
 
 
-class SessionTrackerDependenciesFactory:
-    """Factory for creating SessionTracker dependencies."""
+def create_dependencies(sessions: Dict, session_refs: Dict, log_level: int) -> SessionTrackerDependencies:
+    """
+    Create all dependencies for SessionTracker.
 
-    @staticmethod
-    def create(sessions: Dict, session_refs: Dict, log_level: int) -> SessionTrackerDependencies:
-        """
-        Create all dependencies for SessionTracker.
+    Args:
+        sessions: Session tracking dictionary
+        session_refs: Session reference dictionary
+        log_level: Logging level for session tracking
 
-        Args:
-            sessions: Session tracking dictionary
-            session_refs: Session reference dictionary
-            log_level: Logging level for session tracking
+    Returns:
+        SessionTrackerDependencies instance
+    """
+    id_generator = SessionIdGenerator()
+    gc_handler = GarbageCollectionHandler(sessions, session_refs, log_level)
+    lifecycle = SessionLifecycleTracker(sessions, session_refs, log_level)
+    activity = SessionActivityTracker(sessions, log_level)
+    queries = SessionQueries(sessions, session_refs)
+    reporter = SessionReporter(log_level)
+    cleanup = SessionCleanup(sessions, session_refs, log_level)
 
-        Returns:
-            SessionTrackerDependencies instance
-        """
-        id_generator = SessionIdGenerator()
-        gc_handler = GarbageCollectionHandler(sessions, session_refs, log_level)
-        lifecycle = SessionLifecycleTracker(sessions, session_refs, log_level)
-        activity = SessionActivityTracker(sessions, log_level)
-        queries = SessionQueries(sessions, session_refs)
-        reporter = SessionReporter(log_level)
-        cleanup = SessionCleanup(sessions, session_refs, log_level)
-
-        return SessionTrackerDependencies(
-            id_generator=id_generator,
-            gc_handler=gc_handler,
-            lifecycle=lifecycle,
-            activity=activity,
-            queries=queries,
-            reporter=reporter,
-            cleanup=cleanup,
-        )
+    return SessionTrackerDependencies(
+        id_generator=id_generator,
+        gc_handler=gc_handler,
+        lifecycle=lifecycle,
+        activity=activity,
+        queries=queries,
+        reporter=reporter,
+        cleanup=cleanup,
+    )

@@ -1,6 +1,3 @@
-import sys
-import types
-from types import SimpleNamespace
 from unittest.mock import AsyncMock
 
 import pytest
@@ -57,57 +54,64 @@ async def test_analyze_error_history_trims_and_marks_configuration():
     assert analyzer.error_history[1].error_message == "configuration not found"
 
 
-def _install_suppression_stub(monkeypatch, *, should_suppress: bool):
-    module = types.ModuleType("common.alert_suppression_manager")
+def _make_analyzer_with_suppression(*, should_suppress: bool):
+    """Create an ErrorAnalyzer with mocked alert suppression manager."""
+    from unittest.mock import patch
 
-    class AlertType:
-        RECOVERY = "recovery"
-
-    decision = SimpleNamespace(
-        should_suppress=should_suppress,
-        reason="routine reconnection" if should_suppress else "",
+    from monitor.common_local.alert_suppression_manager_helpers.suppression_tracker import (
+        AlertType,
+        SuppressionDecision,
     )
 
-    manager = SimpleNamespace(should_suppress_alert=AsyncMock(return_value=decision))
+    notifier = AsyncMock()
 
-    async def get_alert_suppression_manager():
-        return manager
+    mock_suppression_manager = AsyncMock()
+    mock_suppression_manager.should_suppress_alert = AsyncMock(
+        return_value=SuppressionDecision(
+            should_suppress=should_suppress,
+            reason="test suppression",
+            service_name="monitor",
+            alert_type=AlertType.RECOVERY,
+        ),
+    )
 
-    module.AlertType = AlertType
-    module.get_alert_suppression_manager = get_alert_suppression_manager
+    mock_get_manager = AsyncMock(return_value=mock_suppression_manager)
 
-    monkeypatch.setitem(sys.modules, "common.alert_suppression_manager", module)
-    if "common" in sys.modules:
-        monkeypatch.setattr(sys.modules["common"], "alert_suppression_manager", module, raising=False)
+    patcher = patch(
+        "monitor.common_local.alert_suppression_manager.get_alert_suppression_manager",
+        mock_get_manager,
+    )
+    patcher.start()
 
-    return manager
+    analyzer = ErrorAnalyzer("monitor", telegram_notifier=notifier)
+    return analyzer, notifier, mock_get_manager, patcher
 
 
 @pytest.mark.asyncio
-async def test_report_recovery_suppresses_when_configured(monkeypatch):
-    notifier = AsyncMock()
-    analyzer = ErrorAnalyzer("monitor", telegram_notifier=notifier)
-    manager = _install_suppression_stub(monkeypatch, should_suppress=True)
+async def test_report_recovery_suppresses_when_configured():
+    analyzer, notifier, mock_get_manager, patcher = _make_analyzer_with_suppression(should_suppress=True)
+    try:
+        await analyzer.report_recovery("Connection re-established", {"latency": 42})
 
-    await analyzer.report_recovery("Connection re-established", {"latency": 42})
-
-    manager.should_suppress_alert.assert_awaited_once()
-    notifier.assert_not_awaited()
+        mock_get_manager.assert_awaited_once()
+        notifier.assert_not_awaited()
+    finally:
+        patcher.stop()
 
 
 @pytest.mark.asyncio
-async def test_report_recovery_notifies_when_not_suppressed(monkeypatch):
-    notifier = AsyncMock()
-    analyzer = ErrorAnalyzer("monitor", telegram_notifier=notifier)
-    manager = _install_suppression_stub(monkeypatch, should_suppress=False)
+async def test_report_recovery_notifies_when_not_suppressed():
+    analyzer, notifier, mock_get_manager, patcher = _make_analyzer_with_suppression(should_suppress=False)
+    try:
+        await analyzer.report_recovery("Connection re-established", {"latency": 42})
 
-    await analyzer.report_recovery("Connection re-established", {"latency": 42})
-
-    manager.should_suppress_alert.assert_awaited_once()
-    notifier.assert_awaited_once()
-    message = notifier.await_args.args[0]
-    assert "[monitor] RECOVERY" in message
-    assert "latency=42" in message
+        mock_get_manager.assert_awaited_once()
+        notifier.assert_awaited_once()
+        message = notifier.await_args.args[0]
+        assert "[monitor] RECOVERY" in message
+        assert "latency=42" in message
+    finally:
+        patcher.stop()
 
 
 @pytest.mark.asyncio

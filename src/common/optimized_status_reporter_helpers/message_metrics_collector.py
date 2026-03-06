@@ -39,21 +39,17 @@ class MessageMetricsCollector:
 
     async def collect_message_metrics(self) -> Dict[str, int]:
         """Collect all message metrics."""
-        realtime_tasks = [
+        all_tasks = [
             self.realtime_collector.get_deribit_sum_last_60_seconds(),
             self.realtime_collector.get_kalshi_sum_last_60_seconds(),
+            self.metadata_store.get_service_metadata("cfb"),
+            self.metadata_store.get_service_metadata("asos"),
         ]
 
         try:
-            deribit_messages_60s, kalshi_messages_60s = await asyncio.gather(*realtime_tasks)
+            deribit_messages_60s, kalshi_messages_60s, *metadata_results = await asyncio.gather(*all_tasks)
         except STATUS_REPORT_ERRORS as exc:
-            raise RuntimeError("Failed to collect realtime message metrics") from exc
-
-        metadata_tasks = [self.metadata_store.get_service_metadata(name) for name in ["cfb", "asos"]]
-        try:
-            metadata_results = await asyncio.gather(*metadata_tasks)
-        except STATUS_REPORT_ERRORS as exc:
-            raise DataError("Failed to collect metadata message metrics") from exc
+            raise DataError("Failed to collect message metrics") from exc
 
         if len(metadata_results) != _METADATA_SERVICE_COUNT:
             raise DataError(f"Expected metadata for ['cfb', 'asos'], got {len(metadata_results)} entries")

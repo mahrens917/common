@@ -74,19 +74,33 @@ def _resolve_currency(currency: Optional[str]) -> str:
     return _normalize_currency(candidate)
 
 
-def _optimized_config_path(currency: str) -> Path:
+def _resolve_config_dir(base_config_path: Optional[Path] = None) -> Path:
+    """Return the config directory, using ``base_config_path`` when provided."""
+    if base_config_path is not None:
+        return Path(base_config_path).parent
+    return BASE_CONFIG_PATH.parent
+
+
+def _optimized_config_path(currency: str, *, base_config_path: Optional[Path] = None) -> Path:
     normalized = _normalize_currency(currency)
     filename = _OPTIMIZED_FILENAME_TEMPLATE.format(currency=normalized)
-    return PROJECT_ROOT / "config" / filename
+    return _resolve_config_dir(base_config_path) / filename
 
 
-def load_active_pdf_config(currency: Optional[str] = None, *, allow_missing: bool = False) -> Tuple[Dict[str, Any], Dict[str, Any]]:
+def load_active_pdf_config(
+    currency: Optional[str] = None,
+    *,
+    allow_missing: bool = False,
+    base_config_path: Optional[Path] = None,
+) -> Tuple[Dict[str, Any], Dict[str, Any]]:
     """
     Load the active PDF configuration with optimized overrides applied.
 
     Args:
         currency: Optional currency code to resolve overrides. If omitted, the value
             from the current currency context is used.
+        base_config_path: Optional path to the base ``pdf_parameters.json``.  When
+            ``None``, the default path inside the *common* repo is used.
 
     Returns:
         Tuple of (merged_config, optimized_metadata)
@@ -96,9 +110,10 @@ def load_active_pdf_config(currency: Optional[str] = None, *, allow_missing: boo
         PDFConfigurationMissing: If the optimized snapshot is absent.
     """
     resolved_currency = _resolve_currency(currency)
-    base_config = _load_json(BASE_CONFIG_PATH)
+    effective_base = Path(base_config_path) if base_config_path is not None else BASE_CONFIG_PATH
+    base_config = _load_json(effective_base)
 
-    optimized_path = _optimized_config_path(resolved_currency)
+    optimized_path = _optimized_config_path(resolved_currency, base_config_path=base_config_path)
     optimized_missing = not optimized_path.exists()
 
     if optimized_missing and not allow_missing:
@@ -128,35 +143,47 @@ def load_active_pdf_config(currency: Optional[str] = None, *, allow_missing: boo
     return merged_config, metadata
 
 
-def load_base_pdf_config() -> Dict[str, Any]:
+def load_base_pdf_config(*, base_config_path: Optional[Path] = None) -> Dict[str, Any]:
     """Return the baseline pdf_parameters.json contents."""
-    return _load_json(BASE_CONFIG_PATH)
+    effective_base = Path(base_config_path) if base_config_path is not None else BASE_CONFIG_PATH
+    return _load_json(effective_base)
 
 
-def get_active_config_paths(currency: Optional[str] = None) -> Tuple[Path, Path]:
+def get_active_config_paths(
+    currency: Optional[str] = None,
+    *,
+    base_config_path: Optional[Path] = None,
+) -> Tuple[Path, Path]:
     """Return the baseline and optimized config paths for the resolved currency."""
 
     resolved_currency = _resolve_currency(currency)
-    optimized_path = _optimized_config_path(resolved_currency)
+    effective_base = Path(base_config_path) if base_config_path is not None else BASE_CONFIG_PATH
+    optimized_path = _optimized_config_path(resolved_currency, base_config_path=base_config_path)
 
     if not optimized_path.exists():
         raise PDFConfigurationMissing(f"Optimized PDF configuration missing for {resolved_currency}: {optimized_path}")
-    return BASE_CONFIG_PATH, optimized_path
+    return effective_base, optimized_path
 
 
-def write_optimized_snapshot(payload: Dict[str, Any], currency: str) -> Path:
+def write_optimized_snapshot(
+    payload: Dict[str, Any],
+    currency: str,
+    *,
+    base_config_path: Optional[Path] = None,
+) -> Path:
     """
     Persist the optimizer snapshot to disk for the specified currency.
 
     Args:
         payload: Serializable dictionary containing metadata and parameters.
         currency: Currency code the snapshot applies to.
+        base_config_path: Optional path to the base ``pdf_parameters.json``.
 
     Returns:
         Path pointing to the optimized configuration snapshot.
     """
     resolved_currency = _normalize_currency(currency)
-    optimized_path = _optimized_config_path(resolved_currency)
+    optimized_path = _optimized_config_path(resolved_currency, base_config_path=base_config_path)
     optimized_path.parent.mkdir(parents=True, exist_ok=True)
 
     metadata = payload.setdefault("metadata", _DEFAULT_METADATA)

@@ -5,8 +5,9 @@ from unittest.mock import MagicMock
 from common.error_analyzer_helpers import dependencies_factory
 from common.error_analyzer_helpers.dependencies_factory import (
     ErrorAnalyzerDependencies,
-    ErrorAnalyzerDependenciesFactory,
     OptionalDependencies,
+    create_dependencies,
+    create_or_use_dependencies,
 )
 
 
@@ -32,7 +33,7 @@ def test_create_forms_all_components(monkeypatch):
     for attr, implementation in names.items():
         monkeypatch.setattr(dependencies_factory, attr, implementation)
 
-    deps = ErrorAnalyzerDependenciesFactory.create("svc", telegram_notifier=lambda *_: None)
+    deps = create_dependencies("svc", telegram_notifier=lambda *_: None)
 
     assert isinstance(deps, ErrorAnalyzerDependencies)
     assert deps.categorizer.name == "categorizer"
@@ -51,7 +52,7 @@ def test_create_or_use_uses_all_optional_components():
         recovery_reporter=MagicMock(name="recovery"),
     )
 
-    deps = ErrorAnalyzerDependenciesFactory.create_or_use(
+    deps = create_or_use_dependencies(
         "svc",
         telegram_notifier=lambda *_: None,
         optional_deps=opt,
@@ -79,7 +80,7 @@ def test_create_or_use_merges_when_optional_is_partial(monkeypatch):
         called.append((name, notifier))
         return service_deps
 
-    monkeypatch.setattr(ErrorAnalyzerDependenciesFactory, "create", staticmethod(fake_create))
+    monkeypatch.setattr(dependencies_factory, "create_dependencies", fake_create)
 
     optional_deps = OptionalDependencies(
         categorizer=MagicMock(name="user-cat"),
@@ -91,7 +92,7 @@ def test_create_or_use_merges_when_optional_is_partial(monkeypatch):
     )
 
     notifier = lambda *_: None
-    deps = ErrorAnalyzerDependenciesFactory.create_or_use(
+    deps = create_or_use_dependencies(
         "svc",
         telegram_notifier=notifier,
         optional_deps=optional_deps,

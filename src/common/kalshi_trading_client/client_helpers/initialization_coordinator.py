@@ -10,9 +10,7 @@ from ...redis_protocol.trade_store import TradeStore
 from ...trading import TradeStoreManager, WeatherStationResolver
 from ...trading.notifier_adapter import TradeNotifierAdapter
 from .initialization import ClientInitializer
-from .initialization_coordinator_helpers.service_provider_factory import (
-    create_service_providers,
-)
+from .initialization_coordinator_helpers.helpers import create_service_providers
 
 logger = logging.getLogger(__name__)
 

@@ -6,7 +6,7 @@ import asyncio
 
 import pytest
 
-from common.kalshi_trading_client.client_helpers.initialization_coordinator_helpers.service_creator import (
+from common.kalshi_trading_client.client_helpers.initialization_coordinator_helpers.helpers import (
     create_services,
 )
 from common.kalshi_trading_client.services.order_helpers.dependencies_factory import (
@@ -211,11 +211,11 @@ def test_service_creator_invokes_factories(monkeypatch):
         return ("portfolio", _StubOrders(), "trade_collection")
 
     monkeypatch.setattr(
-        "common.kalshi_trading_client.client_helpers.initialization_coordinator_helpers.service_creator.create_service_providers",
+        "common.kalshi_trading_client.client_helpers.initialization_coordinator_helpers.helpers.create_service_providers",
         fake_create_service_providers,
     )
     monkeypatch.setattr(
-        "common.kalshi_trading_client.client_helpers.initialization_coordinator_helpers.service_creator.ClientInitializer.create_services",
+        "common.kalshi_trading_client.client_helpers.initialization_coordinator_helpers.helpers.ClientInitializer.create_services",
         staticmethod(fake_create_services),
     )
 

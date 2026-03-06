@@ -326,7 +326,23 @@ _STRIKE_HANDLERS = {
 }
 
 
+def compute_effective_strike(cap: Optional[float], floor: Optional[float]) -> Optional[float]:
+    """Compute effective strike from cap and floor bounds.
+
+    If both are set, returns their average. Otherwise returns whichever is set.
+    Returns None if neither is set.
+    """
+    if cap is not None and floor is not None:
+        return (cap + floor) / 2
+    if cap is not None:
+        return cap
+    if floor is not None:
+        return floor
+    return None
+
+
 __all__ = [
+    "compute_effective_strike",
     "parse_strike_value",
     "parse_strike_bounds",
     "calculate_strike_value",

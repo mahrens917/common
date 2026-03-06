@@ -7,7 +7,6 @@ from common.scraper_connection_manager_helpers.connection_establisher import (
 )
 from common.scraper_connection_manager_helpers.content_validator import ContentValidator
 from common.scraper_connection_manager_helpers.health_checker import HealthChecker
-from common.scraper_connection_manager_helpers.scraper_operations import ScraperOperations
 
 
 class TestPlaceholderClasses(unittest.IsolatedAsyncioTestCase):
@@ -25,8 +24,3 @@ class TestPlaceholderClasses(unittest.IsolatedAsyncioTestCase):
         checker = HealthChecker(dependency="dep")
         assert checker.dependency == "dep"
         await checker.check_health()
-
-    async def test_scraper_operations(self):
-        operations = ScraperOperations(dependency="dep")
-        assert operations.dependency == "dep"
-        await operations.scrape()

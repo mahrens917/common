@@ -23,6 +23,7 @@ logger = logging.getLogger(__name__)
 RESTART_SERVICE_COMMAND_KEY = "config:command:restart_service"
 RESTART_SERVICE_RESULT_KEY = "config:command:restart_service:result"
 RESULT_TTL_SECONDS = 30
+COMMAND_TTL_SECONDS = 60
 
 
 @dataclass
@@ -44,7 +45,7 @@ async def request_restart_service(redis: "Redis", service_name: str) -> None:
     from common.time_utils import get_current_utc
 
     payload = json.dumps({"service_name": service_name, "timestamp": get_current_utc().isoformat()})
-    await ensure_awaitable(redis.set(RESTART_SERVICE_COMMAND_KEY, payload))
+    await ensure_awaitable(redis.set(RESTART_SERVICE_COMMAND_KEY, payload, ex=COMMAND_TTL_SECONDS))
     logger.info("Restart service command issued for %s", service_name)
 
 

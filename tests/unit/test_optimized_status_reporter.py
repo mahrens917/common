@@ -162,7 +162,7 @@ class TestReporterStreamReport:
             return_value=mock_redis,
         ):
             with patch(
-                "common.process_monitor.get_global_process_monitor",
+                "monitor.common_local.process_monitor.get_global_process_monitor",
                 new_callable=AsyncMock,
                 return_value=mock_monitor,
             ):
@@ -193,7 +193,7 @@ class TestReporterStreamReport:
             new_callable=AsyncMock,
         ):
             with patch(
-                "common.process_monitor.get_global_process_monitor",
+                "monitor.common_local.process_monitor.get_global_process_monitor",
                 new_callable=AsyncMock,
             ):
                 with patch.object(reporter, "_get_kalshi_client", new_callable=AsyncMock):
@@ -227,7 +227,7 @@ class TestOptimizedStatusReporterGatherStatusData:
         mock_redis = MagicMock()
 
         with patch(
-            "common.process_monitor.get_global_process_monitor",
+            "monitor.common_local.process_monitor.get_global_process_monitor",
             new_callable=AsyncMock,
             return_value=MagicMock(),
         ):
@@ -264,7 +264,7 @@ class TestOptimizedStatusReporterGatherStatusData:
             return_value=mock_redis,
         ):
             with patch(
-                "common.process_monitor.get_global_process_monitor",
+                "monitor.common_local.process_monitor.get_global_process_monitor",
                 new_callable=AsyncMock,
                 return_value=MagicMock(),
             ):

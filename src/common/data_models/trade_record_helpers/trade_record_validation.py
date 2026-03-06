@@ -5,7 +5,7 @@ from __future__ import annotations
 from datetime import datetime
 from typing import TYPE_CHECKING, Any
 
-from common.constants.trading import MAX_PRICE_CENTS
+from common.constants import MAX_PRICE_CENTS
 from common.exceptions import ValidationError
 
 from ...redis_schema.markets import KalshiMarketCategory

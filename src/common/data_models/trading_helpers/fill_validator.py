@@ -3,7 +3,7 @@
 from datetime import datetime
 from typing import Any
 
-from common.constants.trading import MAX_PRICE_CENTS
+from common.constants import MAX_PRICE_CENTS
 
 # Error messages
 ERR_FILL_QUANTITY_NOT_POSITIVE = "Fill quantity must be positive: {value}"

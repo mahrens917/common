@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import logging
-from types import SimpleNamespace
 from typing import Any, List, Optional, Sequence
 
 from .process_normalizer import NormalizedProcess
@@ -75,13 +74,10 @@ async def _scan_os_processes(process_keywords: Sequence[str], service_name: str)
             if not _matches(cmdline):
                 continue
             os_scan_matches.append(
-                normalize_process(
-                    SimpleNamespace(
-                        pid=proc.info.get("pid"),
-                        name=proc.info.get("name"),
-                        cmdline=cmdline,
-                    ),
-                    service_name,
+                NormalizedProcess(
+                    pid=proc.info.get("pid"),
+                    name=proc.info.get("name"),
+                    cmdline=cmdline,
                 )
             )
         except (

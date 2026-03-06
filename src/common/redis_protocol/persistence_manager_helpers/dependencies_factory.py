@@ -26,39 +26,35 @@ class RedisPersistenceManagerDependencies:
     validation: ValidationManager
 
 
-class RedisPersistenceManagerDependenciesFactory:  # gitleaks:allow
-    """Factory for creating RedisPersistenceManager dependencies."""
+def create_dependencies(
+    redis: Optional[Any] = None,
+) -> RedisPersistenceManagerDependencies:  # gitleaks:allow
+    """
+    Create all dependencies for RedisPersistenceManager.
 
-    @staticmethod
-    def create(
-        redis: Optional[Any] = None,
-    ) -> RedisPersistenceManagerDependencies:  # gitleaks:allow
-        """
-        Create all dependencies for RedisPersistenceManager.
+    Args:
+        redis: Optional Redis connection
 
-        Args:
-            redis: Optional Redis connection
+    Returns:
+        RedisPersistenceManager dependency bundle.
+    """
+    connection = ConnectionManager()
+    if redis:
+        connection.set_redis(redis)
 
-        Returns:
-            RedisPersistenceManager dependency bundle.
-        """
-        connection = ConnectionManager()
-        if redis:
-            connection.set_redis(redis)
+    coordinator = PersistenceCoordinator()
+    snapshot = SnapshotManager()
 
-        coordinator = PersistenceCoordinator()
-        snapshot = SnapshotManager()
+    configorchestrator = ConfigOrchestrator(coordinator, snapshot)
+    keyscanner = KeyScanner()
+    dataserializer = DataSerializer()
+    validation = ValidationManager()
 
-        configorchestrator = ConfigOrchestrator(coordinator, snapshot)
-        keyscanner = KeyScanner()
-        dataserializer = DataSerializer()
-        validation = ValidationManager()
-
-        return RedisPersistenceManagerDependencies(  # gitleaks:allow
-            connection=connection,
-            configorchestrator=configorchestrator,
-            snapshot=snapshot,
-            keyscanner=keyscanner,
-            dataserializer=dataserializer,
-            validation=validation,
-        )
+    return RedisPersistenceManagerDependencies(  # gitleaks:allow
+        connection=connection,
+        configorchestrator=configorchestrator,
+        snapshot=snapshot,
+        keyscanner=keyscanner,
+        dataserializer=dataserializer,
+        validation=validation,
+    )

@@ -57,8 +57,6 @@ async def stream_read_loop(
             for entry_id, fields in entries:
                 identifier = fields.get(config.identifier_field, _MISSING_IDENTIFIER)
                 await queue.put((entry_id, identifier, fields))
-            if not entries:
-                await asyncio.sleep(0)
         except asyncio.CancelledError:
             raise
         except Exception as exc:  # policy_guard: allow-broad-except policy_guard: allow-silent-handler

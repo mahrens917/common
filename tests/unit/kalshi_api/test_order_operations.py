@@ -105,19 +105,11 @@ class TestOrderOperations:
         return builder
 
     @pytest.fixture
-    def mock_response_parser(self):
-        parser = MagicMock()
-        parser.parse_order_response = MagicMock(return_value=MagicMock())
-        parser.normalise_fill = MagicMock(return_value={"normalized": True})
-        return parser
-
-    @pytest.fixture
-    def order_ops(self, mock_request_builder, mock_response_parser):
-        return OrderOperations(mock_request_builder, mock_response_parser)
+    def order_ops(self, mock_request_builder):
+        return OrderOperations(mock_request_builder)
 
     def test_init(self, order_ops):
         assert order_ops._request_builder is not None
-        assert order_ops._response_parser is not None
 
     def test_attach_trade_store(self, order_ops):
         store = MagicMock()
@@ -148,13 +140,14 @@ class TestOrderOperations:
         assert "must be provided" in str(exc_info.value)
 
     @pytest.mark.asyncio
-    async def test_get_fills_success(self, order_ops, mock_request_builder, mock_response_parser):
+    async def test_get_fills_success(self, order_ops, mock_request_builder):
         mock_request_builder.execute_request = AsyncMock(return_value={"fills": [{"fill_id": "1"}]})
 
-        result = await order_ops.get_fills("order-123")
+        with patch("common.kalshi_api.order_operations.normalise_rp_fill", return_value={"normalized": True}) as mock_norm:
+            result = await order_ops.get_fills("order-123")
 
-        assert result == [{"normalized": True}]
-        mock_response_parser.normalise_fill.assert_called_once()
+            assert result == [{"normalized": True}]
+            mock_norm.assert_called_once()
 
     @pytest.mark.asyncio
     async def test_get_fills_empty_id(self, order_ops):
@@ -191,7 +184,7 @@ class TestOrderOperations:
         assert "must be a JSON object" in str(exc_info.value)
 
     @pytest.mark.asyncio
-    async def test_create_order_success(self, order_ops, mock_request_builder, mock_response_parser):
+    async def test_create_order_success(self, order_ops, mock_request_builder):
         order_request = MagicMock()
         order_request.trade_rule = "rule1"
         order_request.trade_reason = "reason1"
@@ -203,7 +196,10 @@ class TestOrderOperations:
             ]
         )
 
-        with patch("common.kalshi_api.order_operations.build_order_payload") as mock_build:
+        with (
+            patch("common.kalshi_api.order_operations.build_order_payload") as mock_build,
+            patch("common.kalshi_api.order_operations.parse_order_response", return_value=MagicMock()),
+        ):
             mock_build.return_value = {"ticker": "ABC"}
 
             await order_ops.create_order(order_request)

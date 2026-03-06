@@ -40,7 +40,13 @@ async def get_probabilities_by_event_type(redis: Redis, currency: str, event_typ
     prefix = f"probabilities:{currency_upper}:"
 
     try:
-        raw_keys = await ensure_awaitable(redis.keys(f"{prefix}*"))
+        raw_keys: list = []
+        scan_cursor = 0
+        while True:
+            scan_cursor, batch = await ensure_awaitable(redis.scan(scan_cursor, match=f"{prefix}*", count=500))
+            raw_keys.extend(batch)
+            if scan_cursor == 0:
+                break
     except REDIS_ERRORS as exc:
         raise ProbabilityStoreError(f"Failed to fetch event type {event_type} for {currency_upper}: Redis error {exc}") from exc
 
@@ -48,10 +54,15 @@ async def get_probabilities_by_event_type(redis: Redis, currency: str, event_typ
     if not keys:
         raise ProbabilityStoreError(f"No data found for event type '{event_type}' for {currency_upper}")
 
-    result: ProbabilityByExpiryGrouped = {}
+    # Pipeline all hgetall calls
+    pipe = redis.pipeline()
     for key in keys:
+        pipe.hgetall(key)
+    all_data = await ensure_awaitable(pipe.execute())
+
+    result: ProbabilityByExpiryGrouped = {}
+    for key, data in zip(keys, all_data):
         expiry, strike_type, strike = parse_probability_key(key)
-        data = await ensure_awaitable(redis.hgetall(key))
         if not data:
             raise ProbabilityStoreError(f"Probability payload missing for key {key}")
         processed_data = decode_probability_hash(
@@ -87,17 +98,20 @@ async def filter_keys_by_event_type(redis: Redis, raw_keys: Iterable[Any], event
     Returns:
         List of decoded key strings matching the event type
     """
+    key_list = [decode_redis_key(rk) for rk in raw_keys]
+    if not key_list:
+        return []
+    pipe = redis.pipeline()
+    for key_str in key_list:
+        pipe.hget(key_str, "event_type")
+    results = await ensure_awaitable(pipe.execute())
     matched: List[str] = []
-    for raw_key in raw_keys:
-        key_str = decode_redis_key(raw_key)
-        stored_event_type = await ensure_awaitable(redis.hget(key_str, "event_type"))
+    for key_str, stored_event_type in zip(key_list, results):
         if not stored_event_type:
             continue
-
         event_type_value = decode_redis_key(stored_event_type)
         if event_type_value == event_type:
             matched.append(key_str)
-
     return matched
 
 

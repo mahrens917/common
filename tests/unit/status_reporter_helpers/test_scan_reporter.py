@@ -2,10 +2,8 @@ from unittest.mock import Mock
 
 import pytest
 
-from common.status_reporter_helpers.message_formatter import MessageFormatter
-from common.status_reporter_helpers.scan_reporter import ScanReporter
-from common.status_reporter_helpers.summary_builder import SummaryBuilder
-from common.status_reporter_helpers.time_formatter import TimeFormatter
+from common.status_reporter_helpers import formatters
+from common.status_reporter_helpers.reporters import ScanReporter
 
 
 class TestScanReporter:
@@ -19,14 +17,14 @@ class TestScanReporter:
 
     def test_scanning_markets(self, reporter, writer):
         reporter.scanning_markets(10)
-        writer.write.assert_called_once_with(MessageFormatter.scanning_markets(10))
+        writer.write.assert_called_once_with(formatters.scanning_markets(10))
 
     def test_opportunities_summary(self, reporter, writer):
         reporter.opportunities_summary(5, 2, 1)
-        expected_msg = SummaryBuilder.build_opportunities_summary(5, 2, 1)
+        expected_msg = formatters.build_opportunities_summary(5, 2, 1)
         writer.write.assert_called_once_with(expected_msg)
 
     def test_waiting_for_next_scan(self, reporter, writer):
         reporter.waiting_for_next_scan(60)
-        expected_msg = TimeFormatter.waiting_for_next_scan(60)
+        expected_msg = formatters.waiting_for_next_scan(60)
         writer.write.assert_called_once_with(expected_msg)

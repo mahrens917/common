@@ -14,7 +14,7 @@ import aiohttp
 from common.config import env_str
 from common.session_tracker_helpers.dependencies_factory import (
     SessionTrackerDependencies,
-    SessionTrackerDependenciesFactory,
+    create_dependencies,
 )
 from common.session_tracker_helpers.models import SessionInfo
 from common.session_tracker_mixins import (
@@ -81,7 +81,7 @@ class SessionTracker(
         self._initialized = True
         logger.setLevel(SESSION_TRACKING_LOG_LEVEL)
 
-        deps = dependencies or SessionTrackerDependenciesFactory.create(self.sessions, self.session_refs, SESSION_TRACKING_LOG_LEVEL)
+        deps = dependencies or create_dependencies(self.sessions, self.session_refs, SESSION_TRACKING_LOG_LEVEL)
         self._id_generator = deps.id_generator
         self._gc_handler = deps.gc_handler
         self._lifecycle = deps.lifecycle

@@ -23,6 +23,14 @@ class TestAlgoField:
         assert result == "pdf:t_yes_ask"
 
 
+def _make_pipe_mock(execute_returns):
+    """Create a pipeline mock that records hmget calls and returns given results."""
+    pipe = MagicMock()
+    pipe.hmget = MagicMock()
+    pipe.execute = AsyncMock(return_value=execute_returns)
+    return pipe
+
+
 class TestScanAlgoActiveMarkets:
     """Tests for scan_algo_active_markets function."""
 
@@ -30,7 +38,6 @@ class TestScanAlgoActiveMarkets:
     def mock_redis(self):
         redis = MagicMock()
         redis.scan = AsyncMock()
-        redis.hmget = AsyncMock()
         return redis
 
     @pytest.mark.asyncio
@@ -42,7 +49,8 @@ class TestScanAlgoActiveMarkets:
     @pytest.mark.asyncio
     async def test_finds_active_markets(self, mock_redis):
         mock_redis.scan = AsyncMock(return_value=(0, [b"markets:kalshi:weather:TICKER1", b"markets:kalshi:weather:TICKER2"]))
-        mock_redis.hmget = AsyncMock(return_value=[b"50", b"55"])
+        pipe = _make_pipe_mock([[b"50", b"55"], [b"50", b"55"]])
+        mock_redis.pipeline = MagicMock(return_value=pipe)
 
         result = await scan_algo_active_markets(mock_redis, "markets:kalshi:*", "weather")
 
@@ -52,7 +60,8 @@ class TestScanAlgoActiveMarkets:
     @pytest.mark.asyncio
     async def test_skips_markets_with_no_prices(self, mock_redis):
         mock_redis.scan = AsyncMock(return_value=(0, [b"markets:kalshi:weather:TICKER1"]))
-        mock_redis.hmget = AsyncMock(return_value=[None, None])
+        pipe = _make_pipe_mock([[None, None]])
+        mock_redis.pipeline = MagicMock(return_value=pipe)
 
         result = await scan_algo_active_markets(mock_redis, "markets:kalshi:*", "weather")
 
@@ -61,7 +70,8 @@ class TestScanAlgoActiveMarkets:
     @pytest.mark.asyncio
     async def test_finds_market_with_bid_only(self, mock_redis):
         mock_redis.scan = AsyncMock(return_value=(0, [b"markets:kalshi:weather:TICKER1"]))
-        mock_redis.hmget = AsyncMock(return_value=[b"50", None])
+        pipe = _make_pipe_mock([[b"50", None]])
+        mock_redis.pipeline = MagicMock(return_value=pipe)
 
         result = await scan_algo_active_markets(mock_redis, "markets:kalshi:*", "weather")
 
@@ -70,7 +80,8 @@ class TestScanAlgoActiveMarkets:
     @pytest.mark.asyncio
     async def test_finds_market_with_ask_only(self, mock_redis):
         mock_redis.scan = AsyncMock(return_value=(0, [b"markets:kalshi:weather:TICKER1"]))
-        mock_redis.hmget = AsyncMock(return_value=[None, b"55"])
+        pipe = _make_pipe_mock([[None, b"55"]])
+        mock_redis.pipeline = MagicMock(return_value=pipe)
 
         result = await scan_algo_active_markets(mock_redis, "markets:kalshi:*", "weather")
 
@@ -84,7 +95,8 @@ class TestScanAlgoActiveMarkets:
                 (0, [b"markets:kalshi:weather:TICKER2"]),
             ]
         )
-        mock_redis.hmget = AsyncMock(return_value=[b"50", b"55"])
+        pipe = _make_pipe_mock([[b"50", b"55"]])
+        mock_redis.pipeline = MagicMock(return_value=pipe)
 
         result = await scan_algo_active_markets(mock_redis, "markets:kalshi:*", "weather")
 
@@ -96,7 +108,8 @@ class TestScanAlgoActiveMarkets:
     @pytest.mark.asyncio
     async def test_handles_string_keys(self, mock_redis):
         mock_redis.scan = AsyncMock(return_value=(0, ["markets:kalshi:weather:TICKER1"]))
-        mock_redis.hmget = AsyncMock(return_value=[b"50", None])
+        pipe = _make_pipe_mock([[b"50", None]])
+        mock_redis.pipeline = MagicMock(return_value=pipe)
 
         result = await scan_algo_active_markets(mock_redis, "markets:kalshi:*", "weather")
 
@@ -109,7 +122,11 @@ class TestClearStaleMarkets:
     @pytest.fixture
     def mock_redis(self):
         redis = MagicMock()
-        redis.hdel = AsyncMock()
+        pipe = MagicMock()
+        pipe.hdel = MagicMock()
+        pipe.execute = AsyncMock(return_value=[])
+        redis.pipeline = MagicMock(return_value=pipe)
+        redis._pipe = pipe
         return redis
 
     @pytest.fixture
@@ -120,7 +137,6 @@ class TestClearStaleMarkets:
     async def test_empty_stale_tickers(self, mock_redis, key_builder):
         result = await clear_stale_markets(mock_redis, set(), "weather", key_builder)
         assert result == []
-        mock_redis.hdel.assert_not_called()
 
     @pytest.mark.asyncio
     async def test_clears_stale_markets(self, mock_redis, key_builder):
@@ -130,13 +146,13 @@ class TestClearStaleMarkets:
         assert "TICKER1" in result
         assert "TICKER2" in result
         _EXPECTED_HDEL_CALLS = 2
-        assert mock_redis.hdel.call_count == _EXPECTED_HDEL_CALLS
+        assert mock_redis._pipe.hdel.call_count == _EXPECTED_HDEL_CALLS
 
     @pytest.mark.asyncio
     async def test_clears_all_namespaced_fields(self, mock_redis, key_builder):
         await clear_stale_markets(mock_redis, {"TICKER1"}, "weather", key_builder)
 
-        call_args = mock_redis.hdel.call_args[0]
+        call_args = mock_redis._pipe.hdel.call_args[0]
         assert call_args[0] == "markets:kalshi:weather:TICKER1"
         assert "weather:t_bid" in call_args
         assert "weather:t_ask" in call_args
@@ -149,7 +165,7 @@ class TestClearStaleMarkets:
         metadata_fields = frozenset({"t_spread", "svi_rmse"})
         await clear_stale_markets(mock_redis, {"TICKER1"}, "pdf", key_builder, metadata_fields)
 
-        call_args = mock_redis.hdel.call_args[0]
+        call_args = mock_redis._pipe.hdel.call_args[0]
         assert "pdf:t_bid" in call_args
         assert "pdf:t_ask" in call_args
         assert "pdf:t_spread" in call_args

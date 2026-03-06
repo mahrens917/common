@@ -6,7 +6,7 @@ from collections.abc import Sequence
 from dataclasses import dataclass
 from typing import Any
 
-from ..process_monitor import ProcessInfo
+from monitor.common_local.process_monitor import ProcessInfo
 
 
 @dataclass

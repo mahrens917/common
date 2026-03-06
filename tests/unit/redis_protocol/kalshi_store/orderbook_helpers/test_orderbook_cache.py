@@ -55,12 +55,12 @@ class TestOrderbookCache:
         cache = OrderbookCache()
         assert cache.get_snapshot("nonexistent") is None
 
-    def test_store_snapshot_is_isolated_copy(self) -> None:
+    def test_store_snapshot_takes_ownership(self) -> None:
         cache = OrderbookCache()
         original = {"a": "1"}
         cache.store_snapshot("key1", original)
-        original["b"] = "2"
-        assert cache.get_field("key1", "b") is None
+        assert cache.get_field("key1", "a") == "1"
+        assert cache.get_snapshot("key1") is original
 
 
 class TestMarketUpdate:

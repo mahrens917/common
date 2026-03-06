@@ -6,14 +6,7 @@ Provides clean, concise status updates without verbose logging prefixes.
 import logging
 from typing import Optional
 
-from .status_reporter_helpers import (
-    MessageFormatter,
-    OpportunityReporter,
-    OutputWriter,
-    SummaryBuilder,
-    TimeFormatter,
-    TradeReporter,
-)
+from .status_reporter_helpers import OutputWriter, formatters
 
 logger = logging.getLogger(__name__)
 
@@ -23,23 +16,23 @@ class _MarketStatusHelper:
         self._write = writer_write
 
     def tracking_started(self) -> None:
-        self._write(MessageFormatter.tracking_started())
+        self._write(formatters.tracking_started())
 
     def markets_closed(self) -> None:
-        self._write(MessageFormatter.markets_closed())
+        self._write(formatters.markets_closed())
 
     def markets_open(self) -> None:
-        self._write(MessageFormatter.markets_open())
+        self._write(formatters.markets_open())
 
     def scanning_markets(self, market_count: int) -> None:
-        self._write(MessageFormatter.scanning_markets(market_count))
+        self._write(formatters.scanning_markets(market_count))
 
     def opportunities_summary(self, opportunities_found: int, trades_executed: int, markets_closed: int = 0) -> None:
-        message = SummaryBuilder.build_opportunities_summary(opportunities_found, trades_executed, markets_closed)
+        message = formatters.build_opportunities_summary(opportunities_found, trades_executed, markets_closed)
         self._write(message)
 
     def checking_market_hours(self) -> None:
-        self._write(MessageFormatter.checking_market_hours())
+        self._write(formatters.checking_market_hours())
 
 
 class _TradeStatusHelper:
@@ -55,23 +48,23 @@ class _TradeStatusHelper:
         reason: str,
         weather_context: Optional[str] = None,
     ) -> None:
-        message = OpportunityReporter.format_opportunity(ticker, action, side, price_cents, reason, weather_context)
+        message = formatters.format_opportunity(ticker, action, side, price_cents, reason, weather_context)
         self._write(message)
 
     def trade_executed(self, ticker: str, action: str, side: str, price_cents: int, order_id: str) -> None:
-        message = TradeReporter.format_trade_executed(ticker, action, side, price_cents, order_id)
+        message = formatters.format_trade_executed(ticker, action, side, price_cents, order_id)
         self._write(message)
 
     def trade_failed(self, ticker: str, reason: str) -> None:
-        message = TradeReporter.format_trade_failed(ticker, reason)
+        message = formatters.format_trade_failed(ticker, reason)
         self._write(message)
 
     def insufficient_balance(self, ticker: str, required_cents: int, available_cents: int) -> None:
-        message = TradeReporter.format_insufficient_balance(ticker, required_cents, available_cents)
+        message = formatters.format_insufficient_balance(ticker, required_cents, available_cents)
         self._write(message)
 
     def balance_updated(self, old_balance_cents: int, new_balance_cents: int) -> None:
-        message = TradeReporter.format_balance_updated(old_balance_cents, new_balance_cents)
+        message = formatters.format_balance_updated(old_balance_cents, new_balance_cents)
         self._write(message)
 
 
@@ -80,17 +73,17 @@ class _LifecycleStatusHelper:
         self._write = writer_write
 
     def waiting_for_next_scan(self, seconds: int) -> None:
-        message = TimeFormatter.waiting_for_next_scan(seconds)
+        message = formatters.waiting_for_next_scan(seconds)
         self._write(message)
 
     def error_occurred(self, error_message: str) -> None:
-        self._write(MessageFormatter.error_occurred(error_message))
+        self._write(formatters.error_occurred(error_message))
 
     def initialization_complete(self) -> None:
-        self._write(MessageFormatter.initialization_complete())
+        self._write(formatters.initialization_complete())
 
     def shutdown_complete(self) -> None:
-        self._write(MessageFormatter.shutdown_complete())
+        self._write(formatters.shutdown_complete())
 
 
 class StatusReporter:

@@ -4,39 +4,17 @@ from common.redis_protocol.kalshi_store.reader_helpers import metadata_extractor
 
 
 def _monkeypatch_helpers(monkeypatch):
-    class DummyConverter:
-        @staticmethod
-        def string_or_default(value, default=""):
-            return value or default
-
-        @staticmethod
-        def normalize_hash(raw_hash):
-            return {"normalized": True}
-
-    class DummyOrderbookSyncer:
-        @staticmethod
-        def sync_top_of_book_fields(snapshot):
-            snapshot["synced"] = True
-
-    class DummyParser:
-        @staticmethod
-        def parse_market_metadata(ticker, data):
-            return {"close_time": data.get("close_time"), "strike": 1.0}
-
-    class DummyResolver:
-        @staticmethod
-        def resolve_market_strike(meta, fallback):
-            return 2.0
-
-    class DummyPriceExtractor:
-        @staticmethod
-        def extract_market_prices(meta):
-            return 1.0, 2.0
-
-    class DummyTimestampNormalizer:
-        @staticmethod
-        def normalize_timestamp(value):
-            return "2025-01-01"
+    monkeypatch.setattr(metadata_extractor, "string_or_default", lambda value, fill_value="": value or fill_value)
+    monkeypatch.setattr(metadata_extractor, "normalize_hash", lambda raw_hash: {"normalized": True})
+    monkeypatch.setattr(metadata_extractor, "sync_top_of_book_fields", lambda snapshot: snapshot.__setitem__("synced", True))
+    monkeypatch.setattr(
+        metadata_extractor,
+        "parse_market_metadata",
+        lambda ticker, data: {"close_time": data.get("close_time"), "strike": 1.0},
+    )
+    monkeypatch.setattr(metadata_extractor, "resolve_market_strike", lambda meta, converter: 2.0)
+    monkeypatch.setattr(metadata_extractor, "extract_market_prices", lambda meta: (1.0, 2.0))
+    monkeypatch.setattr(metadata_extractor, "normalize_timestamp", lambda value: "2025-01-01")
 
     class DummyMarketRecordBuilder:
         def __init__(self, converter, timestamp, strike_resolver):
@@ -45,12 +23,6 @@ def _monkeypatch_helpers(monkeypatch):
         def create_market_record(self, market_ticker, raw_hash, **kwargs):
             return {"ticker": market_ticker, "normalized": True}
 
-    monkeypatch.setattr(metadata_extractor, "TypeConverter", DummyConverter)
-    monkeypatch.setattr(metadata_extractor, "OrderbookSyncer", DummyOrderbookSyncer)
-    monkeypatch.setattr(metadata_extractor, "MetadataParser", DummyParser)
-    monkeypatch.setattr(metadata_extractor, "StrikeResolver", DummyResolver)
-    monkeypatch.setattr(metadata_extractor, "PriceExtractor", DummyPriceExtractor)
-    monkeypatch.setattr(metadata_extractor, "TimestampNormalizer", DummyTimestampNormalizer)
     monkeypatch.setattr(metadata_extractor, "MarketRecordBuilder", DummyMarketRecordBuilder)
 
 

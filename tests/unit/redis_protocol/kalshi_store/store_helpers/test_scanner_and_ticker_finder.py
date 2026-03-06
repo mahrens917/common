@@ -1,14 +1,12 @@
 import pytest
 
 from common.parsing_utils import decode_redis_key
-from common.redis_protocol.kalshi_store.store_helpers.scanner import (
+from common.redis_protocol.kalshi_store.store_helpers.data_operations import (
     add_unique_keys,
-    scan_market_keys,
-    scan_single_pattern,
-)
-from common.redis_protocol.kalshi_store.store_helpers.ticker_finder import (
     find_all_market_tickers,
     find_currency_market_tickers,
+    scan_market_keys,
+    scan_single_pattern,
 )
 
 

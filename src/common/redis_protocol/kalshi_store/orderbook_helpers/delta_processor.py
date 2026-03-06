@@ -79,7 +79,7 @@ class DeltaProcessor(SnapshotProcessor):
         cache: OrderbookCache = self._cache  # type: ignore[assignment]
         side_json = cache.get_field(market_key, side_field)
         side_data = SideDataUpdater.apply_delta(SideDataUpdater.parse_side_data(side_json), price_str, delta)
-        side_encoded = orjson.dumps(side_data).decode()
+        side_encoded = orjson.dumps(side_data)
         logger.debug("MARKET_UPDATE: Ticker=%s, Fields=['%s']", market_ticker, side_field)
 
         updates: Dict[str, str] = {side_field: side_encoded, "timestamp": timestamp}
@@ -114,7 +114,7 @@ def _extract_delta_inputs(msg_data: Dict[str, Any]) -> tuple[str, str, float] | 
     delta = msg_data.get("delta")
 
     if None in (side, price, delta):
-        logger.error("Invalid delta message structure: %s", orjson.dumps(msg_data).decode())
+        logger.error("Invalid delta message structure: %s", orjson.dumps(msg_data))
         return None
 
     if not isinstance(price, (int, float)) or not isinstance(delta, (int, float)):
@@ -166,7 +166,7 @@ async def _apply_side_delta(
 
     side_data = SideDataUpdater.apply_delta(SideDataUpdater.parse_side_data(side_json), price_str, delta)
     logger.debug("MARKET_UPDATE: Ticker=%s, Fields=['%s']", market_ticker, side_field)
-    await ensure_awaitable(redis.hset(market_key, side_field, orjson.dumps(side_data).decode()))
+    await ensure_awaitable(redis.hset(market_key, side_field, orjson.dumps(side_data)))
     return side_data
 
 
@@ -195,8 +195,10 @@ async def _update_top_of_book(
 
 async def _update_trade_price_cache(processor: DeltaProcessor, redis: Redis, market_key: str, market_ticker: str) -> None:
     """Update cached trade prices when both bid/ask values are available."""
-    yes_bid_raw = await ensure_awaitable(redis.hget(market_key, "yes_bid"))
-    yes_ask_raw = await ensure_awaitable(redis.hget(market_key, "yes_ask"))
+    pipe = redis.pipeline(transaction=False)
+    pipe.hget(market_key, "yes_bid")
+    pipe.hget(market_key, "yes_ask")
+    yes_bid_raw, yes_ask_raw = await ensure_awaitable(pipe.execute())
     decoded_yes_bid = yes_bid_raw.decode("utf-8", "ignore") if isinstance(yes_bid_raw, bytes) else yes_bid_raw
     decoded_yes_ask = yes_ask_raw.decode("utf-8", "ignore") if isinstance(yes_ask_raw, bytes) else yes_ask_raw
     parsed_yes_bid = FieldConverter.convert_numeric_field(decoded_yes_bid)

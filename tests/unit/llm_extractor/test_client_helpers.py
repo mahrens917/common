@@ -111,7 +111,7 @@ class TestRequestWithRetries:
                     return mock_resp
 
                 mock_session = MagicMock()
-                mock_session.post = MagicMock(side_effect=lambda *a, **kw: make_response())
+                mock_session.post = MagicMock(side_effect=lambda *a, **_kw: make_response())
                 mock_session.__aenter__ = AsyncMock(return_value=mock_session)
                 mock_session.__aexit__ = AsyncMock()
                 mock_session_cls.return_value = mock_session
@@ -148,7 +148,7 @@ class TestRequestWithRetries:
                     return mock_resp
 
                 mock_session = MagicMock()
-                mock_session.post = MagicMock(side_effect=lambda *a, **kw: make_response())
+                mock_session.post = MagicMock(side_effect=lambda *a, **_kw: make_response())
                 mock_session.__aenter__ = AsyncMock(return_value=mock_session)
                 mock_session.__aexit__ = AsyncMock()
                 mock_session_cls.return_value = mock_session

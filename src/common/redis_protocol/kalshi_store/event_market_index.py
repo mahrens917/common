@@ -14,6 +14,25 @@ from common.redis_schema import build_kalshi_market_key
 
 logger = logging.getLogger(__name__)
 
+_KALSHI_SCAN_PATTERN = "markets:kalshi:*"
+_KALSHI_SUBKEY_EXCLUDES = (":trading_signal", ":position_state")
+_RECONCILE_TOLERANCE = 5
+
+
+async def _count_kalshi_keys(redis: Any) -> int:
+    """SCAN-count Redis keys matching the Kalshi market pattern."""
+    count = 0
+    cursor = 0
+    while True:
+        cursor, keys = await redis.scan(cursor=cursor, match=_KALSHI_SCAN_PATTERN, count=500)
+        for key in keys:
+            key_str = key.decode("utf-8") if isinstance(key, bytes) else key
+            if not any(ex in key_str for ex in _KALSHI_SUBKEY_EXCLUDES):
+                count += 1
+        if cursor == 0:
+            break
+    return count
+
 
 class EventMarketIndex:
     """In-memory index: event_ticker -> market data.
@@ -58,6 +77,35 @@ class EventMarketIndex:
         self._market_cache[market_ticker] = decoded
         return decoded
 
+    def apply_stream_update(self, market_ticker: str, fields: Dict[str, Any]) -> Optional[Dict[str, Any]]:
+        """Merge stream payload into in-memory cache. No Redis IO.
+
+        Cache hit: merges fields into existing entry, returns it.
+        Cache miss with event_ticker in fields: creates new entry, registers mapping.
+        Cache miss without event_ticker: returns None (caller should re-initialize).
+        """
+        existing = self._market_cache.get(market_ticker)
+        if existing is not None:
+            existing.update(fields)
+            return existing
+
+        event_ticker = fields.get("event_ticker")
+        if not event_ticker:
+            return None
+
+        entry: Dict[str, Any] = {"market_ticker": market_ticker, **fields}
+        self._market_cache[market_ticker] = entry
+        self._register(str(event_ticker), market_ticker)
+        return entry
+
+    def get_market(self, market_ticker: str) -> Optional[Dict[str, Any]]:
+        """Return cached market data for a single ticker, or None."""
+        return self._market_cache.get(market_ticker)
+
+    def get_all_tickers(self) -> List[str]:
+        """Return all cached market tickers."""
+        return list(self._market_cache.keys())
+
     def get_event_markets(self, event_ticker: str) -> List[Dict[str, Any]]:
         """Return cached market data for one event."""
         tickers = self._event_to_tickers.get(event_ticker)
@@ -82,6 +130,18 @@ class EventMarketIndex:
     def market_count(self) -> int:
         """Number of indexed markets."""
         return len(self._market_cache)
+
+    async def reconcile(self, redis: Any) -> bool:
+        """Compare cache count to Redis; return True if diverged."""
+        redis_count = await _count_kalshi_keys(redis)
+        if abs(redis_count - self.market_count) <= _RECONCILE_TOLERANCE:
+            return False
+        logger.warning(
+            "EventMarketIndex count divergence: cache=%d redis=%d — caller should re-initialize",
+            self.market_count,
+            redis_count,
+        )
+        return True
 
     def _register(self, event_ticker: str, market_ticker: str) -> None:
         """Internal registration of event<->market mapping."""

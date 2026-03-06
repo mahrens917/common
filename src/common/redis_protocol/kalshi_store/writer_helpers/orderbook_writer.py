@@ -237,11 +237,13 @@ class UserDataWriter(RedisConnectionMixin):
             redis_client = await self._ensure_redis()
             fill_key = f"kalshi:fills:{ticker}:{trade_id}"
             list_key = f"kalshi:fills:{ticker}"
-            await ensure_awaitable(redis_client.hset(fill_key, mapping=mapping))
-            await ensure_awaitable(redis_client.expire(fill_key, _FILL_ORDER_TTL_SECONDS))
-            await ensure_awaitable(redis_client.lpush(list_key, trade_id))
-            await ensure_awaitable(redis_client.ltrim(list_key, 0, 99))
-            await ensure_awaitable(redis_client.expire(list_key, _FILL_ORDER_TTL_SECONDS))
+            pipe = redis_client.pipeline()
+            pipe.hset(fill_key, mapping=mapping)
+            pipe.expire(fill_key, _FILL_ORDER_TTL_SECONDS)
+            pipe.lpush(list_key, trade_id)
+            pipe.ltrim(list_key, 0, 99)
+            pipe.expire(list_key, _FILL_ORDER_TTL_SECONDS)
+            await ensure_awaitable(pipe.execute())
         except (ValueError, TypeError) as exc:  # policy_guard: allow-silent-handler
             logger.error("Invalid user fill payload: %s", exc, exc_info=True)
             return False
@@ -267,8 +269,10 @@ class UserDataWriter(RedisConnectionMixin):
 
             redis_client = await self._ensure_redis()
             order_key = f"kalshi:orders:{ticker}:{order_id}"
-            await ensure_awaitable(redis_client.hset(order_key, mapping=mapping))
-            await ensure_awaitable(redis_client.expire(order_key, _FILL_ORDER_TTL_SECONDS))
+            pipe = redis_client.pipeline()
+            pipe.hset(order_key, mapping=mapping)
+            pipe.expire(order_key, _FILL_ORDER_TTL_SECONDS)
+            await ensure_awaitable(pipe.execute())
         except (ValueError, TypeError) as exc:  # policy_guard: allow-silent-handler
             logger.error("Invalid user order payload: %s", exc, exc_info=True)
             return False

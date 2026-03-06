@@ -3,7 +3,7 @@
 from unittest.mock import MagicMock
 
 from common.kalshi_trading_client.client_helpers.initialization_coordinator_helpers import (
-    component_initializer,
+    helpers,
 )
 
 
@@ -26,17 +26,17 @@ def test_initialize_core_components(monkeypatch):
         pass
 
     monkeypatch.setattr(
-        component_initializer,
+        helpers,
         "ClientInitializer",
         DummyInitializer,
     )
     monkeypatch.setattr(
-        component_initializer,
+        helpers,
         "TradeStoreManager",
         DummyTradeStoreManager,
     )
     monkeypatch.setattr(
-        component_initializer,
+        helpers,
         "TradeNotifierAdapter",
         DummyNotifier,
     )
@@ -46,7 +46,7 @@ def test_initialize_core_components(monkeypatch):
     network_monitor = MagicMock()
     trade_store = MagicMock()
 
-    components = component_initializer.initialize_core_components(kalshi_client, backoff_manager, network_monitor, trade_store)
+    components = helpers.initialize_core_components(kalshi_client, backoff_manager, network_monitor, trade_store)
 
     assert components["kalshi_client"] is kalshi_client
     assert components["backoff_manager"] is backoff_manager

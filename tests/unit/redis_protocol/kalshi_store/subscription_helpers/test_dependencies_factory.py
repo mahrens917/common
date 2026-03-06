@@ -13,7 +13,7 @@ def test_create_dependencies_returns_container(monkeypatch):
     class DummyRedisConnectionManager:
         pass
 
-    deps = dependencies_factory.KalshiSubscriptionTrackerDependenciesFactory.create(
+    deps = dependencies_factory.create_dependencies(
         redis_connection=DummyRedisConnectionManager(),
         logger_instance=logging.getLogger("tests"),
         service_prefix="ws",

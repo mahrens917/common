@@ -38,8 +38,7 @@ class StatsCalculator:
             total_gaps += count
             if count > 0:
                 sids_with_gaps += 1
-                if count > max_gaps_for_sid:
-                    max_gaps_for_sid = count
+                max_gaps_for_sid = max(max_gaps_for_sid, count)
 
         stats = {
             "service_name": self.service_name,

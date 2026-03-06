@@ -1,11 +1,17 @@
 """Helper modules for service state collection."""
 
-from .pid_validator import PidValidator
-from .process_rediscoverer import ProcessRediscoverer
-from .service_info_updater import ServiceInfoUpdater
+from .helpers import (
+    clear_stopped_process,
+    is_running,
+    mark_as_running,
+    rediscover_and_validate,
+    update_from_handle,
+)
 
 __all__ = [
-    "PidValidator",
-    "ProcessRediscoverer",
-    "ServiceInfoUpdater",
+    "clear_stopped_process",
+    "is_running",
+    "mark_as_running",
+    "rediscover_and_validate",
+    "update_from_handle",
 ]

@@ -253,9 +253,8 @@ class TestReadAllAlgoStats:
 
     @pytest.mark.asyncio
     async def test_read_all_algo_stats_returns_all_found(self):
-        # algos order: whale, peak, edge, pdf, weather
+        # algos order: peak, edge, pdf, weather
         pipeline_results = [
-            {},  # whale
             {},  # peak
             {},  # edge
             {"algo": "pdf", "events_processed": "50"},  # pdf
@@ -272,7 +271,7 @@ class TestReadAllAlgoStats:
 
     @pytest.mark.asyncio
     async def test_read_all_algo_stats_skips_missing(self):
-        pipeline_results = [{}, {}, {}, {}, {}]
+        pipeline_results = [{}, {}, {}, {}]
         redis = self._make_pipeline_redis(pipeline_results)
 
         result = await read_all_algo_stats(redis)

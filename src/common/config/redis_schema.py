@@ -102,41 +102,37 @@ class RedisSchemaConfig:
         return cls._instance
 
 
-def get_schema_config() -> RedisSchemaConfig:
-    return RedisSchemaConfig.load()
-
-
 class MarketKeys:
     """Type-safe key builders for market data."""
 
     @staticmethod
     def kalshi_market(category: str, ticker: str) -> str:
         """Build key for Kalshi market data."""
-        schema = get_schema_config()
+        schema = RedisSchemaConfig.load()
         return f"{schema.kalshi_market_prefix}:{category}:{ticker}"
 
     @staticmethod
     def kalshi_weather_market(ticker: str) -> str:
         """Build key for Kalshi weather market data."""
-        schema = get_schema_config()
+        schema = RedisSchemaConfig.load()
         return f"{schema.kalshi_weather_prefix}:{ticker}"
 
     @staticmethod
     def deribit_option(currency: str, expiry: str, strike: int, option_type: str) -> str:
         """Build key for Deribit option data."""
-        schema = get_schema_config()
+        schema = RedisSchemaConfig.load()
         return f"{schema.deribit_market_prefix}:option:{currency}:{expiry}:{strike}:{option_type}"
 
     @staticmethod
     def deribit_spot(currency: str) -> str:
         """Build key for Deribit spot price data."""
-        schema = get_schema_config()
+        schema = RedisSchemaConfig.load()
         return f"{schema.deribit_spot_prefix}:{currency}"
 
     @staticmethod
     def deribit_instrument_lookup() -> str:
         """Build key for Deribit instrument name to Redis key lookup hash."""
-        schema = get_schema_config()
+        schema = RedisSchemaConfig.load()
         return schema.deribit_instrument_lookup_key
 
 
@@ -146,37 +142,37 @@ class WeatherKeys:
     @staticmethod
     def station(icao: str) -> str:
         """Build key for weather station data (includes observations and features)."""
-        schema = get_schema_config()
+        schema = RedisSchemaConfig.load()
         return f"{schema.weather_station_prefix}:{icao}"
 
     @staticmethod
     def station_history(icao: str) -> str:
         """Build key for weather station historical data."""
-        schema = get_schema_config()
+        schema = RedisSchemaConfig.load()
         return f"{schema.weather_station_history_prefix}:{icao}"
 
     @staticmethod
     def station_mapping() -> str:
         """Build key for station ICAO to friendly name mapping."""
-        schema = get_schema_config()
+        schema = RedisSchemaConfig.load()
         return schema.weather_station_mapping_key
 
     @staticmethod
     def forecast(station_code: str) -> str:
         """Build key for weather forecast data."""
-        schema = get_schema_config()
+        schema = RedisSchemaConfig.load()
         return f"{schema.weather_forecast_prefix}:{station_code}"
 
     @staticmethod
     def features(station_id: str) -> str:
         """Build key for weather features data."""
-        schema = get_schema_config()
+        schema = RedisSchemaConfig.load()
         return f"{schema.weather_features_prefix}:{station_id}"
 
     @staticmethod
     def rule_4_trigger(icao: str) -> str:
         """Build key pattern for rule 4 trigger flags."""
-        schema = get_schema_config()
+        schema = RedisSchemaConfig.load()
         return f"{schema.weather_station_prefix}:{icao}:{schema.weather_rule_4_trigger_suffix}"
 
 
@@ -186,19 +182,19 @@ class AnalyticsKeys:
     @staticmethod
     def gp_surface(currency: str) -> str:
         """Build key for GP fitted surface data."""
-        schema = get_schema_config()
+        schema = RedisSchemaConfig.load()
         return f"{schema.deribit_gp_surface_prefix}:{currency}"
 
     @staticmethod
     def gp_metadata() -> str:
         """Build key for GP surface metadata."""
-        schema = get_schema_config()
+        schema = RedisSchemaConfig.load()
         return schema.deribit_gp_metadata_key
 
     @staticmethod
     def pdf_phase4_filters() -> str:
         """Build key for PDF Phase 4 filter configuration."""
-        schema = get_schema_config()
+        schema = RedisSchemaConfig.load()
         return schema.pdf_phase4_filters_key
 
 
@@ -208,37 +204,37 @@ class ServiceStateKeys:
     @staticmethod
     def status(service: str) -> str:
         """Build key for service status."""
-        schema = get_schema_config()
+        schema = RedisSchemaConfig.load()
         return f"{schema.monitoring_status_prefix}:{service}"
 
     @staticmethod
     def kalshi_subscriptions() -> str:
         """Build key for Kalshi market subscriptions."""
-        schema = get_schema_config()
+        schema = RedisSchemaConfig.load()
         return schema.kalshi_subscriptions_key
 
     @staticmethod
     def kalshi_subscription_ids() -> str:
         """Build key for Kalshi WebSocket subscription IDs."""
-        schema = get_schema_config()
+        schema = RedisSchemaConfig.load()
         return schema.kalshi_subscription_ids_key
 
     @staticmethod
     def kalshi_trading_active() -> str:
         """Build key for Kalshi trading active flag."""
-        schema = get_schema_config()
+        schema = RedisSchemaConfig.load()
         return schema.kalshi_trading_active_key
 
     @staticmethod
     def kalshi_exchange_active() -> str:
         """Build key for Kalshi exchange active flag."""
-        schema = get_schema_config()
+        schema = RedisSchemaConfig.load()
         return schema.kalshi_exchange_active_key
 
     @staticmethod
     def deribit_subscriptions() -> str:
         """Build key for Deribit subscriptions."""
-        schema = get_schema_config()
+        schema = RedisSchemaConfig.load()
         return schema.deribit_subscriptions_key
 
 
@@ -248,13 +244,13 @@ class MonitoringKeys:
     @staticmethod
     def history(source: str) -> str:
         """Build key for history/telemetry data."""
-        schema = get_schema_config()
+        schema = RedisSchemaConfig.load()
         return f"{schema.monitoring_history_prefix}:{source}"
 
     @staticmethod
     def monitor_job(job_name: str) -> str:
         """Build key for monitor job state."""
-        schema = get_schema_config()
+        schema = RedisSchemaConfig.load()
         return f"{schema.monitoring_monitor_jobs_prefix}:{job_name}"
 
 
@@ -264,7 +260,7 @@ class CFBKeys:
     @staticmethod
     def price(currency: str) -> str:
         """Build key for CFB price data."""
-        schema = get_schema_config()
+        schema = RedisSchemaConfig.load()
         return f"{schema.cfb_price_prefix}:{currency}:price"
 
 

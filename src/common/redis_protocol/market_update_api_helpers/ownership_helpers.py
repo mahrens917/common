@@ -41,14 +41,18 @@ async def scan_algo_active_markets(
             lambda c=cursor: ensure_awaitable(redis.scan(c, match=scan_pattern, count=1000)),
             context=f"scan:{scan_pattern}",
         )
-        for raw_key in keys:
-            key_str = raw_key.decode("utf-8") if isinstance(raw_key, bytes) else str(raw_key)
-            values = await with_redis_retry(
-                lambda k=key_str: ensure_awaitable(redis.hmget(k, [bid_field, ask_field])),
-                context=f"hmget_theo:{key_str}",
+        if keys:
+            decoded_keys = [raw_key.decode("utf-8") if isinstance(raw_key, bytes) else str(raw_key) for raw_key in keys]
+            pipe = redis.pipeline(transaction=False)
+            for key_str in decoded_keys:
+                pipe.hmget(key_str, [bid_field, ask_field])
+            all_values = await with_redis_retry(
+                lambda: ensure_awaitable(pipe.execute()),
+                context=f"pipeline_hmget_theo:{scan_pattern}",
             )
-            if values[0] is not None or values[1] is not None:
-                active_tickers.add(key_str.split(":")[-1])
+            for key_str, values in zip(decoded_keys, all_values):
+                if values[0] is not None or values[1] is not None:
+                    active_tickers.add(key_str.split(":")[-1])
         if cursor == 0:
             break
 
@@ -84,13 +88,16 @@ async def clear_stale_markets(
     extra_fields = [algo_field(algo, f) for f in sorted(metadata_fields)]
     all_fields = base_fields + extra_fields
 
-    for ticker in stale_tickers:
-        market_key = key_builder(ticker)
+    if stale_tickers:
+        pipe = redis.pipeline(transaction=False)
+        for ticker in stale_tickers:
+            market_key = key_builder(ticker)
+            pipe.hdel(market_key, *all_fields)
         await with_redis_retry(
-            lambda mk=market_key: ensure_awaitable(redis.hdel(mk, *all_fields)),
-            context=f"hdel_stale:{ticker}",
+            lambda: ensure_awaitable(pipe.execute()),
+            context=f"pipeline_hdel_stale:{algo}",
         )
-        cleared.append(ticker)
+        cleared.extend(stale_tickers)
 
     if cleared:
         logger.info("Cleared %d stale markets for algo %s", len(cleared), algo)

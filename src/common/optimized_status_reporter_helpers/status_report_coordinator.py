@@ -106,7 +106,7 @@ class DataGatherer:
         self.kalshi_market_status_collector = collectors.kalshi_market_status_collector
 
     async def gather_all_status_data(self, redis_client) -> Dict[str, Any]:
-        from common.process_monitor import get_global_process_monitor
+        from monitor.common_local.process_monitor import get_global_process_monitor
 
         process_monitor = await get_global_process_monitor()
         running_services = await self.service_state_collector.collect_running_services()

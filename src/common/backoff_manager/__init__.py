@@ -11,7 +11,7 @@ from common.backoff_manager_helpers import (
     BackoffType,
 )
 from common.backoff_manager_helpers.delay_calculator import DelayCalculator
-from common.backoff_manager_helpers.retry_checker import RetryChecker
+from common.backoff_manager_helpers.retry_checker import should_retry as _should_retry
 from common.backoff_manager_helpers.state_manager import BackoffStateManager
 from common.backoff_manager_helpers.status_reporter import BackoffStatusReporter
 
@@ -75,7 +75,7 @@ class _BackoffRetryMixin:
     def should_retry(self, service_name: str, backoff_type: BackoffType) -> bool:
         context = cast(_BackoffBaseProtocol, self)
         config = context.get_config(backoff_type)
-        return RetryChecker.should_retry(context.state_manager, service_name, backoff_type, config)
+        return _should_retry(context.state_manager, service_name, backoff_type, config)
 
     def reset_backoff(self, service_name: str, backoff_type: Optional[BackoffType] = None):
         context = cast(_BackoffBaseProtocol, self)

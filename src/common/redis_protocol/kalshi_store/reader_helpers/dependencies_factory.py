@@ -33,28 +33,24 @@ class KalshiMarketReaderDependencies:
     market_lookup: MarketLookup
 
 
-class KalshiMarketReaderDependenciesFactory:
-    """Factory for creating KalshiMarketReader dependencies."""
+def create_dependencies(logger: logging.Logger, metadata_adapter: KalshiMetadataAdapter) -> KalshiMarketReaderDependencies:
+    """Create all dependencies for KalshiMarketReader."""
+    ticker_parser = TickerParser()
+    market_filter = MarketFilter(logger)
+    metadata_extractor = MetadataExtractor(logger)
+    orderbook_reader = OrderbookReader(logger)
+    market_aggregator = MarketAggregator()
+    expiry_checker = ExpiryChecker(logger)
+    snapshot_reader = SnapshotReader(logger, metadata_extractor, metadata_adapter)
+    market_lookup = MarketLookup(logger, metadata_extractor, orderbook_reader, ticker_parser)
 
-    @staticmethod
-    def create(logger: logging.Logger, metadata_adapter: KalshiMetadataAdapter) -> KalshiMarketReaderDependencies:
-        """Create all dependencies for KalshiMarketReader."""
-        ticker_parser = TickerParser()
-        market_filter = MarketFilter(logger)
-        metadata_extractor = MetadataExtractor(logger)
-        orderbook_reader = OrderbookReader(logger)
-        market_aggregator = MarketAggregator()
-        expiry_checker = ExpiryChecker(logger)
-        snapshot_reader = SnapshotReader(logger, metadata_extractor, metadata_adapter)
-        market_lookup = MarketLookup(logger, metadata_extractor, orderbook_reader, ticker_parser)
-
-        return KalshiMarketReaderDependencies(
-            ticker_parser=ticker_parser,
-            market_filter=market_filter,
-            metadata_extractor=metadata_extractor,
-            orderbook_reader=orderbook_reader,
-            market_aggregator=market_aggregator,
-            expiry_checker=expiry_checker,
-            snapshot_reader=snapshot_reader,
-            market_lookup=market_lookup,
-        )
+    return KalshiMarketReaderDependencies(
+        ticker_parser=ticker_parser,
+        market_filter=market_filter,
+        metadata_extractor=metadata_extractor,
+        orderbook_reader=orderbook_reader,
+        market_aggregator=market_aggregator,
+        expiry_checker=expiry_checker,
+        snapshot_reader=snapshot_reader,
+        market_lookup=market_lookup,
+    )

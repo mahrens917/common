@@ -57,12 +57,13 @@ class TestMicroPriceConverterConvertList:
         mock_instruments = [MagicMock(), MagicMock()]
         mock_result = [MagicMock(), MagicMock()]
 
-        with patch("common.data_conversion.micro_price_helpers.BatchConverter") as mock_batch_cls:
-            mock_batch_cls.convert_instruments_to_micro_price_data.return_value = mock_result
-
+        with patch(
+            "common.data_conversion.micro_price_helpers.convert_instruments_to_micro_price_data",
+            return_value=mock_result,
+        ) as mock_batch_fn:
             result = MicroPriceConverter.convert_instruments_to_micro_price_data(mock_instruments, "BTC")
 
-            mock_batch_cls.convert_instruments_to_micro_price_data.assert_called_once()
+            mock_batch_fn.assert_called_once()
             assert result is mock_result
 
     def test_convert_instruments_uses_default_currency(self) -> None:
@@ -70,10 +71,11 @@ class TestMicroPriceConverterConvertList:
         mock_instruments = [MagicMock()]
         mock_result = [MagicMock()]
 
-        with patch("common.data_conversion.micro_price_helpers.BatchConverter") as mock_batch_cls:
-            mock_batch_cls.convert_instruments_to_micro_price_data.return_value = mock_result
-
+        with patch(
+            "common.data_conversion.micro_price_helpers.convert_instruments_to_micro_price_data",
+            return_value=mock_result,
+        ) as mock_batch_fn:
             result = MicroPriceConverter.convert_instruments_to_micro_price_data(mock_instruments)
 
-            call_args = mock_batch_cls.convert_instruments_to_micro_price_data.call_args
+            call_args = mock_batch_fn.call_args
             assert call_args[0][1] == "BTC"  # Second positional arg is currency

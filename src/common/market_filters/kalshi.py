@@ -72,9 +72,7 @@ def _valid_levels(
     return [
         (price, size_int)
         for p, s in book.items()
-        if (price := to_float_value(p)) is not None
-        and (size_int := to_int_value(s)) is not None
-        and size_int > 0
+        if (price := to_float_value(p)) is not None and (size_int := to_int_value(s)) is not None and size_int > 0
     ]
 
 
@@ -287,7 +285,7 @@ def _build_successful_validation(
     pricing: _PricingData,
 ) -> KalshiMarketValidation:
     """Assemble the final successful validation response."""
-    from .kalshi_helpers.pricing_validator import check_side_validity
+    from .kalshi_helpers.validators import check_side_validity
 
     has_bid = check_side_validity(pricing.bid_price, pricing.bid_size)
     has_ask = check_side_validity(pricing.ask_price, pricing.ask_size)

@@ -17,12 +17,12 @@ from common.redis_protocol.probability_store.probabilityingestion_helpers.key_co
 
 class _FakeRedis:
     def __init__(self, keys):
-        self.keys_called = []
+        self.scan_called = []
         self._keys = keys
 
-    async def keys(self, pattern):
-        self.keys_called.append(pattern)
-        return list(self._keys)
+    async def scan(self, cursor, *, match, count):
+        self.scan_called.append(match)
+        return (0, list(self._keys))
 
 
 class _FakePipeline:
@@ -39,7 +39,7 @@ async def test_key_collector_collect_and_delete():
     collector = KeyCollector()
     keys = await collector.collect_existing_probability_keys(redis, "prefix:")
     assert keys == ["a", "b"]
-    assert redis.keys_called == ["prefix:*"]
+    assert redis.scan_called == ["prefix:*"]
 
     pipeline = _FakePipeline()
     collector.queue_probability_deletes(pipeline, keys)

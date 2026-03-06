@@ -15,12 +15,12 @@ Categories
 
 import json
 import math
+from pathlib import Path
 from typing import Any, Dict
 
-from common.constants.trading import MAX_PRICE_CENTS
-from common.path_utils import get_project_root
+from common.constants import MAX_PRICE_CENTS
 
-PROJECT_ROOT = get_project_root(__file__, levels_up=2)
+PROJECT_ROOT = Path(__file__).resolve().parents[2]
 
 _STANDARD_CATEGORY = "standard"
 _MAKER_FEE_KEY = "maker_fee_coefficient"

@@ -17,7 +17,7 @@ async def test_get_markets_by_currency_invokes_build(monkeypatch):
     )
 
     class DummyFilter:
-        async def find_currency_market_tickers(self, redis, currency, matcher):
+        async def find_currency_market_tickers(self, redis, currency, _matcher):
             return ["TK1"]
 
         def log_market_summary(self, **kwargs):

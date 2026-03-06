@@ -502,18 +502,18 @@ class TestNormalizeTimestamp:
 class TestSelectTimestampValue:
     """Tests for _select_timestamp_value."""
 
-    @patch("common.redis_protocol.kalshi_store.metadata.KalshiMetadataAdapter")
-    def test_delegates_to_metadata_adapter(self, mock_adapter_class):
-        """Test delegation to KalshiMetadataAdapter."""
+    @patch("common.redis_protocol.kalshi_store.metadata_helpers.timestamp_normalization.select_timestamp_value")
+    def test_delegates_to_canonical(self, mock_select):
+        """Test delegation to canonical select_timestamp_value."""
         market_data = {"timestamp1": None, "timestamp2": 1700000000}
         fields = ["timestamp1", "timestamp2"]
         expected_result = 1700000000
-        mock_adapter_class.select_timestamp_value.return_value = expected_result
+        mock_select.return_value = expected_result
 
         result = _select_timestamp_value(market_data, fields)
 
         assert result == expected_result
-        mock_adapter_class.select_timestamp_value.assert_called_once_with(market_data, fields)
+        mock_select.assert_called_once_with(market_data, fields)
 
 
 class TestDefaultWeatherStationLoader:

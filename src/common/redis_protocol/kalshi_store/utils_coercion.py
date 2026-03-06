@@ -296,25 +296,21 @@ def format_probability_value(value: Any) -> str:
 # ============================================================================
 
 
-def _normalize_timestamp(value: Any) -> Optional[str]:
-    """Normalize timestamp format to ISO8601."""
-    from .metadata_helpers.timestamp_normalization import normalize_timestamp
-
-    return normalize_timestamp(value)
-
-
 def normalize_timestamp(value: Any) -> Optional[str]:
-    """
-    Public wrapper for timestamp normalization.
-    """
-    return _normalize_timestamp(value)
+    """Re-export of canonical normalize_timestamp for public API compatibility."""
+    from .metadata_helpers.timestamp_normalization import normalize_timestamp as _canonical
+
+    return _canonical(value)
+
+
+_normalize_timestamp = normalize_timestamp
 
 
 def _select_timestamp_value(market_data: Dict, fields: List[str]) -> Optional[object]:
     """Select timestamp from market data by trying multiple field names."""
-    from .metadata import KalshiMetadataAdapter
+    from .metadata_helpers.timestamp_normalization import select_timestamp_value
 
-    return KalshiMetadataAdapter.select_timestamp_value(market_data, fields)
+    return select_timestamp_value(market_data, fields)
 
 
 # ============================================================================

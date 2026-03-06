@@ -8,6 +8,7 @@ import pytest
 from common.process_killer_helpers.process_discovery import (
     collect_process_candidates,
 )
+from common.process_killer_helpers.process_normalizer import NormalizedProcess
 
 
 @pytest.mark.asyncio
@@ -43,18 +44,6 @@ async def test_collect_process_candidates_falls_back_to_psutil(monkeypatch):
         fake_query,
     )
 
-    normalized_calls = []
-
-    def fake_normalize(raw, service_name):
-        normalized = SimpleNamespace(pid=raw.pid, name=raw.name, cmdline=raw.cmdline)
-        normalized_calls.append(normalized)
-        return normalized
-
-    monkeypatch.setattr(
-        "common.process_killer_helpers.process_normalizer.normalize_process",
-        fake_normalize,
-    )
-
     call_state = {"count": 0}
 
     def fake_filter(normalized, exclude_pid):
@@ -82,4 +71,5 @@ async def test_collect_process_candidates_falls_back_to_psutil(monkeypatch):
 
     result = await collect_process_candidates(["python"], service_name="svc", exclude_pid=None)
     assert result
-    assert normalized_calls
+    assert isinstance(result[0], NormalizedProcess)
+    assert result[0].pid == 99

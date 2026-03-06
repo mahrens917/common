@@ -148,13 +148,20 @@ class TestUserDataWriter:
     """Tests for UserDataWriter class."""
 
     @pytest.fixture
-    def mock_redis(self):
+    def mock_pipe(self):
+        pipe = AsyncMock()
+        pipe.execute = AsyncMock(return_value=[True, True, True, True, True])
+        pipe.hset = MagicMock(return_value=pipe)
+        pipe.expire = MagicMock(return_value=pipe)
+        pipe.lpush = MagicMock(return_value=pipe)
+        pipe.ltrim = MagicMock(return_value=pipe)
+        return pipe
+
+    @pytest.fixture
+    def mock_redis(self, mock_pipe):
         redis = MagicMock()
-        redis.hset = AsyncMock()
         redis.hget = AsyncMock(return_value=None)
-        redis.lpush = AsyncMock()
-        redis.ltrim = AsyncMock()
-        redis.expire = AsyncMock()
+        redis.pipeline = MagicMock(return_value=mock_pipe)
         return redis
 
     @pytest.fixture
@@ -162,7 +169,7 @@ class TestUserDataWriter:
         return UserDataWriter(mock_redis, MagicMock())
 
     @pytest.mark.asyncio
-    async def test_update_user_fill_success_yes_side(self, writer, mock_redis):
+    async def test_update_user_fill_success_yes_side(self, writer, mock_pipe):
         msg = {
             "msg": {
                 "ticker": "ABC",
@@ -178,15 +185,15 @@ class TestUserDataWriter:
         result = await writer.update_user_fill(msg)
 
         assert result is True
-        mock_redis.hset.assert_called_once()
-        call_args = mock_redis.hset.call_args
+        mock_pipe.hset.assert_called_once()
+        call_args = mock_pipe.hset.call_args
         mapping = call_args.kwargs["mapping"]
         assert mapping["price"] == "50"
-        mock_redis.lpush.assert_called_once()
-        mock_redis.ltrim.assert_called_once()
+        mock_pipe.lpush.assert_called_once()
+        mock_pipe.ltrim.assert_called_once()
 
     @pytest.mark.asyncio
-    async def test_update_user_fill_success_no_side(self, writer, mock_redis):
+    async def test_update_user_fill_success_no_side(self, writer, mock_pipe):
         msg = {
             "msg": {
                 "ticker": "ABC",
@@ -202,8 +209,8 @@ class TestUserDataWriter:
         result = await writer.update_user_fill(msg)
 
         assert result is True
-        mock_redis.hset.assert_called_once()
-        call_args = mock_redis.hset.call_args
+        mock_pipe.hset.assert_called_once()
+        call_args = mock_pipe.hset.call_args
         mapping = call_args.kwargs["mapping"]
         assert mapping["price"] == "25"
 
@@ -232,7 +239,7 @@ class TestUserDataWriter:
         assert result is False
 
     @pytest.mark.asyncio
-    async def test_update_user_fill_flat_msg(self, writer, mock_redis):
+    async def test_update_user_fill_flat_msg(self, writer):
         msg = {
             "ticker": "ABC",
             "trade_id": "123",
@@ -247,18 +254,18 @@ class TestUserDataWriter:
         assert result is True
 
     @pytest.mark.asyncio
-    async def test_update_user_fill_redis_error(self, writer, mock_redis):
+    async def test_update_user_fill_redis_error(self, writer, mock_redis, mock_pipe):
         from redis import RedisError
 
         msg = {"msg": {"ticker": "ABC", "trade_id": "123", "side": "yes", "yes_price": 50}}
-        mock_redis.hset = AsyncMock(side_effect=RedisError("connection error"))
+        mock_pipe.execute = AsyncMock(side_effect=RedisError("connection error"))
 
         result = await writer.update_user_fill(msg)
 
         assert result is False
 
     @pytest.mark.asyncio
-    async def test_update_user_order_success(self, writer, mock_redis):
+    async def test_update_user_order_success(self, writer, mock_pipe):
         msg = {
             "msg": {
                 "ticker": "ABC",
@@ -277,7 +284,7 @@ class TestUserDataWriter:
         result = await writer.update_user_order(msg)
 
         assert result is True
-        mock_redis.hset.assert_called_once()
+        mock_pipe.hset.assert_called()
 
     @pytest.mark.asyncio
     async def test_update_user_order_missing_ticker(self, writer):
@@ -296,7 +303,7 @@ class TestUserDataWriter:
         assert result is False
 
     @pytest.mark.asyncio
-    async def test_update_user_order_flat_msg(self, writer, mock_redis):
+    async def test_update_user_order_flat_msg(self, writer):
         msg = {
             "ticker": "ABC",
             "order_id": "456",
@@ -308,11 +315,11 @@ class TestUserDataWriter:
         assert result is True
 
     @pytest.mark.asyncio
-    async def test_update_user_order_redis_error(self, writer, mock_redis):
+    async def test_update_user_order_redis_error(self, writer, mock_redis, mock_pipe):
         from redis import RedisError
 
         msg = {"msg": {"ticker": "ABC", "order_id": "456", "status": "open"}}
-        mock_redis.hset = AsyncMock(side_effect=RedisError("connection error"))
+        mock_pipe.execute = AsyncMock(side_effect=RedisError("connection error"))
 
         result = await writer.update_user_order(msg)
 

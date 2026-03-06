@@ -13,7 +13,7 @@ from datetime import datetime
 from enum import Enum
 from typing import Optional, cast
 
-from common.constants.trading import MAX_PRICE_CENTS, MIN_PRICE_CENTS
+from common.constants import MAX_PRICE_CENTS, MIN_PRICE_CENTS
 from common.validation_guards import require
 
 from .trading import OrderAction, OrderSide

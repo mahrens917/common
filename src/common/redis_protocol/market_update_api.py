@@ -2,7 +2,7 @@
 Market Update API
 
 Provides algo-aware market update functionality.
-All algos (whale, peak, edge, pdf, weather, crossarb, dutch, strike, total)
+All algos (peak, edge, pdf, weather, crossarb, dutch, strike, total)
 use this API to update theoretical prices.
 
 Field naming convention:
@@ -71,7 +71,7 @@ async def request_market_update(
     Args:
         redis: Redis client
         market_key: Redis key for the market (e.g., markets:kalshi:weather:KXHIGH-KDCA-202501)
-        algo: Algorithm name (whale, peak, edge, pdf, weather, crossarb, dutch, strike, total)
+        algo: Algorithm name (peak, edge, pdf, weather, crossarb, dutch, strike, total)
         t_bid: Theoretical bid price (can be None to skip)
         t_ask: Theoretical ask price (can be None to skip)
 

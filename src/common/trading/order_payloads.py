@@ -5,7 +5,7 @@ from __future__ import annotations
 
 from typing import Dict
 
-from ..constants.trading import MAX_PRICE_CENTS
+from ..constants import MAX_PRICE_CENTS
 from ..data_models.trading import OrderRequest, OrderSide, OrderType
 
 

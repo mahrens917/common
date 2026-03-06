@@ -24,37 +24,32 @@ def validate_deribit_option(
     *,
     now: Optional[datetime] = None,
 ) -> DeribitOptionValidation:
-    from .deribit_helpers import (
-        ExpiryChecker,
-        LiquidityValidator,
-        PriceValidator,
-        QuoteTimestampValidator,
-    )
+    from .deribit_helpers import validators
 
     current_time = now or datetime.now(timezone.utc)
 
     # Check expiry
-    expiry = ExpiryChecker.normalize_expiry(getattr(instrument, "expiry", None))
-    if ExpiryChecker.is_expired(expiry, current_time):
+    expiry = validators.normalize_expiry(getattr(instrument, "expiry", None))
+    if validators.is_expired(expiry, current_time):
         return DeribitOptionValidation(False, reason="expired")
 
     # Validate prices
     best_bid = getattr(instrument, "best_bid", None)
     best_ask = getattr(instrument, "best_ask", None)
-    price_error = PriceValidator.validate_quotes(best_bid, best_ask, MAX_RELATIVE_SPREAD)
+    price_error = validators.validate_quotes(best_bid, best_ask, MAX_RELATIVE_SPREAD)
     if price_error:
         return DeribitOptionValidation(False, reason=price_error)
 
     # Validate liquidity
     bid_size = getattr(instrument, "best_bid_size", None)
     ask_size = getattr(instrument, "best_ask_size", None)
-    liquidity_error = LiquidityValidator.validate_sizes(bid_size, ask_size, MIN_LIQUIDITY)
+    liquidity_error = validators.validate_sizes(bid_size, ask_size, MIN_LIQUIDITY)
     if liquidity_error:
         return DeribitOptionValidation(False, reason=liquidity_error)
 
     # Validate quote timestamp
-    quote_timestamp = QuoteTimestampValidator.extract_timestamp(instrument)
-    timestamp_error = QuoteTimestampValidator.validate_timestamp(quote_timestamp, current_time, MAX_QUOTE_AGE)
+    quote_timestamp = validators.extract_timestamp(instrument)
+    timestamp_error = validators.validate_timestamp(quote_timestamp, current_time, MAX_QUOTE_AGE)
     if timestamp_error:
         return DeribitOptionValidation(False, reason=timestamp_error)
 
@@ -66,13 +61,13 @@ def validate_deribit_future(
     *,
     now: Optional[datetime] = None,
 ) -> DeribitFutureValidation:
-    from .deribit_helpers import ExpiryChecker
+    from .deribit_helpers import validators
 
     current_time = now or datetime.now(timezone.utc)
 
     # Check expiry
-    expiry = ExpiryChecker.normalize_expiry(getattr(instrument, "expiry", None))
-    if ExpiryChecker.is_expired(expiry, current_time):
+    expiry = validators.normalize_expiry(getattr(instrument, "expiry", None))
+    if validators.is_expired(expiry, current_time):
         return DeribitFutureValidation(False, reason="expired")
 
     # Validate bid/ask presence and values

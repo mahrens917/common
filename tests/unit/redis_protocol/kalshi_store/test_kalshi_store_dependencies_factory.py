@@ -7,7 +7,7 @@ import pytest
 
 from common.redis_protocol.kalshi_store.dependencies_factory import (
     KalshiStoreDependencies,
-    KalshiStoreDependenciesFactory,
+    create_dependencies,
 )
 
 
@@ -102,8 +102,8 @@ class TestKalshiStoreDependencies:
         assert deps.attr_resolver is attr_resolver
 
 
-class TestKalshiStoreDependenciesFactory:
-    """Tests for KalshiStoreDependenciesFactory."""
+class TestCreateDependencies:
+    """Tests for create_dependencies function."""
 
     @patch("common.redis_protocol.kalshi_store.dependencies_factory.factory_helpers")
     def test_create_returns_dependencies_container(
@@ -159,7 +159,7 @@ class TestKalshiStoreDependenciesFactory:
         mock_helpers.create_attribute_resolver.return_value = mock_attr_resolver
 
         # Execute
-        result = KalshiStoreDependenciesFactory.create(
+        result = create_dependencies(
             logger=mock_logger,
             redis=mock_redis,
             service_prefix="ws",
@@ -222,7 +222,7 @@ class TestKalshiStoreDependenciesFactory:
         mock_helpers.create_attribute_resolver.return_value = mock_attr_resolver
 
         # Execute
-        KalshiStoreDependenciesFactory.create(
+        create_dependencies(
             logger=mock_logger,
             redis=mock_redis,
             service_prefix="rest",
@@ -267,7 +267,7 @@ class TestKalshiStoreDependenciesFactory:
         mock_helpers.create_delegators.return_value = mock_delegators
         mock_helpers.create_attribute_resolver.return_value = mock_attr_resolver
 
-        result = KalshiStoreDependenciesFactory.create(
+        result = create_dependencies(
             logger=mock_logger,
             redis=None,
             service_prefix=None,
@@ -308,7 +308,7 @@ class TestKalshiStoreDependenciesFactory:
         mock_helpers.create_delegators.return_value = mock_delegators
         mock_helpers.create_attribute_resolver.return_value = mock_attr_resolver
 
-        result = KalshiStoreDependenciesFactory.create(
+        result = create_dependencies(
             logger=mock_logger,
             redis=mock_redis,
             service_prefix=None,
@@ -353,7 +353,7 @@ class TestKalshiStoreDependenciesFactory:
         mock_helpers.create_delegators.return_value = mock_delegators
         mock_helpers.create_attribute_resolver.return_value = mock_attr_resolver
 
-        KalshiStoreDependenciesFactory.create(
+        create_dependencies(
             logger=mock_logger,
             redis=mock_redis,
             service_prefix="ws",
@@ -400,7 +400,7 @@ class TestKalshiStoreDependenciesFactory:
         mock_helpers.create_attribute_resolver.return_value = mock_attr_resolver
 
         # Call as static method
-        result = KalshiStoreDependenciesFactory.create(
+        result = create_dependencies(
             logger=mock_logger,
             redis=mock_redis,
             service_prefix="rest",
@@ -440,7 +440,7 @@ class TestKalshiStoreDependenciesFactory:
         mock_helpers.create_delegators.return_value = mock_delegators
         mock_helpers.create_attribute_resolver.return_value = mock_attr_resolver
 
-        result = KalshiStoreDependenciesFactory.create(
+        result = create_dependencies(
             logger=mock_logger,
             redis=mock_redis,
             service_prefix="ws",
@@ -482,7 +482,7 @@ class TestKalshiStoreDependenciesFactory:
         mock_helpers.create_delegators.return_value = mock_delegators
         mock_helpers.create_attribute_resolver.return_value = mock_attr_resolver
 
-        result = KalshiStoreDependenciesFactory.create(
+        result = create_dependencies(
             logger=mock_logger,
             redis=mock_redis,
             service_prefix="rest",

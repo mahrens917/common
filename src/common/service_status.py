@@ -6,7 +6,7 @@ import json
 import logging
 import time
 from enum import Enum
-from typing import Any, Dict
+from typing import Any, Dict, List, Optional
 
 from .redis_protocol.error_types import REDIS_ERRORS
 from .redis_protocol.typing import ensure_awaitable
@@ -85,6 +85,50 @@ def is_service_failed(status_value: str) -> bool:
         True if service has failed, False otherwise
     """
     return status_value in (ServiceStatus.ERROR.value, ServiceStatus.FAILED.value)
+
+
+def _decode_status(raw: Any) -> Optional[str]:
+    """Decode a raw Redis status value to a string."""
+    if raw is None:
+        return None
+    if isinstance(raw, bytes):
+        return raw.decode()
+    return str(raw)
+
+
+async def read_service_ready(redis: Any, service_name: str) -> Optional[bool]:
+    """Read a service's ready state from Redis.
+
+    Returns True if ready or ready_degraded, False if another status, None if missing.
+    """
+    key = ServiceStatusKey(service=service_name).key()
+    raw = await redis.hget(key, "status")
+    decoded = _decode_status(raw)
+    if decoded is None:
+        return None
+    return is_service_ready(decoded)
+
+
+async def read_services_ready(redis: Any, service_names: List[str]) -> Dict[str, Optional[bool]]:
+    """Batch-read ready state for multiple services.
+
+    Returns a dict mapping service name to True/False/None.
+    """
+    if not service_names:
+        return {}
+    pipe = redis.pipeline(transaction=True)
+    for name in service_names:
+        key = ServiceStatusKey(service=name).key()
+        pipe.hget(key, "status")
+    results = await pipe.execute()
+    out: Dict[str, Optional[bool]] = {}
+    for name, raw in zip(service_names, results):
+        decoded = _decode_status(raw)
+        if decoded is None:
+            out[name] = None
+        else:
+            out[name] = is_service_ready(decoded)
+    return out
 
 
 STATUS_UPDATE_ERRORS = REDIS_ERRORS + (RedisOperationError, TypeError, ValueError)

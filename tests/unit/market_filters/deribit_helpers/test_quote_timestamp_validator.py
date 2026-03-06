@@ -1,15 +1,13 @@
-"""Tests for quote timestamp validator module."""
+"""Tests for quote timestamp validation functions in validators module."""
 
 from datetime import datetime, timedelta, timezone
 from unittest.mock import MagicMock
 
-from common.market_filters.deribit_helpers.quote_timestamp_validator import (
-    QuoteTimestampValidator,
-)
+from common.market_filters.deribit_helpers import validators
 
 
-class TestQuoteTimestampValidatorExtractTimestamp:
-    """Tests for QuoteTimestampValidator.extract_timestamp."""
+class TestExtractTimestamp:
+    """Tests for extract_timestamp."""
 
     def test_extract_timestamp_prefers_quote_timestamp(self) -> None:
         """Prefers quote_timestamp attribute."""
@@ -19,7 +17,7 @@ class TestQuoteTimestampValidatorExtractTimestamp:
         instrument.mark_price_timestamp = datetime(2024, 12, 1, 11, 0, 0)
         instrument.timestamp = datetime(2024, 12, 1, 10, 0, 0)
 
-        result = QuoteTimestampValidator.extract_timestamp(instrument)
+        result = validators.extract_timestamp(instrument)
 
         assert result == expected_ts
 
@@ -31,7 +29,7 @@ class TestQuoteTimestampValidatorExtractTimestamp:
         instrument.mark_price_timestamp = expected_ts
         instrument.timestamp = datetime(2024, 12, 1, 10, 0, 0)
 
-        result = QuoteTimestampValidator.extract_timestamp(instrument)
+        result = validators.extract_timestamp(instrument)
 
         assert result == expected_ts
 
@@ -43,7 +41,7 @@ class TestQuoteTimestampValidatorExtractTimestamp:
         instrument.mark_price_timestamp = None
         instrument.timestamp = expected_ts
 
-        result = QuoteTimestampValidator.extract_timestamp(instrument)
+        result = validators.extract_timestamp(instrument)
 
         assert result == expected_ts
 
@@ -51,13 +49,13 @@ class TestQuoteTimestampValidatorExtractTimestamp:
         """Returns None when no timestamp attributes exist."""
         instrument = MagicMock(spec=[])
 
-        result = QuoteTimestampValidator.extract_timestamp(instrument)
+        result = validators.extract_timestamp(instrument)
 
         assert result is None
 
 
-class TestQuoteTimestampValidatorValidateTimestamp:
-    """Tests for QuoteTimestampValidator.validate_timestamp."""
+class TestValidateTimestamp:
+    """Tests for validate_timestamp."""
 
     def test_validate_timestamp_returns_none_for_valid(self) -> None:
         """Returns None for valid, recent timestamp."""
@@ -65,13 +63,13 @@ class TestQuoteTimestampValidatorValidateTimestamp:
         current_time = datetime(2024, 12, 1, 12, 0, 0, tzinfo=timezone.utc)
         max_age = timedelta(minutes=5)
 
-        result = QuoteTimestampValidator.validate_timestamp(quote_ts, current_time, max_age)
+        result = validators.validate_timestamp(quote_ts, current_time, max_age)
 
         assert result is None
 
     def test_validate_timestamp_returns_none_for_non_datetime(self) -> None:
         """Returns None for non-datetime quote_timestamp."""
-        result = QuoteTimestampValidator.validate_timestamp(
+        result = validators.validate_timestamp(
             "not a datetime",
             datetime(2024, 12, 1, 12, 0, 0, tzinfo=timezone.utc),
             timedelta(minutes=5),
@@ -85,7 +83,7 @@ class TestQuoteTimestampValidatorValidateTimestamp:
         current_time = datetime(2024, 12, 1, 12, 0, 0, tzinfo=timezone.utc)
         max_age = timedelta(minutes=5)
 
-        result = QuoteTimestampValidator.validate_timestamp(quote_ts, current_time, max_age)
+        result = validators.validate_timestamp(quote_ts, current_time, max_age)
 
         assert result == "future_quote"
 
@@ -95,7 +93,7 @@ class TestQuoteTimestampValidatorValidateTimestamp:
         current_time = datetime(2024, 12, 1, 12, 0, 0, tzinfo=timezone.utc)
         max_age = timedelta(minutes=5)
 
-        result = QuoteTimestampValidator.validate_timestamp(quote_ts, current_time, max_age)
+        result = validators.validate_timestamp(quote_ts, current_time, max_age)
 
         assert result is None
 
@@ -105,7 +103,7 @@ class TestQuoteTimestampValidatorValidateTimestamp:
         current_time = datetime(2024, 12, 1, 12, 0, 0, tzinfo=timezone.utc)
         max_age = timedelta(minutes=5)
 
-        result = QuoteTimestampValidator.validate_timestamp(quote_ts, current_time, max_age)
+        result = validators.validate_timestamp(quote_ts, current_time, max_age)
 
         assert result == "stale_quote"
 
@@ -115,6 +113,6 @@ class TestQuoteTimestampValidatorValidateTimestamp:
         current_time = datetime(2024, 12, 1, 12, 0, 0, tzinfo=timezone.utc)
         max_age = timedelta(minutes=5)
 
-        result = QuoteTimestampValidator.validate_timestamp(quote_ts, current_time, max_age)
+        result = validators.validate_timestamp(quote_ts, current_time, max_age)
 
         assert result is None

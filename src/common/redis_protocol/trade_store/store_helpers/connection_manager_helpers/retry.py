@@ -4,16 +4,20 @@ import logging
 from dataclasses import dataclass
 from typing import Callable, Optional
 
-logger = logging.getLogger(__name__)
+from redis.asyncio import Redis
 
+from ....kalshi_store.connection import RedisConnectionManager
 from ....retry import (
     RedisFatalError,
+    RedisRetryContext,
     RedisRetryError,
     RedisRetryPolicy,
     execute_with_retry,
 )
+from ...errors import TradeStoreError
 from .base import ConnectionHelperBase
-from .retry_helpers.callback_factory import create_retry_callback
+
+logger = logging.getLogger(__name__)
 
 
 @dataclass(frozen=True)
@@ -31,6 +35,22 @@ class TradeStoreConnectionRetryConfig:
     redis_setter: Optional[Callable] = None
 
 
+@dataclass(frozen=True)
+class ConnectionOperationConfig:
+    """Configuration for creating connection operation."""
+
+    connection_manager: RedisConnectionManager
+    pool_acquirer: Optional[Callable]
+    verify_func: Callable
+    close_func: Callable
+    reset_func: Callable
+    redis_setter: Optional[Callable]
+    context: str
+    attempts: int
+    allow_reuse: bool
+    logger: logging.Logger
+
+
 class ConnectionRetryHelper(ConnectionHelperBase):
     """Handle Redis connection retry operations."""
 
@@ -45,8 +65,8 @@ class ConnectionRetryHelper(ConnectionHelperBase):
             True if connection succeeded
         """
         policy = _build_retry_policy(config.attempts, config.retry_delay)
-        operation = _create_connection_operation(helper=self, retry_config=config)
-        on_retry = _retry_logger(self.logger, config.context)
+        operation = _create_connection_operation_from_retry(helper=self, retry_config=config)
+        on_retry = _create_retry_callback(config.context, self.logger)
 
         try:
             await execute_with_retry(
@@ -74,12 +94,56 @@ def _build_retry_policy(attempts: int, retry_delay: float) -> RedisRetryPolicy:
     )
 
 
-def _create_connection_operation(helper: ConnectionRetryHelper, retry_config: TradeStoreConnectionRetryConfig):
-    from .retry_helpers.operation_factory import (
-        ConnectionOperationConfig,
-        create_connection_operation,
-    )
+def _create_retry_callback(context: str, log: logging.Logger) -> Callable:
+    """Create retry callback function."""
 
+    def _on_retry(retry_context: RedisRetryContext) -> None:
+        log.warning(
+            "%s: Redis connection failed (attempt %s/%s); retrying in %.2fs (%s)",
+            context,
+            retry_context.attempt,
+            retry_context.max_attempts,
+            retry_context.delay,
+            retry_context.exception,
+        )
+
+    return _on_retry
+
+
+def create_connection_operation(config: ConnectionOperationConfig) -> Callable:
+    """Create connection operation function from config."""
+
+    async def _operation(attempt: int) -> Redis:
+        if config.pool_acquirer:
+            redis_client = await config.pool_acquirer(allow_reuse=config.allow_reuse)
+        else:
+            raise RuntimeError("pool_acquirer required for connect_with_retry")
+
+        config.logger.debug(
+            "%s: verifying Redis connection (attempt %s/%s)",
+            config.context,
+            attempt,
+            config.attempts,
+        )
+
+        ok, fatal = await config.verify_func(redis_client)
+        if ok:
+            config.connection_manager.initialized = True
+            config.logger.debug("%s: Redis connection established", config.context)
+            return redis_client
+
+        await config.close_func(redis_client, config.redis_setter)
+        config.reset_func()
+
+        if fatal:
+            raise RedisFatalError("event loop shutting down during Redis ping")
+
+        raise TradeStoreError("Redis connection failed health check")
+
+    return _operation
+
+
+def _create_connection_operation_from_retry(helper: ConnectionRetryHelper, retry_config: TradeStoreConnectionRetryConfig):
     config = ConnectionOperationConfig(
         connection_manager=helper.connection,
         pool_acquirer=retry_config.pool_acquirer,
@@ -93,10 +157,6 @@ def _create_connection_operation(helper: ConnectionRetryHelper, retry_config: Tr
         logger=helper.logger,
     )
     return create_connection_operation(config)
-
-
-def _retry_logger(logger: logging.Logger, context: str):
-    return create_retry_callback(context, logger)
 
 
 def _log_retry_exhausted(log: logging.Logger, context: str) -> None:

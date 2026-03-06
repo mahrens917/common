@@ -12,13 +12,18 @@ from typing import Any, Dict, Optional
 
 from .metadataextractor_helpers import (
     MarketRecordBuilder,
-    MetadataParser,
-    OrderbookSyncer,
-    PriceExtractor,
-    StrikeResolver,
-    TimestampNormalizer,
-    TypeConverter,
+    extract_market_prices,
+    normalize_hash,
+    normalize_timestamp,
+    parse_market_metadata,
+    resolve_market_strike,
 )
+from .metadataextractor_helpers import strike_resolver as _strike_resolver_mod
+from .metadataextractor_helpers import (
+    string_or_default,
+    sync_top_of_book_fields,
+)
+from .metadataextractor_helpers import type_converter as _type_converter_mod
 
 
 class MetadataExtractor:
@@ -26,47 +31,46 @@ class MetadataExtractor:
 
     def __init__(self, logger_instance: logging.Logger):
         self.logger = logger_instance
-        self._type_converter = TypeConverter()
         self._market_record_builder = MarketRecordBuilder(
-            self._type_converter,
-            TimestampNormalizer(),
-            StrikeResolver(),
+            _type_converter_mod,
+            _type_converter_mod,
+            _strike_resolver_mod,
         )
 
     @staticmethod
     def string_or_default(value: Any, fill_value: str = "") -> str:
         """Convert value to string or return fill value"""
-        return TypeConverter.string_or_default(value, fill_value)
+        return string_or_default(value, fill_value)
 
     @staticmethod
     def normalize_hash(raw_hash: Dict[Any, Any]) -> Dict[str, Any]:
         """Convert Redis hash responses to a str-keyed dictionary"""
-        return TypeConverter.normalize_hash(raw_hash)
+        return normalize_hash(raw_hash)
 
     @staticmethod
     def sync_top_of_book_fields(snapshot: Dict[str, Any]) -> None:
         """Align scalar YES side fields with the JSON orderbook payload"""
-        OrderbookSyncer.sync_top_of_book_fields(snapshot)
+        sync_top_of_book_fields(snapshot)
 
     @staticmethod
     def parse_market_metadata(market_ticker: str, market_data: Dict[str, Any]) -> Optional[Dict[str, Any]]:
         """Parse metadata JSON from market data hash"""
-        return MetadataParser.parse_market_metadata(market_ticker, market_data)
+        return parse_market_metadata(market_ticker, market_data)
 
     @staticmethod
     def resolve_market_strike(metadata: Dict[str, Any]) -> Optional[float]:
         """Resolve strike price from metadata fields"""
-        return StrikeResolver.resolve_market_strike(metadata, TypeConverter.string_or_default)
+        return resolve_market_strike(metadata, string_or_default)
 
     @staticmethod
     def extract_market_prices(metadata: Dict[str, Any]) -> tuple[Optional[float], Optional[float]]:
         """Extract best bid and ask prices from metadata"""
-        return PriceExtractor.extract_market_prices(metadata)
+        return extract_market_prices(metadata)
 
     @staticmethod
     def normalize_timestamp(value: Any) -> Optional[str]:
         """Normalize timestamp value to string"""
-        return TimestampNormalizer.normalize_timestamp(value)
+        return normalize_timestamp(value)
 
     def create_market_record(
         self,

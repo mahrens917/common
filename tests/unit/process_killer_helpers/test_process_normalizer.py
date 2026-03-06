@@ -5,9 +5,9 @@ from __future__ import annotations
 from types import SimpleNamespace
 
 import pytest
+from monitor.common_local.process_monitor import ProcessInfo
 
 from common.process_killer_helpers.process_normalizer import normalize_process
-from common.process_monitor import ProcessInfo
 
 
 class TestNormalizeProcess:

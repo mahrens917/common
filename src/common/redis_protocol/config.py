@@ -82,9 +82,9 @@ def _get_redis_settings() -> Any:
 def _get_schema() -> Any:
     """Lazily load schema config."""
     if "_schema" not in _lazy_cache:
-        from common.config.redis_schema import get_schema_config
+        from common.config.redis_schema import RedisSchemaConfig
 
-        _lazy_cache["_schema"] = get_schema_config()
+        _lazy_cache["_schema"] = RedisSchemaConfig.load()
     return _lazy_cache["_schema"]
 
 

@@ -3,7 +3,7 @@
 from typing import Optional, Tuple
 
 from common.config_loader import load_config
-from common.constants.validation import MIN_KEY_PARTS
+from common.constants import MIN_KEY_PARTS
 
 from ..markets import DeribitInstrumentType
 

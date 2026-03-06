@@ -18,25 +18,21 @@ from .transaction_writer import TransactionWriter
 MAX_READ_RETRIES = config.REDIS_MAX_RETRIES
 
 
-class AtomicOperationsFactory:
-    """Factory for creating atomic operations components."""
+def create_components(redis_client: Redis) -> dict:
+    """
+    Create all helper components with proper dependency wiring.
 
-    @staticmethod
-    def create_components(redis_client: Redis) -> dict:
-        """
-        Create all helper components with proper dependency wiring.
+    Args:
+        redis_client: Redis connection with decode_responses=True
 
-        Args:
-            redis_client: Redis connection with decode_responses=True
-
-        Returns:
-            Dictionary containing all helper components
-        """
-        return {
-            "transaction_writer": TransactionWriter(redis_client),
-            "data_fetcher": DataFetcher(redis_client),
-            "field_validator": FieldValidator(MAX_READ_RETRIES),
-            "data_converter": DataConverter(MAX_READ_RETRIES),
-            "spread_validator": SpreadValidator(MAX_READ_RETRIES),
-            "deletion_validator": DeletionValidator(redis_client),
-        }
+    Returns:
+        Dictionary containing all helper components
+    """
+    return {
+        "transaction_writer": TransactionWriter(redis_client),
+        "data_fetcher": DataFetcher(redis_client),
+        "field_validator": FieldValidator(MAX_READ_RETRIES),
+        "data_converter": DataConverter(MAX_READ_RETRIES),
+        "spread_validator": SpreadValidator(MAX_READ_RETRIES),
+        "deletion_validator": DeletionValidator(redis_client),
+    }

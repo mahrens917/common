@@ -1,6 +1,6 @@
 """Typed Redis schema helpers for the Kalshi stack."""
 
-from common.config.redis_schema import RedisSchemaConfig, get_schema_config
+from common.config.redis_schema import RedisSchemaConfig
 
 from .analytics import PdfSurfaceKey, ProbabilitySliceKey, SurfaceType
 from .deribit import parse_deribit_market_key
@@ -71,5 +71,4 @@ __all__ = [
     "ServiceStatusKey",
     "MetricStreamKey",
     "RedisSchemaConfig",
-    "get_schema_config",
 ]

@@ -36,49 +36,46 @@ class KalshiMarketWriterDependencies:
     user_data: UserDataWriter
 
 
-class KalshiMarketWriterDependenciesFactory:
-    """Factory for creating KalshiMarketWriter helper dependencies."""
+def create_dependencies(
+    redis_connection: Redis,
+    logger_instance: logging.Logger,
+    metadata_adapter: KalshiMetadataAdapter,
+    connection_manager: RedisConnectionManager,
+) -> KalshiMarketWriterDependencies:
+    """
+    Create all helper dependencies for KalshiMarketWriter.
 
-    @staticmethod
-    def create(
-        redis_connection: Redis,
-        logger_instance: logging.Logger,
-        metadata_adapter: KalshiMetadataAdapter,
-        connection_manager: RedisConnectionManager,
-    ) -> KalshiMarketWriterDependencies:
-        """
-        Create all helper dependencies for KalshiMarketWriter.
+    Args:
+        redis_connection: Active Redis connection
+        logger_instance: Logger instance
+        metadata_adapter: Metadata adapter for market data processing
+        connection_manager: Redis connection manager
 
-        Args:
-            redis_connection: Active Redis connection
-            logger_instance: Logger instance
-            metadata_adapter: Metadata adapter for market data processing
+    Returns:
+        KalshiMarketWriterDependencies container with all helpers
+    """
+    # Create helper instances
+    validation = ValidationWriter(redis_connection, logger_instance)
+    metadata_writer = MetadataWriter(redis_connection, logger_instance, metadata_adapter, connection_manager)
+    market_updater = MarketUpdateWriter(
+        redis_connection,
+        logger_instance,
+        ValidationWriter.format_probability_value,
+        connection_manager,
+    )
+    orderbook = OrderbookWriter(redis_connection, logger_instance, connection_manager)
+    batch = BatchWriter(redis_connection, logger_instance)
+    batch_reader = BatchReader(redis_connection, logger_instance)
+    subscription = SubscriptionWriter(redis_connection, logger_instance, metadata_adapter)
+    user_data = UserDataWriter(redis_connection, logger_instance, connection_manager)
 
-        Returns:
-            KalshiMarketWriterDependencies container with all helpers
-        """
-        # Create helper instances
-        validation = ValidationWriter(redis_connection, logger_instance)
-        metadata_writer = MetadataWriter(redis_connection, logger_instance, metadata_adapter, connection_manager)
-        market_updater = MarketUpdateWriter(
-            redis_connection,
-            logger_instance,
-            ValidationWriter.format_probability_value,
-            connection_manager,
-        )
-        orderbook = OrderbookWriter(redis_connection, logger_instance, connection_manager)
-        batch = BatchWriter(redis_connection, logger_instance)
-        batch_reader = BatchReader(redis_connection, logger_instance)
-        subscription = SubscriptionWriter(redis_connection, logger_instance, metadata_adapter)
-        user_data = UserDataWriter(redis_connection, logger_instance, connection_manager)
-
-        return KalshiMarketWriterDependencies(
-            validation=validation,
-            metadata_writer=metadata_writer,
-            market_updater=market_updater,
-            orderbook=orderbook,
-            batch=batch,
-            batch_reader=batch_reader,
-            subscription=subscription,
-            user_data=user_data,
-        )
+    return KalshiMarketWriterDependencies(
+        validation=validation,
+        metadata_writer=metadata_writer,
+        market_updater=market_updater,
+        orderbook=orderbook,
+        batch=batch,
+        batch_reader=batch_reader,
+        subscription=subscription,
+        user_data=user_data,
+    )

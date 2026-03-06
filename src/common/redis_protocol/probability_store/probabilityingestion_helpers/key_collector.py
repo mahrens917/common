@@ -22,8 +22,14 @@ class KeyCollector:
         Returns:
             List of matching keys as strings
         """
-        raw_keys = await redis.keys(f"{prefix}*")
-        return [key.decode("utf-8") if isinstance(key, bytes) else str(key) for key in raw_keys]
+        keys: List[str] = []
+        cursor = 0
+        while True:
+            cursor, batch = await redis.scan(cursor, match=f"{prefix}*", count=500)
+            keys.extend(key.decode("utf-8") if isinstance(key, bytes) else str(key) for key in batch)
+            if cursor == 0:
+                break
+        return keys
 
     def queue_probability_deletes(self, pipeline, keys_to_delete: List[str]) -> None:
         """

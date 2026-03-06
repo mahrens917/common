@@ -41,12 +41,8 @@ class TestBatchCreateOrders:
         return builder
 
     @pytest.fixture
-    def mock_response_parser(self):
-        return MagicMock()
-
-    @pytest.fixture
-    def order_ops(self, mock_request_builder, mock_response_parser):
-        return OrderOperations(mock_request_builder, mock_response_parser)
+    def order_ops(self, mock_request_builder):
+        return OrderOperations(mock_request_builder)
 
     @pytest.mark.asyncio
     async def test_empty_list_raises(self, order_ops):

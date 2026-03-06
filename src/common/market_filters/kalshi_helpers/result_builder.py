@@ -57,7 +57,7 @@ def build_success_result(
     pricing_info: MarketPricingInfo,
 ) -> KalshiMarketValidation:
     """Build a validation success result."""
-    from .pricing_validator import check_side_validity
+    from .validators import check_side_validity
 
     has_bid = check_side_validity(pricing_info.bid_price, pricing_info.bid_size)
     has_ask = check_side_validity(pricing_info.ask_price, pricing_info.ask_size)

@@ -20,7 +20,7 @@ try:  # pragma: no cover - optional dependency
 except ImportError:  # pragma: no cover - psutil not available in some environments  # policy_guard: allow-silent-handler
     psutil = None
 
-from ..process_monitor import get_global_process_monitor
+from monitor.common_local.process_monitor import get_global_process_monitor
 
 logger = logging.getLogger(__name__)
 

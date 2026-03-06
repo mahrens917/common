@@ -15,12 +15,12 @@ import orjson
 from common.truthy import pick_if, pick_truthy
 
 from ... import time_utils
-from ...config.redis_schema import get_schema_config
+from ...config.redis_schema import RedisSchemaConfig
 from ...redis_schema import parse_kalshi_market_key
 from ..error_types import REDIS_ERRORS
 from .utils_market import _resolve_market_strike
 
-SCHEMA = get_schema_config()
+SCHEMA = RedisSchemaConfig.load()
 STRIKE_MATCH_TOLERANCE = 0.001
 
 logger = logging.getLogger(__name__)

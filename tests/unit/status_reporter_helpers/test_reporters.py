@@ -2,10 +2,12 @@ from unittest.mock import Mock
 
 import pytest
 
-from common.status_reporter_helpers.base_reporter import WriterBackedReporter
-from common.status_reporter_helpers.lifecycle_reporter import LifecycleReporter
-from common.status_reporter_helpers.market_reporter import MarketReporter
-from common.status_reporter_helpers.message_formatter import MessageFormatter
+from common.status_reporter_helpers import formatters
+from common.status_reporter_helpers.reporters import (
+    LifecycleReporter,
+    MarketReporter,
+    WriterBackedReporter,
+)
 
 
 class TestWriterBackedReporter:
@@ -27,15 +29,15 @@ class TestLifecycleReporter:
     def test_error_occurred(self, reporter, writer):
         msg = "Something went wrong"
         reporter.error_occurred(msg)
-        writer.write.assert_called_once_with(MessageFormatter.error_occurred(msg))
+        writer.write.assert_called_once_with(formatters.error_occurred(msg))
 
     def test_initialization_complete(self, reporter, writer):
         reporter.initialization_complete()
-        writer.write.assert_called_once_with(MessageFormatter.initialization_complete())
+        writer.write.assert_called_once_with(formatters.initialization_complete())
 
     def test_shutdown_complete(self, reporter, writer):
         reporter.shutdown_complete()
-        writer.write.assert_called_once_with(MessageFormatter.shutdown_complete())
+        writer.write.assert_called_once_with(formatters.shutdown_complete())
 
 
 class TestMarketReporter:
@@ -49,16 +51,16 @@ class TestMarketReporter:
 
     def test_tracking_started(self, reporter, writer):
         reporter.tracking_started()
-        writer.write.assert_called_once_with(MessageFormatter.tracking_started())
+        writer.write.assert_called_once_with(formatters.tracking_started())
 
     def test_markets_closed(self, reporter, writer):
         reporter.markets_closed()
-        writer.write.assert_called_once_with(MessageFormatter.markets_closed())
+        writer.write.assert_called_once_with(formatters.markets_closed())
 
     def test_markets_open(self, reporter, writer):
         reporter.markets_open()
-        writer.write.assert_called_once_with(MessageFormatter.markets_open())
+        writer.write.assert_called_once_with(formatters.markets_open())
 
     def test_checking_market_hours(self, reporter, writer):
         reporter.checking_market_hours()
-        writer.write.assert_called_once_with(MessageFormatter.checking_market_hours())
+        writer.write.assert_called_once_with(formatters.checking_market_hours())

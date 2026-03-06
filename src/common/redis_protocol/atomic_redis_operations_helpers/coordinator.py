@@ -17,7 +17,7 @@ from .. import config
 from .data_converter import DataConverter
 from .data_fetcher import DataFetcher, RedisDataValidationError
 from .deletion_validator import DeletionValidator
-from .factory import AtomicOperationsFactory
+from .factory import create_components
 from .field_validator import FieldValidator
 from .spread_validator import SpreadValidator
 from .transaction_writer import TransactionWriter
@@ -47,7 +47,7 @@ class AtomicOperationsCoordinator:
     def __init__(self, redis_client: Redis):
         self.redis = redis_client
         self.logger = logger
-        components = AtomicOperationsFactory.create_components(redis_client)
+        components = create_components(redis_client)
         self.transaction_writer: TransactionWriter = components["transaction_writer"]
         self.data_fetcher: DataFetcher = components["data_fetcher"]
         self.field_validator: FieldValidator = components["field_validator"]

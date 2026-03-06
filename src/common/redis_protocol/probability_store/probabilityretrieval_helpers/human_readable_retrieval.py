@@ -49,20 +49,31 @@ async def get_probabilities_human_readable(redis: Redis, currency: str) -> Dict[
     prefix = f"probabilities:{currency_upper}:"
 
     try:
-        raw_keys = await redis.keys(f"{prefix}*")
+        raw_keys: list = []
+        scan_cursor = 0
+        while True:
+            scan_cursor, batch = await redis.scan(scan_cursor, match=f"{prefix}*", count=500)
+            raw_keys.extend(batch)
+            if scan_cursor == 0:
+                break
     except REDIS_ERRORS as exc:
         raise ProbabilityStoreError(f"Failed to get human-readable probabilities for {currency_upper}: Redis error {exc}") from exc
 
     if not raw_keys:
         raise ProbabilityDataNotFoundError(currency_upper, "human-readable probabilities")
 
+    # Decode keys and pipeline all hgetall calls
+    decoded_keys = [decode_redis_key(rk) for rk in raw_keys]
+    pipe = redis.pipeline()
+    for key_str in decoded_keys:
+        pipe.hgetall(key_str)
+    all_data = await ensure_awaitable(pipe.execute())
+
     result: Dict[str, ProbabilityByEventTitle] = {}
 
-    for raw_key in raw_keys:
-        key_str = decode_redis_key(raw_key)
+    for key_str, data in zip(decoded_keys, all_data):
         expiry, strike_type, strike = parse_probability_key(key_str)
 
-        data = await ensure_awaitable(redis.hgetall(key_str))
         if not data:
             raise ProbabilityStoreError(f"Probability payload missing for key {key_str} while building human-readable view")
 

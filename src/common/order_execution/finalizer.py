@@ -14,7 +14,7 @@ import asyncio
 import logging
 from typing import Any, Awaitable, Callable, Dict, Optional, Protocol
 
-from ..constants.trading import MAX_PRICE_CENTS, MIN_PRICE_CENTS
+from ..constants import MAX_PRICE_CENTS, MIN_PRICE_CENTS
 from ..data_models.trade_record import TradeRecord, TradeSide
 from ..data_models.trading import OrderRequest, OrderResponse, OrderSide
 from ..redis_protocol.trade_store import TradeStore

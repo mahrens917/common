@@ -2,7 +2,8 @@ from datetime import datetime, timedelta, timezone
 
 import pytest
 
-from common.time_helpers import expiry
+from common.time_helpers import expiry as expiry_module
+from common.time_helpers import expiry_conversions
 from common.time_helpers.expiry_conversions import (
     DERIBIT_EXPIRY_HOUR,
     EPOCH_START,
@@ -43,13 +44,9 @@ def test_validate_expiry_hour_matches_and_warns(caplog):
 
 
 def test_time_to_expiry_and_epoch_clamping(monkeypatch, caplog):
-    # Reset clamp flag in both modules
-    monkeypatch.setattr(expiry, "_PRE_EPOCH_CLAMP_LOGGED", False)
-    monkeypatch.setattr(
-        "common.time_helpers.expiry_conversions._PRE_EPOCH_CLAMP_LOGGED",
-        False,
-        raising=False,
-    )
+    # Reset clamp flag in both the conversions module and the re-export module
+    monkeypatch.setattr(expiry_conversions, "_PRE_EPOCH_CLAMP_LOGGED", False)
+    monkeypatch.setattr(expiry_module, "_PRE_EPOCH_CLAMP_LOGGED", False)
 
     before_epoch = EPOCH_START - timedelta(days=1)
     with caplog.at_level("WARNING"):

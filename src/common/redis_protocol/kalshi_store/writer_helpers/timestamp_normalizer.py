@@ -25,12 +25,3 @@ class TimestampNormalizer:
         Delegates to canonical implementation in kalshi_store.utils_market.
         """
         return normalise_trade_timestamp(value)
-
-    @staticmethod
-    def normalize_timestamp(value: Any) -> str:
-        """
-        Normalize timestamp to ISO8601 (alias for normalise_trade_timestamp).
-
-        Delegates to canonical implementation in kalshi_store.utils_market.
-        """
-        return normalise_trade_timestamp(value)

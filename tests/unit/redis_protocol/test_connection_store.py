@@ -27,7 +27,7 @@ class FakeRedis:
     async def hdel(self, key, field):
         self.hashes.get(key, {}).pop(field, None)
 
-    async def expire(self, key, ttl):
+    async def expire(self, key, _ttl):
         return True
 
     async def set(self, key, value):

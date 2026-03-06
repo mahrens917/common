@@ -134,9 +134,17 @@ def _get_weather_settings_func():
 
     def get_weather_settings():
         """Stub when weather package is not installed."""
-        from types import SimpleNamespace
+        from dataclasses import dataclass, field
 
-        return SimpleNamespace(sources=SimpleNamespace(asos_source=None))
+        @dataclass
+        class _WeatherSources:
+            asos_source: None = None
+
+        @dataclass
+        class _WeatherSettings:
+            sources: _WeatherSources = field(default_factory=_WeatherSources)
+
+        return _WeatherSettings()
 
     return get_weather_settings
 

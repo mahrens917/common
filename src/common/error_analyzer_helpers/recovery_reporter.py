@@ -34,7 +34,7 @@ class RecoveryReporter:
         logger.info(message)
 
         # Check if recovery notification should be suppressed during routine reconnections
-        from ..alert_suppression_manager import AlertType, get_alert_suppression_manager
+        from monitor.common_local.alert_suppression_manager import AlertType, get_alert_suppression_manager
 
         suppression_manager = await get_alert_suppression_manager()
 

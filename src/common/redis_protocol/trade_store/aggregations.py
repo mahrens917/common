@@ -73,11 +73,7 @@ class TradeQueryService:
         today_trades = await self.trades_by_date_range(today, today)
         yesterday_trades = await self.trades_by_date_range(yesterday, yesterday)
 
-        closed_today = [
-            trade
-            for trade in itertools.chain(today_trades, yesterday_trades)
-            if get_trade_close_date(trade) == today
-        ]
+        closed_today = [trade for trade in itertools.chain(today_trades, yesterday_trades) if get_trade_close_date(trade) == today]
         self._logger.debug("Found %s trades closing on %s", len(closed_today), today)
         return closed_today
 

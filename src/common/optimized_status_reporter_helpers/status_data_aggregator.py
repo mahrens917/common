@@ -4,6 +4,7 @@ Status data aggregation coordinator for OptimizedStatusReporter.
 Extracted from OptimizedStatusReporter to reduce class size.
 """
 
+import asyncio
 from dataclasses import dataclass
 from typing import Any, Dict, Optional
 
@@ -42,10 +43,11 @@ class StatusDataAggregator:
 
     async def gather_status_data(self, redis_client, process_monitor, kalshi_client: KalshiClient) -> Dict[str, Any]:
         """Gather all status data using collectors."""
-        # Collect data in parallel where possible
-        running_services = await self._service_collector.collect_running_services()
-        redis_pid = await self._resolve_redis_pid(process_monitor)
-        health_snapshot = await self._health_collector.collect_health_snapshot()
+        running_services, redis_pid, health_snapshot = await asyncio.gather(
+            self._service_collector.collect_running_services(),
+            self._resolve_redis_pid(process_monitor),
+            self._health_collector.collect_health_snapshot(),
+        )
 
         # Set redis_client on collectors that need it
         self._key_counter.redis_client = redis_client
@@ -55,14 +57,17 @@ class StatusDataAggregator:
         self._weather_collector.redis_client = redis_client
         self._kalshi_collector.redis_client = redis_client
 
-        key_counts = await self._key_counter.collect_key_counts()
-        message_metrics = await self._message_collector.collect_message_metrics()
-        price_data = await self._price_collector.collect_price_data()
-        weather_temps = await self._weather_collector.collect_weather_temperatures()
-
-        kalshi_status = await self._kalshi_collector.get_kalshi_market_status()
-        log_activity_map, stale_logs = await self._log_collector.collect_log_activity_map()
-        tracker_status = await self._tracker_collector.collect_tracker_status()
+        key_counts, message_metrics, price_data, weather_temps, kalshi_status, (log_activity_map, stale_logs), tracker_status = (
+            await asyncio.gather(
+                self._key_counter.collect_key_counts(),
+                self._message_collector.collect_message_metrics(),
+                self._price_collector.collect_price_data(),
+                self._weather_collector.collect_weather_temperatures(),
+                self._kalshi_collector.get_kalshi_market_status(),
+                self._log_collector.collect_log_activity_map(),
+                self._tracker_collector.collect_tracker_status(),
+            )
+        )
         running_services = self._tracker_collector.merge_tracker_service_state(running_services, tracker_status)
 
         return {

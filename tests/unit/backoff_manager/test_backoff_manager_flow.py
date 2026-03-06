@@ -4,7 +4,7 @@ import pytest
 
 from common.backoff_manager import BackoffManager
 from common.backoff_manager_helpers.delay_calculator import DelayCalculator
-from common.backoff_manager_helpers.retry_checker import RetryChecker
+from common.backoff_manager_helpers.retry_checker import should_retry
 from common.backoff_manager_helpers.state_manager import BackoffStateManager
 from common.backoff_manager_helpers.types import BackoffConfig, BackoffType
 
@@ -73,7 +73,7 @@ def test_retry_checker_blocks_after_max_attempts():
         }
     }
 
-    assert not RetryChecker.should_retry(state_manager, "svc", BackoffType.GENERAL_FAILURE, config)
+    assert not should_retry(state_manager, "svc", BackoffType.GENERAL_FAILURE, config)
 
 
 def test_backoff_manager_reports_status(monkeypatch):

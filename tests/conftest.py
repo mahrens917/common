@@ -305,7 +305,7 @@ async def _cleanup_process_monitor_between_tests():
     yield
 
     try:
-        from common import process_monitor
+        from monitor.common_local import process_monitor
     except Exception:
         return
 

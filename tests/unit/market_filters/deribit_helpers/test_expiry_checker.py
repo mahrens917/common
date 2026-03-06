@@ -1,16 +1,16 @@
-"""Tests for expiry checker module."""
+"""Tests for expiry checker functions in validators module."""
 
 from datetime import datetime, timezone
 
-from common.market_filters.deribit_helpers.expiry_checker import ExpiryChecker
+from common.market_filters.deribit_helpers import validators
 
 
-class TestExpiryCheckerNormalizeExpiry:
-    """Tests for ExpiryChecker.normalize_expiry."""
+class TestNormalizeExpiry:
+    """Tests for normalize_expiry."""
 
     def test_normalize_expiry_returns_none_for_none(self) -> None:
         """Returns None when value is None."""
-        result = ExpiryChecker.normalize_expiry(None)
+        result = validators.normalize_expiry(None)
 
         assert result is None
 
@@ -18,7 +18,7 @@ class TestExpiryCheckerNormalizeExpiry:
         """Adds UTC timezone to naive datetime."""
         naive_dt = datetime(2024, 12, 1, 12, 0, 0)
 
-        result = ExpiryChecker.normalize_expiry(naive_dt)
+        result = validators.normalize_expiry(naive_dt)
 
         assert result is not None
         assert result.tzinfo == timezone.utc
@@ -34,7 +34,7 @@ class TestExpiryCheckerNormalizeExpiry:
         pst = timezone(timedelta(hours=-8))
         aware_dt = datetime(2024, 12, 1, 4, 0, 0, tzinfo=pst)
 
-        result = ExpiryChecker.normalize_expiry(aware_dt)
+        result = validators.normalize_expiry(aware_dt)
 
         assert result is not None
         assert result.tzinfo == timezone.utc
@@ -42,25 +42,25 @@ class TestExpiryCheckerNormalizeExpiry:
 
     def test_normalize_expiry_returns_none_for_non_datetime(self) -> None:
         """Returns None for non-datetime values."""
-        result = ExpiryChecker.normalize_expiry("2024-12-01")
+        result = validators.normalize_expiry("2024-12-01")
 
         assert result is None
 
     def test_normalize_expiry_returns_none_for_int(self) -> None:
         """Returns None for integer values."""
-        result = ExpiryChecker.normalize_expiry(1704067200)
+        result = validators.normalize_expiry(1704067200)
 
         assert result is None
 
 
-class TestExpiryCheckerIsExpired:
-    """Tests for ExpiryChecker.is_expired."""
+class TestIsExpired:
+    """Tests for is_expired."""
 
     def test_is_expired_returns_false_for_none_expiry(self) -> None:
         """Returns False when expiry is None."""
         current_time = datetime(2024, 12, 1, 12, 0, 0, tzinfo=timezone.utc)
 
-        result = ExpiryChecker.is_expired(None, current_time)
+        result = validators.is_expired(None, current_time)
 
         assert result is False
 
@@ -69,7 +69,7 @@ class TestExpiryCheckerIsExpired:
         expiry = datetime(2024, 12, 1, 10, 0, 0, tzinfo=timezone.utc)
         current_time = datetime(2024, 12, 1, 12, 0, 0, tzinfo=timezone.utc)
 
-        result = ExpiryChecker.is_expired(expiry, current_time)
+        result = validators.is_expired(expiry, current_time)
 
         assert result is True
 
@@ -78,7 +78,7 @@ class TestExpiryCheckerIsExpired:
         expiry = datetime(2024, 12, 1, 12, 0, 0, tzinfo=timezone.utc)
         current_time = datetime(2024, 12, 1, 12, 0, 0, tzinfo=timezone.utc)
 
-        result = ExpiryChecker.is_expired(expiry, current_time)
+        result = validators.is_expired(expiry, current_time)
 
         assert result is True
 
@@ -87,6 +87,6 @@ class TestExpiryCheckerIsExpired:
         expiry = datetime(2024, 12, 1, 14, 0, 0, tzinfo=timezone.utc)
         current_time = datetime(2024, 12, 1, 12, 0, 0, tzinfo=timezone.utc)
 
-        result = ExpiryChecker.is_expired(expiry, current_time)
+        result = validators.is_expired(expiry, current_time)
 
         assert result is False

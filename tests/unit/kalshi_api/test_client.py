@@ -52,11 +52,11 @@ class TestKalshiClientInit:
         }
 
         with patch("common.kalshi_api.client.get_kalshi_credentials") as mock_get_creds:
-            with patch("common.kalshi_api.client.CredentialValidator") as mock_validator:
+            with patch("common.kalshi_api.client.extract_and_validate_credentials") as mock_validator:
                 with patch("common.kalshi_api.client.KeyLoader") as mock_loader:
                     with patch("common.kalshi_api.client.ComponentInitializer") as mock_init:
                         mock_get_creds.return_value = mock_credentials
-                        mock_validator.extract_and_validate.return_value = "base64_key"
+                        mock_validator.return_value = "base64_key"
                         mock_loader.load_private_key.return_value = mock_private_key
                         mock_init.return_value.initialize.return_value = mock_components
 
@@ -67,7 +67,7 @@ class TestKalshiClientInit:
                         assert client._private_key is mock_private_key
                         assert client._initialized is False
                         mock_get_creds.assert_called_once_with(require_secret=False)
-                        mock_validator.extract_and_validate.assert_called_once_with(mock_credentials)
+                        mock_validator.assert_called_once_with(mock_credentials)
                         mock_loader.load_private_key.assert_called_once_with("base64_key")
 
     def test_init_with_custom_config(self):
@@ -93,11 +93,11 @@ class TestKalshiClientInit:
         custom_config = KalshiConfig(base_url="https://custom.api.com")
 
         with patch("common.kalshi_api.client.get_kalshi_credentials") as mock_get_creds:
-            with patch("common.kalshi_api.client.CredentialValidator") as mock_validator:
+            with patch("common.kalshi_api.client.extract_and_validate_credentials") as mock_validator:
                 with patch("common.kalshi_api.client.KeyLoader") as mock_loader:
                     with patch("common.kalshi_api.client.ComponentInitializer") as mock_init:
                         mock_get_creds.return_value = mock_credentials
-                        mock_validator.extract_and_validate.return_value = "base64_key"
+                        mock_validator.return_value = "base64_key"
                         mock_loader.load_private_key.return_value = mock_private_key
                         mock_init.return_value.initialize.return_value = mock_components
 
@@ -130,11 +130,11 @@ class TestKalshiClientInit:
         mock_trade_store = MagicMock()
 
         with patch("common.kalshi_api.client.get_kalshi_credentials") as mock_get_creds:
-            with patch("common.kalshi_api.client.CredentialValidator") as mock_validator:
+            with patch("common.kalshi_api.client.extract_and_validate_credentials") as mock_validator:
                 with patch("common.kalshi_api.client.KeyLoader") as mock_loader:
                     with patch("common.kalshi_api.client.ComponentInitializer") as mock_init:
                         mock_get_creds.return_value = mock_credentials
-                        mock_validator.extract_and_validate.return_value = "base64_key"
+                        mock_validator.return_value = "base64_key"
                         mock_loader.load_private_key.return_value = mock_private_key
                         mock_init.return_value.initialize.return_value = mock_components
 

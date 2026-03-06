@@ -47,8 +47,6 @@ async def _discover_weather_keys(redis_client) -> tuple[List[Any], List[str]]:
 
     async for key in redis_client.scan_iter(match=f"{station_prefix}*", count=50):
         key_str = key.decode() if isinstance(key, bytes) else key
-        if not key_str.startswith(station_prefix):
-            continue
         suffix = key_str[len(station_prefix) :]
         if not suffix or ":" in suffix:
             continue
