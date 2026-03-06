@@ -183,6 +183,20 @@ class FakeRedis:
         all_keys = list(self._data.keys()) + list(self._sets.keys()) + list(self._hashes.keys())
         return [k for k in all_keys if re.match(regex, k)]
 
+    async def scan(self, cursor: int = 0, match: str | None = None, count: int | None = None) -> tuple[int, list[bytes]]:
+        """Scan keys, returning (next_cursor, keys_batch). Returns all matching keys in one batch."""
+        import re
+
+        if match:
+            regex = match.replace("*", ".*").replace("?", ".")
+            regex = f"^{regex}$"
+            all_keys = list(self._data.keys()) + list(self._sets.keys()) + list(self._hashes.keys())
+            keys = [k for k in all_keys if re.match(regex, k)]
+        else:
+            keys = list(self._data.keys()) + list(self._sets.keys()) + list(self._hashes.keys())
+
+        return (0, [k.encode() if isinstance(k, str) else k for k in keys])
+
     async def scan_iter(self, match: str | None = None, count: int | None = None):
         """Scan keys."""
         import re
@@ -403,6 +417,11 @@ class FakeRedisPipeline:
         self.commands.append(("hgetall", (key,)))
         return self
 
+    def hmget(self, key: str, fields: list[str]) -> "FakeRedisPipeline":
+        """Pipeline hmget."""
+        self.commands.append(("hmget", (key, fields)))
+        return self
+
     def hincrby(self, key: str, field: str, increment: int) -> "FakeRedisPipeline":
         """Pipeline hincrby."""
         self.commands.append(("hincrby", (key, field, increment)))
@@ -447,6 +466,7 @@ class FakeRedisPipeline:
             "hset": lambda: self.fake_redis.hset(args[0], args[1]),
             "hget": lambda: self.fake_redis.hget(args[0], args[1]),
             "hgetall": lambda: self.fake_redis.hgetall(args[0]),
+            "hmget": lambda: self.fake_redis.hmget(args[0], args[1]),
             "hincrby": lambda: self.fake_redis.hincrby(args[0], args[1], args[2]),
             "expire": lambda: self.fake_redis.expire(args[0], args[1]),
             "hdel": lambda: self.fake_redis.hdel(args[0], *args[1]),

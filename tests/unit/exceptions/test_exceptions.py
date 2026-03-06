@@ -53,8 +53,8 @@ class TestWeatherExceptions:
         with pytest.raises(WeatherError):
             raise WeatherError()
 
-    def test_weather_service_error_inherits_from_weather_error(self) -> None:
-        assert issubclass(WeatherServiceError, WeatherError)
+    def test_weather_service_error_inherits_from_application_error(self) -> None:
+        assert issubclass(WeatherServiceError, ApplicationError)
 
     def test_weather_service_error_can_be_raised(self) -> None:
         with pytest.raises(WeatherServiceError):

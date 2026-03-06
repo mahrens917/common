@@ -69,6 +69,9 @@ async def test_process_orderbook_delta_inits_missing_json(monkeypatch) -> None:
     # First call returns corrupted JSON (side data), second returns algo (None → skip direction),
     # third and fourth return bid/ask values, fifth returns event_ticker for publishing
     redis.hget = AsyncMock(side_effect=[b"not-json", None, b"51", b"49", b"TEST_EVENT"])
+    pipe = MagicMock()
+    pipe.execute = AsyncMock(return_value=[b"51", b"49"])
+    redis.pipeline = MagicMock(return_value=pipe)
 
     # Mock the delta processor's methods
     store_optional_mock = AsyncMock()

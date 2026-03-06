@@ -25,7 +25,7 @@ REDIS_SETUP_ERRORS = (
 )
 
 
-async def test_pool_connection(pool: redis.asyncio.ConnectionPool, host: str, port: int, db: int) -> None:
+async def validate_pool_connection(pool: redis.asyncio.ConnectionPool, host: str, port: int, db: int) -> None:
     """
     Test Redis pool by creating a temporary connection and pinging server.
 

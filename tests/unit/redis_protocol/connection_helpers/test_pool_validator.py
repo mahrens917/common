@@ -7,7 +7,7 @@ import pytest
 
 from common.redis_protocol.connection_helpers.pool_validator import (
     REDIS_SETUP_ERRORS,
-    test_pool_connection,
+    validate_pool_connection,
 )
 
 
@@ -28,7 +28,7 @@ class TestRedisSetupErrors:
 
 
 class TestTestPoolConnection:
-    """Tests for test_pool_connection function."""
+    """Tests for validate_pool_connection function."""
 
     @pytest.mark.asyncio
     async def test_success_closes_client(self) -> None:
@@ -41,7 +41,7 @@ class TestTestPoolConnection:
         with patch("common.redis_protocol.connection_helpers.pool_validator.redis.asyncio.Redis") as mock_redis:
             mock_redis.return_value = mock_client
 
-            await test_pool_connection(mock_pool, "localhost", 6379, 0)
+            await validate_pool_connection(mock_pool, "localhost", 6379, 0)
 
             mock_client.aclose.assert_called_once()
 
@@ -56,7 +56,7 @@ class TestTestPoolConnection:
             mock_redis.return_value = mock_client
 
             with pytest.raises(RuntimeError) as exc_info:
-                await test_pool_connection(mock_pool, "localhost", 6379, 0)
+                await validate_pool_connection(mock_pool, "localhost", 6379, 0)
 
             assert "timed out" in str(exc_info.value)
 
@@ -72,7 +72,7 @@ class TestTestPoolConnection:
                 mock_redis.return_value = mock_client
 
                 with pytest.raises(RuntimeError) as exc_info:
-                    await test_pool_connection(mock_pool, "localhost", 6379, 0)
+                    await validate_pool_connection(mock_pool, "localhost", 6379, 0)
 
                 assert "Redis pool creation failed" in str(exc_info.value)
 
@@ -88,6 +88,6 @@ class TestTestPoolConnection:
                 mock_redis.return_value = mock_client
 
                 with pytest.raises(RuntimeError):
-                    await test_pool_connection(mock_pool, "localhost", 6379, 0)
+                    await validate_pool_connection(mock_pool, "localhost", 6379, 0)
 
                 mock_client.aclose.assert_called_once()

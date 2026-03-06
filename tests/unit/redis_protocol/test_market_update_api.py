@@ -447,6 +447,10 @@ class TestUpdateAndClearStale:
         redis.hdel = AsyncMock()
         redis.publish = AsyncMock()
         redis.xadd = AsyncMock(return_value=b"1-0")
+        redis.hmget = AsyncMock(return_value=[None, None])
+        pipe = MagicMock()
+        pipe.execute = AsyncMock(return_value=[])
+        redis.pipeline.return_value = pipe
         return redis
 
     @pytest.fixture
@@ -490,7 +494,9 @@ class TestUpdateAndClearStale:
         from common.redis_protocol.market_update_api import update_and_clear_stale
 
         mock_redis.scan = AsyncMock(return_value=(0, [b"markets:kalshi:test:STALE"]))
-        mock_redis.hmget = AsyncMock(return_value=[b"50", None])
+        pipe = MagicMock()
+        pipe.execute = AsyncMock(side_effect=[[[b"50", None]], []])
+        mock_redis.pipeline.return_value = pipe
 
         result = await update_and_clear_stale(
             mock_redis,
@@ -543,7 +549,9 @@ class TestUpdateAndClearStale:
         from common.redis_protocol.market_update_api import update_and_clear_stale
 
         mock_redis.scan = AsyncMock(return_value=(0, [b"markets:kalshi:test:STALE"]))
-        mock_redis.hmget = AsyncMock(return_value=[b"50", None])
+        pipe = MagicMock()
+        pipe.execute = AsyncMock(side_effect=[[[b"50", None]], []])
+        mock_redis.pipeline.return_value = pipe
 
         result = await update_and_clear_stale(
             mock_redis,
@@ -554,8 +562,9 @@ class TestUpdateAndClearStale:
         )
 
         assert "STALE" in result.stale_cleared
-        hdel_args = mock_redis.hdel.call_args[0]
-        assert "pdf:t_spread" in hdel_args
+        hdel_calls = [c for c in pipe.hdel.call_args_list]
+        hdel_fields = [f for call in hdel_calls for f in call[0]]
+        assert "pdf:t_spread" in hdel_fields
 
     @pytest.mark.asyncio
     async def test_write_failure_raises(self, mock_redis, mock_key_builder, monkeypatch):
@@ -597,6 +606,10 @@ class TestWriteEventSignals:
         redis.hdel = AsyncMock()
         redis.publish = AsyncMock()
         redis.xadd = AsyncMock(return_value=b"1-0")
+        redis.hmget = AsyncMock(return_value=[None, None])
+        pipe = MagicMock()
+        pipe.execute = AsyncMock(return_value=[])
+        redis.pipeline.return_value = pipe
         return redis
 
     @pytest.fixture

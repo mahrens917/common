@@ -13,7 +13,6 @@ from common.data_models.trading import (
     OrderStatus,
     OrderType,
 )
-from common.time_utils import parse_timestamp as _parse_timestamp
 from common.validation.required_fields import validate_required_fields as _validate_required_fields_common
 
 from .client_helpers.errors import KalshiClientError
@@ -24,6 +23,7 @@ from .response_field_parser import (
     parse_average_fill_price,
     parse_fills_list,
     parse_order_fill,
+    parse_rfp_timestamp,
 )
 
 
@@ -116,4 +116,4 @@ def _validate_trade_metadata(trade_rule: Optional[str], trade_reason: Optional[s
 
 def parse_rp_timestamp(timestamp_raw: Any) -> datetime | None:
     """Parse a timestamp string into a datetime object."""
-    return _parse_timestamp(timestamp_raw)
+    return parse_rfp_timestamp(timestamp_raw)

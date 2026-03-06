@@ -15,7 +15,7 @@ import redis
 import redis.asyncio
 
 from .pool_settings import build_pool_settings, mask_sensitive_settings
-from .pool_validator import test_pool_connection
+from .pool_validator import validate_pool_connection
 
 logger = logging.getLogger(__name__)
 
@@ -53,7 +53,7 @@ async def create_and_test_pool(
     pool = redis.asyncio.ConnectionPool(**pool_settings)
     logger.info(f"Created unified pool: {pool}, type: {type(pool)}")
 
-    await test_pool_connection(pool, host, port, db)
+    await validate_pool_connection(pool, host, port, db)
 
     logger.info(f"Initialized unified Redis connection pool: " f"host={host} port={port} max_connections={max_connections}")
 

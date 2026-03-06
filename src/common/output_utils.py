@@ -30,7 +30,7 @@ def _write_to_handlers(message: str | None) -> bool:
     Returns True if at least one file handler was written to successfully.
     Silently skips handlers whose stream raises OSError.
     """
-    content = str(message) if message is not None else ""
+    content = str(message) if message is not None else str()
     any_written = False
     for handler in logging.getLogger().handlers:
         if isinstance(handler, logging.FileHandler):

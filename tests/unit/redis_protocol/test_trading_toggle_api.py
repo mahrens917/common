@@ -6,19 +6,24 @@ import pytest
 
 from common.redis_protocol.trading_toggle_api import (
     ALGO_TRADING_KEY_PREFIX,
+    SIGNAL_COUNT_KEY_PREFIX,
     AlgoTradingConfig,
     _algo_config_key,
     _algo_key,
     _parse_bool,
+    _signal_count_key,
     _validate_positive_int,
-    get_algo_cooldown_minutes,
+    delete_old_cooldown_keys,
     get_algo_max_contracts,
+    get_algo_sample_rate,
     get_all_algo_trading_config,
     get_all_algo_trading_states,
+    get_signal_counts,
+    increment_signal_count,
     initialize_algo_trading_defaults,
     is_algo_trading_enabled,
-    set_algo_cooldown_minutes,
     set_algo_max_contracts,
+    set_algo_sample_rate,
     set_algo_trading_enabled,
     set_all_algo_trading_enabled,
     toggle_algo_trading,
@@ -224,7 +229,7 @@ class TestInitializeAlgoTradingDefaults:
         redis = MagicMock()
         pipe = MagicMock()
         pipe.setnx = MagicMock()
-        # 2 algos * 2 modes * 3 fields (enabled + cooldown + max_contracts) = 12
+        # 2 algos * 2 modes * 3 fields (enabled + sample_rate + max_contracts) = 12
         pipe.execute = AsyncMock(return_value=[True] * 12)
         redis.pipeline = MagicMock(return_value=pipe)
 
@@ -236,34 +241,42 @@ class TestInitializeAlgoTradingDefaults:
         expected_count = len(["peak", "edge"]) * _MODES * _FIELDS_PER_MODE
         assert len(setnx_calls) == expected_count
 
-        # peak paper: enabled, cooldown, max_contracts
+        # peak paper: enabled, sample_rate, max_contracts
         assert setnx_calls[0].args == ("config:trading:algo:peak:paper", "true")
-        assert setnx_calls[1].args == ("config:trading:algo:peak:paper:cooldown_minutes", "60")
+        assert setnx_calls[1].args == ("config:trading:algo:peak:paper:sample_rate", "100")
         assert setnx_calls[2].args == ("config:trading:algo:peak:paper:max_contracts", "1")
         # peak live
         assert setnx_calls[3].args == ("config:trading:algo:peak:live", "false")
-        assert setnx_calls[4].args == ("config:trading:algo:peak:live:cooldown_minutes", "60")
+        assert setnx_calls[4].args == ("config:trading:algo:peak:live:sample_rate", "100")
         assert setnx_calls[5].args == ("config:trading:algo:peak:live:max_contracts", "1")
         # edge paper
         assert setnx_calls[6].args == ("config:trading:algo:edge:paper", "true")
-        assert setnx_calls[7].args == ("config:trading:algo:edge:paper:cooldown_minutes", "60")
+        assert setnx_calls[7].args == ("config:trading:algo:edge:paper:sample_rate", "100")
         assert setnx_calls[8].args == ("config:trading:algo:edge:paper:max_contracts", "1")
         # edge live
         assert setnx_calls[9].args == ("config:trading:algo:edge:live", "false")
-        assert setnx_calls[10].args == ("config:trading:algo:edge:live:cooldown_minutes", "60")
+        assert setnx_calls[10].args == ("config:trading:algo:edge:live:sample_rate", "100")
         assert setnx_calls[11].args == ("config:trading:algo:edge:live:max_contracts", "1")
 
 
 class TestAlgoConfigKey:
     """Tests for _algo_config_key helper."""
 
-    def test_builds_cooldown_key(self):
-        result = _algo_config_key("peak", "paper", "cooldown_minutes")
-        assert result == "config:trading:algo:peak:paper:cooldown_minutes"
+    def test_builds_sample_rate_key(self):
+        result = _algo_config_key("peak", "paper", "sample_rate")
+        assert result == "config:trading:algo:peak:paper:sample_rate"
 
     def test_builds_max_contracts_key(self):
         result = _algo_config_key("edge", "live", "max_contracts")
         assert result == "config:trading:algo:edge:live:max_contracts"
+
+
+class TestSignalCountKey:
+    """Tests for _signal_count_key helper."""
+
+    def test_builds_signal_count_key(self):
+        result = _signal_count_key("peak")
+        assert result == "stats:signals:daily:peak"
 
 
 class TestValidatePositiveInt:
@@ -275,7 +288,7 @@ class TestValidatePositiveInt:
 
     def test_rejects_zero(self):
         with pytest.raises(ValueError, match="must be a positive integer"):
-            _validate_positive_int(0, "cooldown_minutes")
+            _validate_positive_int(0, "sample_rate")
 
     def test_rejects_negative(self):
         with pytest.raises(ValueError, match="must be a positive integer"):
@@ -298,16 +311,16 @@ class TestValidatePositiveInt:
             _validate_positive_int("10", "field")
 
     def test_error_message_includes_field_name(self):
-        with pytest.raises(ValueError, match="cooldown_minutes must be a positive integer"):
-            _validate_positive_int(-1, "cooldown_minutes")
+        with pytest.raises(ValueError, match="sample_rate must be a positive integer"):
+            _validate_positive_int(-1, "sample_rate")
 
     def test_error_message_includes_value(self):
         with pytest.raises(ValueError, match=r"got -3"):
             _validate_positive_int(-3, "field")
 
 
-class TestGetAlgoCooldownMinutes:
-    """Tests for get_algo_cooldown_minutes function."""
+class TestGetAlgoSampleRate:
+    """Tests for get_algo_sample_rate function."""
 
     @pytest.fixture
     def mock_redis(self):
@@ -317,32 +330,32 @@ class TestGetAlgoCooldownMinutes:
 
     @pytest.mark.asyncio
     async def test_returns_value_from_redis_bytes(self, mock_redis):
-        mock_redis.get = AsyncMock(return_value=b"30")
+        mock_redis.get = AsyncMock(return_value=b"50")
 
-        result = await get_algo_cooldown_minutes(mock_redis, "peak", "paper")
+        result = await get_algo_sample_rate(mock_redis, "peak", "paper")
 
-        assert result == 30
-        mock_redis.get.assert_called_once_with("config:trading:algo:peak:paper:cooldown_minutes")
+        assert result == 50
+        mock_redis.get.assert_called_once_with("config:trading:algo:peak:paper:sample_rate")
 
     @pytest.mark.asyncio
     async def test_returns_value_from_redis_string(self, mock_redis):
-        mock_redis.get = AsyncMock(return_value="45")
+        mock_redis.get = AsyncMock(return_value="200")
 
-        result = await get_algo_cooldown_minutes(mock_redis, "edge", "live")
+        result = await get_algo_sample_rate(mock_redis, "edge", "live")
 
-        assert result == 45
+        assert result == 200
 
     @pytest.mark.asyncio
     async def test_returns_default_when_key_missing(self, mock_redis):
         mock_redis.get = AsyncMock(return_value=None)
 
-        result = await get_algo_cooldown_minutes(mock_redis, "weather", "paper")
+        result = await get_algo_sample_rate(mock_redis, "weather", "paper")
 
-        assert result == 60
+        assert result == 100
 
 
-class TestSetAlgoCooldownMinutes:
-    """Tests for set_algo_cooldown_minutes function."""
+class TestSetAlgoSampleRate:
+    """Tests for set_algo_sample_rate function."""
 
     @pytest.fixture
     def mock_redis(self):
@@ -351,22 +364,22 @@ class TestSetAlgoCooldownMinutes:
         return redis
 
     @pytest.mark.asyncio
-    async def test_sets_cooldown_value(self, mock_redis):
-        await set_algo_cooldown_minutes(mock_redis, "peak", "paper", 30)
+    async def test_sets_sample_rate_value(self, mock_redis):
+        await set_algo_sample_rate(mock_redis, "peak", "paper", 50)
 
-        mock_redis.set.assert_called_once_with("config:trading:algo:peak:paper:cooldown_minutes", "30")
+        mock_redis.set.assert_called_once_with("config:trading:algo:peak:paper:sample_rate", "50")
 
     @pytest.mark.asyncio
     async def test_rejects_zero(self, mock_redis):
-        with pytest.raises(ValueError, match="cooldown_minutes must be a positive integer"):
-            await set_algo_cooldown_minutes(mock_redis, "peak", "paper", 0)
+        with pytest.raises(ValueError, match="sample_rate must be a positive integer"):
+            await set_algo_sample_rate(mock_redis, "peak", "paper", 0)
 
         mock_redis.set.assert_not_called()
 
     @pytest.mark.asyncio
     async def test_rejects_negative(self, mock_redis):
-        with pytest.raises(ValueError, match="cooldown_minutes must be a positive integer"):
-            await set_algo_cooldown_minutes(mock_redis, "peak", "live", -10)
+        with pytest.raises(ValueError, match="sample_rate must be a positive integer"):
+            await set_algo_sample_rate(mock_redis, "peak", "live", -10)
 
         mock_redis.set.assert_not_called()
 
@@ -445,15 +458,15 @@ class TestGetAllAlgoTradingConfig:
         pipe = MagicMock()
         pipe.get = MagicMock()
         # 2 algos * 3 fields = 6 pipeline results
-        # peak: enabled=true, cooldown=30, max_contracts=5
-        # edge: enabled=false, cooldown=90, max_contracts=3
+        # peak: enabled=true, sample_rate=50, max_contracts=5
+        # edge: enabled=false, sample_rate=200, max_contracts=3
         pipe.execute = AsyncMock(
             return_value=[
                 b"true",
-                b"30",
+                b"50",
                 b"5",
                 b"false",
-                b"90",
+                b"200",
                 b"3",
             ]
         )
@@ -462,8 +475,8 @@ class TestGetAllAlgoTradingConfig:
         result = await get_all_algo_trading_config(redis, ["peak", "edge"], "paper")
 
         assert result == {
-            "peak": AlgoTradingConfig(enabled=True, cooldown_minutes=30, max_contracts=5),
-            "edge": AlgoTradingConfig(enabled=False, cooldown_minutes=90, max_contracts=3),
+            "peak": AlgoTradingConfig(enabled=True, sample_rate=50, max_contracts=5),
+            "edge": AlgoTradingConfig(enabled=False, sample_rate=200, max_contracts=3),
         }
 
     @pytest.mark.asyncio
@@ -471,14 +484,14 @@ class TestGetAllAlgoTradingConfig:
         redis = MagicMock()
         pipe = MagicMock()
         pipe.get = MagicMock()
-        # all None values: use mode default for enabled, 60 for cooldown, 1 for max_contracts
+        # all None values: use mode default for enabled, 100 for sample_rate, 1 for max_contracts
         pipe.execute = AsyncMock(return_value=[None, None, None])
         redis.pipeline = MagicMock(return_value=pipe)
 
         result = await get_all_algo_trading_config(redis, ["weather"], "paper")
 
         assert result == {
-            "weather": AlgoTradingConfig(enabled=True, cooldown_minutes=60, max_contracts=1),
+            "weather": AlgoTradingConfig(enabled=True, sample_rate=100, max_contracts=1),
         }
 
     @pytest.mark.asyncio
@@ -492,7 +505,7 @@ class TestGetAllAlgoTradingConfig:
         result = await get_all_algo_trading_config(redis, ["peak"], "live")
 
         assert result == {
-            "peak": AlgoTradingConfig(enabled=False, cooldown_minutes=60, max_contracts=1),
+            "peak": AlgoTradingConfig(enabled=False, sample_rate=100, max_contracts=1),
         }
 
     @pytest.mark.asyncio
@@ -500,14 +513,14 @@ class TestGetAllAlgoTradingConfig:
         redis = MagicMock()
         pipe = MagicMock()
         pipe.get = MagicMock()
-        # enabled is set, cooldown missing, max_contracts is set
+        # enabled is set, sample_rate missing, max_contracts is set
         pipe.execute = AsyncMock(return_value=[b"true", None, b"10"])
         redis.pipeline = MagicMock(return_value=pipe)
 
         result = await get_all_algo_trading_config(redis, ["peak"], "live")
 
         assert result == {
-            "peak": AlgoTradingConfig(enabled=True, cooldown_minutes=60, max_contracts=10),
+            "peak": AlgoTradingConfig(enabled=True, sample_rate=100, max_contracts=10),
         }
 
     @pytest.mark.asyncio
@@ -515,14 +528,14 @@ class TestGetAllAlgoTradingConfig:
         redis = MagicMock()
         pipe = MagicMock()
         pipe.get = MagicMock()
-        pipe.execute = AsyncMock(return_value=[b"true", b"30", b"5"])
+        pipe.execute = AsyncMock(return_value=[b"true", b"50", b"5"])
         redis.pipeline = MagicMock(return_value=pipe)
 
         await get_all_algo_trading_config(redis, ["peak"], "paper")
 
         assert pipe.get.call_count == 3
         pipe.get.assert_any_call("config:trading:algo:peak:paper")
-        pipe.get.assert_any_call("config:trading:algo:peak:paper:cooldown_minutes")
+        pipe.get.assert_any_call("config:trading:algo:peak:paper:sample_rate")
         pipe.get.assert_any_call("config:trading:algo:peak:paper:max_contracts")
 
     @pytest.mark.asyncio
@@ -538,28 +551,114 @@ class TestGetAllAlgoTradingConfig:
         assert result == {}
 
 
+class TestIncrementSignalCount:
+    """Tests for increment_signal_count function."""
+
+    @pytest.fixture
+    def mock_redis(self):
+        redis = MagicMock()
+        redis.incr = AsyncMock()
+        redis.expire = AsyncMock()
+        return redis
+
+    @pytest.mark.asyncio
+    async def test_increments_and_sets_ttl_on_first(self, mock_redis):
+        mock_redis.incr = AsyncMock(return_value=1)
+
+        result = await increment_signal_count(mock_redis, "peak")
+
+        assert result == 1
+        mock_redis.incr.assert_called_once_with("stats:signals:daily:peak")
+        mock_redis.expire.assert_called_once_with("stats:signals:daily:peak", 86400)
+
+    @pytest.mark.asyncio
+    async def test_increments_without_ttl_on_subsequent(self, mock_redis):
+        mock_redis.incr = AsyncMock(return_value=42)
+
+        result = await increment_signal_count(mock_redis, "edge")
+
+        assert result == 42
+        mock_redis.incr.assert_called_once_with("stats:signals:daily:edge")
+        mock_redis.expire.assert_not_called()
+
+
+class TestGetSignalCounts:
+    """Tests for get_signal_counts function."""
+
+    @pytest.mark.asyncio
+    async def test_returns_counts_for_all_algos(self):
+        redis = MagicMock()
+        pipe = MagicMock()
+        pipe.get = MagicMock()
+        pipe.execute = AsyncMock(return_value=[b"150", b"300", None])
+        redis.pipeline = MagicMock(return_value=pipe)
+
+        result = await get_signal_counts(redis, ["peak", "edge", "weather"])
+
+        assert result == {"peak": 150, "edge": 300, "weather": 0}
+
+    @pytest.mark.asyncio
+    async def test_empty_algos_list(self):
+        redis = MagicMock()
+        pipe = MagicMock()
+        pipe.get = MagicMock()
+        pipe.execute = AsyncMock(return_value=[])
+        redis.pipeline = MagicMock(return_value=pipe)
+
+        result = await get_signal_counts(redis, [])
+
+        assert result == {}
+
+
+class TestDeleteOldCooldownKeys:
+    """Tests for delete_old_cooldown_keys function."""
+
+    @pytest.mark.asyncio
+    async def test_deletes_cooldown_keys_for_all_algos_and_modes(self):
+        redis = MagicMock()
+        redis.delete = AsyncMock(return_value=4)
+
+        result = await delete_old_cooldown_keys(redis, ["peak", "edge"])
+
+        assert result == 4
+        redis.delete.assert_called_once_with(
+            "config:trading:algo:peak:paper:cooldown_minutes",
+            "config:trading:algo:peak:live:cooldown_minutes",
+            "config:trading:algo:edge:paper:cooldown_minutes",
+            "config:trading:algo:edge:live:cooldown_minutes",
+        )
+
+    @pytest.mark.asyncio
+    async def test_returns_zero_for_empty_algos(self):
+        redis = MagicMock()
+
+        result = await delete_old_cooldown_keys(redis, [])
+
+        assert result == 0
+
+
 class TestAlgoTradingConfig:
     """Tests for AlgoTradingConfig dataclass."""
 
     def test_frozen_dataclass(self):
-        config = AlgoTradingConfig(enabled=True, cooldown_minutes=30, max_contracts=5)
+        config = AlgoTradingConfig(enabled=True, sample_rate=50, max_contracts=5)
         assert config.enabled is True
-        assert config.cooldown_minutes == 30
+        assert config.sample_rate == 50
         assert config.max_contracts == 5
 
     def test_frozen_raises_on_mutation(self):
-        config = AlgoTradingConfig(enabled=True, cooldown_minutes=30, max_contracts=5)
+        config = AlgoTradingConfig(enabled=True, sample_rate=50, max_contracts=5)
         with pytest.raises(AttributeError):
             config.enabled = False
 
     def test_equality(self):
-        config_a = AlgoTradingConfig(enabled=True, cooldown_minutes=60, max_contracts=1)
-        config_b = AlgoTradingConfig(enabled=True, cooldown_minutes=60, max_contracts=1)
+        config_a = AlgoTradingConfig(enabled=True, sample_rate=100, max_contracts=1)
+        config_b = AlgoTradingConfig(enabled=True, sample_rate=100, max_contracts=1)
         assert config_a == config_b
 
     def test_inequality(self):
-        config_a = AlgoTradingConfig(enabled=True, cooldown_minutes=60, max_contracts=1)
-        config_b = AlgoTradingConfig(enabled=False, cooldown_minutes=60, max_contracts=1)
+        config_a = AlgoTradingConfig(enabled=True, sample_rate=100, max_contracts=1)
+        config_b = AlgoTradingConfig(enabled=False, sample_rate=100, max_contracts=1)
         assert config_a != config_b
 
 
@@ -568,3 +667,10 @@ class TestAlgoTradingKeyPrefix:
 
     def test_key_prefix(self):
         assert ALGO_TRADING_KEY_PREFIX == "config:trading:algo"
+
+
+class TestSignalCountKeyPrefix:
+    """Tests for SIGNAL_COUNT_KEY_PREFIX constant."""
+
+    def test_key_prefix(self):
+        assert SIGNAL_COUNT_KEY_PREFIX == "stats:signals:daily"

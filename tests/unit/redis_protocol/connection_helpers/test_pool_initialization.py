@@ -20,7 +20,7 @@ class TestCreateAndTestPool:
         with patch("common.redis_protocol.connection_helpers.pool_initialization.build_pool_settings") as mock_settings:
             with patch("common.redis_protocol.connection_helpers.pool_initialization.mask_sensitive_settings") as mock_mask:
                 with patch("common.redis_protocol.connection_helpers.pool_initialization.redis.asyncio.ConnectionPool") as mock_pool_cls:
-                    with patch("common.redis_protocol.connection_helpers.pool_initialization.test_pool_connection") as mock_test:
+                    with patch("common.redis_protocol.connection_helpers.pool_initialization.validate_pool_connection") as mock_test:
                         mock_settings.return_value = {"max_connections": 10}
                         mock_mask.return_value = {"max_connections": 10}
                         mock_pool = MagicMock()
@@ -40,7 +40,7 @@ class TestCreateAndTestPool:
         with patch("common.redis_protocol.connection_helpers.pool_initialization.build_pool_settings") as mock_settings:
             with patch("common.redis_protocol.connection_helpers.pool_initialization.mask_sensitive_settings"):
                 with patch("common.redis_protocol.connection_helpers.pool_initialization.redis.asyncio.ConnectionPool") as mock_pool_cls:
-                    with patch("common.redis_protocol.connection_helpers.pool_initialization.test_pool_connection") as mock_test:
+                    with patch("common.redis_protocol.connection_helpers.pool_initialization.validate_pool_connection") as mock_test:
                         mock_settings.return_value = {}
                         mock_pool = MagicMock()
                         mock_pool_cls.return_value = mock_pool
@@ -57,7 +57,7 @@ class TestCreateAndTestPool:
         with patch("common.redis_protocol.connection_helpers.pool_initialization.build_pool_settings") as mock_settings:
             with patch("common.redis_protocol.connection_helpers.pool_initialization.mask_sensitive_settings"):
                 with patch("common.redis_protocol.connection_helpers.pool_initialization.redis.asyncio.ConnectionPool"):
-                    with patch("common.redis_protocol.connection_helpers.pool_initialization.test_pool_connection") as mock_test:
+                    with patch("common.redis_protocol.connection_helpers.pool_initialization.validate_pool_connection") as mock_test:
                         mock_settings.return_value = {}
                         mock_test.side_effect = RuntimeError("Connection failed")
 

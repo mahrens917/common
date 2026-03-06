@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import asyncio
-import contextlib
 import logging
 from typing import Any
 
@@ -58,14 +57,18 @@ class WebSocketHealthMonitor(BaseHealthMonitor):
     async def _send_ping(self, ws: Any, current_time: float) -> HealthCheckResult:
         """Send a ping and await the pong response."""
         self.last_ping_time = current_time
-        with contextlib.suppress(asyncio.TimeoutError, WebSocketException, OSError):
+        try:
             pong_waiter = await ws.ping()
             await asyncio.wait_for(pong_waiter, timeout=self.pong_timeout_seconds)
-            self.last_pong_time = current_time
-            self.record_success(timestamp=current_time)
-            return HealthCheckResult(True)
-        self.record_failure()
-        return HealthCheckResult(False, error="ping_failed")
+        except asyncio.TimeoutError:  # Expected ping failure mode  # policy_guard: allow-silent-handler
+            self.record_failure()
+            return HealthCheckResult(False, error="pong_timeout")
+        except (WebSocketException, OSError) as exc:  # Expected ping failure mode  # policy_guard: allow-silent-handler
+            self.record_failure()
+            return HealthCheckResult(False, error=str(exc))
+        self.last_pong_time = current_time
+        self.record_success(timestamp=current_time)
+        return HealthCheckResult(True)
 
 
 __all__ = ["WebSocketHealthMonitor"]

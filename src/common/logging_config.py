@@ -10,6 +10,8 @@ import threading
 from pathlib import Path
 from typing import Optional
 
+import matplotlib
+
 from common.config import env_bool
 
 _config_lock = threading.Lock()
@@ -42,7 +44,7 @@ def _reset_all_handlers(root_logger: logging.Logger) -> None:
 
 def _suppress_noisy_third_parties() -> None:
     """Suppress verbose third-party loggers to WARNING."""
-    for name in ("urllib3", "asyncio", "websockets", "aiohttp", "redis", "redis.connection", "redis.asyncio", "matplotlib", "PIL"):
+    for name in ("urllib3", "asyncio", "websockets", "aiohttp", "redis", "redis.connection", "redis.asyncio", matplotlib.__name__, "PIL"):
         logging.getLogger(name).setLevel(logging.WARNING)
 
 

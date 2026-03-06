@@ -1,6 +1,7 @@
 """Tests for CoalescingBatcher."""
 
 import asyncio
+import logging
 
 import pytest
 from redis.exceptions import RedisError
@@ -135,7 +136,8 @@ class TestStop:
 
         batcher: CoalescingBatcher[str, int] = CoalescingBatcher(process, "test")
         batcher.add("a", 1)
-        await batcher.stop()
+        with caplog.at_level(logging.WARNING):
+            await batcher.stop()
         assert "unflushed" in caplog.text
 
 

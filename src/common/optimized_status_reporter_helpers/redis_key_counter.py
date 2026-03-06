@@ -9,7 +9,7 @@ from typing import Dict, Optional
 
 from redis.asyncio import Redis
 
-from common.config.redis_schema import RedisSchemaConfig
+from common.config.redis_schema import get_schema_config
 
 
 class RedisKeyCounter:
@@ -24,13 +24,13 @@ class RedisKeyCounter:
         redis_client = self.redis_client
         if redis_client is None:
             raise AttributeError("'NoneType' object has no attribute 'scan_iter'")
-        async for _ in redis_client.scan_iter(match=pattern, count=1000):
+        async for _ in redis_client.scan_iter(match=pattern, count=100):
             count += 1
         return count
 
     async def collect_key_counts(self) -> Dict[str, int]:
         """Collect counts for all key namespaces."""
-        schema = RedisSchemaConfig.load()
+        schema = get_schema_config()
         deribit, kalshi, cfb, weather = await asyncio.gather(
             self.count_keys_async(f"{schema.deribit_market_prefix}:*"),
             self.count_keys_async(f"{schema.kalshi_market_prefix}:*"),
