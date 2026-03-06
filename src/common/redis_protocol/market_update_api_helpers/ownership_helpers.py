@@ -50,14 +50,21 @@ async def scan_algo_active_markets(
                 lambda: ensure_awaitable(pipe.execute()),
                 context=f"pipeline_hmget_theo:{scan_pattern}",
             )
-            for key_str, values in zip(decoded_keys, all_values):
-                if values[0] is not None or values[1] is not None:
-                    active_tickers.add(key_str.split(":")[-1])
+            active_tickers.update(_tickers_with_active_prices(decoded_keys, all_values))
         if cursor == 0:
             break
 
     logger.debug("Found %d markets with active prices for %s", len(active_tickers), algo)
     return active_tickers
+
+
+def _tickers_with_active_prices(decoded_keys: list, all_values: list) -> Set[str]:
+    """Return the set of tickers that have at least one active theoretical price."""
+    active: Set[str] = set()
+    for key_str, values in zip(decoded_keys, all_values):
+        if values[0] is not None or values[1] is not None:
+            active.add(key_str.split(":")[-1])
+    return active
 
 
 def algo_field(algo: str, field: str) -> str:

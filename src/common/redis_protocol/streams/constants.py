@@ -24,6 +24,7 @@ SIGNALS_PEAK_CONSUMER_GROUP = "signals-peak"
 SIGNALS_EDGE_CONSUMER_GROUP = "signals-edge"
 SIGNALS_STRUCTURE_CONSUMER_GROUP = "signals-structure"
 CROSSARB_CONSUMER_GROUP = "crossarb"
+PDF_CONSUMER_GROUP = "pdf"
 
 # Stream trimming — approximate maxlen to keep streams bounded
 STREAM_DEFAULT_MAXLEN: int = _streams_config["default_maxlen"]
@@ -39,6 +40,7 @@ __all__ = [
     "CLOSE_POSITIONS_STREAM",
     "CROSSARB_CONSUMER_GROUP",
     "DERIBIT_MARKET_STREAM",
+    "PDF_CONSUMER_GROUP",
     "MARKET_EVENT_STREAM",
     "MONITOR_CONSUMER_GROUP",
     "MONITOR_DERIBIT_CONSUMER_GROUP",

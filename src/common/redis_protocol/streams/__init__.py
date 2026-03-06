@@ -10,6 +10,7 @@ from .constants import (
     MONITOR_DERIBIT_CONSUMER_GROUP,
     MONITOR_MARKET_CONSUMER_GROUP,
     MONITOR_PRICE_ALERT_DERIBIT_CONSUMER_GROUP,
+    PDF_CONSUMER_GROUP,
     PENDING_CLAIM_IDLE_MS,
     POLY_MARKET_STREAM,
     SERVICE_EVENTS_STREAM,
@@ -22,6 +23,7 @@ from .constants import (
     TRADE_EVENTS_STREAM,
 )
 from .consumer_group import claim_pending_entries, ensure_consumer_group
+from .hybrid_runner import HybridConfig, run_hybrid_mode
 from .message_decoder import decode_stream_response
 from .publisher import stream_publish
 from .subscriber import MessageHandler, RedisStreamSubscriber, StreamConfig
@@ -31,12 +33,14 @@ __all__ = [
     "CLOSE_POSITIONS_STREAM",
     "CROSSARB_CONSUMER_GROUP",
     "DERIBIT_MARKET_STREAM",
+    "HybridConfig",
     "MARKET_EVENT_STREAM",
     "MONITOR_CONSUMER_GROUP",
     "MONITOR_DERIBIT_CONSUMER_GROUP",
     "MONITOR_MARKET_CONSUMER_GROUP",
     "MONITOR_PRICE_ALERT_DERIBIT_CONSUMER_GROUP",
     "MessageHandler",
+    "PDF_CONSUMER_GROUP",
     "PENDING_CLAIM_IDLE_MS",
     "POLY_MARKET_STREAM",
     "RedisStreamSubscriber",
@@ -52,5 +56,6 @@ __all__ = [
     "claim_pending_entries",
     "decode_stream_response",
     "ensure_consumer_group",
+    "run_hybrid_mode",
     "stream_publish",
 ]

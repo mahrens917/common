@@ -54,6 +54,8 @@ async def stream_read_loop(
                 count=config.batch_size,
                 block_ms=config.block_ms,
             )
+            if not entries:
+                await asyncio.sleep(0)
             for entry_id, fields in entries:
                 identifier = fields.get(config.identifier_field, _MISSING_IDENTIFIER)
                 await queue.put((entry_id, identifier, fields))

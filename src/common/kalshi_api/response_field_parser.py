@@ -2,12 +2,18 @@
 
 from __future__ import annotations
 
+from datetime import datetime
 from typing import Any, Dict, List, Optional
 
 from common.data_models.trading import OrderFill
 from common.time_utils import parse_timestamp
 
 from .client_helpers.errors import KalshiClientError
+
+
+def parse_rfp_timestamp(raw: str) -> Optional[datetime]:
+    """Parse a timestamp string from a Kalshi API response field."""
+    return parse_timestamp(raw)
 
 
 def parse_order_fill(payload: Dict[str, Any]) -> OrderFill:

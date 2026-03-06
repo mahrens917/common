@@ -278,6 +278,11 @@ class TradeKeys:
         return f"trades:by_station:{station_icao}"
 
 
+def get_schema_config() -> RedisSchemaConfig:
+    """Return the loaded Redis schema configuration."""
+    return RedisSchemaConfig.load()
+
+
 def _require_section(raw: Mapping[str, object], name: str) -> Mapping[str, object]:
     try:
         section = raw[name]

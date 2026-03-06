@@ -82,7 +82,7 @@ class DeltaProcessor(SnapshotProcessor):
         side_encoded = orjson.dumps(side_data)
         logger.debug("MARKET_UPDATE: Ticker=%s, Fields=['%s']", market_ticker, side_field)
 
-        updates: Dict[str, str] = {side_field: side_encoded, "timestamp": timestamp}
+        updates: Dict[str, str] = {side_field: side_encoded.decode(), "timestamp": timestamp}
         if side_field == "yes_bids":
             best_price, best_size = extract_best_bid(side_data)
             if best_price is not None:
@@ -166,7 +166,7 @@ async def _apply_side_delta(
 
     side_data = SideDataUpdater.apply_delta(SideDataUpdater.parse_side_data(side_json), price_str, delta)
     logger.debug("MARKET_UPDATE: Ticker=%s, Fields=['%s']", market_ticker, side_field)
-    await ensure_awaitable(redis.hset(market_key, side_field, orjson.dumps(side_data)))
+    await ensure_awaitable(redis.hset(market_key, side_field, orjson.dumps(side_data).decode()))
     return side_data
 
 
