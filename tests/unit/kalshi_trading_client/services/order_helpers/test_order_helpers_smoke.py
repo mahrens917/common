@@ -6,7 +6,7 @@ import asyncio
 
 import pytest
 
-from common.kalshi_trading_client.client_helpers.initialization_coordinator_helpers.helpers import (
+from common.kalshi_trading_client.client_helpers.initialization_coordinator import (
     create_services,
 )
 from common.kalshi_trading_client.services.order_helpers.dependencies_factory import (
@@ -28,7 +28,7 @@ from common.kalshi_trading_client.services.order_helpers.order_creator_helpers i
     store_order_metadata_safely,
 )
 from common.redis_protocol.trade_store import TradeStoreError
-from common.trading_exceptions import KalshiAPIError, KalshiTradePersistenceError
+from common.trading_exceptions_operational import KalshiAPIError, KalshiTradePersistenceError
 
 
 class _StubOrderResponse:
@@ -172,7 +172,7 @@ def test_service_creator_invokes_factories(monkeypatch):
     core_components = {
         "trade_store_manager": object(),
         "notifier": object(),
-        "kalshi": object(),
+        "kalshi_client": object(),
     }
     services_holder = object()
     created = []
@@ -211,11 +211,11 @@ def test_service_creator_invokes_factories(monkeypatch):
         return ("portfolio", _StubOrders(), "trade_collection")
 
     monkeypatch.setattr(
-        "common.kalshi_trading_client.client_helpers.initialization_coordinator_helpers.helpers.create_service_providers",
+        "common.kalshi_trading_client.client_helpers.initialization_coordinator.create_service_providers",
         fake_create_service_providers,
     )
     monkeypatch.setattr(
-        "common.kalshi_trading_client.client_helpers.initialization_coordinator_helpers.helpers.ClientInitializer.create_services",
+        "common.kalshi_trading_client.client_helpers.initialization_coordinator.ClientInitializer.create_services",
         staticmethod(fake_create_services),
     )
 

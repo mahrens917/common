@@ -11,7 +11,18 @@ from ..typing import RedisClient, ensure_awaitable
 from .codec import TradeRecordCodec
 from .errors import TradeStoreError
 from .keys import TradeKeyBuilder
-from .traderecordrepository_helpers.data_access import RepositoryDataAccess
+
+
+def normalize_order_ids(raw_ids: Any) -> List[str]:
+    """Normalize raw Redis order IDs to consistent string format."""
+    order_ids: List[str] = []
+    for order_id in raw_ids:
+        if isinstance(order_id, bytes):
+            order_ids.append(order_id.decode("utf-8"))
+        else:
+            order_ids.append(str(order_id))
+    return order_ids
+
 
 _WATCH_MAX_RETRIES = 10
 _WATCH_BASE_DELAY = 0.01
@@ -30,7 +41,6 @@ class TradeRecordRepository:
         self._keys = key_builder
         self._codec = codec
         self._logger = logger
-        self._data = RepositoryDataAccess(lambda: self._redis_provider(), key_builder=key_builder, codec=codec)
 
     async def store(self, trade: TradeRecord) -> bool:
         client = await self._redis_provider()
@@ -107,28 +117,38 @@ class TradeRecordRepository:
         return True
 
     async def redis_client(self) -> RedisClient:
-        return await self._data.redis_client()
+        return await self._redis_provider()
 
     def build_trade_key(self, trade_date, order_id: str) -> str:
-        return self._data.build_trade_key(trade_date, order_id)
+        return self._keys.trade(trade_date, order_id)
 
     def decode_trade(self, trade_json: Any) -> TradeRecord:
-        return self._data.decode_trade(trade_json)
+        return self._codec.decode(trade_json)
 
     def encode_trade(self, trade: TradeRecord) -> Any:
-        return self._data.encode_trade(trade)
+        return self._codec.encode(trade)
 
     async def save_without_reindex(self, trade: TradeRecord) -> None:
-        await self._data.save_without_reindex(trade)
+        client = await self._redis_provider()
+        trade_key = self._keys.trade(trade.trade_timestamp.date(), trade.order_id)
+        await ensure_awaitable(client.set(trade_key, self._codec.encode(trade)))
 
     async def load_all_for_date(self, trade_date) -> List[str]:
-        return await self._data.load_all_for_date(trade_date)
+        client = await self._redis_provider()
+        order_ids = await ensure_awaitable(client.smembers(self._keys.date_index(trade_date)))
+        return normalize_order_ids(order_ids)
 
     async def load_index(self, key: str) -> List[str]:
-        return await self._data.load_index(key)
+        client = await self._redis_provider()
+        order_ids = await ensure_awaitable(client.smembers(key))
+        return normalize_order_ids(order_ids)
 
     async def load_trade_payload(self, trade_key: str) -> Dict[str, Any]:
-        return await self._data.load_trade_payload(trade_key)
+        client = await self._redis_provider()
+        trade_json = await ensure_awaitable(client.get(trade_key))
+        if not trade_json:
+            raise TradeStoreError(f"Trade payload missing for key {trade_key}")
+        return self._codec.to_mapping(trade_json)
 
 
 __all__ = ["TradeRecordRepository"]

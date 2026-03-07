@@ -2,14 +2,13 @@
 
 from __future__ import annotations
 
-from datetime import datetime
+from datetime import date, datetime
 from typing import TYPE_CHECKING, Any
 
 from common.constants import MAX_PRICE_CENTS
 from common.exceptions import ValidationError
 
 from ...redis_schema.markets import KalshiMarketCategory
-from .trade_record_utils import is_trade_reason_valid
 
 # Error messages
 ERR_MISSING_REQUIRED_FIELD = "Trade record missing required field: {field}"
@@ -19,8 +18,30 @@ if TYPE_CHECKING:
     from ..trade_record import TradeRecord
 
 
+ALLOWED_SHORT_TRADE_REASONS = {"storm", "rebalance"}
+
 # Constants
+_CONST_10 = 10
 _CONST_100 = 100
+
+
+def is_trade_reason_valid(reason: str) -> bool:
+    """Return True when the trade reason meets minimum descriptive requirements."""
+
+    normalized = reason.strip().lower()
+    if not normalized:
+        return False
+    if len(normalized) >= _CONST_10:
+        return True
+    return normalized in ALLOWED_SHORT_TRADE_REASONS
+
+
+def get_trade_close_date(trade: "TradeRecord") -> date:
+    """Return the effective close date for a trade."""
+
+    if trade.settlement_time is not None:
+        return trade.settlement_time.date()
+    return trade.trade_timestamp.date()
 
 
 def validate_basic_fields(trade: "TradeRecord") -> None:

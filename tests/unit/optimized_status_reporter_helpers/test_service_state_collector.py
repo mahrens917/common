@@ -9,7 +9,7 @@ from common.optimized_status_reporter_helpers.service_state_collector import (
     ServiceStateCollector,
 )
 
-_HELPERS_PATH = "common.optimized_status_reporter_helpers.service_state_collector.helpers"
+_HELPERS_PATH = "common.optimized_status_reporter_helpers.service_state_collector"
 
 
 class TestServiceStateCollector:

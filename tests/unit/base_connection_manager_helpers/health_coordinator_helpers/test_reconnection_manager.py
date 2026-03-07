@@ -6,9 +6,7 @@ from unittest.mock import AsyncMock, MagicMock
 
 import pytest
 
-from common.base_connection_manager_helpers.health_coordinator_helpers.reconnection_manager import (
-    ReconnectionManager,
-)
+from common.base_connection_manager_helpers.health_coordinator import ReconnectionManager
 
 
 class TestReconnectionManagerInit:

@@ -1,10 +1,11 @@
-"""Tests for RepositoryDataAccess helper."""
+"""Tests for TradeRecordRepository data access methods."""
 
 from __future__ import annotations
 
+import logging
 from datetime import datetime, timezone
 from typing import Any
-from unittest.mock import AsyncMock, MagicMock
+from unittest.mock import AsyncMock
 
 import pytest
 
@@ -12,12 +13,15 @@ from common.data_models.trade_record import TradeRecord, TradeSide
 from common.redis_protocol.trade_store.codec import TradeRecordCodec
 from common.redis_protocol.trade_store.errors import TradeStoreError
 from common.redis_protocol.trade_store.keys import TradeKeyBuilder
-from common.redis_protocol.trade_store.traderecordrepository_helpers.data_access import (
-    RepositoryDataAccess,
-)
+from common.redis_protocol.trade_store.records import TradeRecordRepository
 
 _KEYS = TradeKeyBuilder()
 _CODEC = TradeRecordCodec()
+_LOGGER = logging.getLogger("test")
+
+
+def _make_repo(fake_redis) -> TradeRecordRepository:
+    return TradeRecordRepository(AsyncMock(return_value=fake_redis), key_builder=_KEYS, codec=_CODEC, logger=_LOGGER)
 
 
 def _make_trade(**overrides: Any) -> TradeRecord:
@@ -42,10 +46,10 @@ def _make_trade(**overrides: Any) -> TradeRecord:
 @pytest.mark.asyncio
 async def test_save_without_reindex(fake_redis_client_factory) -> None:
     fake = fake_redis_client_factory("common.redis_protocol.trade_store.get_redis_pool")
-    access = RepositoryDataAccess(AsyncMock(return_value=fake), key_builder=_KEYS, codec=_CODEC)
+    repo = _make_repo(fake)
     trade = _make_trade()
 
-    await access.save_without_reindex(trade)
+    await repo.save_without_reindex(trade)
 
     trade_key = _KEYS.trade(trade.trade_timestamp.date(), trade.order_id)
     persisted = await fake.get(trade_key)
@@ -55,19 +59,19 @@ async def test_save_without_reindex(fake_redis_client_factory) -> None:
 @pytest.mark.asyncio
 async def test_load_trade_payload_raises_when_missing(fake_redis_client_factory) -> None:
     fake = fake_redis_client_factory("common.redis_protocol.trade_store.get_redis_pool")
-    access = RepositoryDataAccess(AsyncMock(return_value=fake), key_builder=_KEYS, codec=_CODEC)
+    repo = _make_repo(fake)
 
     with pytest.raises(TradeStoreError, match="Trade payload missing"):
-        await access.load_trade_payload("nonexistent:key")
+        await repo.load_trade_payload("nonexistent:key")
 
 
 @pytest.mark.asyncio
 async def test_load_trade_payload_returns_mapping(fake_redis_client_factory) -> None:
     fake = fake_redis_client_factory("common.redis_protocol.trade_store.get_redis_pool")
-    access = RepositoryDataAccess(AsyncMock(return_value=fake), key_builder=_KEYS, codec=_CODEC)
+    repo = _make_repo(fake)
     trade = _make_trade()
 
-    await access.save_without_reindex(trade)
+    await repo.save_without_reindex(trade)
     trade_key = _KEYS.trade(trade.trade_timestamp.date(), trade.order_id)
-    mapping = await access.load_trade_payload(trade_key)
+    mapping = await repo.load_trade_payload(trade_key)
     assert mapping["order_id"] == "order-1"

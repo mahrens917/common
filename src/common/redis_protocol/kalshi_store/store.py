@@ -123,7 +123,6 @@ class KalshiStore:
     _orderbook_delegator: Optional[Any]
     _cleanup_delegator: Optional[Any]
     _utility_delegator: Optional[Any]
-    _storage_delegator: Optional[Any]
     _attr_resolver: Optional[Any]
 
     def __init__(
@@ -216,7 +215,6 @@ _SETTABLE_ATTRIBUTES = {
     "orderbook_delegator": "_orderbook_delegator",
     "cleanup_delegator": "_cleanup_delegator",
     "utility_delegator": "_utility_delegator",
-    "storage_delegator": "_storage_delegator",
     "attr_resolver": "_attr_resolver",
 }
 

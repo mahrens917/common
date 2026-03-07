@@ -130,9 +130,6 @@ async def test_get_redis_pool_initializes_once_and_reuses(fake_redis_env):
     assert pool_first is pool_second
     assert len(fake_redis_env.created_pools) == 1
 
-    metrics = connection.get_redis_pool_metrics()
-    assert metrics["connections_created"] == 1
-    assert metrics["pool_gets"] == _TEST_COUNT_2
     assert fake_redis_env.clients
     assert fake_redis_env.clients[0].closed is True
 
@@ -148,7 +145,6 @@ async def test_cleanup_redis_pool_disconnects_and_resets(fake_redis_env):
     assert pool.disconnect_called is True
     assert getattr(connection_pool_core._thread_local, "pool", None) is None
     assert getattr(connection_pool_core._thread_local, "pool_loop", None) is None
-    assert connection.get_redis_pool_metrics()["pool_cleanups"] == 1
 
 
 @pytest.mark.asyncio
@@ -156,8 +152,6 @@ async def test_perform_redis_health_check_success(fake_redis_env):
     success = await connection.perform_redis_health_check()
 
     assert success is True
-    metrics = connection.get_redis_pool_metrics()
-    assert metrics["pool_returns"] == 1
     assert fake_redis_env.clients[-1].closed is True
 
 
@@ -175,7 +169,6 @@ async def test_redis_connection_connect_and_close(fake_redis_env):
 
     assert redis_connection._client is None
     assert client.closed is True
-    assert connection.get_redis_pool_metrics()["pool_returns"] == 1
 
 
 @pytest.mark.asyncio
@@ -305,8 +298,6 @@ async def test_perform_redis_health_check_failure(monkeypatch, fake_redis_env):
 
     success = await connection.perform_redis_health_check()
     assert success is False
-    metrics = connection.get_redis_pool_metrics()
-    assert metrics["connection_errors"] >= 1
 
 
 @pytest.mark.asyncio
@@ -335,7 +326,6 @@ async def test_cleanup_redis_pool_handles_disconnect_error(monkeypatch, fake_red
 
     assert getattr(connection_pool_core._thread_local, "pool", None) is None
     assert getattr(connection_pool_core._thread_local, "pool_loop", None) is None
-    assert connection.get_redis_pool_metrics()["connection_errors"] >= 0
 
 
 def test_get_sync_redis_client_returns_client_from_pool(monkeypatch):

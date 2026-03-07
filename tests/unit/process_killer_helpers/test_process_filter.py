@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from unittest.mock import MagicMock
 
-from common.process_killer_helpers.process_filter import filter_processes_by_pid
+from common.process_killer_helpers.process_discovery import filter_processes_by_pid
 
 
 class TestFilterProcessesByPid:

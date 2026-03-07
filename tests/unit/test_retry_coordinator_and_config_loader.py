@@ -8,10 +8,6 @@ import pytest
 
 from common.base_connection_manager_helpers.retry_coordinator import RetryCoordinator
 from common.connection_state import ConnectionState
-from common.daily_max_state_helpers.config_loader import (
-    ConfigLoader,
-    MetarConfigLoadError,
-)
 
 
 class _DummyMetrics:
@@ -132,41 +128,3 @@ async def test_retry_coordinator_raises_when_no_more_retries():
     assert any(state == ConnectionState.FAILED for state, _ in state_manager.transitions)
     # ensure backoff attempted even on failure
     assert reconnection_handler.backoff_calls == 1
-
-
-def test_config_loader_success_and_errors(monkeypatch):
-    """Exercise ConfigLoader happy path and error handling."""
-    loader = ConfigLoader()
-
-    class _StubLoader:
-        def __init__(self):
-            self.config_dir = loader._loader.config_dir
-            self.loaded = False
-
-        def load_json_file(self, name):
-            self.loaded = True
-            if name == "missing":
-                raise FileNotFoundError()
-            return {"data_sources": {"primary": {"url": "http://example.com"}}}
-
-        def get_section(self, data, section):
-            if section not in data:
-                raise RuntimeError("missing section")
-            return data[section]
-
-    stub = _StubLoader()
-    monkeypatch.setattr(loader, "_loader", stub)
-
-    # Happy path
-    data_sources = loader.load_metar_config()
-    assert data_sources["primary"]["url"] == "http://example.com"
-
-    # Missing file
-    stub.load_json_file = lambda _name: (_ for _ in ()).throw(FileNotFoundError())
-    with pytest.raises(MetarConfigLoadError):
-        loader.load_metar_config()
-
-    # Empty data
-    stub.load_json_file = lambda _name: {"data_sources": {}}
-    with pytest.raises(MetarConfigLoadError):
-        loader.load_metar_config()

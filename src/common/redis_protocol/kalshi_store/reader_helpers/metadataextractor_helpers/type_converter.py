@@ -6,21 +6,7 @@ Converts values to strings, normalizes Redis hash responses, and timestamps.
 
 from typing import Any, Dict, Optional
 
-from common.redis_protocol.kalshi_store.utils_coercion import string_or_default as _string_or_default
-
-
-def string_or_default(value: Any, fill_value: str = "") -> str:
-    """
-    Convert value to string or return fill value
-
-    Args:
-        value: Value to convert
-        fill_value: Fill value if conversion fails
-
-    Returns:
-        String representation or fill value
-    """
-    return _string_or_default(value, fill_value)
+from common.redis_protocol.kalshi_store.utils_coercion import string_or_default
 
 
 def normalize_hash(raw_hash: Dict[Any, Any]) -> Dict[str, Any]:

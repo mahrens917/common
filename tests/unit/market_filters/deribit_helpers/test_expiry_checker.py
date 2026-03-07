@@ -2,7 +2,7 @@
 
 from datetime import datetime, timezone
 
-from common.market_filters.deribit_helpers import validators
+import common.market_filters.deribit as validators
 
 
 class TestNormalizeExpiry:

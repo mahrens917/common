@@ -4,7 +4,7 @@ from .basic_retrieval import get_probabilities
 from .event_ticker_lookup import get_event_ticker_for_key
 from .event_type_enumeration import get_all_event_types
 from .event_type_filtering import filter_keys_by_event_type, get_probabilities_by_event_type
-from .factory import ProbabilityRetrievalComponents, create_probability_retrieval_components
+from .factory import ProbabilityRetrievalComponents
 from .grouped_retrieval import get_probabilities_grouped_by_event_type
 from .human_readable_retrieval import get_probabilities_human_readable
 from .single_probability_retrieval import get_probability_data
@@ -27,5 +27,4 @@ __all__ = [
     "sort_probabilities_by_expiry_and_strike_grouped",
     "split_probability_field",
     "ProbabilityRetrievalComponents",
-    "create_probability_retrieval_components",
 ]

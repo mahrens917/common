@@ -6,19 +6,83 @@ for both Deribit and Kalshi WebSocket services. Implements fail-fast error
 handling for silent failures and Redis connectivity issues.
 """
 
+import asyncio
 import logging
 import time
 from typing import Optional
 
-from ..redis_protocol.typing import RedisClient
-from ..redis_utils import get_redis_connection
-from .message_stats_helpers.redis_history_writer import write_message_count_to_redis
-from .message_stats_helpers.silent_failure_alerter import (
-    check_silent_failure_threshold,
-    send_silent_failure_alert,
-)
+from ..price_history_utils import build_history_member
+from ..redis_protocol.error_types import REDIS_ERRORS
+from ..redis_protocol.typing import RedisClient, ensure_awaitable
+from ..redis_utils import RedisOperationError, get_redis_connection
 
 logger = logging.getLogger(__name__)
+
+REDIS_WRITE_ERRORS = REDIS_ERRORS + (RedisOperationError, ConnectionError, RuntimeError, ValueError)
+
+
+async def _write_message_count_to_redis(
+    redis_client: RedisClient,
+    service_name: str,
+    message_count: int,
+    current_time: float,
+) -> None:
+    try:
+        int_ts = int(current_time)
+        history_key = f"history:{service_name}"
+        score = float(int_ts)
+        member = build_history_member(int_ts, float(message_count))
+
+        pipe = redis_client.pipeline()
+        pipe.zremrangebyscore(history_key, score, score)
+        pipe.zadd(history_key, {member: score})
+        await ensure_awaitable(pipe.execute())
+
+        logger.debug(f"{service_name.upper()}_HISTORY: Recorded {message_count} messages at ts={int_ts}")
+
+    except REDIS_WRITE_ERRORS as exc:
+        logger.exception("CRITICAL: Failed to record %s message count to Redis", service_name)
+        raise ConnectionError(f"Redis write failure for {service_name}") from exc
+
+
+def _check_silent_failure_threshold(
+    current_rate: int,
+    current_time: float,
+    last_nonzero_update_time: float,
+    threshold_seconds: int,
+    service_name: str,
+) -> bool:
+    if current_rate > 0:
+        return False
+
+    time_since_last_update = current_time - last_nonzero_update_time
+    if time_since_last_update <= threshold_seconds:
+        return False
+
+    logger.error("SILENT_FAILURE_DETECTION: No %s messages for %.1fs", service_name, time_since_last_update)
+    return True
+
+
+async def _send_silent_failure_alert(service_name: str, time_since_last_update: float) -> None:
+    from common.alerter import Alerter, AlertSeverity
+
+    try:
+        alerter = Alerter()
+        await alerter.send_alert(
+            message=f"🔴 {service_name.upper()}_WS - Silent failure detected - No messages for {time_since_last_update:.1f}s",
+            severity=AlertSeverity.CRITICAL,
+            alert_type=f"{service_name}_ws_silent_failure",
+        )
+    except asyncio.CancelledError:
+        raise
+    except (
+        RuntimeError,
+        ConnectionError,
+        OSError,
+        ValueError,
+        ImportError,
+    ):  # Transient network/connection failure  # policy_guard: allow-silent-handler
+        logger.debug(f"Silent failure alert not available: Alerter setup failed")
 
 
 class MessageStatsCollector:
@@ -31,13 +95,6 @@ class MessageStatsCollector:
     """
 
     def __init__(self, service_name: str, silent_failure_threshold_seconds: int = 120):
-        """
-        Initialize message statistics collector.
-
-        Args:
-            service_name: Name of the service (e.g., 'deribit', 'kalshi')
-            silent_failure_threshold_seconds: Seconds without messages before raising exception
-        """
         self.service_name = service_name
         self.silent_failure_threshold_seconds = silent_failure_threshold_seconds
         self._message_count = 0
@@ -71,7 +128,7 @@ class MessageStatsCollector:
             self._last_rate_time = current_time
 
     async def _check_silent_failure(self, current_time: float) -> None:
-        threshold_exceeded = check_silent_failure_threshold(
+        threshold_exceeded = _check_silent_failure_threshold(
             self.current_rate,
             current_time,
             self._last_nonzero_update_time,
@@ -80,14 +137,14 @@ class MessageStatsCollector:
         )
         if threshold_exceeded:
             time_since_last_update = current_time - self._last_nonzero_update_time
-            await send_silent_failure_alert(self.service_name, time_since_last_update)
+            await _send_silent_failure_alert(self.service_name, time_since_last_update)
             raise ConnectionError(f"Silent failure detected: No {self.service_name} messages for {time_since_last_update:.1f}s")
 
     async def _write_to_history_redis(self, message_count: int, current_time: float) -> None:
         if self._redis_client is None:
             self._redis_client = await get_redis_connection()
         assert self._redis_client is not None, "Redis connection could not be established"
-        await write_message_count_to_redis(self._redis_client, self.service_name, message_count, current_time)
+        await _write_message_count_to_redis(self._redis_client, self.service_name, message_count, current_time)
 
     def reset(self) -> None:
         self._message_count = 0

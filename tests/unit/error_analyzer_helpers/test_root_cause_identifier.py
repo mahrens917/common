@@ -1,7 +1,6 @@
 """Tests for root cause identifier module."""
 
-from common.error_analyzer_helpers.data_classes import ErrorCategory
-from common.error_analyzer_helpers.root_cause_identifier import RootCauseIdentifier
+from common.error_analyzer_helpers.analysis import ErrorCategory, RootCauseIdentifier
 
 
 class TestRootCauseIdentifierIdentifyRootCause:

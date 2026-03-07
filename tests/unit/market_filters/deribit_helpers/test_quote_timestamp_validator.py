@@ -3,7 +3,7 @@
 from datetime import datetime, timedelta, timezone
 from unittest.mock import MagicMock
 
-from common.market_filters.deribit_helpers import validators
+import common.market_filters.deribit as validators
 
 
 class TestExtractTimestamp:

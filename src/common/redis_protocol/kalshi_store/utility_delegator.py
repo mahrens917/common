@@ -8,7 +8,6 @@ from typing import Any, Dict, Iterable, List, Optional, Tuple
 
 from ...redis_schema import KalshiMarketDescriptor, describe_kalshi_ticker
 from ..weather_station_resolver import WeatherStationResolver
-from .facade_helpers_weather import resolve_weather_station_from_ticker
 from .reader import KalshiMarketReader
 from .writer import KalshiMarketWriter
 
@@ -32,7 +31,7 @@ class UtilityDelegator:
 
     def extract_weather_station_from_ticker(self, market_ticker: str) -> Optional[str]:
         """Extract weather station ICAO code from market ticker."""
-        return resolve_weather_station_from_ticker(market_ticker, writer=self._writer, weather_resolver=self.weather_resolver)
+        return self._writer._extract_weather_station_from_ticker(market_ticker)
 
     def derive_expiry_iso(self, market_ticker: str, metadata: Dict[str, Any]) -> str:
         """Derive ISO expiry date from market ticker and metadata."""

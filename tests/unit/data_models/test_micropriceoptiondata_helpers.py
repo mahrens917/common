@@ -5,7 +5,7 @@ from __future__ import annotations
 from datetime import datetime, timezone
 from unittest.mock import MagicMock, patch
 
-from common.data_models.micropriceoptiondata_helpers.properties import MicroPriceProperties
+from common.data_models.market_data import MicroPriceProperties
 
 
 class TestMicroPriceProperties:
@@ -55,7 +55,7 @@ class TestFromEnhancedOptionDataFactory:
     """Tests for factory.from_enhanced_option_data."""
 
     def test_creates_instance_from_enhanced_option(self) -> None:
-        from common.data_models.micropriceoptiondata_helpers.factory import from_enhanced_option_data
+        from common.data_models.market_data import from_enhanced_option_data
 
         dt = datetime(2025, 6, 1, tzinfo=timezone.utc)
 
@@ -63,17 +63,15 @@ class TestFromEnhancedOptionDataFactory:
         mock_enhanced.strike = 100.0
 
         with (
-            patch("common.data_models.micropriceoptiondata_helpers.factory.MicroPriceConversionHelpers") as mock_helpers,
-            patch("common.data_models.micropriceoptiondata_helpers.factory.MicroPriceCalculator") as mock_calc,
+            patch("common.data_models.market_data.resolve_instrument_name", return_value="BTC-25JUN25-100-C"),
+            patch("common.data_models.market_data.determine_underlying", return_value="BTC"),
+            patch("common.data_models.market_data.determine_expiry", return_value=dt),
+            patch("common.data_models.market_data.resolve_option_type", return_value="call"),
+            patch("common.data_models.market_data.extract_prices", return_value=(0.5, 1.0)),
+            patch("common.data_models.market_data.extract_sizes", return_value=(10.0, 20.0)),
+            patch("common.data_models.market_data.resolve_timestamp", return_value=1234567890),
+            patch("common.data_models.market_data.MicroPriceCalculator") as mock_calc,
         ):
-            mock_helpers.resolve_instrument_name.return_value = "BTC-25JUN25-100-C"
-            mock_helpers.determine_underlying.return_value = "BTC"
-            mock_helpers.determine_expiry.return_value = dt
-            mock_helpers.resolve_option_type.return_value = "call"
-            mock_helpers.extract_prices.return_value = (0.5, 1.0)
-            mock_helpers.extract_sizes.return_value = (10.0, 20.0)
-            mock_helpers.resolve_timestamp.return_value = 1234567890
-
             mock_calc.compute_micro_price_metrics.return_value = (0.5, 0.333, 0.667, -0.693, -0.405, 0.75)
 
             mock_cls = MagicMock()

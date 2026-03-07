@@ -16,7 +16,6 @@ from .client_helpers import (
     KeyLoader,
     MarketStatusOperations,
     SeriesOperations,
-    extract_and_validate_credentials,
 )
 from .client_helpers.errors import KalshiClientError
 
@@ -100,7 +99,10 @@ class KalshiClient:
         self._config = config if config else KalshiConfig()
         credentials = get_kalshi_credentials(require_secret=False)
         self._access_key = credentials.key_id
-        private_key_b64 = extract_and_validate_credentials(credentials)
+        try:
+            private_key_b64 = credentials.require_private_key()
+        except RuntimeError as exc:
+            raise KalshiClientError(str(exc)) from exc
         private_key = KeyLoader.load_private_key(private_key_b64)
         self._private_key = private_key
         self._logger = logging.getLogger(__name__)

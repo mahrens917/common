@@ -112,7 +112,6 @@ def _patch_dependencies(monkeypatch):
     monkeypatch.setattr(helpers, "OrderbookDelegator", DummyDelegator)
     monkeypatch.setattr(helpers, "CleanupDelegator", DummyDelegator)
     monkeypatch.setattr(helpers, "UtilityDelegator", DummyDelegator)
-    monkeypatch.setattr(helpers, "StorageDelegator", DummyDelegator)
     monkeypatch.setattr(helpers, "AttributeResolver", DummyAttributeResolver)
 
     monkeypatch.setattr(
@@ -166,7 +165,6 @@ def test_create_delegators_wires_components(monkeypatch):
         "orderbook_delegator",
         "cleanup_delegator",
         "utility_delegator",
-        "storage_delegator",
     ):
         assert key in delegators
 
@@ -174,7 +172,6 @@ def test_create_delegators_wires_components(monkeypatch):
 def test_create_attribute_resolver_uses_delegators(monkeypatch):
     dummy = object()
     delegators = {
-        "storage_delegator": dummy,
         "write_delegator": dummy,
         "utility_delegator": dummy,
         "conn_delegator": dummy,
@@ -190,4 +187,3 @@ def test_create_attribute_resolver_uses_delegators(monkeypatch):
 
     assert isinstance(resolver, DummyAttributeResolver)
     assert isinstance(resolver.config, DummyAttributeResolverDelegators)
-    assert resolver.config.delegators["storage_delegator"] is dummy

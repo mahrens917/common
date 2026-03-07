@@ -9,7 +9,7 @@ from redis.asyncio import Redis
 from ....market_filters.kalshi import extract_best_ask, extract_best_bid
 from ...error_types import REDIS_ERRORS
 from ...typing import ensure_awaitable
-from .field_converter import FieldConverter
+from ..utils_coercion import convert_numeric_field, string_or_default
 from .side_data_updater import SideDataUpdater
 
 logger = logging.getLogger(__name__)
@@ -27,7 +27,7 @@ def validate_delta_message(
     Returns:
         Tuple of (is_valid, side, price, delta)
     """
-    side = FieldConverter.string_or_default(msg_data.get("side")).lower()
+    side = string_or_default(msg_data.get("side")).lower()
     price = msg_data.get("price")
     delta = msg_data.get("delta")
 
@@ -149,7 +149,7 @@ async def extract_trade_prices(redis: Redis, market_key: str) -> Tuple[Optional[
     decoded_yes_bid = yes_bid_raw.decode("utf-8", "ignore") if isinstance(yes_bid_raw, bytes) else yes_bid_raw
     decoded_yes_ask = yes_ask_raw.decode("utf-8", "ignore") if isinstance(yes_ask_raw, bytes) else yes_ask_raw
 
-    parsed_yes_bid = FieldConverter.convert_numeric_field(decoded_yes_bid)
-    parsed_yes_ask = FieldConverter.convert_numeric_field(decoded_yes_ask)
+    parsed_yes_bid = convert_numeric_field(decoded_yes_bid)
+    parsed_yes_ask = convert_numeric_field(decoded_yes_ask)
 
     return parsed_yes_bid, parsed_yes_ask

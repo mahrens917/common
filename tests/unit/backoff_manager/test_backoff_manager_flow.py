@@ -1,10 +1,9 @@
 import time
+from unittest.mock import MagicMock
 
 import pytest
 
-from common.backoff_manager import BackoffManager
-from common.backoff_manager_helpers.delay_calculator import DelayCalculator
-from common.backoff_manager_helpers.retry_checker import should_retry
+from common.backoff_manager import BackoffManager, _calculate_full_delay, _should_retry
 from common.backoff_manager_helpers.state_manager import BackoffStateManager
 from common.backoff_manager_helpers.types import BackoffConfig, BackoffType
 
@@ -34,9 +33,11 @@ def test_delay_calculator_uses_network_multiplier_and_jitter(monkeypatch):
     )
     network_monitor = _UnhealthyNetwork()
     # Keep jitter deterministic
-    monkeypatch.setattr("common.backoff_manager.random.uniform", lambda a, b: 0.0)
+    mock_random = MagicMock()
+    mock_random.uniform.return_value = 0.0
+    monkeypatch.setattr("common.backoff_manager._SECURE_RANDOM", mock_random)
 
-    delay = DelayCalculator.calculate_full_delay(config, 2, network_monitor, "svc")
+    delay = _calculate_full_delay(config, 2, network_monitor, "svc")
 
     # Base delay: 2s -> degraded multiplier doubles it -> jitter keeps it unchanged
     assert delay == 4.0
@@ -73,11 +74,13 @@ def test_retry_checker_blocks_after_max_attempts():
         }
     }
 
-    assert not should_retry(state_manager, "svc", BackoffType.GENERAL_FAILURE, config)
+    assert not _should_retry(state_manager, "svc", BackoffType.GENERAL_FAILURE, config)
 
 
 def test_backoff_manager_reports_status(monkeypatch):
-    monkeypatch.setattr("common.backoff_manager.random.uniform", lambda a, b: 0.0)
+    mock_random = MagicMock()
+    mock_random.uniform.return_value = 0.0
+    monkeypatch.setattr("common.backoff_manager._SECURE_RANDOM", mock_random)
     config = BackoffConfig(
         initial_delay=0.5,
         max_delay=2.0,

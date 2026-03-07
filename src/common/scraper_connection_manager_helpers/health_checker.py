@@ -4,7 +4,7 @@ HealthChecker for scraper_connection_manager
 
 import logging
 
-from ..connection_manager_helpers.shutdown_mixin import ShutdownRequestMixin
+from .shutdown_mixin import ShutdownRequestMixin
 
 logger = logging.getLogger(__name__)
 

@@ -3,7 +3,7 @@ from unittest.mock import AsyncMock
 import pytest
 
 from common.order_execution import OrderPoller
-from common.trading_exceptions import KalshiOrderPollingError
+from common.trading_exceptions_operational import KalshiOrderPollingError
 
 _TEST_COUNT_3 = 3
 

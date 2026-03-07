@@ -2,11 +2,12 @@
 
 from typing import Any, Dict, Optional
 
-from .base import ClientOperationBase
 
-
-class FillsOperations(ClientOperationBase):
+class FillsOperations:
     """Handle fills-related API operations."""
+
+    def __init__(self, client: Any) -> None:
+        self.client = client
 
     async def get_all_fills(
         self,

@@ -4,7 +4,7 @@ import logging
 from typing import Any, Dict
 
 from ....data_models.trading import OrderResponse
-from ....trading_exceptions import KalshiDataIntegrityError
+from ....trading_exceptions_operational import KalshiDataIntegrityError
 
 logger = logging.getLogger(__name__)
 

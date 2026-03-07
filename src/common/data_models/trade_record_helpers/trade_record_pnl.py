@@ -31,8 +31,8 @@ def calculate_realised_pnl_cents(
 
 def get_current_market_price_cents(
     trade_side: "TradeSide",
-    last_yes_bid: Optional[int],
-    last_yes_ask: Optional[int],
+    last_yes_bid: Optional[float],
+    last_yes_ask: Optional[float],
 ) -> Optional[int]:
     """Calculate current market price in cents based on trade side and available quotes."""
     from ..trade_record import TradeSide

@@ -3,7 +3,7 @@
 import uuid
 
 from ....data_models.trading import OrderRequest
-from ....trading_exceptions import KalshiOrderValidationError
+from ....trading_exceptions_core import KalshiOrderValidationError
 
 # Constants
 _CONST_3 = 3

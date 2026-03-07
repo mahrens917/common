@@ -5,7 +5,7 @@ from unittest.mock import AsyncMock, MagicMock
 import pytest
 
 from common.kalshi_trading_client.services.order_helpers.fills_fetcher import FillsFetcher
-from common.trading_exceptions import KalshiAPIError
+from common.trading_exceptions_operational import KalshiAPIError
 
 
 class TestFillsFetcher:

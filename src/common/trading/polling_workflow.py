@@ -9,7 +9,7 @@ from typing import Awaitable, Callable, Optional, Protocol
 
 from ..data_models.trading import OrderResponse, OrderStatus
 from ..order_execution import PollingOutcome
-from ..trading_exceptions import KalshiOrderPollingError
+from ..trading_exceptions_operational import KalshiOrderPollingError
 
 
 class OrderPollerProtocol(Protocol):

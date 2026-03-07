@@ -11,6 +11,7 @@ from typing import Any, Dict
 
 from redis.exceptions import RedisError
 
+from common.redis_protocol.kalshi_store import utils_coercion
 from common.redis_utils import RedisOperationError
 from common.time_utils import get_current_utc
 from common.truthy import pick_truthy
@@ -88,7 +89,6 @@ class StatusReportCoordinatorConfig:
     collectors: StatusReportCoordinatorCollectors
     console_section_printer: Any
     weather_section_generator: Any
-    data_coercion: Any
 
 
 class DataGatherer:
@@ -166,15 +166,14 @@ def _build_status_dict(data: StatusDictData) -> Dict[str, Any]:
 class ConsolePrinter:
     """Prints status data to console in formatted sections."""
 
-    def __init__(self, console_section_printer, weather_section_generator, data_coercion):
+    def __init__(self, console_section_printer, weather_section_generator):
         self.console_section_printer = console_section_printer
         self.weather_section_generator = weather_section_generator
-        self.data_coercion = data_coercion
 
     async def print_full_status(self, status_data: Dict[str, Any]):
         current_time = get_current_utc().strftime("%Y-%m-%d %H:%M:%S")
         self.console_section_printer._emit_status_line("=" * 60)
-        kalshi_status = self.data_coercion.coerce_mapping(status_data.get("kalshi_market_status"))
+        kalshi_status = utils_coercion.coerce_mapping(status_data.get("kalshi_market_status"))
         self.console_section_printer.print_exchange_info(current_time, kalshi_status)
         self.console_section_printer._emit_status_line()
         self.console_section_printer.print_price_info(status_data.get("btc_price"), status_data.get("eth_price"))
@@ -183,21 +182,21 @@ class ConsolePrinter:
         self._print_metrics_sections(status_data)
 
     def _print_weather_section(self, status_data: Dict[str, Any]):
-        weather_temperatures = self.data_coercion.coerce_mapping(status_data.get("weather_temperatures"))
+        weather_temperatures = utils_coercion.coerce_mapping(status_data.get("weather_temperatures"))
         weather_lines = self.weather_section_generator.generate_weather_section(weather_temperatures)
         self.console_section_printer.print_weather_section(weather_lines)
 
     def _print_system_update_section(self, status_data: Dict[str, Any]):
         self.console_section_printer._emit_status_line()
         self.console_section_printer._emit_status_line("📝 System Update:")
-        tracker_status = self.data_coercion.coerce_mapping(status_data.get("tracker_status"))
+        tracker_status = utils_coercion.coerce_mapping(status_data.get("tracker_status"))
         log_activity_map = pick_truthy(status_data.get("log_activity"), {})
         healthy_count, total_count = self.console_section_printer.print_managed_services(tracker_status, log_activity_map)
         self.console_section_printer.print_monitor_service(log_activity_map)
         self.console_section_printer._emit_status_line(f"📊 Process Summary: {healthy_count}/{total_count} running")
 
     def _print_metrics_sections(self, status_data: Dict[str, Any]):
-        tracker_status = self.data_coercion.coerce_mapping(status_data.get("tracker_status"))
+        tracker_status = utils_coercion.coerce_mapping(status_data.get("tracker_status"))
         self.console_section_printer.print_redis_health_section(status_data)
         self.console_section_printer.print_system_resources_section(status_data["system_resources_health"])
         self.console_section_printer.print_message_metrics_section(status_data)
@@ -225,7 +224,7 @@ class StatusReportCoordinator:
             kalshi_market_status_collector=config.collectors.kalshi_market_status_collector,
         )
         self.data_gatherer = DataGatherer(gatherer_collectors)
-        self.console_printer = ConsolePrinter(config.console_section_printer, config.weather_section_generator, config.data_coercion)
+        self.console_printer = ConsolePrinter(config.console_section_printer, config.weather_section_generator)
 
     async def generate_and_stream_status_report(self) -> Dict[str, Any]:
         from common.redis_protocol.connection_pool_core import get_redis_client

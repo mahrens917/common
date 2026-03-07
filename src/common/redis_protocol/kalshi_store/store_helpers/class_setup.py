@@ -4,7 +4,17 @@ from __future__ import annotations
 
 from typing import Any
 
-from ..facade_helpers import StaticUtilities
+from ..metadata_helpers.timestamp_normalization import normalize_timestamp
+from ..utils_coercion import (
+    coerce_mapping,
+    float_or_default,
+    format_probability_value,
+    int_or_default,
+    normalise_hash,
+    string_or_default,
+    sync_top_of_book_fields,
+)
+from ..utils_market import normalise_trade_timestamp
 
 # --- Property management ---
 
@@ -44,15 +54,15 @@ def setup_kalshi_store_properties(store_class) -> None:
 
 def setup_kalshi_store_static_methods(store_class) -> None:
     """Set up all static methods for KalshiStore class."""
-    store_class._normalise_hash = staticmethod(StaticUtilities.normalise_hash)
-    store_class._sync_top_of_book_fields = staticmethod(StaticUtilities.sync_top_of_book_fields)
-    store_class._format_probability_value = staticmethod(StaticUtilities.format_probability_value)
-    store_class._normalize_timestamp = staticmethod(StaticUtilities.normalize_timestamp)
-    store_class._normalise_trade_timestamp = staticmethod(StaticUtilities.normalise_trade_timestamp)
-    store_class._coerce_mapping = staticmethod(StaticUtilities.coerce_mapping)
-    store_class._string_or_default = staticmethod(StaticUtilities.string_or_default)
-    store_class._int_or_default = staticmethod(StaticUtilities.int_or_default)
-    store_class._float_or_default = staticmethod(StaticUtilities.float_or_default)
+    store_class._normalise_hash = staticmethod(normalise_hash)
+    store_class._sync_top_of_book_fields = staticmethod(sync_top_of_book_fields)
+    store_class._format_probability_value = staticmethod(format_probability_value)
+    store_class._normalize_timestamp = staticmethod(normalize_timestamp)
+    store_class._normalise_trade_timestamp = staticmethod(normalise_trade_timestamp)
+    store_class._coerce_mapping = staticmethod(coerce_mapping)
+    store_class._string_or_default = staticmethod(string_or_default)
+    store_class._int_or_default = staticmethod(int_or_default)
+    store_class._float_or_default = staticmethod(float_or_default)
 
 
 # --- Attribute resolution ---
@@ -77,7 +87,6 @@ def kalshi_store_getattr(self, name: str) -> Any:
         "_orderbook_delegator",
         "_cleanup_delegator",
         "_utility_delegator",
-        "_storage_delegator",
     ):
         try:
             return object.__getattribute__(self, name)

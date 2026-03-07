@@ -275,34 +275,6 @@ class TestOptimizedStatusReporterGatherStatusData:
         mock_redis.aclose.assert_called_once()
 
 
-class TestReporterGatherData:
-    """Tests for OptimizedStatusReporter._gather_status_data_optimized method."""
-
-    @pytest.mark.asyncio
-    async def test_delegates_to_gather_status_data(self) -> None:
-        """Delegates to gather_status_data."""
-        mock_deps = MagicMock()
-        mock_deps.aggregator = MagicMock()
-        mock_deps.printer = MagicMock()
-
-        reporter = OptimizedStatusReporter(
-            MagicMock(),
-            MagicMock(),
-            MagicMock(),
-            MagicMock(),
-            dependencies=mock_deps,
-        )
-
-        expected_status = {"service": "running"}
-        reporter.gather_status_data = AsyncMock(return_value=expected_status)
-        mock_redis = MagicMock()
-
-        result = await reporter._gather_status_data_optimized(redis_client=mock_redis)
-
-        assert result == expected_status
-        reporter.gather_status_data.assert_called_once_with(redis_client=mock_redis)
-
-
 class TestOptimizedStatusReporterGenerateWeatherSection:
     """Tests for OptimizedStatusReporter._generate_weather_section method."""
 

@@ -1,6 +1,6 @@
 """Tests for retry_config module."""
 
-from common.redis_protocol.connection_pool_helpers.retry_config import (
+from common.redis_protocol.connection_pool_core import (
     RETRY_ON_CONNECTION_ERROR,
     create_async_retry,
     create_sync_retry,

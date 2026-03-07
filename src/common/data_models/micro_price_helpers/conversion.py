@@ -108,15 +108,3 @@ def resolve_timestamp(enhanced_option: Any) -> datetime:
         return datetime.fromtimestamp(float(timestamp), tz=timezone.utc)
     except (TypeError, ValueError) as exc:
         raise OptionDataConversionError("Timestamp must be datetime or epoch") from exc
-
-
-class MicroPriceConversionHelpers:
-    """Helper methods for converting enhanced option data to MicroPriceOptionData."""
-
-    resolve_instrument_name = staticmethod(resolve_instrument_name)
-    determine_underlying = staticmethod(determine_underlying)
-    determine_expiry = staticmethod(determine_expiry)
-    resolve_option_type = staticmethod(resolve_option_type)
-    extract_prices = staticmethod(extract_prices)
-    extract_sizes = staticmethod(extract_sizes)
-    resolve_timestamp = staticmethod(resolve_timestamp)

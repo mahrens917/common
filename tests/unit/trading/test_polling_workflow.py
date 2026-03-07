@@ -7,7 +7,7 @@ import pytest
 from common.data_models.trading import OrderResponse, OrderStatus
 from common.order_execution import PollingOutcome
 from common.trading.polling_workflow import PollingResult, PollingWorkflow
-from common.trading_exceptions import KalshiOrderPollingError
+from common.trading_exceptions_operational import KalshiOrderPollingError
 
 
 class TestPollingResult:

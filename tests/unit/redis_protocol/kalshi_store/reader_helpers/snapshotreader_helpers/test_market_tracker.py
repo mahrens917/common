@@ -2,9 +2,7 @@
 
 import pytest
 
-from common.redis_protocol.kalshi_store.reader_helpers.snapshotreader_helpers import (
-    helpers,
-)
+import common.redis_protocol.kalshi_store.reader_helpers.snapshot_reader as helpers
 
 
 class DummyRedisError(Exception):

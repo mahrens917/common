@@ -14,6 +14,7 @@ logger = logging.getLogger(__name__)
 
 from common.redis_schema import is_supported_kalshi_ticker
 
+from ..time_helpers.expiry_conversions import parse_expiry_datetime
 from .kalshi_helpers import (
     compute_strike_value,
     parse_expiry,
@@ -24,7 +25,6 @@ from .kalshi_helpers import (
 )
 from .kalshi_helpers.data_converters import (
     decode_payload,
-    parse_expiry_datetime,
     to_float_value,
     to_int_value,
 )
@@ -90,7 +90,7 @@ def extract_best_ask(payload: Any) -> Tuple[Optional[float], Optional[int]]:
     return min(levels, key=lambda x: x[0])
 
 
-# parse_expiry_datetime is imported from kalshi_helpers.data_converters
+# parse_expiry_datetime is imported from time_helpers.expiry_conversions
 
 
 @dataclass

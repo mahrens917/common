@@ -5,7 +5,7 @@ from typing import Any, Awaitable, Callable, Tuple
 
 from ....redis_protocol.trade_store import TradeStore, TradeStoreError
 from ....trading.order_metadata_service import fetch_order_metadata
-from ....trading_exceptions import KalshiDataIntegrityError
+from ....trading_exceptions_operational import KalshiDataIntegrityError
 from ...constants import TELEGRAM_ALERT_ERRORS
 
 logger = logging.getLogger(__name__)

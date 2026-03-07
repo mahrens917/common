@@ -5,9 +5,7 @@ from unittest.mock import Mock, patch
 import psutil
 import pytest
 
-from common.optimized_status_reporter_helpers.service_state_collector_helpers import (
-    helpers,
-)
+import common.optimized_status_reporter_helpers.service_state_collector as helpers
 
 
 class TestPidValidator:

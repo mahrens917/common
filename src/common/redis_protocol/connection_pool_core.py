@@ -16,11 +16,84 @@ if TYPE_CHECKING:
 
 import redis
 import redis.asyncio
+from redis.asyncio.retry import Retry as AsyncRetry
+from redis.backoff import ExponentialBackoff
+from redis.exceptions import ConnectionError as RedisConnectionError
 from redis.exceptions import RedisError
+from redis.exceptions import TimeoutError as RedisTimeoutError
+from redis.retry import Retry as SyncRetry
 
 from . import config
-from .connection_pool_helpers.connection_management import initialize_pool as _initialize_pool_helper
-from .connection_pool_helpers.retry_config import RETRY_ON_CONNECTION_ERROR, create_async_retry, create_sync_retry
+
+# Exceptions that should trigger automatic retry on connection drops
+RETRY_ON_CONNECTION_ERROR: tuple[type[RedisError], ...] = (
+    RedisConnectionError,
+    RedisTimeoutError,
+)
+
+
+def create_async_retry() -> AsyncRetry:
+    """Create async retry instance with exponential backoff for connection drops."""
+    backoff = ExponentialBackoff(
+        cap=config.REDIS_RETRY_DELAY * (2**config.REDIS_MAX_RETRIES),
+        base=config.REDIS_RETRY_DELAY,
+    )
+    return AsyncRetry(
+        backoff=backoff,
+        retries=config.REDIS_MAX_RETRIES,
+        supported_errors=RETRY_ON_CONNECTION_ERROR,
+    )
+
+
+def create_sync_retry() -> SyncRetry:
+    """Create sync retry instance with exponential backoff for connection drops."""
+    backoff = ExponentialBackoff(
+        cap=config.REDIS_RETRY_DELAY * (2**config.REDIS_MAX_RETRIES),
+        base=config.REDIS_RETRY_DELAY,
+    )
+    return SyncRetry(
+        backoff=backoff,
+        retries=config.REDIS_MAX_RETRIES,
+        supported_errors=RETRY_ON_CONNECTION_ERROR,
+    )
+
+
+async def _initialize_pool_helper(
+    current_loop: asyncio.AbstractEventLoop, unified_redis_config: dict, health_monitor: Any
+) -> tuple[redis.asyncio.ConnectionPool, weakref.ReferenceType]:
+    """Initialize a Redis connection pool for the current thread."""
+    try:
+        pool_kwargs = {
+            "host": config.REDIS_HOST,
+            "port": config.REDIS_PORT,
+            "db": config.REDIS_DB,
+            "max_connections": unified_redis_config["max_connections"],
+            "socket_timeout": config.REDIS_SOCKET_TIMEOUT,
+            "socket_connect_timeout": config.REDIS_SOCKET_CONNECT_TIMEOUT,
+            "retry_on_timeout": config.REDIS_RETRY_ON_TIMEOUT,
+            "socket_keepalive": config.REDIS_SOCKET_KEEPALIVE,
+        }
+        if config.REDIS_PASSWORD:
+            pool_kwargs["password"] = config.REDIS_PASSWORD
+        if getattr(config, "REDIS_HEALTH_CHECK_INTERVAL", None):
+            pool_kwargs["health_check_interval"] = config.REDIS_HEALTH_CHECK_INTERVAL
+        if config.REDIS_SSL:
+            pool_kwargs["ssl"] = True
+
+        pool_kwargs["decode_responses"] = True
+
+        pool = redis.asyncio.ConnectionPool(**pool_kwargs)
+        client = redis.asyncio.Redis(connection_pool=pool)
+        await client.ping()
+        await client.aclose()
+    except RuntimeError:
+        health_monitor.record_connection_error()
+        raise
+    else:
+        pool_loop = weakref.ref(current_loop)
+        health_monitor.record_connection_created()
+        return pool, pool_loop
+
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.WARNING)  # Only show WARNING and above
@@ -248,11 +321,6 @@ async def perform_redis_health_check() -> bool:
         return False
     else:
         return success
-
-
-def get_redis_pool_metrics() -> Dict[str, Any]:
-    """Get Redis connection pool metrics"""
-    return _redis_health_monitor.get_metrics()
 
 
 def record_pool_acquired() -> None:

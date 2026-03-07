@@ -4,8 +4,6 @@ from typing import Any, Dict, List, Optional
 
 from ...data_models.trading import OrderRequest, OrderResponse, PortfolioBalance, PortfolioPosition
 from .public_api import PublicAPI
-from .trade_collection import TradeCollectionManager
-from .trade_store_ops import TradeStoreOperations
 
 
 class PublicAPIDelegator:
@@ -52,12 +50,12 @@ class PublicAPIDelegator:
         return await PublicAPI.get_all_fills(self._orders, min_ts, max_ts, ticker, cursor)
 
     async def start_trade_collection(self):
-        await TradeCollectionManager.start_collection(self._trade_collection)
+        await self._trade_collection.start()
         return True
 
     async def stop_trade_collection(self):
-        await TradeCollectionManager.stop_collection(self._trade_collection)
+        await self._trade_collection.stop()
         return False
 
     async def require_trade_store(self):
-        return await TradeStoreOperations.require_trade_store(self._trade_store_manager)
+        return await self._trade_store_manager.get_or_create()

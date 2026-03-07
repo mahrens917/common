@@ -9,6 +9,98 @@ from typing import Any, Callable
 from ..connection_state import ConnectionState
 
 
+class ConnectionHealthMonitor:
+    """Monitors connection health."""
+
+    def __init__(self, service_name: str):
+        self.service_name = service_name
+        self.health_monitor_failures = 0
+        self.logger = logging.getLogger(f"{__name__}.{service_name}")
+
+    def reset_failures(self) -> None:
+        """Reset failure counter."""
+        self.health_monitor_failures = 0
+
+    def increment_failures(self) -> None:
+        """Increment failure counter."""
+        self.health_monitor_failures += 1
+
+    def get_failure_count(self) -> int:
+        """Get failure count."""
+        return self.health_monitor_failures
+
+    def should_raise_error(self, max_failures: int) -> bool:
+        """Check if should raise error due to too many failures."""
+        return self.health_monitor_failures >= max_failures
+
+
+class HealthChecker:
+    """Performs health checks and transitions state on failure."""
+
+    def __init__(
+        self,
+        service_name: str,
+        state_manager: Any,
+        logger: logging.Logger,
+    ):
+        self.service_name = service_name
+        self.state_manager = state_manager
+        self.logger = logger
+
+    async def check_and_handle_failure(
+        self,
+        check_connection_health: Callable[[], Any],
+        connect_with_retry: Callable[[], Any],
+        reconnection_task: Any,
+    ) -> tuple[bool, Any]:
+        result = await check_connection_health()
+        is_healthy = getattr(result, "healthy", bool(result))
+
+        if is_healthy:
+            return True, reconnection_task
+
+        self.logger.warning(f"Health check failed for {self.service_name}")
+        self.state_manager.transition_state(ConnectionState.DISCONNECTED, "Health check failed")
+        new_task = self._ensure_reconnection_task(connect_with_retry, reconnection_task)
+        return True, new_task
+
+    def _ensure_reconnection_task(
+        self,
+        connect_with_retry: Callable[[], Any],
+        current_task: Any,
+    ) -> Any:
+        if not current_task or current_task.done():
+            return asyncio.create_task(connect_with_retry())
+        return current_task
+
+
+class ReconnectionManager:
+    """Manages reconnection tasks for disconnected services."""
+
+    def __init__(self, service_name: str, logger: logging.Logger):
+        self.service_name = service_name
+        self.logger = logger
+
+    async def handle_disconnected(
+        self,
+        connect_with_retry: Callable[[], Any],
+        reconnection_task: Any,
+    ) -> tuple[bool, Any]:
+        self.logger.info(f"Service {self.service_name} is disconnected, triggering reconnection")
+        new_task = self._start_reconnection_if_needed(connect_with_retry, reconnection_task)
+        return True, new_task
+
+    def _start_reconnection_if_needed(
+        self,
+        connect_with_retry: Callable[[], Any],
+        current_task: Any,
+    ) -> Any:
+        if not current_task or current_task.done():
+            self.logger.info(f"Starting reconnection task for {self.service_name}")
+            return asyncio.create_task(connect_with_retry())
+        return current_task
+
+
 class HealthCoordinator:
     """Coordinates connection health monitoring."""
 
@@ -41,8 +133,6 @@ class HealthCoordinator:
         connect_with_retry: Callable[[], Any],
     ) -> None:
         """Start background health monitoring task."""
-        from .health_coordinator_helpers import HealthChecker, ReconnectionManager
-
         self.logger.info(f"Starting health monitoring for {self.service_name}")
 
         health_checker = HealthChecker(self.service_name, self.state_manager, self.logger)

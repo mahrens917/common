@@ -31,7 +31,6 @@ class TestStatusReporterInitializer:
         # List all classes imported in initialize_components that need to be mocked
         classes_to_mock = [
             "LogActivityMonitor",
-            "DataCoercion",
             "DataFormatter",
             "DayNightDetector",
             "LogActivityFormatter",
@@ -70,7 +69,6 @@ class TestStatusReporterInitializer:
             components = StatusReporterInitializer.initialize_components(**mock_dependencies)
 
         mock_internal_modules["LogActivityMonitor"].assert_called_once_with("/root/project/src/logs")
-        mock_internal_modules["DataCoercion"].assert_called_once()
         mock_internal_modules["DataFormatter"].assert_called_once()
         assert components["data_formatter"] == mock_internal_modules["DataFormatter"].return_value
         mock_internal_modules["LogActivityCollector"].assert_called_once_with(mock_dependencies["process_manager"])
@@ -80,16 +78,17 @@ class TestStatusReporterInitializer:
         )
         mock_internal_modules["WeatherSectionGenerator"].assert_called_once_with(
             mock_internal_modules["DayNightDetector"].return_value,
-            mock_internal_modules["DataCoercion"].return_value,
         )
         mock_internal_modules["LogActivityFormatter"].assert_called_once_with(mock_internal_modules["TimeFormatter"].return_value)
+        from common.redis_protocol.kalshi_store import utils_coercion
+
         mock_internal_modules["ServicePrinter"].assert_called_once_with(
             mock_dependencies["emit_fn"],
             mock_internal_modules["ProcessResourceTracker"].return_value,
             mock_internal_modules["LogActivityFormatter"].return_value,
-            mock_internal_modules["DataCoercion"].return_value.bool_or_default,
+            utils_coercion.bool_or_default,
         )
-        mock_internal_modules["MetricsSectionPrinter"].assert_called_once_with(mock_internal_modules["DataCoercion"].return_value)
+        mock_internal_modules["MetricsSectionPrinter"].assert_called_once_with()
         mock_internal_modules["TrackerStatusCollector"].assert_called_once_with(
             mock_dependencies["process_manager"],
             mock_dependencies["tracker_controller"],
@@ -101,7 +100,6 @@ class TestStatusReporterInitializer:
         expected_keys = [
             "logs_directory",
             "log_activity_monitor",
-            "data_coercion",
             "data_formatter",
             "log_formatter",
             "resource_tracker",
@@ -141,9 +139,8 @@ class TestStatusReporterInitializer:
             mock_components_return = {
                 "logs_directory": Path("/mock/logs"),
                 "log_activity_monitor": mock_internal_modules["LogActivityMonitor"].return_value,
-                "data_coercion": mock_internal_modules["DataCoercion"].return_value,
                 # Add more mocks for components to fill the return dictionary
-                **{k.lower(): v.return_value for k, v in mock_internal_modules.items() if k not in ["LogActivityMonitor", "DataCoercion"]},
+                **{k.lower(): v.return_value for k, v in mock_internal_modules.items() if k not in ["LogActivityMonitor"]},
             }
             # For specific ones like data_formatter, we need to map the alias
             if "data_formatter" in mock_components_return:

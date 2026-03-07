@@ -3,7 +3,7 @@ from __future__ import annotations
 """Probability ingestion helpers."""
 
 import logging
-from typing import Any, Awaitable, Callable, Dict
+from typing import Any, Awaitable, Callable, Dict, Optional
 
 from redis.asyncio import Redis
 
@@ -12,7 +12,8 @@ from .exceptions import ProbabilityStoreError
 from .probability_data_config import ProbabilityData
 from .probabilityingestion_helpers import (
     HumanReadableIngestionStats,
-    ProbabilityIngestionDelegator,
+    IngestionHelpers,
+    create_ingestion_helpers,
 )
 from .verification import run_direct_connectivity_test
 
@@ -23,52 +24,22 @@ class ProbabilityIngestion:
     """Handle persistence of probability payloads."""
 
     def __init__(self, redis_provider: Callable[[], Awaitable[Redis]]) -> None:
-        self._delegator = ProbabilityIngestionDelegator(redis_provider)
         self._redis_provider = redis_provider
+        self._helpers: Optional[IngestionHelpers] = None
+
+    def _get_helpers(self) -> IngestionHelpers:
+        if self._helpers is None:
+            self._helpers = create_ingestion_helpers(self._redis_provider)
+        return self._helpers
 
     async def store_probabilities(self, currency: str, probabilities_data: Dict[str, Dict[str, Dict[str, Any]]]) -> bool:
-        """
-        Store probabilities in compact format.
-
-        Args:
-            currency: Currency code (e.g., "BTC")
-            probabilities_data: Nested dict of expiry -> strike -> data
-
-        Returns:
-            True if storage successful
-
-        Raises:
-            ProbabilityStoreError: If storage fails
-        """
-        return await self._delegator.store_probabilities(currency, probabilities_data)
+        return await self._get_helpers().compact_store.store_probabilities(currency, probabilities_data)
 
     async def store_probabilities_human_readable(self, currency: str, probabilities_data: Dict[str, Dict[str, Dict[str, float]]]) -> bool:
-        """
-        Store probabilities in human-readable format.
-
-        Args:
-            currency: Currency code (e.g., "BTC")
-            probabilities_data: Nested dict of expiry -> strike -> data
-
-        Returns:
-            True if storage successful
-
-        Raises:
-            ProbabilityStoreError: If storage fails
-        """
-        return await self._delegator.store_probabilities_human_readable(currency, probabilities_data)
+        return await self._get_helpers().human_readable_store.store_probabilities_human_readable(currency, probabilities_data)
 
     async def store_probability(self, data: ProbabilityData) -> None:
-        """
-        Store a single probability entry.
-
-        Args:
-            data: ProbabilityData configuration object
-
-        Raises:
-            ProbabilityStoreError: If storage fails
-        """
-        await self._delegator.store_probability(data)
+        await self._get_helpers().single_store.store_probability(data)
 
 
 async def handle_ingestion_failure(

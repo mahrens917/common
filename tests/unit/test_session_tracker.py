@@ -12,7 +12,6 @@ import pytest
 from common.session_tracker import (
     SessionTracker,
     log_session_diagnostics,
-    track_existing_session,
     track_session_close,
     track_session_request,
     tracked_session,
@@ -124,7 +123,7 @@ async def test_tracked_session_closes_existing(monkeypatch: pytest.MonkeyPatch):
     monkeypatch.setattr("common.session_tracker.session_tracker", tracker)
 
     session = aiohttp.ClientSession()
-    session_id = track_existing_session(session, "svc")
+    session_id = tracker.track_session_creation(session, "svc")
     track_session_request(session_id)
     track_session_close(session_id)
 

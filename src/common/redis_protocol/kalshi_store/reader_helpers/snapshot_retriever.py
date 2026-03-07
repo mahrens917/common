@@ -2,8 +2,7 @@
 
 from typing import Any, Dict
 
-from .snapshot_reader import SnapshotReader
-from .snapshotreader_helpers import KalshiStoreError
+from .snapshot_reader import KalshiStoreError, SnapshotReader
 
 
 class SnapshotRetriever:

@@ -8,7 +8,7 @@ import pytest
 
 from common.data_models.trading import OrderAction, OrderRequest, OrderSide, OrderType
 from common.trading.notifier_adapter import TradeNotifierAdapter
-from common.trading_exceptions import KalshiTradeNotificationError
+from common.trading_exceptions_operational import KalshiTradeNotificationError
 
 
 def _build_order_request() -> OrderRequest:

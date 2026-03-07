@@ -58,6 +58,40 @@ async def get_redis_connection() -> redis.asyncio.Redis:
         return client
 
 
+async def get_pubsub_redis_connection() -> redis.asyncio.Redis:
+    """
+    Obtain a dedicated async Redis client for pubsub subscriptions.
+
+    Unlike get_redis_connection(), this returns a standalone client (not pooled)
+    with socket_timeout=None so it can block indefinitely waiting for events.
+    """
+    from .redis_protocol import config
+
+    kwargs: dict = {
+        "host": config.REDIS_HOST,
+        "port": config.REDIS_PORT,
+        "db": config.REDIS_DB,
+        "socket_timeout": None,
+        "socket_connect_timeout": config.REDIS_SOCKET_CONNECT_TIMEOUT,
+        "socket_keepalive": config.REDIS_SOCKET_KEEPALIVE,
+        "decode_responses": True,
+    }
+    if config.REDIS_PASSWORD:
+        kwargs["password"] = config.REDIS_PASSWORD
+    if config.REDIS_SSL:
+        kwargs["ssl"] = True
+
+    client = redis.asyncio.Redis(**kwargs)
+    try:
+        await client.ping()
+    except REDIS_ERRORS as exc:
+        logger.error("Pubsub Redis connection failed: %s", exc, exc_info=True)
+        exc_type = type(exc).__name__
+        raise ConnectionError(f"Pubsub Redis connection failed: {exc_type}: {exc}") from exc
+    logger.debug("Pubsub Redis connection established successfully")
+    return client
+
+
 async def ensure_keyspace_notifications(
     redis_client: redis.asyncio.Redis,
     required_flags: str = "Kh",

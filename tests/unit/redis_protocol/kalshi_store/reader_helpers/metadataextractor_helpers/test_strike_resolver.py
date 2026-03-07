@@ -6,7 +6,6 @@ import pytest
 
 from common.redis_protocol.kalshi_store.reader_helpers.metadataextractor_helpers.strike_resolver import (
     resolve_market_strike,
-    resolve_strike_from_combined,
 )
 
 
@@ -60,11 +59,3 @@ def test_resolve_market_strike_applies_converter():
     resolved = resolve_market_strike(metadata, converter)
     assert resolved == pytest.approx(22.0)
     assert events == ["less"]
-
-
-def test_resolve_strike_from_combined_delegates_to_market():
-    metadata = {
-        "strike_type": "greater",
-        "floor_strike": "99",
-    }
-    assert resolve_strike_from_combined(metadata, _string_converter) == pytest.approx(99.0)

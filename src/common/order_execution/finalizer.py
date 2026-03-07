@@ -19,7 +19,7 @@ from ..data_models.trade_record import TradeRecord, TradeSide
 from ..data_models.trading import OrderRequest, OrderResponse, OrderSide
 from ..redis_protocol.trade_store import TradeStore
 from ..time_utils import get_current_utc
-from ..trading_exceptions import KalshiTradeNotificationError, KalshiTradePersistenceError
+from ..trading_exceptions_operational import KalshiTradeNotificationError, KalshiTradePersistenceError
 from .polling import PollingOutcome
 
 logger = logging.getLogger(__name__)

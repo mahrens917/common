@@ -6,8 +6,8 @@ import pytest
 from common.base_connection_manager_helpers.connection_lifecycle import (
     ConnectionLifecycleManager,
 )
-from common.base_connection_manager_helpers.health_monitor import ConnectionHealthMonitor
-from common.base_connection_manager_helpers.notification_helpers import (
+from common.base_connection_manager_helpers.health_coordinator import ConnectionHealthMonitor
+from common.base_connection_manager_helpers.notification_handler import (
     send_connection_notification,
 )
 from common.base_connection_manager_helpers.retry_coordinator import RetryCoordinator

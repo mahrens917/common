@@ -21,7 +21,6 @@ from common.config.redis_schema import (
     WeatherKeys,
     _require_section,
     _require_string,
-    get_schema_config,
 )
 
 
@@ -40,12 +39,6 @@ class TestRedisSchemaConfig:
         config1 = RedisSchemaConfig.load()
         config2 = RedisSchemaConfig.load()
         assert config1 is config2
-
-    def test_get_schema_config_delegates_to_load(self):
-        """get_schema_config() returns the loaded config."""
-        config = get_schema_config()
-        assert isinstance(config, RedisSchemaConfig)
-        assert config is RedisSchemaConfig.load()
 
 
 class TestMarketKeys:

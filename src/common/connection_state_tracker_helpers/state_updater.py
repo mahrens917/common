@@ -9,6 +9,7 @@ from typing import Callable, Optional
 from ..connection_state import ConnectionState
 from ..redis_protocol.connection_store import ConnectionStore
 from ..redis_protocol.connection_store_helpers.state_manager import ConnectionStateInfo
+from . import STORE_ERROR_TYPES, build_tracker_error
 
 logger = logging.getLogger(__name__)
 
@@ -26,6 +27,18 @@ class StateUpdater:
         state: ConnectionState,
         error_context: Optional[str] = None,
         consecutive_failures: int = 0,
+    ) -> bool:
+        try:
+            return await self._do_update(service_name, state, error_context, consecutive_failures)
+        except STORE_ERROR_TYPES as exc:
+            raise build_tracker_error(f"Failed to update connection state for {service_name}", exc)
+
+    async def _do_update(
+        self,
+        service_name: str,
+        state: ConnectionState,
+        error_context: Optional[str],
+        consecutive_failures: int,
     ) -> bool:
         existing_state = await self.store.get_connection_state(service_name)
         current_time = self._time_provider() if self._time_provider else time.time()

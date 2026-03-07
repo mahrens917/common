@@ -8,7 +8,7 @@ and reportPrivateUsage warnings from pyright.
 """
 
 import logging
-from typing import Any, Dict, Optional
+from typing import Any, Dict, Optional, Tuple
 
 from common.kalshi_api.client import KalshiClient
 
@@ -17,20 +17,18 @@ from ..data_models.trading import OrderRequest, OrderResponse
 from ..order_execution import OrderPoller, TradeFinalizer
 from ..redis_protocol.trade_store import TradeStore
 from ..trading import WeatherStationResolver
+from ..trading.polling_workflow import PollingOutcome
 from .client_api_mixin import (
     KalshiTradingClientAPIMixin,
     KalshiTradingClientTradeStoreMixin,
 )
-from .client_delegator_mixin import KalshiTradingClientDelegatorMixin
 from .client_helpers import (
     ClientInitializer,
     LifecycleManager,
     OrderPollingOverrideHandler,
-    PrivateMethodDelegator,
     PrivateMethods,
     PublicAPIDelegator,
     TradeContextResolver,
-    TradeStoreOperations,
 )
 from .client_helpers.protocols import IOrderService, IPrivateMethods, IPublicAPI
 from .dependencies_factory import (
@@ -127,7 +125,6 @@ class KalshiTradingClient(
     KalshiTradingClientMixin,
     KalshiTradingClientAPIMixin,
     KalshiTradingClientTradeStoreMixin,
-    KalshiTradingClientDelegatorMixin,
 ):
     """Trading client for Kalshi API with Protocol-typed explicit methods.
 
@@ -185,7 +182,7 @@ class KalshiTradingClient(
 
         (self._portfolio, self._orders, self._trade_collection) = ClientInitializer.create_services(
             self.kalshi_client,
-            lambda: TradeStoreOperations.get_trade_store(trade_store_manager),
+            trade_store_manager.get_or_create,
             notifier,
             weather_station_resolver,
             lambda: self._private.create_order_poller() if hasattr(self, "_private") else None,
@@ -195,7 +192,7 @@ class KalshiTradingClient(
         self._orders.update_notifier(notifier)
         self._orders.update_telegram_handler(self.telegram_handler)
         self._private = PrivateMethods(self._orders, trade_store_manager, self.kalshi_client)
-        self._delegator = PrivateMethodDelegator(self._private)
+        self._delegator = self._private
         self.is_running = False
         self._api = PublicAPIDelegator(
             self._portfolio,
@@ -213,6 +210,41 @@ class KalshiTradingClient(
         self.private_methods = self._private
 
         logger.info("[KalshiTradingClient] Initialized")
+
+    def _build_order_poller(self) -> OrderPoller:
+        return self._private.build_order_poller()
+
+    def _build_trade_finalizer(self) -> TradeFinalizer:
+        return self._private.build_trade_finalizer()
+
+    def _apply_polling_outcome(self, order_response: OrderResponse, outcome: PollingOutcome) -> None:
+        self._private.apply_polling_outcome(order_response, outcome)
+
+    def _validate_order_request(self, order_request: OrderRequest) -> None:
+        self._private.validate_order_request(order_request)
+
+    def _parse_order_response(
+        self, response_data: Dict[str, Any], operation_name: str, trade_rule: str, trade_reason: str
+    ) -> OrderResponse:
+        return self._private.parse_order_response(response_data, operation_name, trade_rule, trade_reason)
+
+    def has_sufficient_balance_for_trade_with_fees(self, cached_balance_cents: int, trade_cost_cents: int, fees_cents: int) -> bool:
+        return self._private.has_sufficient_balance_for_trade_with_fees(cached_balance_cents, trade_cost_cents, fees_cents)
+
+    def _create_icao_to_city_mapping(self) -> Dict[str, str]:
+        return self._private.create_icao_to_city_mapping()
+
+    def _extract_weather_station_from_ticker(self, market_ticker: str) -> str:
+        return self._private.extract_weather_station_from_ticker(market_ticker)
+
+    def _resolve_trade_context(self, market_ticker: str) -> Tuple[str, Optional[str]]:
+        return self._private.resolve_trade_context(market_ticker)
+
+    async def _calculate_order_fees(self, market_ticker: str, quantity: int, price_cents: int) -> int:
+        return await self._private.calculate_order_fees(market_ticker, quantity, price_cents)
+
+    async def _get_trade_metadata_from_order(self, order_id: str) -> Tuple[str, str]:
+        return await self._private.get_trade_metadata_from_order(order_id)
 
 
 __all__ = ["KalshiTradingClient"]

@@ -31,7 +31,7 @@ class StubStrikeResolver:
     def __init__(self, value):
         self.value = value
 
-    def resolve_strike_from_combined(self, combined, string_converter):
+    def resolve_market_strike(self, combined, string_converter):
         return self.value
 
 

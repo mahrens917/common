@@ -4,10 +4,11 @@ import asyncio
 from pathlib import Path
 
 from common.health.log_activity_monitor import LogActivityMonitor
+from common.redis_protocol.kalshi_store import utils_coercion
 
-from .data_coercion import DataCoercion
-from .data_formatting import DataFormatting as DataFormatter
 from .day_night_detector import DayNightDetector
+from .formatting import DataFormatting as DataFormatter
+from .formatting import TimeFormatter
 from .health_snapshot_collector import HealthSnapshotCollector
 from .kalshi_market_status_collector import KalshiMarketStatusCollector
 from .log_activity_collector import LogActivityCollector
@@ -22,7 +23,6 @@ from .redis_key_counter import RedisKeyCounter
 from .section_printer import SectionPrinter
 from .service_printer import ServicePrinter
 from .service_state_collector import ServiceStateCollector
-from .time_formatter import TimeFormatter
 from .tracker_status_collector import TrackerStatusCollector
 from .weather_section_generator import WeatherSectionGenerator
 from .weather_temperature_collector import WeatherTemperatureCollector
@@ -37,7 +37,6 @@ class StatusReporterInitializer:
         logs_dir = Path(__file__).resolve().parents[2] / "logs"
         log_activity_monitor = LogActivityMonitor(str(logs_dir))
 
-        data_coercion = DataCoercion()
         data_formatter = DataFormatter()
         time_formatter = TimeFormatter()
         log_formatter = LogActivityFormatter(time_formatter)
@@ -45,7 +44,7 @@ class StatusReporterInitializer:
         moon_phase_calculator = MoonPhaseCalculator()
         day_night_detector = DayNightDetector(moon_phase_calculator)
         day_night_detector.load_weather_station_coordinates()
-        weather_generator = WeatherSectionGenerator(day_night_detector, data_coercion)
+        weather_generator = WeatherSectionGenerator(day_night_detector)
         realtime_metrics_collector = RealtimeMetricsCollector()
 
         service_collector = ServiceStateCollector(process_manager)
@@ -59,13 +58,12 @@ class StatusReporterInitializer:
         kalshi_collector = KalshiMarketStatusCollector()
 
         section_printer = SectionPrinter(emit_fn)
-        service_printer = ServicePrinter(emit_fn, resource_tracker, log_formatter, data_coercion.bool_or_default)
-        metrics_printer = MetricsSectionPrinter(data_coercion)
+        service_printer = ServicePrinter(emit_fn, resource_tracker, log_formatter, utils_coercion.bool_or_default)
+        metrics_printer = MetricsSectionPrinter()
 
         return {
             "logs_directory": logs_dir,
             "log_activity_monitor": log_activity_monitor,
-            "data_coercion": data_coercion,
             "data_formatter": data_formatter,
             "log_formatter": log_formatter,
             "resource_tracker": resource_tracker,

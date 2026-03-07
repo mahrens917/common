@@ -9,13 +9,15 @@ from ...probability_payloads import build_probability_record
 from ...typing import ensure_awaitable
 from ..exceptions import ProbabilityStoreError
 from ..probability_data_config import ProbabilityData
-from ..redis_provider_mixin import RedisProviderMixin
 
 logger = logging.getLogger(__name__)
 
 
-class SingleStore(RedisProviderMixin):
+class SingleStore:
     """Handles storage of single probability entries."""
+
+    def __init__(self, redis_provider) -> None:
+        self._redis_provider = redis_provider
 
     async def store_probability(self, data: ProbabilityData) -> None:
         """

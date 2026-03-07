@@ -10,7 +10,7 @@ import urllib.error
 
 from common.kalshi_api.client import KalshiClientError
 
-from ..trading_exceptions import KalshiTradingError
+from ..trading_exceptions_core import KalshiTradingError
 
 CLIENT_API_ERRORS = (
     KalshiClientError,

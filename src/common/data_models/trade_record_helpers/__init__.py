@@ -5,12 +5,12 @@ from .trade_record_pnl import (
     calculate_realised_pnl_cents,
     get_current_market_price_cents,
 )
-from .trade_record_utils import (
+from .trade_record_validation import (
     ALLOWED_SHORT_TRADE_REASONS,
     get_trade_close_date,
     is_trade_reason_valid,
+    validate_trade_record,
 )
-from .trade_record_validation import validate_trade_record
 
 __all__ = [
     "ALLOWED_SHORT_TRADE_REASONS",

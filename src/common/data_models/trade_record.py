@@ -67,8 +67,8 @@ class TradeRecord:
     weather_station: Optional[str] = None  # Required for weather trades; optional otherwise
 
     # Latest market prices in cents (updated in real-time for P&L calculations)
-    last_yes_bid: Optional[int] = None
-    last_yes_ask: Optional[int] = None
+    last_yes_bid: Optional[float] = None
+    last_yes_ask: Optional[float] = None
     last_price_update: Optional[datetime] = None
 
     # Settlement information (populated once Kalshi declares a result)

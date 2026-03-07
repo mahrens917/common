@@ -8,7 +8,6 @@ from typing import Any, Dict, Optional, Tuple
 
 from common.health.log_activity_monitor import LogActivity
 from common.monitoring import ProcessStatus
-from common.optimized_status_reporter_helpers.status_line import emit_status_line
 
 from .monitor_service_printer import MonitorServicePrinter
 
@@ -20,7 +19,7 @@ class BasicInfoPrinter:
         self.process_manager = process_manager
         self.service_status_formatter = service_status_formatter
         self.monitor_printer = MonitorServicePrinter(process_manager, service_status_formatter)
-        self._emit_status_line = emit_status_line
+        self._emit_status_line = print
 
     def print_exchange_info(self, current_time: str, kalshi_status: Dict[str, Any]) -> None:
         """Print exchange information section."""

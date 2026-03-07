@@ -98,7 +98,7 @@ class RedisConnectionManager:
         self._initialized = redis is not None
         deps = dependencies or create_dependencies(self, logger)
         self._property_manager = deps.property_manager
-        self._properties = deps.property_accessor
+        self._properties = deps.property_manager
         self._pool_manager = deps.pool_manager
         self._connection_verifier = deps.connection_verifier
         self._retry_handler = deps.retry_handler

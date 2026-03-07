@@ -10,10 +10,10 @@ from pathlib import Path
 from typing import Callable, Optional
 
 from common.health.log_activity_monitor import LogActivityMonitor
+from common.redis_protocol.kalshi_store import utils_coercion
 
-from .data_coercion import DataCoercion
-from .data_formatting import DataFormatting
 from .day_night_detector import DayNightDetector
+from .formatting import DataFormatting, TimeFormatter
 from .health_snapshot_collector import HealthSnapshotCollector
 from .kalshi_market_status_collector import KalshiMarketStatusCollector
 from .log_activity_collector import LogActivityCollector
@@ -30,7 +30,6 @@ from .section_printer import SectionPrinter
 from .service_printer import ServicePrinter
 from .service_state_collector import ServiceStateCollector
 from .status_data_aggregator import StatusDataAggregator, StatusDataCollectors
-from .time_formatter import TimeFormatter
 from .tracker_status_collector import TrackerStatusCollector
 from .weather_section_generator import WeatherSectionGenerator
 from .weather_temperature_collector import WeatherTemperatureCollector
@@ -77,7 +76,6 @@ class StatusReporterDependenciesFactory:
         _log_activity_monitor = LogActivityMonitor(str(logs_directory))
 
         # Initialize helper modules
-        data_coercion = DataCoercion()
         _data_formatter = DataFormatting()
         time_formatter = TimeFormatter()
         log_formatter = LogActivityFormatter(time_formatter)
@@ -85,7 +83,7 @@ class StatusReporterDependenciesFactory:
         moon_phase_calculator = MoonPhaseCalculator()
         day_night_detector = DayNightDetector(moon_phase_calculator)
         day_night_detector.load_weather_station_coordinates()
-        weather_generator = WeatherSectionGenerator(day_night_detector, data_coercion)
+        weather_generator = WeatherSectionGenerator(day_night_detector)
 
         # Initialize collectors
         realtime_collector = RealtimeMetricsCollector()
@@ -107,15 +105,14 @@ class StatusReporterDependenciesFactory:
             emit_status_line,
             resource_tracker,
             log_formatter,
-            data_coercion.bool_or_default,
+            utils_coercion.bool_or_default,
         )
-        metrics_printer = MetricsSectionPrinter(data_coercion)
+        metrics_printer = MetricsSectionPrinter()
 
         # Initialize coordinators
         aggregator = StatusDataAggregator(collectors)
         printer = ReportPrinterCoordinator(
             emit_status_line,
-            data_coercion,
             section_printer,
             service_printer,
             metrics_printer,

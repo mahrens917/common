@@ -6,7 +6,7 @@ from typing import Callable, Optional
 
 from common.truthy import pick_if
 
-from .data_classes import ErrorAnalysis, ErrorCategory, ErrorSeverity
+from .analysis import ErrorAnalysis, ErrorCategory, ErrorSeverity
 
 logger = logging.getLogger(__name__)
 

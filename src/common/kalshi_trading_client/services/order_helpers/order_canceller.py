@@ -3,7 +3,7 @@
 import importlib
 import logging
 
-from ....trading_exceptions import KalshiAPIError, KalshiOrderNotFoundError
+from ....trading_exceptions_operational import KalshiAPIError, KalshiOrderNotFoundError
 from ...constants import CLIENT_API_ERRORS
 
 logger = logging.getLogger(__name__)

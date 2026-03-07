@@ -8,7 +8,8 @@ from typing import Any, Callable, Mapping, Optional, Tuple
 
 from common.redis_schema import is_supported_kalshi_ticker
 
-from .data_converters import decode_payload, parse_expiry_datetime
+from ...time_helpers.expiry_conversions import parse_expiry_datetime
+from .data_converters import decode_payload
 
 logger = logging.getLogger(__name__)
 

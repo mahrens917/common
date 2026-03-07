@@ -73,10 +73,10 @@ def test_base_connection_manager_init_with_alerter():
 def test_base_connection_manager_transition_state():
     """Test transition_state method."""
     manager = ConcreteConnectionManager("test_service")
-    manager.state_transition_handler.transition_state = MagicMock()
+    manager.state_manager.transition_state = MagicMock()
     manager.metrics_tracker.get_metrics = MagicMock(return_value={"transitions": 1})
 
     manager.transition_state(ConnectionState.CONNECTED, "success")
 
-    manager.state_transition_handler.transition_state.assert_called_once_with(ConnectionState.CONNECTED, "success")
+    manager.state_manager.transition_state.assert_called_once_with(ConnectionState.CONNECTED, "success")
     assert manager.metrics == {"transitions": 1}

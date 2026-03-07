@@ -9,8 +9,8 @@ from common.data_models.trading import OrderSide, OrderType
 from common.deribit.utils import is_supported_ticker
 from common.health.log_activity_monitor import LogActivityStatus
 from common.monitoring import ProcessStatus
-from common.optimized_status_reporter_helpers.data_coercion import DataCoercion
 from common.optimized_status_reporter_helpers.day_night_detector import DayNightDetector
+from common.optimized_status_reporter_helpers.formatting import TimeFormatter
 from common.optimized_status_reporter_helpers.health_snapshot_collector import (
     HealthSnapshotCollector,
 )
@@ -32,7 +32,6 @@ from common.optimized_status_reporter_helpers.status_line_builder import (
     get_status_emoji,
     resolve_service_status,
 )
-from common.optimized_status_reporter_helpers.time_formatter import TimeFormatter
 from common.optimized_status_reporter_helpers.weather_section_generator import (
     WeatherSectionGenerator,
 )
@@ -101,8 +100,7 @@ def test_section_printer_outputs_sections():
 
 def test_metrics_section_printer_sections(monkeypatch):
     emitted: list[str] = []
-    coercion = DataCoercion()
-    printer = MetricsSectionPrinter(coercion)
+    printer = MetricsSectionPrinter()
     printer._emit_status_line = lambda message="": emitted.append(message)
 
     class StubWeatherSettings:
@@ -134,12 +132,7 @@ def test_weather_section_generator_and_service_status_formatter(monkeypatch):
         def get_day_night_icon(self, icao):
             return "🌙" if icao == "ABC" else ""
 
-    class StubCoercion:
-        @staticmethod
-        def string_or_default(value, default):
-            return value or default
-
-    generator = WeatherSectionGenerator(StubDayNight(), StubCoercion())
+    generator = WeatherSectionGenerator(StubDayNight())
     lines = generator.generate_weather_section({"ABC": {"temp_f": "70.1", "emoticon": "☀️"}, "BAD": "not-a-dict"})
     assert any("ABC" in line for line in lines)
 
@@ -311,7 +304,7 @@ def test_day_night_detector_and_weather_helpers(monkeypatch):
     assert detector.get_day_night_icon("MISSING") == ""
 
     # Weather section generator already exercised above, ensure no errors on empty
-    assert WeatherSectionGenerator(detector, DataCoercion()).generate_weather_section({}) == []
+    assert WeatherSectionGenerator(detector).generate_weather_section({}) == []
 
 
 @pytest.mark.asyncio

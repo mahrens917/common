@@ -66,7 +66,7 @@ def test_format_probability_value_success(value, expected):
 
 @pytest.mark.parametrize("value", ["nan", "abc", None])
 def test_format_probability_value_errors(value):
-    with pytest.raises(TypeError):
+    with pytest.raises(ValueError):
         KalshiStore._format_probability_value(value)
 
 

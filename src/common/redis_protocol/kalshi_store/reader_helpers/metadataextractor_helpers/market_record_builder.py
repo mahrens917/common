@@ -157,7 +157,7 @@ def _resolve_strike_value(
     market_ticker: str,
 ) -> float:
     """Resolve the strike value or raise skip error."""
-    strike_value = strike_resolver.resolve_strike_from_combined(combined, string_or_default)
+    strike_value = strike_resolver.resolve_market_strike(combined, string_or_default)
     if strike_value is None:
         raise MarketSkip("missing_strike", f"Market {market_ticker} missing strike metadata")
     return strike_value

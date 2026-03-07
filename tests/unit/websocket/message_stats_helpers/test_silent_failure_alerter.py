@@ -5,10 +5,8 @@ from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 
-from common.websocket.message_stats_helpers.silent_failure_alerter import (
-    check_silent_failure_threshold,
-    send_silent_failure_alert,
-)
+from common.websocket.message_stats_collector import _check_silent_failure_threshold as check_silent_failure_threshold
+from common.websocket.message_stats_collector import _send_silent_failure_alert as send_silent_failure_alert
 
 
 class TestSendSilentFailureAlert:

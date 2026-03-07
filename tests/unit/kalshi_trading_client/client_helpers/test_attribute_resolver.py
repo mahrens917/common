@@ -281,54 +281,26 @@ class TestClientAttributeResolverWrapRequireTradeStore:
 class TestClientAttributeResolverResolveTradeStoreOperation:
     """Tests for _resolve_trade_store_operation method."""
 
-    @pytest.mark.asyncio
-    async def test_delegates_get_trade_store(self) -> None:
-        """Test delegates _get_trade_store to TradeStoreOperations."""
+    def test_delegates_get_trade_store(self) -> None:
+        """Test _get_trade_store returns manager.get_or_create."""
         mock_client = MagicMock()
-        mock_store = MagicMock()
+        resolver = ClientAttributeResolver(mock_client)
+        op = resolver._resolve_trade_store_operation("_get_trade_store")
+        assert op is mock_client._trade_store_manager.get_or_create
 
-        with patch("common.kalshi_trading_client.client_helpers.trade_store_ops.TradeStoreOperations") as mock_ops:
-            mock_ops.get_trade_store = AsyncMock(return_value=mock_store)
-
-            resolver = ClientAttributeResolver(mock_client)
-            op = resolver._resolve_trade_store_operation("_get_trade_store")
-            result = await op()
-
-            mock_ops.get_trade_store.assert_called_once()
-
-    @pytest.mark.asyncio
-    async def test_delegates_maybe_get_trade_store(self) -> None:
-        """Test delegates _maybe_get_trade_store to TradeStoreOperations.
-
-        Note: Due to the order of string replacements in _resolve_trade_store_operation,
-        '_maybe_get' becomes '_maybeget' (because '_get' is replaced first).
-        """
+    def test_delegates_maybe_get_trade_store(self) -> None:
+        """Test _maybe_get_trade_store returns manager.maybe_get."""
         mock_client = MagicMock()
+        resolver = ClientAttributeResolver(mock_client)
+        op = resolver._resolve_trade_store_operation("_maybe_get_trade_store")
+        assert op is mock_client._trade_store_manager.maybe_get
 
-        with patch("common.kalshi_trading_client.client_helpers.trade_store_ops.TradeStoreOperations") as mock_ops:
-            # The actual attribute accessed is '_maybeget_trade_store' due to replacement order
-            setattr(mock_ops, "_maybeget_trade_store", AsyncMock(return_value=None))
-
-            resolver = ClientAttributeResolver(mock_client)
-            op = resolver._resolve_trade_store_operation("_maybe_get_trade_store")
-            await op()
-
-            getattr(mock_ops, "_maybeget_trade_store").assert_called_once()
-
-    @pytest.mark.asyncio
-    async def test_delegates_ensure_trade_store(self) -> None:
-        """Test delegates _ensure_trade_store to TradeStoreOperations."""
+    def test_delegates_ensure_trade_store(self) -> None:
+        """Test _ensure_trade_store returns manager.ensure."""
         mock_client = MagicMock()
-        mock_store = MagicMock()
-
-        with patch("common.kalshi_trading_client.client_helpers.trade_store_ops.TradeStoreOperations") as mock_ops:
-            mock_ops.ensure_trade_store = AsyncMock(return_value=mock_store)
-
-            resolver = ClientAttributeResolver(mock_client)
-            op = resolver._resolve_trade_store_operation("_ensure_trade_store")
-            result = await op()
-
-            mock_ops.ensure_trade_store.assert_called_once()
+        resolver = ClientAttributeResolver(mock_client)
+        op = resolver._resolve_trade_store_operation("_ensure_trade_store")
+        assert op is mock_client._trade_store_manager.ensure
 
 
 class TestClientAttributeResolverIsDelegatorMethod:

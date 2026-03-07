@@ -2,10 +2,7 @@
 
 import logging
 import math
-from datetime import datetime
 from typing import Any, Optional
-
-from ...time_helpers.expiry_conversions import parse_expiry_datetime as _parse_expiry_datetime
 
 logger = logging.getLogger(__name__)
 
@@ -47,8 +44,3 @@ def to_int_value(value: Any) -> Optional[int]:
     except (ValueError, TypeError) as exc:  # Expected data validation or parsing failure  # policy_guard: allow-silent-handler
         logger.warning("Failed to convert to int: value=%r, error=%s", decoded, exc)
         return None
-
-
-def parse_expiry_datetime(expiry_str: str) -> datetime:
-    """Delegate to canonical expiry parser to maintain consistent timezone handling."""
-    return _parse_expiry_datetime(expiry_str)

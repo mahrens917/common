@@ -1,6 +1,6 @@
 import pytest
 
-from common.redis_protocol.kalshi_store.reader_helpers.snapshotreader_helpers.helpers import (
+from common.redis_protocol.kalshi_store.reader_helpers.snapshot_reader import (
     KalshiStoreError,
     get_market_field,
     get_market_metadata,
@@ -63,7 +63,7 @@ async def test_get_market_metadata_uses_adapter(monkeypatch):
         return {"field": "value", "yes_bids": "keep", "no_asks": "keep"}
 
     monkeypatch.setattr(
-        "common.redis_protocol.kalshi_store.reader_helpers.snapshotreader_helpers.helpers.get_market_snapshot",
+        "common.redis_protocol.kalshi_store.reader_helpers.snapshot_reader.get_market_snapshot",
         fake_snapshot,
     )
 

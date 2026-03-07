@@ -12,7 +12,7 @@ except ModuleNotFoundError:  # Optional module not available  # policy_guard: al
     _ALERTER_FAILURES = ()
 
 from ..data_models.trade_record import is_trade_reason_valid
-from ..trading_exceptions import KalshiDataIntegrityError
+from ..trading_exceptions_operational import KalshiDataIntegrityError
 
 ALERT_SEND_ERRORS = _ALERTER_FAILURES + (
     ConnectionError,

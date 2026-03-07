@@ -30,7 +30,6 @@ __all__ = [
     "SessionTracker",
     "session_tracker",
     "tracked_session",
-    "track_existing_session",
     "track_session_request",
     "track_session_close",
     "log_session_diagnostics",
@@ -139,20 +138,6 @@ async def tracked_session(service_name: str, **session_kwargs):
         session_tracker.track_session_closure(session_id)
         if not session.closed:
             await session.close()
-
-
-def track_existing_session(session: aiohttp.ClientSession, service_name: str) -> str:
-    """
-    Track an existing aiohttp.ClientSession instance.
-
-    Args:
-        session: Existing session to track
-        service_name: Name of the service that owns the session
-
-    Returns:
-        Session ID for tracking
-    """
-    return session_tracker.track_session_creation(session, service_name)
 
 
 def track_session_request(session_id: str):

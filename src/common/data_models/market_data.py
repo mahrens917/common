@@ -7,17 +7,30 @@ the application, including Deribit futures and options data.
 
 from dataclasses import dataclass
 from datetime import datetime
-from typing import List, Optional
+from typing import Any, List, Optional
 
 from .micro_price_helpers.calculations import MicroPriceCalculator
-from .micro_price_helpers.validation import MicroPriceValidator
+from .micro_price_helpers.constraint_validator import validate_micro_price_constraints
+from .micro_price_helpers.conversion import (
+    determine_expiry,
+    determine_underlying,
+    extract_prices,
+    extract_sizes,
+    resolve_instrument_name,
+    resolve_option_type,
+    resolve_timestamp,
+)
+from .micro_price_helpers.validation import get_validation_errors as _get_validation_errors
+from .micro_price_helpers.validation import (
+    validate_basic_option_data,
+    validate_mathematical_relationships,
+    validate_micro_price_calculations,
+)
 from .micro_price_helpers.validation_params import (
     BasicOptionData,
     MathematicalRelationships,
     ValidationErrorParams,
 )
-from .micropriceoptiondata_helpers.factory import from_enhanced_option_data
-from .micropriceoptiondata_helpers.properties import MicroPriceProperties
 
 
 @dataclass
@@ -114,6 +127,74 @@ class MicroPriceMetrics:
     h: float
 
 
+class MicroPriceProperties:
+    """Static accessors for micro price option data properties."""
+
+    @staticmethod
+    def get_is_future() -> bool:
+        return False
+
+    @staticmethod
+    def get_expiry_timestamp(expiry: "datetime") -> int:
+        return int(expiry.timestamp())
+
+    @staticmethod
+    def get_bid_price(best_bid: float) -> float:
+        return best_bid
+
+    @staticmethod
+    def get_ask_price(best_ask: float) -> float:
+        return best_ask
+
+    @staticmethod
+    def get_mid_price(best_bid: float, best_ask: float) -> float:
+        return (best_bid + best_ask) / 2.0
+
+    @staticmethod
+    def get_spread(absolute_spread: float) -> float:
+        return absolute_spread
+
+    @staticmethod
+    def check_is_call(option_type: str) -> bool:
+        return option_type.lower() == "call"
+
+    @staticmethod
+    def check_is_put(option_type: str) -> bool:
+        return option_type.lower() == "put"
+
+
+def from_enhanced_option_data(enhanced_option: Any, cls: type) -> "MicroPriceOptionData":
+    """Build a MicroPriceOptionData instance from an enhanced option object."""
+    instrument_name = resolve_instrument_name(enhanced_option)
+    underlying = determine_underlying(enhanced_option, instrument_name)
+    expiry = determine_expiry(enhanced_option)
+    option_type = resolve_option_type(enhanced_option)
+    best_bid, best_ask = extract_prices(enhanced_option)
+    bid_size, ask_size = extract_sizes(enhanced_option)
+    timestamp = resolve_timestamp(enhanced_option)
+    absolute_spread, relative_spread, i_raw, p_raw, g, h = MicroPriceCalculator.compute_micro_price_metrics(
+        best_bid, best_ask, bid_size, ask_size
+    )
+    return cls(
+        instrument_name=instrument_name,
+        underlying=underlying,
+        strike=enhanced_option.strike,
+        expiry=expiry,
+        option_type=option_type,
+        best_bid=best_bid,
+        best_ask=best_ask,
+        best_bid_size=bid_size,
+        best_ask_size=ask_size,
+        timestamp=timestamp,
+        absolute_spread=absolute_spread,
+        relative_spread=relative_spread,
+        i_raw=i_raw,
+        p_raw=p_raw,
+        g=g,
+        h=h,
+    )
+
+
 class MicroPriceOptionDataMixin:
     """Shared helpers for micro price option data computations and validations."""
 
@@ -129,9 +210,7 @@ class MicroPriceOptionDataMixin:
     expiry: datetime
 
     def validate_micro_price_constraints(self) -> bool:
-        return MicroPriceValidator.validate_micro_price_constraints(
-            self.best_bid, self.best_ask, self.absolute_spread, self.i_raw, self.p_raw
-        )
+        return validate_micro_price_constraints(self.best_bid, self.best_ask, self.absolute_spread, self.i_raw, self.p_raw)
 
     def is_valid(self) -> bool:
         params = ValidationErrorParams(
@@ -144,7 +223,7 @@ class MicroPriceOptionDataMixin:
             i_raw=self.i_raw,
             p_raw=self.p_raw,
         )
-        errors = MicroPriceValidator.get_validation_errors(params)
+        errors = _get_validation_errors(params)
         return len(errors) == 0
 
     def get_validation_errors(self) -> List[str]:
@@ -158,7 +237,7 @@ class MicroPriceOptionDataMixin:
             i_raw=self.i_raw,
             p_raw=self.p_raw,
         )
-        return MicroPriceValidator.get_validation_errors(params)
+        return _get_validation_errors(params)
 
     def intrinsic_value(self, spot_price: float) -> float:
         return MicroPriceCalculator.compute_intrinsic_value(self.option_type, self.strike, spot_price)
@@ -249,8 +328,8 @@ class MicroPriceOptionData(MicroPriceOptionDataMixin):
             forward_price=self.forward_price,
             discount_factor=self.discount_factor,
         )
-        MicroPriceValidator.validate_basic_option_data(basic_data)
-        MicroPriceValidator.validate_micro_price_calculations(self.absolute_spread, self.i_raw, self.p_raw)
+        validate_basic_option_data(basic_data)
+        validate_micro_price_calculations(self.absolute_spread, self.i_raw, self.p_raw)
 
         math_relationships = MathematicalRelationships(
             best_bid=self.best_bid,
@@ -264,7 +343,7 @@ class MicroPriceOptionData(MicroPriceOptionDataMixin):
             g=self.g,
             h=self.h,
         )
-        MicroPriceValidator.validate_mathematical_relationships(math_relationships)
+        validate_mathematical_relationships(math_relationships)
 
 
 @dataclass

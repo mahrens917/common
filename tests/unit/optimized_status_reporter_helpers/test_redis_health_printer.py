@@ -11,25 +11,12 @@ from common.optimized_status_reporter_helpers.redis_health_printer import (
 )
 
 
-class TestRedisHealthPrinter:
-    """Tests for RedisHealthPrinter class."""
-
-    def test_inherits_from_base_printer(self) -> None:
-        """Inherits from StatusLinePrinterBase."""
-        from common.optimized_status_reporter_helpers.base_printer import (
-            StatusLinePrinterBase,
-        )
-
-        assert issubclass(RedisHealthPrinter, StatusLinePrinterBase)
-
-
 class TestPrintRedisHealthSection:
     """Tests for print_redis_health_section method."""
 
     def test_prints_header(self) -> None:
         """Prints Redis health check header."""
-        data_coercion = MagicMock()
-        printer = RedisHealthPrinter(data_coercion)
+        printer = RedisHealthPrinter()
         emitted = []
         printer._emit_status_line = lambda x="": emitted.append(x)
 
@@ -48,8 +35,7 @@ class TestPrintRedisHealthSection:
 
     def test_calls_healthy_printer_when_connected(self) -> None:
         """Calls _print_healthy_redis when connection healthy."""
-        data_coercion = MagicMock()
-        printer = RedisHealthPrinter(data_coercion)
+        printer = RedisHealthPrinter()
         emitted = []
         printer._emit_status_line = lambda x="": emitted.append(x)
 
@@ -68,8 +54,7 @@ class TestPrintRedisHealthSection:
 
     def test_calls_failed_printer_when_disconnected(self) -> None:
         """Calls _print_failed_redis when connection unhealthy."""
-        data_coercion = MagicMock()
-        printer = RedisHealthPrinter(data_coercion)
+        printer = RedisHealthPrinter()
         emitted = []
         printer._emit_status_line = lambda x="": emitted.append(x)
 
@@ -88,8 +73,7 @@ class TestPrintHealthyRedis:
 
     def test_prints_healthy_without_details(self) -> None:
         """Prints healthy message when no details available."""
-        data_coercion = MagicMock()
-        printer = RedisHealthPrinter(data_coercion)
+        printer = RedisHealthPrinter()
         emitted = []
         printer._emit_status_line = lambda x="": emitted.append(x)
 
@@ -106,8 +90,7 @@ class TestPrintHealthyRedis:
 
     def test_prints_key_counts(self) -> None:
         """Prints all key counts."""
-        data_coercion = MagicMock()
-        printer = RedisHealthPrinter(data_coercion)
+        printer = RedisHealthPrinter()
         emitted = []
         printer._emit_status_line = lambda x="": emitted.append(x)
 
@@ -127,11 +110,7 @@ class TestPrintHealthyRedis:
 
     def test_prints_degraded_status(self) -> None:
         """Prints slow/degraded status."""
-        data_coercion = MagicMock()
-        data_coercion.coerce_mapping.return_value = {"ping_duration": 0.5}
-        data_coercion.float_or_default.return_value = 0.5
-        data_coercion.int_or_default.return_value = 0
-        printer = RedisHealthPrinter(data_coercion)
+        printer = RedisHealthPrinter()
         emitted = []
         printer._emit_status_line = lambda x="": emitted.append(x)
 
@@ -152,19 +131,15 @@ class TestPrintHealthyRedis:
 
     def test_prints_pool_metrics(self) -> None:
         """Prints connection pool metrics."""
-        data_coercion = MagicMock()
-        data_coercion.coerce_mapping.side_effect = [
-            {"ping_duration": 0.01, "connection_pool_metrics": {"connection_reuse_rate": 0.95}},
-            {"connection_reuse_rate": 0.95, "connection_errors": 0},
-        ]
-        data_coercion.float_or_default.side_effect = [0.01, 0.95]
-        data_coercion.int_or_default.return_value = 0
-        printer = RedisHealthPrinter(data_coercion)
+        printer = RedisHealthPrinter()
         emitted = []
         printer._emit_status_line = lambda x="": emitted.append(x)
 
         health = MagicMock()
-        health.details = {"ping_duration": 0.01, "connection_pool_metrics": {}}
+        health.details = {
+            "ping_duration": 0.01,
+            "connection_pool_metrics": {"connection_reuse_rate": 0.95, "connection_errors": 0},
+        }
         health.status.value = "healthy"
 
         status_data = {
@@ -180,19 +155,15 @@ class TestPrintHealthyRedis:
 
     def test_prints_connection_errors(self) -> None:
         """Prints connection errors when present."""
-        data_coercion = MagicMock()
-        data_coercion.coerce_mapping.side_effect = [
-            {"ping_duration": 0.01, "connection_pool_metrics": {"connection_errors": 5}},
-            {"connection_errors": 5, "connection_reuse_rate": 0.8},
-        ]
-        data_coercion.float_or_default.side_effect = [0.01, 0.8]
-        data_coercion.int_or_default.return_value = 5
-        printer = RedisHealthPrinter(data_coercion)
+        printer = RedisHealthPrinter()
         emitted = []
         printer._emit_status_line = lambda x="": emitted.append(x)
 
         health = MagicMock()
-        health.details = {"ping_duration": 0.01, "connection_pool_metrics": {}}
+        health.details = {
+            "ping_duration": 0.01,
+            "connection_pool_metrics": {"connection_errors": 5, "connection_reuse_rate": 0.8},
+        }
         health.status.value = "healthy"
 
         status_data = {
@@ -212,8 +183,7 @@ class TestPrintFailedRedis:
 
     def test_prints_failed_without_details(self) -> None:
         """Prints failed message when no details available."""
-        data_coercion = MagicMock()
-        printer = RedisHealthPrinter(data_coercion)
+        printer = RedisHealthPrinter()
         emitted = []
         printer._emit_status_line = lambda x="": emitted.append(x)
 
@@ -224,10 +194,7 @@ class TestPrintFailedRedis:
 
     def test_prints_timeout_details(self) -> None:
         """Prints timeout duration when available."""
-        data_coercion = MagicMock()
-        data_coercion.coerce_mapping.return_value = {"timeout_duration": 5.0}
-        data_coercion.float_or_default.return_value = 5.0
-        printer = RedisHealthPrinter(data_coercion)
+        printer = RedisHealthPrinter()
         emitted = []
         printer._emit_status_line = lambda x="": emitted.append(x)
 
@@ -241,10 +208,7 @@ class TestPrintFailedRedis:
 
     def test_prints_error_type(self) -> None:
         """Prints error type when available."""
-        data_coercion = MagicMock()
-        data_coercion.coerce_mapping.return_value = {"error_type": "ConnectionRefused"}
-        data_coercion.string_or_default.return_value = "ConnectionRefused"
-        printer = RedisHealthPrinter(data_coercion)
+        printer = RedisHealthPrinter()
         emitted = []
         printer._emit_status_line = lambda x="": emitted.append(x)
 
@@ -258,10 +222,7 @@ class TestPrintFailedRedis:
 
     def test_prints_error_message(self) -> None:
         """Prints error message from health check."""
-        data_coercion = MagicMock()
-        data_coercion.coerce_mapping.return_value = {"timeout_duration": 2.0}
-        data_coercion.float_or_default.return_value = 2.0
-        printer = RedisHealthPrinter(data_coercion)
+        printer = RedisHealthPrinter()
         emitted = []
         printer._emit_status_line = lambda x="": emitted.append(x)
 

@@ -7,6 +7,8 @@ from typing import Any, Dict, Optional
 
 import orjson
 
+from common.redis_protocol.kalshi_store.utils_coercion import string_or_default
+
 logger = logging.getLogger(__name__)
 
 
@@ -18,9 +20,7 @@ class DeltaFieldExtractor:
         msg_data: Dict[str, Any],
     ) -> tuple[Optional[str], Optional[float], Optional[float]]:
         """Extract and validate delta message fields."""
-        from .field_converter import FieldConverter
-
-        side = FieldConverter.string_or_default(msg_data.get("side")).lower()
+        side = string_or_default(msg_data.get("side")).lower()
         price = msg_data.get("price")
         delta = msg_data.get("delta")
 

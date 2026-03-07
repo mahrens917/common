@@ -13,7 +13,6 @@ from redis.asyncio import Redis
 
 from ...redis_schema import describe_kalshi_ticker
 from .connection import RedisConnectionManager
-from .facade_helpers_weather import resolve_weather_station_from_ticker
 from .reader import KalshiMarketReader
 from .subscription import KalshiSubscriptionTracker
 from .subscription_helpers import KeyProvider
@@ -157,11 +156,7 @@ class MetadataDelegator:
 
     def extract_weather_station_from_ticker(self, market_ticker: str) -> Optional[str]:
         """Extract weather station from market ticker."""
-        return resolve_weather_station_from_ticker(
-            market_ticker,
-            writer=self._writer,
-            weather_resolver=self._resolve_weather_resolver(),
-        )
+        return self._writer._extract_weather_station_from_ticker(market_ticker)
 
     def derive_expiry_iso(self, market_ticker: str, metadata: Dict[str, Any]) -> str:
         """Derive ISO expiry date from ticker and metadata."""

@@ -1,8 +1,16 @@
 """Tests for facade_helpers_modules utilities."""
 
-import pytest
-
-from common.redis_protocol.kalshi_store.facade_helpers_modules.utilities import StaticUtilities
+from common.redis_protocol.kalshi_store.metadata_helpers.timestamp_normalization import normalize_timestamp
+from common.redis_protocol.kalshi_store.utils_coercion import (
+    coerce_mapping,
+    float_or_default,
+    format_probability_value,
+    int_or_default,
+    normalise_hash,
+    string_or_default,
+    sync_top_of_book_fields,
+)
+from common.redis_protocol.kalshi_store.utils_market import normalise_trade_timestamp
 
 
 class TestNormaliseHash:
@@ -11,14 +19,14 @@ class TestNormaliseHash:
     def test_normalises_bytes_keys(self) -> None:
         """Test normalising bytes keys to strings."""
         raw = {b"key": "value", b"other": 123}
-        result = StaticUtilities.normalise_hash(raw)
+        result = normalise_hash(raw)
         assert "key" in result
         assert result["key"] == "value"
 
     def test_handles_string_keys(self) -> None:
         """Test handling already-string keys."""
         raw = {"key": "value"}
-        result = StaticUtilities.normalise_hash(raw)
+        result = normalise_hash(raw)
         assert result["key"] == "value"
 
 
@@ -28,7 +36,7 @@ class TestSyncTopOfBookFields:
     def test_syncs_fields(self) -> None:
         """Test syncing top of book fields."""
         snapshot = {"orderbook": '{"yes_bids": {"50": 10}, "yes_asks": {"55": 5}}'}
-        StaticUtilities.sync_top_of_book_fields(snapshot)
+        sync_top_of_book_fields(snapshot)
         # Function modifies in place
 
 
@@ -37,12 +45,12 @@ class TestFormatProbabilityValue:
 
     def test_formats_float(self) -> None:
         """Test formatting float value."""
-        result = StaticUtilities.format_probability_value(0.5)
+        result = format_probability_value(0.5)
         assert isinstance(result, str)
 
     def test_formats_string(self) -> None:
         """Test formatting string value."""
-        result = StaticUtilities.format_probability_value("0.5")
+        result = format_probability_value("0.5")
         assert isinstance(result, str)
 
 
@@ -51,12 +59,12 @@ class TestNormalizeTimestamp:
 
     def test_normalises_iso_timestamp(self) -> None:
         """Test normalising ISO timestamp."""
-        result = StaticUtilities.normalize_timestamp("2024-01-15T10:00:00Z")
+        result = normalize_timestamp("2024-01-15T10:00:00Z")
         assert result is not None
 
     def test_returns_none_for_invalid(self) -> None:
         """Test returning None for invalid input."""
-        result = StaticUtilities.normalize_timestamp(None)
+        result = normalize_timestamp(None)
         assert result is None
 
 
@@ -65,7 +73,7 @@ class TestNormaliseTradeTimestamp:
 
     def test_normalises_trade_timestamp(self) -> None:
         """Test normalising trade timestamp."""
-        result = StaticUtilities.normalise_trade_timestamp("2024-01-15T10:00:00Z")
+        result = normalise_trade_timestamp("2024-01-15T10:00:00Z")
         assert isinstance(result, str)
 
 
@@ -74,12 +82,12 @@ class TestCoerceMapping:
 
     def test_returns_dict_unchanged(self) -> None:
         """Test returning dict unchanged."""
-        result = StaticUtilities.coerce_mapping({"key": "value"})
+        result = coerce_mapping({"key": "value"})
         assert result == {"key": "value"}
 
     def test_returns_empty_for_non_dict(self) -> None:
         """Test returning empty dict for non-dict input."""
-        result = StaticUtilities.coerce_mapping("not a dict")
+        result = coerce_mapping("not a dict")
         assert result == {}
 
 
@@ -88,13 +96,13 @@ class TestStringOrDefault:
 
     def test_returns_string_value(self) -> None:
         """Test returning string value."""
-        result = StaticUtilities.string_or_default("value", "")
+        result = string_or_default("value", "")
         assert result == "value"
 
-    def test_returns_fallback_for_none(self) -> None:
-        """Test returning fallback for None."""
-        result = StaticUtilities.string_or_default(None, "fallback")
-        assert result == "fallback"
+    def test_returns_fill_for_none(self) -> None:
+        """Test returning fill value for None."""
+        result = string_or_default(None, "fill")
+        assert result == "fill"
 
 
 class TestIntOrDefault:
@@ -102,12 +110,12 @@ class TestIntOrDefault:
 
     def test_returns_int_value(self) -> None:
         """Test returning int value."""
-        result = StaticUtilities.int_or_default(42, 0)
+        result = int_or_default(42, 0)
         assert result == 42
 
-    def test_returns_fallback_for_none(self) -> None:
-        """Test returning fallback for None."""
-        result = StaticUtilities.int_or_default(None, 0)
+    def test_returns_fill_for_none(self) -> None:
+        """Test returning fill value for None."""
+        result = int_or_default(None, 0)
         assert result == 0
 
 
@@ -116,10 +124,10 @@ class TestFloatOrDefault:
 
     def test_returns_float_value(self) -> None:
         """Test returning float value."""
-        result = StaticUtilities.float_or_default(3.14, 0.0)
+        result = float_or_default(3.14, 0.0)
         assert result == 3.14
 
-    def test_returns_fallback_for_none(self) -> None:
-        """Test returning fallback for None."""
-        result = StaticUtilities.float_or_default(None, 0.0)
+    def test_returns_fill_for_none(self) -> None:
+        """Test returning fill value for None."""
+        result = float_or_default(None, 0.0)
         assert result == 0.0

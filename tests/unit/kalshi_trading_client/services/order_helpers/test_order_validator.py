@@ -7,7 +7,7 @@ import pytest
 
 from common.data_models.trading import OrderAction, OrderRequest, OrderSide, OrderType
 from common.kalshi_trading_client.services.order_helpers.order_validator import OrderValidator
-from common.trading_exceptions import KalshiOrderValidationError
+from common.trading_exceptions_core import KalshiOrderValidationError
 
 
 class TestOrderValidator:

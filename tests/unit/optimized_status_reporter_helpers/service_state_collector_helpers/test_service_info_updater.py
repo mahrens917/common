@@ -9,10 +9,8 @@ from unittest.mock import Mock
 
 import pytest
 
+import common.optimized_status_reporter_helpers.service_state_collector as helpers
 from common.monitoring import ProcessStatus
-from common.optimized_status_reporter_helpers.service_state_collector_helpers import (
-    helpers,
-)
 
 
 class TestServiceInfoUpdater:

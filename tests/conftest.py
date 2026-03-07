@@ -559,7 +559,6 @@ def stub_schema_config(monkeypatch):
 
     # Mock the class variable and the load method
     monkeypatch.setattr(RedisSchemaConfig, "_instance", stub)
-    monkeypatch.setattr("common.config.redis_schema.get_schema_config", lambda: stub)
 
     return stub
 
@@ -598,7 +597,6 @@ def schema_config_factory(monkeypatch):
         )
         # Set as the global default
         monkeypatch.setattr(RedisSchemaConfig, "_instance", config)
-        monkeypatch.setattr("common.config.redis_schema.get_schema_config", lambda: config)
         return config
 
     return factory

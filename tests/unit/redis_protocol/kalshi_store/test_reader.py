@@ -6,6 +6,7 @@ from unittest.mock import AsyncMock, MagicMock
 
 import pytest
 
+from common.redis_protocol.kalshi_store import KalshiStoreError
 from common.redis_protocol.kalshi_store.reader import (
     KalshiMarketReader,
     MarketQueryHandler,
@@ -20,9 +21,6 @@ from common.redis_protocol.kalshi_store.reader_helpers.connection_wrapper import
 )
 from common.redis_protocol.kalshi_store.reader_helpers.dependencies_factory import (
     KalshiMarketReaderDependencies,
-)
-from common.redis_protocol.kalshi_store.reader_helpers.snapshotreader_helpers import (
-    KalshiStoreError,
 )
 from common.redis_schema import build_kalshi_market_key
 

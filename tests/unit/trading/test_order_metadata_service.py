@@ -5,7 +5,7 @@ from unittest.mock import AsyncMock, MagicMock
 import pytest
 
 from common.trading.order_metadata_service import fetch_order_metadata
-from common.trading_exceptions import KalshiDataIntegrityError
+from common.trading_exceptions_operational import KalshiDataIntegrityError
 
 
 class TestFetchOrderMetadata:

@@ -4,12 +4,14 @@ from typing import Any, Dict, List, Optional
 
 from common.api_response_validators import validate_series_response
 
-from .base import ClientOperationBase
 from .errors import KalshiClientError
 
 
-class SeriesOperations(ClientOperationBase):
+class SeriesOperations:
     """Handle series-related API operations."""
+
+    def __init__(self, client: Any) -> None:
+        self.client = client
 
     async def get_series(self, *, category: Optional[str] = None) -> List[Dict[str, Any]]:
         """Get series information with optional category filter."""

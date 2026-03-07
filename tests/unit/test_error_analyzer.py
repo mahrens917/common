@@ -4,7 +4,7 @@ import pytest
 import requests
 
 from common.error_analyzer import ErrorAnalyzer
-from common.error_analyzer_helpers.data_classes import (
+from common.error_analyzer_helpers.analysis import (
     ErrorAnalysis,
     ErrorCategory,
     ErrorSeverity,

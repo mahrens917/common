@@ -135,38 +135,6 @@ class IPortfolioService(Protocol):
         ...
 
 
-class ITradeCollectionService(Protocol):
-    """Protocol for trade collection service operations."""
-
-    async def start(self) -> None:
-        """Start trade collection."""
-        ...
-
-    async def stop(self) -> None:
-        """Stop trade collection."""
-        ...
-
-
-class ITradeStoreOperations(Protocol):
-    """Protocol for trade store operations."""
-
-    async def get_trade_store(self, trade_store_manager: TradeStoreManager) -> Any:
-        """Get the trade store."""
-        ...
-
-    async def maybe_get_trade_store(self, trade_store_manager: TradeStoreManager) -> Optional[Any]:
-        """Maybe get the trade store if available."""
-        ...
-
-    async def ensure_trade_store(self, trade_store_manager: TradeStoreManager) -> Any:
-        """Ensure trade store is available."""
-        ...
-
-    async def require_trade_store(self, trade_store_manager: TradeStoreManager) -> Any:
-        """Require trade store, raising if unavailable."""
-        ...
-
-
 class IPrivateMethods(Protocol):
     """Protocol for private method operations.
 
@@ -356,8 +324,6 @@ class IOrderPollingHandler(Protocol):
 __all__ = [
     "IOrderService",
     "IPortfolioService",
-    "ITradeCollectionService",
-    "ITradeStoreOperations",
     "IPrivateMethods",
     "IPublicAPI",
     "ILifecycleManager",

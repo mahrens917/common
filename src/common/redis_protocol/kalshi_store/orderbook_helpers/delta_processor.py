@@ -13,9 +13,9 @@ from redis.asyncio import Redis
 from ....market_filters.kalshi import extract_best_ask, extract_best_bid
 from ...error_types import REDIS_ERRORS
 from ...typing import ensure_awaitable
+from ..utils_coercion import convert_numeric_field, string_or_default
 from .best_price_updater import BestPriceUpdater
 from .event_publisher import publish_market_event
-from .field_converter import FieldConverter
 from .side_data_updater import SideDataUpdater
 from .snapshot_processor import SnapshotProcessor
 from .snapshot_processor_helpers.redis_storage import store_optional_field
@@ -109,7 +109,7 @@ class DeltaProcessor(SnapshotProcessor):
 
 def _extract_delta_inputs(msg_data: Dict[str, Any]) -> tuple[str, str, float] | None:
     """Validate incoming delta payload and return side field, price string, and delta."""
-    side = FieldConverter.string_or_default(msg_data.get("side")).lower()
+    side = string_or_default(msg_data.get("side")).lower()
     price = msg_data.get("price")
     delta = msg_data.get("delta")
 
@@ -201,8 +201,8 @@ async def _update_trade_price_cache(processor: DeltaProcessor, redis: Redis, mar
     yes_bid_raw, yes_ask_raw = await ensure_awaitable(pipe.execute())
     decoded_yes_bid = yes_bid_raw.decode("utf-8", "ignore") if isinstance(yes_bid_raw, bytes) else yes_bid_raw
     decoded_yes_ask = yes_ask_raw.decode("utf-8", "ignore") if isinstance(yes_ask_raw, bytes) else yes_ask_raw
-    parsed_yes_bid = FieldConverter.convert_numeric_field(decoded_yes_bid)
-    parsed_yes_ask = FieldConverter.convert_numeric_field(decoded_yes_ask)
+    parsed_yes_bid = convert_numeric_field(decoded_yes_bid)
+    parsed_yes_ask = convert_numeric_field(decoded_yes_ask)
     if parsed_yes_bid is not None and parsed_yes_ask is not None:
         callback = processor.get_update_callback()
         await callback(market_ticker, parsed_yes_bid, parsed_yes_ask)
@@ -214,8 +214,8 @@ async def _update_trade_price_cache_from_cache(
     """Update cached trade prices from the in-memory cache."""
     yes_bid_str = cache.get_field(market_key, "yes_bid")
     yes_ask_str = cache.get_field(market_key, "yes_ask")
-    parsed_yes_bid = FieldConverter.convert_numeric_field(yes_bid_str)
-    parsed_yes_ask = FieldConverter.convert_numeric_field(yes_ask_str)
+    parsed_yes_bid = convert_numeric_field(yes_bid_str)
+    parsed_yes_ask = convert_numeric_field(yes_ask_str)
     if parsed_yes_bid is not None and parsed_yes_ask is not None:
         callback = processor.get_update_callback()
         await callback(market_ticker, parsed_yes_bid, parsed_yes_ask)

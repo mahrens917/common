@@ -2,6 +2,7 @@ from __future__ import annotations
 
 """Common time calculation utilities."""
 
+from ..config_loader import get_reporting_timezone as load_configured_timezone
 from ..time_helpers.expiry import (
     DERIBIT_EXPIRY_HOUR,
     EPOCH_START,
@@ -33,7 +34,6 @@ from ..time_helpers.timezone import (
     get_days_ago_utc,
     get_start_of_day_utc,
     get_timezone_aware_date,
-    load_configured_timezone,
     sleep_until_next_minute,
     to_utc,
 )

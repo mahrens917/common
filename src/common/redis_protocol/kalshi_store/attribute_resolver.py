@@ -8,7 +8,6 @@ from typing import Any
 class AttributeResolverDelegators:
     """Configuration for AttributeResolver delegator components."""
 
-    storage_delegator: Any
     write_delegator: Any
     utility_delegator: Any
     conn_delegator: Any
@@ -37,7 +36,6 @@ class AttributeResolver:
     }
 
     def __init__(self, delegators: AttributeResolverDelegators):
-        self._storage = delegators.storage_delegator
         self._write = delegators.write_delegator
         self._utility = delegators.utility_delegator
         self._connection = delegators.conn_delegator
@@ -52,7 +50,6 @@ class AttributeResolver:
             delegators.orderbook_delegator,
             delegators.cleanup_delegator,
             delegators.utility_delegator,
-            delegators.storage_delegator,
         ]
 
     def resolve(self, name: str) -> Any:
@@ -94,7 +91,7 @@ class AttributeResolver:
 
         target_method = self.UTILITY_METHOD_MAP[name]
         if name == "_store_optional_field":
-            return getattr(self._storage, target_method)
+            return getattr(self._write, target_method)
         if name == "_update_trade_prices_for_market":
             return getattr(self._write, target_method)
         return getattr(self._utility, target_method)

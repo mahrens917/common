@@ -11,7 +11,7 @@ import traceback
 from dataclasses import dataclass
 from typing import Any, Callable, Dict, List, Optional
 
-from .error_analyzer_helpers.data_classes import ErrorAnalysis, ErrorCategory, ErrorSeverity
+from .error_analyzer_helpers.analysis import ErrorAnalysis, ErrorCategory, ErrorSeverity
 from .error_analyzer_helpers.dependencies_factory import (
     ErrorAnalyzerDependencies,
     create_dependencies,

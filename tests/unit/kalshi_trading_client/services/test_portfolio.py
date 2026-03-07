@@ -6,7 +6,7 @@ import pytest
 
 from common.data_models.trading import PortfolioBalance, PortfolioPosition
 from common.kalshi_trading_client.services.portfolio import PortfolioService
-from common.trading_exceptions import KalshiAPIError
+from common.trading_exceptions_operational import KalshiAPIError
 
 
 class TestPortfolioService:

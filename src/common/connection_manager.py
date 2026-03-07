@@ -13,10 +13,8 @@ from typing import Any, Dict, Optional, Protocol
 from .base_connection_manager_helpers import (
     ComponentBuilder,
     PropertyAccessorsMixin,
-    broadcast_state_change,
     calculate_backoff_delay,
     connect_with_retry,
-    initialize_state_tracker,
     send_connection_notification,
     setup_component_proxies,
     start_connection_manager,
@@ -36,6 +34,7 @@ class _ConnectionLifecycleContext(Protocol):
     health_coordinator: Any
     status_reporter: Any
     state_manager: Any
+    _state_tracker_initializer: Any
 
     async def establish_connection(self) -> bool: ...
 
@@ -104,18 +103,6 @@ class ConnectionLifecycleMixin:
         """Get current connection status and metrics."""
         return self.status_reporter.get_status()
 
-    async def _broadcast_state_change(
-        self: _ConnectionLifecycleContext,
-        new_state: ConnectionState,
-        error_context: Optional[str] = None,
-    ) -> None:
-        """Broadcast state change to listeners."""
-        await broadcast_state_change(self, new_state, error_context)
-
-    async def _initialize_state_tracker(self: _ConnectionLifecycleContext) -> None:
-        """Delegate tracker initialization to the state manager."""
-        await initialize_state_tracker(self)
-
     def calculate_backoff_delay(self: _ConnectionLifecycleContext) -> float:
         """Calculate exponential backoff delay with jitter."""
         return calculate_backoff_delay(self)
@@ -133,6 +120,9 @@ class ConnectionLifecycleMixin:
 
 class BaseConnectionManager(ConnectionLifecycleMixin, PropertyAccessorsMixin, ABC):
     """Base class for managing connections with Telegram notifications."""
+
+    state_tracker: Any  # set by setup_component_proxies
+    _state_manager_broadcast: Any  # set by setup_component_proxies
 
     def __init__(self, service_name: str, alerter: Optional[Any] = None):
         """Initialize connection manager with service-specific configuration."""
@@ -160,7 +150,6 @@ class BaseConnectionManager(ConnectionLifecycleMixin, PropertyAccessorsMixin, AB
         self.notification_handler = components["notification_handler"]
         self.lifecycle_manager = components["lifecycle_manager"]
         self.health_monitor = components["health_monitor"]
-        self.state_transition_handler = components["state_transition_handler"]
         self.retry_coordinator = components["retry_coordinator"]
         self.health_coordinator = components["health_coordinator"]
         self.startup_coordinator = components["startup_coordinator"]
@@ -194,7 +183,17 @@ class BaseConnectionManager(ConnectionLifecycleMixin, PropertyAccessorsMixin, AB
         """Clean up connection resources."""
         pass
 
+    async def _broadcast_state_change(self, new_state: ConnectionState, error_context: Optional[str] = None) -> None:
+        """Broadcast state change to listeners."""
+        if self.state_tracker is None:
+            await self._state_tracker_initializer()
+        await self._state_manager_broadcast(new_state, error_context)
+
     def transition_state(self, new_state: ConnectionState, error_context: Optional[str] = None) -> None:
         """Transition to a new connection state."""
-        self.state_transition_handler.transition_state(new_state, error_context)
+        self.state_manager.transition_state(new_state, error_context)
+        if new_state == ConnectionState.CONNECTED:
+            self.metrics_tracker.record_success()
+        elif new_state == ConnectionState.FAILED:
+            self.metrics_tracker.record_failure()
         self.metrics = self.metrics_tracker.get_metrics()

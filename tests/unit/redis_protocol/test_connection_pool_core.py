@@ -401,19 +401,6 @@ class TestPerformRedisHealthCheck:
             mock_monitor.record_connection_error.assert_called_once()
 
 
-class TestGetRedisPoolMetrics:
-    """Tests for get_redis_pool_metrics function."""
-
-    def test_returns_metrics_from_health_monitor(self) -> None:
-        """Returns metrics from the health monitor."""
-        with patch.object(connection_pool_core, "_redis_health_monitor") as mock_monitor:
-            mock_monitor.get_metrics.return_value = {"pool_gets": 10}
-
-            result = connection_pool_core.get_redis_pool_metrics()
-
-            assert result == {"pool_gets": 10}
-
-
 class TestRecordPoolAcquiredAndReturned:
     """Tests for record_pool_acquired and record_pool_returned functions."""
 

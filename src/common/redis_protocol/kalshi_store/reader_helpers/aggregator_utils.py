@@ -4,26 +4,9 @@ Aggregator Utilities - Type coercion and conversion helpers
 Utility functions for market aggregator operations.
 """
 
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Dict, List, Tuple
 
-from common.redis_protocol.kalshi_store.utils_coercion import coerce_mapping as _coerce_mapping
-from common.redis_protocol.kalshi_store.utils_coercion import string_or_default as _string_or_default
-from common.redis_protocol.kalshi_store.utils_coercion import to_optional_float as canonical_to_optional_float
-
-
-def coerce_mapping(candidate: Any) -> Dict[str, Any]:
-    """Delegate mapping coercion to canonical helper."""
-    return _coerce_mapping(candidate)
-
-
-def to_optional_float(value: Any, *, context: str) -> Optional[float]:
-    """Delegate optional float coercion to canonical helper."""
-    return canonical_to_optional_float(value, context=context)
-
-
-def string_or_default(value: Any, fill_value: str = "") -> str:
-    """Delegate string coercion to canonical helper."""
-    return _string_or_default(value, fill_value)
+from common.redis_protocol.kalshi_store.utils_coercion import coerce_mapping, string_or_default, to_optional_float
 
 
 def build_strike_summary(

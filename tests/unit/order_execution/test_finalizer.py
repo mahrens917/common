@@ -19,10 +19,7 @@ DEFAULT_FINALIZER_REMAINING_COUNT = 0
 DEFAULT_FINALIZER_AVG_PRICE = 45
 
 from common.order_execution import PollingOutcome, TradeFinalizer
-from common.trading_exceptions import (
-    KalshiTradeNotificationError,
-    KalshiTradePersistenceError,
-)
+from common.trading_exceptions_operational import KalshiTradeNotificationError, KalshiTradePersistenceError
 
 
 def _build_order_request(**overrides) -> OrderRequest:

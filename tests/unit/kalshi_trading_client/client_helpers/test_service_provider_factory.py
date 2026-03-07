@@ -4,7 +4,7 @@ import asyncio
 from types import SimpleNamespace
 from unittest.mock import AsyncMock, MagicMock, patch
 
-from common.kalshi_trading_client.client_helpers.initialization_coordinator_helpers.helpers import (
+from common.kalshi_trading_client.client_helpers.initialization_coordinator import (
     create_service_providers,
 )
 
@@ -43,11 +43,7 @@ def test_create_service_providers_handles_missing_private_methods():
     manager = MagicMock()
     services_holder = {}
 
-    with patch(
-        "common.kalshi_trading_client.client_helpers.initialization_coordinator_helpers.helpers.TradeStoreOperations.get_trade_store",
-        AsyncMock(return_value=None),
-    ):
-        providers = create_service_providers(manager, services_holder)
+    providers = create_service_providers(manager, services_holder)
 
     assert providers["get_order_poller"]() is None
     assert providers["get_trade_finalizer"]() is None

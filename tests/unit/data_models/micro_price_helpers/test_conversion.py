@@ -8,7 +8,6 @@ from unittest.mock import MagicMock
 import pytest
 
 from common.data_models.micro_price_helpers.conversion import (
-    MicroPriceConversionHelpers,
     determine_expiry,
     determine_underlying,
     extract_prices,
@@ -375,26 +374,3 @@ class TestResolveTimestamp:
             resolve_timestamp(option)
 
         assert "datetime or epoch" in str(exc_info.value)
-
-
-class TestMicroPriceConversionHelpers:
-    """Tests for MicroPriceConversionHelpers class."""
-
-    def test_has_all_static_methods(self) -> None:
-        """Has all conversion functions as static methods."""
-        assert hasattr(MicroPriceConversionHelpers, "resolve_instrument_name")
-        assert hasattr(MicroPriceConversionHelpers, "determine_underlying")
-        assert hasattr(MicroPriceConversionHelpers, "determine_expiry")
-        assert hasattr(MicroPriceConversionHelpers, "resolve_option_type")
-        assert hasattr(MicroPriceConversionHelpers, "extract_prices")
-        assert hasattr(MicroPriceConversionHelpers, "extract_sizes")
-        assert hasattr(MicroPriceConversionHelpers, "resolve_timestamp")
-
-    def test_static_methods_are_callable(self) -> None:
-        """Static methods are callable."""
-        option = MagicMock()
-        option.instrument_name = "BTC-25JAN24-50000-C"
-
-        result = MicroPriceConversionHelpers.resolve_instrument_name(option)
-
-        assert result == "BTC-25JAN24-50000-C"

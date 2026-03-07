@@ -2,7 +2,7 @@
 
 import pytest
 
-from common.utils.distributed_lock_helpers.factory import (
+from common.utils.distributed_lock import (
     create_liquidation_lock,
     create_trade_lock,
 )
@@ -18,7 +18,7 @@ class DummyLock:
 @pytest.mark.asyncio
 async def test_create_trade_lock(monkeypatch):
     monkeypatch.setattr(
-        "common.utils.distributed_lock_helpers.factory.DistributedLock",
+        "common.utils.distributed_lock.DistributedLock",
         DummyLock,
     )
 
@@ -31,7 +31,7 @@ async def test_create_trade_lock(monkeypatch):
 @pytest.mark.asyncio
 async def test_create_liquidation_lock(monkeypatch):
     monkeypatch.setattr(
-        "common.utils.distributed_lock_helpers.factory.DistributedLock",
+        "common.utils.distributed_lock.DistributedLock",
         DummyLock,
     )
 

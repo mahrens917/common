@@ -6,7 +6,7 @@ from typing import TYPE_CHECKING, Awaitable, Callable
 from ....data_models.trading import OrderRequest, OrderResponse, OrderStatus
 from ....order_execution import PollingOutcome
 from ....trading.polling_workflow import PollingWorkflow
-from ....trading_exceptions import (
+from ....trading_exceptions_operational import (
     KalshiOrderPollingError,
     KalshiTradeNotificationError,
     KalshiTradePersistenceError,

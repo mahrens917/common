@@ -1,6 +1,5 @@
 """Tests for kalshi_api response_parser."""
 
-from datetime import datetime
 from unittest.mock import MagicMock, patch
 
 import pytest
@@ -10,30 +9,8 @@ from common.kalshi_api.response_parser import (
     _parse_enum_fields,
     _validate_required_fields,
     _validate_trade_metadata,
-    normalise_rp_fill,
     parse_order_response,
-    parse_rp_order_fill,
-    parse_rp_timestamp,
 )
-
-
-def test_parse_order_fill_delegates():
-    with patch("common.kalshi_api.response_parser.parse_order_fill") as mock_fn:
-        mock_fn.return_value = MagicMock()
-
-        parse_rp_order_fill({"fill": "data"})
-
-        mock_fn.assert_called_once_with({"fill": "data"})
-
-
-def test_normalise_fill_delegates():
-    with patch("common.kalshi_api.response_parser.normalise_fill") as mock_fn:
-        mock_fn.return_value = {"normalized": True}
-
-        result = normalise_rp_fill({"raw": "data"})
-
-        mock_fn.assert_called_once_with({"raw": "data"})
-        assert result == {"normalized": True}
 
 
 def test_parse_enum_fields_success():
@@ -122,13 +99,3 @@ def test_parse_order_response_success():
     assert result.ticker == "KXTEST-T50"
     assert result.trade_rule == "test_rule"
     assert result.trade_reason == "test_reason"
-
-
-def test_parse_timestamp_delegates():
-    with patch("common.kalshi_api.response_parser.parse_rfp_timestamp") as mock_fn:
-        mock_fn.return_value = datetime(2024, 1, 1)
-
-        result = parse_rp_timestamp("2024-01-01T00:00:00Z")
-
-        mock_fn.assert_called_once_with("2024-01-01T00:00:00Z")
-        assert result == datetime(2024, 1, 1)

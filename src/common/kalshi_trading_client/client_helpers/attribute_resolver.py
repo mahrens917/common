@@ -70,16 +70,14 @@ class ClientAttributeResolver:
         return _wrapper
 
     def _resolve_trade_store_operation(self, name: str):
-        """Resolve trade store operations by delegating to TradeStoreOperations."""
-        from .trade_store_ops import TradeStoreOperations
-
-        async def _ts_op(*args, **kwargs):
-            return await getattr(
-                TradeStoreOperations,
-                name.replace("_get", "get").replace("_maybe_get", "maybe_get").replace("_ensure", "ensure"),
-            )(self._client._trade_store_manager, **kwargs)
-
-        return _ts_op
+        """Resolve trade store operations by delegating to the manager."""
+        manager = self._client._trade_store_manager
+        ops = {
+            "_get_trade_store": manager.get_or_create,
+            "_maybe_get_trade_store": manager.maybe_get,
+            "_ensure_trade_store": manager.ensure,
+        }
+        return ops[name]
 
     def _is_delegator_method(self, name: str) -> bool:
         """Check if name should be resolved via delegator."""

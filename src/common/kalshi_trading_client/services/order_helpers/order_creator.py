@@ -5,11 +5,8 @@ from typing import Any, Awaitable, Callable, NoReturn
 
 from ....data_models.trading import OrderRequest, OrderResponse
 from ....redis_protocol.trade_store import TradeStore, TradeStoreError
-from ....trading_exceptions import (
-    KalshiAPIError,
-    KalshiTradePersistenceError,
-    KalshiTradingError,
-)
+from ....trading_exceptions_core import KalshiTradingError
+from ....trading_exceptions_operational import KalshiAPIError, KalshiTradePersistenceError
 from ...constants import CLIENT_API_ERRORS
 
 logger = logging.getLogger(__name__)

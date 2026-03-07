@@ -4,32 +4,32 @@ from unittest.mock import patch
 
 import pytest
 
+from common.redis_protocol.kalshi_store.reader_helpers.orderbook_parser import extract_orderbook_sizes
 from common.redis_protocol.kalshi_store.utils_market import (
     _coerce_strike_bounds,
-    _extract_orderbook_sizes,
     _normalise_timestamp_numeric,
     _normalise_timestamp_string,
-    _normalise_trade_timestamp,
     _parse_market_metadata,
     _resolve_market_strike,
     _resolve_strike_from_bounds,
+    normalise_trade_timestamp,
 )
 
 
 class TestUtilsMarket:
-    def test_normalise_trade_timestamp_valid_string(self):
+    def testnormalise_trade_timestamp_valid_string(self):
         iso = "2023-01-01T12:00:00Z"
-        result = _normalise_trade_timestamp(iso)
+        result = normalise_trade_timestamp(iso)
         assert result == "2023-01-01T12:00:00+00:00"
 
-    def test_normalise_trade_timestamp_valid_numeric(self):
+    def testnormalise_trade_timestamp_valid_numeric(self):
         ts = 1672574400.0  # 2023-01-01 12:00:00 UTC
-        result = _normalise_trade_timestamp(ts)
+        result = normalise_trade_timestamp(ts)
         assert result == "2023-01-01T12:00:00+00:00"
 
-    def test_normalise_trade_timestamp_invalid(self):
-        assert _normalise_trade_timestamp("invalid") == ""
-        assert _normalise_trade_timestamp(None) == ""
+    def testnormalise_trade_timestamp_invalid(self):
+        assert normalise_trade_timestamp("invalid") == ""
+        assert normalise_trade_timestamp(None) == ""
 
     def test_normalise_timestamp_string_timezone(self):
         iso = "2023-01-01T12:00:00"
@@ -85,6 +85,7 @@ class TestUtilsMarket:
         assert _resolve_market_strike(metadata) == 15.0
 
     def test_extract_orderbook_sizes(self):
-        with patch("common.redis_protocol.kalshi_store.utils_market.extract_orderbook_sizes") as mock_extract:
-            mock_extract.return_value = (10.0, 20.0)
-            assert _extract_orderbook_sizes("ticker", {}) == (10.0, 20.0)
+        market_data = {"orderbook": '{"yes_bids": {"50": 10}, "yes_asks": {"55": 20}}'}
+        bid_size, ask_size = extract_orderbook_sizes("ticker", market_data)
+        assert bid_size == 10.0
+        assert ask_size == 20.0

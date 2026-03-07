@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-from datetime import datetime
 from typing import Any, Dict, Optional
 
 from common.data_models.trading import (
@@ -13,6 +12,7 @@ from common.data_models.trading import (
     OrderStatus,
     OrderType,
 )
+from common.time_utils import parse_timestamp
 from common.validation.required_fields import validate_required_fields as _validate_required_fields_common
 
 from .client_helpers.errors import KalshiClientError
@@ -23,18 +23,7 @@ from .response_field_parser import (
     parse_average_fill_price,
     parse_fills_list,
     parse_order_fill,
-    parse_rfp_timestamp,
 )
-
-
-def parse_rp_order_fill(payload: Dict[str, Any]) -> OrderFill:
-    """Parse an order fill from API response payload."""
-    return parse_order_fill(payload)
-
-
-def normalise_rp_fill(payload: Dict[str, Any]) -> Dict[str, Any]:
-    """Normalize fill payload by parsing the timestamp field."""
-    return normalise_fill(payload)
 
 
 def _parse_enum_fields(payload: Dict[str, Any], raw_values: Dict[str, Any]):
@@ -60,7 +49,7 @@ def parse_order_response(
     assert trade_rule is not None and trade_reason is not None
 
     raw_values = extract_raw_values(payload)
-    timestamp = parse_rp_timestamp(raw_values["timestamp_raw"])
+    timestamp = parse_timestamp(raw_values["timestamp_raw"])
     average_fill_price_val = parse_average_fill_price(payload)
     fills = parse_fills_list(raw_values["fills_raw"])
     ticker = extract_ticker(payload)
@@ -112,8 +101,3 @@ def _validate_trade_metadata(trade_rule: Optional[str], trade_reason: Optional[s
         raise KalshiClientError("Order payload missing order_id")
     if not trade_rule or not trade_reason:
         raise KalshiClientError(f"Order metadata missing trade rule/reason for order {order_id}")
-
-
-def parse_rp_timestamp(timestamp_raw: Any) -> datetime | None:
-    """Parse a timestamp string into a datetime object."""
-    return parse_rfp_timestamp(timestamp_raw)

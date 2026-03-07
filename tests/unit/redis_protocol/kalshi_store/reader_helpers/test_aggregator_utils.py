@@ -1,5 +1,5 @@
 from common.redis_protocol.kalshi_store.reader_helpers import aggregator_utils
-from common.value_coercion import string_or_else, to_optional_float
+from common.redis_protocol.kalshi_store.utils_coercion import string_or_default, to_optional_float
 
 
 def test_build_strike_summary_preserves_order():
@@ -16,6 +16,6 @@ def test_build_strike_summary_preserves_order():
 
 
 def test_coercion_helpers_delegation():
-    assert string_or_else(None, otherwise="X") == "X"
-    assert string_or_else(b"abc") == "abc"
+    assert string_or_default(None, "X") == "X"
+    assert string_or_default(b"abc") == "abc"
     assert to_optional_float("2.5", context="ctx") == 2.5

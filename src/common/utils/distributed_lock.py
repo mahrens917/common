@@ -11,7 +11,11 @@ import time
 from contextlib import asynccontextmanager
 
 from ..redis_protocol.error_types import REDIS_ERRORS
-from .distributed_lock_errors import LockUnavailableError
+
+
+class LockUnavailableError(Exception):
+    """Raised when a distributed lock cannot be acquired."""
+
 
 logger = logging.getLogger(__name__)
 

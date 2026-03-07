@@ -1,14 +1,15 @@
 """Handle market status operations."""
 
-from typing import Dict
+from typing import Any, Dict
 
 from common.api_response_validators import validate_exchange_status_response
 
-from .base import ClientOperationBase
 
-
-class MarketStatusOperations(ClientOperationBase):
+class MarketStatusOperations:
     """Handle market status-related API operations."""
+
+    def __init__(self, client: Any) -> None:
+        self.client = client
 
     async def get_exchange_status(self) -> Dict[str, bool]:
         """Get exchange status."""

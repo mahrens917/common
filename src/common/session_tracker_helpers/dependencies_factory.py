@@ -3,13 +3,10 @@
 from dataclasses import dataclass
 from typing import Dict
 
-from .activity_tracker import SessionActivityTracker
 from .cleanup import SessionCleanup
 from .gc_handler import GarbageCollectionHandler
-from .id_generator import SessionIdGenerator
-from .lifecycle import SessionLifecycleTracker
+from .lifecycle import SessionActivityTracker, SessionIdGenerator, SessionLifecycleTracker, SessionQueries
 from .reporter import SessionReporter
-from .session_queries import SessionQueries
 
 
 @dataclass

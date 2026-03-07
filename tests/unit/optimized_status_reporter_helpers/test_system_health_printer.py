@@ -15,13 +15,11 @@ class TestSystemHealthPrinter:
     """Tests for SystemHealthPrinter class."""
 
     def test_init_stores_dependencies(self) -> None:
-        """Stores data_coercion and data_formatting."""
-        data_coercion = MagicMock()
+        """Stores data_formatting."""
         data_formatting = MagicMock()
 
-        printer = SystemHealthPrinter(data_coercion, data_formatting)
+        printer = SystemHealthPrinter(data_formatting)
 
-        assert printer.data_coercion == data_coercion
         assert printer.data_formatting == data_formatting
 
 
@@ -30,9 +28,8 @@ class TestPrintSystemResourcesSection:
 
     def test_prints_header(self) -> None:
         """Prints system resources header."""
-        data_coercion = MagicMock()
         data_formatting = MagicMock()
-        printer = SystemHealthPrinter(data_coercion, data_formatting)
+        printer = SystemHealthPrinter(data_formatting)
         emitted = []
         printer._emit_status_line = lambda x="": emitted.append(x)
 
@@ -47,9 +44,8 @@ class TestPrintSystemResourcesSection:
 
     def test_prints_failed_when_no_health(self) -> None:
         """Prints failed status when health is None."""
-        data_coercion = MagicMock()
         data_formatting = MagicMock()
-        printer = SystemHealthPrinter(data_coercion, data_formatting)
+        printer = SystemHealthPrinter(data_formatting)
         emitted = []
         printer._emit_status_line = lambda x="": emitted.append(x)
 
@@ -60,9 +56,8 @@ class TestPrintSystemResourcesSection:
 
     def test_prints_healthy_status(self) -> None:
         """Prints healthy status with checkmark."""
-        data_coercion = MagicMock()
         data_formatting = MagicMock()
-        printer = SystemHealthPrinter(data_coercion, data_formatting)
+        printer = SystemHealthPrinter(data_formatting)
         emitted = []
         printer._emit_status_line = lambda x="": emitted.append(x)
 
@@ -78,9 +73,8 @@ class TestPrintSystemResourcesSection:
 
     def test_prints_degraded_status(self) -> None:
         """Prints degraded status with warning icon."""
-        data_coercion = MagicMock()
         data_formatting = MagicMock()
-        printer = SystemHealthPrinter(data_coercion, data_formatting)
+        printer = SystemHealthPrinter(data_formatting)
         emitted = []
         printer._emit_status_line = lambda x="": emitted.append(x)
 
@@ -96,9 +90,8 @@ class TestPrintSystemResourcesSection:
 
     def test_prints_unhealthy_status(self) -> None:
         """Prints unhealthy status with red icon."""
-        data_coercion = MagicMock()
         data_formatting = MagicMock()
-        printer = SystemHealthPrinter(data_coercion, data_formatting)
+        printer = SystemHealthPrinter(data_formatting)
         emitted = []
         printer._emit_status_line = lambda x="": emitted.append(x)
 
@@ -113,15 +106,9 @@ class TestPrintSystemResourcesSection:
 
     def test_prints_resource_details(self) -> None:
         """Prints CPU, memory, and disk usage details."""
-        data_coercion = MagicMock()
-        data_coercion.coerce_mapping.return_value = {
-            "cpu_percent": 25.0,
-            "memory_percent": 60.0,
-            "disk_percent": 45.0,
-        }
         data_formatting = MagicMock()
         data_formatting.format_percentage.side_effect = ["25.0%", "60.0%", "45.0%"]
-        printer = SystemHealthPrinter(data_coercion, data_formatting)
+        printer = SystemHealthPrinter(data_formatting)
         emitted = []
         printer._emit_status_line = lambda x="": emitted.append(x)
 
@@ -138,9 +125,8 @@ class TestPrintSystemResourcesSection:
 
     def test_prints_issues_when_not_normal(self) -> None:
         """Prints issues when message is not normal."""
-        data_coercion = MagicMock()
         data_formatting = MagicMock()
-        printer = SystemHealthPrinter(data_coercion, data_formatting)
+        printer = SystemHealthPrinter(data_formatting)
         emitted = []
         printer._emit_status_line = lambda x="": emitted.append(x)
 
@@ -156,9 +142,8 @@ class TestPrintSystemResourcesSection:
 
     def test_does_not_print_issues_when_normal(self) -> None:
         """Does not print issues when message is normal."""
-        data_coercion = MagicMock()
         data_formatting = MagicMock()
-        printer = SystemHealthPrinter(data_coercion, data_formatting)
+        printer = SystemHealthPrinter(data_formatting)
         emitted = []
         printer._emit_status_line = lambda x="": emitted.append(x)
 

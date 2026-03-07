@@ -72,12 +72,10 @@ class TestRedisKeyCounter:
     @pytest.mark.asyncio
     async def test_collect_key_counts_success(self, counter, mock_redis_client):
         """Test collect_key_counts successfully gathers all counts."""
-        # Mocking get_schema_config
-        with patch("common.optimized_status_reporter_helpers.redis_key_counter.get_schema_config") as mock_get_schema_config:
-            mock_schema = Mock()
-            mock_schema.deribit_market_prefix = "deribit"
-            mock_schema.kalshi_market_prefix = "kalshi"
-            mock_get_schema_config.return_value = mock_schema
+        mock_schema = Mock()
+        mock_schema.deribit_market_prefix = "deribit"
+        mock_schema.kalshi_market_prefix = "kalshi"
+        with patch("common.config.redis_schema.RedisSchemaConfig.load", return_value=mock_schema):
 
             # Mocking count_keys_async to return specific counts
             # Need to create AsyncMock instance here as counter.count_keys_async is a method
@@ -102,12 +100,10 @@ class TestRedisKeyCounter:
     @pytest.mark.asyncio
     async def test_collect_key_counts_async_gather_exception(self, counter):
         """Test collect_key_counts handles exceptions during asyncio.gather."""
-        with patch("common.optimized_status_reporter_helpers.redis_key_counter.get_schema_config") as mock_get_schema_config:
-            mock_schema = Mock()
-            mock_schema.deribit_market_prefix = "deribit"
-            mock_schema.kalshi_market_prefix = "kalshi"
-            mock_get_schema_config.return_value = mock_schema
-
+        mock_schema = Mock()
+        mock_schema.deribit_market_prefix = "deribit"
+        mock_schema.kalshi_market_prefix = "kalshi"
+        with patch("common.config.redis_schema.RedisSchemaConfig.load", return_value=mock_schema):
             # Make one of the count_keys_async calls raise an exception
             counter.count_keys_async = AsyncMock(side_effect=[10, Exception("Redis connection error"), 5, 15])
 

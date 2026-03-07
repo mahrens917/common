@@ -80,14 +80,6 @@ def mock_weather_section_generator():
 
 
 @pytest.fixture
-def mock_data_coercion():
-    """Create mock data coercion utility."""
-    coercion = MagicMock()
-    coercion.coerce_mapping = MagicMock(side_effect=lambda x: x or {})
-    return coercion
-
-
-@pytest.fixture
 def sample_status_dict_data():
     """Create sample status dict data."""
     return StatusDictData(
@@ -294,22 +286,21 @@ class TestBuildStatusDict:
 class TestConsolePrinterInitialization:
     """Test ConsolePrinter initialization."""
 
-    def test_initialization_sets_dependencies(self, mock_console_printer, mock_weather_section_generator, mock_data_coercion):
+    def test_initialization_sets_dependencies(self, mock_console_printer, mock_weather_section_generator):
         """Verify ConsolePrinter initializes with dependencies."""
-        printer = ConsolePrinter(mock_console_printer, mock_weather_section_generator, mock_data_coercion)
+        printer = ConsolePrinter(mock_console_printer, mock_weather_section_generator)
 
         assert printer.console_section_printer is not None
         assert printer.weather_section_generator is not None
-        assert printer.data_coercion is not None
 
 
 class TestConsolePrinterPrintFullStatus:
     """Test ConsolePrinter.print_full_status method."""
 
     @pytest.mark.asyncio
-    async def test_prints_all_sections(self, mock_console_printer, mock_weather_section_generator, mock_data_coercion):
+    async def test_prints_all_sections(self, mock_console_printer, mock_weather_section_generator):
         """Test that all status sections are printed."""
-        printer = ConsolePrinter(mock_console_printer, mock_weather_section_generator, mock_data_coercion)
+        printer = ConsolePrinter(mock_console_printer, mock_weather_section_generator)
 
         status_data = {
             "kalshi_market_status": {"status": "open"},
@@ -333,9 +324,9 @@ class TestConsolePrinterPrintFullStatus:
             mock_console_printer.print_monitor_service.assert_called_once()
 
     @pytest.mark.asyncio
-    async def test_handles_missing_data_gracefully(self, mock_console_printer, mock_weather_section_generator, mock_data_coercion):
+    async def test_handles_missing_data_gracefully(self, mock_console_printer, mock_weather_section_generator):
         """Test that missing data fields are handled gracefully."""
-        printer = ConsolePrinter(mock_console_printer, mock_weather_section_generator, mock_data_coercion)
+        printer = ConsolePrinter(mock_console_printer, mock_weather_section_generator)
 
         status_data = {
             "system_resources_health": {},
@@ -351,9 +342,9 @@ class TestConsolePrinterPrintFullStatus:
             mock_console_printer.print_price_info.assert_called_once_with(None, None)
 
     @pytest.mark.asyncio
-    async def test_coerces_data_before_printing(self, mock_console_printer, mock_weather_section_generator, mock_data_coercion):
-        """Test that data is coerced using data_coercion utility."""
-        printer = ConsolePrinter(mock_console_printer, mock_weather_section_generator, mock_data_coercion)
+    async def test_coerces_data_before_printing(self, mock_console_printer, mock_weather_section_generator):
+        """Test that data is coerced using utils_coercion module."""
+        printer = ConsolePrinter(mock_console_printer, mock_weather_section_generator)
 
         status_data = {
             "kalshi_market_status": {"status": "open"},
@@ -365,14 +356,15 @@ class TestConsolePrinterPrintFullStatus:
 
         with patch("common.optimized_status_reporter_helpers.status_report_coordinator.get_current_utc") as mock_time:
             mock_time.return_value.strftime.return_value = "2025-01-01 12:00:00"
-            await printer.print_full_status(status_data)
-
-            assert mock_data_coercion.coerce_mapping.call_count >= 2
+            with patch("common.optimized_status_reporter_helpers.status_report_coordinator.utils_coercion") as mock_coercion:
+                mock_coercion.coerce_mapping.side_effect = lambda x: x or {}
+                await printer.print_full_status(status_data)
+                assert mock_coercion.coerce_mapping.call_count >= 2
 
     @pytest.mark.asyncio
-    async def test_generates_weather_section(self, mock_console_printer, mock_weather_section_generator, mock_data_coercion):
+    async def test_generates_weather_section(self, mock_console_printer, mock_weather_section_generator):
         """Test that weather section is generated."""
-        printer = ConsolePrinter(mock_console_printer, mock_weather_section_generator, mock_data_coercion)
+        printer = ConsolePrinter(mock_console_printer, mock_weather_section_generator)
 
         status_data = {
             "weather_temperatures": {"KORD": 72.5},
@@ -401,7 +393,6 @@ class TestStatusReportCoordinatorInitialization:
             collectors=mock_coordinator_collectors,
             console_section_printer=MagicMock(),
             weather_section_generator=MagicMock(),
-            data_coercion=MagicMock(),
         )
 
         coordinator = StatusReportCoordinator(config)
@@ -423,7 +414,6 @@ class TestStatusReportCoordinatorInitialization:
             collectors=mock_coordinator_collectors,
             console_section_printer=MagicMock(),
             weather_section_generator=MagicMock(),
-            data_coercion=MagicMock(),
         )
 
         coordinator = StatusReportCoordinator(config)
@@ -446,7 +436,6 @@ class TestStatusReportCoordinatorGenerateAndStreamStatusReport:
             collectors=mock_coordinator_collectors,
             console_section_printer=MagicMock(),
             weather_section_generator=MagicMock(),
-            data_coercion=MagicMock(),
         )
 
         coordinator = StatusReportCoordinator(config)
@@ -480,7 +469,6 @@ class TestStatusReportCoordinatorGenerateAndStreamStatusReport:
             collectors=mock_coordinator_collectors,
             console_section_printer=MagicMock(),
             weather_section_generator=MagicMock(),
-            data_coercion=MagicMock(),
         )
 
         coordinator = StatusReportCoordinator(config)
@@ -502,7 +490,6 @@ class TestStatusReportCoordinatorGenerateAndStreamStatusReport:
             collectors=mock_coordinator_collectors,
             console_section_printer=MagicMock(),
             weather_section_generator=MagicMock(),
-            data_coercion=MagicMock(),
         )
 
         coordinator = StatusReportCoordinator(config)
@@ -524,7 +511,6 @@ class TestStatusReportCoordinatorGenerateAndStreamStatusReport:
             collectors=mock_coordinator_collectors,
             console_section_printer=MagicMock(),
             weather_section_generator=MagicMock(),
-            data_coercion=MagicMock(),
         )
 
         coordinator = StatusReportCoordinator(config)
@@ -546,7 +532,6 @@ class TestStatusReportCoordinatorGenerateAndStreamStatusReport:
             collectors=mock_coordinator_collectors,
             console_section_printer=MagicMock(),
             weather_section_generator=MagicMock(),
-            data_coercion=MagicMock(),
         )
 
         coordinator = StatusReportCoordinator(config)
@@ -568,7 +553,6 @@ class TestStatusReportCoordinatorGenerateAndStreamStatusReport:
             collectors=mock_coordinator_collectors,
             console_section_printer=MagicMock(),
             weather_section_generator=MagicMock(),
-            data_coercion=MagicMock(),
         )
 
         coordinator = StatusReportCoordinator(config)
@@ -590,7 +574,6 @@ class TestStatusReportCoordinatorGenerateAndStreamStatusReport:
             collectors=mock_coordinator_collectors,
             console_section_printer=MagicMock(),
             weather_section_generator=MagicMock(),
-            data_coercion=MagicMock(),
         )
 
         coordinator = StatusReportCoordinator(config)
@@ -612,7 +595,6 @@ class TestStatusReportCoordinatorGenerateAndStreamStatusReport:
             collectors=mock_coordinator_collectors,
             console_section_printer=MagicMock(),
             weather_section_generator=MagicMock(),
-            data_coercion=MagicMock(),
         )
 
         coordinator = StatusReportCoordinator(config)
@@ -634,7 +616,6 @@ class TestStatusReportCoordinatorGenerateAndStreamStatusReport:
             collectors=mock_coordinator_collectors,
             console_section_printer=MagicMock(),
             weather_section_generator=MagicMock(),
-            data_coercion=MagicMock(),
         )
 
         coordinator = StatusReportCoordinator(config)
@@ -656,7 +637,6 @@ class TestStatusReportCoordinatorGenerateAndStreamStatusReport:
             collectors=mock_coordinator_collectors,
             console_section_printer=MagicMock(),
             weather_section_generator=MagicMock(),
-            data_coercion=MagicMock(),
         )
 
         coordinator = StatusReportCoordinator(config)
@@ -711,7 +691,6 @@ class TestStatusReportCoordinatorConfigDataclass:
             collectors=mock_coordinator_collectors,
             console_section_printer=MagicMock(),
             weather_section_generator=MagicMock(),
-            data_coercion=MagicMock(),
         )
 
         with pytest.raises(AttributeError):

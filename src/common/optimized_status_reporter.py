@@ -11,10 +11,10 @@ from typing import Any, Dict, Optional
 
 from common.kalshi_api.client import KalshiClient
 from common.kalshi_client_mixin import KalshiClientMixin
+from common.optimized_status_reporter_helpers.formatting import TimeFormatter
 from common.optimized_status_reporter_helpers.log_activity_formatter import (
     LogActivityFormatter,
 )
-from common.optimized_status_reporter_helpers.time_formatter import TimeFormatter
 from common.optimized_status_reporter_mixins import (
     StatusReporterFormatterMixin,
     StatusReporterWeatherMixin,
@@ -24,7 +24,6 @@ from .optimized_status_reporter_helpers.dependencies_factory import (
     StatusReporterDependencies,
     StatusReporterDependenciesFactory,
 )
-from .optimized_status_reporter_helpers.status_line import emit_status_line
 
 logger = logging.getLogger(__name__)
 
@@ -49,7 +48,7 @@ class OptimizedStatusReporter(
         self.process_manager = process_manager
         self._kalshi_client: Optional[KalshiClient] = None
         self._kalshi_client_lock = asyncio.Lock()
-        self._emit_status_line = emit_status_line
+        self._emit_status_line = print
 
         deps = dependencies or StatusReporterDependenciesFactory.create(
             process_manager,
@@ -81,14 +80,6 @@ class OptimizedStatusReporter(
             raise RuntimeError("Status report generation failed") from exc
         else:
             return status_data
-
-    async def _gather_status_data_optimized(self, redis_client=None) -> Dict[str, Any]:
-        """
-        Status data gathering used by monitor commands.
-
-        When ``redis_client`` is not provided, a client is created and closed internally.
-        """
-        return await self.gather_status_data(redis_client=redis_client)
 
     async def gather_status_data(self, redis_client=None) -> Dict[str, Any]:
         """

@@ -6,15 +6,16 @@ Formats weather station data with day/night indicators.
 
 from typing import Any, Dict, List
 
+from common.redis_protocol.kalshi_store import utils_coercion
+
 DEFAULT_WEATHER_EMOJI = "🌡️"
 
 
 class WeatherSectionGenerator:
     """Generates formatted weather section lines."""
 
-    def __init__(self, day_night_detector, data_coercion):
+    def __init__(self, day_night_detector):
         self.day_night_detector = day_night_detector
-        self.data_coercion = data_coercion
 
     def generate_weather_section(self, weather_temperatures: Dict[str, Any]) -> List[str]:
         """Generate weather section lines with day/night indicators."""
@@ -45,7 +46,7 @@ class WeatherSectionGenerator:
                 ValueError,
             ):
                 continue
-            emoticon = self.data_coercion.string_or_default(
+            emoticon = utils_coercion.string_or_default(
                 weather_info_raw.get("emoticon"),
                 DEFAULT_WEATHER_EMOJI,
             )

@@ -2,25 +2,27 @@ from datetime import datetime, timezone
 
 import pytest
 
-from common.trading_exceptions import (
-    KalshiAPIError,
+from common.trading_exceptions_core import (
     KalshiAuthenticationError,
-    KalshiConfigurationError,
-    KalshiDataIntegrityError,
     KalshiInsufficientFundsError,
     KalshiMarketClosedError,
-    KalshiNetworkError,
-    KalshiOrderNotFoundError,
-    KalshiOrderPollingError,
     KalshiOrderRejectedError,
     KalshiOrderValidationError,
-    KalshiPositionError,
     KalshiRateLimiterBugError,
     KalshiRateLimiterQueueFullError,
     KalshiRateLimitError,
+    KalshiTradingError,
+)
+from common.trading_exceptions_operational import (
+    KalshiAPIError,
+    KalshiConfigurationError,
+    KalshiDataIntegrityError,
+    KalshiNetworkError,
+    KalshiOrderNotFoundError,
+    KalshiOrderPollingError,
+    KalshiPositionError,
     KalshiTradeNotificationError,
     KalshiTradePersistenceError,
-    KalshiTradingError,
 )
 
 _CONST_100 = 100

@@ -6,16 +6,15 @@ Formats and prints system resource usage information.
 
 from typing import Any
 
-from common.optimized_status_reporter_helpers.status_line import emit_status_line
+from common.redis_protocol.kalshi_store import utils_coercion
 
 
 class SystemHealthPrinter:
     """Prints system resources health section."""
 
-    def __init__(self, data_coercion, data_formatting):
-        self.data_coercion = data_coercion
+    def __init__(self, data_formatting):
         self.data_formatting = data_formatting
-        self._emit_status_line = emit_status_line
+        self._emit_status_line = print
 
     def print_system_resources_section(self, system_resources_health: Any) -> None:
         """Print system resources health section."""
@@ -32,7 +31,7 @@ class SystemHealthPrinter:
                 status_icon = "🔴"
             self._emit_status_line(f"  {status_icon} Overall Status - {health_check.status.value.title()}")
             if health_check.details:
-                details = self.data_coercion.coerce_mapping(health_check.details)
+                details = utils_coercion.coerce_mapping(health_check.details)
                 cpu_usage = self.data_formatting.format_percentage(details.get("cpu_percent"))
                 memory_usage = self.data_formatting.format_percentage(details.get("memory_percent"))
                 disk_usage = self.data_formatting.format_percentage(details.get("disk_percent"))

@@ -9,7 +9,7 @@ from typing import Dict, Optional
 
 from redis.asyncio import Redis
 
-from common.config.redis_schema import get_schema_config
+from common.config.redis_schema import RedisSchemaConfig
 
 
 class RedisKeyCounter:
@@ -30,7 +30,7 @@ class RedisKeyCounter:
 
     async def collect_key_counts(self) -> Dict[str, int]:
         """Collect counts for all key namespaces."""
-        schema = get_schema_config()
+        schema = RedisSchemaConfig.load()
         deribit, kalshi, cfb, weather = await asyncio.gather(
             self.count_keys_async(f"{schema.deribit_market_prefix}:*"),
             self.count_keys_async(f"{schema.kalshi_market_prefix}:*"),

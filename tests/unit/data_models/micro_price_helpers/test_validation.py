@@ -6,13 +6,12 @@ import math
 
 import pytest
 
+from common.data_models.micro_price_helpers.constraint_validator import validate_micro_price_constraints
 from common.data_models.micro_price_helpers.validation import (
-    MicroPriceValidator,
     get_validation_errors,
     validate_basic_option_data,
     validate_mathematical_relationships,
     validate_micro_price_calculations,
-    validate_micro_price_constraints,
 )
 from common.data_models.micro_price_helpers.validation_params import (
     BasicOptionData,
@@ -132,17 +131,3 @@ class TestGetValidationErrors:
         )
         result = get_validation_errors(params)
         assert isinstance(result, list)
-
-
-class TestMicroPriceValidatorClass:
-    """Tests for MicroPriceValidator class."""
-
-    def test_numerical_tolerance(self) -> None:
-        assert MicroPriceValidator.NUMERICAL_TOLERANCE == 0.01
-
-    def test_static_methods_accessible(self) -> None:
-        assert callable(MicroPriceValidator.validate_basic_option_data)
-        assert callable(MicroPriceValidator.validate_micro_price_calculations)
-        assert callable(MicroPriceValidator.validate_mathematical_relationships)
-        assert callable(MicroPriceValidator.validate_micro_price_constraints)
-        assert callable(MicroPriceValidator.get_validation_errors)

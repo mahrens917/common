@@ -16,12 +16,11 @@ from .facade_coordinator import (
     MetadataDelegator,
     SubscriptionDelegator,
 )
-from .facade_helpers import PropertyManager
+from .facade_helpers_modules import PropertyManager
 from .metadata import KalshiMetadataAdapter
 from .orderbook import KalshiOrderbookProcessor
 from .orderbook_delegator import OrderbookDelegator
 from .reader import KalshiMarketReader
-from .storage_delegator import StorageDelegator
 from .subscription import KalshiSubscriptionTracker
 from .utility_delegator import UtilityDelegator
 from .write_delegator import WriteDelegator
@@ -91,7 +90,6 @@ def create_delegators(core: dict, weather_resolver: WeatherStationResolver) -> d
     orderbook_delegator = OrderbookDelegator(core["orderbook"])
     cleanup_delegator = CleanupDelegator(core["cleaner"])
     utility_delegator = UtilityDelegator(core["writer"], core["reader"], weather_resolver)
-    storage_delegator = StorageDelegator(core["writer"])
 
     return {
         "property_mgr": property_mgr,
@@ -103,7 +101,6 @@ def create_delegators(core: dict, weather_resolver: WeatherStationResolver) -> d
         "orderbook_delegator": orderbook_delegator,
         "cleanup_delegator": cleanup_delegator,
         "utility_delegator": utility_delegator,
-        "storage_delegator": storage_delegator,
     }
 
 
@@ -112,7 +109,6 @@ def create_attribute_resolver(delegators: dict) -> AttributeResolver:
     from .attribute_resolver import AttributeResolverDelegators
 
     config = AttributeResolverDelegators(
-        storage_delegator=delegators["storage_delegator"],
         write_delegator=delegators["write_delegator"],
         utility_delegator=delegators["utility_delegator"],
         conn_delegator=delegators["conn_delegator"],

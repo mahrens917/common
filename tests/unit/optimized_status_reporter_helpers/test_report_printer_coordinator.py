@@ -15,20 +15,8 @@ class TestReportPrinterCoordinator:
     @pytest.fixture
     def mock_dependencies(self):
         """Mock all external dependencies for the coordinator."""
-        mock_data_coercion = Mock()
-
-        def coerce_mapping_side_effect(arg):
-            if arg == {"kalshi": "status_raw"}:
-                return {"kalshi": "status"}
-            if arg == {}:
-                return {}
-            return arg
-
-        mock_data_coercion.coerce_mapping.side_effect = coerce_mapping_side_effect
-
         return {
             "emit_func": Mock(),
-            "data_coercion": mock_data_coercion,
             "section_printer": Mock(),
             "service_printer": Mock(),
             "metrics_printer": Mock(),
@@ -44,8 +32,6 @@ class TestReportPrinterCoordinator:
     @pytest.mark.asyncio
     async def test_print_status_report(self, coordinator, mock_dependencies):
         """Test print_status_report method calls all sub-printers and emits correctly."""
-        # Mocking necessary return values and side effects
-        mock_dependencies["data_coercion"].coerce_mapping.return_value = {}
         mock_dependencies["process_manager"].get_managed_processes.return_value = []
         mock_dependencies["service_printer"].print_managed_services.return_value = (
             2,
@@ -53,7 +39,7 @@ class TestReportPrinterCoordinator:
         )  # healthy, total
 
         status_data = {
-            "kalshi_market_status": {"kalshi": "status_raw"},
+            "kalshi_market_status": {},
             "tracker_status": {},
             "log_activity": {},
         }
@@ -67,7 +53,7 @@ class TestReportPrinterCoordinator:
             assert mock_dependencies["emit_func"].call_count == 5
 
             # Assert section_printer calls
-            mock_dependencies["section_printer"].print_exchange_info.assert_called_once_with("2023-01-01 12:00:00", {"kalshi": "status"})
+            mock_dependencies["section_printer"].print_exchange_info.assert_called_once_with("2023-01-01 12:00:00", {})
             mock_dependencies["section_printer"].print_price_info.assert_called_once_with(status_data)
             mock_dependencies["section_printer"].print_weather_info.assert_called_once_with(
                 status_data, mock_dependencies["weather_generator"]

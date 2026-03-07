@@ -2,28 +2,16 @@
 
 from __future__ import annotations
 
-import asyncio
 import logging
-from json import JSONDecodeError
 from typing import Callable, Optional
 
-from redis.exceptions import RedisError
-
 from ..redis_protocol.connection_store import ConnectionStore, get_connection_store
-from .error_builder import build_tracker_error
+from . import STORE_ERROR_TYPES, build_tracker_error
 from .event_manager import EventManager
 from .state_querier import StateQuerier
 from .state_updater import StateUpdater
 
 logger = logging.getLogger(__name__)
-
-STORE_ERROR_TYPES = (
-    ConnectionError,
-    RedisError,
-    RuntimeError,
-    asyncio.TimeoutError,
-    JSONDecodeError,
-)
 
 
 class TrackerInitializer:

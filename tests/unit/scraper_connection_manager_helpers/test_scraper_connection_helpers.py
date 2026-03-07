@@ -230,7 +230,7 @@ async def test_scraper_session_manager_lifecycle(monkeypatch):
         async def close(self):
             self.closed = True
 
-    def fake_track_existing_session(_session, name):
+    def fake_track_session_creation(_session, name):
         created_sessions.append(name)
         return "session-id"
 
@@ -246,7 +246,7 @@ async def test_scraper_session_manager_lifecycle(monkeypatch):
             TCPConnector=DummyConnector,
         ),
     )
-    monkeypatch.setattr(session_manager, "track_existing_session", fake_track_existing_session)
+    monkeypatch.setattr(session_manager.session_tracker, "track_session_creation", fake_track_session_creation)
     monkeypatch.setattr(session_manager, "track_session_close", fake_track_session_close)
 
     mgr = session_manager.ScraperSessionManager("svc", "agent", 1, 2)

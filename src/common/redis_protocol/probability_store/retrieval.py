@@ -7,7 +7,7 @@ from typing import Awaitable, Callable, Dict, List, Optional, Union
 
 from redis.asyncio import Redis
 
-from .probabilityretrieval_helpers.factory import create_probability_retrieval_components
+from .probabilityretrieval_helpers.factory import ProbabilityRetrievalComponents
 from .probabilityretrieval_helpers.sorting_helpers import (
     ProbabilityByExpiryGrouped,
     ProbabilityByStrikeType,
@@ -22,7 +22,7 @@ class ProbabilityRetrieval:
     """
 
     def __init__(self, redis_provider: Callable[[], Awaitable[Redis]]) -> None:
-        self._components = create_probability_retrieval_components(redis_provider)
+        self._components = ProbabilityRetrievalComponents(redis_provider)
 
     async def get_probabilities(self, currency: str) -> Dict[str, Dict[str, Dict[str, Union[str, float]]]]:
         """Get probabilities from hash: probabilities:{CURRENCY}."""

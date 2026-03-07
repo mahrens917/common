@@ -6,14 +6,7 @@ import time as _time
 from typing import Any, Dict, List, Optional
 
 from .connection_state import ConnectionState
-from .connection_state_tracker_helpers.delegator import (
-    EventManagerDelegator,
-    StateQuerierDelegator,
-    StateUpdaterDelegator,
-)
-from .connection_state_tracker_helpers.error_builder import (
-    ConnectionStateTrackerError,
-)
+from .connection_state_tracker_helpers import ConnectionStateTrackerError
 from .connection_state_tracker_helpers.event_manager import EventManager
 from .connection_state_tracker_helpers.initializer import TrackerInitializer
 from .connection_state_tracker_helpers.state_querier import StateQuerier
@@ -34,9 +27,6 @@ class ConnectionStateTracker:
         self.state_querier: Optional[StateQuerier] = None
         self.event_manager: Optional[EventManager] = None
         self.time_provider = lambda: time.time()
-        self._updater_delegator = StateUpdaterDelegator(self)
-        self._state_delegator = StateQuerierDelegator(self)
-        self._event_delegator = EventManagerDelegator(self)
 
     async def initialize(self) -> None:
         """Initialize the connection state tracker with Redis store."""
@@ -68,47 +58,69 @@ class ConnectionStateTracker:
         consecutive_failures: int = 0,
     ) -> bool:
         """Update connection state for a service."""
-        return await self._updater_delegator.update_connection_state(service_name, state, error_context, consecutive_failures)
+        await self.initialize()
+        assert self.state_updater is not None
+        return await self.state_updater.update_connection_state(service_name, state, error_context, consecutive_failures)
 
     async def get_connection_state(self, service_name: str) -> Optional[ConnectionStateInfo]:
         """Get current connection state for a service."""
-        return await self._state_delegator.get_connection_state(service_name)
+        await self.initialize()
+        assert self.state_querier is not None
+        return await self.state_querier.get_connection_state(service_name)
 
     async def is_service_in_reconnection(self, service_name: str) -> bool:
         """Check if a service is currently in reconnection mode."""
-        return await self._state_delegator.is_service_in_reconnection(service_name)
+        await self.initialize()
+        assert self.state_querier is not None
+        return await self.state_querier.is_service_in_reconnection(service_name)
 
     async def get_services_in_reconnection(self) -> List[str]:
         """Get list of all services currently in reconnection mode."""
-        return await self._state_delegator.get_services_in_reconnection()
+        await self.initialize()
+        assert self.state_querier is not None
+        return await self.state_querier.get_services_in_reconnection()
 
     async def is_service_in_grace_period(self, service_name: str, grace_period_seconds: int = 300) -> bool:
         """Check if a service is within grace period after reconnection."""
-        return await self._state_delegator.is_service_in_grace_period(service_name, grace_period_seconds)
+        await self.initialize()
+        assert self.state_querier is not None
+        return await self.state_querier.is_service_in_grace_period(service_name, grace_period_seconds)
 
     async def get_reconnection_duration(self, service_name: str) -> Optional[float]:
         """Get current reconnection duration for a service."""
-        return await self._state_delegator.get_reconnection_duration(service_name)
+        await self.initialize()
+        assert self.state_querier is not None
+        return await self.state_querier.get_reconnection_duration(service_name)
 
     async def get_all_connection_states(self) -> Dict[str, ConnectionStateInfo]:
         """Get all current connection states."""
-        return await self._state_delegator.get_all_connection_states()
+        await self.initialize()
+        assert self.state_querier is not None
+        return await self.state_querier.get_all_connection_states()
 
     async def record_connection_event(self, service_name: str, event_type: str, details: str = "") -> None:
         """Record a connection-related event for debugging and monitoring."""
-        await self._event_delegator.record_connection_event(service_name, event_type, details)
+        await self.initialize()
+        assert self.event_manager is not None
+        await self.event_manager.record_connection_event(service_name, event_type, details)
 
     async def store_service_metrics(self, service_name: str, metrics: Dict[str, Any]) -> bool:
         """Persist supplemental service metrics alongside connection state."""
-        return await self._event_delegator.store_service_metrics(service_name, metrics)
+        await self.initialize()
+        assert self.event_manager is not None
+        return await self.event_manager.store_service_metrics(service_name, metrics)
 
     async def get_recent_connection_events(self, service_name: str, hours_back: int = 1) -> List[Dict[str, Any]]:
         """Get recent connection events for a service."""
-        return await self._event_delegator.get_recent_connection_events(service_name, hours_back)
+        await self.initialize()
+        assert self.event_manager is not None
+        return await self.event_manager.get_recent_connection_events(service_name, hours_back)
 
     async def cleanup_stale_states(self, max_age_hours: int = 24) -> int:
         """Clean up stale connection states."""
-        return await self._event_delegator.cleanup_stale_states(max_age_hours)
+        await self.initialize()
+        assert self.event_manager is not None
+        return await self.event_manager.cleanup_stale_states(max_age_hours)
 
 
 _connection_state_tracker: Optional[ConnectionStateTracker] = None

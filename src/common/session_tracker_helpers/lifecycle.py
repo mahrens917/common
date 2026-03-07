@@ -1,14 +1,21 @@
-"""Session lifecycle tracking - creation and closure."""
+"""Session lifecycle tracking - creation, closure, queries, and helpers."""
 
 import logging
 import time
+import traceback
 import weakref
-from typing import Dict
+from dataclasses import dataclass, field
+from typing import Dict, List, Optional
 
 import aiohttp
 
 from common.session_tracker_helpers.models import SessionInfo
-from common.session_tracker_helpers.stack_tracer import get_stack_trace
+
+
+def get_stack_trace() -> str:
+    """Get current stack trace for debugging."""
+    return "".join(traceback.format_stack()[-3:-1])
+
 
 logger = logging.getLogger(__name__)
 
@@ -88,3 +95,46 @@ class SessionLifecycleTracker:
             self._log_level,
             f"📥 Session {session_id} closure stack:\n{session_info.closed_stack}",
         )
+
+
+class SessionIdGenerator:
+    """Generates unique session IDs for tracking."""
+
+    def __init__(self):
+        self._next_session_id = 1
+
+    def generate(self) -> str:
+        """Generate unique session ID."""
+        session_id = f"session_{self._next_session_id:04d}"
+        self._next_session_id += 1
+        return session_id
+
+
+class SessionActivityTracker:
+    """Records activity events per session."""
+
+    def __init__(self, sessions: Dict[str, SessionInfo], log_level: int):
+        self.sessions = sessions
+        self._log_level = log_level
+
+    def track_activity(self, session_id: str) -> None:
+        session_info = self.sessions.get(session_id)
+        if not session_info:
+            logger.warning("Activity for unknown session: %s", session_id)
+            return
+        session_info.request_count += 1
+        session_info.last_activity = time.time()
+
+
+class SessionQueries:
+    """Provides read-only access to tracked session metadata."""
+
+    def __init__(self, sessions: Dict[str, SessionInfo], session_refs: Dict[str, weakref.ReferenceType]):
+        self.sessions = sessions
+        self.session_refs = session_refs
+
+    def get_active_sessions(self) -> List[SessionInfo]:
+        return [s for s in self.sessions.values() if not s.is_closed]
+
+    def get_total_session_count(self) -> int:
+        return len(self.sessions)

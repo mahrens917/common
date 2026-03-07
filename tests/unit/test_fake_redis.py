@@ -2,7 +2,7 @@ from unittest.mock import AsyncMock
 
 import pytest
 
-from common.config.redis_schema import get_schema_config
+from common.config.redis_schema import RedisSchemaConfig
 
 
 @pytest.mark.asyncio
@@ -39,12 +39,12 @@ async def test_fake_redis_hash_and_pipeline(fake_redis):
 
 
 def test_stub_schema_config_exposes_overrides(stub_schema_config, schema_config_factory):
-    default = get_schema_config()
+    default = RedisSchemaConfig.load()
     assert default is stub_schema_config
     assert default.kalshi_market_prefix == "markets:kalshi"
 
     custom = schema_config_factory(kalshi_market_prefix="markets:kalshi:custom")
-    assert get_schema_config() is custom
+    assert RedisSchemaConfig.load() is custom
     assert custom.kalshi_market_prefix == "markets:kalshi:custom"
 
 

@@ -3,7 +3,7 @@
 import logging
 from typing import Any, Dict, List, Optional
 
-from ....trading_exceptions import KalshiAPIError
+from ....trading_exceptions_operational import KalshiAPIError
 from ...constants import CLIENT_API_ERRORS
 
 logger = logging.getLogger(__name__)

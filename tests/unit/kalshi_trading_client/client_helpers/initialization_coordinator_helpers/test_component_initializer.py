@@ -2,9 +2,7 @@
 
 from unittest.mock import MagicMock
 
-from common.kalshi_trading_client.client_helpers.initialization_coordinator_helpers import (
-    helpers,
-)
+from common.kalshi_trading_client.client_helpers import initialization_coordinator as helpers
 
 
 def test_initialize_core_components(monkeypatch):

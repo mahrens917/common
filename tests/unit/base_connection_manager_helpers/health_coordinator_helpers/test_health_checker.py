@@ -6,9 +6,7 @@ from unittest.mock import AsyncMock, MagicMock
 
 import pytest
 
-from common.base_connection_manager_helpers.health_coordinator_helpers.health_checker import (
-    HealthChecker,
-)
+from common.base_connection_manager_helpers.health_coordinator import HealthChecker
 from common.connection_state import ConnectionState
 
 

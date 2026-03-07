@@ -339,9 +339,9 @@ class TestMicroPriceOptionData:
         expiry = datetime(2023, 12, 29, tzinfo=timezone.utc)
 
         with (
-            patch("common.data_models.market_data.MicroPriceValidator.validate_basic_option_data"),
-            patch("common.data_models.market_data.MicroPriceValidator.validate_micro_price_calculations"),
-            patch("common.data_models.market_data.MicroPriceValidator.validate_mathematical_relationships"),
+            patch("common.data_models.market_data.validate_basic_option_data"),
+            patch("common.data_models.market_data.validate_micro_price_calculations"),
+            patch("common.data_models.market_data.validate_mathematical_relationships"),
         ):
             data = MicroPriceOptionData(
                 instrument_name="BTC-29DEC23-45000-C",
@@ -375,9 +375,9 @@ class TestMicroPriceOptionData:
         expiry = datetime(2023, 12, 29, tzinfo=timezone.utc)
 
         with (
-            patch("common.data_models.market_data.MicroPriceValidator.validate_basic_option_data") as mock_validate,
-            patch("common.data_models.market_data.MicroPriceValidator.validate_micro_price_calculations"),
-            patch("common.data_models.market_data.MicroPriceValidator.validate_mathematical_relationships"),
+            patch("common.data_models.market_data.validate_basic_option_data") as mock_validate,
+            patch("common.data_models.market_data.validate_micro_price_calculations"),
+            patch("common.data_models.market_data.validate_mathematical_relationships"),
         ):
             MicroPriceOptionData(
                 instrument_name="BTC-29DEC23-45000-C",
@@ -410,9 +410,9 @@ class TestMicroPriceOptionDataMethods:
         expiry = datetime(2023, 12, 29, tzinfo=timezone.utc)
 
         with (
-            patch("common.data_models.market_data.MicroPriceValidator.validate_basic_option_data"),
-            patch("common.data_models.market_data.MicroPriceValidator.validate_micro_price_calculations"),
-            patch("common.data_models.market_data.MicroPriceValidator.validate_mathematical_relationships"),
+            patch("common.data_models.market_data.validate_basic_option_data"),
+            patch("common.data_models.market_data.validate_micro_price_calculations"),
+            patch("common.data_models.market_data.validate_mathematical_relationships"),
         ):
             data = MicroPriceOptionData(
                 instrument_name="BTC-29DEC23-45000-C",
@@ -434,7 +434,7 @@ class TestMicroPriceOptionDataMethods:
             )
 
         with patch(
-            "common.data_models.market_data.MicroPriceValidator.validate_micro_price_constraints",
+            "common.data_models.market_data.validate_micro_price_constraints",
             return_value=True,
         ):
             result = data.validate_micro_price_constraints()
@@ -446,9 +446,9 @@ class TestMicroPriceOptionDataMethods:
         expiry = datetime(2023, 12, 29, tzinfo=timezone.utc)
 
         with (
-            patch("common.data_models.market_data.MicroPriceValidator.validate_basic_option_data"),
-            patch("common.data_models.market_data.MicroPriceValidator.validate_micro_price_calculations"),
-            patch("common.data_models.market_data.MicroPriceValidator.validate_mathematical_relationships"),
+            patch("common.data_models.market_data.validate_basic_option_data"),
+            patch("common.data_models.market_data.validate_micro_price_calculations"),
+            patch("common.data_models.market_data.validate_mathematical_relationships"),
         ):
             data = MicroPriceOptionData(
                 instrument_name="BTC-29DEC23-45000-C",
@@ -470,7 +470,7 @@ class TestMicroPriceOptionDataMethods:
             )
 
         with patch(
-            "common.data_models.market_data.MicroPriceValidator.get_validation_errors",
+            "common.data_models.market_data._get_validation_errors",
             return_value=[],
         ):
             assert data.is_valid() is True
@@ -481,9 +481,9 @@ class TestMicroPriceOptionDataMethods:
         expiry = datetime(2023, 12, 29, tzinfo=timezone.utc)
 
         with (
-            patch("common.data_models.market_data.MicroPriceValidator.validate_basic_option_data"),
-            patch("common.data_models.market_data.MicroPriceValidator.validate_micro_price_calculations"),
-            patch("common.data_models.market_data.MicroPriceValidator.validate_mathematical_relationships"),
+            patch("common.data_models.market_data.validate_basic_option_data"),
+            patch("common.data_models.market_data.validate_micro_price_calculations"),
+            patch("common.data_models.market_data.validate_mathematical_relationships"),
         ):
             data = MicroPriceOptionData(
                 instrument_name="BTC-29DEC23-45000-C",
@@ -505,7 +505,7 @@ class TestMicroPriceOptionDataMethods:
             )
 
         with patch(
-            "common.data_models.market_data.MicroPriceValidator.get_validation_errors",
+            "common.data_models.market_data._get_validation_errors",
             return_value=["Error 1", "Error 2"],
         ):
             errors = data.get_validation_errors()
@@ -517,9 +517,9 @@ class TestMicroPriceOptionDataMethods:
         expiry = datetime(2023, 12, 29, tzinfo=timezone.utc)
 
         with (
-            patch("common.data_models.market_data.MicroPriceValidator.validate_basic_option_data"),
-            patch("common.data_models.market_data.MicroPriceValidator.validate_micro_price_calculations"),
-            patch("common.data_models.market_data.MicroPriceValidator.validate_mathematical_relationships"),
+            patch("common.data_models.market_data.validate_basic_option_data"),
+            patch("common.data_models.market_data.validate_micro_price_calculations"),
+            patch("common.data_models.market_data.validate_mathematical_relationships"),
         ):
             data = MicroPriceOptionData(
                 instrument_name="BTC-29DEC23-45000-C",
@@ -553,9 +553,9 @@ class TestMicroPriceOptionDataMethods:
         expiry = datetime(2023, 12, 29, tzinfo=timezone.utc)
 
         with (
-            patch("common.data_models.market_data.MicroPriceValidator.validate_basic_option_data"),
-            patch("common.data_models.market_data.MicroPriceValidator.validate_micro_price_calculations"),
-            patch("common.data_models.market_data.MicroPriceValidator.validate_mathematical_relationships"),
+            patch("common.data_models.market_data.validate_basic_option_data"),
+            patch("common.data_models.market_data.validate_micro_price_calculations"),
+            patch("common.data_models.market_data.validate_mathematical_relationships"),
         ):
             data = MicroPriceOptionData(
                 instrument_name="BTC-29DEC23-45000-C",
@@ -593,9 +593,9 @@ class TestMicroPriceOptionDataProperties:
         expiry = datetime(2023, 12, 29, tzinfo=timezone.utc)
 
         with (
-            patch("common.data_models.market_data.MicroPriceValidator.validate_basic_option_data"),
-            patch("common.data_models.market_data.MicroPriceValidator.validate_micro_price_calculations"),
-            patch("common.data_models.market_data.MicroPriceValidator.validate_mathematical_relationships"),
+            patch("common.data_models.market_data.validate_basic_option_data"),
+            patch("common.data_models.market_data.validate_micro_price_calculations"),
+            patch("common.data_models.market_data.validate_mathematical_relationships"),
         ):
             data = MicroPriceOptionData(
                 instrument_name="BTC-29DEC23-45000-C",
@@ -628,9 +628,9 @@ class TestMicroPriceOptionDataProperties:
         expiry = datetime(2023, 12, 29, tzinfo=timezone.utc)
 
         with (
-            patch("common.data_models.market_data.MicroPriceValidator.validate_basic_option_data"),
-            patch("common.data_models.market_data.MicroPriceValidator.validate_micro_price_calculations"),
-            patch("common.data_models.market_data.MicroPriceValidator.validate_mathematical_relationships"),
+            patch("common.data_models.market_data.validate_basic_option_data"),
+            patch("common.data_models.market_data.validate_micro_price_calculations"),
+            patch("common.data_models.market_data.validate_mathematical_relationships"),
         ):
             data = MicroPriceOptionData(
                 instrument_name="BTC-29DEC23-45000-C",
@@ -663,9 +663,9 @@ class TestMicroPriceOptionDataProperties:
         expiry = datetime(2023, 12, 29, tzinfo=timezone.utc)
 
         with (
-            patch("common.data_models.market_data.MicroPriceValidator.validate_basic_option_data"),
-            patch("common.data_models.market_data.MicroPriceValidator.validate_micro_price_calculations"),
-            patch("common.data_models.market_data.MicroPriceValidator.validate_mathematical_relationships"),
+            patch("common.data_models.market_data.validate_basic_option_data"),
+            patch("common.data_models.market_data.validate_micro_price_calculations"),
+            patch("common.data_models.market_data.validate_mathematical_relationships"),
         ):
             data = MicroPriceOptionData(
                 instrument_name="BTC-29DEC23-45000-C",
@@ -698,9 +698,9 @@ class TestMicroPriceOptionDataProperties:
         expiry = datetime(2023, 12, 29, tzinfo=timezone.utc)
 
         with (
-            patch("common.data_models.market_data.MicroPriceValidator.validate_basic_option_data"),
-            patch("common.data_models.market_data.MicroPriceValidator.validate_micro_price_calculations"),
-            patch("common.data_models.market_data.MicroPriceValidator.validate_mathematical_relationships"),
+            patch("common.data_models.market_data.validate_basic_option_data"),
+            patch("common.data_models.market_data.validate_micro_price_calculations"),
+            patch("common.data_models.market_data.validate_mathematical_relationships"),
         ):
             data = MicroPriceOptionData(
                 instrument_name="BTC-29DEC23-45000-C",

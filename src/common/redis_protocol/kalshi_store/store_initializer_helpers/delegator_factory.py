@@ -13,11 +13,8 @@ from common.redis_protocol.kalshi_store.facade_coordinator import (
     MetadataDelegator,
     SubscriptionDelegator,
 )
-from common.redis_protocol.kalshi_store.facade_helpers_modules.property_manager import (
-    PropertyManager,
-)
+from common.redis_protocol.kalshi_store.facade_helpers_modules import PropertyManager
 from common.redis_protocol.kalshi_store.orderbook_delegator import OrderbookDelegator
-from common.redis_protocol.kalshi_store.storage_delegator import StorageDelegator
 from common.redis_protocol.kalshi_store.utility_delegator import UtilityDelegator
 from common.redis_protocol.kalshi_store.write_delegator import WriteDelegator
 
@@ -35,7 +32,6 @@ class DelegatorSet:
     orderbook_delegator: OrderbookDelegator
     cleanup_delegator: CleanupDelegator
     utility_delegator: UtilityDelegator
-    storage_delegator: StorageDelegator
 
 
 def create_delegators(
@@ -57,10 +53,8 @@ def create_delegators(
     orderbook_delegator = OrderbookDelegator(orderbook)
     cleanup_delegator = CleanupDelegator(cleaner)
     utility_delegator = UtilityDelegator(writer, reader, weather_resolver_getter())
-    storage_delegator = StorageDelegator(writer)
 
     delegators = AttributeResolverDelegators(
-        storage_delegator=storage_delegator,
         write_delegator=write_delegator,
         utility_delegator=utility_delegator,
         conn_delegator=conn_delegator,
@@ -84,7 +78,6 @@ def create_delegators(
             orderbook_delegator=orderbook_delegator,
             cleanup_delegator=cleanup_delegator,
             utility_delegator=utility_delegator,
-            storage_delegator=storage_delegator,
         ),
         attr_resolver,
     )

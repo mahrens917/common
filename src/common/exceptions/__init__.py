@@ -86,11 +86,6 @@ class ConfigurationTypeError(TypeError):
         message = f"runtime config value '{section}' must be a {expected}"
         super().__init__(message)
 
-    @classmethod
-    def for_field(cls, path: str, expected: str) -> "ConfigurationTypeError":
-        """Create type error for a field at the given path."""
-        return cls(section=path, expected=expected)
-
 
 class ValidationError(ApplicationError):
     """Data validation failed."""

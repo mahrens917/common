@@ -9,21 +9,20 @@ import pytest
 
 from common.exceptions import DataError, ValidationError
 from common.redis_protocol.kalshi_store.utils_coercion import (
-    _convert_numeric_field,
     _counter_value,
-    _format_probability_value,
-    _normalise_hash,
     _normalize_timestamp,
     _select_timestamp_value,
     _sync_top_of_book_fields,
-    _to_optional_float,
     bool_or_default,
     coerce_mapping,
     coerce_sequence,
     convert_numeric_field,
     float_or_default,
+    format_probability_value,
     int_or_default,
+    normalise_hash,
     string_or_default,
+    to_optional_float,
 )
 
 _VAL_0_0 = 0.0
@@ -42,7 +41,7 @@ _INT_123 = 123
 
 
 class TestConvertNumericField:
-    """Tests for convert_numeric_field and _convert_numeric_field."""
+    """Tests for convert_numeric_field."""
 
     def test_converts_numeric_string(self):
         """Test conversion of numeric strings."""
@@ -331,35 +330,35 @@ class TestCounterValue:
 
 
 class TestToOptionalFloat:
-    """Tests for _to_optional_float."""
+    """Tests for to_optional_float."""
 
     def test_converts_numeric_values(self):
         """Test conversion of numeric values."""
-        assert _to_optional_float(_VAL_3_14, context="test") == pytest.approx(_VAL_3_14)
-        assert _to_optional_float(_INT_42, context="test") == pytest.approx(_VAL_42_0)
-        assert _to_optional_float("123.45", context="test") == pytest.approx(_VAL_123_45)
+        assert to_optional_float(_VAL_3_14, context="test") == pytest.approx(_VAL_3_14)
+        assert to_optional_float(_INT_42, context="test") == pytest.approx(_VAL_42_0)
+        assert to_optional_float("123.45", context="test") == pytest.approx(_VAL_123_45)
 
     def test_returns_none_for_empty_values(self):
         """Test returning None for empty values."""
-        assert _to_optional_float(None, context="test") is None
-        assert _to_optional_float("", context="test") is None
-        assert _to_optional_float(b"", context="test") is None
+        assert to_optional_float(None, context="test") is None
+        assert to_optional_float("", context="test") is None
+        assert to_optional_float(b"", context="test") is None
 
     def test_raises_runtime_error_for_invalid_values(self):
         """Test raising RuntimeError for invalid values."""
         with pytest.raises(RuntimeError, match="Invalid test value"):
-            _to_optional_float("not_a_number", context="test")
+            to_optional_float("not_a_number", context="test")
         with pytest.raises(RuntimeError, match="Invalid price value"):
-            _to_optional_float("abc", context="price")
+            to_optional_float("abc", context="price")
 
 
 class TestNormaliseHash:
-    """Tests for _normalise_hash."""
+    """Tests for normalise_hash."""
 
     def test_delegates_to_canonical_implementation(self):
-        """Test that _normalise_hash calls canonical normalise_hash implementation."""
+        """Test that normalise_hash calls canonical normalise_hash implementation."""
         raw_hash = {b"key": b"value", b"num": b"42"}
-        result = _normalise_hash(raw_hash)
+        result = normalise_hash(raw_hash)
         assert isinstance(result, dict)
         assert all(isinstance(k, str) for k in result.keys())
 
@@ -427,50 +426,50 @@ class TestSyncTopOfBookFields:
 
 
 class TestFormatProbabilityValue:
-    """Tests for _format_probability_value."""
+    """Tests for format_probability_value."""
 
     def test_formats_probability_values(self):
         """Test formatting of probability values."""
-        assert _format_probability_value(_VAL_0_5) == "0.5"
-        assert _format_probability_value(_VAL_1_0) == "1"
-        assert _format_probability_value(_VAL_0_0) == "0"
+        assert format_probability_value(_VAL_0_5) == "0.5"
+        assert format_probability_value(_VAL_1_0) == "1"
+        assert format_probability_value(_VAL_0_0) == "0"
 
     def test_removes_trailing_zeros(self):
         """Test removal of trailing zeros."""
-        assert _format_probability_value(0.12300000) == "0.123"
-        assert _format_probability_value(0.10000000) == "0.1"
+        assert format_probability_value(0.12300000) == "0.123"
+        assert format_probability_value(0.10000000) == "0.1"
 
     def test_limits_decimal_places(self):
         """Test decimal precision."""
-        result = _format_probability_value(0.123456789012345)
+        result = format_probability_value(0.123456789012345)
         parts = result.split(".")
         assert len(parts) == 2
         assert len(parts[1]) <= _INT_10
 
-    def test_raises_type_error_for_non_numeric(self):
-        """Test raising TypeError for non-numeric values."""
-        with pytest.raises(TypeError, match="Probability value must be numeric"):
-            _format_probability_value("not_a_number")
-        with pytest.raises(TypeError):
-            _format_probability_value(None)
+    def test_raises_for_non_numeric(self):
+        """Test raising error for non-numeric values."""
+        with pytest.raises(ValueError, match="Probability value must be numeric"):
+            format_probability_value("not_a_number")
+        with pytest.raises(ValueError):
+            format_probability_value(None)
 
-    def test_raises_type_error_for_infinite_values(self):
-        """Test raising TypeError for infinite values."""
-        with pytest.raises(TypeError, match="Probability value must be finite"):
-            _format_probability_value(math.inf)
-        with pytest.raises(TypeError, match="Probability value must be finite"):
-            _format_probability_value(-math.inf)
-        with pytest.raises(TypeError, match="Probability value must be finite"):
-            _format_probability_value(math.nan)
+    def test_raises_for_infinite_values(self):
+        """Test raising error for infinite values."""
+        with pytest.raises(ValueError, match="Probability value must be finite"):
+            format_probability_value(math.inf)
+        with pytest.raises(ValueError, match="Probability value must be finite"):
+            format_probability_value(-math.inf)
+        with pytest.raises(ValueError, match="Probability value must be finite"):
+            format_probability_value(math.nan)
 
     def test_handles_integer_input(self):
         """Test handling of integer input."""
-        assert _format_probability_value(0) == "0"
-        assert _format_probability_value(1) == "1"
+        assert format_probability_value(0) == "0"
+        assert format_probability_value(1) == "1"
 
     def test_handles_very_small_values(self):
         """Test handling of very small values."""
-        result = _format_probability_value(0.0000000001)
+        result = format_probability_value(0.0000000001)
         assert result == "0.0000000001"
 
 
@@ -517,19 +516,19 @@ class TestSelectTimestampValue:
 
 
 class TestDefaultWeatherStationLoader:
-    """Tests for _default_weather_station_loader."""
+    """Tests for default_weather_station_loader."""
 
     @patch("common.redis_protocol.kalshi_store.utils_coercion.load_weather_station_mapping")
     def test_loads_weather_station_mapping(self, mock_load):
         """Test successful loading of weather station mapping."""
         from common.redis_protocol.kalshi_store.utils_coercion import (
-            _default_weather_station_loader,
+            default_weather_station_loader,
         )
 
         expected_mapping = {"KJFK": {"name": "JFK Airport"}}
         mock_load.return_value = expected_mapping
 
-        result = _default_weather_station_loader()
+        result = default_weather_station_loader()
 
         assert result == expected_mapping
         mock_load.assert_called_once()
@@ -539,23 +538,23 @@ class TestDefaultWeatherStationLoader:
         """Test handling of WeatherConfigError."""
         from common.config.weather import WeatherConfigError
         from common.redis_protocol.kalshi_store.utils_coercion import (
-            _default_weather_station_loader,
+            default_weather_station_loader,
         )
 
         mock_load.side_effect = WeatherConfigError("Config error")
 
         with pytest.raises(WeatherConfigError):
-            _default_weather_station_loader()
+            default_weather_station_loader()
 
     @patch("common.redis_protocol.kalshi_store.utils_coercion.load_weather_station_mapping")
     def test_wraps_unexpected_errors(self, mock_load):
         """Test wrapping of unexpected errors."""
         from common.config.weather import WeatherConfigError
         from common.redis_protocol.kalshi_store.utils_coercion import (
-            _default_weather_station_loader,
+            default_weather_station_loader,
         )
 
         mock_load.side_effect = OSError("File not found")
 
         with pytest.raises(WeatherConfigError, match="Weather station mapping loading failed unexpectedly"):
-            _default_weather_station_loader()
+            default_weather_station_loader()

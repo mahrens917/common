@@ -20,7 +20,6 @@ from .pnl import PnLStore
 from .pricing import TradePriceUpdater
 from .records import TradeRecordRepository
 from .store_helpers import DependencyResolver, OperationExecutor, TradeStoreConnectionManager
-from .store_helpers.api_delegator import TradeStoreAPIDelegator
 from .store_helpers.pool_acquirer import PoolAcquirer
 
 
@@ -42,7 +41,6 @@ class TradeStoreDependencies:
     queries: TradeQueryService
     pnl: PnLStore
     price_updater: TradePriceUpdater
-    api: TradeStoreAPIDelegator
 
 
 def create_dependencies(logger: logging.Logger, redis: Optional[RedisClient], get_redis_func: Callable) -> TradeStoreDependencies:
@@ -74,7 +72,6 @@ def create_dependencies(logger: logging.Logger, redis: Optional[RedisClient], ge
         current_time_provider=deps.get_timestamp_provider(),
         logger=logger,
     )
-    api = TradeStoreAPIDelegator(repository, metadata_store, queries, pnl, price_updater, executor, deps)
     return TradeStoreDependencies(
         base_connection=base_connection,
         connection_mgr=connection_mgr,
@@ -90,5 +87,4 @@ def create_dependencies(logger: logging.Logger, redis: Optional[RedisClient], ge
         queries=queries,
         pnl=pnl,
         price_updater=price_updater,
-        api=api,
     )

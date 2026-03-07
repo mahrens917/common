@@ -3,10 +3,7 @@
 import logging
 
 from ....redis_protocol.trade_store import TradeStoreError
-from ....trading_exceptions import (
-    KalshiAPIError,
-    KalshiTradePersistenceError,
-)
+from ....trading_exceptions_operational import KalshiAPIError, KalshiTradePersistenceError
 
 logger = logging.getLogger(__name__)
 

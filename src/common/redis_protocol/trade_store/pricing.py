@@ -65,8 +65,8 @@ class TradePriceUpdater:
         self,
         market_ticker: str,
         *,
-        yes_bid: int,
-        yes_ask: int,
+        yes_bid: float,
+        yes_ask: float,
         lookback_days: int = 7,
     ) -> int:
         if lookback_days <= 0:
@@ -88,8 +88,8 @@ class TradePriceUpdater:
         self,
         trade: TradeRecord,
         *,
-        yes_bid: int,
-        yes_ask: int,
+        yes_bid: float,
+        yes_ask: float,
     ) -> None:
         client = await self._repository.redis_client()
         trade_key = self._repository.build_trade_key(trade.trade_timestamp.date(), trade.order_id)

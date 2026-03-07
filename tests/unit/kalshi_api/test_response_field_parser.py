@@ -13,16 +13,7 @@ from common.kalshi_api.response_field_parser import (
     parse_average_fill_price,
     parse_fills_list,
     parse_order_fill,
-    parse_rfp_timestamp,
 )
-
-
-def test_parse_timestamp_delegates():
-    with patch("common.kalshi_api.response_field_parser.parse_timestamp") as mock_parse:
-        mock_parse.return_value = datetime(2024, 1, 1)
-        result = parse_rfp_timestamp("2024-01-01T00:00:00Z")
-        mock_parse.assert_called_once_with("2024-01-01T00:00:00Z")
-        assert result == datetime(2024, 1, 1)
 
 
 def test_parse_order_fill_success():

@@ -21,18 +21,14 @@ class PublicAPI:
     @staticmethod
     async def get_portfolio_balance(portfolio_service: PortfolioService) -> PortfolioBalance:
         """Get portfolio balance."""
-        from .portfolio_operations import PortfolioOperations
-
-        return await PortfolioOperations.get_balance(portfolio_service)
+        return await portfolio_service.get_balance()
 
     @staticmethod
     async def get_portfolio_positions(
         portfolio_service: PortfolioService,
     ) -> List[PortfolioPosition]:
         """Get portfolio positions."""
-        from .portfolio_operations import PortfolioOperations
-
-        return await PortfolioOperations.get_positions(portfolio_service)
+        return await portfolio_service.get_positions()
 
     @staticmethod
     async def create_order(order_service: OrderService, order_request: OrderRequest) -> OrderResponse:

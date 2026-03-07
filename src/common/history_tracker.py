@@ -197,13 +197,17 @@ class WeatherHistoryTracker:
 
     def __init__(self):
         """Initialize weather history tracker with helper delegation"""
+        from common.redis_connection_manager import RedisConnectionManager
+
         from .weather_history_tracker_helpers import (
-            WeatherHistoryConnectionManager,
             WeatherObservationRecorder,
             WeatherStatisticsRetriever,
         )
 
-        self._connection_manager = WeatherHistoryConnectionManager(get_redis_connection)
+        self._connection_manager = RedisConnectionManager(
+            get_redis_connection,
+            not_initialized_message="Redis client not initialized for WeatherHistoryTracker",
+        )
         self._observation_recorder = WeatherObservationRecorder()
         self._statistics_retriever = WeatherStatisticsRetriever()
 

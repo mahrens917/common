@@ -10,7 +10,7 @@ from common.kalshi_trading_client.services.order_helpers.order_poller_helpers im
     is_order_complete,
 )
 from common.order_execution import PollingOutcome
-from common.trading_exceptions import (
+from common.trading_exceptions_operational import (
     KalshiOrderPollingError,
     KalshiTradeNotificationError,
     KalshiTradePersistenceError,

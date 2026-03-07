@@ -23,12 +23,11 @@ from .facade_coordinator import (
     MetadataDelegator,
     SubscriptionDelegator,
 )
-from .facade_helpers import PropertyManager
+from .facade_helpers_modules import PropertyManager
 from .metadata import KalshiMetadataAdapter
 from .orderbook import KalshiOrderbookProcessor
 from .orderbook_delegator import OrderbookDelegator
 from .reader import KalshiMarketReader
-from .storage_delegator import StorageDelegator
 from .subscription import KalshiSubscriptionTracker
 from .utility_delegator import UtilityDelegator
 from .write_delegator import WriteDelegator
@@ -55,7 +54,6 @@ class KalshiStoreDependencies:
     orderbook_delegator: OrderbookDelegator
     cleanup_delegator: CleanupDelegator
     utility_delegator: UtilityDelegator
-    storage_delegator: StorageDelegator
     attr_resolver: AttributeResolver
 
 
@@ -105,6 +103,5 @@ def create_dependencies(
         orderbook_delegator=delegators["orderbook_delegator"],
         cleanup_delegator=delegators["cleanup_delegator"],
         utility_delegator=delegators["utility_delegator"],
-        storage_delegator=delegators["storage_delegator"],
         attr_resolver=attr_resolver,
     )

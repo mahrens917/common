@@ -3,11 +3,34 @@
 from __future__ import annotations
 
 import logging
-from typing import Any, List, Optional, Sequence
+from typing import TYPE_CHECKING, Any, Iterable, List, Optional, Protocol, Sequence, TypeVar
 
+from .. import process_monitor as process_monitor_module
 from .process_normalizer import NormalizedProcess
 
+if TYPE_CHECKING:
+    from monitor.common_local.process_monitor import ProcessInfo
+
+
+class _ProcessWithPID(Protocol):
+    pid: Optional[int]
+
+
+_ProcessLike = TypeVar("_ProcessLike", bound=_ProcessWithPID)
+
 logger = logging.getLogger(__name__)
+
+
+def filter_processes_by_pid(processes: Iterable[_ProcessLike], exclude_pid: Optional[int]) -> List[_ProcessLike]:
+    if exclude_pid is None:
+        return list(processes)
+    return [proc for proc in processes if proc.pid != exclude_pid]
+
+
+async def query_monitor_for_processes(process_keywords: Iterable[str], service_name: str) -> List[ProcessInfo]:
+    monitor = await process_monitor_module.get_global_process_monitor()
+    candidates = await monitor.find_processes_by_keywords(process_keywords)
+    return list(candidates)
 
 
 def _console(message: str, *, suppress_output: bool) -> None:
@@ -29,17 +52,12 @@ async def collect_process_candidates(
         RuntimeError: When the monitor cannot provide keyword search results or returns
                       unexpected payloads.
     """
-    from .monitor_query import query_monitor_for_processes
-    from .process_filter import filter_processes_by_pid
     from .process_normalizer import normalize_process
 
-    # Query monitor for matching processes
     monitor_matches = await query_monitor_for_processes(process_keywords, service_name)
 
-    # Normalize all process objects
     normalized = [normalize_process(raw, service_name) for raw in monitor_matches]
 
-    # Filter by PID if needed
     filtered = filter_processes_by_pid(normalized, exclude_pid)
     if filtered:
         return filtered

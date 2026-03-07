@@ -17,7 +17,7 @@ async def test_collect_process_candidates_returns_filtered(monkeypatch):
         return [SimpleNamespace(pid=1, name="python", cmdline=["python", "app"])]
 
     monkeypatch.setattr(
-        "common.process_killer_helpers.monitor_query.query_monitor_for_processes",
+        "common.process_killer_helpers.process_discovery.query_monitor_for_processes",
         fake_query,
     )
 
@@ -26,7 +26,7 @@ async def test_collect_process_candidates_returns_filtered(monkeypatch):
         lambda raw, service_name: raw,
     )
     monkeypatch.setattr(
-        "common.process_killer_helpers.process_filter.filter_processes_by_pid",
+        "common.process_killer_helpers.process_discovery.filter_processes_by_pid",
         lambda normalized, exclude_pid: ["filtered"] if normalized else [],
     )
 
@@ -40,7 +40,7 @@ async def test_collect_process_candidates_falls_back_to_psutil(monkeypatch):
         return []
 
     monkeypatch.setattr(
-        "common.process_killer_helpers.monitor_query.query_monitor_for_processes",
+        "common.process_killer_helpers.process_discovery.query_monitor_for_processes",
         fake_query,
     )
 
@@ -53,7 +53,7 @@ async def test_collect_process_candidates_falls_back_to_psutil(monkeypatch):
         return normalized
 
     monkeypatch.setattr(
-        "common.process_killer_helpers.process_filter.filter_processes_by_pid",
+        "common.process_killer_helpers.process_discovery.filter_processes_by_pid",
         fake_filter,
     )
 

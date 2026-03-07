@@ -5,7 +5,7 @@ from unittest.mock import MagicMock, patch
 import pytest
 
 from common.kalshi_trading_client.services.order_helpers.order_parser import OrderParser
-from common.trading_exceptions import KalshiDataIntegrityError
+from common.trading_exceptions_operational import KalshiDataIntegrityError
 
 _TEST_PARTIAL_FILL = 5
 _TEST_FULL_FILL = 10

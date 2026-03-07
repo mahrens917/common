@@ -58,7 +58,6 @@ class TestKalshiStoreDependencies:
         orderbook_delegator = Mock()
         cleanup_delegator = Mock()
         utility_delegator = Mock()
-        storage_delegator = Mock()
         attr_resolver = Mock()
 
         deps = KalshiStoreDependencies(
@@ -78,7 +77,6 @@ class TestKalshiStoreDependencies:
             orderbook_delegator=orderbook_delegator,
             cleanup_delegator=cleanup_delegator,
             utility_delegator=utility_delegator,
-            storage_delegator=storage_delegator,
             attr_resolver=attr_resolver,
         )
 
@@ -98,7 +96,6 @@ class TestKalshiStoreDependencies:
         assert deps.orderbook_delegator is orderbook_delegator
         assert deps.cleanup_delegator is cleanup_delegator
         assert deps.utility_delegator is utility_delegator
-        assert deps.storage_delegator is storage_delegator
         assert deps.attr_resolver is attr_resolver
 
 
@@ -139,7 +136,6 @@ class TestCreateDependencies:
         mock_orderbook_delegator = Mock()
         mock_cleanup_delegator = Mock()
         mock_utility_delegator = Mock()
-        mock_storage_delegator = Mock()
 
         mock_helpers.create_delegators.return_value = {
             "property_mgr": mock_property_mgr,
@@ -151,7 +147,6 @@ class TestCreateDependencies:
             "orderbook_delegator": mock_orderbook_delegator,
             "cleanup_delegator": mock_cleanup_delegator,
             "utility_delegator": mock_utility_delegator,
-            "storage_delegator": mock_storage_delegator,
         }
 
         # Setup mock attribute resolver
@@ -185,7 +180,6 @@ class TestCreateDependencies:
         assert result.orderbook_delegator is mock_orderbook_delegator
         assert result.cleanup_delegator is mock_cleanup_delegator
         assert result.utility_delegator is mock_utility_delegator
-        assert result.storage_delegator is mock_storage_delegator
         assert result.attr_resolver is mock_attr_resolver
 
     @patch("common.redis_protocol.kalshi_store.dependencies_factory.factory_helpers")
@@ -213,7 +207,6 @@ class TestCreateDependencies:
             "orderbook_delegator": Mock(),
             "cleanup_delegator": Mock(),
             "utility_delegator": Mock(),
-            "storage_delegator": Mock(),
         }
         mock_attr_resolver = Mock()
 
@@ -259,7 +252,6 @@ class TestCreateDependencies:
             "orderbook_delegator": Mock(),
             "cleanup_delegator": Mock(),
             "utility_delegator": Mock(),
-            "storage_delegator": Mock(),
         }
         mock_attr_resolver = Mock()
 
@@ -300,7 +292,6 @@ class TestCreateDependencies:
             "orderbook_delegator": Mock(),
             "cleanup_delegator": Mock(),
             "utility_delegator": Mock(),
-            "storage_delegator": Mock(),
         }
         mock_attr_resolver = Mock()
 
@@ -345,7 +336,6 @@ class TestCreateDependencies:
             "orderbook_delegator": Mock(),
             "cleanup_delegator": Mock(),
             "utility_delegator": Mock(),
-            "storage_delegator": Mock(),
         }
         mock_attr_resolver = Mock()
 
@@ -391,7 +381,6 @@ class TestCreateDependencies:
             "orderbook_delegator": Mock(),
             "cleanup_delegator": Mock(),
             "utility_delegator": Mock(),
-            "storage_delegator": Mock(),
         }
         mock_attr_resolver = Mock()
 
@@ -432,7 +421,6 @@ class TestCreateDependencies:
             "orderbook_delegator": Mock(),
             "cleanup_delegator": Mock(),
             "utility_delegator": Mock(),
-            "storage_delegator": Mock(),
         }
         mock_attr_resolver = Mock()
 
@@ -474,7 +462,6 @@ class TestCreateDependencies:
             "orderbook_delegator": Mock(),
             "cleanup_delegator": Mock(),
             "utility_delegator": Mock(),
-            "storage_delegator": Mock(),
         }
         mock_attr_resolver = Mock()
 

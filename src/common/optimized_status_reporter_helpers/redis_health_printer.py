@@ -6,11 +6,14 @@ Formats and prints Redis health check information.
 
 from typing import Any, Dict
 
-from .base_printer import StatusLinePrinterBase
+from common.redis_protocol.kalshi_store import utils_coercion
 
 
-class RedisHealthPrinter(StatusLinePrinterBase):
+class RedisHealthPrinter:
     """Prints Redis health section."""
+
+    def __init__(self) -> None:
+        self._emit_status_line = print
 
     def print_redis_health_section(self, status_data: Dict[str, Any]) -> None:
         """Print Redis health check section."""
@@ -26,9 +29,9 @@ class RedisHealthPrinter(StatusLinePrinterBase):
     def _print_healthy_redis(self, redis_health: Any, status_data: Dict[str, Any]) -> None:
         """Print healthy Redis connection details."""
         if redis_health and hasattr(redis_health, "details") and redis_health.details:
-            details = self.data_coercion.coerce_mapping(redis_health.details)
-            ping_duration = self.data_coercion.float_or_default(details.get("ping_duration"), 0.0)
-            pool_metrics = self.data_coercion.coerce_mapping(details.get("connection_pool_metrics"))
+            details = utils_coercion.coerce_mapping(redis_health.details)
+            ping_duration = utils_coercion.float_or_default(details.get("ping_duration"), 0.0)
+            pool_metrics = utils_coercion.coerce_mapping(details.get("connection_pool_metrics"))
 
             if redis_health.status.value == "degraded":
                 self._emit_status_line(f"  ⚠️ Redis Connection - Slow (ping: {ping_duration:.3f}s)")
@@ -36,8 +39,8 @@ class RedisHealthPrinter(StatusLinePrinterBase):
                 self._emit_status_line(f"  🟢 Redis Connection - Healthy (ping: {ping_duration:.3f}s)")
 
             if pool_metrics:
-                reuse_rate = self.data_coercion.float_or_default(pool_metrics.get("connection_reuse_rate"), 0.0) * 100
-                connection_errors = self.data_coercion.int_or_default(pool_metrics.get("connection_errors"), 0)
+                reuse_rate = utils_coercion.float_or_default(pool_metrics.get("connection_reuse_rate"), 0.0) * 100
+                connection_errors = utils_coercion.int_or_default(pool_metrics.get("connection_errors"), 0)
                 self._emit_status_line(f"  📊 Pool Reuse Rate: {reuse_rate:.1f}%")
                 if connection_errors > 0:
                     self._emit_status_line(f"  ⚠️ Connection Errors: {connection_errors}")
@@ -53,14 +56,14 @@ class RedisHealthPrinter(StatusLinePrinterBase):
     def _print_failed_redis(self, redis_health: Any) -> None:
         """Print failed Redis connection details."""
         if redis_health and hasattr(redis_health, "details") and redis_health.details:
-            details = self.data_coercion.coerce_mapping(redis_health.details)
+            details = utils_coercion.coerce_mapping(redis_health.details)
             timeout_value = details.get("timeout_duration")
             error_type_raw = details.get("error_type")
             if timeout_value is not None:
-                timeout_duration = self.data_coercion.float_or_default(timeout_value, 0.0)
+                timeout_duration = utils_coercion.float_or_default(timeout_value, 0.0)
                 self._emit_status_line(f"  🔴 Redis Connection - Timeout ({timeout_duration:.2f}s)")
             elif error_type_raw:
-                error_type = self.data_coercion.string_or_default(error_type_raw, "unknown")
+                error_type = utils_coercion.string_or_default(error_type_raw, "unknown")
                 self._emit_status_line(f"  🔴 Redis Connection - Failed ({error_type})")
             else:
                 self._emit_status_line("  🔴 Redis Connection - Failed")

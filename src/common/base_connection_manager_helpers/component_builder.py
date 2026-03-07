@@ -16,10 +16,9 @@ def _build_core_components(service_name: str) -> dict[str, Any]:
 
 def _build_handlers(service_name: str, config: Any, state_manager: Any, metrics_tracker: Any) -> dict[str, Any]:
     from .connection_lifecycle import ConnectionLifecycleManager
-    from .health_monitor import ConnectionHealthMonitor
+    from .health_coordinator import ConnectionHealthMonitor
     from .notification_handler import NotificationHandler
     from .reconnection_handler import ReconnectionHandler
-    from .state_transition import StateTransitionHandler
 
     reconnection_handler = ReconnectionHandler(
         service_name,
@@ -32,13 +31,11 @@ def _build_handlers(service_name: str, config: Any, state_manager: Any, metrics_
     notification_handler = NotificationHandler(service_name, state_manager, metrics_tracker)
     lifecycle_manager = ConnectionLifecycleManager(service_name)
     health_monitor = ConnectionHealthMonitor(service_name)
-    state_transition_handler = StateTransitionHandler(state_manager, metrics_tracker)
     return {
         "reconnection_handler": reconnection_handler,
         "notification_handler": notification_handler,
         "lifecycle_manager": lifecycle_manager,
         "health_monitor": health_monitor,
-        "state_transition_handler": state_transition_handler,
     }
 
 

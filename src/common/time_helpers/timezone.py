@@ -10,8 +10,6 @@ from typing import Optional, Union
 
 import pytz
 
-from ..config_loader import get_reporting_timezone
-
 logger = logging.getLogger(__name__)
 
 
@@ -35,11 +33,6 @@ def get_current_date_in_timezone(timezone_name: str) -> datetime:
 def get_timezone_aware_date(timezone_name: str = "America/New_York") -> date:
     """Return the current date in the requested timezone."""
     return get_current_date_in_timezone(timezone_name).date()
-
-
-def load_configured_timezone() -> str:
-    """Load timezone string from shared configuration, raising if unavailable."""
-    return get_reporting_timezone()
 
 
 def validate_timezone(tz_name: str) -> bool:

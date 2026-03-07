@@ -6,7 +6,7 @@ from typing import Optional
 
 import aiohttp
 
-from ..session_tracker import track_existing_session, track_session_close
+from ..session_tracker import session_tracker, track_session_close
 
 
 class ScraperSessionManager:
@@ -65,7 +65,7 @@ class ScraperSessionManager:
             ),
         )
 
-        self.session_id = track_existing_session(self.session, f"{self.service_name}_scraper_manager")
+        self.session_id = session_tracker.track_session_creation(self.session, f"{self.service_name}_scraper_manager")
         self.logger.info("Session created and tracked: %s", self.session_id)
         return self.session
 

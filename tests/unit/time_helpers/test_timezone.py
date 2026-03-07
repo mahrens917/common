@@ -11,6 +11,7 @@ from unittest.mock import MagicMock, patch
 import pytest
 import pytz
 
+from common.time_helpers import load_configured_timezone
 from common.time_helpers.timezone import (
     ensure_timezone_aware,
     format_datetime,
@@ -21,7 +22,6 @@ from common.time_helpers.timezone import (
     get_days_ago_utc,
     get_start_of_day_utc,
     get_timezone_aware_date,
-    load_configured_timezone,
     sleep_until_next_minute,
     to_utc,
     validate_timezone,

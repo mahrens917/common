@@ -9,9 +9,8 @@ This package contains all helper classes extracted from OptimizedStatusReporter:
 """
 
 from .basic_info_printer import BasicInfoPrinter as ConsoleSectionPrinter
-from .data_coercion import DataCoercion
-from .data_formatting import DataFormatting
 from .day_night_detector import DayNightDetector
+from .formatting import DataFormatting, TimeFormatter
 from .health_snapshot_collector import HealthSnapshotCollector
 from .initialization import StatusReporterInitializer
 from .kalshi_market_status_collector import KalshiMarketStatusCollector
@@ -30,14 +29,12 @@ from .status_report_coordinator import (
     StatusReportCoordinatorCollectors,
     StatusReportCoordinatorConfig,
 )
-from .time_formatter import TimeFormatter
 from .tracker_status_collector import TrackerStatusCollector
 from .weather_section_generator import WeatherSectionGenerator
 from .weather_temperature_collector import WeatherTemperatureCollector
 
 __all__ = [
     "ConsoleSectionPrinter",
-    "DataCoercion",
     "DataFormatting",
     "DayNightDetector",
     "HealthSnapshotCollector",
@@ -84,7 +81,6 @@ def create_status_report_coordinator(process_manager, health_checker, metadata_s
 
 
 def _build_status_report_utilities(process_manager):
-    data_coercion = DataCoercion()
     time_formatter = TimeFormatter()
     moon_phase_calculator = MoonPhaseCalculator()
     day_night_detector = DayNightDetector(moon_phase_calculator)
@@ -93,9 +89,8 @@ def _build_status_report_utilities(process_manager):
     log_activity_formatter = LogActivityFormatter(time_formatter)
     service_status_formatter = ServiceStatusFormatter(resource_tracker, log_activity_formatter)
     console_section_printer = ConsoleSectionPrinter(process_manager, service_status_formatter)
-    weather_section_generator = WeatherSectionGenerator(day_night_detector, data_coercion)
+    weather_section_generator = WeatherSectionGenerator(day_night_detector)
     return {
-        "data_coercion": data_coercion,
         "console_section_printer": console_section_printer,
         "weather_section_generator": weather_section_generator,
     }
@@ -160,6 +155,5 @@ def _assemble_status_report_coordinator(
         collectors=collectors,
         console_section_printer=utilities["console_section_printer"],
         weather_section_generator=utilities["weather_section_generator"],
-        data_coercion=utilities["data_coercion"],
     )
     return StatusReportCoordinator(config)

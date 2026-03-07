@@ -33,7 +33,6 @@ class TestStatusReporterDependenciesFactory:
 
         mocks = {}
         for class_name in [
-            "DataCoercion",
             "DataFormatting",
             "TimeFormatter",
             "LogActivityFormatter",
@@ -93,7 +92,6 @@ class TestStatusReporterDependenciesFactory:
         # Assert ReportPrinterCoordinator is called with instantiated printers and other deps
         mock_internal_imports["ReportPrinterCoordinator"].assert_called_once_with(
             mock_dependencies["emit_status_line"],
-            mock_internal_imports["DataCoercion"].return_value,
             mock_internal_imports["SectionPrinter"].return_value,
             mock_internal_imports["ServicePrinter"].return_value,
             mock_internal_imports["MetricsSectionPrinter"].return_value,

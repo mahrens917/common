@@ -8,6 +8,7 @@ from __future__ import annotations
 
 from typing import Any, Dict
 
+from common.redis_protocol.kalshi_store import utils_coercion
 from common.truthy import pick_truthy
 
 
@@ -17,7 +18,6 @@ class ReportPrinterCoordinator:
     def __init__(
         self,
         emit_func,
-        data_coercion,
         section_printer,
         service_printer,
         metrics_printer,
@@ -26,7 +26,6 @@ class ReportPrinterCoordinator:
     ):
         """Initialize printer coordinator."""
         self._emit = emit_func
-        self._data_coercion = data_coercion
         self._section_printer = section_printer
         self._service_printer = service_printer
         self._metrics_printer = metrics_printer
@@ -40,7 +39,7 @@ class ReportPrinterCoordinator:
         current_time = get_current_utc().strftime("%Y-%m-%d %H:%M:%S")
         self._emit("=" * 60)
 
-        kalshi_status = self._data_coercion.coerce_mapping(status_data.get("kalshi_market_status"))
+        kalshi_status = utils_coercion.coerce_mapping(status_data.get("kalshi_market_status"))
         self._section_printer.print_exchange_info(current_time, kalshi_status)
         self._emit()
         self._section_printer.print_price_info(status_data)
@@ -49,7 +48,7 @@ class ReportPrinterCoordinator:
         self._emit()
         self._emit("📝 System Update:")
 
-        tracker_status = self._data_coercion.coerce_mapping(status_data.get("tracker_status"))
+        tracker_status = utils_coercion.coerce_mapping(status_data.get("tracker_status"))
         log_activity_map = pick_truthy(status_data.get("log_activity"), {})
         healthy, total = self._service_printer.print_managed_services(self._process_manager, tracker_status, log_activity_map)
         self._service_printer.print_monitor_service(self._process_manager, log_activity_map)
@@ -58,8 +57,8 @@ class ReportPrinterCoordinator:
         self._metrics_printer.print_all_health_sections(status_data)
         self._section_printer.print_tracker_status_section(
             status_data,
-            self._data_coercion.string_or_default,
-            self._data_coercion.bool_or_default,
+            utils_coercion.string_or_default,
+            utils_coercion.bool_or_default,
         )
 
     def generate_weather_section(self, weather_temperatures: Dict[str, Any]) -> list[str]:

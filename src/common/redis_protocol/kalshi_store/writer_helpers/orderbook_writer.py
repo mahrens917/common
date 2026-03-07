@@ -17,8 +17,8 @@ from common.truthy import pick_if, pick_truthy
 from ...config import DATA_CUTOFF_SECONDS
 from ...error_types import REDIS_ERRORS
 from ...typing import ensure_awaitable
+from ..utils_market import normalise_trade_timestamp
 from .market_update_writer import RedisConnectionMixin
-from .timestamp_normalizer import TimestampNormalizer
 
 _FILL_ORDER_TTL_SECONDS = DATA_CUTOFF_SECONDS
 
@@ -46,7 +46,6 @@ class OrderbookWriter(RedisConnectionMixin):
         self.redis = redis_connection
         self.logger = logger_instance
         self._connection_manager = connection_manager
-        self._normalizer = TimestampNormalizer()
 
     async def update_trade_tick(self, msg: Dict, key_func: Any, map_func: Any, str_func: Any) -> bool:
         try:
@@ -107,7 +106,7 @@ class OrderbookWriter(RedisConnectionMixin):
         mapping = _build_trade_base_mapping(
             side,
             msg,
-            pick_if(ts_value is not None, lambda: self._normalizer.normalise_trade_timestamp(ts_value), lambda: ""),
+            pick_if(ts_value is not None, lambda: normalise_trade_timestamp(ts_value), lambda: ""),
             ts_value,
         )
 
@@ -205,7 +204,6 @@ class UserDataWriter(RedisConnectionMixin):
         self.redis = redis_connection
         self.logger = logger_instance
         self._connection_manager = connection_manager
-        self._normalizer = TimestampNormalizer()
 
     async def _fetch_market_algo(self, ticker: str) -> str:
         """Fetch the current algo from the market's Redis hash."""
@@ -231,7 +229,7 @@ class UserDataWriter(RedisConnectionMixin):
                 return False
 
             ts_value = data.get("ts")
-            ts_iso = pick_if(ts_value, lambda: self._normalizer.normalise_trade_timestamp(ts_value), lambda: "")
+            ts_iso = pick_if(ts_value, lambda: normalise_trade_timestamp(ts_value), lambda: "")
             mapping = _build_fill_mapping(data, _resolve_fill_price(data), ts_iso, await self._fetch_market_algo(str(ticker)))
 
             redis_client = await self._ensure_redis()
@@ -264,7 +262,7 @@ class UserDataWriter(RedisConnectionMixin):
                 return False
 
             ts_value = data.get("ts")
-            ts_iso = pick_if(ts_value, lambda: self._normalizer.normalise_trade_timestamp(ts_value), lambda: "")
+            ts_iso = pick_if(ts_value, lambda: normalise_trade_timestamp(ts_value), lambda: "")
             mapping = _build_order_mapping(data, ts_iso)
 
             redis_client = await self._ensure_redis()

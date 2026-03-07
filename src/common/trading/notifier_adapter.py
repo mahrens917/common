@@ -7,7 +7,7 @@ import urllib.error
 from typing import Any, Callable, Dict, Iterable, Optional, Tuple, Type
 
 from ..data_models.trading import OrderRequest
-from ..trading_exceptions import KalshiTradeNotificationError
+from ..trading_exceptions_operational import KalshiTradeNotificationError
 
 _EMPTY_ERROR_TYPES: tuple[Type[Exception], ...] = tuple()
 

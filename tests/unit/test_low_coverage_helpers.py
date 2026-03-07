@@ -6,14 +6,12 @@ import pytest
 
 from common.base_connection_manager_helpers import (
     backoff_calculator,
-    lifecycle_helpers,
 )
-from common.base_connection_manager_helpers import notification_helpers as bcm_notification_helpers
+from common.base_connection_manager_helpers import connection_lifecycle as lifecycle_helpers
+from common.base_connection_manager_helpers import notification_handler as bcm_notification_helpers
 from common.base_connection_manager_helpers import (
     retry_logic,
-    state_broadcast_helper,
 )
-from common.connection_manager_helpers import managers as cm_managers
 from common.connection_state import ConnectionState
 from common.data_models.trade_record import TradeRecord, TradeSide
 from common.redis_protocol.trade_store.codec_helpers.decoder import decode_trade_record
@@ -21,6 +19,7 @@ from common.redis_protocol.trade_store.codec_helpers.encoder import (
     encode_trade_record,
     trade_record_to_payload,
 )
+from common.scraper_connection_manager_helpers.shutdown_mixin import ShutdownRequestMixin
 from common.time_helpers.timestamp_parser import (
     MILLISECOND_TIMESTAMP_THRESHOLD,
     parse_timestamp,
@@ -121,6 +120,17 @@ def _build_trade(**overrides):
     return TradeRecord(**base)
 
 
+def test_shutdown_request_mixin_sets_flag():
+    class _Impl(ShutdownRequestMixin):
+        def __init__(self):
+            self._shutdown_requested = False
+
+    obj = _Impl()
+    assert obj._shutdown_requested is False
+    obj.request_shutdown()
+    assert obj._shutdown_requested is True
+
+
 def test_timestamp_parser_handles_types_and_errors():
     now = datetime.now(timezone.utc)
     assert parse_timestamp(now) == now
@@ -177,30 +187,9 @@ async def test_notification_and_state_helpers(monkeypatch):
     mgr.state_tracker = SimpleNamespace(store_service_metrics=lambda *_args, **_kwargs: asyncio.sleep(0))
     await bcm_notification_helpers.send_connection_notification(mgr, True, "ok")
 
-    # broadcast helper should initialize tracker on demand
+    # state tracker initializer can be called on demand
     manager = _DummyManager()
-    await state_broadcast_helper.broadcast_state_change(manager, ConnectionState.READY)
-    await state_broadcast_helper.initialize_state_tracker(manager)
-
-
-def test_connection_manager_helper_stubs():
-    # These helper classes are thin wrappers; ensure constructors and methods are reachable
-    hm = cm_managers.HealthMonitor()
-    assert asyncio.run(hm.monitor()) is None
-
-    nm = cm_managers.NotificationManager(foo="bar")
-    assert nm._shutdown_requested is False
-    # notify is a stub that raises NotImplementedError
-    with pytest.raises(NotImplementedError):
-        asyncio.run(nm.notify())
-
-    rm = cm_managers.ReconnectionHandler()
-    with pytest.raises(NotImplementedError):
-        asyncio.run(rm.reconnect())
-
-    sm = cm_managers.StateManager(foo="bar")
-    with pytest.raises(NotImplementedError):
-        asyncio.run(sm.transition_state())
+    await manager._state_tracker_initializer()
 
 
 def test_trade_record_codec_roundtrip():

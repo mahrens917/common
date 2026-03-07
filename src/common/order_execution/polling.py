@@ -12,12 +12,9 @@ import logging
 from dataclasses import dataclass
 from typing import Any, Awaitable, Callable, Dict, List, Optional
 
-from ..trading_exceptions import KalshiOrderPollingError
-from .polling_helpers.fill_validator import (
-    validate_fill_count,
-    validate_fill_price,
-    validate_fill_side,
-)
+from common.truthy import pick_if
+
+from ..trading_exceptions_operational import KalshiOrderPollingError
 
 logger = logging.getLogger(__name__)
 
@@ -142,3 +139,77 @@ class OrderPoller:
 
         average_price = round(total_cost / total_filled)
         return PollingOutcome(fills=fills, total_filled=total_filled, average_price_cents=average_price)
+
+
+def validate_fill_count(fill: Dict[str, Any], order_id: str, operation_name: str) -> int:
+    if "count" not in fill:
+        raise KalshiOrderPollingError(
+            "Fill missing 'count' value",
+            order_id=order_id,
+            operation_name=operation_name,
+            request_data={"fill": fill},
+        )
+
+    try:
+        count = int(fill["count"])
+    except (TypeError, ValueError) as exc:
+        raise KalshiOrderPollingError(
+            f"Invalid fill count ({fill['count']})",
+            order_id=order_id,
+            operation_name=operation_name,
+            request_data={"fill": fill},
+        ) from exc
+
+    if count <= 0:
+        raise KalshiOrderPollingError(
+            f"Received non-positive fill count ({count})",
+            order_id=order_id,
+            operation_name=operation_name,
+            request_data={"fill": fill},
+        )
+
+    return count
+
+
+def validate_fill_side(fill: Dict[str, Any], order_id: str, operation_name: str) -> str:
+    if "side" not in fill:
+        raise KalshiOrderPollingError(
+            "Fill missing 'side'",
+            order_id=order_id,
+            operation_name=operation_name,
+            request_data={"fill": fill},
+        )
+
+    side = fill["side"]
+    if side not in ("yes", "no"):
+        raise KalshiOrderPollingError(
+            f"Fill missing valid side (received: {side})",
+            order_id=order_id,
+            operation_name=operation_name,
+            request_data={"fill": fill},
+        )
+
+    return side
+
+
+def validate_fill_price(fill: Dict[str, Any], side: str, order_id: str, operation_name: str) -> int:
+    price_key = pick_if(side == "yes", lambda: "yes_price", lambda: "no_price")
+
+    if price_key not in fill:
+        raise KalshiOrderPollingError(
+            f"Fill missing {price_key}",
+            order_id=order_id,
+            operation_name=operation_name,
+            request_data={"fill": fill},
+        )
+
+    price = fill[price_key]
+    try:
+        return int(price)
+    except (TypeError, ValueError) as exc:
+        raise KalshiOrderPollingError(
+            f"Invalid price in fill ({price})",
+            order_id=order_id,
+            operation_name=operation_name,
+            request_data={"fill": fill},
+        ) from exc
