@@ -18,6 +18,18 @@ from common.redis_protocol.atomic_redis_operations_helpers.data_fetcher import (
 )
 
 
+def _make_coordinator(mock_redis: Mock) -> AtomicOperationsCoordinator:
+    """Create a coordinator with all components replaced by mocks."""
+    c = AtomicOperationsCoordinator(mock_redis)
+    c.transaction_writer = MagicMock()
+    c.data_fetcher = MagicMock()
+    c.field_validator = MagicMock()
+    c.data_converter = MagicMock()
+    c.spread_validator = MagicMock()
+    c.deletion_validator = MagicMock()
+    return c
+
+
 class TestAtomicOperationsCoordinator:
     """Tests for AtomicOperationsCoordinator class."""
 
@@ -29,46 +41,16 @@ class TestAtomicOperationsCoordinator:
     @pytest.fixture
     def coordinator(self, mock_redis: Mock) -> AtomicOperationsCoordinator:
         """Create a coordinator instance with mocked components."""
-        with patch("common.redis_protocol.atomic_redis_operations_helpers.coordinator.create_components") as mock_factory:
-            mock_factory.return_value = {
-                "transaction_writer": MagicMock(),
-                "data_fetcher": MagicMock(),
-                "field_validator": MagicMock(),
-                "data_converter": MagicMock(),
-                "spread_validator": MagicMock(),
-                "deletion_validator": MagicMock(),
-            }
-            return AtomicOperationsCoordinator(mock_redis)
+        return _make_coordinator(mock_redis)
 
     def test_init_stores_redis_client(self, mock_redis: Mock) -> None:
         """Stores redis client."""
-        with patch("common.redis_protocol.atomic_redis_operations_helpers.coordinator.create_components") as mock_factory:
-            mock_factory.return_value = {
-                "transaction_writer": MagicMock(),
-                "data_fetcher": MagicMock(),
-                "field_validator": MagicMock(),
-                "data_converter": MagicMock(),
-                "spread_validator": MagicMock(),
-                "deletion_validator": MagicMock(),
-            }
-            coordinator = AtomicOperationsCoordinator(mock_redis)
-
+        coordinator = AtomicOperationsCoordinator(mock_redis)
         assert coordinator.redis is mock_redis
 
     def test_init_creates_components(self, mock_redis: Mock) -> None:
         """Creates all helper components."""
-        with patch("common.redis_protocol.atomic_redis_operations_helpers.coordinator.create_components") as mock_factory:
-            mock_factory.return_value = {
-                "transaction_writer": MagicMock(),
-                "data_fetcher": MagicMock(),
-                "field_validator": MagicMock(),
-                "data_converter": MagicMock(),
-                "spread_validator": MagicMock(),
-                "deletion_validator": MagicMock(),
-            }
-            coordinator = AtomicOperationsCoordinator(mock_redis)
-
-        mock_factory.assert_called_once_with(mock_redis)
+        coordinator = AtomicOperationsCoordinator(mock_redis)
         assert coordinator.transaction_writer is not None
         assert coordinator.data_fetcher is not None
         assert coordinator.field_validator is not None
@@ -92,16 +74,7 @@ class TestAtomicMarketDataWrite:
     @pytest.fixture
     def coordinator(self, mock_redis: Mock) -> AtomicOperationsCoordinator:
         """Create a coordinator instance."""
-        with patch("common.redis_protocol.atomic_redis_operations_helpers.coordinator.create_components") as mock_factory:
-            mock_factory.return_value = {
-                "transaction_writer": MagicMock(),
-                "data_fetcher": MagicMock(),
-                "field_validator": MagicMock(),
-                "data_converter": MagicMock(),
-                "spread_validator": MagicMock(),
-                "deletion_validator": MagicMock(),
-            }
-            return AtomicOperationsCoordinator(mock_redis)
+        return _make_coordinator(mock_redis)
 
     @pytest.mark.asyncio
     async def test_delegates_to_transaction_writer(self, coordinator: AtomicOperationsCoordinator) -> None:
@@ -136,17 +109,7 @@ class TestSafeMarketDataRead:
     @pytest.fixture
     def coordinator(self, mock_redis: Mock) -> AtomicOperationsCoordinator:
         """Create a coordinator instance."""
-        with patch("common.redis_protocol.atomic_redis_operations_helpers.coordinator.create_components") as mock_factory:
-            mock_components = {
-                "transaction_writer": MagicMock(),
-                "data_fetcher": MagicMock(),
-                "field_validator": MagicMock(),
-                "data_converter": MagicMock(),
-                "spread_validator": MagicMock(),
-                "deletion_validator": MagicMock(),
-            }
-            mock_factory.return_value = mock_components
-            return AtomicOperationsCoordinator(mock_redis)
+        return _make_coordinator(mock_redis)
 
     @pytest.mark.asyncio
     async def test_uses_default_required_fields(self, coordinator: AtomicOperationsCoordinator) -> None:
@@ -439,16 +402,7 @@ class TestAtomicDeleteIfInvalid:
     @pytest.fixture
     def coordinator(self, mock_redis: Mock) -> AtomicOperationsCoordinator:
         """Create a coordinator instance."""
-        with patch("common.redis_protocol.atomic_redis_operations_helpers.coordinator.create_components") as mock_factory:
-            mock_factory.return_value = {
-                "transaction_writer": MagicMock(),
-                "data_fetcher": MagicMock(),
-                "field_validator": MagicMock(),
-                "data_converter": MagicMock(),
-                "spread_validator": MagicMock(),
-                "deletion_validator": MagicMock(),
-            }
-            return AtomicOperationsCoordinator(mock_redis)
+        return _make_coordinator(mock_redis)
 
     @pytest.mark.asyncio
     async def test_delegates_to_deletion_validator(self, coordinator: AtomicOperationsCoordinator) -> None:

@@ -106,6 +106,10 @@ class EventMarketIndex:
         """Return all cached market tickers."""
         return list(self._market_cache.keys())
 
+    def get_all_markets(self) -> List[Dict[str, Any]]:
+        """Return all cached market data dicts."""
+        return list(self._market_cache.values())
+
     def get_event_markets(self, event_ticker: str) -> List[Dict[str, Any]]:
         """Return cached market data for one event."""
         tickers = self._event_to_tickers.get(event_ticker)

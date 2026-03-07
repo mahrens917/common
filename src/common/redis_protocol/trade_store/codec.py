@@ -14,7 +14,7 @@ from typing import Any, Dict, Union
 import orjson
 
 from ...data_models.trade_record import TradeRecord, TradeSide
-from .codec_helpers.field_extractor import ensure_timezone, extract_optional_fields
+from .codec_helpers.encoder import ensure_timezone, extract_optional_fields
 from .codec_helpers.validators import validate_trade_data as _validate_trade_data
 from .order_metadata_codec import OrderMetadataCodec
 

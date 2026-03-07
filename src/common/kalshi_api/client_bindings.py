@@ -16,12 +16,12 @@ from common.data_models.trading import (
 from common.trading.order_payloads import build_order_payload
 
 from .client_helpers import KalshiClientError
-from .client_helpers.property_accessors import get_initialized as _get_initialized
-from .client_helpers.property_accessors import get_session_lock as _get_session_lock
-from .client_helpers.property_accessors import get_trade_store as _get_trade_store
-from .client_helpers.property_accessors import set_initialized as _set_initialized
-from .client_helpers.property_accessors import set_session_lock as _set_session_lock
-from .client_helpers.property_accessors import set_trade_store as _set_trade_store
+from .client_helpers.errors import get_initialized as _get_initialized
+from .client_helpers.errors import get_session_lock as _get_session_lock
+from .client_helpers.errors import get_trade_store as _get_trade_store
+from .client_helpers.errors import set_initialized as _set_initialized
+from .client_helpers.errors import set_session_lock as _set_session_lock
+from .client_helpers.errors import set_trade_store as _set_trade_store
 
 HTTP_ERROR_STATUS_THRESHOLD = 400
 

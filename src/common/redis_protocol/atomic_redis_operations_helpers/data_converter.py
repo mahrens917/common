@@ -7,11 +7,9 @@ Converts string values from Redis into appropriate Python types.
 import logging
 from typing import Any, Dict, Mapping
 
+from .data_fetcher import RedisDataValidationError
+
 logger = logging.getLogger(__name__)
-
-
-class RedisDataValidationError(RuntimeError):
-    """Raised when Redis market data cannot be validated after retries."""
 
 
 class DataConverter:

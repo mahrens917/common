@@ -15,7 +15,7 @@ from common.redis_protocol.market_normalization import (
     parse_expiry_token,
     select_timestamp_value,
 )
-from common.redis_protocol.market_normalization_core import ProbabilityValueError
+from common.redis_protocol.market_normalization import ProbabilityValueError
 
 _CONST_12 = 12
 _VAL_12_5 = 12.5

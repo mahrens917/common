@@ -446,7 +446,7 @@ class TestStatusReportCoordinatorGenerateAndStreamStatusReport:
             "btc_price": 50000.0,
         }
 
-        with patch("common.redis_protocol.connection_pool_core.get_redis_client") as mock_get_client:
+        with patch("common.redis_protocol.connection.get_redis_client") as mock_get_client:
             mock_client = AsyncMock()
             mock_get_client.return_value = mock_client
 
@@ -473,7 +473,7 @@ class TestStatusReportCoordinatorGenerateAndStreamStatusReport:
 
         coordinator = StatusReportCoordinator(config)
 
-        with patch("common.redis_protocol.connection_pool_core.get_redis_client") as mock_get_client:
+        with patch("common.redis_protocol.connection.get_redis_client") as mock_get_client:
             mock_get_client.side_effect = RedisError("Connection failed")
 
             with pytest.raises(RuntimeError, match="Status report generation failed"):
@@ -494,7 +494,7 @@ class TestStatusReportCoordinatorGenerateAndStreamStatusReport:
 
         coordinator = StatusReportCoordinator(config)
 
-        with patch("common.redis_protocol.connection_pool_core.get_redis_client") as mock_get_client:
+        with patch("common.redis_protocol.connection.get_redis_client") as mock_get_client:
             mock_get_client.side_effect = RedisOperationError("Operation failed")
 
             with pytest.raises(RuntimeError, match="Status report generation failed"):
@@ -515,7 +515,7 @@ class TestStatusReportCoordinatorGenerateAndStreamStatusReport:
 
         coordinator = StatusReportCoordinator(config)
 
-        with patch("common.redis_protocol.connection_pool_core.get_redis_client") as mock_get_client:
+        with patch("common.redis_protocol.connection.get_redis_client") as mock_get_client:
             mock_get_client.side_effect = ConnectionError("Network error")
 
             with pytest.raises(RuntimeError, match="Status report generation failed"):
@@ -536,7 +536,7 @@ class TestStatusReportCoordinatorGenerateAndStreamStatusReport:
 
         coordinator = StatusReportCoordinator(config)
 
-        with patch("common.redis_protocol.connection_pool_core.get_redis_client") as mock_get_client:
+        with patch("common.redis_protocol.connection.get_redis_client") as mock_get_client:
             mock_get_client.side_effect = TimeoutError("Request timeout")
 
             with pytest.raises(RuntimeError, match="Status report generation failed"):
@@ -557,7 +557,7 @@ class TestStatusReportCoordinatorGenerateAndStreamStatusReport:
 
         coordinator = StatusReportCoordinator(config)
 
-        with patch("common.redis_protocol.connection_pool_core.get_redis_client") as mock_get_client:
+        with patch("common.redis_protocol.connection.get_redis_client") as mock_get_client:
             mock_get_client.side_effect = asyncio.TimeoutError("Async timeout")
 
             with pytest.raises(RuntimeError, match="Status report generation failed"):
@@ -578,7 +578,7 @@ class TestStatusReportCoordinatorGenerateAndStreamStatusReport:
 
         coordinator = StatusReportCoordinator(config)
 
-        with patch("common.redis_protocol.connection_pool_core.get_redis_client") as mock_get_client:
+        with patch("common.redis_protocol.connection.get_redis_client") as mock_get_client:
             mock_get_client.side_effect = RuntimeError("Runtime error")
 
             with pytest.raises(RuntimeError, match="Status report generation failed"):
@@ -599,7 +599,7 @@ class TestStatusReportCoordinatorGenerateAndStreamStatusReport:
 
         coordinator = StatusReportCoordinator(config)
 
-        with patch("common.redis_protocol.connection_pool_core.get_redis_client") as mock_get_client:
+        with patch("common.redis_protocol.connection.get_redis_client") as mock_get_client:
             mock_get_client.side_effect = ValueError("Invalid value")
 
             with pytest.raises(RuntimeError, match="Status report generation failed"):
@@ -620,7 +620,7 @@ class TestStatusReportCoordinatorGenerateAndStreamStatusReport:
 
         coordinator = StatusReportCoordinator(config)
 
-        with patch("common.redis_protocol.connection_pool_core.get_redis_client") as mock_get_client:
+        with patch("common.redis_protocol.connection.get_redis_client") as mock_get_client:
             mock_get_client.side_effect = ImportError("Module not found")
 
             with pytest.raises(RuntimeError, match="Status report generation failed"):
@@ -641,7 +641,7 @@ class TestStatusReportCoordinatorGenerateAndStreamStatusReport:
 
         coordinator = StatusReportCoordinator(config)
 
-        with patch("common.redis_protocol.connection_pool_core.get_redis_client") as mock_get_client:
+        with patch("common.redis_protocol.connection.get_redis_client") as mock_get_client:
             mock_get_client.side_effect = RedisError("Test error")
 
             with patch("common.optimized_status_reporter_helpers.status_report_coordinator.logger") as mock_logger:

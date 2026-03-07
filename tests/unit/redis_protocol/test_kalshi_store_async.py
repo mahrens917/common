@@ -12,7 +12,7 @@ from common.redis_protocol.market_normalization import (
     format_probability_value,
     sync_top_of_book_fields,
 )
-from common.redis_protocol.market_normalization_core import ProbabilityValueError
+from common.redis_protocol.market_normalization import ProbabilityValueError
 
 _VAL_13_0 = 13.0
 _VAL_42_0 = 42.0

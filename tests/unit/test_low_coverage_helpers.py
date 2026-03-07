@@ -19,7 +19,6 @@ from common.redis_protocol.trade_store.codec_helpers.encoder import (
     encode_trade_record,
     trade_record_to_payload,
 )
-from common.scraper_connection_manager_helpers.shutdown_mixin import ShutdownRequestMixin
 from common.time_helpers.timestamp_parser import (
     MILLISECOND_TIMESTAMP_THRESHOLD,
     parse_timestamp,
@@ -118,17 +117,6 @@ def _build_trade(**overrides):
     )
     base.update(overrides)
     return TradeRecord(**base)
-
-
-def test_shutdown_request_mixin_sets_flag():
-    class _Impl(ShutdownRequestMixin):
-        def __init__(self):
-            self._shutdown_requested = False
-
-    obj = _Impl()
-    assert obj._shutdown_requested is False
-    obj.request_shutdown()
-    assert obj._shutdown_requested is True
 
 
 def test_timestamp_parser_handles_types_and_errors():

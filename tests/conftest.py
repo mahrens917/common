@@ -281,11 +281,11 @@ async def _cleanup_redis_pools_between_tests():
     yield
 
     try:
-        from common.redis_protocol import connection_pool_core
+        from common.redis_protocol import connection
     except Exception:
         return
 
-    pool = getattr(connection_pool_core._thread_local, "pool", None)
+    pool = getattr(connection._thread_local, "pool", None)
     if pool is not None:
         try:
             # Use a short timeout and handle cancellation to prevent hangs
@@ -295,17 +295,17 @@ async def _cleanup_redis_pools_between_tests():
         except (asyncio.TimeoutError, asyncio.CancelledError, Exception):
             pass
 
-    connection_pool_core._thread_local.pool = None
-    connection_pool_core._thread_local.pool_loop = None
+    connection._thread_local.pool = None
+    connection._thread_local.pool_loop = None
 
-    sync_pool = getattr(connection_pool_core, "_sync_pool", None)
+    sync_pool = getattr(connection, "_sync_pool", None)
     if sync_pool is not None:
         try:
             sync_pool.disconnect()
         except Exception:
             pass
 
-    connection_pool_core._sync_pool = None
+    connection._sync_pool = None
 
 
 @pytest.fixture(autouse=True)

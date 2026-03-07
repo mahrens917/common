@@ -8,7 +8,7 @@ configurable thresholds.
 import logging
 from datetime import datetime
 
-from .types import LogActivityStatus
+from .timestamp_extractor import LogActivityStatus
 
 logger = logging.getLogger(__name__)
 

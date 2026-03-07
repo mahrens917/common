@@ -1,7 +1,6 @@
 """Message processing helpers for orderbook updates."""
 
-from .dispatcher import OrderbookMessageContext, process_orderbook_message
-from .normalizer import normalize_price_map, normalize_snapshot_json
+from .normalizer import OrderbookMessageContext, normalize_price_map, normalize_snapshot_json, process_orderbook_message
 
 __all__ = [
     "OrderbookMessageContext",

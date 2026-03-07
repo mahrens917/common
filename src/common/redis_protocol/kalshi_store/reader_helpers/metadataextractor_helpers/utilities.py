@@ -40,11 +40,6 @@ def parse_market_metadata(market_ticker: str, market_data: Dict[str, Any]) -> Op
 
 def sync_top_of_book_fields(snapshot: Dict[str, Any]) -> None:
     """Delegate to canonical top-of-book sync to keep logic consistent."""
-    _sync_top_of_book_fields(snapshot)
-
-
-def _sync_top_of_book_fields(snapshot: Dict[str, Any]) -> None:
-    """Module-level helper retained for test patching."""
     canonical_sync_top_of_book(snapshot)
 
 

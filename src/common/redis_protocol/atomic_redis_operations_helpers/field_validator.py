@@ -7,11 +7,9 @@ Validates that required fields are present in fetched data.
 import logging
 from typing import Any, Mapping, Sequence
 
+from .data_fetcher import RedisDataValidationError
+
 logger = logging.getLogger(__name__)
-
-
-class RedisDataValidationError(RuntimeError):
-    """Raised when Redis market data cannot be validated after retries."""
 
 
 class FieldValidator:

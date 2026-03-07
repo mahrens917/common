@@ -12,6 +12,7 @@ from redis.asyncio import Redis
 from redis.exceptions import RedisError
 
 from ..typing import ensure_awaitable
+from .data_fetcher import RedisDataValidationError
 
 logger = logging.getLogger(__name__)
 
@@ -25,10 +26,6 @@ REDIS_ATOMIC_ERRORS = (
     ValueError,
     TypeError,
 )
-
-
-class RedisDataValidationError(RuntimeError):
-    """Raised when Redis market data cannot be validated after retries."""
 
 
 class DeletionValidator:

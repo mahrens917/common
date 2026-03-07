@@ -42,10 +42,10 @@ async def get_redis_connection() -> redis.asyncio.Redis:
     """
     Obtain an async Redis client from the unified connection pool.
 
-    Delegates to canonical implementation in common.redis_protocol.connection_pool_core.
+    Delegates to canonical implementation in common.redis_protocol.connection.
     All connection details are sourced from the unified connection pool configuration.
     """
-    from .redis_protocol.connection_pool_core import get_redis_client
+    from .redis_protocol.connection import get_redis_client
 
     try:
         client = await get_redis_client()

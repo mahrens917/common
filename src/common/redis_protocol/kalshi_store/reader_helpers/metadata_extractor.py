@@ -18,7 +18,6 @@ from .metadataextractor_helpers import (
     parse_market_metadata,
     resolve_market_strike,
 )
-from .metadataextractor_helpers import strike_resolver as _strike_resolver_mod
 from .metadataextractor_helpers import (
     string_or_default,
     sync_top_of_book_fields,
@@ -34,7 +33,7 @@ class MetadataExtractor:
         self._market_record_builder = MarketRecordBuilder(
             _type_converter_mod,
             _type_converter_mod,
-            _strike_resolver_mod,
+            _type_converter_mod,
         )
 
     @staticmethod

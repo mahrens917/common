@@ -26,10 +26,10 @@ class PoolManager:
         """
         Create a new Redis client with connection pool.
 
-        Delegates to canonical get_redis_client() from connection_pool_core
+        Delegates to canonical get_redis_client() from connection
         to ensure consistent connection pooling across the codebase.
         """
-        from common.redis_protocol.connection_pool_core import get_redis_client
+        from common.redis_protocol.connection import get_redis_client
 
         return await get_redis_client()
 

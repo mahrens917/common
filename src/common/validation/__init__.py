@@ -6,7 +6,7 @@ the data type and null handling issues that cause test failures.
 """
 
 from .data_integrity_validator import DataIntegrityError, DataIntegrityValidator
-from .probability import clamp_probability, first_valid_probability
+from .required_fields import clamp_probability, first_valid_probability
 
 __all__ = [
     "DataIntegrityValidator",

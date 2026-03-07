@@ -4,8 +4,8 @@ from .models import (
     Alert,
     AlerterError,
     AlertSeverity,
+    AlertThrottle,
 )
-from .throttle import AlertThrottle
 
 __all__ = [
     "Alert",

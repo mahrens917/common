@@ -9,7 +9,7 @@ import pytest
 from common.config.weather import WeatherConfigError
 from common.redis_protocol.kalshi_store import KalshiStore
 from common.redis_protocol.market_normalization import format_probability_value
-from common.redis_protocol.market_normalization_core import ProbabilityValueError
+from common.redis_protocol.market_normalization import ProbabilityValueError
 from common.redis_protocol.weather_station_resolver import WeatherStationResolver
 
 

@@ -14,7 +14,7 @@ import asyncio
 import logging
 from typing import List
 
-from common.redis_protocol.connection_pool_core import cleanup_redis_pool, get_redis_client
+from common.redis_protocol.connection import cleanup_redis_pool, get_redis_client
 from common.redis_protocol.typing import ensure_awaitable
 
 logging.basicConfig(level=logging.INFO, format="%(message)s")

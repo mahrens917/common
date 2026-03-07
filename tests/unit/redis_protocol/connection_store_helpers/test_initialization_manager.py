@@ -29,7 +29,7 @@ async def test_initialization_manager(monkeypatch):
         return "redis-client"
 
     monkeypatch.setattr(
-        "common.redis_protocol.connection_pool_core.get_redis_client",
+        "common.redis_protocol.connection.get_redis_client",
         fake_get_redis_client,
     )
 

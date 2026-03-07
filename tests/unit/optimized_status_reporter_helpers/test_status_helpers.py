@@ -43,7 +43,7 @@ from common.optimized_status_reporter_helpers.weather_temperature_collector impo
 from common.redis_protocol import SubscriptionUpdate
 from common.time_utils.solar import calculate_solar_noon_utc, is_after_solar_noon
 from common.trading.order_payloads import build_order_payload
-from common.validation.probability import clamp_probability, first_valid_probability
+from common.validation.required_fields import clamp_probability, first_valid_probability
 from common.websocket.unified_subscription_manager_helpers.subscription_processor import (
     SubscriptionProcessor,
 )

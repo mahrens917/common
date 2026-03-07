@@ -227,7 +227,7 @@ class StatusReportCoordinator:
         self.console_printer = ConsolePrinter(config.console_section_printer, config.weather_section_generator)
 
     async def generate_and_stream_status_report(self) -> Dict[str, Any]:
-        from common.redis_protocol.connection_pool_core import get_redis_client
+        from common.redis_protocol.connection import get_redis_client
 
         try:
             redis_client = await get_redis_client()

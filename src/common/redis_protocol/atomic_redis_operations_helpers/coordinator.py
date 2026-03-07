@@ -11,13 +11,10 @@ from typing import Any, Dict, List, Mapping, Optional, Union
 from redis.asyncio import Redis
 from redis.exceptions import RedisError
 
-from common.truthy import pick_truthy
-
 from .. import config
 from .data_converter import DataConverter
 from .data_fetcher import DataFetcher, RedisDataValidationError
 from .deletion_validator import DeletionValidator
-from .factory import create_components
 from .field_validator import FieldValidator
 from .spread_validator import SpreadValidator
 from .transaction_writer import TransactionWriter
@@ -47,13 +44,12 @@ class AtomicOperationsCoordinator:
     def __init__(self, redis_client: Redis):
         self.redis = redis_client
         self.logger = logger
-        components = create_components(redis_client)
-        self.transaction_writer: TransactionWriter = components["transaction_writer"]
-        self.data_fetcher: DataFetcher = components["data_fetcher"]
-        self.field_validator: FieldValidator = components["field_validator"]
-        self.data_converter: DataConverter = components["data_converter"]
-        self.spread_validator: SpreadValidator = components["spread_validator"]
-        self.deletion_validator: DeletionValidator = components["deletion_validator"]
+        self.transaction_writer: TransactionWriter = TransactionWriter(redis_client)
+        self.data_fetcher: DataFetcher = DataFetcher(redis_client)
+        self.field_validator: FieldValidator = FieldValidator(MAX_READ_RETRIES)
+        self.data_converter: DataConverter = DataConverter(MAX_READ_RETRIES)
+        self.spread_validator: SpreadValidator = SpreadValidator(MAX_READ_RETRIES)
+        self.deletion_validator: DeletionValidator = DeletionValidator(redis_client)
 
     async def atomic_market_data_write(self, store_key: str, market_data: Mapping[str, Union[str, float, int, None]]) -> bool:
         return await self.transaction_writer.atomic_market_data_write(store_key, market_data)
@@ -80,7 +76,7 @@ class AtomicOperationsCoordinator:
                 if attempt < MAX_READ_RETRIES - 1:
                     await asyncio.sleep(READ_RETRY_DELAY_MS / 1000.0)
                     continue
-                raise
+                raise RedisDataValidationError(f"Error reading market data from key {store_key}") from exc
             except REDIS_ATOMIC_ERRORS as exc:
                 message = f"Error reading market data from key {store_key} ({type(exc).__name__})"
                 self.logger.exception("%s, attempt %s/%s", message, attempt + 1, MAX_READ_RETRIES)

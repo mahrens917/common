@@ -9,7 +9,7 @@ for intelligent alert suppression during reconnection events.
 import logging
 from typing import Any, Dict, List, Optional
 
-from .connection_pool_core import get_redis_pool as _pool_get_redis
+from .connection import get_redis_pool as _pool_get_redis
 from .connection_store_helpers import (
     InitializationManager,
     MetricsManager,

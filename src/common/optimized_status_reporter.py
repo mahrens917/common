@@ -66,7 +66,7 @@ class OptimizedStatusReporter(
 
         from monitor.common_local.process_monitor import get_global_process_monitor
 
-        from common.redis_protocol.connection_pool_core import get_redis_client
+        from common.redis_protocol.connection import get_redis_client
 
         try:
             redis_client = await get_redis_client()
@@ -90,7 +90,7 @@ class OptimizedStatusReporter(
 
         from monitor.common_local.process_monitor import get_global_process_monitor
 
-        from common.redis_protocol.connection_pool_core import get_redis_client as get_client
+        from common.redis_protocol.connection import get_redis_client as get_client
 
         owns_client = False
         if redis_client is None:

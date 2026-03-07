@@ -17,7 +17,7 @@ from redis.exceptions import RedisError
 from redis.exceptions import TimeoutError as RedisTimeoutError
 from redis.retry import Retry as SyncRetry
 
-from common.redis_protocol import connection_pool_core
+from common.redis_protocol import connection
 
 
 class TestRedisConnectionHealthMonitor:
@@ -25,7 +25,7 @@ class TestRedisConnectionHealthMonitor:
 
     def test_initial_metrics(self) -> None:
         """Initial metrics are all zero."""
-        monitor = connection_pool_core.RedisConnectionHealthMonitor()
+        monitor = connection.RedisConnectionHealthMonitor()
 
         metrics = monitor.get_metrics()
 
@@ -39,7 +39,7 @@ class TestRedisConnectionHealthMonitor:
 
     def test_record_connection_created(self) -> None:
         """Record connection created increments counter."""
-        monitor = connection_pool_core.RedisConnectionHealthMonitor()
+        monitor = connection.RedisConnectionHealthMonitor()
 
         monitor.record_connection_created()
 
@@ -48,7 +48,7 @@ class TestRedisConnectionHealthMonitor:
 
     def test_record_connection_reused(self) -> None:
         """Record connection reused increments counter."""
-        monitor = connection_pool_core.RedisConnectionHealthMonitor()
+        monitor = connection.RedisConnectionHealthMonitor()
 
         monitor.record_connection_reused()
 
@@ -57,7 +57,7 @@ class TestRedisConnectionHealthMonitor:
 
     def test_record_pool_get(self) -> None:
         """Record pool get increments counter."""
-        monitor = connection_pool_core.RedisConnectionHealthMonitor()
+        monitor = connection.RedisConnectionHealthMonitor()
 
         monitor.record_pool_get()
 
@@ -66,7 +66,7 @@ class TestRedisConnectionHealthMonitor:
 
     def test_record_pool_return(self) -> None:
         """Record pool return increments counter."""
-        monitor = connection_pool_core.RedisConnectionHealthMonitor()
+        monitor = connection.RedisConnectionHealthMonitor()
 
         monitor.record_pool_return()
 
@@ -75,7 +75,7 @@ class TestRedisConnectionHealthMonitor:
 
     def test_record_connection_error(self) -> None:
         """Record connection error increments counter."""
-        monitor = connection_pool_core.RedisConnectionHealthMonitor()
+        monitor = connection.RedisConnectionHealthMonitor()
 
         monitor.record_connection_error()
 
@@ -84,7 +84,7 @@ class TestRedisConnectionHealthMonitor:
 
     def test_record_pool_cleanup(self) -> None:
         """Record pool cleanup increments counter."""
-        monitor = connection_pool_core.RedisConnectionHealthMonitor()
+        monitor = connection.RedisConnectionHealthMonitor()
 
         monitor.record_pool_cleanup()
 
@@ -93,7 +93,7 @@ class TestRedisConnectionHealthMonitor:
 
     def test_reuse_rate_calculation(self) -> None:
         """Reuse rate is calculated correctly."""
-        monitor = connection_pool_core.RedisConnectionHealthMonitor()
+        monitor = connection.RedisConnectionHealthMonitor()
 
         # Simulate 10 pool gets with only 2 new connections created
         for _ in range(10):
@@ -107,21 +107,21 @@ class TestRedisConnectionHealthMonitor:
 
     def test_should_perform_health_check_returns_true_after_interval(self) -> None:
         """Returns True when enough time has passed since last check."""
-        monitor = connection_pool_core.RedisConnectionHealthMonitor()
+        monitor = connection.RedisConnectionHealthMonitor()
         monitor.last_health_check = time.time() - 60  # 60 seconds ago
 
         assert monitor.should_perform_health_check() is True
 
     def test_should_perform_health_check_returns_false_before_interval(self) -> None:
         """Returns False when not enough time has passed."""
-        monitor = connection_pool_core.RedisConnectionHealthMonitor()
+        monitor = connection.RedisConnectionHealthMonitor()
         monitor.last_health_check = time.time()  # Just now
 
         assert monitor.should_perform_health_check() is False
 
     def test_thread_safety_of_metrics(self) -> None:
         """Metrics updates are thread-safe."""
-        monitor = connection_pool_core.RedisConnectionHealthMonitor()
+        monitor = connection.RedisConnectionHealthMonitor()
         iterations = 100
 
         def increment_metrics():
@@ -145,13 +145,13 @@ class TestRetryCreation:
 
     def test_create_async_retry_returns_retry_instance(self) -> None:
         """Creates async retry with correct type."""
-        retry = connection_pool_core.create_async_retry()
+        retry = connection.create_async_retry()
 
         assert isinstance(retry, AsyncRetry)
 
     def test_create_sync_retry_returns_retry_instance(self) -> None:
         """Creates sync retry with correct type."""
-        retry = connection_pool_core.create_sync_retry()
+        retry = connection.create_sync_retry()
 
         assert isinstance(retry, SyncRetry)
 
@@ -167,15 +167,15 @@ class TestGetRedisPool:
 
         with (
             patch.object(
-                connection_pool_core,
+                connection,
                 "_create_thread_local_pool",
                 new_callable=AsyncMock,
                 return_value=mock_pool,
             ) as mock_create,
-            patch.object(connection_pool_core, "_redis_health_monitor") as mock_monitor,
-            patch.object(connection_pool_core, "_thread_local", threading.local()),
+            patch.object(connection, "_redis_health_monitor") as mock_monitor,
+            patch.object(connection, "_thread_local", threading.local()),
         ):
-            result = await connection_pool_core.get_redis_pool()
+            result = await connection.get_redis_pool()
 
             assert result is mock_pool
             mock_create.assert_awaited_once_with(current_loop)
@@ -193,10 +193,10 @@ class TestGetRedisPool:
         thread_local.pool_loop = mock_pool_loop_ref
 
         with (
-            patch.object(connection_pool_core, "_thread_local", thread_local),
-            patch.object(connection_pool_core, "_redis_health_monitor") as mock_monitor,
+            patch.object(connection, "_thread_local", thread_local),
+            patch.object(connection, "_redis_health_monitor") as mock_monitor,
         ):
-            result = await connection_pool_core.get_redis_pool()
+            result = await connection.get_redis_pool()
 
             assert result is mock_pool
             mock_monitor.record_pool_get.assert_called_once()
@@ -212,12 +212,12 @@ class TestGetRedisClient:
         mock_pool.connection_kwargs = {"protocol": None}
 
         with patch.object(
-            connection_pool_core,
+            connection,
             "get_redis_pool",
             new_callable=AsyncMock,
             return_value=mock_pool,
         ):
-            client = await connection_pool_core.get_redis_client()
+            client = await connection.get_redis_client()
 
             assert isinstance(client, redis.asyncio.Redis)
 
@@ -231,9 +231,9 @@ class TestCleanupRedisPool:
         thread_local = threading.local()
         # No pool attribute set
 
-        with patch.object(connection_pool_core, "_thread_local", thread_local):
+        with patch.object(connection, "_thread_local", thread_local):
             # Should not raise
-            await connection_pool_core.cleanup_redis_pool()
+            await connection.cleanup_redis_pool()
 
     @pytest.mark.asyncio
     async def test_cleanup_disconnects_pool(self) -> None:
@@ -246,10 +246,10 @@ class TestCleanupRedisPool:
         thread_local.pool_loop = weakref.ref(asyncio.get_running_loop())
 
         with (
-            patch.object(connection_pool_core, "_thread_local", thread_local),
-            patch.object(connection_pool_core, "_redis_health_monitor") as mock_monitor,
+            patch.object(connection, "_thread_local", thread_local),
+            patch.object(connection, "_redis_health_monitor") as mock_monitor,
         ):
-            await connection_pool_core.cleanup_redis_pool()
+            await connection.cleanup_redis_pool()
 
             mock_pool.disconnect.assert_awaited_once()
             mock_monitor.record_pool_cleanup.assert_called_once()
@@ -273,13 +273,13 @@ class TestCleanupRedisPool:
             raise asyncio.TimeoutError()
 
         with (
-            patch.object(connection_pool_core, "_thread_local", thread_local),
-            patch.object(connection_pool_core, "_redis_health_monitor"),
-            patch.object(connection_pool_core, "logger"),
+            patch.object(connection, "_thread_local", thread_local),
+            patch.object(connection, "_redis_health_monitor"),
+            patch.object(connection, "logger"),
             patch("asyncio.wait_for", wait_for_timeout),
         ):
             # Should not raise
-            await connection_pool_core.cleanup_redis_pool()
+            await connection.cleanup_redis_pool()
 
     @pytest.mark.asyncio
     async def test_cleanup_handles_redis_error_during_disconnect(self) -> None:
@@ -300,13 +300,13 @@ class TestCleanupRedisPool:
             raise RedisError("error")
 
         with (
-            patch.object(connection_pool_core, "_thread_local", thread_local),
-            patch.object(connection_pool_core, "_redis_health_monitor"),
-            patch.object(connection_pool_core, "logger"),
+            patch.object(connection, "_thread_local", thread_local),
+            patch.object(connection, "_redis_health_monitor"),
+            patch.object(connection, "logger"),
             patch("asyncio.wait_for", wait_for_error),
         ):
             # Should not raise
-            await connection_pool_core.cleanup_redis_pool()
+            await connection.cleanup_redis_pool()
 
 
 class TestPerformRedisHealthCheck:
@@ -325,15 +325,15 @@ class TestPerformRedisHealthCheck:
 
         with (
             patch.object(
-                connection_pool_core,
+                connection,
                 "get_redis_pool",
                 new_callable=AsyncMock,
                 return_value=mock_pool,
             ),
             patch("redis.asyncio.Redis", return_value=mock_client),
-            patch.object(connection_pool_core, "_redis_health_monitor") as mock_monitor,
+            patch.object(connection, "_redis_health_monitor") as mock_monitor,
         ):
-            result = await connection_pool_core.perform_redis_health_check()
+            result = await connection.perform_redis_health_check()
 
             assert result is True
             mock_monitor.record_pool_return.assert_called_once()
@@ -351,16 +351,16 @@ class TestPerformRedisHealthCheck:
 
         with (
             patch.object(
-                connection_pool_core,
+                connection,
                 "get_redis_pool",
                 new_callable=AsyncMock,
                 return_value=mock_pool,
             ),
             patch("redis.asyncio.Redis", return_value=mock_client),
-            patch.object(connection_pool_core, "_redis_health_monitor"),
-            patch.object(connection_pool_core, "logger"),
+            patch.object(connection, "_redis_health_monitor"),
+            patch.object(connection, "logger"),
         ):
-            result = await connection_pool_core.perform_redis_health_check()
+            result = await connection.perform_redis_health_check()
 
             assert result is False
 
@@ -369,15 +369,15 @@ class TestPerformRedisHealthCheck:
         """Returns False when Redis error occurs."""
         with (
             patch.object(
-                connection_pool_core,
+                connection,
                 "get_redis_pool",
                 new_callable=AsyncMock,
                 side_effect=RedisConnectionError("Connection failed"),
             ),
-            patch.object(connection_pool_core, "_redis_health_monitor") as mock_monitor,
-            patch.object(connection_pool_core, "logger"),
+            patch.object(connection, "_redis_health_monitor") as mock_monitor,
+            patch.object(connection, "logger"),
         ):
-            result = await connection_pool_core.perform_redis_health_check()
+            result = await connection.perform_redis_health_check()
 
             assert result is False
             mock_monitor.record_connection_error.assert_called_once()
@@ -387,15 +387,15 @@ class TestPerformRedisHealthCheck:
         """Returns False when timeout occurs."""
         with (
             patch.object(
-                connection_pool_core,
+                connection,
                 "get_redis_pool",
                 new_callable=AsyncMock,
                 side_effect=RedisTimeoutError("Timeout"),
             ),
-            patch.object(connection_pool_core, "_redis_health_monitor") as mock_monitor,
-            patch.object(connection_pool_core, "logger"),
+            patch.object(connection, "_redis_health_monitor") as mock_monitor,
+            patch.object(connection, "logger"),
         ):
-            result = await connection_pool_core.perform_redis_health_check()
+            result = await connection.perform_redis_health_check()
 
             assert result is False
             mock_monitor.record_connection_error.assert_called_once()
@@ -406,15 +406,15 @@ class TestRecordPoolAcquiredAndReturned:
 
     def test_record_pool_acquired(self) -> None:
         """Records pool acquisition."""
-        with patch.object(connection_pool_core, "_redis_health_monitor") as mock_monitor:
-            connection_pool_core.record_pool_acquired()
+        with patch.object(connection, "_redis_health_monitor") as mock_monitor:
+            connection.record_pool_acquired()
 
             mock_monitor.record_pool_get.assert_called_once()
 
     def test_record_pool_returned(self) -> None:
         """Records pool return."""
-        with patch.object(connection_pool_core, "_redis_health_monitor") as mock_monitor:
-            connection_pool_core.record_pool_returned()
+        with patch.object(connection, "_redis_health_monitor") as mock_monitor:
+            connection.record_pool_returned()
 
             mock_monitor.record_pool_return.assert_called_once()
 
@@ -427,13 +427,13 @@ class TestCleanupRedisPoolOnNetworkIssues:
         """Cleans up pool and resets references on network issues."""
         with (
             patch.object(
-                connection_pool_core,
+                connection,
                 "cleanup_redis_pool",
                 new_callable=AsyncMock,
             ) as mock_cleanup,
-            patch.object(connection_pool_core, "logger"),
+            patch.object(connection, "logger"),
         ):
-            await connection_pool_core.cleanup_redis_pool_on_network_issues()
+            await connection.cleanup_redis_pool_on_network_issues()
 
             mock_cleanup.assert_awaited_once()
 
@@ -442,15 +442,15 @@ class TestCleanupRedisPoolOnNetworkIssues:
         """Handles error during network-triggered cleanup."""
         with (
             patch.object(
-                connection_pool_core,
+                connection,
                 "cleanup_redis_pool",
                 new_callable=AsyncMock,
                 side_effect=RedisError("Cleanup error"),
             ),
-            patch.object(connection_pool_core, "logger"),
+            patch.object(connection, "logger"),
         ):
             # Should not raise
-            await connection_pool_core.cleanup_redis_pool_on_network_issues()
+            await connection.cleanup_redis_pool_on_network_issues()
 
 
 class TestGetSyncRedisPool:
@@ -459,10 +459,10 @@ class TestGetSyncRedisPool:
     def test_creates_sync_pool(self) -> None:
         """Creates synchronous connection pool."""
         with (
-            patch.object(connection_pool_core, "_sync_pool", None),
-            patch.object(connection_pool_core, "_sync_pool_guard", threading.Lock()),
+            patch.object(connection, "_sync_pool", None),
+            patch.object(connection, "_sync_pool_guard", threading.Lock()),
             patch("redis.ConnectionPool") as mock_pool_class,
-            patch.object(connection_pool_core, "config") as mock_config,
+            patch.object(connection, "config") as mock_config,
         ):
             mock_config.REDIS_HOST = "localhost"
             mock_config.REDIS_PORT = 6379
@@ -476,7 +476,7 @@ class TestGetSyncRedisPool:
             mock_pool = MagicMock()
             mock_pool_class.return_value = mock_pool
 
-            result = connection_pool_core.get_sync_redis_pool()
+            result = connection.get_sync_redis_pool()
 
             assert result is mock_pool
             mock_pool_class.assert_called_once()
@@ -485,18 +485,18 @@ class TestGetSyncRedisPool:
         """Reuses existing synchronous pool."""
         mock_pool = MagicMock(spec=redis.ConnectionPool)
 
-        with patch.object(connection_pool_core, "_sync_pool", mock_pool):
-            result = connection_pool_core.get_sync_redis_pool()
+        with patch.object(connection, "_sync_pool", mock_pool):
+            result = connection.get_sync_redis_pool()
 
             assert result is mock_pool
 
     def test_creates_sync_pool_with_password(self) -> None:
         """Creates pool with password when configured."""
         with (
-            patch.object(connection_pool_core, "_sync_pool", None),
-            patch.object(connection_pool_core, "_sync_pool_guard", threading.Lock()),
+            patch.object(connection, "_sync_pool", None),
+            patch.object(connection, "_sync_pool_guard", threading.Lock()),
             patch("redis.ConnectionPool") as mock_pool_class,
-            patch.object(connection_pool_core, "config") as mock_config,
+            patch.object(connection, "config") as mock_config,
         ):
             mock_config.REDIS_HOST = "localhost"
             mock_config.REDIS_PORT = 6379
@@ -507,7 +507,7 @@ class TestGetSyncRedisPool:
             mock_config.REDIS_PASSWORD = "secret"
             mock_config.REDIS_SSL = False
 
-            connection_pool_core.get_sync_redis_pool()
+            connection.get_sync_redis_pool()
 
             call_kwargs = mock_pool_class.call_args[1]
             assert call_kwargs["password"] == "secret"
@@ -515,10 +515,10 @@ class TestGetSyncRedisPool:
     def test_creates_sync_pool_with_ssl(self) -> None:
         """Creates pool with SSL when configured."""
         with (
-            patch.object(connection_pool_core, "_sync_pool", None),
-            patch.object(connection_pool_core, "_sync_pool_guard", threading.Lock()),
+            patch.object(connection, "_sync_pool", None),
+            patch.object(connection, "_sync_pool_guard", threading.Lock()),
             patch("redis.ConnectionPool") as mock_pool_class,
-            patch.object(connection_pool_core, "config") as mock_config,
+            patch.object(connection, "config") as mock_config,
         ):
             mock_config.REDIS_HOST = "localhost"
             mock_config.REDIS_PORT = 6379
@@ -529,7 +529,7 @@ class TestGetSyncRedisPool:
             mock_config.REDIS_PASSWORD = None
             mock_config.REDIS_SSL = True
 
-            connection_pool_core.get_sync_redis_pool()
+            connection.get_sync_redis_pool()
 
             call_kwargs = mock_pool_class.call_args[1]
             assert call_kwargs["ssl"] is True
@@ -544,7 +544,7 @@ class TestGetSyncRedisClient:
 
         with (
             patch.object(
-                connection_pool_core,
+                connection,
                 "get_sync_redis_pool",
                 return_value=mock_pool,
             ),
@@ -553,7 +553,7 @@ class TestGetSyncRedisClient:
             mock_client = MagicMock()
             mock_redis_class.return_value = mock_client
 
-            result = connection_pool_core.get_sync_redis_client()
+            result = connection.get_sync_redis_client()
 
             assert result is mock_client
             mock_redis_class.assert_called_once()
@@ -572,16 +572,16 @@ class TestCreateThreadLocalPool:
         thread_local = threading.local()
 
         with (
-            patch.object(connection_pool_core, "_thread_local", thread_local),
+            patch.object(connection, "_thread_local", thread_local),
             patch.object(
-                connection_pool_core,
+                connection,
                 "_initialize_pool_helper",
                 new_callable=AsyncMock,
                 return_value=(mock_pool, mock_pool_loop),
             ),
-            patch.object(connection_pool_core, "logger"),
+            patch.object(connection, "logger"),
         ):
-            result = await connection_pool_core._create_thread_local_pool(current_loop)
+            result = await connection._create_thread_local_pool(current_loop)
 
             assert result is mock_pool
             assert thread_local.pool is mock_pool
@@ -593,19 +593,19 @@ class TestModuleConstants:
 
     def test_unified_redis_config_has_required_keys(self) -> None:
         """UNIFIED_REDIS_CONFIG has required configuration keys."""
-        assert "max_connections" in connection_pool_core.UNIFIED_REDIS_CONFIG
-        assert "dns_cache_ttl" in connection_pool_core.UNIFIED_REDIS_CONFIG
-        assert "dns_cache_size" in connection_pool_core.UNIFIED_REDIS_CONFIG
+        assert "max_connections" in connection.UNIFIED_REDIS_CONFIG
+        assert "dns_cache_ttl" in connection.UNIFIED_REDIS_CONFIG
+        assert "dns_cache_size" in connection.UNIFIED_REDIS_CONFIG
 
     def test_retry_on_connection_error_has_expected_exceptions(self) -> None:
         """RETRY_ON_CONNECTION_ERROR contains expected exception types."""
-        assert RedisConnectionError in connection_pool_core.RETRY_ON_CONNECTION_ERROR
-        assert RedisTimeoutError in connection_pool_core.RETRY_ON_CONNECTION_ERROR
+        assert RedisConnectionError in connection.RETRY_ON_CONNECTION_ERROR
+        assert RedisTimeoutError in connection.RETRY_ON_CONNECTION_ERROR
         # Check tuple has 2 or more exceptions for retry logic
-        assert len(connection_pool_core.RETRY_ON_CONNECTION_ERROR) >= 2
+        assert len(connection.RETRY_ON_CONNECTION_ERROR) >= 2
 
     def test_redis_setup_errors_has_expected_exceptions(self) -> None:
         """REDIS_SETUP_ERRORS contains expected exception types."""
-        assert RedisError in connection_pool_core.REDIS_SETUP_ERRORS
+        assert RedisError in connection.REDIS_SETUP_ERRORS
         # REDIS_SETUP_ERRORS should contain multiple exception types for error handling
-        assert len(connection_pool_core.REDIS_SETUP_ERRORS) >= 5
+        assert len(connection.REDIS_SETUP_ERRORS) >= 5

@@ -3,7 +3,7 @@ from unittest.mock import MagicMock
 
 import pytest
 
-from common.redis_protocol.kalshi_store.metadata_helpers.station_extraction import (
+from common.redis_protocol.kalshi_store.metadata_helpers.timestamp_normalization import (
     extract_station_from_ticker,
 )
 from common.redis_protocol.weather_station_resolver import WeatherStationMappingError

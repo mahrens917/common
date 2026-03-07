@@ -2,7 +2,7 @@
 
 from typing import Any, Dict
 
-from .codec_helpers.field_extractor import load_datetime
+from .codec_helpers.encoder import load_datetime
 
 
 class OptionalFieldExtractor:

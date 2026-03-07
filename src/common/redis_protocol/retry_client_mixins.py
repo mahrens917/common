@@ -78,6 +78,13 @@ class RetryRedisHashMixin:
             policy=self._policy,
         )
 
+    async def incr(self, name: str, *, context: str = "incr") -> Any:
+        return await with_redis_retry(
+            lambda: ensure_awaitable(self._client.incr(name)),
+            context=context,
+            policy=self._policy,
+        )
+
     async def expire(self, name: str, time: int, *, context: str = "expire") -> Any:
         return await with_redis_retry(
             lambda: ensure_awaitable(self._client.expire(name, time)),

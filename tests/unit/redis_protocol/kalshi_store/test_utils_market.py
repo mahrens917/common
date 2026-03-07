@@ -85,7 +85,8 @@ class TestUtilsMarket:
         assert _resolve_market_strike(metadata) == 15.0
 
     def test_extract_orderbook_sizes(self):
-        market_data = {"orderbook": '{"yes_bids": {"50": 10}, "yes_asks": {"55": 20}}'}
+        raw = {"yes_bids": {"50": 10}, "yes_asks": {"55": 20}}
+        market_data = {"orderbook": json.dumps(raw)}
         bid_size, ask_size = extract_orderbook_sizes("ticker", market_data)
-        assert bid_size == 10.0
-        assert ask_size == 20.0
+        assert bid_size == float(list(raw["yes_bids"].values())[0])
+        assert ask_size == float(list(raw["yes_asks"].values())[0])

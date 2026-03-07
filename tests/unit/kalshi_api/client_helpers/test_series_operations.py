@@ -5,7 +5,7 @@ from unittest.mock import AsyncMock, MagicMock, patch
 import pytest
 
 from common.kalshi_api.client_helpers.errors import KalshiClientError
-from common.kalshi_api.client_helpers.series_operations import SeriesOperations
+from common.kalshi_api.client_helpers.component_initializer import SeriesOperations
 
 
 @pytest.fixture
@@ -22,7 +22,7 @@ def series_ops(mock_client):
 
 @pytest.mark.asyncio
 async def test_get_series_no_category(series_ops, mock_client):
-    with patch("common.kalshi_api.client_helpers.series_operations.validate_series_response") as mock_validate:
+    with patch("common.kalshi_api.client_helpers.component_initializer.validate_series_response") as mock_validate:
         mock_validate.return_value = [{"series": "data"}]
 
         result = await series_ops.get_series()
@@ -36,7 +36,7 @@ async def test_get_series_no_category(series_ops, mock_client):
 
 @pytest.mark.asyncio
 async def test_get_series_with_category(series_ops, mock_client):
-    with patch("common.kalshi_api.client_helpers.series_operations.validate_series_response") as mock_validate:
+    with patch("common.kalshi_api.client_helpers.component_initializer.validate_series_response") as mock_validate:
         mock_validate.return_value = [{"series": "weather"}]
 
         result = await series_ops.get_series(category="WEATHER")
@@ -48,7 +48,7 @@ async def test_get_series_with_category(series_ops, mock_client):
 
 @pytest.mark.asyncio
 async def test_get_series_validation_error(series_ops, mock_client):
-    with patch("common.kalshi_api.client_helpers.series_operations.validate_series_response") as mock_validate:
+    with patch("common.kalshi_api.client_helpers.component_initializer.validate_series_response") as mock_validate:
         mock_validate.side_effect = ValueError("invalid response")
 
         with pytest.raises(KalshiClientError) as exc_info:

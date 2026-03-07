@@ -2,9 +2,8 @@
 
 from .acquisition import ConnectionAcquisitionHelper
 from .retry import ConnectionRetryHelper
-from .settings import ConnectionSettingsHelper
 from .state import ConnectionStateHelper
-from .verification import ConnectionVerificationHelper
+from .verification import ConnectionSettingsHelper, ConnectionVerificationHelper
 
 __all__ = [
     "ConnectionAcquisitionHelper",

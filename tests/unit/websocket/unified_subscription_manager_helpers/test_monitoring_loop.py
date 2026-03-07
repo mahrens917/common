@@ -26,7 +26,7 @@ class TestMonitoringLoop:
         loop._listen_loop = AsyncMock(side_effect=mock_listen_loop)
 
         with patch(
-            "common.redis_protocol.connection_pool_core.get_redis_client",
+            "common.redis_protocol.connection.get_redis_client",
             new_callable=AsyncMock,
         ) as mock_get_client:
             mock_get_client.return_value = redis_client
@@ -41,7 +41,7 @@ class TestMonitoringLoop:
     @pytest.mark.asyncio
     async def test_run_fatal_error(self, loop):
         with patch(
-            "common.redis_protocol.connection_pool_core.get_redis_client",
+            "common.redis_protocol.connection.get_redis_client",
             new_callable=AsyncMock,
         ) as mock_get_client:
             mock_get_client.side_effect = RuntimeError("Fatal")

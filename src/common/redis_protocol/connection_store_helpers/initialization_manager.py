@@ -33,7 +33,7 @@ class InitializationManager:
 
     async def _initialize_redis(self) -> None:
         """Initialize Redis connection using canonical implementation"""
-        from ..connection_pool_core import get_redis_client
+        from ..connection import get_redis_client
 
         self._parent.redis_client = await get_redis_client()
         logger.debug("Connection store initialized with Redis connection")

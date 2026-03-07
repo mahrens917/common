@@ -10,7 +10,7 @@ from common.monitoring import ProcessStatus
 from common.truthy import pick_if
 
 if TYPE_CHECKING:
-    from common.health.log_activity_monitor_helpers.types import LogActivity
+    from common.health.log_activity_monitor_helpers.timestamp_extractor import LogActivity
     from common.monitoring.process_models import ProcessInfo
 
 

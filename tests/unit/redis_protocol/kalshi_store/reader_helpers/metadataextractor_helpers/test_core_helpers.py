@@ -40,7 +40,7 @@ def test_orderbook_syncer_calls_shared_helper(monkeypatch):
         captured["snapshot"] = snapshot
 
     monkeypatch.setattr(
-        "common.redis_protocol.kalshi_store.reader_helpers.metadataextractor_helpers.utilities._sync_top_of_book_fields",
+        "common.redis_protocol.kalshi_store.reader_helpers.metadataextractor_helpers.utilities.canonical_sync_top_of_book",
         fake_sync,
     )
 

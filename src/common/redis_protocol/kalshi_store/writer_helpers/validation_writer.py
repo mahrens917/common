@@ -9,7 +9,7 @@ from typing import Any, Optional
 
 from redis.asyncio import Redis
 
-from ...market_normalization_core import format_probability_value as _format_probability_value
+from ...market_normalization import format_probability_value as _format_probability_value
 from ...typing import ensure_awaitable
 
 logger = logging.getLogger(__name__)

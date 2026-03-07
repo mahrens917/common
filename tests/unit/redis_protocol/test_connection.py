@@ -5,7 +5,7 @@ from unittest.mock import AsyncMock
 
 import pytest
 
-from common.redis_protocol import connection, connection_pool_core
+from common.redis_protocol import connection
 
 _TEST_COUNT_2 = 2
 
@@ -62,13 +62,13 @@ class FakeRedisClient:
 
 def _reset_connection_pool_state():
     """Reset connection pool thread-local state."""
-    connection_pool_core._thread_local.pool = None
-    connection_pool_core._thread_local.pool_loop = None
+    connection._thread_local.pool = None
+    connection._thread_local.pool_loop = None
 
 
 def _reset_monitor_metrics():
     """Reset health monitor metrics."""
-    monitor = connection_pool_core._redis_health_monitor
+    monitor = connection._redis_health_monitor
     monitor.metrics = {
         "connections_created": 0,
         "connections_reused": 0,
@@ -83,16 +83,16 @@ def _reset_monitor_metrics():
 
 def _setup_redis_config(monkeypatch):
     """Configure Redis connection settings."""
-    monkeypatch.setattr(connection_pool_core.config, "REDIS_HOST", "localhost")
-    monkeypatch.setattr(connection_pool_core.config, "REDIS_PORT", 6379)
-    monkeypatch.setattr(connection_pool_core.config, "REDIS_DB", 0)
-    monkeypatch.setattr(connection_pool_core.config, "REDIS_PASSWORD", None)
-    monkeypatch.setattr(connection_pool_core.config, "REDIS_SSL", False)
-    monkeypatch.setattr(connection_pool_core.config, "REDIS_SOCKET_TIMEOUT", 5.0)
-    monkeypatch.setattr(connection_pool_core.config, "REDIS_SOCKET_CONNECT_TIMEOUT", 5.0)
-    monkeypatch.setattr(connection_pool_core.config, "REDIS_SOCKET_KEEPALIVE", True)
-    monkeypatch.setattr(connection_pool_core.config, "REDIS_RETRY_ON_TIMEOUT", False)
-    monkeypatch.setattr(connection_pool_core.config, "REDIS_HEALTH_CHECK_INTERVAL", 15.0)
+    monkeypatch.setattr(connection.config, "REDIS_HOST", "localhost")
+    monkeypatch.setattr(connection.config, "REDIS_PORT", 6379)
+    monkeypatch.setattr(connection.config, "REDIS_DB", 0)
+    monkeypatch.setattr(connection.config, "REDIS_PASSWORD", None)
+    monkeypatch.setattr(connection.config, "REDIS_SSL", False)
+    monkeypatch.setattr(connection.config, "REDIS_SOCKET_TIMEOUT", 5.0)
+    monkeypatch.setattr(connection.config, "REDIS_SOCKET_CONNECT_TIMEOUT", 5.0)
+    monkeypatch.setattr(connection.config, "REDIS_SOCKET_KEEPALIVE", True)
+    monkeypatch.setattr(connection.config, "REDIS_RETRY_ON_TIMEOUT", False)
+    monkeypatch.setattr(connection.config, "REDIS_HEALTH_CHECK_INTERVAL", 15.0)
 
 
 @pytest.fixture
@@ -109,8 +109,8 @@ def fake_redis_env(monkeypatch):
     def make_fake_client(*args, connection_pool=None, **kwargs):
         return FakeRedisClient(clients, *args, connection_pool=connection_pool, **kwargs)
 
-    monkeypatch.setattr(connection_pool_core.redis.asyncio, "ConnectionPool", make_fake_pool)
-    monkeypatch.setattr(connection_pool_core.redis.asyncio, "Redis", make_fake_client)
+    monkeypatch.setattr(connection.redis.asyncio, "ConnectionPool", make_fake_pool)
+    monkeypatch.setattr(connection.redis.asyncio, "Redis", make_fake_client)
     _setup_redis_config(monkeypatch)
 
     return SimpleNamespace(
@@ -137,14 +137,14 @@ async def test_get_redis_pool_initializes_once_and_reuses(fake_redis_env):
 @pytest.mark.asyncio
 async def test_cleanup_redis_pool_disconnects_and_resets(fake_redis_env):
     pool = fake_redis_env.pool_cls()
-    connection_pool_core._thread_local.pool = pool
-    connection_pool_core._thread_local.pool_loop = weakref.ref(asyncio.get_running_loop())
+    connection._thread_local.pool = pool
+    connection._thread_local.pool_loop = weakref.ref(asyncio.get_running_loop())
 
     await connection.cleanup_redis_pool()
 
     assert pool.disconnect_called is True
-    assert getattr(connection_pool_core._thread_local, "pool", None) is None
-    assert getattr(connection_pool_core._thread_local, "pool_loop", None) is None
+    assert getattr(connection._thread_local, "pool", None) is None
+    assert getattr(connection._thread_local, "pool_loop", None) is None
 
 
 @pytest.mark.asyncio
@@ -174,8 +174,8 @@ async def test_redis_connection_connect_and_close(fake_redis_env):
 @pytest.mark.asyncio
 async def test_redis_connection_connect_failure(fake_redis_env):
     pool = fake_redis_env.pool_cls()
-    connection_pool_core._unified_pool = pool
-    connection_pool_core._pool_loop = weakref.ref(asyncio.get_running_loop())
+    connection._unified_pool = pool
+    connection._pool_loop = weakref.ref(asyncio.get_running_loop())
 
     class FailingRedisClient:
         def __init__(self, *args, connection_pool=None, **kwargs):
@@ -184,7 +184,7 @@ async def test_redis_connection_connect_failure(fake_redis_env):
         async def ping(self):
             raise RuntimeError("ping failed")
 
-    fake_redis_env.monkeypatch.setattr(connection_pool_core.redis.asyncio, "Redis", FailingRedisClient)
+    fake_redis_env.monkeypatch.setattr(connection.redis.asyncio, "Redis", FailingRedisClient)
 
     redis_connection = connection.RedisConnection()
 
@@ -197,9 +197,9 @@ async def test_redis_connection_connect_failure(fake_redis_env):
 @pytest.mark.asyncio
 async def test_cleanup_on_network_issues_resets_pool(fake_redis_env):
     cleanup_mock = AsyncMock()
-    fake_redis_env.monkeypatch.setattr(connection_pool_core, "cleanup_redis_pool", cleanup_mock)
-    connection_pool_core._thread_local.pool = object()
-    connection_pool_core._thread_local.pool_loop = weakref.ref(asyncio.get_running_loop())
+    fake_redis_env.monkeypatch.setattr(connection, "cleanup_redis_pool", cleanup_mock)
+    connection._thread_local.pool = object()
+    connection._thread_local.pool_loop = weakref.ref(asyncio.get_running_loop())
 
     await connection.cleanup_redis_pool_on_network_issues()
 
@@ -233,7 +233,7 @@ async def test_get_redis_pool_recycles_on_loop_change(monkeypatch, fake_redis_en
     other_loop = asyncio.new_event_loop()
     try:
         # Simulate pool created in a different loop
-        connection_pool_core._thread_local.pool_loop = weakref.ref(other_loop)
+        connection._thread_local.pool_loop = weakref.ref(other_loop)
 
         await connection.get_redis_pool()
         # Should create a new pool since the loop changed
@@ -260,7 +260,7 @@ async def test_get_redis_pool_handles_ping_timeout(monkeypatch, fake_redis_env):
         async def aclose(self):
             return None
 
-    monkeypatch.setattr(connection_pool_core.redis.asyncio, "Redis", TimeoutRedisClient)
+    monkeypatch.setattr(connection.redis.asyncio, "Redis", TimeoutRedisClient)
 
     with pytest.raises((asyncio.TimeoutError, RuntimeError)):
         await connection.get_redis_pool()
@@ -294,7 +294,7 @@ async def test_perform_redis_health_check_failure(monkeypatch, fake_redis_env):
         async def aclose(self):
             return None
 
-    monkeypatch.setattr(connection_pool_core.redis.asyncio, "Redis", FailingRedisClient)
+    monkeypatch.setattr(connection.redis.asyncio, "Redis", FailingRedisClient)
 
     success = await connection.perform_redis_health_check()
     assert success is False
@@ -319,13 +319,13 @@ async def test_cleanup_redis_pool_handles_disconnect_error(monkeypatch, fake_red
             raise RuntimeError("disconnect error")
 
     pool = FlakyPool()
-    connection_pool_core._thread_local.pool = pool
-    connection_pool_core._thread_local.pool_loop = weakref.ref(asyncio.get_running_loop())
+    connection._thread_local.pool = pool
+    connection._thread_local.pool_loop = weakref.ref(asyncio.get_running_loop())
 
     await connection.cleanup_redis_pool()
 
-    assert getattr(connection_pool_core._thread_local, "pool", None) is None
-    assert getattr(connection_pool_core._thread_local, "pool_loop", None) is None
+    assert getattr(connection._thread_local, "pool", None) is None
+    assert getattr(connection._thread_local, "pool_loop", None) is None
 
 
 def test_get_sync_redis_client_returns_client_from_pool(monkeypatch):
@@ -340,10 +340,10 @@ def test_get_sync_redis_client_returns_client_from_pool(monkeypatch):
             self.connection_pool = connection_pool
 
     fake_pool = FakeSyncPool()
-    monkeypatch.setattr(connection_pool_core, "_sync_pool", fake_pool)
-    monkeypatch.setattr(connection_pool_core.redis, "Redis", FakeSyncRedis)
+    monkeypatch.setattr(connection, "_sync_pool", fake_pool)
+    monkeypatch.setattr(connection.redis, "Redis", FakeSyncRedis)
 
-    client = connection_pool_core.get_sync_redis_client()
+    client = connection.get_sync_redis_client()
 
     assert isinstance(client, FakeSyncRedis)
     assert client.connection_pool is fake_pool

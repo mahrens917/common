@@ -262,7 +262,7 @@ async def test_ensure_redis_connection_recreates_client(monkeypatch):
     async def fake_get_redis_client():
         return Pingable()
 
-    monkeypatch.setattr("common.redis_protocol.connection_pool_core.get_redis_client", fake_get_redis_client)
+    monkeypatch.setattr("common.redis_protocol.connection.get_redis_client", fake_get_redis_client)
 
     store_obj = KalshiStore()
     assert await store_obj._ensure_redis_connection() is True

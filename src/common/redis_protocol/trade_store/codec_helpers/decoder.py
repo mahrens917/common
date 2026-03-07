@@ -6,7 +6,7 @@ from typing import Any, Dict, Union
 import orjson
 
 from ....data_models.trade_record import TradeRecord, TradeSide
-from .field_extractor import ensure_timezone, extract_optional_fields
+from .encoder import ensure_timezone, extract_optional_fields
 from .validators import validate_trade_data
 
 JsonLike = Union[str, bytes, Dict[str, Any]]

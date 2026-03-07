@@ -6,7 +6,7 @@ import pytest
 
 from common.config.weather import WeatherConfigError
 from common.weather_services.rule_engine_helpers import WeatherRuleEngineError
-from common.weather_services.weatherruleengine_helpers.station_resolver import (
+from common.weather_services.weatherruleengine_helpers.market_selector import (
     StationResolver,
 )
 
@@ -56,7 +56,7 @@ class TestStationResolverInitialize:
         mapping = {"KMIA": {"city": "Miami", "aliases": ["MIA"]}}
         mock_loader = MagicMock(return_value=mapping)
 
-        with patch("common.weather_services.weatherruleengine_helpers.station_resolver.StationMappingIndexer") as mock_indexer:
+        with patch("common.weather_services.weatherruleengine_helpers.market_selector.StationMappingIndexer") as mock_indexer:
             mock_indexer.build_alias_index.return_value = {"MIA": "KMIA"}
 
             resolver = StationResolver(station_mapping_loader=mock_loader)
@@ -99,7 +99,7 @@ class TestStationResolverReloadMapping:
         mapping = {"KMIA": {"city": "Miami"}}
         mock_loader = MagicMock(return_value=mapping)
 
-        with patch("common.weather_services.weatherruleengine_helpers.station_resolver.StationMappingIndexer") as mock_indexer:
+        with patch("common.weather_services.weatherruleengine_helpers.market_selector.StationMappingIndexer") as mock_indexer:
             mock_indexer.build_alias_index.return_value = {}
 
             resolver = StationResolver(station_mapping_loader=mock_loader)
@@ -118,7 +118,7 @@ class TestStationResolverResolveCityCode:
         mapping = {"KMIA": {"city_code": "MIA"}}
         mock_loader = MagicMock(return_value=mapping)
 
-        with patch("common.weather_services.weatherruleengine_helpers.station_resolver.StationMappingIndexer") as mock_indexer:
+        with patch("common.weather_services.weatherruleengine_helpers.market_selector.StationMappingIndexer") as mock_indexer:
             mock_indexer.build_alias_index.return_value = {}
             mock_indexer.resolve_city_code.return_value = "MIA"
 
@@ -134,7 +134,7 @@ class TestStationResolverResolveCityCode:
         mapping = {}
         mock_loader = MagicMock(return_value=mapping)
 
-        with patch("common.weather_services.weatherruleengine_helpers.station_resolver.StationMappingIndexer") as mock_indexer:
+        with patch("common.weather_services.weatherruleengine_helpers.market_selector.StationMappingIndexer") as mock_indexer:
             mock_indexer.build_alias_index.return_value = {}
             mock_indexer.resolve_city_code.return_value = None
 
@@ -149,7 +149,7 @@ class TestStationResolverResolveCityCode:
         mapping = {"KMIA": {"city_code": "MIA"}}
         mock_loader = MagicMock(return_value=mapping)
 
-        with patch("common.weather_services.weatherruleengine_helpers.station_resolver.StationMappingIndexer") as mock_indexer:
+        with patch("common.weather_services.weatherruleengine_helpers.market_selector.StationMappingIndexer") as mock_indexer:
             alias_index = {"MIA": "KMIA"}
             mock_indexer.build_alias_index.return_value = alias_index
             mock_indexer.resolve_city_code.return_value = "MIA"

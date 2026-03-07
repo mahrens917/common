@@ -110,7 +110,7 @@ def to_optional_float(value: Any, *, context: str) -> Optional[float]:
 
 def normalise_hash(raw_hash: Dict[Any, Any]) -> Dict[str, Any]:
     """Convert Redis hash responses to a str-keyed dictionary."""
-    from ..market_normalization_core import normalise_hash as _canonical
+    from ..market_normalization import normalise_hash as _canonical
 
     return _canonical(raw_hash)
 
@@ -151,7 +151,7 @@ def sync_top_of_book_fields(snapshot: Dict[str, Any]) -> None:
 
 def format_probability_value(value: Any) -> str:
     """Format probability value for storage. Delegates to canonical implementation."""
-    from ..market_normalization_core import format_probability_value as _canonical
+    from ..market_normalization import format_probability_value as _canonical
 
     return _canonical(value)
 

@@ -3,7 +3,7 @@
 import pytest
 
 from common.alerting.models import Alert, AlertSeverity
-from common.alerting.throttle import AlertThrottle
+from common.alerting.models import AlertThrottle
 
 
 class TestAlertThrottle:

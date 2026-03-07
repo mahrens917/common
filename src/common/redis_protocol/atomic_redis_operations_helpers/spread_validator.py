@@ -7,14 +7,12 @@ Validates bid/ask spreads to detect race conditions and data corruption.
 import logging
 from typing import Any, Mapping
 
+from .data_fetcher import RedisDataValidationError
+
 logger = logging.getLogger(__name__)
 
 # Spread validation enabled by default
 SPREAD_VALIDATION_ENABLED = True
-
-
-class RedisDataValidationError(RuntimeError):
-    """Raised when Redis market data cannot be validated after retries."""
 
 
 class SpreadValidator:

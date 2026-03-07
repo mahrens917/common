@@ -157,7 +157,7 @@ class TestReporterStreamReport:
         mock_kalshi = MagicMock()
 
         with patch(
-            "common.redis_protocol.connection_pool_core.get_redis_client",
+            "common.redis_protocol.connection.get_redis_client",
             new_callable=AsyncMock,
             return_value=mock_redis,
         ):
@@ -189,7 +189,7 @@ class TestReporterStreamReport:
         )
 
         with patch(
-            "common.redis_protocol.connection_pool_core.get_redis_client",
+            "common.redis_protocol.connection.get_redis_client",
             new_callable=AsyncMock,
         ):
             with patch(
@@ -259,7 +259,7 @@ class TestOptimizedStatusReporterGatherStatusData:
         mock_redis = AsyncMock()
 
         with patch(
-            "common.redis_protocol.connection_pool_core.get_redis_client",
+            "common.redis_protocol.connection.get_redis_client",
             new_callable=AsyncMock,
             return_value=mock_redis,
         ):

@@ -26,7 +26,7 @@ from common.redis_protocol.market_normalization import (
     select_timestamp_value,
     sync_top_of_book_fields,
 )
-from common.redis_protocol.market_normalization_core import ProbabilityValueError
+from common.redis_protocol.market_normalization import ProbabilityValueError
 
 _CONST_2025 = 2025
 _TEST_COUNT_10 = 10
@@ -475,8 +475,8 @@ async def test_ensure_connection_creates_new_client(monkeypatch, connection_stor
     async def fake_get_redis_client():
         return DummyRedis()
 
-    # Monkeypatch the canonical get_redis_client from connection_pool_core
-    import common.redis_protocol.connection_pool_core as pool_core
+    # Monkeypatch the canonical get_redis_client from connection
+    import common.redis_protocol.connection as pool_core
 
     monkeypatch.setattr(pool_core, "get_redis_client", fake_get_redis_client)
 
@@ -500,8 +500,8 @@ async def test_ensure_connection_failure(monkeypatch, connection_store):
     async def fake_get_redis_client():
         return FailingRedis()
 
-    # Monkeypatch the canonical get_redis_client from connection_pool_core
-    import common.redis_protocol.connection_pool_core as pool_core
+    # Monkeypatch the canonical get_redis_client from connection
+    import common.redis_protocol.connection as pool_core
 
     monkeypatch.setattr(pool_core, "get_redis_client", fake_get_redis_client)
 

@@ -19,7 +19,7 @@ from .close_positions_command import (
 )
 from .coalescing_batcher import CoalescingBatcher
 from .connection import cleanup_redis_pool, get_redis_pool
-from .connection_pool_core import get_retry_redis_client
+from .connection import get_retry_redis_client
 from .converters import coerce_float, decode_redis_hash, decode_redis_value
 from .kalshi_store import KalshiStore
 from .market_normalization import ensure_market_metadata_fields
