@@ -8,6 +8,8 @@ This package contains all helper classes extracted from OptimizedStatusReporter:
 - Console output helpers
 """
 
+from pathlib import Path
+
 from .basic_info_printer import BasicInfoPrinter as ConsoleSectionPrinter
 from .day_night_detector import DayNightDetector
 from .formatting import DataFormatting, TimeFormatter
@@ -58,12 +60,12 @@ __all__ = [
 ]
 
 
-def create_status_report_coordinator(process_manager, health_checker, metadata_store, tracker_controller):
+def create_status_report_coordinator(process_manager, health_checker, metadata_store, tracker_controller, *, logs_directory: Path):
     """
     Factory function to create StatusReportCoordinator with all dependencies.
     """
     utilities = _build_status_report_utilities(process_manager)
-    non_redis_collectors = _build_non_redis_collectors(process_manager, tracker_controller, health_checker)
+    non_redis_collectors = _build_non_redis_collectors(process_manager, tracker_controller, health_checker, logs_directory)
 
     async def _create_with_redis_client(redis_client):
         redis_collectors = _build_redis_collectors(redis_client, metadata_store)
@@ -96,11 +98,11 @@ def _build_status_report_utilities(process_manager):
     }
 
 
-def _build_non_redis_collectors(process_manager, tracker_controller, health_checker):
+def _build_non_redis_collectors(process_manager, tracker_controller, health_checker, logs_directory: Path):
     service_state_collector = ServiceStateCollector(process_manager)
     tracker_status_collector = TrackerStatusCollector(process_manager, tracker_controller)
     health_snapshot_collector = HealthSnapshotCollector(health_checker)
-    log_activity_collector = LogActivityCollector(process_manager)
+    log_activity_collector = LogActivityCollector(process_manager, logs_directory)
     return {
         "service_state_collector": service_state_collector,
         "tracker_status_collector": tracker_status_collector,

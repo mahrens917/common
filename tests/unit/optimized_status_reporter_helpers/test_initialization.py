@@ -71,7 +71,9 @@ class TestStatusReporterInitializer:
         mock_internal_modules["LogActivityMonitor"].assert_called_once_with("/root/project/src/logs")
         mock_internal_modules["DataFormatter"].assert_called_once()
         assert components["data_formatter"] == mock_internal_modules["DataFormatter"].return_value
-        mock_internal_modules["LogActivityCollector"].assert_called_once_with(mock_dependencies["process_manager"])
+        mock_internal_modules["LogActivityCollector"].assert_called_once_with(
+            mock_dependencies["process_manager"], Path("/root/project/src/logs")
+        )
         mock_internal_modules["MessageMetricsCollector"].assert_called_once_with(
             mock_internal_modules["RealtimeMetricsCollector"].return_value,
             mock_dependencies["metadata_store"],

@@ -56,7 +56,6 @@ class TestStatusReporterDependenciesFactory:
             "MetricsSectionPrinter",
             "StatusDataAggregator",
             "ReportPrinterCoordinator",
-            "LogActivityMonitor",
         ]:
             mocks[class_name] = mocker.patch(f"{target_module}.{class_name}")
 
@@ -70,8 +69,10 @@ class TestStatusReporterDependenciesFactory:
         mock_internal_imports["StatusDataAggregator"].assert_called_once()
         mock_internal_imports["ReportPrinterCoordinator"].assert_called_once()
 
-        # Assert LogActivityMonitor is initialized with the correct path
-        mock_internal_imports["LogActivityMonitor"].assert_called_once_with(str(mock_dependencies["logs_directory"]))
+        # Assert LogActivityCollector is initialized with the correct path
+        mock_internal_imports["LogActivityCollector"].assert_called_once_with(
+            mock_dependencies["process_manager"], mock_dependencies["logs_directory"]
+        )
 
         # Assert DayNightDetector loads coordinates
         mock_internal_imports["DayNightDetector"].return_value.load_weather_station_coordinates.assert_called_once()
@@ -115,4 +116,4 @@ class TestStatusReporterDependenciesFactory:
             StatusReporterDependenciesFactory.create(**mock_dependencies)
 
             expected_logs_dir = Path("/root/project/src/logs")
-            mock_internal_imports["LogActivityMonitor"].assert_called_once_with(str(expected_logs_dir))
+            mock_internal_imports["LogActivityCollector"].assert_called_once_with(mock_dependencies["process_manager"], expected_logs_dir)

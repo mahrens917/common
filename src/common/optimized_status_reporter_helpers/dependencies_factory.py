@@ -9,7 +9,6 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Callable, Optional
 
-from common.health.log_activity_monitor import LogActivityMonitor
 from common.redis_protocol.kalshi_store import utils_coercion
 
 from .day_night_detector import DayNightDetector
@@ -73,8 +72,6 @@ class StatusReporterDependenciesFactory:
             project_root = Path(__file__).resolve().parents[2]
             logs_directory = project_root / "logs"
 
-        _log_activity_monitor = LogActivityMonitor(str(logs_directory))
-
         # Initialize helper modules
         _data_formatter = DataFormatting()
         time_formatter = TimeFormatter()
@@ -94,7 +91,7 @@ class StatusReporterDependenciesFactory:
             message_collector=MessageMetricsCollector(realtime_collector, metadata_store),
             price_collector=PriceDataCollector(),
             weather_collector=WeatherTemperatureCollector(),
-            log_collector=LogActivityCollector(process_manager),
+            log_collector=LogActivityCollector(process_manager, logs_directory),
             tracker_collector=TrackerStatusCollector(process_manager, tracker_controller),
             kalshi_collector=KalshiMarketStatusCollector(),
         )

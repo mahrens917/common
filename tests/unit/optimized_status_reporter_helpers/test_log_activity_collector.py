@@ -33,20 +33,16 @@ class TestLogActivityCollector:
             mock_monitor_class.return_value = AsyncMock()  # Make the instance an AsyncMock
             mock_monitor_instance = mock_monitor_class.return_value
             mock_monitor_instance.get_all_service_log_activity.return_value = {}  # Default mock return value
-            instance = LogActivityCollector(mock_process_manager)
+            instance = LogActivityCollector(mock_process_manager, Path("/tmp/logs"))
             instance._log_activity_monitor = mock_monitor_instance  # Store the mock instance
             return instance
 
     def test_init_sets_up_monitor(self, mock_process_manager):
         """Test initialization correctly sets up LogActivityMonitor."""
+        logs_dir = Path("/tmp/logs")
         with patch("common.optimized_status_reporter_helpers.log_activity_collector.LogActivityMonitor") as mock_monitor_class:
-            with patch.object(
-                Path,
-                "resolve",
-                return_value=Path("/root/project/src/common/optimized_status_reporter_helpers/log_activity_collector.py"),
-            ) as mock_resolve:
-                collector = LogActivityCollector(mock_process_manager)
-                mock_monitor_class.assert_called_once_with(str(Path("/root/project/logs")))
+            LogActivityCollector(mock_process_manager, logs_dir)
+            mock_monitor_class.assert_called_once_with(str(logs_dir))
 
     @pytest.mark.asyncio
     async def test_collect_log_activity_map_success_all_fresh(self, collector, mock_process_manager):

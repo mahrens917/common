@@ -17,6 +17,7 @@ logger = logging.getLogger(__name__)
 _KALSHI_SCAN_PATTERN = "markets:kalshi:*"
 _KALSHI_SUBKEY_EXCLUDES = (":trading_signal", ":position_state")
 _RECONCILE_TOLERANCE = 5
+_SETTLED_STATUSES = frozenset({"settled", "closed"})
 
 
 async def _count_kalshi_keys(redis: Any) -> int:
@@ -46,8 +47,11 @@ class EventMarketIndex:
         self._market_cache: Dict[str, Dict[str, Any]] = {}
 
     async def initialize(self, kalshi_store: Any) -> None:
-        """One-time full scan to build index."""
+        """Full scan to build index, replacing any prior state."""
         markets = await kalshi_store.get_all_markets()
+        self._event_to_tickers = {}
+        self._ticker_to_event = {}
+        self._market_cache = {}
         for market in markets:
             market_ticker = market.get("market_ticker") or market.get("ticker")
             event_ticker = market.get("event_ticker")
@@ -83,7 +87,15 @@ class EventMarketIndex:
         Cache hit: merges fields into existing entry, returns it.
         Cache miss with event_ticker in fields: creates new entry, registers mapping.
         Cache miss without event_ticker: returns None (caller should re-initialize).
+        Evicts market if status transitions to settled/closed.
         """
+        status_raw = fields.get("status")
+        if status_raw is not None:
+            status_str = status_raw.decode("utf-8") if isinstance(status_raw, bytes) else str(status_raw)
+            if status_str.lower() in _SETTLED_STATUSES:
+                self._evict(market_ticker)
+                return None
+
         existing = self._market_cache.get(market_ticker)
         if existing is not None:
             existing.update(fields)
@@ -97,6 +109,13 @@ class EventMarketIndex:
         self._market_cache[market_ticker] = entry
         self._register(str(event_ticker), market_ticker)
         return entry
+
+    def _evict(self, market_ticker: str) -> None:
+        """Remove a market from the cache and event index."""
+        self._market_cache.pop(market_ticker, None)
+        event_ticker = self._ticker_to_event.pop(market_ticker, None)
+        if event_ticker:
+            self._event_to_tickers.get(event_ticker, set()).discard(market_ticker)
 
     def get_market(self, market_ticker: str) -> Optional[Dict[str, Any]]:
         """Return cached market data for a single ticker, or None."""

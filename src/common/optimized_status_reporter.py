@@ -7,6 +7,7 @@ while eliminating CPU spikes through performance optimizations and modular desig
 
 import asyncio
 import logging
+from pathlib import Path
 from typing import Any, Dict, Optional
 
 from common.kalshi_api.client import KalshiClient
@@ -42,6 +43,7 @@ class OptimizedStatusReporter(
         metadata_store,
         tracker_controller,
         *,
+        logs_directory: Optional[Path] = None,
         dependencies: Optional[StatusReporterDependencies] = None,
     ):
         """Initialize reporter with all dependencies."""
@@ -56,6 +58,7 @@ class OptimizedStatusReporter(
             metadata_store,
             tracker_controller,
             self._emit_status_line,
+            logs_directory=logs_directory,
         )
         self._aggregator = deps.aggregator
         self._printer = deps.printer

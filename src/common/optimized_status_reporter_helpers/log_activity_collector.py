@@ -23,11 +23,9 @@ logger = logging.getLogger(__name__)
 class LogActivityCollector:
     """Collects log activity for all services."""
 
-    def __init__(self, process_manager):
+    def __init__(self, process_manager, logs_dir: Path):
         self.process_manager = process_manager
-        project_root = Path(__file__).resolve().parents[3]
-        logs_directory = project_root / "logs"
-        self._log_activity_monitor = LogActivityMonitor(str(logs_directory))
+        self._log_activity_monitor = LogActivityMonitor(str(logs_dir))
 
     async def collect_log_activity_map(
         self,

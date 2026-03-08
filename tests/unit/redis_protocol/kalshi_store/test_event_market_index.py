@@ -274,3 +274,161 @@ class TestReconcile:
 
         redis.scan = AsyncMock(side_effect=mock_scan)
         assert await index.reconcile(redis) is False
+
+
+class TestApplyStreamUpdateSettled:
+    """Tests for settled/closed status eviction in apply_stream_update."""
+
+    @pytest.mark.asyncio
+    async def test_settled_status_evicts_market(self):
+        store = MagicMock()
+        store.get_all_markets = AsyncMock(return_value=[_make_market("EVT-A", "MKT-A1")])
+
+        index = EventMarketIndex()
+        await index.initialize(store)
+
+        result = index.apply_stream_update("MKT-A1", {"status": "settled"})
+
+        assert result is None
+        assert index.market_count == 0
+
+    @pytest.mark.asyncio
+    async def test_closed_status_evicts_market(self):
+        store = MagicMock()
+        store.get_all_markets = AsyncMock(return_value=[_make_market("EVT-A", "MKT-A1")])
+
+        index = EventMarketIndex()
+        await index.initialize(store)
+
+        result = index.apply_stream_update("MKT-A1", {"status": "closed"})
+
+        assert result is None
+        assert index.market_count == 0
+
+    @pytest.mark.asyncio
+    async def test_bytes_settled_status_evicts_market(self):
+        store = MagicMock()
+        store.get_all_markets = AsyncMock(return_value=[_make_market("EVT-A", "MKT-A1")])
+
+        index = EventMarketIndex()
+        await index.initialize(store)
+
+        result = index.apply_stream_update("MKT-A1", {"status": b"settled"})
+
+        assert result is None
+        assert index.market_count == 0
+
+    @pytest.mark.asyncio
+    async def test_evict_removes_event_index_entry(self):
+        store = MagicMock()
+        store.get_all_markets = AsyncMock(return_value=[_make_market("EVT-A", "MKT-A1")])
+
+        index = EventMarketIndex()
+        await index.initialize(store)
+
+        index.apply_stream_update("MKT-A1", {"status": "settled"})
+
+        assert "MKT-A1" not in index.get_event_market_tickers("EVT-A")
+        assert index.event_count == 1  # event key still exists, but set is empty
+
+
+class TestGetAllHelpers:
+    """Tests for get_all_tickers and get_all_markets."""
+
+    @pytest.mark.asyncio
+    async def test_get_all_tickers(self):
+        markets = [
+            _make_market("EVT-A", "MKT-A1"),
+            _make_market("EVT-A", "MKT-A2"),
+        ]
+        store = MagicMock()
+        store.get_all_markets = AsyncMock(return_value=markets)
+
+        index = EventMarketIndex()
+        await index.initialize(store)
+
+        tickers = index.get_all_tickers()
+        assert set(tickers) == {"MKT-A1", "MKT-A2"}
+
+    @pytest.mark.asyncio
+    async def test_get_all_markets(self):
+        markets = [
+            _make_market("EVT-A", "MKT-A1"),
+            _make_market("EVT-B", "MKT-B1"),
+        ]
+        store = MagicMock()
+        store.get_all_markets = AsyncMock(return_value=markets)
+
+        index = EventMarketIndex()
+        await index.initialize(store)
+
+        all_markets = index.get_all_markets()
+        assert len(all_markets) == 2
+        tickers = {m["market_ticker"] for m in all_markets}
+        assert tickers == {"MKT-A1", "MKT-B1"}
+
+
+class TestInitializeWithAlternativeTicker:
+    """Tests for initialize using 'ticker' key instead of 'market_ticker'."""
+
+    @pytest.mark.asyncio
+    async def test_initialize_uses_ticker_fallback(self):
+        markets = [
+            {"event_ticker": "EVT-A", "ticker": "MKT-A1", "yes_bid": "50"},
+        ]
+        store = MagicMock()
+        store.get_all_markets = AsyncMock(return_value=markets)
+
+        index = EventMarketIndex()
+        await index.initialize(store)
+
+        assert index.market_count == 1
+        assert index.get_market("MKT-A1") is not None
+
+
+class TestCountKalshiKeysBytes:
+    """Tests for _count_kalshi_keys with bytes keys."""
+
+    @pytest.mark.asyncio
+    async def test_reconcile_with_bytes_keys(self):
+        markets = [_make_market("EVT-A", f"MKT-{i}") for i in range(3)]
+        store = MagicMock()
+        store.get_all_markets = AsyncMock(return_value=markets)
+
+        index = EventMarketIndex()
+        await index.initialize(store)
+
+        redis = MagicMock()
+        keys = [
+            b"markets:kalshi:MKT-0",
+            b"markets:kalshi:MKT-1",
+            b"markets:kalshi:MKT-2",
+        ]
+
+        async def mock_scan(cursor=0, match="", count=500):
+            return 0, keys
+
+        redis.scan = AsyncMock(side_effect=mock_scan)
+        assert await index.reconcile(redis) is False
+
+    @pytest.mark.asyncio
+    async def test_reconcile_bytes_keys_excludes_subkeys(self):
+        markets = [_make_market("EVT-A", f"MKT-{i}") for i in range(2)]
+        store = MagicMock()
+        store.get_all_markets = AsyncMock(return_value=markets)
+
+        index = EventMarketIndex()
+        await index.initialize(store)
+
+        redis = MagicMock()
+        keys = [
+            b"markets:kalshi:MKT-0",
+            b"markets:kalshi:MKT-1",
+            b"markets:kalshi:MKT-0:trading_signal",
+        ]
+
+        async def mock_scan(cursor=0, match="", count=500):
+            return 0, keys
+
+        redis.scan = AsyncMock(side_effect=mock_scan)
+        assert await index.reconcile(redis) is False

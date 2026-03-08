@@ -53,7 +53,7 @@ class StatusReporterInitializer:
         message_collector = MessageMetricsCollector(realtime_metrics_collector, metadata_store)
         price_collector = PriceDataCollector()
         weather_collector = WeatherTemperatureCollector()
-        log_collector = LogActivityCollector(process_manager)
+        log_collector = LogActivityCollector(process_manager, logs_dir)
         tracker_collector = TrackerStatusCollector(process_manager, tracker_controller)
         kalshi_collector = KalshiMarketStatusCollector()
 
