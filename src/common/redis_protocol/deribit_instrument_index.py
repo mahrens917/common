@@ -108,7 +108,13 @@ class DeribitInstrumentIndex:
         }
 
     async def initialize(self, market_store: Any) -> None:
-        """One-time full scan to populate index from Redis."""
+        """Full scan to populate index from Redis, replacing any prior state."""
+        self._instruments = {}
+        self._by_type_currency = {
+            _SPOT_INSTRUMENT_TYPE: {},
+            _OPTION_INSTRUMENT_TYPE: {},
+            _FUTURE_INSTRUMENT_TYPE: {},
+        }
         for currency in ("BTC", "ETH"):
             redis_client, keys = await load_currency_keys(market_store, currency)
             if not keys:

@@ -44,6 +44,7 @@ class StreamConfig:
     queue_size: int = _DEFAULT_QUEUE_SIZE
     num_consumers: int = _DEFAULT_NUM_CONSUMERS
     coalesce: bool = False
+    batch_window_ms: int = 0
 
 
 class RedisStreamSubscriber:

@@ -10,6 +10,8 @@ from typing import TYPE_CHECKING, Any, Awaitable, Callable
 if TYPE_CHECKING:
     from ..subscriber import StreamConfig
 
+from ...retry import with_redis_retry
+
 logger = logging.getLogger(__name__)
 
 MessageHandler = Callable[[str, dict], Awaitable[None]]
@@ -88,7 +90,10 @@ async def consume_stream_queue(
             entry_id, identifier, fields = item
             payload = extract_payload(fields)
             await on_message(identifier, payload)
-            await redis_client.xack(config.stream_name, config.group_name, entry_id)
+            await with_redis_retry(
+                lambda: redis_client.xack(config.stream_name, config.group_name, entry_id),
+                context=f"xack-{entry_id}",
+            )
             retry_counts.pop(entry_id, None)
         except asyncio.CancelledError:
             raise

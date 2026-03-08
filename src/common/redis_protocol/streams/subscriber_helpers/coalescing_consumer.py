@@ -7,6 +7,7 @@ import logging
 from collections.abc import Iterable
 from typing import TYPE_CHECKING, Any, Awaitable, Callable
 
+from ...retry import with_redis_retry
 from .consumer import extract_payload, handle_consumer_retry
 
 if TYPE_CHECKING:
@@ -69,30 +70,43 @@ async def consume_coalescing_stream_queue(
     retry_counts: dict[str, int],
 ) -> None:
     """Dequeue entries, coalesce by identifier, and dispatch only the latest."""
+    batch_window_s = config.batch_window_ms / 1000.0
+
+    async def _dispatch_winner(entry_id: str, identifier: str, fields: dict) -> None:
+        try:
+            payload = extract_payload(fields)
+            await on_message(identifier, payload)
+            await with_redis_retry(
+                lambda: redis_client.xack(config.stream_name, config.group_name, entry_id),
+                context=f"xack-{entry_id}",
+            )
+            retry_counts.pop(entry_id, None)
+        except asyncio.CancelledError:
+            raise
+        except Exception:  # policy_guard: allow-broad-except policy_guard: allow-silent-handler
+            logger.exception("%s coalescing consumer error for entry %s", subscriber_name, entry_id)
+            await handle_consumer_retry(entry_id, identifier, fields, queue, redis_client, config, retry_counts)
+
     while True:
         first = await queue.get()
         if first is None:
             queue.task_done()
             break
 
+        if batch_window_s > 0:
+            await asyncio.sleep(batch_window_s)
         rest = drain_queue(queue)
         all_entries: list[_QueueEntry] = [first] + rest
         winners, superseded_ids, saw_sentinel = coalesce_entries(all_entries)
 
         if superseded_ids:
-            await redis_client.xack(config.stream_name, config.group_name, *superseded_ids)
+            await with_redis_retry(
+                lambda: redis_client.xack(config.stream_name, config.group_name, *superseded_ids),
+                context="xack-superseded",
+            )
 
         for entry_id, identifier, fields in winners:
-            try:
-                payload = extract_payload(fields)
-                await on_message(identifier, payload)
-                await redis_client.xack(config.stream_name, config.group_name, entry_id)
-                retry_counts.pop(entry_id, None)
-            except asyncio.CancelledError:
-                raise
-            except Exception:  # policy_guard: allow-broad-except policy_guard: allow-silent-handler
-                logger.exception("%s coalescing consumer error for entry %s", subscriber_name, entry_id)
-                await handle_consumer_retry(entry_id, identifier, fields, queue, redis_client, config, retry_counts)
+            await _dispatch_winner(entry_id, identifier, fields)
 
         # task_done for the first item (rest were task_done'd in drain_queue)
         queue.task_done()

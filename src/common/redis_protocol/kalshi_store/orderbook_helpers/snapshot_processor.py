@@ -125,10 +125,16 @@ class SnapshotProcessor:
         if self._cache is not None and self._batcher is not None:
             from .orderbook_cache import MarketUpdate
 
-            self._cache.store_snapshot(market_key, combined)
+            # Store side data as raw dicts so deltas skip JSON encode/decode.
+            # Serialization to JSON strings happens only at batcher flush time.
+            cache_fields = dict(combined)
+            for side in ("yes_bids", "yes_asks"):
+                if side in orderbook_sides:
+                    cache_fields[side] = orderbook_sides[side]
+            self._cache.store_snapshot(market_key, cache_fields)
             self._batcher.add(
                 market_key,
-                MarketUpdate(market_key=market_key, market_ticker=market_ticker, fields=dict(combined), timestamp=timestamp),
+                MarketUpdate(market_key=market_key, market_ticker=market_ticker, fields=cache_fields, timestamp=timestamp),
             )
         else:
             await self._write_to_redis(redis, market_key, market_ticker, timestamp, combined, best_price_fields)

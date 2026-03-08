@@ -77,12 +77,10 @@ class DeltaProcessor(SnapshotProcessor):
         from .orderbook_cache import MarketUpdate
 
         cache: OrderbookCache = self._cache  # type: ignore[assignment]
-        side_json = cache.get_field(market_key, side_field)
-        side_data = SideDataUpdater.apply_delta(SideDataUpdater.parse_side_data(side_json), price_str, delta)
-        side_encoded = orjson.dumps(side_data)
+        side_data = SideDataUpdater.apply_delta(cache.get_side_data(market_key, side_field), price_str, delta)
         logger.debug("MARKET_UPDATE: Ticker=%s, Fields=['%s']", market_ticker, side_field)
 
-        updates: Dict[str, str] = {side_field: side_encoded.decode(), "timestamp": timestamp}
+        updates: Dict[str, Any] = {side_field: side_data, "timestamp": timestamp}
         if side_field == "yes_bids":
             best_price, best_size = extract_best_bid(side_data)
             if best_price is not None:

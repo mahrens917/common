@@ -1,5 +1,6 @@
 """Standardized status reporting mixin for all services."""
 
+import asyncio
 import logging
 import os
 import time
@@ -10,6 +11,8 @@ from redis.asyncio import Redis
 from common.redis_schema.operations import ServiceStatusKey
 
 logger = logging.getLogger(__name__)
+
+_STATUS_HEARTBEAT_INTERVAL_SECONDS = 300
 
 
 class StatusReporterMixin:
@@ -27,6 +30,7 @@ class StatusReporterMixin:
             time.time(),
             os.getpid(),
         )
+        self._heartbeat_task: Optional[asyncio.Task[None]] = None
         logger.debug(
             "StatusReporterMixin initialized",
             extra={"service": service_name, "pid": self._pid, "status_key": self._status_key},
@@ -94,6 +98,19 @@ class StatusReporterMixin:
         from .status_reporter_helpers.registration_methods import register_restarting as rrt
 
         await rrt(self, reason)
+
+    def start_status_heartbeat(self, interval_seconds: int = _STATUS_HEARTBEAT_INTERVAL_SECONDS) -> None:
+        """Start a background task that periodically re-publishes READY status."""
+        self._heartbeat_task = asyncio.create_task(self._run_heartbeat(interval_seconds))
+
+    async def _run_heartbeat(self, interval_seconds: int) -> None:
+        from .status_reporter_helpers.registration_methods import register_ready as rr
+
+        while True:
+            await asyncio.sleep(interval_seconds)
+            results = await asyncio.gather(rr(self), return_exceptions=True)
+            if isinstance(results[0], Exception):
+                logger.warning("Status heartbeat write failed for %s: %s", self._service_name, results[0])
 
     service_name = property(lambda self: self._service_name)
     status_key = property(lambda self: self._status_key)

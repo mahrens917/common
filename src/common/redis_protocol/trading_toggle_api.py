@@ -3,7 +3,7 @@ Per-Algo Trading Toggle API
 
 Provides Redis-based per-algo, per-mode trading configuration:
 - enable/disable per algo per mode
-- sample_rate per algo per mode (execute 1-in-N signals randomly)
+- sample_rate per algo per mode (execute 1-in-N valid opportunities randomly)
 - max_contracts per algo per mode
 
 Redis key patterns:
@@ -11,6 +11,7 @@ Redis key patterns:
   config:trading:algo:{algo}:{mode}:sample_rate
   config:trading:algo:{algo}:{mode}:max_contracts
   stats:signals:daily:{algo}                        (24h rolling signal counter)
+  stats:trades:daily:{algo}                         (24h rolling trade counter)
 
 Defaults: paper = all ON, live = all OFF; sample_rate = 100; max_contracts = 1
 """
@@ -32,6 +33,7 @@ logger = logging.getLogger(__name__)
 
 ALGO_TRADING_KEY_PREFIX = "config:trading:algo"
 SIGNAL_COUNT_KEY_PREFIX = "stats:signals:daily"
+TRADE_COUNT_KEY_PREFIX = "stats:trades:daily"
 
 _MODE_DEFAULTS: Dict[str, bool] = {
     "paper": True,
@@ -67,6 +69,11 @@ def _algo_config_key(algo: str, mode: str, field: str) -> str:
 def _signal_count_key(algo: str) -> str:
     """Build the Redis key for a daily signal counter."""
     return f"{SIGNAL_COUNT_KEY_PREFIX}:{algo}"
+
+
+def _trade_count_key(algo: str) -> str:
+    """Build the Redis key for a daily trade counter."""
+    return f"{TRADE_COUNT_KEY_PREFIX}:{algo}"
 
 
 def _validate_positive_int(value: int, field_name: str) -> None:
@@ -256,6 +263,30 @@ async def get_signal_counts(redis: "Redis", algos: List[str]) -> Dict[str, int]:
     return counts
 
 
+async def increment_trade_count(redis: "Redis", algo: str) -> int:
+    """Increment the daily trade counter for an algo. Returns the new count.
+
+    Key expires after 24 hours so it acts as a rolling daily counter.
+    """
+    key = _trade_count_key(algo)
+    count = await ensure_awaitable(redis.incr(key))
+    if count == 1:
+        await ensure_awaitable(redis.expire(key, _SECONDS_PER_DAY))
+    return count
+
+
+async def get_trade_counts(redis: "Redis", algos: List[str]) -> Dict[str, int]:
+    """Get daily trade counts for all algos in a single pipeline read."""
+    pipe = redis.pipeline()
+    for algo in algos:
+        pipe.get(_trade_count_key(algo))
+    results = await ensure_awaitable(pipe.execute())
+    counts: Dict[str, int] = {}
+    for algo, raw in zip(algos, results):
+        counts[algo] = int(raw) if raw is not None else _SIGNAL_COUNT_ABSENT
+    return counts
+
+
 async def delete_old_cooldown_keys(redis: "Redis", algos: List[str]) -> int:
     """Delete legacy cooldown_minutes keys for all algos in both modes.
 
@@ -299,13 +330,16 @@ __all__ = [
     "ALGO_TRADING_KEY_PREFIX",
     "AlgoTradingConfig",
     "SIGNAL_COUNT_KEY_PREFIX",
+    "TRADE_COUNT_KEY_PREFIX",
     "delete_old_cooldown_keys",
     "get_algo_max_contracts",
     "get_algo_sample_rate",
     "get_all_algo_trading_config",
     "get_all_algo_trading_states",
     "get_signal_counts",
+    "get_trade_counts",
     "increment_signal_count",
+    "increment_trade_count",
     "initialize_algo_trading_defaults",
     "is_algo_trading_enabled",
     "set_algo_max_contracts",

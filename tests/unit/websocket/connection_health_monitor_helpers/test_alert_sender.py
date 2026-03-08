@@ -26,6 +26,21 @@ class TestHealthAlertSenderInit:
 class TestHealthAlertSenderSendHealthAlert:
     """Tests for send_health_alert method."""
 
+    @pytest.fixture(autouse=True)
+    def mock_redis_calls(self):
+        """Prevent tests from publishing to production Redis stream."""
+        with (
+            patch(
+                "common.websocket.connection_health_monitor_helpers.alert_sender.get_redis_connection",
+                new_callable=AsyncMock,
+            ),
+            patch(
+                "common.websocket.connection_health_monitor_helpers.alert_sender.publish_service_event",
+                new_callable=AsyncMock,
+            ),
+        ):
+            yield
+
     @pytest.mark.asyncio
     async def test_sends_alert_with_message(self) -> None:
         """Test sends alert with formatted message."""

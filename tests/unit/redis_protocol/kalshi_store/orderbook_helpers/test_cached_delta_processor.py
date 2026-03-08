@@ -33,7 +33,7 @@ def processor(cache: OrderbookCache, batcher: CoalescingBatcher) -> DeltaProcess
 class TestProcessDeltaCached:
     @pytest.mark.asyncio
     async def test_yes_bid_delta_updates_cache(self, processor: DeltaProcessor, cache: OrderbookCache, batcher: CoalescingBatcher) -> None:
-        cache.store_snapshot("market:key", {"yes_bids": "{}", "timestamp": "0"})
+        cache.store_snapshot("market:key", {"yes_bids": {}, "timestamp": "0"})
         redis_mock = AsyncMock()
         result = await processor.process_orderbook_delta(
             redis=redis_mock,
@@ -51,7 +51,7 @@ class TestProcessDeltaCached:
 
     @pytest.mark.asyncio
     async def test_no_side_delta_updates_asks(self, processor: DeltaProcessor, cache: OrderbookCache, batcher: CoalescingBatcher) -> None:
-        cache.store_snapshot("market:key", {"yes_asks": "{}", "timestamp": "0"})
+        cache.store_snapshot("market:key", {"yes_asks": {}, "timestamp": "0"})
         redis_mock = AsyncMock()
         result = await processor.process_orderbook_delta(
             redis=redis_mock,
@@ -78,7 +78,7 @@ class TestProcessDeltaCached:
 
     @pytest.mark.asyncio
     async def test_trade_price_callback_called(self, processor: DeltaProcessor, cache: OrderbookCache) -> None:
-        cache.store_snapshot("market:key", {"yes_bids": "{}", "yes_bid": "50", "yes_ask": "60", "timestamp": "0"})
+        cache.store_snapshot("market:key", {"yes_bids": {}, "yes_bid": "50", "yes_ask": "60", "timestamp": "0"})
         redis_mock = AsyncMock()
         await processor.process_orderbook_delta(
             redis=redis_mock,

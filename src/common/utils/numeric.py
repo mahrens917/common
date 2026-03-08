@@ -78,6 +78,9 @@ def coerce_float_optional(value: Any) -> Optional[float]:
     if isinstance(value, (bytes, bytearray)):
         value = value.decode("utf-8", errors="ignore")
 
+    if isinstance(value, str) and not value:
+        return None
+
     try:
         return float(value)
     except (ValueError, TypeError) as exc:  # Expected data validation or parsing failure  # policy_guard: allow-silent-handler

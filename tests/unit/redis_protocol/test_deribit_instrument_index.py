@@ -234,3 +234,39 @@ class TestDeribitReconcile:
             result = await index.reconcile(redis)
 
         assert result is True
+
+    @pytest.mark.asyncio
+    async def test_reinitialize_evicts_stale_instruments(self):
+        """Re-initializing clears prior state so expired instruments don't persist."""
+        scan_data_first = {
+            "markets:deribit:option:BTC:2025-03-28:50000:c": {
+                "instrument_type": "option",
+                "currency": "BTC",
+                "best_bid": "100",
+                "best_ask": "105",
+            },
+            "markets:deribit:option:BTC:2025-03-21:45000:c": {
+                "instrument_type": "option",
+                "currency": "BTC",
+                "best_bid": "50",
+                "best_ask": "55",
+            },
+        }
+        scan_data_second = {
+            "markets:deribit:option:BTC:2025-03-28:50000:c": {
+                "instrument_type": "option",
+                "currency": "BTC",
+                "best_bid": "101",
+                "best_ask": "106",
+            },
+        }
+        store_first = _mock_market_store(scan_data_first)
+        index = DeribitInstrumentIndex()
+        await index.initialize(store_first)
+        count_after_first = index.instrument_count
+
+        store_second = _mock_market_store(scan_data_second)
+        await index.initialize(store_second)
+
+        assert index.instrument_count < count_after_first
+        assert index.instrument_count == 1
