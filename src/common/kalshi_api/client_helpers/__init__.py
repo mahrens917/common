@@ -5,7 +5,7 @@ from __future__ import annotations
 from .component_initializer import ComponentInitializer, SeriesOperations
 from .errors import KalshiClientError
 from .fills_operations import FillsOperations, MarketStatusOperations
-from .key_loader import KeyLoader
+from .key_loader import KeyLoader, extract_and_validate_credentials
 
 __all__ = [
     "ComponentInitializer",
@@ -14,4 +14,5 @@ __all__ = [
     "KeyLoader",
     "MarketStatusOperations",
     "SeriesOperations",
+    "extract_and_validate_credentials",
 ]

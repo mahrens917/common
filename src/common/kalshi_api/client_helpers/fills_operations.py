@@ -1,4 +1,4 @@
-"""Handle fills and market status operations."""
+"""Handle fills and market status API operations."""
 
 from typing import Any, Dict, Optional
 

@@ -32,6 +32,14 @@ class KeyLoader:
             raise KalshiClientError("Failed to load Kalshi RSA private key") from exc
 
 
+def extract_and_validate_credentials(credentials) -> str:
+    """Extract and validate the private key from a credentials object."""
+    try:
+        return credentials.require_private_key()
+    except RuntimeError as exc:
+        raise KalshiClientError(str(exc)) from exc
+
+
 def _resolve_key_bytes(value: str) -> bytes:
     """Resolve key material from base64, inline PEM, or filesystem paths."""
     if not value:
