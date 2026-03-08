@@ -66,36 +66,23 @@ class SubscriptionConnectionMixin:
 
 class MarketSubscriptionMixin:
     _market_subscription_manager: MarketSubscriptionManager
-    _execute_with_connection: Callable[..., Awaitable[Any]]
+    _connection_manager: ConnectionManager
 
     async def get_subscribed_markets(self) -> Set[str]:
-        return await self._execute_with_connection(
-            "get_subscribed_markets",
-            self._market_subscription_manager.get_subscribed_markets,
-        )
+        await self._connection_manager.ensure_connection_or_raise("get_subscribed_markets")
+        return await self._market_subscription_manager.get_subscribed_markets()
 
     async def add_subscribed_market(self, market_ticker: str, *, category: Optional[str] = None) -> bool:
-        return await self._execute_with_connection(
-            f"add_subscribed_market {market_ticker}",
-            self._market_subscription_manager.add_subscribed_market,
-            market_ticker,
-            category=category,
-        )
+        await self._connection_manager.ensure_connection_or_raise(f"add_subscribed_market {market_ticker}")
+        return await self._market_subscription_manager.add_subscribed_market(market_ticker, category=category)
 
     async def bulk_add_subscribed_markets(self, market_tickers: List[str]) -> int:
-        return await self._execute_with_connection(
-            "bulk_add_subscribed_markets",
-            self._market_subscription_manager.bulk_add_subscribed_markets,
-            market_tickers,
-        )
+        await self._connection_manager.ensure_connection_or_raise("bulk_add_subscribed_markets")
+        return await self._market_subscription_manager.bulk_add_subscribed_markets(market_tickers)
 
     async def remove_subscribed_market(self, market_ticker: str, *, category: Optional[str] = None) -> bool:
-        return await self._execute_with_connection(
-            f"remove_subscribed_market {market_ticker}",
-            self._market_subscription_manager.remove_subscribed_market,
-            market_ticker,
-            category=category,
-        )
+        await self._connection_manager.ensure_connection_or_raise(f"remove_subscribed_market {market_ticker}")
+        return await self._market_subscription_manager.remove_subscribed_market(market_ticker, category=category)
 
 
 class SubscriptionIdMixin:
@@ -143,22 +130,15 @@ class SubscriptionIdMixin:
 
 class ServiceStatusMixin:
     _service_status_manager: ServiceStatusManager
-    _execute_with_connection: Callable[..., Awaitable[Any]]
+    _connection_manager: ConnectionManager
 
     async def update_service_status(self, service: str, status: Dict[str, Any]) -> bool:
-        return await self._execute_with_connection(
-            f"update_service_status {service}",
-            self._service_status_manager.update_service_status,
-            service,
-            status,
-        )
+        await self._connection_manager.ensure_connection_or_raise(f"update_service_status {service}")
+        return await self._service_status_manager.update_service_status(service, status)
 
     async def get_service_status(self, service: str) -> Optional[str]:
-        return await self._execute_with_connection(
-            f"get_service_status {service}",
-            self._service_status_manager.get_service_status,
-            service,
-        )
+        await self._connection_manager.ensure_connection_or_raise(f"get_service_status {service}")
+        return await self._service_status_manager.get_service_status(service)
 
 
 class KalshiSubscriptionTracker(SubscriptionConnectionMixin, MarketSubscriptionMixin, SubscriptionIdMixin, ServiceStatusMixin):

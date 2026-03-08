@@ -690,7 +690,7 @@ async def test_process_orderbook_snapshot_updates_hash(store: KalshiStore, fake_
     market_ticker = "TICK-SNAP"
     market_key = store.get_market_key(market_ticker)
 
-    result = await store._process_orderbook_snapshot(
+    result = await store.process_snapshot(
         redis=fake_redis,
         market_key=market_key,
         market_ticker=market_ticker,
@@ -710,7 +710,7 @@ async def test_process_orderbook_snapshot_updates_hash(store: KalshiStore, fake_
 
 @pytest.mark.asyncio
 async def test_process_orderbook_snapshot_skips_when_empty(store: KalshiStore, fake_redis):
-    result = await store._process_orderbook_snapshot(
+    result = await store.process_snapshot(
         redis=fake_redis,
         market_key="book:key",
         market_ticker="TICK-EMPTY",
@@ -744,7 +744,7 @@ async def test_process_orderbook_delta_updates_levels(store: KalshiStore, fake_r
 
     store._update_trade_prices_for_market = fake_update  # type: ignore[assignment]
 
-    result_yes = await store._process_orderbook_delta(
+    result_yes = await store.process_delta(
         redis=fake_redis,
         market_key=market_key,
         market_ticker=market_ticker,
@@ -758,7 +758,7 @@ async def test_process_orderbook_delta_updates_levels(store: KalshiStore, fake_r
     assert stored["timestamp"] == "1700000100"
     assert await fake_redis.hget(market_key, "yes_bid") == "47.0"
 
-    result_no = await store._process_orderbook_delta(
+    result_no = await store.process_delta(
         redis=fake_redis,
         market_key=market_key,
         market_ticker=market_ticker,
@@ -776,7 +776,7 @@ async def test_process_orderbook_delta_updates_levels(store: KalshiStore, fake_r
 
 @pytest.mark.asyncio
 async def test_process_orderbook_delta_rejects_unknown_side(store: KalshiStore, fake_redis):
-    result = await store._process_orderbook_delta(
+    result = await store.process_delta(
         redis=fake_redis,
         market_key=store.get_market_key("TICK-ERR"),
         market_ticker="TICK-ERR",
@@ -815,10 +815,9 @@ async def test_update_orderbook_handles_missing_prices(monkeypatch, store: Kalsh
     monkeypatch.setattr(store, "_ensure_redis_connection", AsyncMock(return_value=True))  # type: ignore[method-assign]
     monkeypatch.setattr(store, "_get_redis", AsyncMock(return_value=store.redis))  # type: ignore[method-assign]
     monkeypatch.setattr(
-        store,
-        "_process_orderbook_snapshot",
+        "common.redis_protocol.kalshi_store.orderbook_helpers.message_processing.normalizer.process_orderbook_message",
         AsyncMock(side_effect=RuntimeError("Missing yes_bid_price for illiquid market")),
-    )  # type: ignore[method-assign]
+    )
 
     snapshot_message = {
         "type": "orderbook_snapshot",

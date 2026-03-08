@@ -46,8 +46,15 @@ class FillsOperations:
         self._canceller = canceller
         self._fills_fetcher = fills_fetcher
 
+    @staticmethod
+    def validate_order_id(order_id: str) -> None:
+        """Raise ValueError if order_id is not a non-empty string."""
+        if not isinstance(order_id, str) or not order_id.strip():
+            raise ValueError(f"order_id must be a non-empty string, got: {order_id!r}")
+
     async def cancel_order(self, order_id: str) -> bool:
         """Cancel a pending order via Kalshi's REST API."""
+        self.validate_order_id(order_id)
         return await self._canceller.cancel_order(order_id)
 
     async def get_fills(self, order_id: str) -> List[Dict[str, Any]]:

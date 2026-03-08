@@ -26,7 +26,6 @@ from .facade_coordinator import (
 from .facade_helpers_modules import PropertyManager
 from .metadata import KalshiMetadataAdapter
 from .orderbook import KalshiOrderbookProcessor
-from .orderbook_delegator import OrderbookDelegator
 from .reader import KalshiMarketReader
 from .subscription import KalshiSubscriptionTracker
 from .utility_delegator import UtilityDelegator
@@ -51,7 +50,7 @@ class KalshiStoreDependencies:
     subscription_delegator: SubscriptionDelegator
     query_delegator: MarketQueryDelegator
     write_delegator: WriteDelegator
-    orderbook_delegator: OrderbookDelegator
+    orderbook_delegator: KalshiOrderbookProcessor
     cleanup_delegator: CleanupDelegator
     utility_delegator: UtilityDelegator
     attr_resolver: AttributeResolver

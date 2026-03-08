@@ -64,6 +64,21 @@ class RetryRedisHashMixin:
             policy=self._policy,
         )
 
+    async def hscan_iter(
+        self,
+        name: str,
+        match: Optional[str] = None,
+        count: Optional[int] = None,
+    ) -> AsyncIterator[tuple]:
+        """Async generator that iterates over all hash fields using HSCAN with retry."""
+        cursor: int = 0
+        while True:
+            cursor, data = await self.hscan(name, cursor, match=match, count=count, context="hscan_iter")
+            for item in data.items():
+                yield item
+            if cursor == 0:
+                break
+
     async def get(self, name: str, *, context: str = "get") -> Any:
         return await with_redis_retry(
             lambda: ensure_awaitable(self._client.get(name)),
@@ -115,7 +130,7 @@ class RetryRedisHashMixin:
 
 
 class RetryRedisSortedSetMixin:
-    """Sorted set operations with retry."""
+    """Sorted set and set operations with retry."""
 
     _client: Any
     _policy: Optional[RedisRetryPolicy]
@@ -166,6 +181,43 @@ class RetryRedisSortedSetMixin:
     async def zcount(self, name: str, min_score: Any, max_score: Any, *, context: str = "zcount") -> Any:
         return await with_redis_retry(
             lambda: ensure_awaitable(self._client.zcount(name, min_score, max_score)),
+            context=context,
+            policy=self._policy,
+        )
+
+    async def zscore(self, name: str, value: Any, *, context: str = "zscore") -> Optional[float]:
+        """Get score of a member, returning a float or None if the member does not exist."""
+        result = await with_redis_retry(
+            lambda: ensure_awaitable(self._client.zscore(name, value)),
+            context=context,
+            policy=self._policy,
+        )
+        return float(result) if result is not None else None
+
+    async def sadd(self, name: str, *values: Any, context: str = "sadd") -> Any:
+        return await with_redis_retry(
+            lambda: ensure_awaitable(self._client.sadd(name, *values)),
+            context=context,
+            policy=self._policy,
+        )
+
+    async def srem(self, name: str, *values: Any, context: str = "srem") -> Any:
+        return await with_redis_retry(
+            lambda: ensure_awaitable(self._client.srem(name, *values)),
+            context=context,
+            policy=self._policy,
+        )
+
+    async def smembers(self, name: str, *, context: str = "smembers") -> Any:
+        return await with_redis_retry(
+            lambda: ensure_awaitable(self._client.smembers(name)),
+            context=context,
+            policy=self._policy,
+        )
+
+    async def sismember(self, name: str, value: Any, *, context: str = "sismember") -> Any:
+        return await with_redis_retry(
+            lambda: ensure_awaitable(self._client.sismember(name, value)),
             context=context,
             policy=self._policy,
         )
@@ -267,39 +319,4 @@ class RetryRedisCollectionMixin:
         )
 
 
-class RetryRedisSetMixin:
-    """Set operations with retry."""
-
-    _client: Any
-    _policy: Optional[RedisRetryPolicy]
-
-    async def sadd(self, name: str, *values: Any, context: str = "sadd") -> Any:
-        return await with_redis_retry(
-            lambda: ensure_awaitable(self._client.sadd(name, *values)),
-            context=context,
-            policy=self._policy,
-        )
-
-    async def srem(self, name: str, *values: Any, context: str = "srem") -> Any:
-        return await with_redis_retry(
-            lambda: ensure_awaitable(self._client.srem(name, *values)),
-            context=context,
-            policy=self._policy,
-        )
-
-    async def smembers(self, name: str, *, context: str = "smembers") -> Any:
-        return await with_redis_retry(
-            lambda: ensure_awaitable(self._client.smembers(name)),
-            context=context,
-            policy=self._policy,
-        )
-
-    async def sismember(self, name: str, value: Any, *, context: str = "sismember") -> Any:
-        return await with_redis_retry(
-            lambda: ensure_awaitable(self._client.sismember(name, value)),
-            context=context,
-            policy=self._policy,
-        )
-
-
-__all__ = ["RetryRedisCollectionMixin", "RetryRedisHashMixin", "RetryRedisSetMixin", "RetryRedisSortedSetMixin"]
+__all__ = ["RetryRedisCollectionMixin", "RetryRedisHashMixin", "RetryRedisSortedSetMixin"]

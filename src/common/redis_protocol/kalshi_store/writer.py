@@ -49,19 +49,6 @@ class ValidationMixin:
         return ValidationWriter.format_probability_value(value)
 
 
-class SubscriptionMixin:
-    _subscription: "SubscriptionWriter"
-
-    def _extract_weather_station_from_ticker(self, ticker: str) -> Optional[str]:
-        return self._subscription.extract_weather_station_from_ticker(ticker)
-
-    def derive_expiry_iso(self, ticker: str, meta: Dict[str, Any], desc: KalshiMarketDescriptor) -> str:
-        return self._subscription.derive_expiry_iso(ticker, meta, desc)
-
-    def ensure_market_metadata_fields(self, ticker: str, meta: Dict[str, Any]) -> Dict[str, Any]:
-        return self._subscription.ensure_market_metadata_fields(ticker, meta)
-
-
 class MetadataWriterMixin:
     _metadata_writer: "MetadataWriter"
     _metadata: KalshiMetadataAdapter
@@ -104,51 +91,10 @@ class MarketUpdaterMixin:
         await self._market_updater.update_trade_prices_for_market(ticker, bid, ask)
 
 
-class BatchMixin:
-    _batch: "BatchWriter"
-    _batch_reader: "BatchReader"
-
-    async def update_interpolation_results(self, curr: str, results: Dict[str, Dict], key_func: Any):
-        return await self._batch.update_interpolation_results(curr, results, key_func)
-
-    async def get_interpolation_results(
-        self,
-        curr: str,
-        keys: List[str],
-        str_func: Any,
-        int_func: Any,
-        float_func: Any,
-    ) -> Dict[str, Dict]:
-        return await self._batch_reader.get_interpolation_results(curr, keys, str_func, int_func, float_func)
-
-
-class OrderbookMixin:
-    _orderbook: "OrderbookWriter"
-
-    async def update_trade_tick(self, msg: Dict, key_func: Any, map_func: Any, str_func: Any):
-        return await self._orderbook.update_trade_tick(msg, key_func, map_func, str_func)
-
-
-class UserDataMixin:
-    _user_data: Any
-
-    async def update_user_fill(self, msg: Dict) -> bool:
-        """Persist a user fill notification to Redis."""
-        return await self._user_data.update_user_fill(msg)
-
-    async def update_user_order(self, msg: Dict) -> bool:
-        """Persist a user order notification to Redis."""
-        return await self._user_data.update_user_order(msg)
-
-
 class KalshiMarketWriter(
     ValidationMixin,
-    SubscriptionMixin,
     MetadataWriterMixin,
     MarketUpdaterMixin,
-    BatchMixin,
-    OrderbookMixin,
-    UserDataMixin,
 ):
     """Coordinates write operations for Kalshi market data in Redis."""
 
@@ -175,3 +121,38 @@ class KalshiMarketWriter(
         self._batch_reader = deps.batch_reader
         self._subscription = deps.subscription
         self._user_data = deps.user_data
+
+    def _extract_weather_station_from_ticker(self, ticker: str) -> Optional[str]:
+        if not ticker:
+            return None
+        return self._subscription.extract_weather_station_from_ticker(ticker)
+
+    def derive_expiry_iso(self, ticker: str, meta: Dict[str, Any], desc: KalshiMarketDescriptor) -> str:
+        return self._subscription.derive_expiry_iso(ticker, meta, desc)
+
+    def ensure_market_metadata_fields(self, ticker: str, meta: Dict[str, Any]) -> Dict[str, Any]:
+        return self._subscription.ensure_market_metadata_fields(ticker, meta)
+
+    async def update_interpolation_results(self, curr: str, results: Dict[str, Dict], key_func: Any):
+        return await self._batch.update_interpolation_results(curr, results, key_func)
+
+    async def get_interpolation_results(
+        self,
+        curr: str,
+        keys: List[str],
+        str_func: Any,
+        int_func: Any,
+        float_func: Any,
+    ) -> Dict[str, Dict]:
+        return await self._batch_reader.get_interpolation_results(curr, keys, str_func, int_func, float_func)
+
+    async def update_trade_tick(self, msg: Dict, key_func: Any, map_func: Any, str_func: Any):
+        return await self._orderbook.update_trade_tick(msg, key_func, map_func, str_func)
+
+    async def update_user_fill(self, msg: Dict) -> bool:
+        """Persist a user fill notification to Redis."""
+        return await self._user_data.update_user_fill(msg)
+
+    async def update_user_order(self, msg: Dict) -> bool:
+        """Persist a user order notification to Redis."""
+        return await self._user_data.update_user_order(msg)

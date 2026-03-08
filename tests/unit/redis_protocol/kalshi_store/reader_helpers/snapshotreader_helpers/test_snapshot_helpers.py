@@ -1,12 +1,10 @@
+import logging
+
 import pytest
 
 from common.redis_protocol.kalshi_store.reader_helpers.snapshot_reader import (
     KalshiStoreError,
-    get_market_field,
-    get_market_metadata,
-    get_market_snapshot,
-    get_subscribed_markets,
-    is_market_tracked,
+    SnapshotReader,
 )
 
 
@@ -45,70 +43,79 @@ class _StubMetadataExtractor:
         snapshot["yes_bid"] = snapshot.get("yes_bid", "synced")
 
 
-@pytest.mark.asyncio
-async def test_get_market_field_returns_value_and_handles_failure():
-    redis = _SimpleRedis(value="present")
-    assert await get_market_field(redis, "key", "ticker", "field") == "present"
-
-    redis = _SimpleRedis(value=None)
-    assert await get_market_field(redis, "key", "ticker", "field") == ""
-
-    redis = _SimpleRedis(exc=RuntimeError("oops"))
-    assert await get_market_field(redis, "key", "ticker", "field") == ""
+class _StubMetadataAdapter:
+    def ensure_market_metadata_fields(self, ticker, snapshot):
+        return {**snapshot, "enriched": True}
 
 
-@pytest.mark.asyncio
-async def test_get_market_metadata_uses_adapter(monkeypatch):
-    async def fake_snapshot(*_args, **_kwargs):
-        return {"field": "value", "yes_bids": "keep", "no_asks": "keep"}
-
-    monkeypatch.setattr(
-        "common.redis_protocol.kalshi_store.reader_helpers.snapshot_reader.get_market_snapshot",
-        fake_snapshot,
+def _make_reader(extractor=None, adapter=None):
+    return SnapshotReader(
+        logger_instance=logging.getLogger(__name__),
+        metadata_extractor=extractor or _StubMetadataExtractor(),
+        metadata_adapter=adapter or _StubMetadataAdapter(),
     )
 
-    class Adapter:
-        def ensure_market_metadata_fields(self, _ticker, snapshot):
-            return {**snapshot, "enriched": True}
 
-    result = await get_market_metadata(None, "key", "TICK", None, Adapter())
+@pytest.mark.asyncio
+async def test_get_market_field_returns_value_and_handles_failure():
+    reader = _make_reader()
+    redis = _SimpleRedis(value="present")
+    assert await reader.get_market_field(redis, "key", "ticker", "field") == "present"
+
+    redis = _SimpleRedis(value=None)
+    assert await reader.get_market_field(redis, "key", "ticker", "field") == ""
+
+    redis = _SimpleRedis(exc=RuntimeError("oops"))
+    assert await reader.get_market_field(redis, "key", "ticker", "field") == ""
+
+
+@pytest.mark.asyncio
+async def test_get_market_metadata_uses_adapter():
+    extractor = _StubMetadataExtractor()
+    adapter = _StubMetadataAdapter()
+    reader = _make_reader(extractor, adapter)
+
+    redis = _SimpleRedis(value={"field": "value", "yes_bids": "keep", "no_asks": "keep"})
+    result = await reader.get_market_metadata(redis, "key", "TICK")
     assert result["enriched"] is True
     assert "yes_bids" not in result
 
 
 @pytest.mark.asyncio
-async def test_get_market_snapshot_errors_and_filters(monkeypatch):
+async def test_get_market_snapshot_errors_and_filters():
     extractor = _StubMetadataExtractor()
+    reader = _make_reader(extractor)
     redis = _SimpleRedis(exc=RuntimeError("fail"))
     with pytest.raises(KalshiStoreError):
-        await get_market_snapshot(redis, "key", "TICK", extractor)
+        await reader.get_market_snapshot(redis, "key", "TICK")
 
     redis = _SimpleRedis(value={})
     with pytest.raises(KalshiStoreError):
-        await get_market_snapshot(redis, "key", "TICK", extractor)
+        await reader.get_market_snapshot(redis, "key", "TICK")
 
     redis = _SimpleRedis(value={"yes_bids": "1", "market": "value"})
-    snapshot = await get_market_snapshot(redis, "key", "TICK", extractor, include_orderbook=False)
+    snapshot = await reader.get_market_snapshot(redis, "key", "TICK", include_orderbook=False)
     assert "yes_bids" not in snapshot
     assert extractor.synced
 
     with pytest.raises(TypeError):
-        await get_market_snapshot(redis, "key", "", extractor)
+        await reader.get_market_snapshot(redis, "key", "")
 
 
 @pytest.mark.asyncio
 async def test_is_market_tracked_and_subscription_retriever():
+    reader = _make_reader()
     redis = _SimpleRedis(value=True)
-    assert await is_market_tracked(redis, "key", "TICK")
+    assert await reader.is_market_tracked(redis, "key", "TICK")
 
     redis = _SimpleRedis(exc=RuntimeError("boom"))
     with pytest.raises(RuntimeError):
-        await is_market_tracked(redis, "key", "TICK")
+        await reader.is_market_tracked(redis, "key", "TICK")
 
     redis = _SimpleRedis(value={b"svc:XYZ": "1", "bad": "1"})
-    markets = await get_subscribed_markets(redis, "subs")
+    markets = await reader.get_subscribed_markets(redis, "subs")
     assert markets == {"XYZ"}
 
     redis = _SimpleRedis(exc=RuntimeError("boom"))
     with pytest.raises(RuntimeError):
-        await get_subscribed_markets(redis, "subs")
+        await reader.get_subscribed_markets(redis, "subs")

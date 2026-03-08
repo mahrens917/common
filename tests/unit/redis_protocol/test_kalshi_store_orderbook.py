@@ -17,7 +17,7 @@ async def test_process_orderbook_snapshot_persists_levels(monkeypatch) -> None:
         "no": [[40, 2]],
     }
 
-    result = await store._process_orderbook_snapshot(
+    result = await store._orderbook.process_snapshot(
         redis=redis,
         market_key="market:TEST",
         market_ticker="TEST",
@@ -34,7 +34,7 @@ async def test_process_orderbook_delta_rejects_unknown_side() -> None:
     store = KalshiStore(redis=None, weather_resolver=MagicMock())
     redis = AsyncMock()
 
-    result = await store._process_orderbook_delta(
+    result = await store._orderbook.process_delta(
         redis=redis,
         market_key="market:TEST",
         market_ticker="TEST",
@@ -50,7 +50,7 @@ async def test_process_orderbook_delta_rejects_invalid_numeric() -> None:
     store = KalshiStore(redis=None, weather_resolver=MagicMock())
     redis = AsyncMock()
 
-    result = await store._process_orderbook_delta(
+    result = await store._orderbook.process_delta(
         redis=redis,
         market_key="market:TEST",
         market_ticker="TEST",
@@ -79,7 +79,7 @@ async def test_process_orderbook_delta_inits_missing_json(monkeypatch) -> None:
     store._orderbook._delta_processor._store_optional_field = store_optional_mock
     store._orderbook._update_trade_prices_callback = update_prices_mock
 
-    result = await store._process_orderbook_delta(
+    result = await store._orderbook.process_delta(
         redis=redis,
         market_key="market:TEST",
         market_ticker="TEST",

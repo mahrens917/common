@@ -17,18 +17,6 @@ from .typing import RedisClient
 logger = logging.getLogger(__name__)
 
 
-class _SubscriptionChannelAccessors:
-    """Resolve Redis channel and hash names based on service type."""
-
-    _channel_resolver: ChannelResolver
-
-    def _get_subscription_channel(self) -> str:
-        return self._channel_resolver.get_subscription_channel()
-
-    def _get_subscription_hash(self) -> str:
-        return self._channel_resolver.get_subscription_hash()
-
-
 class _SubscriptionConnectionAccessors:
     """Expose accessors for the connection manager."""
 
@@ -67,7 +55,7 @@ class _SubscriptionConnectionAccessors:
         self._connection_manager.initialized = value
 
 
-class SubscriptionStore(_SubscriptionConnectionAccessors, _SubscriptionChannelAccessors):
+class SubscriptionStore(_SubscriptionConnectionAccessors):
     """Handles subscription management with efficient Redis operations"""
 
     def __init__(self, service_type: str = "deribit", pool=None):
@@ -83,6 +71,12 @@ class SubscriptionStore(_SubscriptionConnectionAccessors, _SubscriptionChannelAc
         self._connection_manager.set_parent(self)
         self._operations = SubscriptionOperations()
         self._retrieval = SubscriptionRetrieval()
+
+    def _get_subscription_channel(self) -> str:
+        return self._channel_resolver.get_subscription_channel()
+
+    def _get_subscription_hash(self) -> str:
+        return self._channel_resolver.get_subscription_hash()
 
     async def _get_redis(self) -> RedisClient:
         """Get Redis connection, ensuring it's properly initialized"""

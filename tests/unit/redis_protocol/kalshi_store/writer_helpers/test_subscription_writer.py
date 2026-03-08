@@ -2,8 +2,6 @@
 
 from typing import Any, Dict
 
-import pytest
-
 from common.redis_protocol.kalshi_store.writer_helpers import subscription_writer
 
 
@@ -36,32 +34,10 @@ def test_subscription_writer_delegates_to_metadata_adapter():
     assert adapter.calls[2][0] == "ensure"
 
 
-def test_select_timestamp_value_calls_helper(monkeypatch):
-    import common.redis_protocol.kalshi_store.metadata_helpers.timestamp_normalization as tn
+def test_derive_expiry_iso_empty_token_calls_with_none():
+    """When expiry_token is empty, derive_expiry_iso passes None to the adapter."""
+    adapter = DummyMetadataAdapter()
+    writer = subscription_writer.SubscriptionWriter(redis_connection=None, logger_instance=None, metadata_adapter=adapter)
 
-    called = {}
-
-    def fake_select(data: Dict, fields):
-        called["args"] = (data, tuple(fields))
-        return "selected"
-
-    monkeypatch.setattr(tn, "select_timestamp_value", fake_select)
-
-    result = subscription_writer.SubscriptionWriter.select_timestamp_value({"foo": "bar"}, ["close_time"])
-    assert result == "selected"
-    assert called["args"][0] == {"foo": "bar"}
-
-
-def test_normalize_timestamp_calls_helper(monkeypatch):
-    import common.redis_protocol.kalshi_store.metadata_helpers.timestamp_normalization as tn
-
-    called = {}
-
-    def fake_normalize(value: Any):
-        called["value"] = value
-        return "2025-01-01T00:00:00Z"
-
-    monkeypatch.setattr(tn, "normalize_timestamp", fake_normalize)
-
-    assert subscription_writer.SubscriptionWriter.normalize_timestamp("value") == "2025-01-01T00:00:00Z"
-    assert called["value"] == "value"
+    writer.derive_expiry_iso("TICKER", {}, type("Desc", (), {"expiry_token": ""})())
+    assert adapter.calls[0] == ("expiry", "TICKER", None)

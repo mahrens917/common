@@ -125,11 +125,9 @@ class PriceHistoryTracker:
         """Initialize price history tracker with helper delegation"""
         from .price_history_connection_manager import PriceHistoryConnectionManager
         from .price_history_recorder import PriceHistoryRecorder
-        from .price_history_retriever import PriceHistoryRetriever
 
         self._connection_manager = PriceHistoryConnectionManager(get_redis_connection)
         self._recorder = PriceHistoryRecorder()
-        self._retriever = PriceHistoryRetriever()
 
     async def initialize(self):
         """Initialize Redis connection"""
@@ -179,10 +177,12 @@ class PriceHistoryTracker:
         Raises:
             ValueError: If currency is not 'BTC' or 'ETH'
         """
+        from .price_history_retriever import get_history
+
         try:
             await self._connection_manager.ensure_connected()
             client = self._connection_manager.get_client()
-            return await self._retriever.get_history(client, currency, hours)
+            return await get_history(client, currency, hours)
         except ValidationError as exc:
             raise ValueError(str(exc)) from exc
 

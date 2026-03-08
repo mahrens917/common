@@ -492,3 +492,13 @@ async def test_eval_delegates():
     client = RetryRedisClient(mock_redis, policy=_fast_policy())
     result = await client.eval("return 1", 0)
     assert result == 42
+
+
+@pytest.mark.asyncio
+async def test_pipeline_xadd():
+    raw_pipe = MagicMock()
+    raw_pipe.xadd = MagicMock(return_value=raw_pipe)
+    pipe = RetryPipeline(raw_pipe)
+    result = pipe.xadd("stream", {"field": "value"}, maxlen=1000, approximate=True)
+    assert result is pipe
+    raw_pipe.xadd.assert_called_once_with("stream", {"field": "value"}, maxlen=1000, approximate=True)

@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-from common.truthy import pick_truthy
-
 """
 Kalshi Market Reader - Read-only operations for Kalshi market data
 
@@ -30,120 +28,6 @@ from .reader_helpers.market_status_checker import MarketStatusChecker
 from .reader_helpers.snapshot_retriever import SnapshotRetriever
 
 logger = logging.getLogger(__name__)
-
-
-async def _get_subscribed_markets(store: "KalshiMarketReader") -> Set[str]:
-    query_handler = getattr(store, "_query_handler")
-    return await query_handler.get_subscribed_markets(store.SUBSCRIPTIONS_KEY)
-
-
-async def _is_market_tracked(store: "KalshiMarketReader", market_ticker: str) -> bool:
-    query_handler = getattr(store, "_query_handler")
-    return await query_handler.is_tracked(market_ticker)
-
-
-async def _get_markets_by_currency(store: "KalshiMarketReader", currency: str) -> List[Dict[str, Any]]:
-    query_handler = getattr(store, "_query_handler")
-    return await query_handler.get_by_currency(currency)
-
-
-async def _get_all_markets(store: "KalshiMarketReader") -> List[Dict[str, Any]]:
-    query_handler = getattr(store, "_query_handler")
-    return await query_handler.get_all()
-
-
-async def _get_active_strikes_and_expiries(store: "KalshiMarketReader", currency: str) -> Dict[str, List[Dict[str, Any]]]:
-    query_handler = getattr(store, "_query_handler")
-    return await query_handler.get_strikes_and_expiries(currency)
-
-
-async def _get_market_data_for_strike_expiry(
-    store: "KalshiMarketReader", currency: str, expiry: str, strike: float
-) -> Optional[Dict[str, Any]]:
-    query_handler = getattr(store, "_query_handler")
-    return await query_handler.get_for_strike_expiry(currency, expiry, strike, store.SUBSCRIPTIONS_KEY)
-
-
-async def _is_market_expired(
-    store: "KalshiMarketReader",
-    market_ticker: str,
-    metadata: Optional[Dict[str, Any]] = None,
-) -> bool:
-    status_checker = getattr(store, "_status_checker")
-    return await status_checker.is_expired(market_ticker, metadata=metadata)
-
-
-async def _is_market_settled(store: "KalshiMarketReader", market_ticker: str) -> bool:
-    status_checker = getattr(store, "_status_checker")
-    return await status_checker.is_settled(market_ticker)
-
-
-async def _get_market_snapshot(store: "KalshiMarketReader", ticker: str, *, include_orderbook: bool = True) -> Dict[str, Any]:
-    snapshot_retriever = getattr(store, "_snapshot_retriever")
-    return await snapshot_retriever.get_snapshot(ticker, include_orderbook=include_orderbook)
-
-
-async def _get_market_snapshot_by_key(store: "KalshiMarketReader", market_key: str, *, include_orderbook: bool = True) -> Dict[str, Any]:
-    snapshot_retriever = getattr(store, "_snapshot_retriever")
-    return await snapshot_retriever.get_snapshot_by_key(market_key, include_orderbook=include_orderbook)
-
-
-async def _get_market_metadata(store: "KalshiMarketReader", ticker: str) -> Dict[str, Any]:
-    snapshot_retriever = getattr(store, "_snapshot_retriever")
-    return await snapshot_retriever.get_metadata(ticker)
-
-
-async def _get_market_field(store: "KalshiMarketReader", ticker: str, field: str, fill_value: Optional[str] = None) -> str:
-    snapshot_retriever = getattr(store, "_snapshot_retriever")
-    try:
-        return await snapshot_retriever.get_field(ticker, field)
-    except (KeyError, ValueError, TypeError, RuntimeError):
-        if fill_value is not None:
-            return fill_value
-        raise
-
-
-async def _get_orderbook(store: "KalshiMarketReader", ticker: str) -> Dict[str, Any]:
-    conn = getattr(store, "_conn")
-    if not await conn.ensure_connection():
-        return {}
-    redis = await conn.get_redis()
-    orderbook_reader = getattr(store, "_orderbook_reader")
-    return await orderbook_reader.get_orderbook(redis, store.get_market_key(ticker), ticker)
-
-
-async def _get_orderbook_side(store: "KalshiMarketReader", ticker: str, side: str) -> Dict[str, Any]:
-    conn = getattr(store, "_conn")
-    if not await conn.ensure_connection():
-        return {}
-    redis = await conn.get_redis()
-    orderbook_reader = getattr(store, "_orderbook_reader")
-    return await orderbook_reader.get_orderbook_side(redis, store.get_market_key(ticker), ticker, side)
-
-
-async def _scan_market_keys(store: "KalshiMarketReader", patterns: Optional[List[str]] = None) -> List[str]:
-    conn = getattr(store, "_conn")
-    if not await conn.ensure_connection():
-        raise RuntimeError("Redis connection not established for scan_market_keys")
-    redis = await conn.get_redis()
-    target_patterns = patterns
-    if not target_patterns:
-        target_patterns = list()
-        target_patterns.append(f"{SCHEMA.kalshi_market_prefix}:*")
-    seen: Set[str] = set()
-    results: List[str] = []
-    for pattern in target_patterns:
-        cursor = 0
-        while True:
-            cursor, keys = await redis.scan(cursor, match=pattern, count=1000)
-            for raw_key in keys:
-                key_str = decode_redis_key(raw_key)
-                if key_str not in seen:
-                    seen.add(key_str)
-                    results.append(key_str)
-            if cursor == 0:
-                break
-    return results
 
 
 class KalshiMarketReader(KalshiMarketReaderAsyncMethodsMixin):
@@ -212,32 +96,82 @@ class KalshiMarketReader(KalshiMarketReaderAsyncMethodsMixin):
     def ensure_market_metadata_fields(self, ticker: str, snapshot: Dict[str, Any]) -> Dict[str, Any]:
         return self._metadata.ensure_market_metadata_fields(ticker, snapshot)
 
+    async def get_subscribed_markets(self) -> Set[str]:
+        return await self._query_handler.get_subscribed_markets(self.SUBSCRIPTIONS_KEY)
 
-def _make_async_wrapper(helper):
-    async def wrapper(self, *args, **kwargs):
-        return await helper(self, *args, **kwargs)
+    async def is_market_tracked(self, market_ticker: str) -> bool:
+        return await self._query_handler.is_tracked(market_ticker)
 
-    wrapper.__doc__ = helper.__doc__
-    return wrapper
+    async def get_markets_by_currency(self, currency: str) -> List[Dict[str, Any]]:
+        return await self._query_handler.get_by_currency(currency)
 
+    async def get_all_markets(self) -> List[Dict[str, Any]]:
+        return await self._query_handler.get_all()
 
-_ASYNC_HELPERS = [
-    ("get_subscribed_markets", _get_subscribed_markets),
-    ("is_market_tracked", _is_market_tracked),
-    ("get_markets_by_currency", _get_markets_by_currency),
-    ("get_all_markets", _get_all_markets),
-    ("get_active_strikes_and_expiries", _get_active_strikes_and_expiries),
-    ("get_market_data_for_strike_expiry", _get_market_data_for_strike_expiry),
-    ("is_market_expired", _is_market_expired),
-    ("is_market_settled", _is_market_settled),
-    ("get_market_snapshot", _get_market_snapshot),
-    ("get_market_snapshot_by_key", _get_market_snapshot_by_key),
-    ("get_market_metadata", _get_market_metadata),
-    ("get_market_field", _get_market_field),
-    ("get_orderbook", _get_orderbook),
-    ("get_orderbook_side", _get_orderbook_side),
-    ("scan_market_keys", _scan_market_keys),
-]
+    async def get_active_strikes_and_expiries(self, currency: str) -> Dict[str, List[Dict[str, Any]]]:
+        return await self._query_handler.get_strikes_and_expiries(currency)
 
-for name, helper in _ASYNC_HELPERS:
-    setattr(KalshiMarketReader, name, _make_async_wrapper(helper))
+    async def get_market_data_for_strike_expiry(self, currency: str, expiry: str, strike: float) -> Optional[Dict[str, Any]]:
+        return await self._query_handler.get_for_strike_expiry(currency, expiry, strike, self.SUBSCRIPTIONS_KEY)
+
+    async def is_market_expired(
+        self,
+        market_ticker: str,
+        metadata: Optional[Dict[str, Any]] = None,
+    ) -> bool:
+        return await self._status_checker.is_expired(market_ticker, metadata=metadata)
+
+    async def is_market_settled(self, market_ticker: str) -> bool:
+        return await self._status_checker.is_settled(market_ticker)
+
+    async def get_market_snapshot(self, ticker: str, *, include_orderbook: bool = True) -> Dict[str, Any]:
+        return await self._snapshot_retriever.get_snapshot(ticker, include_orderbook=include_orderbook)
+
+    async def get_market_snapshot_by_key(self, market_key: str, *, include_orderbook: bool = True) -> Dict[str, Any]:
+        return await self._snapshot_retriever.get_snapshot_by_key(market_key, include_orderbook=include_orderbook)
+
+    async def get_market_metadata(self, ticker: str) -> Dict[str, Any]:
+        return await self._snapshot_retriever.get_metadata(ticker)
+
+    async def get_market_field(self, ticker: str, field: str, fill_value: Optional[str] = None) -> str:
+        try:
+            return await self._snapshot_retriever.get_field(ticker, field)
+        except (KeyError, ValueError, TypeError, RuntimeError):
+            if fill_value is not None:
+                return fill_value
+            raise
+
+    async def get_orderbook(self, ticker: str) -> Dict[str, Any]:
+        if not await self._conn.ensure_connection():
+            return {}
+        redis = await self._conn.get_redis()
+        return await self._orderbook_reader.get_orderbook(redis, self.get_market_key(ticker), ticker)
+
+    async def get_orderbook_side(self, ticker: str, side: str) -> Dict[str, Any]:
+        if not await self._conn.ensure_connection():
+            return {}
+        redis = await self._conn.get_redis()
+        return await self._orderbook_reader.get_orderbook_side(redis, self.get_market_key(ticker), ticker, side)
+
+    async def scan_market_keys(self, patterns: Optional[List[str]] = None) -> List[str]:
+        if not await self._conn.ensure_connection():
+            raise RuntimeError("Redis connection not established for scan_market_keys")
+        redis = await self._conn.get_redis()
+        target_patterns = patterns
+        if not target_patterns:
+            target_patterns = list()
+            target_patterns.append(f"{SCHEMA.kalshi_market_prefix}:*")
+        seen: Set[str] = set()
+        results: List[str] = []
+        for pattern in target_patterns:
+            cursor = 0
+            while True:
+                cursor, keys = await redis.scan(cursor, match=pattern, count=1000)
+                for raw_key in keys:
+                    key_str = decode_redis_key(raw_key)
+                    if key_str not in seen:
+                        seen.add(key_str)
+                        results.append(key_str)
+                if cursor == 0:
+                    break
+        return results

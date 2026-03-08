@@ -21,21 +21,14 @@ from .price_history_connection_manager import REDIS_ERRORS
 logger = logging.getLogger(__name__)
 
 
-class PriceHistoryRetriever:
-    """Retrieves price history from Redis sorted set."""
-
-    async def get_history(self, client: RedisClient, currency: str, hours: int = 24) -> List[Tuple[int, float]]:
-        """Retrieve history via ZRANGEBYSCORE for the requested time window."""
-        return await _get_history(client, currency, hours)
-
-
 def _calculate_start_timestamp(hours: int) -> float:
     current_time = get_current_utc()
     start_time = current_time - timedelta(hours=hours)
     return start_time.timestamp()
 
 
-async def _get_history(client: RedisClient, currency: str, hours: int = 24) -> List[Tuple[int, float]]:
+async def get_history(client: RedisClient, currency: str, hours: int = 24) -> List[Tuple[int, float]]:
+    """Retrieve history via ZRANGEBYSCORE for the requested time window."""
     validate_currency(currency)
     try:
         redis_key = generate_redis_key(currency)

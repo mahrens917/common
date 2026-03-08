@@ -13,7 +13,6 @@ from .connection_manager_helpers import (
     ConnectionRetryHelper,
     ConnectionSettingsHelper,
     ConnectionStateHelper,
-    ConnectionVerificationHelper,
 )
 
 
@@ -27,7 +26,6 @@ class TradeStoreConnectionManager:
         self._retry = ConnectionRetryHelper(logger, connection_manager)
         self._settings = ConnectionSettingsHelper(logger, connection_manager)
         self._state = ConnectionStateHelper(logger, connection_manager)
-        self._verification = ConnectionVerificationHelper(logger, connection_manager)
         self._default_pool_acquirer = None
 
     def ensure_connection_manager(self) -> None:
@@ -96,10 +94,10 @@ class TradeStoreConnectionManager:
         return self._settings.resolve_connection_settings()
 
     async def verify_connection(self, redis: Any) -> tuple[bool, bool]:
-        return await self._verification.verify_connection(redis)
+        return await self._connection.verify_connection(redis)
 
     async def ping_connection(self, redis: Any, *, timeout: float = 5.0) -> tuple[bool, bool]:
-        return await self._verification.ping_connection(redis, timeout=timeout)
+        return await self._connection.ping_connection(redis, timeout=timeout)
 
     def reset_connection_state(self) -> None:
         self._state.reset_connection_state()

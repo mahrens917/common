@@ -13,7 +13,7 @@ import asyncio
 from dataclasses import dataclass
 from typing import Any, Awaitable, Callable, Dict, Iterable, List, Optional
 
-from common.monitoring.process_models import ProcessInfo, ProcessStatus
+from common.monitoring import ProcessInfo, ProcessStatus
 
 
 @dataclass

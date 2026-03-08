@@ -109,7 +109,7 @@ def _patch_dependencies(monkeypatch):
     monkeypatch.setattr(helpers, "SubscriptionDelegator", DummyDelegator)
     monkeypatch.setattr(helpers, "MarketQueryDelegator", DummyDelegator)
     monkeypatch.setattr(helpers, "WriteDelegator", DummyDelegator)
-    monkeypatch.setattr(helpers, "OrderbookDelegator", DummyDelegator)
+    # OrderbookDelegator removed; orderbook processor used directly
     monkeypatch.setattr(helpers, "CleanupDelegator", DummyDelegator)
     monkeypatch.setattr(helpers, "UtilityDelegator", DummyDelegator)
     monkeypatch.setattr(helpers, "AttributeResolver", DummyAttributeResolver)

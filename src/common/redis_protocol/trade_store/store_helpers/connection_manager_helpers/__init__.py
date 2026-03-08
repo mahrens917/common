@@ -3,12 +3,11 @@
 from .acquisition import ConnectionAcquisitionHelper
 from .retry import ConnectionRetryHelper
 from .state import ConnectionStateHelper
-from .verification import ConnectionSettingsHelper, ConnectionVerificationHelper
+from .verification import ConnectionSettingsHelper
 
 __all__ = [
     "ConnectionAcquisitionHelper",
     "ConnectionRetryHelper",
     "ConnectionSettingsHelper",
     "ConnectionStateHelper",
-    "ConnectionVerificationHelper",
 ]

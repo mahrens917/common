@@ -79,4 +79,14 @@ class RetryPipelineSetMixin:
         return self
 
 
-__all__ = ["RetryPipelineHashMixin", "RetryPipelineSetMixin", "RetryPipelineSortedSetMixin"]
+class RetryPipelineStreamMixin:
+    """Stream operations for pipeline."""
+
+    _pipeline: Any
+
+    def xadd(self, name: str, fields: Any, maxlen: Any = None, approximate: bool = True, **kwargs: Any) -> "RetryPipelineStreamMixin":
+        self._pipeline.xadd(name, fields, maxlen=maxlen, approximate=approximate, **kwargs)
+        return self
+
+
+__all__ = ["RetryPipelineHashMixin", "RetryPipelineSetMixin", "RetryPipelineSortedSetMixin", "RetryPipelineStreamMixin"]

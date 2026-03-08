@@ -14,7 +14,7 @@ from common.redis_protocol.kalshi_store.facade_coordinator import (
     SubscriptionDelegator,
 )
 from common.redis_protocol.kalshi_store.facade_helpers_modules import PropertyManager
-from common.redis_protocol.kalshi_store.orderbook_delegator import OrderbookDelegator
+from common.redis_protocol.kalshi_store.orderbook import KalshiOrderbookProcessor
 from common.redis_protocol.kalshi_store.utility_delegator import UtilityDelegator
 from common.redis_protocol.kalshi_store.write_delegator import WriteDelegator
 
@@ -29,7 +29,7 @@ class DelegatorSet:
     subscription_delegator: SubscriptionDelegator
     query_delegator: MarketQueryDelegator
     write_delegator: WriteDelegator
-    orderbook_delegator: OrderbookDelegator
+    orderbook_delegator: KalshiOrderbookProcessor
     cleanup_delegator: CleanupDelegator
     utility_delegator: UtilityDelegator
 
@@ -50,7 +50,7 @@ def create_delegators(
     subscription_delegator = SubscriptionDelegator(subscription)
     query_delegator = MarketQueryDelegator(reader)
     write_delegator = WriteDelegator(writer, reader.get_market_key)
-    orderbook_delegator = OrderbookDelegator(orderbook)
+    orderbook_delegator = orderbook
     cleanup_delegator = CleanupDelegator(cleaner)
     utility_delegator = UtilityDelegator(writer, reader, weather_resolver_getter())
 

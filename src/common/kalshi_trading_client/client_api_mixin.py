@@ -95,13 +95,16 @@ class KalshiTradingClientTradeStoreMixin:
 
     _trade_store_manager: Any
 
-    async def get_trade_store(self) -> TradeStore:
-        return await self._trade_store_manager.get_or_create()
+    async def get_trade_store(self) -> "TradeStore":
+        store = await self._trade_store_manager.ensure(create=True)
+        if store is None:
+            raise RuntimeError("Trade store could not be created")
+        return store
 
-    async def maybe_get_trade_store(self) -> Optional[TradeStore]:
-        return await self._trade_store_manager.maybe_get()
+    async def maybe_get_trade_store(self) -> Optional["TradeStore"]:
+        return await self._trade_store_manager.ensure(create=False)
 
-    async def ensure_trade_store(self, *, create: bool = True) -> Optional[TradeStore]:
+    async def ensure_trade_store(self, *, create: bool = True) -> Optional["TradeStore"]:
         return await self._trade_store_manager.ensure(create=create)
 
 

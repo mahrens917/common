@@ -18,10 +18,6 @@ if TYPE_CHECKING:
 logger = logging.getLogger(__name__)
 
 
-async def _process_orderbook_message(*, context: OrderbookMessageContext) -> bool:
-    return await normalizer.process_orderbook_message(context)
-
-
 class KalshiOrderbookProcessor:
     def __init__(
         self,
@@ -99,7 +95,7 @@ class KalshiOrderbookProcessor:
                 snapshot_processor=self._snapshot_processor,
                 delta_processor=self._delta_processor,
             )
-            success = await _process_orderbook_message(context=context)
+            success = await normalizer.process_orderbook_message(context)
             if success and msg_type == "orderbook_snapshot":
                 await normalizer.normalize_snapshot_json(redis, market_key)
         except (

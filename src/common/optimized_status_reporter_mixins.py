@@ -66,12 +66,14 @@ class StatusReporterFormatterMixin:
     _log_activity_formatter: LogActivityFormatter
 
     def format_log_activity_short(self, service_name: str, activity: Optional[Any]) -> Optional[str]:
-        """Expose log activity summaries for helpers."""
-        return self._log_activity_formatter.format_log_activity_short(service_name, activity)
+        """Expose log activity summaries for helpers.
 
-    def _format_log_activity_short(self, service_name: str, activity: Optional[Any]) -> Optional[str]:
-        """Internal alias for log activity summarization."""
-        return self.format_log_activity_short(service_name, activity)
+        Returns None when no activity is provided and the formatter returns an empty result.
+        """
+        if activity is None:
+            return None
+        result = self._log_activity_formatter.format_log_activity_short(service_name, activity)
+        return result if result else None
 
 
 __all__ = [

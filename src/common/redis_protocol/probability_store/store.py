@@ -15,11 +15,11 @@ from .exceptions import (
 )
 from .ingestion import ProbabilityIngestion
 from .probability_data_config import ProbabilityData
+from .probabilityretrieval_helpers.factory import ProbabilityRetrievalComponents
 from .probabilityretrieval_helpers.sorting_helpers import (
     ProbabilityByExpiryGrouped,
     ProbabilityByStrikeType,
 )
-from .retrieval import ProbabilityRetrieval
 
 logger = logging.getLogger(__name__)
 
@@ -31,7 +31,7 @@ class ProbabilityStore:
         self.redis: Optional[Redis] = redis
         self._initialized = redis is not None
         self._ingestion = ProbabilityIngestion(self._get_redis)
-        self._retrieval = ProbabilityRetrieval(self._get_redis)
+        self._retrieval = ProbabilityRetrievalComponents(self._get_redis)
 
     def initialize(self, redis: Redis) -> None:
         """Explicitly set the Redis connection."""

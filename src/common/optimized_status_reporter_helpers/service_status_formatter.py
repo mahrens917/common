@@ -11,7 +11,7 @@ from common.truthy import pick_if
 
 if TYPE_CHECKING:
     from common.health.log_activity_monitor_helpers.timestamp_extractor import LogActivity
-    from common.monitoring.process_models import ProcessInfo
+    from common.monitoring import ProcessInfo
 
 
 class ServiceStatusFormatter:

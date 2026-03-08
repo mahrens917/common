@@ -19,7 +19,6 @@ from .facade_coordinator import (
 from .facade_helpers_modules import PropertyManager
 from .metadata import KalshiMetadataAdapter
 from .orderbook import KalshiOrderbookProcessor
-from .orderbook_delegator import OrderbookDelegator
 from .reader import KalshiMarketReader
 from .subscription import KalshiSubscriptionTracker
 from .utility_delegator import UtilityDelegator
@@ -87,7 +86,7 @@ def create_delegators(core: dict, weather_resolver: WeatherStationResolver) -> d
     subscription_delegator = SubscriptionDelegator(core["subscription"])
     query_delegator = MarketQueryDelegator(core["reader"])
     write_delegator = WriteDelegator(core["writer"], core["reader"].get_market_key)
-    orderbook_delegator = OrderbookDelegator(core["orderbook"])
+    orderbook_delegator = core["orderbook"]
     cleanup_delegator = CleanupDelegator(core["cleaner"])
     utility_delegator = UtilityDelegator(core["writer"], core["reader"], weather_resolver)
 

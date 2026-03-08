@@ -19,10 +19,15 @@ import sys
 from typing import Any, Dict, List, Mapping, Optional, Union
 
 from redis.asyncio import Redis
+from redis.exceptions import RedisError
 
 from . import config
-from .atomic_redis_operations_helpers.coordinator import AtomicOperationsCoordinator
-from .atomic_redis_operations_helpers.data_fetcher import RedisDataValidationError
+from .atomic_redis_operations_helpers.data_converter import DataConverter
+from .atomic_redis_operations_helpers.data_fetcher import DataFetcher, RedisDataValidationError
+from .atomic_redis_operations_helpers.deletion_validator import DeletionValidator
+from .atomic_redis_operations_helpers.field_validator import FieldValidator
+from .atomic_redis_operations_helpers.spread_validator import SpreadValidator
+from .atomic_redis_operations_helpers.transaction_writer import TransactionWriter
 
 logger = logging.getLogger(__name__)
 
@@ -35,6 +40,18 @@ __all__ = ["AtomicRedisOperations", "RedisDataValidationError"]
 
 sys.modules.setdefault("common.redis_protocol.atomic_operations.asyncio", asyncio)
 
+# Error types for atomic operations
+_REDIS_ATOMIC_ERRORS = (
+    RedisError,
+    ConnectionError,
+    TimeoutError,
+    asyncio.TimeoutError,
+    RuntimeError,
+    ValueError,
+    TypeError,
+    RedisDataValidationError,
+)
+
 
 class AtomicRedisOperations:
     """
@@ -42,9 +59,6 @@ class AtomicRedisOperations:
 
     This class ensures that market data writes are atomic across all fields,
     and reads include validation to detect and retry on partial data.
-
-    Implementation Note: This class delegates all operations to a coordinator
-    for better maintainability while preserving the public API.
     """
 
     def __init__(self, redis_client: Redis):
@@ -56,7 +70,12 @@ class AtomicRedisOperations:
         """
         self.redis = redis_client
         self.logger = logger
-        self._coordinator = AtomicOperationsCoordinator(redis_client)
+        self._transaction_writer = TransactionWriter(redis_client)
+        self._data_fetcher = DataFetcher(redis_client)
+        self._field_validator = FieldValidator(MAX_READ_RETRIES)
+        self._data_converter = DataConverter(MAX_READ_RETRIES)
+        self._spread_validator = SpreadValidator(MAX_READ_RETRIES)
+        self._deletion_validator = DeletionValidator(redis_client)
 
     async def atomic_market_data_write(self, store_key: str, market_data: Mapping[str, Union[str, float, int, None]]) -> bool:
         """
@@ -75,7 +94,7 @@ class AtomicRedisOperations:
         Raises:
             RuntimeError: If Redis transaction fails after retries
         """
-        return await self._coordinator.atomic_market_data_write(store_key, market_data)
+        return await self._transaction_writer.atomic_market_data_write(store_key, market_data)
 
     async def safe_market_data_read(self, store_key: str, required_fields: Optional[List[str]] = None) -> Dict[str, Any]:
         """
@@ -95,7 +114,40 @@ class AtomicRedisOperations:
         Raises:
             RedisDataValidationError: If the data cannot be validated after retries.
         """
-        return await self._coordinator.safe_market_data_read(store_key, required_fields)
+        if not required_fields:
+            required_fields = [
+                "best_bid",
+                "best_ask",
+                "best_bid_size",
+                "best_ask_size",
+            ]
+        last_error: Optional[Exception] = None
+
+        for attempt in range(MAX_READ_RETRIES):
+            try:
+                raw_data = await self._data_fetcher.fetch_market_data(store_key)
+                self._field_validator.ensure_required_fields(raw_data, required_fields, store_key, attempt)
+                converted_data = self._data_converter.convert_market_payload(raw_data, store_key, attempt)
+                self._spread_validator.validate_bid_ask_spread(converted_data, store_key, attempt)
+                self.logger.debug("Safe read succeeded for key: %s", store_key)
+            except RedisDataValidationError as exc:
+                last_error = exc
+                if attempt < MAX_READ_RETRIES - 1:
+                    await asyncio.sleep(READ_RETRY_DELAY_MS / 1000.0)
+                    continue
+                raise RedisDataValidationError(f"Error reading market data from key {store_key}") from exc
+            except _REDIS_ATOMIC_ERRORS as exc:
+                message = f"Error reading market data from key {store_key} ({type(exc).__name__})"
+                self.logger.exception("%s, attempt %s/%s", message, attempt + 1, MAX_READ_RETRIES)
+                last_error = exc if isinstance(exc, RedisDataValidationError) else RedisDataValidationError(message)
+                if attempt < MAX_READ_RETRIES - 1:
+                    await asyncio.sleep(READ_RETRY_DELAY_MS / 1000.0)
+                    continue
+                raise RedisDataValidationError(message) from last_error
+            else:
+                return converted_data
+
+        raise RedisDataValidationError(f"Error reading market data from key {store_key}") from last_error
 
     async def atomic_delete_if_invalid(self, store_key: str, validation_data: Dict[str, Any]) -> bool:
         """
@@ -114,4 +166,4 @@ class AtomicRedisOperations:
         Raises:
             RedisDataValidationError: If validation or deletion fails
         """
-        return await self._coordinator.atomic_delete_if_invalid(store_key, validation_data)
+        return await self._deletion_validator.atomic_delete_if_invalid(store_key, validation_data)
