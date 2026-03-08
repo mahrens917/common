@@ -5,7 +5,7 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
-from common.async_helpers import _resolve_coroutine, safely_schedule_coroutine
+from common.async_helpers import _resolve_coroutine, bounded_gather, safely_schedule_coroutine
 
 
 async def sample_coro():
@@ -127,3 +127,51 @@ class TestSafelyScheduleCoroutine:
             with pytest.raises(TypeError, match="test error"):
                 safely_schedule_coroutine(coro)
             coro.close()
+
+
+class TestBoundedGather:
+    """Tests for bounded_gather function."""
+
+    @pytest.mark.asyncio
+    async def test_returns_results_in_order(self):
+        """Results are returned in the same order as the input coroutines."""
+
+        async def identity(value: int) -> int:
+            return value
+
+        results = await bounded_gather((identity(i) for i in range(5)), max_concurrency=3)
+        assert results == [0, 1, 2, 3, 4]
+
+    @pytest.mark.asyncio
+    async def test_empty_input_returns_empty_list(self):
+        """Empty coroutine iterable returns an empty list."""
+        results = await bounded_gather([], max_concurrency=5)
+        assert results == []
+
+    @pytest.mark.asyncio
+    async def test_respects_concurrency_limit(self):
+        """No more than max_concurrency coroutines run simultaneously."""
+        active = 0
+        peak = 0
+
+        async def track() -> None:
+            nonlocal active, peak
+            active += 1
+            peak = max(peak, active)
+            await asyncio.sleep(0)
+            active -= 1
+
+        await bounded_gather((track() for _ in range(10)), max_concurrency=3)
+        assert peak <= 3
+
+    @pytest.mark.asyncio
+    async def test_single_concurrency_serializes(self):
+        """max_concurrency=1 forces sequential execution."""
+        order: list[int] = []
+
+        async def record(i: int) -> None:
+            order.append(i)
+            await asyncio.sleep(0)
+
+        await bounded_gather((record(i) for i in range(4)), max_concurrency=1)
+        assert order == [0, 1, 2, 3]

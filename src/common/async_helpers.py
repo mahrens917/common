@@ -3,9 +3,27 @@ from __future__ import annotations
 """Utility helpers for scheduling asyncio coroutines safely."""
 
 import asyncio
-from typing import Any, Callable, Coroutine, Optional, Union
+from collections.abc import Awaitable, Iterable
+from typing import Any, Callable, Coroutine, Optional, TypeVar, Union
+
+_T = TypeVar("_T")
 
 CoroutineFactory = Callable[[], Coroutine[Any, Any, Any]]
+
+
+async def bounded_gather(coroutines: Iterable[Awaitable[_T]], max_concurrency: int) -> list[_T]:
+    """Run coroutines concurrently, capping parallelism at max_concurrency.
+
+    Uses an asyncio.Semaphore so at most max_concurrency coroutines execute
+    simultaneously.  Results are returned in the same order as the input.
+    """
+    semaphore = asyncio.Semaphore(max_concurrency)
+
+    async def _run(coro: Awaitable[_T]) -> _T:
+        async with semaphore:
+            return await coro
+
+    return list(await asyncio.gather(*(_run(c) for c in coroutines)))
 
 
 def safely_schedule_coroutine(
