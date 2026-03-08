@@ -143,7 +143,7 @@ class TestOrderOperations:
     async def test_get_fills_success(self, order_ops, mock_request_builder):
         mock_request_builder.execute_request = AsyncMock(return_value={"fills": [{"fill_id": "1"}]})
 
-        with patch("common.kalshi_api.order_operations.normalise_fill", return_value={"normalized": True}) as mock_norm:
+        with patch("common.kalshi_api.order_operations.normalise_rp_fill", return_value={"normalized": True}) as mock_norm:
             result = await order_ops.get_fills("order-123")
 
             assert result == [{"normalized": True}]

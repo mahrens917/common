@@ -18,7 +18,7 @@ from common.redis_protocol.error_types import REDIS_ERRORS
 from common.trading.order_payloads import build_order_payload
 
 from .client_helpers.errors import KalshiClientError
-from .response_field_parser import normalise_fill
+from .response_field_parser import normalise_fill as normalise_rp_fill
 from .response_parser import parse_order_response
 
 logger = logging.getLogger(__name__)
@@ -148,7 +148,7 @@ class OrderOperations:
         for item in fills_raw:
             if not isinstance(item, dict):
                 raise KalshiClientError("Fill entry must be a JSON object")
-            normalised.append(normalise_fill(item))
+            normalised.append(normalise_rp_fill(item))
         return normalised
 
     async def batch_create_orders(self, order_requests: List[OrderRequest]) -> List[BatchOrderResult]:

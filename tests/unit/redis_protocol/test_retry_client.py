@@ -502,3 +502,121 @@ async def test_pipeline_xadd():
     result = pipe.xadd("stream", {"field": "value"}, maxlen=1000, approximate=True)
     assert result is pipe
     raw_pipe.xadd.assert_called_once_with("stream", {"field": "value"}, maxlen=1000, approximate=True)
+
+
+@pytest.mark.asyncio
+async def test_incr_delegates():
+    mock_redis = _make_mock_redis()
+    mock_redis.incr = AsyncMock(return_value=5)
+    client = RetryRedisClient(mock_redis, policy=_fast_policy())
+    assert await client.incr("counter") == 5
+
+
+@pytest.mark.asyncio
+async def test_zcard_delegates():
+    mock_redis = _make_mock_redis()
+    mock_redis.zcard = AsyncMock(return_value=3)
+    client = RetryRedisClient(mock_redis, policy=_fast_policy())
+    assert await client.zcard("set") == 3
+
+
+@pytest.mark.asyncio
+async def test_zscore_delegates():
+    mock_redis = _make_mock_redis()
+    mock_redis.zscore = AsyncMock(return_value=1.5)
+    client = RetryRedisClient(mock_redis, policy=_fast_policy())
+    assert await client.zscore("set", "member") == 1.5
+
+
+@pytest.mark.asyncio
+async def test_zscore_returns_none_when_member_missing():
+    mock_redis = _make_mock_redis()
+    mock_redis.zscore = AsyncMock(return_value=None)
+    client = RetryRedisClient(mock_redis, policy=_fast_policy())
+    assert await client.zscore("set", "missing") is None
+
+
+@pytest.mark.asyncio
+async def test_sadd_delegates():
+    mock_redis = _make_mock_redis()
+    mock_redis.sadd = AsyncMock(return_value=1)
+    client = RetryRedisClient(mock_redis, policy=_fast_policy())
+    assert await client.sadd("set", "v1", "v2") == 1
+
+
+@pytest.mark.asyncio
+async def test_srem_delegates():
+    mock_redis = _make_mock_redis()
+    mock_redis.srem = AsyncMock(return_value=1)
+    client = RetryRedisClient(mock_redis, policy=_fast_policy())
+    assert await client.srem("set", "v1") == 1
+
+
+@pytest.mark.asyncio
+async def test_smembers_delegates():
+    mock_redis = _make_mock_redis()
+    mock_redis.smembers = AsyncMock(return_value={b"v1", b"v2"})
+    client = RetryRedisClient(mock_redis, policy=_fast_policy())
+    assert await client.smembers("set") == {b"v1", b"v2"}
+
+
+@pytest.mark.asyncio
+async def test_sismember_delegates():
+    mock_redis = _make_mock_redis()
+    mock_redis.sismember = AsyncMock(return_value=True)
+    client = RetryRedisClient(mock_redis, policy=_fast_policy())
+    assert await client.sismember("set", "v1") is True
+
+
+@pytest.mark.asyncio
+async def test_hscan_iter_yields_all_items():
+    mock_redis = _make_mock_redis()
+    mock_redis.hscan = AsyncMock(return_value=(0, {b"f1": b"v1", b"f2": b"v2"}))
+    client = RetryRedisClient(mock_redis, policy=_fast_policy())
+    items = [(k, v) async for k, v in client.hscan_iter("hash")]
+    assert set(items) == {(b"f1", b"v1"), (b"f2", b"v2")}
+
+
+@pytest.mark.asyncio
+async def test_hscan_iter_multiple_pages():
+    mock_redis = _make_mock_redis()
+    call_count = 0
+
+    async def paged_hscan(name, cursor, match=None, count=None):
+        nonlocal call_count
+        call_count += 1
+        if cursor == 0 and call_count == 1:
+            return (42, {b"f1": b"v1"})
+        return (0, {b"f2": b"v2"})
+
+    mock_redis.hscan = paged_hscan
+    client = RetryRedisClient(mock_redis, policy=_fast_policy())
+    items = [(k, v) async for k, v in client.hscan_iter("hash")]
+    assert set(items) == {(b"f1", b"v1"), (b"f2", b"v2")}
+
+
+@pytest.mark.asyncio
+async def test_scan_iter_yields_all_keys():
+    mock_redis = _make_mock_redis()
+    mock_redis.scan = AsyncMock(return_value=(0, [b"k1", b"k2"]))
+    client = RetryRedisClient(mock_redis, policy=_fast_policy())
+    keys = [k async for k in client.scan_iter()]
+    assert keys == [b"k1", b"k2"]
+
+
+@pytest.mark.asyncio
+async def test_scan_iter_multiple_pages():
+    mock_redis = _make_mock_redis()
+    call_count = 0
+
+    async def paged_scan(cursor=0, match=None, count=None):
+        nonlocal call_count
+        call_count += 1
+        if cursor == 0 and call_count == 1:
+            return (55, [b"k1"])
+        return (0, [b"k2"])
+
+    mock_redis.scan = paged_scan
+    client = RetryRedisClient(mock_redis, policy=_fast_policy())
+    keys = [k async for k in client.scan_iter(match="k*")]
+    assert keys == [b"k1", b"k2"]
