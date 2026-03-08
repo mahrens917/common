@@ -9,7 +9,7 @@ so callers avoid lingering synchronous Redis utilities.
 
 
 import logging
-from typing import Optional, cast
+from typing import Awaitable, Optional, cast
 
 import redis.asyncio
 
@@ -83,7 +83,7 @@ async def get_pubsub_redis_connection() -> redis.asyncio.Redis:
 
     client = redis.asyncio.Redis(**kwargs)
     try:
-        await client.ping()
+        await cast(Awaitable[bool], client.ping())
     except REDIS_ERRORS as exc:
         logger.error("Pubsub Redis connection failed: %s", exc, exc_info=True)
         exc_type = type(exc).__name__

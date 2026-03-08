@@ -54,7 +54,7 @@ class BestPriceUpdater:
             return
 
         direction = compute_direction(t_bid, t_ask, kalshi_bid, kalshi_ask)
-        await ensure_awaitable(redis.hset(market_key, "direction", direction))
+        await ensure_awaitable(redis.hset(market_key, f"{algo}:direction", direction))
 
     @staticmethod
     async def update_from_side(redis: Redis, market_key: str, side_field: str) -> None:

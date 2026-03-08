@@ -5,8 +5,8 @@ from __future__ import annotations
 import logging
 from typing import Any, Dict, List, Optional
 
-from ..utils_market import normalise_trade_timestamp
 from ...weather_station_resolver import WeatherStationMappingError, WeatherStationResolver
+from ..utils_market import normalise_trade_timestamp
 
 
 def normalize_timestamp(value: Any) -> Optional[str]:

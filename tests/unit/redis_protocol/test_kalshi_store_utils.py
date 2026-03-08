@@ -8,6 +8,7 @@ import common.redis_protocol.market_normalization as normalization_module
 from common.redis_protocol import kalshi_store
 from common.redis_protocol.kalshi_store import KalshiStore
 from common.redis_protocol.market_normalization import (
+    ProbabilityValueError,
     convert_numeric_field,
     derive_expiry_iso,
     format_probability_value,
@@ -15,7 +16,6 @@ from common.redis_protocol.market_normalization import (
     parse_expiry_token,
     select_timestamp_value,
 )
-from common.redis_protocol.market_normalization import ProbabilityValueError
 
 _CONST_12 = 12
 _VAL_12_5 = 12.5

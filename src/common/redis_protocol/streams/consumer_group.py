@@ -5,6 +5,7 @@ from __future__ import annotations
 import logging
 from typing import TYPE_CHECKING, Any, List, Tuple
 
+from ..retry import RedisFatalError
 from ..typing import ensure_awaitable
 from .constants import PENDING_CLAIM_IDLE_MS, XAUTOCLAIM_MIN_RESULT_LENGTH
 
@@ -34,6 +35,11 @@ async def ensure_consumer_group(
             redis_client.xgroup_create(stream, group, id=start_id, mkstream=True),
         )
         logger.info("Created consumer group %s on stream %s", group, stream)
+    except RedisFatalError as exc:
+        if _is_busygroup_error(exc):
+            logger.debug("Consumer group %s already exists on %s", group, stream)
+        else:
+            raise
     except Exception as exc:  # policy_guard: allow-broad-except
         if _is_busygroup_error(exc):
             logger.debug("Consumer group %s already exists on %s", group, stream)

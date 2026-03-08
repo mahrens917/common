@@ -8,11 +8,11 @@ import pytest
 from common.exceptions import ValidationError
 from common.redis_protocol.kalshi_store import KalshiStore
 from common.redis_protocol.market_normalization import (
+    ProbabilityValueError,
     convert_numeric_field,
     format_probability_value,
     sync_top_of_book_fields,
 )
-from common.redis_protocol.market_normalization import ProbabilityValueError
 
 _VAL_13_0 = 13.0
 _VAL_42_0 = 42.0

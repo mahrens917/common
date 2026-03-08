@@ -97,6 +97,8 @@ def _build_descriptor(instrument: "Instrument", expiry_dt: datetime) -> DeribitI
         strike=strike_value,
         option_type=instrument.option_type,
     )
+
+
 """Market payload data conversion logic."""
 
 import logging

@@ -515,8 +515,6 @@ async def test_pipeline_trade_price_updates(store, monkeypatch):
 
 @pytest.mark.asyncio
 async def test_initialize_and_close(monkeypatch):
-    fake_pool = object()
-
     class DummyRedis:
         def __init__(self, **kwargs):
             pass
@@ -527,14 +525,13 @@ async def test_initialize_and_close(monkeypatch):
         async def close(self):
             return None
 
-    async def fake_get_pool():
-        return fake_pool
+    async def fake_get_client():
+        return DummyRedis()
 
-    async def fake_cleanup(pool):
-        assert pool is fake_pool
+    async def fake_cleanup():
+        pass
 
-    monkeypatch.setattr("common.redis_protocol.kalshi_store.Redis", DummyRedis, raising=False)
-    monkeypatch.setattr("common.redis_protocol.connection.get_redis_pool", fake_get_pool, raising=False)
+    monkeypatch.setattr("common.redis_protocol.connection.get_redis_client", fake_get_client, raising=False)
     monkeypatch.setattr("common.redis_protocol.connection.cleanup_redis_pool", fake_cleanup, raising=False)
 
     store_obj = KalshiStore()

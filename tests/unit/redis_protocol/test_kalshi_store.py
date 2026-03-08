@@ -15,6 +15,7 @@ import common.redis_protocol.market_normalization as normalization_module
 from common.redis_protocol.kalshi_store import KalshiStore, KalshiStoreError
 from common.redis_protocol.kalshi_store.store_initializer import initialize_kalshi_store
 from common.redis_protocol.market_normalization import (
+    ProbabilityValueError,
     convert_numeric_field,
     derive_expiry_iso,
     derive_strike_fields,
@@ -26,7 +27,6 @@ from common.redis_protocol.market_normalization import (
     select_timestamp_value,
     sync_top_of_book_fields,
 )
-from common.redis_protocol.market_normalization import ProbabilityValueError
 
 _CONST_2025 = 2025
 _TEST_COUNT_10 = 10

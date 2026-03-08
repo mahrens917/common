@@ -4,8 +4,8 @@ from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 
-from common.kalshi_api.client_helpers.errors import KalshiClientError
 from common.kalshi_api.client_helpers.component_initializer import SeriesOperations
+from common.kalshi_api.client_helpers.errors import KalshiClientError
 
 
 @pytest.fixture

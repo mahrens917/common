@@ -12,6 +12,9 @@ logger = logging.getLogger(__name__)
 from common.exceptions import DataError, ValidationError
 
 from ..market_filters.kalshi import extract_best_ask, extract_best_bid
+from ..redis_schema import KalshiMarketDescriptor
+from .kalshi_store.metadata_helpers.expiry_derivation import derive_expiry_iso_impl
+from .kalshi_store.metadata_helpers.timestamp_normalization import select_timestamp_value
 from .market_normalization_helpers import (
     compute_representative_strike,
     enrich_close_time,
@@ -24,9 +27,6 @@ from .market_normalization_helpers import (
     resolve_strike_type_from_prefix,
 )
 from .parsing import parse_expiry_token
-from ..redis_schema import KalshiMarketDescriptor
-from .kalshi_store.metadata_helpers.expiry_derivation import derive_expiry_iso_impl
-from .kalshi_store.metadata_helpers.timestamp_normalization import select_timestamp_value
 
 NumericField = Optional[float]
 StrikeFields = Optional[Tuple[str, Optional[float], Optional[float], float]]

@@ -34,6 +34,8 @@ class ConnectionVerificationHelper(ConnectionHelperBase):
             Tuple of (success, fatal_error)
         """
         return await self.connection.ping_connection(redis, timeout=timeout)
+
+
 """Connection settings resolution for TradeStore."""
 
 import importlib

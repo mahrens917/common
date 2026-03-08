@@ -9,7 +9,7 @@ import logging
 import threading
 import time
 import weakref
-from typing import TYPE_CHECKING, Any, Dict, Optional
+from typing import TYPE_CHECKING, Any, Awaitable, Dict, Optional, cast
 
 if TYPE_CHECKING:
     from .retry_client import RetryRedisClient
@@ -84,7 +84,7 @@ async def _initialize_pool_helper(
 
         pool = redis.asyncio.ConnectionPool(**pool_kwargs)
         client = redis.asyncio.Redis(connection_pool=pool)
-        await client.ping()
+        await cast(Awaitable[bool], client.ping())
         await client.aclose()
     except RuntimeError:
         health_monitor.record_connection_error()
@@ -297,7 +297,7 @@ async def perform_redis_health_check() -> bool:
         test_client = redis.asyncio.Redis(connection_pool=pool)
 
         # Perform basic connectivity test
-        await test_client.ping()
+        await cast(Awaitable[bool], test_client.ping())
 
         # Test basic operations
         test_key = "health_check_test"
@@ -433,7 +433,7 @@ class RedisConnection:
         if not self._client:
             try:
                 self._client = await get_redis_client()
-                await self._client.ping()
+                await cast(Awaitable[bool], self._client.ping())
                 record_pool_acquired()
                 logger.info("RedisConnection established connection using unified pool")
             except REDIS_SETUP_ERRORS as exc:

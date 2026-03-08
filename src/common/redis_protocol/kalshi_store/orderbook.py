@@ -8,8 +8,8 @@ from ...redis_schema import KalshiMarketDescriptor, describe_kalshi_ticker
 from ..error_types import REDIS_ERRORS
 from .connection import RedisConnectionManager
 from .orderbook_helpers import DeltaProcessor, SnapshotProcessor
-from .orderbook_helpers.message_processing import dispatcher, normalizer
-from .orderbook_helpers.message_processing.dispatcher import OrderbookMessageContext
+from .orderbook_helpers.message_processing import normalizer
+from .orderbook_helpers.message_processing.normalizer import OrderbookMessageContext
 
 if TYPE_CHECKING:
     from ..coalescing_batcher import CoalescingBatcher
@@ -19,7 +19,7 @@ logger = logging.getLogger(__name__)
 
 
 async def _process_orderbook_message(*, context: OrderbookMessageContext) -> bool:
-    return await dispatcher.process_orderbook_message(context)
+    return await normalizer.process_orderbook_message(context)
 
 
 class KalshiOrderbookProcessor:

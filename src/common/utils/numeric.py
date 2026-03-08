@@ -179,13 +179,12 @@ def coerce_int_optional(value: Any) -> Optional[int]:
 
     try:
         return int(value)
-    except (ValueError, TypeError):
-        pass
-    try:
-        return int(float(value))
-    except (ValueError, TypeError) as exc:  # Expected data validation or parsing failure  # policy_guard: allow-silent-handler
-        logger.warning("Failed to coerce to int: value=%r, type=%s, error=%s", value, type(value).__name__, exc)
-        return None
+    except (ValueError, TypeError):  # policy_guard: allow-silent-handler
+        try:
+            return int(float(value))
+        except (ValueError, TypeError) as exc:  # policy_guard: allow-silent-handler
+            logger.warning("Failed to coerce to int: value=%r, type=%s, error=%s", value, type(value).__name__, exc)
+            return None
 
 
 def coerce_int_default(value: Any, value_on_error: int) -> int:

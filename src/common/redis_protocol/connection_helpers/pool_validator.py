@@ -7,6 +7,7 @@ How: Tests pool connectivity with timeouts and extracts server info
 
 import asyncio
 import logging
+from typing import Awaitable, cast
 
 import redis.asyncio
 from redis.exceptions import RedisError
@@ -41,7 +42,7 @@ async def validate_pool_connection(pool: redis.asyncio.ConnectionPool, host: str
     test_client = None
     try:
         test_client = redis.asyncio.Redis(connection_pool=pool)
-        await asyncio.wait_for(test_client.ping(), timeout=5.0)
+        await asyncio.wait_for(cast(Awaitable[bool], test_client.ping()), timeout=5.0)
         await _log_server_info(test_client)
     except asyncio.TimeoutError as exc:
         logger.exception(f"Redis connection test timed out after 5 seconds: ")

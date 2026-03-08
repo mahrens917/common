@@ -17,8 +17,6 @@ from .metadataextractor_helpers import (
     normalize_timestamp,
     parse_market_metadata,
     resolve_market_strike,
-)
-from .metadataextractor_helpers import (
     string_or_default,
     sync_top_of_book_fields,
 )

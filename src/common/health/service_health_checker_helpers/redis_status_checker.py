@@ -15,7 +15,7 @@ from ..service_health_types import (
     ServiceHealth,
     ServiceHealthInfo,
 )
-from .status_evaluator import evaluate_status_health
+from .batch_health_checker import evaluate_status_health
 
 logger = logging.getLogger(__name__)
 

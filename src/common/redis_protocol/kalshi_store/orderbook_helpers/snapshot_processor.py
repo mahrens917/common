@@ -16,8 +16,7 @@ from ...typing import ensure_awaitable
 from ..utils_coercion import coerce_mapping as _canonical_coerce_mapping
 from .best_price_updater import BestPriceUpdater
 from .event_publisher import publish_market_event
-from .snapshot_processor_helpers.redis_storage import normalize_price_formatting
-from .snapshot_processor_helpers.redis_storage import build_hash_data
+from .snapshot_processor_helpers.redis_storage import build_hash_data, normalize_price_formatting
 
 if TYPE_CHECKING:
     from ...coalescing_batcher import CoalescingBatcher

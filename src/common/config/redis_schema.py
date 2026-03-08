@@ -296,3 +296,6 @@ def _require_string(section: Mapping[str, object], key: str, section_name: str) 
     if not isinstance(value, str) or not value:
         raise ConfigurationError(f"Redis schema configuration value '{section_name}.{key}' must be a non-empty string")
     return value
+
+
+get_schema_config = RedisSchemaConfig.load

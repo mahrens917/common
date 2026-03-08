@@ -3,7 +3,7 @@ Connection management for KalshiSubscriptionTracker
 """
 
 import logging
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Awaitable, cast
 
 from redis.asyncio import Redis
 
@@ -39,7 +39,7 @@ class ConnectionManager:
         """
         try:
             redis = await self._connection.get_redis()
-            await redis.ping()
+            await cast(Awaitable[bool], redis.ping())
         except (
             RuntimeError,
             ConnectionError,

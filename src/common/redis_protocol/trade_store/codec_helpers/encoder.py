@@ -41,6 +41,8 @@ def encode_trade_record(trade: TradeRecord) -> str:
     """Encode TradeRecord to JSON string."""
     payload = trade_record_to_payload(trade)
     return orjson.dumps(payload).decode("utf-8")
+
+
 """Field extraction utilities for trade record codec."""
 
 from datetime import datetime, timezone
