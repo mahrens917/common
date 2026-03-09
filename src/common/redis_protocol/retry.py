@@ -127,7 +127,8 @@ async def execute_with_retry(
             if on_retry is not None:
                 await _maybe_await(on_retry(retry_context))
             else:
-                logger.warning(
+                _retry_log = logger.warning if attempt > 1 else logger.debug
+                _retry_log(
                     "%s failed on attempt %s/%s; retrying in %.2fs (%s)",
                     context,
                     attempt,
