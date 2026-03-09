@@ -32,6 +32,21 @@ if TYPE_CHECKING:
 
 logger = logging.getLogger(__name__)
 
+
+def _persist_config(key: str, value: str) -> None:
+    """Best-effort persist config key to SQLite."""
+    from common.persistence import save_config
+
+    save_config(key, value)
+
+
+def _persist_config_batch(items: List[tuple[str, str]]) -> None:
+    """Best-effort persist multiple config keys to SQLite."""
+    from common.persistence import save_config_batch
+
+    save_config_batch(items)
+
+
 ALGO_TRADING_KEY_PREFIX = "config:trading:algo"
 SIGNAL_COUNT_KEY_PREFIX = "stats:signals:daily"
 TRADE_COUNT_KEY_PREFIX = "stats:trades:daily"
@@ -117,7 +132,9 @@ async def set_algo_trading_enabled(redis: "Redis", algo: str, mode: str, enabled
         enabled: Whether trading should be enabled
     """
     value = pick_if(enabled, lambda: "true", lambda: "false")
-    await ensure_awaitable(redis.set(_algo_key(algo, mode), value))
+    key = _algo_key(algo, mode)
+    await ensure_awaitable(redis.set(key, value))
+    _persist_config(key, value)
     status = pick_if(enabled, lambda: "ENABLED", lambda: "DISABLED")
     logger.info("Trading %s for algo=%s mode=%s", status, algo, mode)
 
@@ -171,6 +188,7 @@ async def set_all_algo_trading_enabled(redis: "Redis", algos: List[str], mode: s
     for algo in algos:
         pipe.set(_algo_key(algo, mode), value)
     await ensure_awaitable(pipe.execute())
+    _persist_config_batch([(_algo_key(algo, mode), value) for algo in algos])
     status = pick_if(enabled, lambda: "ENABLED", lambda: "DISABLED")
     logger.info("Trading %s for all algos in mode=%s", status, mode)
 
@@ -191,7 +209,9 @@ async def get_algo_sample_rate(redis: "Redis", algo: str, mode: str) -> int:
 async def set_algo_sample_rate(redis: "Redis", algo: str, mode: str, rate: int) -> None:
     """Set sample rate for a specific algo/mode."""
     _validate_positive_int(rate, "sample_rate")
-    await ensure_awaitable(redis.set(_algo_config_key(algo, mode, "sample_rate"), str(rate)))
+    key = _algo_config_key(algo, mode, "sample_rate")
+    await ensure_awaitable(redis.set(key, str(rate)))
+    _persist_config(key, str(rate))
     logger.info("Sample rate set to %d for algo=%s mode=%s", rate, algo, mode)
 
 
@@ -211,7 +231,9 @@ async def get_algo_max_contracts(redis: "Redis", algo: str, mode: str) -> int:
 async def set_algo_max_contracts(redis: "Redis", algo: str, mode: str, contracts: int) -> None:
     """Set max contracts for a specific algo/mode."""
     _validate_positive_int(contracts, "max_contracts")
-    await ensure_awaitable(redis.set(_algo_config_key(algo, mode, "max_contracts"), str(contracts)))
+    key = _algo_config_key(algo, mode, "max_contracts")
+    await ensure_awaitable(redis.set(key, str(contracts)))
+    _persist_config(key, str(contracts))
     logger.info("Max contracts set to %d for algo=%s mode=%s", contracts, algo, mode)
 
 
