@@ -22,6 +22,7 @@ from common.redis_protocol.trading_toggle_api import (
     increment_signal_count,
     initialize_algo_trading_defaults,
     is_algo_trading_enabled,
+    reset_daily_counts,
     set_algo_max_contracts,
     set_algo_sample_rate,
     set_algo_trading_enabled,
@@ -554,32 +555,37 @@ class TestGetAllAlgoTradingConfig:
 class TestIncrementSignalCount:
     """Tests for increment_signal_count function."""
 
-    @pytest.fixture
-    def mock_redis(self):
+    @pytest.mark.asyncio
+    async def test_returns_rolling_24h_count(self):
+        pipe = MagicMock()
+        pipe.zadd = MagicMock()
+        pipe.zremrangebyscore = MagicMock()
+        pipe.zcard = MagicMock()
+        pipe.execute = AsyncMock(return_value=[1, 0, 42])
         redis = MagicMock()
-        redis.incr = AsyncMock()
-        redis.expire = AsyncMock()
-        return redis
+        redis.pipeline = MagicMock(return_value=pipe)
 
-    @pytest.mark.asyncio
-    async def test_increments_and_sets_ttl_on_first(self, mock_redis):
-        mock_redis.incr = AsyncMock(return_value=1)
-
-        result = await increment_signal_count(mock_redis, "peak")
-
-        assert result == 1
-        mock_redis.incr.assert_called_once_with("stats:signals:daily:peak")
-        mock_redis.expire.assert_called_once_with("stats:signals:daily:peak", 86400)
-
-    @pytest.mark.asyncio
-    async def test_increments_without_ttl_on_subsequent(self, mock_redis):
-        mock_redis.incr = AsyncMock(return_value=42)
-
-        result = await increment_signal_count(mock_redis, "edge")
+        result = await increment_signal_count(redis, "peak")
 
         assert result == 42
-        mock_redis.incr.assert_called_once_with("stats:signals:daily:edge")
-        mock_redis.expire.assert_not_called()
+        pipe.zadd.assert_called_once()
+        pipe.zremrangebyscore.assert_called_once()
+        pipe.zcard.assert_called_once_with("stats:signals:daily:peak")
+
+    @pytest.mark.asyncio
+    async def test_zadd_uses_correct_key(self):
+        pipe = MagicMock()
+        pipe.zadd = MagicMock()
+        pipe.zremrangebyscore = MagicMock()
+        pipe.zcard = MagicMock()
+        pipe.execute = AsyncMock(return_value=[1, 0, 1])
+        redis = MagicMock()
+        redis.pipeline = MagicMock(return_value=pipe)
+
+        await increment_signal_count(redis, "edge")
+
+        key_used = pipe.zadd.call_args[0][0]
+        assert key_used == "stats:signals:daily:edge"
 
 
 class TestGetSignalCounts:
@@ -587,10 +593,10 @@ class TestGetSignalCounts:
 
     @pytest.mark.asyncio
     async def test_returns_counts_for_all_algos(self):
-        redis = MagicMock()
         pipe = MagicMock()
-        pipe.get = MagicMock()
-        pipe.execute = AsyncMock(return_value=[b"150", b"300", None])
+        pipe.zcount = MagicMock()
+        pipe.execute = AsyncMock(return_value=[150, 300, 0])
+        redis = MagicMock()
         redis.pipeline = MagicMock(return_value=pipe)
 
         result = await get_signal_counts(redis, ["peak", "edge", "weather"])
@@ -599,10 +605,9 @@ class TestGetSignalCounts:
 
     @pytest.mark.asyncio
     async def test_empty_algos_list(self):
-        redis = MagicMock()
         pipe = MagicMock()
-        pipe.get = MagicMock()
         pipe.execute = AsyncMock(return_value=[])
+        redis = MagicMock()
         redis.pipeline = MagicMock(return_value=pipe)
 
         result = await get_signal_counts(redis, [])
@@ -667,6 +672,33 @@ class TestAlgoTradingKeyPrefix:
 
     def test_key_prefix(self):
         assert ALGO_TRADING_KEY_PREFIX == "config:trading:algo"
+
+
+class TestResetDailyCounts:
+    """Tests for reset_daily_counts function."""
+
+    @pytest.mark.asyncio
+    async def test_deletes_signal_and_trade_count_keys(self):
+        redis = MagicMock()
+        redis.delete = AsyncMock(return_value=4)
+
+        result = await reset_daily_counts(redis, ["peak", "edge"])
+
+        assert result == 4
+        redis.delete.assert_called_once_with(
+            "stats:signals:daily:peak",
+            "stats:signals:daily:edge",
+            "stats:trades:daily:peak",
+            "stats:trades:daily:edge",
+        )
+
+    @pytest.mark.asyncio
+    async def test_returns_zero_for_empty_algos(self):
+        redis = MagicMock()
+
+        result = await reset_daily_counts(redis, [])
+
+        assert result == 0
 
 
 class TestSignalCountKeyPrefix:
