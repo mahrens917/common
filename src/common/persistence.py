@@ -176,7 +176,7 @@ async def restore_to_redis(redis: Any) -> None:
         await ensure_awaitable(pipe.execute())
         pipe = redis.pipeline()
         for trade_id, list_key, _trade_key, _data in reversed(trades):
-            pipe.rpush(list_key, trade_id)
+            pipe.lpush(list_key, trade_id)
         await ensure_awaitable(pipe.execute())
         logger.info("Restored %d %s trades from SQLite", len(trades), mode)
 
