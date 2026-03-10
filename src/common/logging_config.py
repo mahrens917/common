@@ -5,14 +5,13 @@ Every restart rewrites the log file fresh (mode "w").
 """
 
 import logging
+import os
 import sys
 import threading
 from pathlib import Path
 from typing import Optional
 
 import matplotlib
-
-from common.config import env_bool
 
 _config_lock = threading.Lock()
 _UNKNOWN_LOGGER_NAME = "<unknown>"
@@ -52,7 +51,7 @@ def setup_logging(service_name: Optional[str] = None, *, log_to_file: bool = Tru
     """Configure logging for the application."""
     with _config_lock:
         root_logger = logging.getLogger()
-        managed_by_monitor = bool(env_bool("MANAGED_BY_MONITOR", or_value=False))
+        managed_by_monitor = os.environ.get("MANAGED_BY_MONITOR") in ("1", "true")
 
         _reset_all_handlers(root_logger)
 

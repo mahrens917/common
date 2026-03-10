@@ -49,6 +49,7 @@ def _persist_config_batch(items: List[tuple[str, str]]) -> None:
 
 ALGO_TRADING_KEY_PREFIX = "config:trading:algo"
 SIGNAL_COUNT_KEY_PREFIX = "stats:signals:daily"
+VALIDATED_COUNT_KEY_PREFIX = "stats:validated:daily"
 TRADE_COUNT_KEY_PREFIX = "stats:trades:daily"
 
 _MODE_DEFAULTS: Dict[str, bool] = {
@@ -85,6 +86,11 @@ def _algo_config_key(algo: str, mode: str, field: str) -> str:
 def _signal_count_key(algo: str) -> str:
     """Build the Redis key for a daily signal counter."""
     return f"{SIGNAL_COUNT_KEY_PREFIX}:{algo}"
+
+
+def _validated_count_key(algo: str) -> str:
+    """Build the Redis key for a daily validated signal counter."""
+    return f"{VALIDATED_COUNT_KEY_PREFIX}:{algo}"
 
 
 def _trade_count_key(algo: str) -> str:
@@ -294,6 +300,38 @@ async def get_signal_counts(redis: "Redis", algos: List[str]) -> Dict[str, int]:
     return counts
 
 
+async def increment_validated_count(redis: "Redis", algo: str) -> int:
+    """Add a timestamped entry to the validated signal sorted set. Returns the rolling 24h count.
+
+    Uses a sorted set with score=unix timestamp so ZCOUNT gives the exact
+    count of validated signals in the last 24 hours.
+    """
+    key = _validated_count_key(algo)
+    now = time.time()
+    cutoff = now - _SECONDS_PER_DAY
+    member = str(time.time_ns())
+    pipe = redis.pipeline()
+    pipe.zadd(key, {member: now})
+    pipe.zremrangebyscore(key, "-inf", cutoff)
+    pipe.zcard(key)
+    results = await ensure_awaitable(pipe.execute())
+    return int(results[2])
+
+
+async def get_validated_counts(redis: "Redis", algos: List[str]) -> Dict[str, int]:
+    """Get rolling 24h validated signal counts for all algos."""
+    now = time.time()
+    cutoff = now - _SECONDS_PER_DAY
+    pipe = redis.pipeline()
+    for algo in algos:
+        pipe.zcount(_validated_count_key(algo), cutoff, "+inf")
+    results = await ensure_awaitable(pipe.execute())
+    counts: Dict[str, int] = {}
+    for algo, raw in zip(algos, results):
+        counts[algo] = int(raw) if raw is not None else _SIGNAL_COUNT_ABSENT
+    return counts
+
+
 async def increment_trade_count(redis: "Redis", algo: str) -> int:
     """Add a timestamped entry to the trade sorted set. Returns the rolling 24h count.
 
@@ -347,11 +385,15 @@ async def reset_daily_counts(redis: "Redis", algos: List[str]) -> int:
 
     Returns the number of keys deleted.
     """
-    keys = [_signal_count_key(algo) for algo in algos] + [_trade_count_key(algo) for algo in algos]
+    keys = (
+        [_signal_count_key(algo) for algo in algos]
+        + [_validated_count_key(algo) for algo in algos]
+        + [_trade_count_key(algo) for algo in algos]
+    )
     if not keys:
         return 0
     deleted = await ensure_awaitable(redis.delete(*keys))
-    logger.info("Deleted %d daily signal/trade count keys", deleted)
+    logger.info("Deleted %d daily signal/validated/trade count keys", deleted)
     return deleted
 
 
@@ -383,6 +425,7 @@ __all__ = [
     "AlgoTradingConfig",
     "SIGNAL_COUNT_KEY_PREFIX",
     "TRADE_COUNT_KEY_PREFIX",
+    "VALIDATED_COUNT_KEY_PREFIX",
     "delete_old_cooldown_keys",
     "get_algo_max_contracts",
     "get_algo_sample_rate",
@@ -390,8 +433,10 @@ __all__ = [
     "get_all_algo_trading_states",
     "get_signal_counts",
     "get_trade_counts",
+    "get_validated_counts",
     "increment_signal_count",
     "increment_trade_count",
+    "increment_validated_count",
     "initialize_algo_trading_defaults",
     "reset_daily_counts",
     "is_algo_trading_enabled",

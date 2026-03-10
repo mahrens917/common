@@ -96,8 +96,6 @@ class KalshiOrderbookProcessor:
                 delta_processor=self._delta_processor,
             )
             success = await normalizer.process_orderbook_message(context)
-            if success and msg_type == "orderbook_snapshot":
-                await normalizer.normalize_snapshot_json(redis, market_key)
         except (
             ValueError,
             KeyError,

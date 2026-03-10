@@ -688,6 +688,8 @@ class TestResetDailyCounts:
         redis.delete.assert_called_once_with(
             "stats:signals:daily:peak",
             "stats:signals:daily:edge",
+            "stats:validated:daily:peak",
+            "stats:validated:daily:edge",
             "stats:trades:daily:peak",
             "stats:trades:daily:edge",
         )

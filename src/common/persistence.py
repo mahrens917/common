@@ -170,12 +170,15 @@ async def restore_to_redis(redis: Any) -> None:
         trades = load_paper_trades(mode)
         if not trades:
             continue
+        list_key = trades[0][1]
+        existing_len = await ensure_awaitable(redis.llen(list_key))
+        if existing_len > 0:
+            logger.info("Skipping %s trade restore: Redis list already has %d entries", mode, existing_len)
+            continue
         pipe = redis.pipeline()
-        for trade_id, list_key, trade_key, data in trades:
+        for trade_id, _list_key, trade_key, data in trades:
             pipe.hset(trade_key, mapping=data)
-        await ensure_awaitable(pipe.execute())
-        pipe = redis.pipeline()
-        for trade_id, list_key, _trade_key, _data in reversed(trades):
+        for trade_id, _list_key, _trade_key, _data in reversed(trades):
             pipe.lpush(list_key, trade_id)
         await ensure_awaitable(pipe.execute())
         logger.info("Restored %d %s trades from SQLite", len(trades), mode)

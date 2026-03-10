@@ -181,15 +181,19 @@ async def test_restore_to_redis_trades():
     pipe.execute = AsyncMock(return_value=[])
     redis = MagicMock()
     redis.pipeline = MagicMock(return_value=pipe)
+    redis.llen = AsyncMock(return_value=0)
+
+    async def _ensure(x):
+        return await x if hasattr(x, "__await__") else x
 
     with patch(
         "common.redis_protocol.typing.ensure_awaitable",
-        side_effect=lambda x: x,
+        side_effect=_ensure,
     ):
         await persistence.restore_to_redis(redis)
 
     pipe.hset.assert_called_once_with("tk", mapping={"x": "y"})
-    pipe.rpush.assert_called_once_with("lk", "id1")
+    pipe.lpush.assert_called_once_with("lk", "id1")
 
 
 async def test_restore_to_redis_settlements():
