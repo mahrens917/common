@@ -243,6 +243,13 @@ class RetryRedisCollectionMixin:
             policy=self._policy,
         )
 
+    async def llen(self, name: str, *, context: str = "llen") -> Any:
+        return await with_redis_retry(
+            lambda: ensure_awaitable(self._client.llen(name)),
+            context=context,
+            policy=self._policy,
+        )
+
     async def lrange(self, name: str, start: int, end: int, *, context: str = "lrange") -> Any:
         return await with_redis_retry(
             lambda: ensure_awaitable(self._client.lrange(name, start, end)),
