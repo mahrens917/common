@@ -1,5 +1,6 @@
 """Unit tests for StatusReporterMixin."""
 
+import asyncio
 import time
 from unittest.mock import AsyncMock, MagicMock
 
@@ -375,3 +376,69 @@ async def test_timestamp_field_is_current(test_service, mock_redis):
 
     timestamp = float(mapping["timestamp"])
     assert before <= timestamp <= after
+
+
+@pytest.mark.asyncio
+async def test_start_status_heartbeat_creates_task(test_service):
+    """Verify start_status_heartbeat creates a background task."""
+    test_service.start_status_heartbeat(interval_seconds=300)
+    assert test_service._heartbeat_task is not None
+    test_service._heartbeat_task.cancel()
+    try:
+        await test_service._heartbeat_task
+    except asyncio.CancelledError:
+        pass
+
+
+@pytest.mark.asyncio
+async def test_run_heartbeat_logs_warning_on_failure(test_service, monkeypatch):
+    """Verify _run_heartbeat logs a warning when register_ready raises."""
+    sleep_count = 0
+
+    async def mock_sleep(seconds):
+        nonlocal sleep_count
+        sleep_count += 1
+        if sleep_count > 1:
+            raise asyncio.CancelledError()
+
+    async def failing_ready(svc, **kwargs):
+        raise Exception("heartbeat write failed")
+
+    monkeypatch.setattr("asyncio.sleep", mock_sleep)
+    monkeypatch.setattr(
+        "common.service_lifecycle.status_reporter_helpers.registration_methods.register_ready",
+        failing_ready,
+    )
+
+    with pytest.raises(asyncio.CancelledError):
+        await test_service._run_heartbeat(interval_seconds=1)
+
+
+@pytest.mark.asyncio
+async def test_start_status_tick_creates_task(test_service):
+    """Verify start_status_tick creates a background task."""
+    test_service.start_status_tick(interval_seconds=1)
+    assert test_service._heartbeat_task is not None
+    test_service._heartbeat_task.cancel()
+    try:
+        await test_service._heartbeat_task
+    except asyncio.CancelledError:
+        pass
+
+
+@pytest.mark.asyncio
+async def test_run_tick_logs_warning_on_failure(test_service, mock_redis, monkeypatch):
+    """Verify _run_tick logs a warning when redis.hset raises."""
+    sleep_count = 0
+
+    async def mock_sleep(seconds):
+        nonlocal sleep_count
+        sleep_count += 1
+        if sleep_count > 1:
+            raise asyncio.CancelledError()
+
+    mock_redis.hset = AsyncMock(side_effect=Exception("tick write failed"))
+    monkeypatch.setattr("asyncio.sleep", mock_sleep)
+
+    with pytest.raises(asyncio.CancelledError):
+        await test_service._run_tick(interval_seconds=1)

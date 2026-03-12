@@ -5,10 +5,21 @@ from __future__ import annotations
 import asyncio
 import os
 import sys
+from pathlib import Path
+from types import ModuleType
 from typing import Any
 from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
+
+# Stub monitor's top-level __init__ so monitor.common_local.* can be imported
+# without triggering src._ensure_deps, which requires monitor's own PYTHONPATH setup.
+_monitor_root = Path("~/projects/monitor/src/monitor").expanduser()
+if _monitor_root.exists() and "monitor" not in sys.modules:
+    _monitor_stub = ModuleType("monitor")
+    _monitor_stub.__path__ = [str(_monitor_root)]
+    _monitor_stub.__package__ = "monitor"
+    sys.modules["monitor"] = _monitor_stub
 
 # Set required environment variables for tests
 os.environ.setdefault("CONNECTION_TIMEOUT_SECONDS", "30")

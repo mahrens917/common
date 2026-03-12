@@ -7,6 +7,6 @@
     "max_price_cents_display": 100
   },
   "analytics_db": {
-    "pg_dbname": "kalshi"
+    "pg_dbname": "kalshi_historical"
   }
 }

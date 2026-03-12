@@ -5,6 +5,17 @@ from unittest.mock import AsyncMock, MagicMock
 import pytest
 
 from common.redis_protocol.kalshi_store import KalshiStore
+from common.redis_protocol.kalshi_store.orderbook import KalshiOrderbookProcessor
+
+
+def _make_processor() -> KalshiOrderbookProcessor:
+    connection_manager = MagicMock()
+    connection_manager.get_redis = AsyncMock(return_value=MagicMock())
+    return KalshiOrderbookProcessor(
+        redis_connection_manager=connection_manager,
+        logger_instance=MagicMock(),
+        update_trade_prices_callback=AsyncMock(),
+    )
 
 
 @pytest.mark.asyncio
@@ -293,3 +304,69 @@ async def test_update_trade_tick_handles_redis_error(monkeypatch) -> None:
     }
 
     assert await store.update_trade_tick(message) is False
+
+
+def test_processor_market_descriptor() -> None:
+    from common.redis_schema import KalshiMarketDescriptor
+
+    processor = _make_processor()
+    result = processor._market_descriptor("TEST")
+    assert isinstance(result, KalshiMarketDescriptor)
+
+
+@pytest.mark.asyncio
+async def test_processor_set_cache_and_batcher() -> None:
+    processor = _make_processor()
+    cache = MagicMock()
+    batcher = MagicMock()
+    processor.set_cache_and_batcher(cache, batcher)
+    assert processor._cache is cache
+
+
+@pytest.mark.asyncio
+async def test_processor_evict_market_with_cache() -> None:
+    processor = _make_processor()
+    cache = MagicMock()
+    processor._cache = cache
+    processor.evict_market("market:TEST")
+    cache.remove_market.assert_called_once_with("market:TEST")
+
+
+@pytest.mark.asyncio
+async def test_processor_ensure_redis_connection_returns_false_on_runtime_error() -> None:
+    connection_manager = MagicMock()
+    connection_manager.get_redis = AsyncMock(side_effect=RuntimeError("no connection"))
+    processor = KalshiOrderbookProcessor(
+        redis_connection_manager=connection_manager,
+        logger_instance=MagicMock(),
+        update_trade_prices_callback=AsyncMock(),
+    )
+    result = await processor._ensure_redis_connection()
+    assert result is False
+
+
+@pytest.mark.asyncio
+async def test_update_orderbook_returns_false_when_redis_unavailable() -> None:
+    processor = _make_processor()
+    processor._ensure_redis_connection = AsyncMock(return_value=False)
+    result = await processor.update_orderbook({"msg": {}})
+    assert result is False
+
+
+@pytest.mark.asyncio
+async def test_update_orderbook_handles_redis_error(monkeypatch) -> None:
+    from redis.exceptions import RedisError
+
+    processor = _make_processor()
+    processor._ensure_redis_connection = AsyncMock(return_value=True)
+    processor._get_redis = AsyncMock(return_value=AsyncMock())
+
+    def raise_redis_error(message):
+        raise RedisError("connection lost")
+
+    monkeypatch.setattr(
+        "common.redis_protocol.kalshi_store.merge_orderbook_payload",
+        raise_redis_error,
+    )
+    result = await processor.update_orderbook({"msg": {}})
+    assert result is False
