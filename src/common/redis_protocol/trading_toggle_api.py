@@ -10,8 +10,9 @@ Redis key patterns:
   config:trading:algo:{algo}:{mode}                 (enabled toggle)
   config:trading:algo:{algo}:{mode}:sample_rate
   config:trading:algo:{algo}:{mode}:max_contracts
-  stats:signals:daily:{algo}                        (sorted set; score=unix ts; true 24h rolling window)
-  stats:trades:daily:{algo}                         (sorted set; score=unix ts; true 24h rolling window)
+  stats:signals:daily:{algo}:{YYYY-MM-DD}           (string counter; daily count with 48h TTL)
+  stats:validated:daily:{algo}:{YYYY-MM-DD}          (string counter; daily count with 48h TTL)
+  stats:trades:daily:{algo}:{YYYY-MM-DD}             (string counter; daily count with 48h TTL)
 
 Defaults: paper = all ON, live = all OFF; sample_rate = 100; max_contracts = 1
 """
@@ -61,6 +62,7 @@ _DEFAULT_SAMPLE_RATE = 100
 _DEFAULT_MAX_CONTRACTS = 1
 
 _SECONDS_PER_DAY = 86400
+_COUNTER_TTL_SECONDS = 172800  # 48h — covers today + yesterday
 _SIGNAL_COUNT_ABSENT = 0
 
 
@@ -83,19 +85,24 @@ def _algo_config_key(algo: str, mode: str, field: str) -> str:
     return f"{ALGO_TRADING_KEY_PREFIX}:{algo}:{mode}:{field}"
 
 
-def _signal_count_key(algo: str) -> str:
+def _date_str(ts: float) -> str:
+    """Format a unix timestamp as YYYY-MM-DD in UTC."""
+    return time.strftime("%Y-%m-%d", time.gmtime(ts))
+
+
+def _signal_count_key(algo: str, date: str) -> str:
     """Build the Redis key for a daily signal counter."""
-    return f"{SIGNAL_COUNT_KEY_PREFIX}:{algo}"
+    return f"{SIGNAL_COUNT_KEY_PREFIX}:{algo}:{date}"
 
 
-def _validated_count_key(algo: str) -> str:
+def _validated_count_key(algo: str, date: str) -> str:
     """Build the Redis key for a daily validated signal counter."""
-    return f"{VALIDATED_COUNT_KEY_PREFIX}:{algo}"
+    return f"{VALIDATED_COUNT_KEY_PREFIX}:{algo}:{date}"
 
 
-def _trade_count_key(algo: str) -> str:
+def _trade_count_key(algo: str, date: str) -> str:
     """Build the Redis key for a daily trade counter."""
-    return f"{TRADE_COUNT_KEY_PREFIX}:{algo}"
+    return f"{TRADE_COUNT_KEY_PREFIX}:{algo}:{date}"
 
 
 def _validate_positive_int(value: int, field_name: str) -> None:
@@ -269,30 +276,26 @@ async def get_all_algo_trading_config(redis: "Redis", algos: List[str], mode: st
 
 
 async def increment_signal_count(redis: "Redis", algo: str) -> int:
-    """Add a timestamped entry to the signal sorted set. Returns the rolling 24h count.
+    """Increment the daily signal counter. Returns today's count.
 
-    Uses a sorted set with score=unix timestamp so ZCOUNT gives the exact
-    count of signals in the last 24 hours.
+    Uses a simple string counter per UTC day with a 48h TTL.
+    Constant memory per algo per day (~50 bytes vs 100+ MB for sorted sets).
     """
-    key = _signal_count_key(algo)
     now = time.time()
-    cutoff = now - _SECONDS_PER_DAY
-    member = str(time.time_ns())
+    key = _signal_count_key(algo, _date_str(now))
     pipe = redis.pipeline()
-    pipe.zadd(key, {member: now})
-    pipe.zremrangebyscore(key, "-inf", cutoff)
-    pipe.zcard(key)
+    pipe.incr(key)
+    pipe.expire(key, _COUNTER_TTL_SECONDS)
     results = await ensure_awaitable(pipe.execute())
-    return int(results[2])
+    return int(results[0])
 
 
 async def get_signal_counts(redis: "Redis", algos: List[str]) -> Dict[str, int]:
-    """Get rolling 24h signal counts for all algos."""
-    now = time.time()
-    cutoff = now - _SECONDS_PER_DAY
+    """Get today's signal counts for all algos."""
+    today = _date_str(time.time())
     pipe = redis.pipeline()
     for algo in algos:
-        pipe.zcount(_signal_count_key(algo), cutoff, "+inf")
+        pipe.get(_signal_count_key(algo, today))
     results = await ensure_awaitable(pipe.execute())
     counts: Dict[str, int] = {}
     for algo, raw in zip(algos, results):
@@ -301,30 +304,25 @@ async def get_signal_counts(redis: "Redis", algos: List[str]) -> Dict[str, int]:
 
 
 async def increment_validated_count(redis: "Redis", algo: str) -> int:
-    """Add a timestamped entry to the validated signal sorted set. Returns the rolling 24h count.
+    """Increment the daily validated signal counter. Returns today's count.
 
-    Uses a sorted set with score=unix timestamp so ZCOUNT gives the exact
-    count of validated signals in the last 24 hours.
+    Uses a simple string counter per UTC day with a 48h TTL.
     """
-    key = _validated_count_key(algo)
     now = time.time()
-    cutoff = now - _SECONDS_PER_DAY
-    member = str(time.time_ns())
+    key = _validated_count_key(algo, _date_str(now))
     pipe = redis.pipeline()
-    pipe.zadd(key, {member: now})
-    pipe.zremrangebyscore(key, "-inf", cutoff)
-    pipe.zcard(key)
+    pipe.incr(key)
+    pipe.expire(key, _COUNTER_TTL_SECONDS)
     results = await ensure_awaitable(pipe.execute())
-    return int(results[2])
+    return int(results[0])
 
 
 async def get_validated_counts(redis: "Redis", algos: List[str]) -> Dict[str, int]:
-    """Get rolling 24h validated signal counts for all algos."""
-    now = time.time()
-    cutoff = now - _SECONDS_PER_DAY
+    """Get today's validated signal counts for all algos."""
+    today = _date_str(time.time())
     pipe = redis.pipeline()
     for algo in algos:
-        pipe.zcount(_validated_count_key(algo), cutoff, "+inf")
+        pipe.get(_validated_count_key(algo, today))
     results = await ensure_awaitable(pipe.execute())
     counts: Dict[str, int] = {}
     for algo, raw in zip(algos, results):
@@ -333,30 +331,25 @@ async def get_validated_counts(redis: "Redis", algos: List[str]) -> Dict[str, in
 
 
 async def increment_trade_count(redis: "Redis", algo: str) -> int:
-    """Add a timestamped entry to the trade sorted set. Returns the rolling 24h count.
+    """Increment the daily trade counter. Returns today's count.
 
-    Uses a sorted set with score=unix timestamp so ZCOUNT gives the exact
-    count of trades in the last 24 hours.
+    Uses a simple string counter per UTC day with a 48h TTL.
     """
-    key = _trade_count_key(algo)
     now = time.time()
-    cutoff = now - _SECONDS_PER_DAY
-    member = str(time.time_ns())
+    key = _trade_count_key(algo, _date_str(now))
     pipe = redis.pipeline()
-    pipe.zadd(key, {member: now})
-    pipe.zremrangebyscore(key, "-inf", cutoff)
-    pipe.zcard(key)
+    pipe.incr(key)
+    pipe.expire(key, _COUNTER_TTL_SECONDS)
     results = await ensure_awaitable(pipe.execute())
-    return int(results[2])
+    return int(results[0])
 
 
 async def get_trade_counts(redis: "Redis", algos: List[str]) -> Dict[str, int]:
-    """Get rolling 24h trade counts for all algos."""
-    now = time.time()
-    cutoff = now - _SECONDS_PER_DAY
+    """Get today's trade counts for all algos."""
+    today = _date_str(time.time())
     pipe = redis.pipeline()
     for algo in algos:
-        pipe.zcount(_trade_count_key(algo), cutoff, "+inf")
+        pipe.get(_trade_count_key(algo, today))
     results = await ensure_awaitable(pipe.execute())
     counts: Dict[str, int] = {}
     for algo, raw in zip(algos, results):
@@ -383,15 +376,20 @@ async def delete_old_cooldown_keys(redis: "Redis", algos: List[str]) -> int:
 async def reset_daily_counts(redis: "Redis", algos: List[str]) -> int:
     """Delete daily signal and trade count keys for all algos.
 
+    Deletes today's and yesterday's counter keys (48h TTL handles older ones).
     Returns the number of keys deleted.
     """
-    keys = (
-        [_signal_count_key(algo) for algo in algos]
-        + [_validated_count_key(algo) for algo in algos]
-        + [_trade_count_key(algo) for algo in algos]
-    )
-    if not keys:
+    if not algos:
         return 0
+    now = time.time()
+    today = _date_str(now)
+    yesterday = _date_str(now - _SECONDS_PER_DAY)
+    keys: list[str] = []
+    for algo in algos:
+        for date in (today, yesterday):
+            keys.append(_signal_count_key(algo, date))
+            keys.append(_validated_count_key(algo, date))
+            keys.append(_trade_count_key(algo, date))
     deleted = await ensure_awaitable(redis.delete(*keys))
     logger.info("Deleted %d daily signal/validated/trade count keys", deleted)
     return deleted

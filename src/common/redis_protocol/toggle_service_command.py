@@ -22,6 +22,7 @@ logger = logging.getLogger(__name__)
 
 TOGGLE_SERVICE_COMMAND_KEY = "config:command:toggle_service"
 TOGGLE_SERVICE_RESULT_KEY = "config:command:toggle_service:result"
+COMMAND_TTL_SECONDS = 60
 RESULT_TTL_SECONDS = 30
 
 
@@ -52,7 +53,7 @@ async def request_toggle_service(redis: "Redis", service_name: str, action: str)
             "timestamp": get_current_utc().isoformat(),
         }
     )
-    await ensure_awaitable(redis.set(TOGGLE_SERVICE_COMMAND_KEY, payload))
+    await ensure_awaitable(redis.set(TOGGLE_SERVICE_COMMAND_KEY, payload, ex=COMMAND_TTL_SECONDS))
     logger.info("Toggle service command issued: %s %s", action, service_name)
 
 
@@ -159,6 +160,7 @@ async def is_service_disabled(redis: "Redis", service_name: str) -> bool:
 
 
 __all__ = [
+    "COMMAND_TTL_SECONDS",
     "DISABLED_SERVICES_KEY",
     "TOGGLE_SERVICE_COMMAND_KEY",
     "TOGGLE_SERVICE_RESULT_KEY",

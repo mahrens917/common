@@ -119,7 +119,7 @@ _sync_pool_guard = threading.Lock()
 
 # Unified connection pooling configuration
 UNIFIED_REDIS_CONFIG = {
-    "max_connections": 50,  # Reduced from 120 to limit connection overhead
+    "max_connections": 75,  # Increased from 50 to handle price burst concurrency
     "dns_cache_ttl": 300,  # 5 minutes
     "dns_cache_size": 1000,
 }

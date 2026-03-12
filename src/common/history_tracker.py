@@ -277,7 +277,7 @@ class BalanceHistoryTracker:
     """
     Tracker for account balance history.
 
-    Stores balance data in Redis sorted set with NO expiration for permanent history:
+    Stores balance data in Redis sorted set with 90-day retention (pruned by redis_cleanup):
     - balance:kalshi (sorted set with timestamp as score, balance_cents as member)
     """
 

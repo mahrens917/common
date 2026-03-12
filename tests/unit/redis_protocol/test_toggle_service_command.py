@@ -6,6 +6,7 @@ from unittest.mock import AsyncMock, MagicMock, patch
 import pytest
 
 from common.redis_protocol.toggle_service_command import (
+    COMMAND_TTL_SECONDS,
     DISABLED_SERVICES_KEY,
     RESULT_TTL_SECONDS,
     TOGGLE_SERVICE_COMMAND_KEY,
@@ -79,7 +80,7 @@ class TestRequestToggleService:
                     "timestamp": "2024-01-15T12:00:00+00:00",
                 }
             )
-            mock_redis.set.assert_called_once_with(TOGGLE_SERVICE_COMMAND_KEY, expected_payload)
+            mock_redis.set.assert_called_once_with(TOGGLE_SERVICE_COMMAND_KEY, expected_payload, ex=COMMAND_TTL_SECONDS)
 
 
 class TestGetToggleServiceCommand:

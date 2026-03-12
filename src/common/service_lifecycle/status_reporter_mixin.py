@@ -13,6 +13,7 @@ from common.redis_schema.operations import ServiceStatusKey
 logger = logging.getLogger(__name__)
 
 _STATUS_HEARTBEAT_INTERVAL_SECONDS = 300
+_STATUS_TICK_INTERVAL_SECONDS = 1
 
 
 class StatusReporterMixin:
@@ -111,6 +112,23 @@ class StatusReporterMixin:
             results = await asyncio.gather(rr(self), return_exceptions=True)
             if isinstance(results[0], Exception):
                 logger.warning("Status heartbeat write failed for %s: %s", self._service_name, results[0])
+
+    def start_status_tick(self, interval_seconds: int = _STATUS_TICK_INTERVAL_SECONDS) -> None:
+        """Start a lightweight background task that updates only the timestamp field."""
+        self._heartbeat_task = asyncio.create_task(self._run_tick(interval_seconds))
+
+    async def _run_tick(self, interval_seconds: int) -> None:
+        from common.redis_protocol.typing import ensure_awaitable
+
+        while True:
+            await asyncio.sleep(interval_seconds)
+            redis = await self._get_redis_client()
+            results = await asyncio.gather(
+                ensure_awaitable(redis.hset(self._status_key, "timestamp", str(time.time()))),
+                return_exceptions=True,
+            )
+            if isinstance(results[0], Exception):
+                logger.warning("Status tick failed for %s: %s", self._service_name, results[0])
 
     service_name = property(lambda self: self._service_name)
     status_key = property(lambda self: self._status_key)

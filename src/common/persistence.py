@@ -118,6 +118,18 @@ def clear_paper_trades(mode: str) -> int:
         return cursor.rowcount
 
 
+def delete_paper_trades_by_ids(trade_ids: Sequence[str]) -> int:
+    """Delete specific trade records by ID. Returns count deleted."""
+    if not trade_ids:
+        return 0
+    with _lock:
+        conn = _get_connection()
+        placeholders = ",".join("?" for _ in trade_ids)
+        cursor = conn.execute(f"DELETE FROM paper_trades WHERE id IN ({placeholders})", list(trade_ids))
+        conn.commit()
+        return cursor.rowcount
+
+
 # ── Settlements ─────────────────────────────────────────────────────
 
 
@@ -195,6 +207,7 @@ async def restore_to_redis(redis: Any) -> None:
 __all__ = [
     "clear_paper_trades",
     "clear_settlements",
+    "delete_paper_trades_by_ids",
     "load_all_config",
     "load_paper_trades",
     "load_settlements",

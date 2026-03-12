@@ -17,6 +17,7 @@ logger = logging.getLogger(__name__)
 MessageHandler = Callable[[str, dict], Awaitable[None]]
 
 MAX_STREAM_RETRIES = 3
+_MAX_RETRY_TRACKING_ENTRIES = 1000
 
 
 def is_json_object_string(raw: object) -> bool:
@@ -62,6 +63,11 @@ async def handle_consumer_retry(
         prior = 0
     retries = prior + 1
     if retries < MAX_STREAM_RETRIES:
+        # Safety cap: if retry_counts grows too large, evict oldest entries
+        if len(retry_counts) >= _MAX_RETRY_TRACKING_ENTRIES:
+            _evict_oldest = next(iter(retry_counts))
+            retry_counts.pop(_evict_oldest, None)
+            logger.warning("Retry tracking overflow, evicted entry %s", _evict_oldest)
         retry_counts[entry_id] = retries
         await queue.put((entry_id, identifier, fields))
         logger.warning("Retrying message %s (attempt %d)", entry_id, retries)

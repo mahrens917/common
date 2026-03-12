@@ -134,6 +134,7 @@ class RedisStreamSubscriber:
         self._reader_task = None
         await cancel_tasks(self._consumer_tasks)
         self._consumer_tasks = []
+        self._retry_counts.clear()
         logger.info("%s stopped", self._subscriber_name)
 
     async def _read_loop(self) -> None:

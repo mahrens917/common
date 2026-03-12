@@ -28,13 +28,20 @@ class KalshiOrderbookProcessor:
         self._connection_manager = redis_connection_manager
         self._logger = logger_instance
         self._update_trade_prices_callback = update_trade_prices_callback
+        self._cache: "OrderbookCache | None" = None
         self._snapshot_processor = SnapshotProcessor(update_trade_prices_callback)
         self._delta_processor = DeltaProcessor(update_trade_prices_callback)
 
     def set_cache_and_batcher(self, cache: "OrderbookCache", batcher: "CoalescingBatcher[str, MarketUpdate]") -> None:
         """Attach cache and batcher to both processors."""
+        self._cache = cache
         self._snapshot_processor.set_cache_and_batcher(cache, batcher)
         self._delta_processor.set_cache_and_batcher(cache, batcher)
+
+    def evict_market(self, market_key: str) -> None:
+        """Remove a market from the in-memory cache after unsubscribe."""
+        if self._cache is not None:
+            self._cache.remove_market(market_key)
 
     async def _get_redis(self) -> Redis:
         return await self._connection_manager.get_redis()

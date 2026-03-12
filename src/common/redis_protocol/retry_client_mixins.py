@@ -164,6 +164,25 @@ class RetryRedisSortedSetMixin:
             policy=self._policy,
         )
 
+    async def zrevrangebyscore(
+        self,
+        name: str,
+        max_score: Any,
+        min_score: Any,
+        *,
+        start: Optional[int] = None,
+        num: Optional[int] = None,
+        withscores: bool = False,
+        context: str = "zrevrangebyscore",
+    ) -> Any:
+        return await with_redis_retry(
+            lambda: ensure_awaitable(
+                self._client.zrevrangebyscore(name, max_score, min_score, start=start, num=num, withscores=withscores),
+            ),
+            context=context,
+            policy=self._policy,
+        )
+
     async def zremrangebyscore(self, name: str, min_score: Any, max_score: Any, *, context: str = "zremrangebyscore") -> Any:
         return await with_redis_retry(
             lambda: ensure_awaitable(self._client.zremrangebyscore(name, min_score, max_score)),

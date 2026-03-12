@@ -70,3 +70,7 @@ class OrderbookCache:
         Callers must not mutate the returned dict.
         """
         return self._markets.get(market_key)
+
+    def remove_market(self, market_key: str) -> None:
+        """Remove a market from the cache to free memory after unsubscribe."""
+        self._markets.pop(market_key, None)

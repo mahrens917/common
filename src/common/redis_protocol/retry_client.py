@@ -48,6 +48,10 @@ class RetryPipeline(RetryPipelineHashMixin, RetryPipelineSetMixin, RetryPipeline
         self._pipeline.delete(*names)
         return self
 
+    def incr(self, name: str, amount: int = 1) -> "RetryPipeline":
+        self._pipeline.incr(name, amount)
+        return self
+
     def expire(self, name: str, time: int) -> "RetryPipeline":
         self._pipeline.expire(name, time)
         return self

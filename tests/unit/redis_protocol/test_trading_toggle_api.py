@@ -1,6 +1,6 @@
 """Tests for per-algo trading_toggle_api module."""
 
-from unittest.mock import AsyncMock, MagicMock
+from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 
@@ -10,6 +10,7 @@ from common.redis_protocol.trading_toggle_api import (
     AlgoTradingConfig,
     _algo_config_key,
     _algo_key,
+    _date_str,
     _parse_bool,
     _signal_count_key,
     _validate_positive_int,
@@ -272,12 +273,20 @@ class TestAlgoConfigKey:
         assert result == "config:trading:algo:edge:live:max_contracts"
 
 
+class TestDateStr:
+    """Tests for _date_str helper."""
+
+    def test_formats_utc_date(self):
+        # 2026-03-10 00:00:00 UTC
+        assert _date_str(1773100800.0) == "2026-03-10"
+
+
 class TestSignalCountKey:
     """Tests for _signal_count_key helper."""
 
-    def test_builds_signal_count_key(self):
-        result = _signal_count_key("peak")
-        assert result == "stats:signals:daily:peak"
+    def test_builds_signal_count_key_with_date(self):
+        result = _signal_count_key("peak", "2026-03-10")
+        assert result == "stats:signals:daily:peak:2026-03-10"
 
 
 class TestValidatePositiveInt:
@@ -556,36 +565,37 @@ class TestIncrementSignalCount:
     """Tests for increment_signal_count function."""
 
     @pytest.mark.asyncio
-    async def test_returns_rolling_24h_count(self):
+    async def test_returns_daily_count(self):
         pipe = MagicMock()
-        pipe.zadd = MagicMock()
-        pipe.zremrangebyscore = MagicMock()
-        pipe.zcard = MagicMock()
-        pipe.execute = AsyncMock(return_value=[1, 0, 42])
+        pipe.incr = MagicMock()
+        pipe.expire = MagicMock()
+        pipe.execute = AsyncMock(return_value=[42, True])
         redis = MagicMock()
         redis.pipeline = MagicMock(return_value=pipe)
 
         result = await increment_signal_count(redis, "peak")
 
         assert result == 42
-        pipe.zadd.assert_called_once()
-        pipe.zremrangebyscore.assert_called_once()
-        pipe.zcard.assert_called_once_with("stats:signals:daily:peak")
+        pipe.incr.assert_called_once()
+        pipe.expire.assert_called_once()
 
     @pytest.mark.asyncio
-    async def test_zadd_uses_correct_key(self):
+    @patch("common.redis_protocol.trading_toggle_api.time")
+    async def test_incr_uses_correct_key(self, mock_time):
+        mock_time.time.return_value = 1773100800.0  # 2026-03-10 00:00:00 UTC
+        mock_time.strftime = __import__("time").strftime
+        mock_time.gmtime = __import__("time").gmtime
         pipe = MagicMock()
-        pipe.zadd = MagicMock()
-        pipe.zremrangebyscore = MagicMock()
-        pipe.zcard = MagicMock()
-        pipe.execute = AsyncMock(return_value=[1, 0, 1])
+        pipe.incr = MagicMock()
+        pipe.expire = MagicMock()
+        pipe.execute = AsyncMock(return_value=[1, True])
         redis = MagicMock()
         redis.pipeline = MagicMock(return_value=pipe)
 
         await increment_signal_count(redis, "edge")
 
-        key_used = pipe.zadd.call_args[0][0]
-        assert key_used == "stats:signals:daily:edge"
+        key_used = pipe.incr.call_args[0][0]
+        assert key_used == "stats:signals:daily:edge:2026-03-10"
 
 
 class TestGetSignalCounts:
@@ -594,14 +604,26 @@ class TestGetSignalCounts:
     @pytest.mark.asyncio
     async def test_returns_counts_for_all_algos(self):
         pipe = MagicMock()
-        pipe.zcount = MagicMock()
-        pipe.execute = AsyncMock(return_value=[150, 300, 0])
+        pipe.get = MagicMock()
+        pipe.execute = AsyncMock(return_value=[b"150", b"300", b"0"])
         redis = MagicMock()
         redis.pipeline = MagicMock(return_value=pipe)
 
         result = await get_signal_counts(redis, ["peak", "edge", "weather"])
 
         assert result == {"peak": 150, "edge": 300, "weather": 0}
+
+    @pytest.mark.asyncio
+    async def test_returns_zero_for_missing_keys(self):
+        pipe = MagicMock()
+        pipe.get = MagicMock()
+        pipe.execute = AsyncMock(return_value=[None])
+        redis = MagicMock()
+        redis.pipeline = MagicMock(return_value=pipe)
+
+        result = await get_signal_counts(redis, ["peak"])
+
+        assert result == {"peak": 0}
 
     @pytest.mark.asyncio
     async def test_empty_algos_list(self):
@@ -678,21 +700,25 @@ class TestResetDailyCounts:
     """Tests for reset_daily_counts function."""
 
     @pytest.mark.asyncio
-    async def test_deletes_signal_and_trade_count_keys(self):
+    @patch("common.redis_protocol.trading_toggle_api.time")
+    async def test_deletes_today_and_yesterday_keys(self, mock_time):
+        mock_time.time.return_value = 1773100800.0  # 2026-03-10 00:00:00 UTC
+        mock_time.strftime = __import__("time").strftime
+        mock_time.gmtime = __import__("time").gmtime
         redis = MagicMock()
-        redis.delete = AsyncMock(return_value=4)
+        redis.delete = AsyncMock(return_value=6)
 
-        result = await reset_daily_counts(redis, ["peak", "edge"])
+        result = await reset_daily_counts(redis, ["peak"])
 
-        assert result == 4
-        redis.delete.assert_called_once_with(
-            "stats:signals:daily:peak",
-            "stats:signals:daily:edge",
-            "stats:validated:daily:peak",
-            "stats:validated:daily:edge",
-            "stats:trades:daily:peak",
-            "stats:trades:daily:edge",
-        )
+        assert result == 6
+        redis.delete.assert_called_once()
+        deleted_keys = set(redis.delete.call_args[0])
+        assert "stats:signals:daily:peak:2026-03-10" in deleted_keys
+        assert "stats:signals:daily:peak:2026-03-09" in deleted_keys
+        assert "stats:validated:daily:peak:2026-03-10" in deleted_keys
+        assert "stats:validated:daily:peak:2026-03-09" in deleted_keys
+        assert "stats:trades:daily:peak:2026-03-10" in deleted_keys
+        assert "stats:trades:daily:peak:2026-03-09" in deleted_keys
 
     @pytest.mark.asyncio
     async def test_returns_zero_for_empty_algos(self):
