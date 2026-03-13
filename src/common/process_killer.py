@@ -276,7 +276,27 @@ def _load_psutil(raise_on_missing_psutil: bool):
 
 async def _get_process_monitor():
     """Return global process monitor if available."""
+    import sys
+    import types
     from importlib import import_module
+    from pathlib import Path
+
+    monitor_src = Path.home() / "projects" / "monitor" / "src"
+
+    # Insert synthetic package entries so Python skips monitor/__init__.py
+    # (which has a CWD-dependent import that breaks cross-repo usage).
+    for pkg_name, sub_path in (
+        ("monitor", "monitor"),
+        ("monitor.common_local", "monitor/common_local"),
+    ):
+        if pkg_name not in sys.modules:
+            pkg = types.ModuleType(pkg_name)
+            pkg.__path__ = [str(monitor_src / sub_path)]
+            pkg.__package__ = pkg_name
+            sys.modules[pkg_name] = pkg
+
+    if str(monitor_src) not in sys.path:
+        sys.path.insert(0, str(monitor_src))
 
     monitor_mod = import_module("monitor.common_local.process_monitor")
     return await monitor_mod.get_global_process_monitor()

@@ -120,13 +120,15 @@ class TestSetAlgoTradingEnabled:
         return redis
 
     @pytest.mark.asyncio
-    async def test_set_enabled_true(self, mock_redis):
+    @patch("common.redis_protocol.trading_toggle_api._persist_config")
+    async def test_set_enabled_true(self, _mock_persist, mock_redis):
         await set_algo_trading_enabled(mock_redis, "peak", "live", True)
 
         mock_redis.set.assert_called_once_with("config:trading:algo:peak:live", "true")
 
     @pytest.mark.asyncio
-    async def test_set_enabled_false(self, mock_redis):
+    @patch("common.redis_protocol.trading_toggle_api._persist_config")
+    async def test_set_enabled_false(self, _mock_persist, mock_redis):
         await set_algo_trading_enabled(mock_redis, "edge", "paper", False)
 
         mock_redis.set.assert_called_once_with("config:trading:algo:edge:paper", "false")
@@ -143,7 +145,8 @@ class TestToggleAlgoTrading:
         return redis
 
     @pytest.mark.asyncio
-    async def test_toggle_from_off_to_on(self, mock_redis):
+    @patch("common.redis_protocol.trading_toggle_api._persist_config")
+    async def test_toggle_from_off_to_on(self, _mock_persist, mock_redis):
         mock_redis.get = AsyncMock(return_value=b"false")
 
         result = await toggle_algo_trading(mock_redis, "peak", "live")
@@ -152,7 +155,8 @@ class TestToggleAlgoTrading:
         mock_redis.set.assert_called_once_with("config:trading:algo:peak:live", "true")
 
     @pytest.mark.asyncio
-    async def test_toggle_from_on_to_off(self, mock_redis):
+    @patch("common.redis_protocol.trading_toggle_api._persist_config")
+    async def test_toggle_from_on_to_off(self, _mock_persist, mock_redis):
         mock_redis.get = AsyncMock(return_value=b"true")
 
         result = await toggle_algo_trading(mock_redis, "peak", "paper")
@@ -160,7 +164,8 @@ class TestToggleAlgoTrading:
         assert result is False
 
     @pytest.mark.asyncio
-    async def test_toggle_from_missing_paper_default(self, mock_redis):
+    @patch("common.redis_protocol.trading_toggle_api._persist_config")
+    async def test_toggle_from_missing_paper_default(self, _mock_persist, mock_redis):
         mock_redis.get = AsyncMock(return_value=None)
 
         result = await toggle_algo_trading(mock_redis, "peak", "paper")
@@ -205,7 +210,8 @@ class TestSetAllAlgoTradingEnabled:
     """Tests for set_all_algo_trading_enabled function."""
 
     @pytest.mark.asyncio
-    async def test_sets_all_algos(self):
+    @patch("common.redis_protocol.trading_toggle_api._persist_config_batch")
+    async def test_sets_all_algos(self, _mock_persist_batch):
         redis = MagicMock()
         pipe = MagicMock()
         pipe.set = MagicMock()
@@ -374,7 +380,8 @@ class TestSetAlgoSampleRate:
         return redis
 
     @pytest.mark.asyncio
-    async def test_sets_sample_rate_value(self, mock_redis):
+    @patch("common.redis_protocol.trading_toggle_api._persist_config")
+    async def test_sets_sample_rate_value(self, _mock_persist, mock_redis):
         await set_algo_sample_rate(mock_redis, "peak", "paper", 50)
 
         mock_redis.set.assert_called_once_with("config:trading:algo:peak:paper:sample_rate", "50")
@@ -439,7 +446,8 @@ class TestSetAlgoMaxContracts:
         return redis
 
     @pytest.mark.asyncio
-    async def test_sets_max_contracts_value(self, mock_redis):
+    @patch("common.redis_protocol.trading_toggle_api._persist_config")
+    async def test_sets_max_contracts_value(self, _mock_persist, mock_redis):
         await set_algo_max_contracts(mock_redis, "peak", "live", 5)
 
         mock_redis.set.assert_called_once_with("config:trading:algo:peak:live:max_contracts", "5")

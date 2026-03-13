@@ -105,24 +105,20 @@ class DeltaProcessor(SnapshotProcessor):
         return True
 
 
+_CENTS_PER_DOLLAR = 100
+
+
 def _extract_delta_inputs(msg_data: Dict[str, Any]) -> tuple[str, str, float] | None:
     """Validate incoming delta payload and return side field, price string, and delta."""
     side = string_or_default(msg_data.get("side")).lower()
-    price = msg_data.get("price")
-    delta = msg_data.get("delta")
-
-    if None in (side, price, delta):
+    if not side:
         logger.error("Invalid delta message structure: %s", orjson.dumps(msg_data))
         return None
 
-    if not isinstance(price, (int, float)) or not isinstance(delta, (int, float)):
-        logger.error(
-            "Invalid numeric types in delta message: price=%r (type=%s), delta=%r (type=%s)",
-            price,
-            type(price),
-            delta,
-            type(delta),
-        )
+    price, delta = _resolve_price_and_delta(msg_data)
+
+    if price is None or delta is None:
+        logger.error("Invalid delta message structure: %s", orjson.dumps(msg_data))
         return None
 
     resolved = _resolve_side_field(side, price)
@@ -132,6 +128,29 @@ def _extract_delta_inputs(msg_data: Dict[str, Any]) -> tuple[str, str, float] | 
 
     side_field, price_str = resolved
     return side_field, price_str, float(delta)
+
+
+def _resolve_price_and_delta(msg_data: Dict[str, Any]) -> tuple[float | None, float | None]:
+    """Extract price (in cents) and delta from either legacy or dollar-string fields."""
+    price = msg_data.get("price")
+    delta = msg_data.get("delta")
+
+    if price is not None and delta is not None:
+        if isinstance(price, (int, float)) and isinstance(delta, (int, float)):
+            return float(price), float(delta)
+
+    price_dollars = msg_data.get("price_dollars")
+    delta_fp = msg_data.get("delta_fp")
+
+    if price_dollars is not None and delta_fp is not None:
+        try:
+            price_cents = float(price_dollars) * _CENTS_PER_DOLLAR
+            delta_value = float(delta_fp)
+            return price_cents, delta_value
+        except (ValueError, TypeError):
+            return None, None
+
+    return None, None
 
 
 def _resolve_side_field(side: str, price: float) -> tuple[str, str] | None:

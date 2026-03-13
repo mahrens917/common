@@ -8,9 +8,6 @@ from .field_validators import (
     validate_timestamp_field,
 )
 
-# Constants
-_CONST_100 = 100
-
 
 def validate_event_wrapper(response_data: Dict[str, Any]) -> Dict[str, Any]:
     """Validate event wrapper structure and return event data."""
@@ -73,7 +70,7 @@ def validate_market_strings(market_data: Dict[str, Any], prefix: str = "") -> No
 
 def validate_market_status(market_data: Dict[str, Any], prefix: str = "") -> None:
     """Validate market status is a known value."""
-    valid_statuses = ["open", "closed", "settled", "active"]
+    valid_statuses = ["initialized", "inactive", "active", "closed", "determined", "disputed", "amended", "finalized"]
     if market_data["status"] not in valid_statuses:
         raise ValueError(f"{prefix}Invalid status '{market_data['status']}'. " f"Valid statuses: {valid_statuses}")
 
@@ -92,11 +89,9 @@ def validate_market_numeric_fields(market_data: Dict[str, Any], prefix: str = ""
 
 
 def validate_market_price_fields(market_data: Dict[str, Any], prefix: str = "") -> None:
-    """Validate optional price fields if present."""
-    price_fields = ["yes_bid", "yes_ask", "no_bid", "no_ask", "last_price"]
+    """Validate optional dollar-denominated price fields if present."""
+    price_fields = ["yes_bid_dollars", "yes_ask_dollars", "no_bid_dollars", "no_ask_dollars", "last_price_dollars"]
     for field in price_fields:
         if field in market_data and market_data[field] is not None:
-            if not isinstance(market_data[field], (int, float)):
-                raise TypeError(f"{prefix}{field} must be numeric or null, got: {type(market_data[field])}")
-            if market_data[field] < 0 or market_data[field] > _CONST_100:
-                raise ValueError(f"{prefix}{field} must be between 0-100 cents, got: {market_data[field]}")
+            if not isinstance(market_data[field], str):
+                raise TypeError(f"{prefix}{field} must be string or null, got: {type(market_data[field])}")

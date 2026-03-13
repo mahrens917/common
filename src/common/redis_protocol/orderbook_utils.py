@@ -13,6 +13,7 @@ logger = logging.getLogger(__name__)
 
 # Constants
 _CONST_2 = 2
+_CENTS_PER_DOLLAR = 100.0
 
 
 def merge_orderbook_payload(message: Dict[str, Any]) -> Tuple[str, Dict[str, Any], str]:
@@ -99,9 +100,41 @@ def build_snapshot_sides(msg_data: Dict[str, Any], market_ticker: str) -> Dict[s
 
 
 def _extract_levels(msg_data: Dict[str, Any], side: str) -> Optional[list]:
-    """Return level entries for the given side if present."""
+    """Return level entries for the given side if present.
+
+    Checks both legacy format (``yes``/``no``) and current dollar format
+    (``yes_dollars_fp``/``no_dollars_fp``).  Dollar-format levels are
+    converted to cent-format so downstream processing is unchanged.
+    """
     levels = msg_data.get(side)
-    return levels if isinstance(levels, list) else None
+    if isinstance(levels, list):
+        return levels
+    dollar_key = f"{side}_dollars_fp"
+    dollar_levels = msg_data.get(dollar_key)
+    if isinstance(dollar_levels, list):
+        return _convert_dollar_levels_to_cents(dollar_levels)
+    return None
+
+
+def _convert_dollar_levels_to_cents(dollar_levels: list) -> list:
+    """Convert dollar-format level entries to cent-format.
+
+    Dollar format: ``["0.4700", "100.00"]``  →  ``[47.0, 100.0]``
+    """
+    converted: list = []
+    for entry in dollar_levels:
+        if not isinstance(entry, (list, tuple)) or len(entry) != _CONST_2:
+            converted.append(entry)
+            continue
+        price_str, size_str = entry
+        try:
+            price_cents = float(price_str) * _CENTS_PER_DOLLAR
+            size_float = float(size_str)
+        except (TypeError, ValueError):
+            converted.append(entry)
+            continue
+        converted.append([price_cents, size_float])
+    return converted
 
 
 def _populate_side_levels(
@@ -123,12 +156,19 @@ def _populate_side_levels(
 
 
 def _parse_price_level(price_level: Any, market_ticker: str) -> Tuple[Optional[str], Optional[float]]:
-    """Validate and convert a price level entry."""
+    """Validate and convert a price level entry.
+
+    Handles both legacy (int/float) and current (string) price and size formats.
+    """
     if not (isinstance(price_level, (list, tuple)) and len(price_level) == _CONST_2):
         raise DataError(f"Corrupted order book data detected for market {market_ticker}")
 
     price, size = price_level
-    if not isinstance(size, (int, float)) or size <= 0:
+    try:
+        size_float = float(size)
+    except (TypeError, ValueError):
+        return None, None
+    if size_float <= 0:
         return None, None
 
     try:
@@ -138,4 +178,4 @@ def _parse_price_level(price_level: Any, market_ticker: str) -> Tuple[Optional[s
         return None, None
 
     price_str = f"{price_value:.1f}"
-    return price_str, float(size)
+    return price_str, size_float

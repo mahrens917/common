@@ -11,6 +11,35 @@ from common.redis_protocol.kalshi_store.utils_coercion import string_or_default
 
 logger = logging.getLogger(__name__)
 
+_CENTS_PER_DOLLAR = 100.0
+
+
+def _extract_price_delta(
+    msg_data: Dict[str, Any],
+) -> tuple[Optional[float], Optional[float], bool]:
+    """Extract price and delta from message, handling both legacy and dollar formats.
+
+    Returns ``(price, delta, is_dollar_format)``.
+    """
+    price = msg_data.get("price")
+    delta = msg_data.get("delta")
+    is_dollar = False
+
+    if price is None or delta is None:
+        price_dollars = msg_data.get("price_dollars")
+        delta_fp = msg_data.get("delta_fp")
+        if price_dollars is not None and delta_fp is not None:
+            try:
+                return float(price_dollars), float(delta_fp), True
+            except (TypeError, ValueError):
+                return None, None, False
+        return None, None, False
+
+    try:
+        return float(price), float(delta), is_dollar
+    except (TypeError, ValueError):
+        return None, None, False
+
 
 class DeltaFieldExtractor:
     """Extracts and validates fields from delta messages."""
@@ -19,24 +48,20 @@ class DeltaFieldExtractor:
     def extract_fields(
         msg_data: Dict[str, Any],
     ) -> tuple[Optional[str], Optional[float], Optional[float]]:
-        """Extract and validate delta message fields."""
+        """Extract and validate delta message fields.
+
+        Handles both legacy (``price``/``delta``) and current dollar format
+        (``price_dollars``/``delta_fp``).  Dollar prices are converted to cents.
+        """
         side = string_or_default(msg_data.get("side")).lower()
-        price = msg_data.get("price")
-        delta = msg_data.get("delta")
+        price, delta, is_dollar = _extract_price_delta(msg_data)
 
         if None in (side, price, delta):
             logger.error("Invalid delta message structure: %s", orjson.dumps(msg_data).decode())
             return None, None, None
 
-        if not isinstance(price, (int, float)) or not isinstance(delta, (int, float)):
-            logger.error(
-                "Invalid numeric types: price=%r (type=%s), delta=%r (type=%s)",
-                price,
-                type(price),
-                delta,
-                type(delta),
-            )
-            return None, None, None
+        if is_dollar:
+            price = price * _CENTS_PER_DOLLAR
 
         return side, price, delta
 

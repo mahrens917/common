@@ -10,11 +10,15 @@ from common.data_models.trading import (
     _MAX_BATCH_SIZE,
     _MIN_BATCH_SIZE,
     BatchOrderResult,
+    OrderAction,
     OrderRequest,
     OrderResponse,
+    OrderSide,
     OrderStatus,
+    OrderType,
 )
 from common.redis_protocol.error_types import REDIS_ERRORS
+from common.time_utils import parse_timestamp
 from common.trading.order_payloads import build_order_payload
 
 from .client_helpers.errors import KalshiClientError
@@ -27,6 +31,61 @@ if TYPE_CHECKING:
     from common.redis_protocol.trade_store import TradeStore
 
     from .request_builder import RequestBuilder
+
+
+_DOLLARS_TO_CENTS = 100
+_STATUS_NORMALIZE: Dict[str, str] = {"canceled": "cancelled"}
+
+
+def _parse_creation_response(order_data: Dict[str, Any], order_request: OrderRequest) -> OrderResponse:
+    """Build OrderResponse from the POST create order response payload.
+
+    The create endpoint returns fields like fill_count_fp, taker_fees_dollars,
+    created_time — different from the GET endpoint's filled_count, fees, timestamp.
+    """
+    order_id = order_data.get("order_id")
+    if not isinstance(order_id, str):
+        raise KalshiClientError(f"Creation response missing order_id, got {type(order_id).__name__}")
+
+    try:
+        raw_status = str(order_data["status"]).lower()
+        status_val = OrderStatus(_STATUS_NORMALIZE.get(raw_status, raw_status))
+        side_val = OrderSide(str(order_data["side"]).lower())
+        action_val = OrderAction(str(order_data["action"]).lower())
+        order_type_val = OrderType(str(order_data["type"]).lower())
+    except (ValueError, KeyError) as exc:
+        raise KalshiClientError(f"Invalid enum in creation response: {exc}") from exc
+
+    filled_count = int(float(order_data.get("fill_count_fp", "0")))
+    initial_count = int(float(order_data.get("initial_count_fp", "0")))
+    remaining_count = initial_count - filled_count
+
+    taker_fill_cost = float(order_data.get("taker_fill_cost_dollars", "0"))
+    avg_fill_price_cents = round(taker_fill_cost * _DOLLARS_TO_CENTS / filled_count) if filled_count else None
+
+    taker_fees = float(order_data.get("taker_fees_dollars", "0"))
+    maker_fees = float(order_data.get("maker_fees_dollars", "0"))
+    fees_cents = round((taker_fees + maker_fees) * _DOLLARS_TO_CENTS)
+
+    timestamp = parse_timestamp(order_data.get("created_time", ""))
+
+    return OrderResponse(
+        order_id=order_id,
+        client_order_id=str(order_data.get("client_order_id", "")),
+        status=status_val,
+        ticker=str(order_data.get("ticker", "")),
+        side=side_val,
+        action=action_val,
+        order_type=order_type_val,
+        filled_count=filled_count,
+        remaining_count=remaining_count,
+        average_fill_price_cents=avg_fill_price_cents,
+        timestamp=timestamp,
+        fees_cents=fees_cents,
+        fills=[],
+        trade_rule=order_request.trade_rule,
+        trade_reason=order_request.trade_reason,
+    )
 
 
 class OrderMetadataManager:
@@ -100,21 +159,10 @@ class OrderOperations:
         logger.debug("Creating order with payload: %s", payload)
         creation_response = await self._execute_order_request("POST", "/trade-api/v2/portfolio/orders", payload, "create_order")
         logger.info("Order creation API response: %s", creation_response)
-        order_id = creation_response.get("order_id")
-        logger.debug("Extracted order_id: %s (type: %s)", order_id, type(order_id).__name__)
-        if not isinstance(order_id, str):
-            logger.error(
-                "Order creation failed: expected order_id as string, got %s (type: %s). Full response: %s",
-                order_id,
-                type(order_id).__name__,
-                creation_response,
-            )
-            raise KalshiClientError("Order creation response missing 'order_id'")
-        return await self.get_order(
-            order_id,
-            trade_rule=order_request.trade_rule,
-            trade_reason=order_request.trade_reason,
-        )
+        order_data = creation_response.get("order", {})
+        if not isinstance(order_data, dict):
+            raise KalshiClientError(f"Order creation response 'order' field is not a dict: {type(order_data).__name__}")
+        return _parse_creation_response(order_data, order_request)
 
     async def cancel_order(self, order_id: str) -> Dict[str, Any]:
         """Cancel an existing order by order ID."""

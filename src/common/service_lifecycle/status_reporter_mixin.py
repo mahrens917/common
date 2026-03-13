@@ -47,8 +47,12 @@ class StatusReporterMixin:
 
     async def report_status(self, status, **additional_fields: Any) -> None:
         """Report service status to Redis using unified pattern."""
+        from common.service_status import ServiceStatus
+
         from .status_reporter_helpers.status_writer import write_status_to_redis
 
+        if status in (ServiceStatus.ERROR, ServiceStatus.FAILED, ServiceStatus.STOPPED, ServiceStatus.STOPPING):
+            self.stop_status_tick()
         redis = await self._get_redis_client()
         await write_status_to_redis(
             redis,
@@ -68,6 +72,7 @@ class StatusReporterMixin:
     async def register_shutdown(self) -> None:
         from .status_reporter_helpers.registration_methods import register_shutdown as rd
 
+        self.stop_status_tick()
         await rd(self)
 
     async def register_ready(self, **metrics: Any) -> None:
@@ -83,11 +88,13 @@ class StatusReporterMixin:
     async def register_error(self, error_message: str, **context: Any) -> None:
         from .status_reporter_helpers.registration_methods import register_error as re
 
+        self.stop_status_tick()
         await re(self, error_message, **context)
 
     async def register_failed(self, failure_message: str, **context: Any) -> None:
         from .status_reporter_helpers.registration_methods import register_failed as rf
 
+        self.stop_status_tick()
         await rf(self, failure_message, **context)
 
     async def register_starting(self, **context: Any) -> None:
@@ -100,8 +107,15 @@ class StatusReporterMixin:
 
         await rrt(self, reason)
 
+    def stop_status_tick(self) -> None:
+        """Cancel any running heartbeat or tick background task."""
+        if self._heartbeat_task is not None and not self._heartbeat_task.done():
+            self._heartbeat_task.cancel()
+            self._heartbeat_task = None
+
     def start_status_heartbeat(self, interval_seconds: int = _STATUS_HEARTBEAT_INTERVAL_SECONDS) -> None:
         """Start a background task that periodically re-publishes READY status."""
+        self.stop_status_tick()
         self._heartbeat_task = asyncio.create_task(self._run_heartbeat(interval_seconds))
 
     async def _run_heartbeat(self, interval_seconds: int) -> None:
@@ -115,6 +129,7 @@ class StatusReporterMixin:
 
     def start_status_tick(self, interval_seconds: int = _STATUS_TICK_INTERVAL_SECONDS) -> None:
         """Start a lightweight background task that updates only the timestamp field."""
+        self.stop_status_tick()
         self._heartbeat_task = asyncio.create_task(self._run_tick(interval_seconds))
 
     async def _run_tick(self, interval_seconds: int) -> None:

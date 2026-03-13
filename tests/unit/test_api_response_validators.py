@@ -32,7 +32,7 @@ def make_market(**overrides):
         "title": "Market",
         "open_time": datetime.now(timezone.utc).isoformat(),
         "close_time": datetime.now(timezone.utc).isoformat(),
-        "status": "open",
+        "status": "active",
         "volume": 0,
         "volume_24h": 0,
     }
@@ -41,7 +41,7 @@ def make_market(**overrides):
 
 
 def test_validate_market_object_success():
-    market = make_market(yes_bid=10, yes_ask=20)
+    market = make_market(yes_bid_dollars="0.10", yes_ask_dollars="0.20")
     assert validators.validate_market_object(market) == market
 
 
@@ -52,13 +52,13 @@ def test_validate_market_object_success():
         (lambda m: m.__setitem__("status", "bad"), "Invalid status"),
         (lambda m: m.__setitem__("open_time", "bad"), "Invalid timestamp"),
         (lambda m: m.__setitem__("volume", -1), "cannot be negative"),
-        (lambda m: m.__setitem__("yes_bid", 200), "must be between 0-100"),
+        (lambda m: m.__setitem__("yes_bid_dollars", 200), "must be string or null"),
     ],
 )
 def test_validate_market_object_errors(modifier, message):
     market = make_market()
     modifier(market)
-    with pytest.raises(ValueError, match=message):
+    with pytest.raises((TypeError, ValueError), match=message):
         validators.validate_market_object(market)
 
 

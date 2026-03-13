@@ -4,6 +4,7 @@ from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 
+from common.data_models.trading import OrderStatus
 from common.kalshi_api.client_helpers.errors import KalshiClientError
 from common.kalshi_api.order_operations import OrderMetadataManager, OrderOperations
 
@@ -186,25 +187,74 @@ class TestOrderOperations:
     @pytest.mark.asyncio
     async def test_create_order_success(self, order_ops, mock_request_builder):
         order_request = MagicMock()
-        order_request.trade_rule = "rule1"
-        order_request.trade_reason = "reason1"
+        order_request.trade_rule = "peak"
+        order_request.trade_reason = "Algorithm signal: peak"
 
         mock_request_builder.execute_request = AsyncMock(
-            side_effect=[
-                {"order_id": "new-order-123"},  # create response
-                {"order_id": "new-order-123", "status": "filled"},  # get order response
-            ]
+            return_value={
+                "order": {
+                    "order_id": "new-order-123",
+                    "client_order_id": "client-123",
+                    "status": "executed",
+                    "ticker": "ABC",
+                    "side": "yes",
+                    "action": "buy",
+                    "type": "limit",
+                    "fill_count_fp": "1.00",
+                    "initial_count_fp": "1.00",
+                    "taker_fill_cost_dollars": "0.9200",
+                    "taker_fees_dollars": "0.0100",
+                    "maker_fees_dollars": "0.0000",
+                    "created_time": "2026-03-13T05:15:36.092548Z",
+                },
+            },
         )
 
-        with (
-            patch("common.kalshi_api.order_operations.build_order_payload") as mock_build,
-            patch("common.kalshi_api.order_operations.parse_order_response", return_value=MagicMock()),
-        ):
+        with patch("common.kalshi_api.order_operations.build_order_payload") as mock_build:
             mock_build.return_value = {"ticker": "ABC"}
 
-            await order_ops.create_order(order_request)
+            result = await order_ops.create_order(order_request)
 
             mock_build.assert_called_once_with(order_request)
+            assert result.order_id == "new-order-123"
+            assert result.filled_count == 1
+            assert result.fees_cents == 1
+
+    @pytest.mark.asyncio
+    async def test_create_order_canceled(self, order_ops, mock_request_builder):
+        order_request = MagicMock()
+        order_request.trade_rule = "peak"
+        order_request.trade_reason = "Algorithm signal: peak"
+
+        mock_request_builder.execute_request = AsyncMock(
+            return_value={
+                "order": {
+                    "order_id": "canceled-order-456",
+                    "client_order_id": "client-456",
+                    "status": "canceled",
+                    "ticker": "ABC",
+                    "side": "yes",
+                    "action": "sell",
+                    "type": "limit",
+                    "fill_count_fp": "0.00",
+                    "initial_count_fp": "1.00",
+                    "taker_fill_cost_dollars": "0.0000",
+                    "taker_fees_dollars": "0.0000",
+                    "maker_fees_dollars": "0.0000",
+                    "created_time": "2026-03-13T05:15:41.913259Z",
+                },
+            },
+        )
+
+        with patch("common.kalshi_api.order_operations.build_order_payload") as mock_build:
+            mock_build.return_value = {"ticker": "ABC"}
+
+            result = await order_ops.create_order(order_request)
+
+            assert result.order_id == "canceled-order-456"
+            assert result.status == OrderStatus.CANCELLED
+            assert result.filled_count == 0
+            assert result.average_fill_price_cents is None
 
     @pytest.mark.asyncio
     async def test_create_order_invalid_request(self, order_ops):
@@ -228,4 +278,4 @@ class TestOrderOperations:
             with pytest.raises(KalshiClientError) as exc_info:
                 await order_ops.create_order(order_request)
 
-            assert "missing 'order_id'" in str(exc_info.value)
+            assert "missing order_id" in str(exc_info.value)

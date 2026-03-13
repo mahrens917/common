@@ -49,7 +49,6 @@ def test_build_market_metadata_populates_required_fields(monkeypatch):
         "expiration_time": "2025-01-31T00:00:00Z",
         "latest_expiration_time": "2025-01-31T00:00:00Z",
         "fee_waiver_expiration_time": "2025-01-15T00:00:00Z",
-        "tick_size": 3,
     }
     event_data = {"ticker": "EVT", "mutually_exclusive": True}
 
@@ -77,10 +76,12 @@ def test_build_market_metadata_populates_required_fields(monkeypatch):
     assert metadata["timestamp"] == "123"
     assert metadata["event_ticker"] == "EVT"
     assert metadata["mutually_exclusive"] == "true"
-    # Orderbook fields (yes_bids, yes_asks, etc) are not set by REST -
+    # Orderbook arrays (yes_bids, yes_asks) are not set by REST -
     # they come exclusively from websocket snapshots/deltas
     assert "yes_bids" not in metadata
-    assert "yes_bid" not in metadata
+    # Dollar-denominated API fields are converted to cents for internal storage
+    assert metadata["last_price"] == "0"
+    assert metadata["yes_bid"] == "0"
 
 
 def test_build_market_metadata_requires_close_time():
@@ -123,3 +124,39 @@ def test_build_market_metadata_handles_missing_strike_type():
     assert metadata["floor_strike"] == ""
     assert metadata["cap_strike"] == ""
     assert metadata["close_time"] == "2026-02-09T00:00:00+00:00"
+
+
+def test_build_market_metadata_converts_dollars_to_cents():
+    descriptor = describe_kalshi_ticker("KXHIGHNYC-25JAN20-B080")
+    market_data = {
+        "id": "market-conv",
+        "strike_type": "Greater",
+        "floor_strike": 80,
+        "close_time": "2025-01-31T00:00:00Z",
+        "last_price_dollars": "0.45",
+        "previous_price_dollars": "0.30",
+        "yes_bid_dollars": "0.40",
+        "yes_ask_dollars": "0.42",
+        "no_bid_dollars": "0.58",
+        "no_ask_dollars": "0.60",
+        "yes_bid_size_fp": "150.00",
+        "yes_ask_size_fp": "200.50",
+    }
+
+    metadata = build_market_metadata(
+        market_ticker="KXHIGHNYC-25JAN20-B080",
+        market_data=market_data,
+        event_data=None,
+        descriptor=descriptor,
+        weather_resolver=None,
+        logger=logging.getLogger("tests.helpers"),
+    )
+
+    assert metadata["last_price"] == "45"
+    assert metadata["previous_price"] == "30"
+    assert metadata["yes_bid"] == "40"
+    assert metadata["yes_ask"] == "42"
+    assert metadata["no_bid"] == "58"
+    assert metadata["no_ask"] == "60"
+    assert metadata["yes_bid_size"] == "150.00"
+    assert metadata["yes_ask_size"] == "200.50"

@@ -19,17 +19,11 @@ _TIME_FIELD_KEYS = {
 }
 
 _NUMERIC_FIELDS = {
-    "tick_size": 0,
-    "last_price": 0,
-    "previous_price": 0,
     "settlement_value": 0,
     "settlement_timer_seconds": 0,
     "volume": 0,
     "volume_24h": 0,
     "open_interest": 0,
-    "liquidity": 0,
-    "notional_value": 0,
-    "risk_limit_cents": 0,
     "min_tick_size": 0,
     "max_tick_size": 0,
     "dollar_volume_24h": 0,
@@ -46,12 +40,10 @@ _NUMERIC_FIELDS = {
 _STRING_FIELDS = {
     "status": "",
     "result": "",
-    "response_price_units": "",
     "title": "",
     "subtitle": "",
     "yes_sub_title": "",
     "no_sub_title": "",
-    "category": "",
     "rules_primary": "",
     "rules_secondary": "",
     "market_type": "",
@@ -60,6 +52,24 @@ _STRING_FIELDS = {
     "underlying": "",
     "ranged_group_id": "",
 }
+
+# Maps API dollar-string fields to internal cent-integer field names.
+_DOLLARS_TO_CENTS_FIELDS = {
+    "last_price_dollars": "last_price",
+    "previous_price_dollars": "previous_price",
+    "yes_bid_dollars": "yes_bid",
+    "yes_ask_dollars": "yes_ask",
+    "no_bid_dollars": "no_bid",
+    "no_ask_dollars": "no_ask",
+}
+
+# Maps API fixed-point string fields to internal field names.
+_FP_FIELDS = {
+    "yes_bid_size_fp": "yes_bid_size",
+    "yes_ask_size_fp": "yes_ask_size",
+}
+
+_CENTS_PER_DOLLAR = 100
 
 
 def _stringify(value: Any) -> str:
@@ -170,6 +180,30 @@ def _build_core_metadata(
     return metadata
 
 
+def _dollars_to_cents(dollar_str: Any) -> str:
+    """Convert a dollar-denominated string (e.g. '0.40') to cents string ('40')."""
+    if dollar_str is None or dollar_str == "":
+        return "0"
+    try:
+        return str(int(round(float(dollar_str) * _CENTS_PER_DOLLAR)))
+    except (ValueError, TypeError):
+        return "0"
+
+
+def _populate_dollar_fields(metadata: Dict[str, str], market_data: Mapping[str, Any]) -> None:
+    """Read API dollar-string fields, convert to cents, store as internal field names."""
+    for api_field, internal_field in _DOLLARS_TO_CENTS_FIELDS.items():
+        metadata[internal_field] = _dollars_to_cents(market_data.get(api_field))
+
+
+def _populate_fp_fields(metadata: Dict[str, str], market_data: Mapping[str, Any]) -> None:
+    """Read API fixed-point string fields, store as internal field names."""
+    for api_field, internal_field in _FP_FIELDS.items():
+        value = market_data.get(api_field)
+        if value is not None and value != "":
+            metadata[internal_field] = str(value)
+
+
 def _populate_numeric_fields(metadata: Dict[str, str], market_data: Mapping[str, Any]) -> None:
     """Populate numeric fields with defaults."""
     for field, option_value in _NUMERIC_FIELDS.items():
@@ -261,6 +295,8 @@ def build_market_metadata(
 
     _populate_numeric_fields(metadata, market_data)
     _populate_string_fields(metadata, market_data)
+    _populate_dollar_fields(metadata, market_data)
+    _populate_fp_fields(metadata, market_data)
     _apply_descriptor_defaults(metadata, descriptor)
     _populate_event_metadata(metadata, event_data)
 

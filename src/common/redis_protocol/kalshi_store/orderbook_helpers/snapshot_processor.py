@@ -93,7 +93,8 @@ class SnapshotProcessor:
         timestamp: str,
     ) -> bool:
         """Process orderbook snapshot message"""
-        if "yes" not in msg_data and "no" not in msg_data:
+        _has_levels = any(k in msg_data for k in ("yes", "no", "yes_dollars_fp", "no_dollars_fp"))
+        if not _has_levels:
             logger.warning(
                 "Kalshi snapshot for %s contains no orderbook levels; keeping existing Redis state",
                 market_ticker,
