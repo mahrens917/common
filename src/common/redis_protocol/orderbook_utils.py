@@ -127,12 +127,8 @@ def _convert_dollar_levels_to_cents(dollar_levels: list) -> list:
             converted.append(entry)
             continue
         price_str, size_str = entry
-        try:
-            price_cents = float(price_str) * _CENTS_PER_DOLLAR
-            size_float = float(size_str)
-        except (TypeError, ValueError):
-            converted.append(entry)
-            continue
+        price_cents = float(price_str) * _CENTS_PER_DOLLAR
+        size_float = float(size_str)
         converted.append([price_cents, size_float])
     return converted
 
@@ -164,10 +160,9 @@ def _parse_price_level(price_level: Any, market_ticker: str) -> Tuple[Optional[s
         raise DataError(f"Corrupted order book data detected for market {market_ticker}")
 
     price, size = price_level
-    try:
-        size_float = float(size)
-    except (TypeError, ValueError):
+    if not isinstance(size, (int, float)):
         return None, None
+    size_float = float(size)
     if size_float <= 0:
         return None, None
 

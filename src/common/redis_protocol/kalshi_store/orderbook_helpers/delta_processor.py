@@ -143,12 +143,8 @@ def _resolve_price_and_delta(msg_data: Dict[str, Any]) -> tuple[float | None, fl
     delta_fp = msg_data.get("delta_fp")
 
     if price_dollars is not None and delta_fp is not None:
-        try:
-            price_cents = float(price_dollars) * _CENTS_PER_DOLLAR
-            delta_value = float(delta_fp)
-            return price_cents, delta_value
-        except (ValueError, TypeError):
-            return None, None
+        if isinstance(price_dollars, (int, float)) and isinstance(delta_fp, (int, float)):
+            return float(price_dollars) * _CENTS_PER_DOLLAR, float(delta_fp)
 
     return None, None
 

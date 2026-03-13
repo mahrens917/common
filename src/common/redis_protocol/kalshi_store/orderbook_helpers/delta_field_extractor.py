@@ -29,16 +29,13 @@ def _extract_price_delta(
         price_dollars = msg_data.get("price_dollars")
         delta_fp = msg_data.get("delta_fp")
         if price_dollars is not None and delta_fp is not None:
-            try:
+            if isinstance(price_dollars, (int, float)) and isinstance(delta_fp, (int, float)):
                 return float(price_dollars), float(delta_fp), True
-            except (TypeError, ValueError):
-                return None, None, False
         return None, None, False
 
-    try:
+    if isinstance(price, (int, float)) and isinstance(delta, (int, float)):
         return float(price), float(delta), is_dollar
-    except (TypeError, ValueError):
-        return None, None, False
+    return None, None, False
 
 
 class DeltaFieldExtractor:
@@ -56,7 +53,7 @@ class DeltaFieldExtractor:
         side = string_or_default(msg_data.get("side")).lower()
         price, delta, is_dollar = _extract_price_delta(msg_data)
 
-        if None in (side, price, delta):
+        if price is None or delta is None:
             logger.error("Invalid delta message structure: %s", orjson.dumps(msg_data).decode())
             return None, None, None
 

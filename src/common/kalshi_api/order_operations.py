@@ -53,27 +53,26 @@ def _parse_creation_response(order_data: Dict[str, Any], order_request: OrderReq
         side_val = OrderSide(str(order_data["side"]).lower())
         action_val = OrderAction(str(order_data["action"]).lower())
         order_type_val = OrderType(str(order_data["type"]).lower())
+        filled_count = int(float(order_data["fill_count_fp"]))
+        initial_count = int(float(order_data["initial_count_fp"]))
+        taker_fill_cost = float(order_data["taker_fill_cost_dollars"])
+        taker_fees = float(order_data["taker_fees_dollars"])
+        maker_fees = float(order_data["maker_fees_dollars"])
+        timestamp = parse_timestamp(order_data["created_time"])
+        client_order_id = str(order_data["client_order_id"])
+        ticker = str(order_data["ticker"])
     except (ValueError, KeyError) as exc:
-        raise KalshiClientError(f"Invalid enum in creation response: {exc}") from exc
+        raise KalshiClientError(f"Invalid field in creation response: {exc}") from exc
 
-    filled_count = int(float(order_data.get("fill_count_fp", "0")))
-    initial_count = int(float(order_data.get("initial_count_fp", "0")))
     remaining_count = initial_count - filled_count
-
-    taker_fill_cost = float(order_data.get("taker_fill_cost_dollars", "0"))
     avg_fill_price_cents = round(taker_fill_cost * _DOLLARS_TO_CENTS / filled_count) if filled_count else None
-
-    taker_fees = float(order_data.get("taker_fees_dollars", "0"))
-    maker_fees = float(order_data.get("maker_fees_dollars", "0"))
     fees_cents = round((taker_fees + maker_fees) * _DOLLARS_TO_CENTS)
-
-    timestamp = parse_timestamp(order_data.get("created_time", ""))
 
     return OrderResponse(
         order_id=order_id,
-        client_order_id=str(order_data.get("client_order_id", "")),
+        client_order_id=client_order_id,
         status=status_val,
-        ticker=str(order_data.get("ticker", "")),
+        ticker=ticker,
         side=side_val,
         action=action_val,
         order_type=order_type_val,
@@ -159,9 +158,9 @@ class OrderOperations:
         logger.debug("Creating order with payload: %s", payload)
         creation_response = await self._execute_order_request("POST", "/trade-api/v2/portfolio/orders", payload, "create_order")
         logger.info("Order creation API response: %s", creation_response)
-        order_data = creation_response.get("order", {})
+        order_data = creation_response.get("order")
         if not isinstance(order_data, dict):
-            raise KalshiClientError(f"Order creation response 'order' field is not a dict: {type(order_data).__name__}")
+            raise KalshiClientError(f"Creation response missing order_id, got {type(order_data).__name__}")
         return _parse_creation_response(order_data, order_request)
 
     async def cancel_order(self, order_id: str) -> Dict[str, Any]:

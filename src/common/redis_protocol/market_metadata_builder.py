@@ -184,10 +184,7 @@ def _dollars_to_cents(dollar_str: Any) -> str:
     """Convert a dollar-denominated string (e.g. '0.40') to cents string ('40')."""
     if dollar_str is None or dollar_str == "":
         return "0"
-    try:
-        return str(int(round(float(dollar_str) * _CENTS_PER_DOLLAR)))
-    except (ValueError, TypeError):
-        return "0"
+    return str(int(round(float(dollar_str) * _CENTS_PER_DOLLAR)))
 
 
 def _populate_dollar_fields(metadata: Dict[str, str], market_data: Mapping[str, Any]) -> None:
