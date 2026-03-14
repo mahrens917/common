@@ -180,7 +180,7 @@ class KalshiTradingClient(
 
         self.weather_station_resolver = weather_station_resolver
 
-        (self._portfolio, self._orders, self._trade_collection) = ClientInitializer.create_services(
+        self._portfolio, self._orders, self._trade_collection = ClientInitializer.create_services(
             self.kalshi_client,
             trade_store_manager.get_or_create,
             notifier,

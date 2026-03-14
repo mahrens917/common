@@ -119,7 +119,7 @@ _sync_pool_guard = threading.Lock()
 
 # Unified connection pooling configuration
 UNIFIED_REDIS_CONFIG = {
-    "max_connections": 100,  # Increased from 75 to handle price burst concurrency
+    "max_connections": 200,  # Increased from 100 to handle concurrent periodic tasks during price bursts
     "dns_cache_ttl": 300,  # 5 minutes
     "dns_cache_size": 1000,
 }

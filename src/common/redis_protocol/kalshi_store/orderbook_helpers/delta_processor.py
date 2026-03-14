@@ -11,6 +11,7 @@ import orjson
 from redis.asyncio import Redis
 
 from ....market_filters.kalshi import extract_best_ask, extract_best_bid
+from ....utils.numeric import coerce_float_optional
 from ...error_types import REDIS_ERRORS
 from ...typing import ensure_awaitable
 from ..utils_coercion import convert_numeric_field, string_or_default
@@ -136,15 +137,14 @@ def _resolve_price_and_delta(msg_data: Dict[str, Any]) -> tuple[float | None, fl
     delta = msg_data.get("delta")
 
     if price is not None and delta is not None:
-        if isinstance(price, (int, float)) and isinstance(delta, (int, float)):
-            return float(price), float(delta)
+        return coerce_float_optional(price), coerce_float_optional(delta)
 
     price_dollars = msg_data.get("price_dollars")
     delta_fp = msg_data.get("delta_fp")
 
     if price_dollars is not None and delta_fp is not None:
-        if isinstance(price_dollars, (int, float)) and isinstance(delta_fp, (int, float)):
-            return float(price_dollars) * _CENTS_PER_DOLLAR, float(delta_fp)
+        p = coerce_float_optional(price_dollars)
+        return (p * _CENTS_PER_DOLLAR if p is not None else None), coerce_float_optional(delta_fp)
 
     return None, None
 

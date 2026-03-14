@@ -8,6 +8,7 @@ from typing import Any, Dict, Optional
 import orjson
 
 from common.redis_protocol.kalshi_store.utils_coercion import string_or_default
+from common.utils.numeric import coerce_float_optional
 
 logger = logging.getLogger(__name__)
 
@@ -29,13 +30,10 @@ def _extract_price_delta(
         price_dollars = msg_data.get("price_dollars")
         delta_fp = msg_data.get("delta_fp")
         if price_dollars is not None and delta_fp is not None:
-            if isinstance(price_dollars, (int, float)) and isinstance(delta_fp, (int, float)):
-                return float(price_dollars), float(delta_fp), True
+            return coerce_float_optional(price_dollars), coerce_float_optional(delta_fp), True
         return None, None, False
 
-    if isinstance(price, (int, float)) and isinstance(delta, (int, float)):
-        return float(price), float(delta), is_dollar
-    return None, None, False
+    return coerce_float_optional(price), coerce_float_optional(delta), False
 
 
 class DeltaFieldExtractor:

@@ -323,9 +323,9 @@ class RetryRedisCollectionMixin:
             policy=self._policy,
         )
 
-    async def info(self, *, context: str = "info") -> Any:
+    async def info(self, section: Optional[str] = None, *, context: str = "info") -> Any:
         return await with_redis_retry(
-            lambda: ensure_awaitable(self._client.info()),
+            lambda: ensure_awaitable(self._client.info(section) if section else self._client.info()),
             context=context,
             policy=self._policy,
         )
