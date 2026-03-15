@@ -116,9 +116,46 @@ class RetryRedisStreamMixin:
             policy=self._policy,
         )
 
+    async def xgroup_setid(
+        self,
+        name: str,
+        groupname: str,
+        id: str,
+        *,
+        context: str = "xgroup_setid",
+    ) -> Any:
+        return await with_redis_retry(
+            lambda: ensure_awaitable(self._client.xgroup_setid(name, groupname, id)),
+            context=context,
+            policy=self._policy,
+        )
+
+    async def xinfo_groups(self, name: str, *, context: str = "xinfo_groups") -> Any:
+        return await with_redis_retry(
+            lambda: ensure_awaitable(self._client.xinfo_groups(name)),
+            context=context,
+            policy=self._policy,
+        )
+
     async def xlen(self, name: str, *, context: str = "xlen") -> int:
         return await with_redis_retry(
             lambda: ensure_awaitable(self._client.xlen(name)),
+            context=context,
+            policy=self._policy,
+        )
+
+    async def xpending_range(
+        self,
+        name: str,
+        groupname: str,
+        *,
+        min: str = "-",
+        max: str = "+",
+        count: int = 100,
+        context: str = "xpending_range",
+    ) -> Any:
+        return await with_redis_retry(
+            lambda: ensure_awaitable(self._client.xpending_range(name, groupname, min=min, max=max, count=count)),
             context=context,
             policy=self._policy,
         )

@@ -45,3 +45,11 @@ The following modules are imported by external projects (peak, kalshi, etc.) and
 - `rate_limiter.py` - Rate limiting with exponential backoff (used by peak)
 
 These modules may have 0% coverage in common's test suite because they are tested in the consuming projects. Do not delete them based on coverage or unused code analysis.
+
+## Test Isolation
+- Tests must NEVER touch production resources. All test operations must be fully isolated:
+  - **Files**: Use `tmp_path` or temporary directories — never read, write, truncate, or delete files in production paths (e.g., `logs/`, `data/`, `config/`).
+  - **Redis**: Use mocks or a dedicated test Redis database — never publish, subscribe, or modify keys in the production Redis instance.
+  - **Databases**: Use test fixtures or in-memory databases — never connect to or modify production databases.
+  - **External services**: Mock all external API calls and network requests.
+- The root cause of production log loss was tests calling `_clear_logs()` against the real `logs/` directory. Monkeypatch paths to `tmp_path` in any test that touches the filesystem.

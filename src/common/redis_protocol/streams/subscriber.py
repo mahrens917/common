@@ -1,24 +1,24 @@
 """Generic Redis Streams subscriber with consumer group support.
 
-Mirrors the RedisPubsubSubscriber interface but uses Redis Streams for
-persistent, at-least-once message delivery. Messages survive subscriber
-restarts — no more lost signals during subscriber restarts.
+Uses Redis Streams for persistent, at-least-once message delivery.
+Messages survive subscriber restarts.
 """
 
 from __future__ import annotations
 
 import asyncio
 import logging
+import time
 from dataclasses import dataclass
 from typing import Any, Awaitable, Callable, Optional, Tuple, Union
 
+from .consumer_group import reset_group_position
 from .subscriber_helpers.consumer import MAX_STREAM_RETRIES, consume_stream_queue
 from .subscriber_helpers.lifecycle import cancel_task, cancel_tasks, send_stop_sentinels
 from .subscriber_helpers.reader import stream_read_loop
 from .subscriber_helpers.recovery import (
+    discard_all_pending,
     initialize_consumer_group,
-    recover_and_filter_pending,
-    recover_pending_entries,
 )
 
 logger = logging.getLogger(__name__)
@@ -44,7 +44,19 @@ class StreamConfig:
     queue_size: int = _DEFAULT_QUEUE_SIZE
     num_consumers: int = _DEFAULT_NUM_CONSUMERS
     coalesce: bool = False
-    batch_window_ms: int = 0
+    max_concurrent_dispatches: int = 1
+    handler_timeout_s: float = 0
+
+
+@dataclass
+class SubscriberHealthInfo:
+    """Snapshot of subscriber health for external monitoring."""
+
+    last_processed_time: float
+    messages_processed: int
+    queue_size: int
+    queue_maxsize: int
+    running: bool
 
 
 class RedisStreamSubscriber:
@@ -71,6 +83,8 @@ class RedisStreamSubscriber:
         self._consumer_tasks: list[asyncio.Task[None]] = []
         self._queue: asyncio.Queue[Union[Tuple[str, str, dict], None]] = asyncio.Queue(maxsize=config.queue_size)
         self._retry_counts: dict[str, int] = {}
+        self._last_processed_time: float = 0.0
+        self._messages_processed: int = 0
 
     @property
     def running(self) -> bool:
@@ -87,6 +101,21 @@ class RedisStreamSubscriber:
         """Expose consumer tasks for health monitoring."""
         return self._consumer_tasks
 
+    def health_info(self) -> SubscriberHealthInfo:
+        """Return a snapshot of subscriber health metrics."""
+        return SubscriberHealthInfo(
+            last_processed_time=self._last_processed_time,
+            messages_processed=self._messages_processed,
+            queue_size=self._queue.qsize(),
+            queue_maxsize=self._queue.maxsize,
+            running=self._running,
+        )
+
+    def record_processed(self) -> None:
+        """Record that a message was successfully processed."""
+        self._last_processed_time = time.monotonic()
+        self._messages_processed += 1
+
     async def start(self) -> None:
         """Start the stream subscriber."""
         if self._running:
@@ -98,18 +127,19 @@ class RedisStreamSubscriber:
             self._config.group_name,
         )
 
-        pending = await recover_pending_entries(
+        discarded = await discard_all_pending(
             self._redis_client,
             self._config.stream_name,
             self._config.group_name,
             self._config.consumer_name,
         )
-        await recover_and_filter_pending(
-            pending,
+        if discarded:
+            logger.info("%s discarded %d stale pending entries", self._subscriber_name, discarded)
+
+        await reset_group_position(
             self._redis_client,
-            self._config,
-            self._queue,
-            self._subscriber_name,
+            self._config.stream_name,
+            self._config.group_name,
         )
 
         self._running = True
@@ -153,12 +183,24 @@ class RedisStreamSubscriber:
             from .subscriber_helpers.coalescing_consumer import consume_coalescing_stream_queue
 
             await consume_coalescing_stream_queue(
-                self._queue, self._on_message, self._redis_client, self._config, self._subscriber_name, self._retry_counts
+                self._queue,
+                self._on_message,
+                self._redis_client,
+                self._config,
+                self._subscriber_name,
+                self._retry_counts,
+                on_success=self.record_processed,
             )
         else:
             await consume_stream_queue(
-                self._queue, self._on_message, self._redis_client, self._config, self._subscriber_name, self._retry_counts
+                self._queue,
+                self._on_message,
+                self._redis_client,
+                self._config,
+                self._subscriber_name,
+                self._retry_counts,
+                on_success=self.record_processed,
             )
 
 
-__all__ = ["MAX_STREAM_RETRIES", "MessageHandler", "RedisStreamSubscriber", "StreamConfig"]
+__all__ = ["MAX_STREAM_RETRIES", "MessageHandler", "RedisStreamSubscriber", "StreamConfig", "SubscriberHealthInfo"]

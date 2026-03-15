@@ -8,10 +8,13 @@ import asyncio
 import logging
 from typing import TYPE_CHECKING, Any, Dict
 
+import orjson
 from redis.asyncio import Redis
 
 from ....market_filters.kalshi import extract_best_ask, extract_best_bid
 from ...orderbook_utils import build_snapshot_sides
+from ...streams.constants import EXCHANGE_EVENT_STREAM
+from ...streams.publisher import stream_publish
 from ...typing import ensure_awaitable
 from ..utils_coercion import coerce_mapping as _canonical_coerce_mapping
 from .best_price_updater import BestPriceUpdater
@@ -19,8 +22,7 @@ from .event_publisher import publish_market_event
 from .snapshot_processor_helpers.redis_storage import build_hash_data, normalize_price_formatting
 
 if TYPE_CHECKING:
-    from ...coalescing_batcher import CoalescingBatcher
-    from .orderbook_cache import MarketUpdate, OrderbookCache
+    from .orderbook_cache import OrderbookCache
 
 logger = logging.getLogger(__name__)
 
@@ -31,12 +33,10 @@ class SnapshotProcessor:
     def __init__(self, update_trade_prices_callback: Any):
         self._update_trade_prices_callback = update_trade_prices_callback
         self._cache: OrderbookCache | None = None
-        self._batcher: CoalescingBatcher[str, MarketUpdate] | None = None
 
-    def set_cache_and_batcher(self, cache: OrderbookCache, batcher: CoalescingBatcher[str, MarketUpdate]) -> None:
-        """Attach the in-memory cache and coalescing batcher."""
+    def set_cache(self, cache: OrderbookCache) -> None:
+        """Attach the in-memory cache for orderbook tracking."""
         self._cache = cache
-        self._batcher = batcher
 
     def get_update_callback(self) -> Any:
         """Return the callback responsible for publishing trade prices."""
@@ -123,23 +123,47 @@ class SnapshotProcessor:
         ]
         combined = self._build_combined_fields(hash_data, timestamp, best_price_fields)
 
-        if self._cache is not None and self._batcher is not None:
-            from .orderbook_cache import MarketUpdate
-
+        if self._cache is not None:
             # Store side data as raw dicts so deltas skip JSON encode/decode.
-            # Serialization to JSON strings happens only at batcher flush time.
             cache_fields = dict(combined)
             for side in ("yes_bids", "yes_asks"):
                 if side in orderbook_sides:
                     cache_fields[side] = orderbook_sides[side]
             self._cache.store_snapshot(market_key, cache_fields)
-            self._batcher.add(
-                market_key,
-                MarketUpdate(market_key=market_key, market_ticker=market_ticker, fields=cache_fields, timestamp=timestamp),
-            )
+            serialized = {k: orjson.dumps(v) if isinstance(v, dict) else v for k, v in cache_fields.items()}
+            await ensure_awaitable(redis.hset(market_key, mapping=serialized))
+            if self._cache.check_price_changed(market_key):
+                await _publish_if_event(redis, self._cache, market_key, market_ticker, timestamp)
         else:
             await self._write_to_redis(redis, market_key, market_ticker, timestamp, combined, best_price_fields)
 
         callback = self.get_update_callback()
         await callback(market_ticker, yes_bid_price, yes_ask_price)
         return True
+
+
+async def _publish_if_event(
+    redis: Redis,
+    cache: "OrderbookCache",
+    market_key: str,
+    market_ticker: str,
+    timestamp: str,
+) -> None:
+    """Publish to exchange event stream if market has an event_ticker."""
+    event_ticker = cache.get_event_ticker(market_key)
+    if event_ticker is None:
+        raw = await ensure_awaitable(redis.hget(market_key, "event_ticker"))
+        if raw:
+            event_ticker = raw.decode("utf-8") if isinstance(raw, bytes) else raw
+            cache.set_event_ticker(market_key, event_ticker)
+    if event_ticker:
+        await stream_publish(
+            redis,
+            EXCHANGE_EVENT_STREAM,
+            {
+                "event_ticker": event_ticker,
+                "market_ticker": market_ticker,
+                "timestamp": timestamp,
+            },
+        )
+        cache.record_stream_publish()

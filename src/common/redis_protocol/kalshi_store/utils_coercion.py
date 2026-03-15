@@ -13,6 +13,7 @@ from collections import Counter
 from typing import Any, Dict, List, Optional
 
 from common.exceptions import ValidationError
+from common.utils.numeric import coerce_float_optional
 
 from ...config.weather import WeatherConfigError, load_weather_station_mapping
 from ...market_filters.kalshi import extract_best_ask, extract_best_bid
@@ -70,8 +71,6 @@ def default_weather_station_loader() -> Dict[str, Dict[str, Any]]:  # pragma: no
 
 def convert_numeric_field(value: Any) -> Optional[float]:  # pragma: no cover - numeric helper
     """Convert a field value to numeric format for proper data storage."""
-    from common.utils.numeric import coerce_float_optional
-
     if value is None or value in ("", "None"):
         return None
 

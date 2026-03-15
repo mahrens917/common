@@ -1,10 +1,22 @@
 {
   "stations": {
+    "KATL": {
+      "metar_precision_c": 0.1,
+      "asos_precision_c": 1.0
+    },
     "KAUS": {
       "metar_precision_c": 0.1,
       "asos_precision_c": 1.0
     },
-    "KMDW": {
+    "KBOS": {
+      "metar_precision_c": 0.1,
+      "asos_precision_c": 1.0
+    },
+    "KDAL": {
+      "metar_precision_c": 0.1,
+      "asos_precision_c": 1.0
+    },
+    "KDCA": {
       "metar_precision_c": 0.1,
       "asos_precision_c": 1.0
     },
@@ -12,7 +24,23 @@
       "metar_precision_c": 0.1,
       "asos_precision_c": 1.0
     },
+    "KHOU": {
+      "metar_precision_c": 0.1,
+      "asos_precision_c": 1.0
+    },
+    "KJFK": {
+      "metar_precision_c": 0.1,
+      "asos_precision_c": 1.0
+    },
+    "KLAS": {
+      "metar_precision_c": 0.1,
+      "asos_precision_c": 1.0
+    },
     "KLAX": {
+      "metar_precision_c": 0.1,
+      "asos_precision_c": 1.0
+    },
+    "KMDW": {
       "metar_precision_c": 0.1,
       "asos_precision_c": 1.0
     },
@@ -20,11 +48,39 @@
       "metar_precision_c": 0.1,
       "asos_precision_c": 1.0
     },
+    "KMSP": {
+      "metar_precision_c": 0.1,
+      "asos_precision_c": 1.0
+    },
+    "KMSY": {
+      "metar_precision_c": 0.1,
+      "asos_precision_c": 1.0
+    },
     "KNYC": {
       "metar_precision_c": 0.1,
       "asos_precision_c": 1.0
     },
+    "KOKC": {
+      "metar_precision_c": 0.1,
+      "asos_precision_c": 1.0
+    },
     "KPHL": {
+      "metar_precision_c": 0.1,
+      "asos_precision_c": 1.0
+    },
+    "KPHX": {
+      "metar_precision_c": 0.1,
+      "asos_precision_c": 1.0
+    },
+    "KSAT": {
+      "metar_precision_c": 0.1,
+      "asos_precision_c": 1.0
+    },
+    "KSEA": {
+      "metar_precision_c": 0.1,
+      "asos_precision_c": 1.0
+    },
+    "KSFO": {
       "metar_precision_c": 0.1,
       "asos_precision_c": 1.0
     },

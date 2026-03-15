@@ -84,8 +84,11 @@ async def consume_stream_queue(
     config: StreamConfig,
     subscriber_name: str,
     retry_counts: dict[str, int],
+    *,
+    on_success: Callable[[], None] | None = None,
 ) -> None:
     """Dequeue entries, dispatch to handler, and ACK on success."""
+    timeout = config.handler_timeout_s if config.handler_timeout_s > 0 else None
     while True:
         item = await queue.get()
         if item is None:
@@ -95,12 +98,17 @@ async def consume_stream_queue(
         try:
             entry_id, identifier, fields = item
             payload = extract_payload(fields)
-            await on_message(identifier, payload)
+            if timeout is not None:
+                await asyncio.wait_for(on_message(identifier, payload), timeout=timeout)
+            else:
+                await on_message(identifier, payload)
             await with_redis_retry(
                 lambda: redis_client.xack(config.stream_name, config.group_name, entry_id),
                 context=f"xack-{entry_id}",
             )
             retry_counts.pop(entry_id, None)
+            if on_success is not None:
+                on_success()
         except asyncio.CancelledError:
             raise
         except Exception:  # policy_guard: allow-broad-except policy_guard: allow-silent-handler

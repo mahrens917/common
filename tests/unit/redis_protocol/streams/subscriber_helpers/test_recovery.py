@@ -10,6 +10,7 @@ from common.redis_protocol.streams.subscriber import StreamConfig
 from common.redis_protocol.streams.subscriber_helpers.recovery import (
     initialize_consumer_group,
     parse_entry_timestamp_ms,
+    purge_stale_pending,
     recover_and_filter_pending,
     recover_pending_entries,
 )
@@ -144,3 +145,44 @@ class TestRecoverAndFilterPending:
         await recover_and_filter_pending(pending, redis_client, config, queue, "test")
 
         assert queue.qsize() == 1
+
+
+class TestPurgeStale:
+    """Tests for purge_stale_pending."""
+
+    @pytest.mark.asyncio
+    async def test_purges_stale_entries(self):
+        stale_ts = str(int(time.time() * 1000) - 600_000)
+        stale_id = f"{stale_ts}-0"
+        redis_client = MagicMock()
+        redis_client.xautoclaim = AsyncMock(return_value=(b"0-0", [(stale_id.encode(), {b"ticker": b"X"})], []))
+        redis_client.xack = AsyncMock()
+
+        purged = await purge_stale_pending(redis_client, "s", "g", "c", 300_000)
+
+        assert purged == 1
+        redis_client.xack.assert_called_once()
+
+    @pytest.mark.asyncio
+    async def test_purges_all_claimed_unconditionally(self):
+        recent_ts = str(int(time.time() * 1000))
+        recent_id = f"{recent_ts}-0"
+        redis_client = MagicMock()
+        redis_client.xautoclaim = AsyncMock(return_value=(b"0-0", [(recent_id.encode(), {b"ticker": b"X"})], []))
+        redis_client.xack = AsyncMock()
+
+        purged = await purge_stale_pending(redis_client, "s", "g", "c", 300_000)
+
+        assert purged == 1
+        redis_client.xack.assert_called_once()
+
+    @pytest.mark.asyncio
+    async def test_no_purge_when_nothing_claimed(self):
+        redis_client = MagicMock()
+        redis_client.xautoclaim = AsyncMock(return_value=(b"0-0", [], []))
+        redis_client.xack = AsyncMock()
+
+        purged = await purge_stale_pending(redis_client, "s", "g", "c", 300_000)
+
+        assert purged == 0
+        redis_client.xack.assert_not_called()

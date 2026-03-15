@@ -8,6 +8,7 @@ import pytest
 from common.redis_protocol.streams.subscriber import (
     RedisStreamSubscriber,
     StreamConfig,
+    SubscriberHealthInfo,
 )
 
 
@@ -45,6 +46,8 @@ class TestRedisStreamSubscriber:
         redis.xautoclaim = AsyncMock(return_value=(b"0-0", [], []))
         redis.xreadgroup = AsyncMock(return_value=None)
         redis.xack = AsyncMock(return_value=1)
+        redis.xgroup_setid = AsyncMock(return_value=True)
+        redis.xpending_range = AsyncMock(return_value=[])
         return redis
 
     @pytest.fixture
@@ -68,24 +71,23 @@ class TestRedisStreamSubscriber:
         mock_redis.xgroup_create.assert_called_once()
 
     @pytest.mark.asyncio
-    async def test_start_recovers_pending(self, mock_redis, config, handler):
+    async def test_start_discards_pending(self, mock_redis, config, handler):
         import time
 
         recent_ts = str(int(time.time() * 1000))
-        recent_entry_id = f"{recent_ts}-0".encode()
-        mock_redis.xautoclaim = AsyncMock(
-            return_value=(
-                b"0-0",
-                [(recent_entry_id, {b"ticker": b"AAPL", b"payload": b'{"ticker": "AAPL"}'})],
+        recent_entry_id = f"{recent_ts}-0"
+        mock_redis.xpending_range = AsyncMock(
+            side_effect=[
+                [{"message_id": recent_entry_id.encode()}],
                 [],
-            )
+            ]
         )
         subscriber = RedisStreamSubscriber(mock_redis, handler, config=config, subscriber_name="test")
         await subscriber.start()
-        await asyncio.sleep(0.05)
         await subscriber.stop()
 
-        handler.assert_called()
+        mock_redis.xack.assert_called()
+        handler.assert_not_called()
 
     @pytest.mark.asyncio
     async def test_stop_is_idempotent(self, mock_redis, config, handler):
@@ -129,3 +131,18 @@ class TestRedisStreamSubscriber:
         assert len(subscriber.consumer_tasks) == 1
         await subscriber.stop()
         assert subscriber.consumer_tasks == []
+
+    def test_health_info_initial(self, mock_redis, config, handler):
+        subscriber = RedisStreamSubscriber(mock_redis, handler, config=config, subscriber_name="test")
+        info = subscriber.health_info()
+        assert isinstance(info, SubscriberHealthInfo)
+        assert info.messages_processed == 0
+        assert info.last_processed_time == 0.0
+        assert info.running is False
+
+    def test_record_processed_updates_health(self, mock_redis, config, handler):
+        subscriber = RedisStreamSubscriber(mock_redis, handler, config=config, subscriber_name="test")
+        subscriber.record_processed()
+        info = subscriber.health_info()
+        assert info.messages_processed == 1
+        assert info.last_processed_time > 0

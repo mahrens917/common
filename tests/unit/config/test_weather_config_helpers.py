@@ -10,6 +10,7 @@ from common.config.weather import (
     _get_weather_settings_func,
     _import_config_loader,
     _resolve_config_json,
+    load_market_code_mapping,
     load_weather_station_mapping,
     load_weather_trading_config,
 )
@@ -179,3 +180,30 @@ def test_load_weather_trading_config_uses_load_config(monkeypatch: pytest.Monkey
     result = load_weather_trading_config()
 
     assert result == {"enabled": True, "rules": []}
+
+
+def test_load_market_code_mapping_from_directory(tmp_path: Path):
+    mapping_path = tmp_path / "stations.json"
+    mapping_path.write_text(json.dumps({"market_code_mapping": {"NYC": "KJFK", "TNYC": "KJFK"}}))
+
+    result = load_market_code_mapping(config_dir=tmp_path)
+    assert result == {"NYC": "KJFK", "TNYC": "KJFK"}
+
+
+def test_load_market_code_mapping_requires_mapping_key(tmp_path: Path):
+    mapping_path = tmp_path / "stations.json"
+    mapping_path.write_text(json.dumps({"stations": {}}))
+
+    with pytest.raises(WeatherConfigError):
+        load_market_code_mapping(config_dir=tmp_path)
+
+
+def test_load_market_code_mapping_uses_load_config(monkeypatch: pytest.MonkeyPatch):
+    from common.config import weather as weather_module
+
+    mock_data = {"market_code_mapping": {"CHI": "KORD"}}
+    monkeypatch.setattr(weather_module, "load_config", lambda *args, **kwargs: mock_data)
+
+    result = load_market_code_mapping()
+
+    assert result == {"CHI": "KORD"}

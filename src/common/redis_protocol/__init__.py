@@ -46,9 +46,9 @@ from .restart_service_command import (
 )
 from .retry_client import RetryPipeline, RetryRedisClient
 from .streams import (
-    ALGO_SIGNAL_STREAM,
+    ALGO_EVENT_STREAM_PREFIX,
     CLOSE_POSITIONS_STREAM,
-    MARKET_EVENT_STREAM,
+    EXCHANGE_EVENT_STREAM,
     SIGNALS_EDGE_CONSUMER_GROUP,
     SIGNALS_PEAK_CONSUMER_GROUP,
     SIGNALS_STRUCTURE_CONSUMER_GROUP,
@@ -169,9 +169,9 @@ __all__ = [
     "read_all_algo_stats",
     "reset_algo_stats",
     "write_algo_stats",
-    "ALGO_SIGNAL_STREAM",
+    "ALGO_EVENT_STREAM_PREFIX",
     "CLOSE_POSITIONS_STREAM",
-    "MARKET_EVENT_STREAM",
+    "EXCHANGE_EVENT_STREAM",
     "MessageHandler",
     "RedisStreamSubscriber",
     "SIGNALS_EDGE_CONSUMER_GROUP",

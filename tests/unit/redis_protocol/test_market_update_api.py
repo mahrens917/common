@@ -5,6 +5,17 @@ from unittest.mock import AsyncMock, MagicMock
 
 import pytest
 
+from common.redis_protocol.market_update_api_helpers.price_writer import _price_cache
+
+
+@pytest.fixture(autouse=True)
+def _clear_price_cache():
+    """Clear the module-level price cache between tests."""
+    _price_cache.clear()
+    yield
+    _price_cache.clear()
+
+
 from common.redis_protocol.market_update_api import (
     BatchUpdateResult,
     MarketUpdateResult,
@@ -123,33 +134,40 @@ class TestRequestMarketUpdate:
         result = await request_market_update(mock_redis, "market:key", "weather", 50.0, 55.0)
 
         assert result.success is True
-        # Both market event and algo signal go via stream_publish (xadd)
-        _EXPECTED_XADD_CALLS_WITH_EVENT_TICKER = 2  # one for market event stream, one for algo signal stream
-        assert mock_redis.xadd.call_count == _EXPECTED_XADD_CALLS_WITH_EVENT_TICKER
-
-    @pytest.mark.asyncio
-    async def test_publishes_algo_signal_when_no_event_ticker(self, mock_redis):
-        result = await request_market_update(mock_redis, "market:key", "weather", 50.0, 55.0)
-
-        assert result.success is True
-        # No event_ticker means only the algo signal xadd (no market event xadd)
+        # Single consolidated algo event stream publish
         mock_redis.xadd.assert_called_once()
 
     @pytest.mark.asyncio
-    async def test_algo_signal_payload_format(self, mock_redis):
+    async def test_publishes_algo_event_when_no_event_ticker(self, mock_redis):
+        result = await request_market_update(mock_redis, "market:key", "weather", 50.0, 55.0)
+
+        assert result.success is True
+        # Still publishes to per-algo event stream (with empty event_ticker)
+        mock_redis.xadd.assert_called_once()
+
+    @pytest.mark.asyncio
+    async def test_algo_event_payload_format(self, mock_redis):
         import json
 
-        from common.redis_protocol.streams.constants import ALGO_SIGNAL_STREAM
+        from common.redis_protocol.streams.constants import algo_event_stream
+
+        def hget_side_effect(key, field):
+            if field == "event_ticker":
+                return b"KXHIGH-KDCA-20250101"
+            return None
+
+        mock_redis.hget = AsyncMock(side_effect=hget_side_effect)
 
         result = await request_market_update(mock_redis, "market:key:TICKER1", "weather", 50.0, 55.0)
 
         assert result.success is True
         mock_redis.xadd.assert_called_once()
         call_args = mock_redis.xadd.call_args
-        assert call_args[0][0] == ALGO_SIGNAL_STREAM
+        assert call_args[0][0] == algo_event_stream("weather")
         fields = call_args[0][1]
-        assert fields["ticker"] == "TICKER1"
+        assert fields["market_ticker"] == "TICKER1"
         assert fields["algorithm"] == "weather"
+        assert fields["event_ticker"] == "KXHIGH-KDCA-20250101"
         payload = json.loads(fields["payload"])
         assert payload["ticker"] == "TICKER1"
         assert payload["algorithm"] == "weather"

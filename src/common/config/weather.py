@@ -152,9 +152,28 @@ def _get_weather_settings_func():
 get_weather_settings = _get_weather_settings_func()
 
 
+def load_market_code_mapping(
+    *,
+    config_dir: Optional[Path] = None,
+) -> Dict[str, str]:
+    """Return the market_code_mapping dict from stations.json.
+
+    Maps market city codes (including T-prefixed variants) to ICAO station codes.
+    """
+    if config_dir is not None:
+        data = _load_from_directory("stations.json", config_dir)
+    else:
+        data = load_config("stations.json", package="common")
+    mapping = data.get("market_code_mapping")
+    if not isinstance(mapping, dict):
+        raise WeatherConfigError("stations.json missing 'market_code_mapping' object")
+    return mapping
+
+
 __all__ = [
     "WeatherConfigError",
     "get_weather_settings",
+    "load_market_code_mapping",
     "load_weather_station_mapping",
     "load_weather_trading_config",
 ]

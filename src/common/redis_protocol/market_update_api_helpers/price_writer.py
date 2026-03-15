@@ -11,7 +11,7 @@ from typing import TYPE_CHECKING, Dict, Optional
 from common.constants import VALID_ALGO_NAMES
 
 from ..retry import with_redis_retry
-from ..streams import ALGO_SIGNAL_STREAM, MARKET_EVENT_STREAM, stream_publish
+from ..streams import algo_event_stream, stream_publish
 from ..typing import ensure_awaitable
 from .ownership_helpers import algo_field
 
@@ -119,6 +119,21 @@ def validate_algo_name(algo: str) -> None:
         raise ValueError(f"Unknown algo '{algo}'. Valid algos: {sorted(VALID_ALGO_NAMES)}")
 
 
+_CachedPrices = tuple[int | None, int | None]
+_price_cache: dict[tuple[str, str], _CachedPrices] = {}
+
+
+def _prices_unchanged(
+    market_key: str,
+    algo: str,
+    t_bid: int | None,
+    t_ask: int | None,
+) -> bool:
+    """Check if clamped prices match the in-memory cache of last-written values."""
+    cache_key = (market_key, algo)
+    return _price_cache.get(cache_key) == (t_bid, t_ask)
+
+
 async def write_theoretical_prices(
     redis: "Redis",
     market_key: str,
@@ -131,10 +146,14 @@ async def write_theoretical_prices(
     Algos write their own {algo}:t_bid and {algo}:t_ask fields.
     Tracker is responsible for setting algo/direction fields.
     Prices are clamped to valid Kalshi range [1, 99] before writing.
+    Skips write and publish when clamped values match last-written values.
     """
     validate_algo_name(algo)
     t_bid = _clamp_price(prices.t_bid) if prices.t_bid is not None else None
     t_ask = _clamp_price(prices.t_ask) if prices.t_ask is not None else None
+
+    if _prices_unchanged(market_key, algo, t_bid, t_ask):
+        return
 
     mapping = build_price_mapping(algo, t_bid, t_ask)
 
@@ -153,6 +172,8 @@ async def write_theoretical_prices(
         t_ask,
     )
 
+    _price_cache[(market_key, algo)] = (t_bid, t_ask)
+
     clamped_prices = PriceSignal(t_bid=t_bid, t_ask=t_ask, one_shot=prices.one_shot)
     await publish_market_event_update(redis, market_key, ticker, algo, clamped_prices)
 
@@ -165,51 +186,39 @@ def _add_price_fields(fields: dict[str, str], prices: PriceSignal) -> None:
         fields["t_bid"] = str(prices.t_bid)
 
 
-async def _publish_algo_signal(redis: "Redis", ticker: str, algo: str, prices: PriceSignal) -> None:
-    """Publish algo signal stream entry for the given ticker."""
-    algo_fields: dict[str, str] = {"ticker": ticker, "algorithm": algo}
-    _add_price_fields(algo_fields, prices)
+async def _publish_algo_event(
+    redis: "Redis",
+    ticker: str,
+    algo: str,
+    prices: PriceSignal,
+    event_ticker: str,
+) -> None:
+    """Publish a single per-algo event carrying signal data and market event fields."""
+    fields: dict[str, str] = {
+        "market_ticker": ticker,
+        "algorithm": algo,
+        "event_ticker": event_ticker,
+        "timestamp": datetime.now(timezone.utc).isoformat(),
+    }
+    _add_price_fields(fields, prices)
+    if prices.one_shot:
+        fields["one_shot"] = "true"
     payload_dict: dict[str, object] = {
         "ticker": ticker,
+        "market_ticker": ticker,
+        "event_ticker": event_ticker,
         "t_ask": prices.t_ask,
         "t_bid": prices.t_bid,
         "algorithm": algo,
     }
     if prices.one_shot:
-        algo_fields["one_shot"] = "true"
         payload_dict["one_shot"] = True
-    algo_fields["payload"] = json.dumps(payload_dict)
+    fields["payload"] = json.dumps(payload_dict)
     await with_redis_retry(
-        lambda: stream_publish(redis, ALGO_SIGNAL_STREAM, algo_fields),
-        context=f"stream_publish_algo:{ticker}",
+        lambda: stream_publish(redis, algo_event_stream(algo), fields),
+        context=f"stream_publish_algo_event:{ticker}",
     )
-    logger.debug("Published algo signal for %s (%s)", ticker, algo)
-
-
-async def _publish_market_event(
-    redis: "Redis",
-    event_ticker: str | bytes,
-    ticker: str,
-    algo: str,
-    prices: PriceSignal,
-) -> None:
-    """Publish market event stream entry for the given ticker."""
-    resolved = event_ticker.decode("utf-8") if isinstance(event_ticker, bytes) else event_ticker
-    market_event_fields: dict[str, str] = {
-        "event_ticker": resolved,
-        "market_ticker": ticker,
-        "timestamp": datetime.now(timezone.utc).isoformat(),
-    }
-    if algo:
-        market_event_fields["algorithm"] = algo
-        _add_price_fields(market_event_fields, prices)
-        if prices.one_shot:
-            market_event_fields["one_shot"] = "true"
-    await with_redis_retry(
-        lambda: stream_publish(redis, MARKET_EVENT_STREAM, market_event_fields),
-        context=f"stream_publish_event:{ticker}",
-    )
-    logger.debug("Published market event update for %s to stream %s", ticker, MARKET_EVENT_STREAM)
+    logger.debug("Published algo event for %s (%s)", ticker, algo)
 
 
 async def publish_market_event_update(
@@ -220,17 +229,15 @@ async def publish_market_event_update(
     prices: PriceSignal = PriceSignal(),
 ) -> None:
     """Publish market event update to notify tracker of theoretical price change."""
-    event_ticker = await with_redis_retry(
+    if not algo:
+        return
+
+    event_ticker_raw = await with_redis_retry(
         lambda: ensure_awaitable(redis.hget(market_key, "event_ticker")),
         context=f"hget_event_ticker:{ticker}",
     )
+    event_ticker = ""
+    if event_ticker_raw:
+        event_ticker = event_ticker_raw.decode("utf-8") if isinstance(event_ticker_raw, bytes) else event_ticker_raw
 
-    # Publish algo signal FIRST so the tracker's in-memory cache is updated
-    # before the market event triggers evaluation.
-    if algo:
-        await _publish_algo_signal(redis, ticker, algo, prices)
-
-    if not event_ticker:
-        logger.debug("No event_ticker for %s, skipping market event publish", ticker)
-    else:
-        await _publish_market_event(redis, event_ticker, ticker, algo, prices)
+    await _publish_algo_event(redis, ticker, algo, prices, event_ticker)

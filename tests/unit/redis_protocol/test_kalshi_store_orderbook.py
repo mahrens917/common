@@ -315,11 +315,10 @@ def test_processor_market_descriptor() -> None:
 
 
 @pytest.mark.asyncio
-async def test_processor_set_cache_and_batcher() -> None:
+async def test_processor_set_cache() -> None:
     processor = _make_processor()
     cache = MagicMock()
-    batcher = MagicMock()
-    processor.set_cache_and_batcher(cache, batcher)
+    processor.set_cache(cache)
     assert processor._cache is cache
 
 

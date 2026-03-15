@@ -106,4 +106,20 @@ def _decode_fields(fields: Any) -> dict:
     return {}
 
 
-__all__ = ["claim_pending_entries", "ensure_consumer_group"]
+async def reset_group_position(
+    redis_client: "Redis",
+    stream: str,
+    group: str,
+) -> None:
+    """Reset consumer group to only receive messages published after this point.
+
+    Calls XGROUP SETID with '$' so future XREADGROUP '>' calls skip
+    all messages currently in the stream.
+    """
+    await ensure_awaitable(
+        redis_client.xgroup_setid(stream, group, "$"),
+    )
+    logger.info("Reset group %s position to latest on stream %s", group, stream)
+
+
+__all__ = ["claim_pending_entries", "ensure_consumer_group", "reset_group_position"]

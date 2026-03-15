@@ -9,7 +9,7 @@ from __future__ import annotations
 import logging
 from typing import TYPE_CHECKING
 
-from ...streams.constants import MARKET_EVENT_STREAM
+from ...streams.constants import EXCHANGE_EVENT_STREAM
 from ...streams.publisher import stream_publish
 from ...typing import ensure_awaitable
 
@@ -50,10 +50,10 @@ async def publish_market_event(
 
         await stream_publish(
             redis,
-            MARKET_EVENT_STREAM,
+            EXCHANGE_EVENT_STREAM,
             {"event_ticker": event_ticker, "market_ticker": market_ticker, "timestamp": timestamp},
         )
-        logger.debug("Published market event update for %s to stream %s", market_ticker, MARKET_EVENT_STREAM)
+        logger.debug("Published market event update for %s to stream %s", market_ticker, EXCHANGE_EVENT_STREAM)
     except (RuntimeError, ConnectionError, OSError) as exc:
         logger.debug("Failed to publish market event update for %s: %s", market_ticker, exc)
         raise

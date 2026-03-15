@@ -1,17 +1,26 @@
 """Redis Streams constants for persistent message delivery."""
 
 from common.config_loader import load_config
+from common.constants import VALID_ALGO_NAMES
 
 _streams_config = load_config("streams_config.json", package="common")
 
-# Stream names
-ALGO_SIGNAL_STREAM = "stream:algo_signal"
+# Stream names — split topology
+EXCHANGE_EVENT_STREAM = "stream:exchange_events"
+ALGO_EVENT_STREAM_PREFIX = "stream:algo_event"
 CLOSE_POSITIONS_STREAM = "stream:close_positions"
 DERIBIT_MARKET_STREAM = "stream:deribit_market_updates"
-MARKET_EVENT_STREAM = "stream:market_event_updates"
 SERVICE_EVENTS_STREAM = "stream:service_events"
 POLY_MARKET_STREAM = "stream:poly_market_updates"
 TRADE_EVENTS_STREAM = "stream:trade_events"
+
+
+def algo_event_stream(algo: str) -> str:
+    """Return the per-algo event stream name, e.g. ``stream:algo_event:peak``."""
+    return f"{ALGO_EVENT_STREAM_PREFIX}:{algo}"
+
+
+ALL_ALGO_EVENT_STREAMS: tuple[str, ...] = tuple(algo_event_stream(a) for a in sorted(VALID_ALGO_NAMES))
 
 # Consumer groups
 TRACKER_CONSUMER_GROUP = "tracker"
@@ -36,12 +45,13 @@ PENDING_CLAIM_IDLE_MS: int = _streams_config["pending_claim_idle_ms"]
 XAUTOCLAIM_MIN_RESULT_LENGTH = 2
 
 __all__ = [
-    "ALGO_SIGNAL_STREAM",
+    "ALGO_EVENT_STREAM_PREFIX",
+    "ALL_ALGO_EVENT_STREAMS",
     "CLOSE_POSITIONS_STREAM",
     "CROSSARB_CONSUMER_GROUP",
     "DERIBIT_MARKET_STREAM",
+    "EXCHANGE_EVENT_STREAM",
     "PDF_CONSUMER_GROUP",
-    "MARKET_EVENT_STREAM",
     "MONITOR_CONSUMER_GROUP",
     "MONITOR_DERIBIT_CONSUMER_GROUP",
     "MONITOR_MARKET_CONSUMER_GROUP",
@@ -57,4 +67,5 @@ __all__ = [
     "TRACKER_CONSUMER_GROUP",
     "TRADE_EVENTS_STREAM",
     "XAUTOCLAIM_MIN_RESULT_LENGTH",
+    "algo_event_stream",
 ]

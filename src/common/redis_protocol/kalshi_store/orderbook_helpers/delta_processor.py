@@ -14,11 +14,11 @@ from ....market_filters.kalshi import extract_best_ask, extract_best_bid
 from ....utils.numeric import coerce_float_optional
 from ...error_types import REDIS_ERRORS
 from ...typing import ensure_awaitable
-from ..utils_coercion import convert_numeric_field, string_or_default
+from ..utils_coercion import convert_numeric_field
 from .best_price_updater import BestPriceUpdater
 from .event_publisher import publish_market_event
 from .side_data_updater import SideDataUpdater
-from .snapshot_processor import SnapshotProcessor
+from .snapshot_processor import SnapshotProcessor, _publish_if_event
 from .snapshot_processor_helpers.redis_storage import store_optional_field
 
 if TYPE_CHECKING:
@@ -46,7 +46,7 @@ class DeltaProcessor(SnapshotProcessor):
 
         side_field, price_str, delta = parsed_inputs
 
-        if self._cache is not None and self._batcher is not None:
+        if self._cache is not None:
             return await self._process_delta_cached(redis, market_key, market_ticker, side_field, price_str, delta, timestamp)
 
         side_data = await _apply_side_delta(redis, market_key, market_ticker, side_field, price_str, delta)
@@ -74,22 +74,20 @@ class DeltaProcessor(SnapshotProcessor):
         delta: float,
         timestamp: str,
     ) -> bool:
-        """Process delta using in-memory cache and coalescing batcher."""
-        from .orderbook_cache import MarketUpdate
-
+        """Process delta using in-memory cache with change-detection gating."""
         cache: OrderbookCache = self._cache  # type: ignore[assignment]
         side_data = SideDataUpdater.apply_delta(cache.get_side_data(market_key, side_field), price_str, delta)
         logger.debug("MARKET_UPDATE: Ticker=%s, Fields=['%s']", market_ticker, side_field)
 
         updates: Dict[str, Any] = {side_field: side_data, "timestamp": timestamp}
         if side_field == "yes_bids":
-            best_price, best_size = extract_best_bid(side_data)
+            best_price, best_size = _fast_best_bid(side_data)
             if best_price is not None:
                 updates["yes_bid"] = str(best_price)
             if best_size is not None:
                 updates["yes_bid_size"] = str(best_size)
         else:
-            best_price, best_size = extract_best_ask(side_data)
+            best_price, best_size = _fast_best_ask(side_data)
             if best_price is not None:
                 updates["yes_ask"] = str(best_price)
             if best_size is not None:
@@ -97,10 +95,14 @@ class DeltaProcessor(SnapshotProcessor):
 
         cache.update_fields(market_key, updates)
         snapshot = cache.get_snapshot(market_key)
-        self._batcher.add(  # type: ignore[union-attr]
-            market_key,
-            MarketUpdate(market_key=market_key, market_ticker=market_ticker, fields=snapshot, timestamp=timestamp),  # type: ignore[arg-type]
-        )
+
+        # Write full state to Redis on every delta
+        serialized = {k: orjson.dumps(v) if isinstance(v, dict) else v for k, v in snapshot.items()}  # type: ignore[union-attr]
+        await ensure_awaitable(redis.hset(market_key, mapping=serialized))
+
+        # Only publish to stream when best_bid or best_ask changes
+        if cache.check_price_changed(market_key):
+            await _publish_if_event(redis, cache, market_key, market_ticker, timestamp)
 
         await _update_trade_price_cache_from_cache(self, cache, market_key, market_ticker)
         return True
@@ -108,13 +110,43 @@ class DeltaProcessor(SnapshotProcessor):
 
 _CENTS_PER_DOLLAR = 100
 
+# Pre-computed price strings for the 99 possible cent values to avoid
+# repeated float formatting on every delta message.
+_YES_PRICE_STRS = {i: f"{float(i):.1f}" for i in range(1, 100)}
+_NO_PRICE_STRS = {i: f"{100.0 - i:.1f}" for i in range(1, 100)}
+
+
+def _fast_best_bid(side_data: Dict[str, Any]) -> tuple[float | None, int | None]:
+    """Find the highest price in the side dict. Cache-only fast path."""
+    best_price: float | None = None
+    best_size: int | None = None
+    for p, s in side_data.items():
+        price = coerce_float_optional(p)
+        if price is not None and (best_price is None or price > best_price):
+            best_price = price
+            best_size = int(s) if isinstance(s, (int, float)) else None
+    return best_price, best_size
+
+
+def _fast_best_ask(side_data: Dict[str, Any]) -> tuple[float | None, int | None]:
+    """Find the lowest price in the side dict. Cache-only fast path."""
+    best_price: float | None = None
+    best_size: int | None = None
+    for p, s in side_data.items():
+        price = coerce_float_optional(p)
+        if price is not None and (best_price is None or price < best_price):
+            best_price = price
+            best_size = int(s) if isinstance(s, (int, float)) else None
+    return best_price, best_size
+
 
 def _extract_delta_inputs(msg_data: Dict[str, Any]) -> tuple[str, str, float] | None:
     """Validate incoming delta payload and return side field, price string, and delta."""
-    side = string_or_default(msg_data.get("side")).lower()
-    if not side:
+    raw_side = msg_data.get("side")
+    if not isinstance(raw_side, str) or not raw_side:
         logger.error("Invalid delta message structure: %s", orjson.dumps(msg_data))
         return None
+    side = raw_side.lower()
 
     price, delta = _resolve_price_and_delta(msg_data)
 
@@ -151,10 +183,13 @@ def _resolve_price_and_delta(msg_data: Dict[str, Any]) -> tuple[float | None, fl
 
 def _resolve_side_field(side: str, price: float) -> tuple[str, str] | None:
     """Return the Redis field and price representation for the provided side."""
+    int_price = int(price)
     if side == "yes":
-        return "yes_bids", f"{float(price):.1f}"
+        cached = _YES_PRICE_STRS.get(int_price)
+        return "yes_bids", cached if cached is not None else f"{price:.1f}"
     if side == "no":
-        return "yes_asks", f"{100 - float(price):.1f}"
+        cached = _NO_PRICE_STRS.get(int_price)
+        return "yes_asks", cached if cached is not None else f"{100.0 - price:.1f}"
     return None
 
 
@@ -179,7 +214,7 @@ async def _apply_side_delta(
 
     side_data = SideDataUpdater.apply_delta(SideDataUpdater.parse_side_data(side_json), price_str, delta)
     logger.debug("MARKET_UPDATE: Ticker=%s, Fields=['%s']", market_ticker, side_field)
-    await ensure_awaitable(redis.hset(market_key, side_field, orjson.dumps(side_data).decode()))
+    await ensure_awaitable(redis.hset(market_key, mapping={side_field: orjson.dumps(side_data)}))
     return side_data
 
 

@@ -49,9 +49,9 @@ async def store_best_prices(
         await ensure_awaitable(pipe.execute())
 
 
-def build_hash_data(orderbook_sides: Dict[str, Any], timestamp: str) -> Dict[str, str]:
+def build_hash_data(orderbook_sides: Dict[str, Any], timestamp: str) -> Dict[str, Any]:
     """Build hash data for Redis storage."""
-    hash_data = {side_name: orjson.dumps(side_data).decode() for side_name, side_data in orderbook_sides.items()}
+    hash_data: Dict[str, Any] = {side_name: orjson.dumps(side_data) for side_name, side_data in orderbook_sides.items()}
     hash_data["timestamp"] = timestamp
     return hash_data
 

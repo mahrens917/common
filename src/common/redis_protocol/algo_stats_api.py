@@ -202,7 +202,7 @@ async def read_all_algo_stats(redis: "Redis") -> Dict[str, AlgoStatsData]:
     Returns:
         Dict mapping algo name to stats
     """
-    algos = ["peak", "edge", "pdf", "weather"]
+    algos = ["peak", "edge", "pdf", "weather", "claude", "crossarb", "dutch", "strike"]
     keys = [_build_stats_key(algo) for algo in algos]
 
     pipe = redis.pipeline()

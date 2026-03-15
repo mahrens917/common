@@ -148,12 +148,8 @@ class TestConsumeCoalescingStreamQueue:
 
         # Handler called once — only with latest
         handler.assert_called_once_with("TICK", {"data": "new"})
-        # xack called twice: once for bulk superseded (e-1, e-2), once for winner (e-3)
-        assert redis_client.xack.call_count == 2
-        # First call: bulk ACK for superseded
-        redis_client.xack.assert_any_call("s", "g", "e-1", "e-2")
-        # Second call: ACK for processed winner
-        redis_client.xack.assert_any_call("s", "g", "e-3")
+        # Single batched xack for superseded (e-1, e-2) + winner (e-3)
+        redis_client.xack.assert_called_once_with("s", "g", "e-1", "e-2", "e-3")
 
     @pytest.mark.asyncio
     async def test_stops_on_sentinel(self):
@@ -198,30 +194,5 @@ class TestConsumeCoalescingStreamQueue:
 
         await consume_coalescing_stream_queue(queue, handler, redis_client, config, "test", {})
 
-        # Superseded e-1 bulk ACKed, winners e-2 and e-3 individually ACKed
-        assert redis_client.xack.call_count == 3
-        redis_client.xack.assert_any_call("s", "g", "e-1")
-
-    @pytest.mark.asyncio
-    async def test_batch_window_accumulates_entries(self):
-        queue: asyncio.Queue = asyncio.Queue()
-        handler = AsyncMock()
-        redis_client = MagicMock()
-        redis_client.xack = AsyncMock()
-        config = StreamConfig(stream_name="s", group_name="g", consumer_name="c", batch_window_ms=10)
-        retry_counts: dict[str, int] = {}
-
-        async def _feeder() -> None:
-            queue.put_nowait(("e-1", "TICK", {"data": "first"}))
-            await asyncio.sleep(0.005)
-            queue.put_nowait(("e-2", "TICK", {"data": "second"}))
-            await asyncio.sleep(0.02)
-            queue.put_nowait(None)
-
-        await asyncio.gather(
-            consume_coalescing_stream_queue(queue, handler, redis_client, config, "test", retry_counts),
-            _feeder(),
-        )
-
-        # Both entries arrived within the 10ms window; only latest should be processed
-        handler.assert_called_once_with("TICK", {"data": "second"})
+        # Single batched xack for superseded (e-1) + winners (e-2, e-3)
+        redis_client.xack.assert_called_once_with("s", "g", "e-1", "e-2", "e-3")
